@@ -6,6 +6,9 @@ import { getUserHomeData } from "./user-data";
 import type { Profile } from "@/types/profile";
 import { GameIcon, QuestIcon, TeacherIcon, FlameIcon, TrophyIcon, BookIcon } from "@/components/ui/icons";
 
+// Force dynamic rendering - this page requires authentication
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const supabase = await createSupabaseServerClient();
   const {

@@ -6,6 +6,9 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Profile } from "@/types/profile";
 import { logoutAction } from "./actions";
 
+// Force dynamic rendering - this layout requires authentication
+export const dynamic = 'force-dynamic';
+
 // When we ship the real Play/Quest/Profile/Teachers/Dashboard pages, update this list
 // to point to the new routes or add/remove entries as needed.
 // Navigation supprimée - elle est déjà dans le header global (AppHeader)

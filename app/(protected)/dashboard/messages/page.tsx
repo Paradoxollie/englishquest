@@ -5,6 +5,9 @@ import { isAdmin } from "@/lib/auth/roles";
 import { markMessageAsReadAction, deleteMessageAction } from "./actions";
 import { MessageList } from "./message-list";
 
+// Force dynamic rendering - this page requires authentication and admin role
+export const dynamic = 'force-dynamic';
+
 export default async function MessagesPage() {
   const supabase = await createSupabaseServerClient();
   const {

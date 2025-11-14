@@ -5,6 +5,9 @@ import type { Profile } from "@/types/profile";
 import { MotionCard } from "@/components/ui/motion-card";
 import { XPIcon, GoldIcon, LevelIcon, AvatarIcon, ScrollIcon, GiftIcon, GameIcon } from "@/components/ui/icons";
 
+// Force dynamic rendering - this page requires authentication
+export const dynamic = 'force-dynamic';
+
 /**
  * Calcule l'XP nécessaire pour passer au niveau suivant
  * Formule : XP_required = level * 1000

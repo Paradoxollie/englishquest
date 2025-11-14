@@ -2,6 +2,9 @@ import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PromoteAdminForm } from "./promote-admin-form";
 
+// Force dynamic rendering - this page requires authentication
+export const dynamic = 'force-dynamic';
+
 export default async function PromoteAdminPage() {
   const supabase = await createSupabaseServerClient();
   const {

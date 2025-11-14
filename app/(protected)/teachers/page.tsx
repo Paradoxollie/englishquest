@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+// Force dynamic rendering - this page requires authentication and teacher/admin role
+export const dynamic = 'force-dynamic';
+
 export default async function TeachersPage() {
   const supabase = await createSupabaseServerClient();
   const {

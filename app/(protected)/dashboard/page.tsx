@@ -5,6 +5,9 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isAdminOrTeacher } from "@/lib/auth/roles";
 import { getDashboardStats } from "./stats";
 
+// Force dynamic rendering - this page requires authentication and admin/teacher role
+export const dynamic = 'force-dynamic';
+
 export default async function AdminDashboardPage() {
   const supabase = await createSupabaseServerClient();
   const {

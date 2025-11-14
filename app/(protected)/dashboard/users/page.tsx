@@ -7,6 +7,9 @@ import { UserStatsForm } from "./user-stats-form";
 import { DeleteUserButton } from "./delete-user-button";
 import type { Profile } from "@/types/profile";
 
+// Force dynamic rendering - this page requires authentication and admin role
+export const dynamic = 'force-dynamic';
+
 export default async function UsersManagementPage() {
   const supabase = await createSupabaseServerClient();
   const {
