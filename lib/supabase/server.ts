@@ -11,6 +11,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+// TypeScript assertion: après la vérification ci-dessus, ces variables sont garanties d'être des strings
+const SUPABASE_URL = supabaseUrl as string;
+const SUPABASE_ANON_KEY = supabaseAnonKey as string;
+
 /**
  * Server-side Supabase client that syncs auth cookies with Next.js.
  * Use this in server actions and route handlers.
@@ -20,7 +24,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
 
-  return createServerClient(supabaseUrl, supabaseAnonKey, {
+  return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       getAll() {
         // Next.js 16 cookies() retourne un objet avec getAll()
