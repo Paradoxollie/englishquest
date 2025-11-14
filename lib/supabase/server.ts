@@ -2,19 +2,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local"
-  );
-}
-
-// TypeScript assertion: après la vérification ci-dessus, ces variables sont garanties d'être des strings
-const SUPABASE_URL = supabaseUrl as string;
-const SUPABASE_ANON_KEY = supabaseAnonKey as string;
-
 /**
  * Server-side Supabase client that syncs auth cookies with Next.js.
  * Use this in server actions and route handlers.
@@ -22,9 +9,18 @@ const SUPABASE_ANON_KEY = supabaseAnonKey as string;
  * Note: In Next.js 16, cookies() is async, so this function is async too.
  */
 export async function createSupabaseServerClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    throw new Error(
+      "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local"
+    );
+  }
+
   const cookieStore = await cookies();
 
-  return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  return createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
         // Next.js 16 cookies() retourne un objet avec getAll()
