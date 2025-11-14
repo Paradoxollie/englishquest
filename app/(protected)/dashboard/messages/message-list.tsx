@@ -137,29 +137,19 @@ export function MessageList({ messages: initialMessages }: MessageListProps) {
                   </div>
                   <div className="flex gap-2">
                     {!message.read && (
-                      <form action={markMessageAsReadAction}>
-                        <input type="hidden" name="messageId" value={message.id} />
-                        <button
-                          type="submit"
-                          className="comic-button bg-green-500 text-white px-4 py-2 text-sm font-bold hover:bg-green-600"
-                        >
-                          Marquer comme lu
-                        </button>
-                      </form>
-                    )}
-                    <form action={deleteMessageAction}>
-                      <input type="hidden" name="messageId" value={message.id} />
                       <button
-                        type="submit"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleDelete(message.id);
-                        }}
-                        className="comic-button bg-red-500 text-white px-4 py-2 text-sm font-bold hover:bg-red-600"
+                        onClick={() => handleMarkAsRead(message.id)}
+                        className="comic-button bg-green-500 text-white px-4 py-2 text-sm font-bold hover:bg-green-600"
                       >
-                        Supprimer
+                        Marquer comme lu
                       </button>
-                    </form>
+                    )}
+                    <button
+                      onClick={() => handleDelete(message.id)}
+                      className="comic-button bg-red-500 text-white px-4 py-2 text-sm font-bold hover:bg-red-600"
+                    >
+                      Supprimer
+                    </button>
                   </div>
                 </div>
                 <div className="comic-panel bg-slate-800/50 border-2 border-black p-4">
