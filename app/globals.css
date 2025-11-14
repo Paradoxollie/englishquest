@@ -1,26 +1,288 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  color-scheme: dark;
+  --background: #020617;
+  --foreground: #f8fafc;
+  --card: rgba(15, 23, 42, 0.75);
+  --border: rgba(148, 163, 184, 0.2);
+  --accent: #06b6d4;
+  --accent-secondary: #facc15;
 }
 
 body {
-  background: var(--background);
+  min-height: 100vh;
+  background-color: var(--background);
+  background-image: linear-gradient(180deg, #010101 0%, #020617 50%, #010101 100%);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter, "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+}
+
+/* Contour de texte très léger pour améliorer la lisibilité */
+.text-outline {
+  text-shadow: 
+    0 0 1px rgba(0, 0, 0, 0.3),
+    0 0 2px rgba(0, 0, 0, 0.2),
+    0.5px 0.5px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Contour plus fort pour les textes sur fonds clairs */
+.text-outline-strong {
+  text-shadow: 
+    0 0 2px rgba(0, 0, 0, 0.5),
+    0 0 3px rgba(0, 0, 0, 0.4),
+    1px 1px 0 rgba(0, 0, 0, 0.6);
+}
+
+.glass-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+  border-radius: 1.5rem;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* Style BD/Comics Marvel */
+.comic-panel {
+  position: relative;
+  border: 4px solid #000;
+  border-radius: 1rem;
+  background: #1e293b; /* Fond sombre au lieu de blanc pour éviter texte blanc sur fond blanc */
+  box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.comic-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 2px 2px, rgba(0, 0, 0, 0.12) 1px, transparent 0);
+  background-size: 8px 8px;
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.comic-panel-dark {
+  position: relative;
+  border: 4px solid #000;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.comic-panel-dark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.08) 1px, transparent 0);
+  background-size: 8px 8px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.comic-card {
+  position: relative;
+  border: 4px solid #000;
+  border-radius: 1rem;
+  background: #1e293b; /* Fond sombre au lieu de blanc pour éviter texte blanc sur fond blanc */
+  box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.comic-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 0 #000, 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.comic-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 1.5px 1.5px, rgba(0, 0, 0, 0.1) 1px, transparent 0);
+  background-size: 8px 8px;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.comic-card-dark {
+  position: relative;
+  border: 4px solid #000;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.comic-card-dark:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 0 #000, 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.comic-card-dark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.06) 1px, transparent 0);
+  background-size: 8px 8px;
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.comic-button {
+  position: relative;
+  border: 3px solid #000;
+  border-radius: 0.75rem;
+  font-weight: bold;
+  box-shadow: 0 3px 0 0 #000, 0 6px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.15s ease;
+  overflow: hidden;
+}
+
+.comic-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 2px 2px, rgba(0, 0, 0, 0.08) 1px, transparent 0);
+  background-size: 6px 6px;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.comic-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.comic-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 0 #000, 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Texture de points pour les backgrounds */
+.comic-dot-pattern {
+  background-image: radial-gradient(circle at 2px 2px, rgba(0, 0, 0, 0.08) 1px, transparent 0);
+  background-size: 10px 10px;
+}
+
+.comic-dot-pattern-light {
+  background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+  background-size: 10px 10px;
+}
+
+/* Lignes de vitesse style comics */
+.comic-speed-lines {
+  position: relative;
+  overflow: hidden;
+}
+
+.comic-speed-lines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(0, 0, 0, 0.05) 10px,
+    rgba(0, 0, 0, 0.05) 20px
+  );
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Effet de pop style comics */
+@keyframes comic-pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-comic-pop {
+  animation: comic-pop 0.3s ease;
+}
+
+/* Effet de flash pour les événements */
+@keyframes comic-flash {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-comic-flash {
+  animation: comic-flash 0.5s ease;
+}
+
+/* Effet de shake pour les erreurs */
+@keyframes comic-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-4px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(4px);
+  }
+}
+
+.animate-comic-shake {
+  animation: comic-shake 0.5s ease;
+}
+
+/* Effet de pulse pour les succès */
+@keyframes comic-pulse-success {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+}
+
+.animate-comic-pulse-success {
+  animation: comic-pulse-success 0.6s ease;
+}
+
+/* Effet de glow pour les éléments importants */
+@keyframes comic-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(6, 182, 212, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.8), 0 0 30px rgba(6, 182, 212, 0.6);
+  }
+}
+
+.animate-comic-glow {
+  animation: comic-glow 2s ease-in-out infinite;
 }
