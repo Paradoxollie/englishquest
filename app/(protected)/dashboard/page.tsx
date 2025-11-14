@@ -7,6 +7,8 @@ import { getDashboardStats } from "./stats";
 
 // Force dynamic rendering - this page requires authentication and admin/teacher role
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 export default async function AdminDashboardPage() {
   const supabase = await createSupabaseServerClient();

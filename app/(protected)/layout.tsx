@@ -8,6 +8,8 @@ import { logoutAction } from "./actions";
 
 // Force dynamic rendering - this layout requires authentication
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 // When we ship the real Play/Quest/Profile/Teachers/Dashboard pages, update this list
 // to point to the new routes or add/remove entries as needed.

@@ -7,6 +7,8 @@ import { XPIcon, GoldIcon, LevelIcon, AvatarIcon, ScrollIcon, GiftIcon, GameIcon
 
 // Force dynamic rendering - this page requires authentication
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 /**
  * Calcule l'XP nécessaire pour passer au niveau suivant

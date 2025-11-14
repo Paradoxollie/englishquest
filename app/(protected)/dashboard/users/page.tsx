@@ -9,6 +9,8 @@ import type { Profile } from "@/types/profile";
 
 // Force dynamic rendering - this page requires authentication and admin role
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 export default async function UsersManagementPage() {
   const supabase = await createSupabaseServerClient();

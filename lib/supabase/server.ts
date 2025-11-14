@@ -13,6 +13,20 @@ export async function createSupabaseServerClient() {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
+    // During build time, Next.js may try to collect page data even for dynamic pages
+    // In this case, we throw a more specific error that can be caught during build
+    const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build' || 
+                        process.env.NODE_ENV === 'production' && !process.env.VERCEL;
+    
+    if (isBuildTime) {
+      // During build, we can't use Supabase, but we should still allow the build to continue
+      // by throwing an error that Next.js can handle gracefully
+      throw new Error(
+        "Supabase environment variables are not available during build. " +
+        "This is expected for dynamic pages. The page will be rendered at request time."
+      );
+    }
+    
     throw new Error(
       "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local"
     );
