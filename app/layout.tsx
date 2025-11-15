@@ -41,6 +41,11 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="beforeInteractive"
         />
+        
+        {/* AdSense Container - DOIT être dans le HTML source pour validation Google */}
+        {/* Placé ici, en dehors de tout composant client, pour être visible dans le HTML source */}
+        <FooterAdContainer />
+        
         <AuthProvider>
           {/* 
             Full-screen dark radial gradient background
@@ -62,9 +67,7 @@ export default function RootLayout({
               <AppHeader />
 
               <main className="flex-1">{children}</main>
-
-              {/* AdSense Footer Banner - Container serveur pour HTML source */}
-              <FooterAdContainer />
+              
               {/* Initialisation client AdSense */}
               <FooterAd />
 

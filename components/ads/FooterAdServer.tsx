@@ -1,4 +1,6 @@
 // Composant serveur pour l'élément AdSense (doit être dans le HTML source pour validation Google)
+// IMPORTANT: Ce composant doit rester un composant serveur (pas de "use client")
+// Il sera rendu dans le HTML source pour que Google puisse le détecter
 export function FooterAdContainer() {
   return (
     <div className="mt-8 border-t border-slate-800/60 pt-4">
