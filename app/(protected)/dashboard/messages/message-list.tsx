@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useActionState, useFormStatus } from "react";
+import { useState, useEffect, useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { markMessageAsReadAction, deleteMessageAction, replyToMessageAction } from "./actions";
 import { useRouter } from "next/navigation";
 
