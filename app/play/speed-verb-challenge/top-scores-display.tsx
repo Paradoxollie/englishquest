@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { getTopGlobalScores, getUserPersonalBests, type TopScoresByDifficulty } from "./get-top-scores";
 import type { Difficulty } from "@/lib/profile/leveling";
 import { TrophyIcon } from "@/components/ui/game-icons";
+import { LeaderboardAvatar } from "./leaderboard-avatar";
 
 interface TopScoresDisplayProps {
   selectedDifficulty: Difficulty;
@@ -97,17 +98,35 @@ export function TopScoresDisplay({ selectedDifficulty, currentScore }: TopScores
                 key={entry.user_id}
                 className="comic-panel bg-slate-800 border-2 border-black p-3 flex items-center justify-between"
               >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`comic-panel ${DIFFICULTY_COLORS[selectedDifficulty]} border-2 border-black w-8 h-8 flex items-center justify-center font-bold text-white text-outline text-xs`}
-                  >
-                    {entry.rank}
-                  </div>
-                  <div className="text-sm">
+                {/* Rang à gauche */}
+                <div
+                  className={`comic-panel ${DIFFICULTY_COLORS[selectedDifficulty]} border-2 border-black w-8 h-8 flex items-center justify-center font-bold text-white text-outline text-xs flex-shrink-0`}
+                >
+                  {entry.rank}
+                </div>
+                
+                {/* Avatar, nom et titre centrés au milieu */}
+                <div className="flex-1 flex flex-col items-center justify-center gap-1">
+                  <LeaderboardAvatar
+                    userId={entry.user_id}
+                    username={entry.username}
+                    equippedAvatar={entry.equipped_avatar}
+                    equippedBackground={entry.equipped_background}
+                    equippedTitle={entry.equipped_title}
+                    size="lg"
+                  />
+                  <div className="text-center">
                     <div className="font-bold text-white text-outline">{entry.username}</div>
+                    {entry.equipped_title && (
+                      <div className="text-xs font-semibold text-cyan-400 text-outline">
+                        {entry.equipped_title.name}
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                
+                {/* Score à droite */}
+                <div className="flex items-center gap-2 flex-shrink-0">
                   {entry.rank === 1 && (
                     <TrophyIcon className="w-5 h-5 text-amber-400" />
                   )}

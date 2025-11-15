@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isAdminOrTeacher } from "@/lib/auth/roles";
 import { getUserHomeData } from "./user-data";
-import type { Profile } from "@/types/profile";
 import { GameIcon, QuestIcon, TeacherIcon, FlameIcon, TrophyIcon, BookIcon } from "@/components/ui/icons";
 
 // Force dynamic rendering - this page requires authentication
@@ -21,19 +19,6 @@ export default async function HomePage() {
     return null;
   }
 
-  // Récupérer le profil avec le client admin
-  const adminClient = createSupabaseAdminClient();
-  const { data: profileData } = await adminClient
-    .from("profiles")
-    .select("id, username, role, xp, gold, level, avatar_id")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  const profile = profileData as Profile | null;
-  if (!profile) {
-    return null;
-  }
-
   // Récupérer les données réelles de l'utilisateur
   const userData = await getUserHomeData(user.id);
   const canAccessTeachers = await isAdminOrTeacher();
@@ -41,33 +26,6 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
-        {/* Header simplifié - différent du dashboard avec style BD */}
-        <div className="comic-panel-dark mb-8 p-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-4xl font-bold text-white mb-2 text-outline">
-                Bonjour, <span className="text-cyan-300 text-outline">{profile.username}</span> ! 👋
-              </h1>
-              <p className="text-lg text-slate-300 font-semibold text-outline">
-                {userData.currentCourse
-                  ? `Continue le cours "${userData.currentCourse.title}"`
-                  : "Prêt à commencer ton aventure ?"}
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#059669' }}>
-                <span className="font-bold text-white text-sm" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>XP</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.xp}</span>
-              </div>
-              <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#d97706' }}>
-                <span className="font-bold text-white text-sm" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>Gold</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.gold}</span>
-              </div>
-              <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#0891b2' }}>
-                <span className="font-bold text-white text-sm" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>Level</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.level}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
         {/* Section principale avec les activités - Style BD avec contours noirs */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Le jeu du jour - Grande carte mise en avant */}

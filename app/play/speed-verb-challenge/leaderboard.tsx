@@ -17,12 +17,18 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Difficulty } from "@/lib/profile/leveling";
 import { TrophyIcon } from "@/components/ui/game-icons";
 
+import type { ShopItem } from "@/types/shop";
+import { LeaderboardAvatar } from "./leaderboard-avatar";
+
 interface LeaderboardEntry {
   user_id: string;
   username: string;
   best_score: number;
   games_played: number;
   rank: number;
+  equipped_avatar?: ShopItem | null;
+  equipped_background?: ShopItem | null;
+  equipped_title?: ShopItem | null;
 }
 
 interface LeaderboardData {
@@ -115,6 +121,33 @@ export function SpeedVerbLeaderboard({ initialDifficulty = "easy" }: SpeedVerbLe
           (profiles || []).map((p) => [p.id, p.username])
         );
 
+        // Fetch equipped items for all users
+        const { data: equippedItems } = await supabase
+          .from("user_equipped_items")
+          .select(`
+            user_id,
+            equipped_avatar:shop_items!equipped_avatar_id(*),
+            equipped_background:shop_items!equipped_background_id(*),
+            equipped_title:shop_items!equipped_title_id(*)
+          `)
+          .in("user_id", userIds);
+
+        const equippedMap = new Map<string, { avatar?: ShopItem | null; background?: ShopItem | null; title?: ShopItem | null }>();
+        if (equippedItems) {
+          for (const item of equippedItems) {
+            const avatar = Array.isArray(item.equipped_avatar) 
+              ? item.equipped_avatar[0] 
+              : item.equipped_avatar;
+            const background = Array.isArray(item.equipped_background) 
+              ? item.equipped_background[0] 
+              : item.equipped_background;
+            const title = Array.isArray(item.equipped_title) 
+              ? item.equipped_title[0] 
+              : item.equipped_title;
+            equippedMap.set(item.user_id, { avatar, background, title });
+          }
+        }
+
         // Group by user_id and calculate best score and games played
         const userMap = new Map<
           string,
@@ -141,13 +174,19 @@ export function SpeedVerbLeaderboard({ initialDifficulty = "easy" }: SpeedVerbLe
 
         // Convert to array and sort by best score
         const entries: LeaderboardEntry[] = Array.from(userMap.entries())
-          .map(([userId, data], index) => ({
-            user_id: userId,
-            username: data.username,
-            best_score: data.bestScore,
-            games_played: data.gamesPlayed,
-            rank: index + 1,
-          }))
+          .map(([userId, data], index) => {
+            const equipped = equippedMap.get(userId);
+            return {
+              user_id: userId,
+              username: data.username,
+              best_score: data.bestScore,
+              games_played: data.gamesPlayed,
+              rank: index + 1,
+              equipped_avatar: equipped?.avatar || null,
+              equipped_background: equipped?.background || null,
+              equipped_title: equipped?.title || null,
+            };
+          })
           .sort((a, b) => b.best_score - a.best_score)
           .map((entry, index) => ({
             ...entry,
@@ -220,20 +259,38 @@ export function SpeedVerbLeaderboard({ initialDifficulty = "easy" }: SpeedVerbLe
                 key={entry.user_id}
                 className="comic-panel bg-slate-800 border-2 border-black p-4 flex items-center justify-between"
               >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`comic-panel ${DIFFICULTY_COLORS[selectedDifficulty]} border-2 border-black w-12 h-12 flex items-center justify-center font-bold text-white text-outline`}
-                  >
-                    {entry.rank}
-                  </div>
-                  <div>
+                {/* Rang à gauche */}
+                <div
+                  className={`comic-panel ${DIFFICULTY_COLORS[selectedDifficulty]} border-2 border-black w-12 h-12 flex items-center justify-center font-bold text-white text-outline flex-shrink-0`}
+                >
+                  {entry.rank}
+                </div>
+                
+                {/* Avatar, nom et titre centrés au milieu */}
+                <div className="flex-1 flex flex-col items-center justify-center gap-2">
+                  <LeaderboardAvatar
+                    userId={entry.user_id}
+                    username={entry.username}
+                    equippedAvatar={entry.equipped_avatar}
+                    equippedBackground={entry.equipped_background}
+                    equippedTitle={entry.equipped_title}
+                    size="xl"
+                  />
+                  <div className="text-center">
                     <div className="font-bold text-white text-outline">{entry.username}</div>
+                    {entry.equipped_title && (
+                      <div className="text-sm font-semibold text-cyan-400 text-outline">
+                        {entry.equipped_title.name}
+                      </div>
+                    )}
                     <div className="text-sm text-slate-400 text-outline">
                       {entry.games_played} partie{entry.games_played > 1 ? "s" : ""}
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                
+                {/* Score à droite */}
+                <div className="flex items-center gap-2 flex-shrink-0">
                   {entry.rank === 1 && (
                     <TrophyIcon className="w-6 h-6 text-amber-400" />
                   )}

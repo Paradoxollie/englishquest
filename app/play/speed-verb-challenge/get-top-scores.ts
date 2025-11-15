@@ -8,11 +8,16 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Difficulty } from "@/lib/profile/leveling";
 
+import type { ShopItem } from "@/types/shop";
+
 export interface TopScoreEntry {
   user_id: string;
   username: string;
   score: number;
   rank: number;
+  equipped_avatar?: ShopItem | null;
+  equipped_background?: ShopItem | null;
+  equipped_title?: ShopItem | null;
 }
 
 export interface TopScoresByDifficulty {
@@ -83,14 +88,47 @@ export async function getTopGlobalScores(): Promise<TopScoresByDifficulty> {
       (profiles || []).map((p) => [p.id, p.username])
     );
 
+    // Fetch equipped items for all users
+    const { data: equippedItems } = await adminClient
+      .from("user_equipped_items")
+      .select(`
+        user_id,
+        equipped_avatar:shop_items!equipped_avatar_id(*),
+        equipped_background:shop_items!equipped_background_id(*),
+        equipped_title:shop_items!equipped_title_id(*)
+      `)
+      .in("user_id", userIds);
+
+    const equippedMap = new Map<string, { avatar?: ShopItem | null; background?: ShopItem | null; title?: ShopItem | null }>();
+    if (equippedItems) {
+      for (const item of equippedItems) {
+        const avatar = Array.isArray(item.equipped_avatar) 
+          ? item.equipped_avatar[0] 
+          : item.equipped_avatar;
+        const background = Array.isArray(item.equipped_background) 
+          ? item.equipped_background[0] 
+          : item.equipped_background;
+        const title = Array.isArray(item.equipped_title) 
+          ? item.equipped_title[0] 
+          : item.equipped_title;
+        equippedMap.set(item.user_id, { avatar, background, title });
+      }
+    }
+
     // Create entries and sort by score
     const entries: TopScoreEntry[] = Array.from(userBestScores.entries())
-      .map(([userId, score]) => ({
-        user_id: userId,
-        username: profileMap.get(userId) || "Unknown",
-        score,
-        rank: 0, // Will be set after sorting
-      }))
+      .map(([userId, score]) => {
+        const equipped = equippedMap.get(userId);
+        return {
+          user_id: userId,
+          username: profileMap.get(userId) || "Unknown",
+          score,
+          rank: 0, // Will be set after sorting
+          equipped_avatar: equipped?.avatar || null,
+          equipped_background: equipped?.background || null,
+          equipped_title: equipped?.title || null,
+        };
+      })
       .sort((a, b) => b.score - a.score)
       .slice(0, 3) // Top 3
       .map((entry, index) => ({
