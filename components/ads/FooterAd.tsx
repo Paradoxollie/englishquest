@@ -59,10 +59,14 @@ export function FooterAd() {
             data-full-width-responsive="true"
           />
           {/* Message de débogage en développement */}
-          {process.env.NODE_ENV === "development" && !adLoaded && (
-            <div className="mt-2 rounded bg-yellow-900/20 border border-yellow-700/30 p-2 text-xs text-yellow-400 text-center max-w-md">
-              ⚠️ AdSense: Le slot ID doit être remplacé par votre vrai ID depuis votre compte AdSense.
-              Les publicités peuvent prendre jusqu&apos;à 48h pour apparaître après l&apos;approbation.
+          {process.env.NODE_ENV === "development" && (
+            <div className="mt-2 rounded bg-blue-900/20 border border-blue-700/30 p-2 text-xs text-blue-400 text-center max-w-md">
+              ℹ️ AdSense: Slot ID configuré (1844574488). 
+              {adLoaded ? (
+                " Publicité initialisée - Les publicités peuvent prendre jusqu&apos;à 48h pour apparaître après l&apos;approbation."
+              ) : (
+                " En attente du chargement du script AdSense..."
+              )}
             </div>
           )}
         </div>

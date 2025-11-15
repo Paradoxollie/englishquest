@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   title: "EnglishQuest",
   description:
     "Level up your English with quests, games, and teacher missions tailored for French students.",
+  other: {
+    "google-adsense-account": "ca-pub-6094969027977372",
+  },
 };
 
 export default function RootLayout({
@@ -29,12 +32,13 @@ export default function RootLayout({
         className={`${inter.variable} min-h-screen text-slate-100 antialiased`}
         suppressHydrationWarning
       >
+        {/* Script AdSense - doit être visible dans le HTML source pour validation Google */}
         <Script
           id="google-adsense"
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6094969027977372"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
+          strategy="beforeInteractive"
         />
         <AuthProvider>
           {/* 
