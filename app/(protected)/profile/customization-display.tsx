@@ -66,7 +66,22 @@ export function CustomizationDisplay({ userId, username }: CustomizationDisplayP
         freeItems: freeItems,
       });
 
-      if (equipped) setEquippedItems(equipped as any);
+      if (equipped) {
+        // Handle potential array returns from Supabase relations
+        const equippedData: any = {
+          ...equipped,
+          equipped_avatar: Array.isArray(equipped.equipped_avatar) 
+            ? equipped.equipped_avatar[0] 
+            : equipped.equipped_avatar,
+          equipped_title: Array.isArray(equipped.equipped_title) 
+            ? equipped.equipped_title[0] 
+            : equipped.equipped_title,
+          equipped_background: Array.isArray(equipped.equipped_background) 
+            ? equipped.equipped_background[0] 
+            : equipped.equipped_background,
+        };
+        setEquippedItems(equippedData);
+      }
       
       // Combine owned items and free items
       const ownedItemsList: ShopItem[] = [];
@@ -140,7 +155,22 @@ export function CustomizationDisplay({ userId, username }: CustomizationDisplayP
         `)
         .eq("user_id", userId)
         .maybeSingle();
-      if (equipped) setEquippedItems(equipped as any);
+      if (equipped) {
+        // Handle potential array returns from Supabase relations
+        const equippedData: any = {
+          ...equipped,
+          equipped_avatar: Array.isArray(equipped.equipped_avatar) 
+            ? equipped.equipped_avatar[0] 
+            : equipped.equipped_avatar,
+          equipped_title: Array.isArray(equipped.equipped_title) 
+            ? equipped.equipped_title[0] 
+            : equipped.equipped_title,
+          equipped_background: Array.isArray(equipped.equipped_background) 
+            ? equipped.equipped_background[0] 
+            : equipped.equipped_background,
+        };
+        setEquippedItems(equippedData);
+      }
       setShowSelector(null);
       
       // Dispatch event to update avatar display

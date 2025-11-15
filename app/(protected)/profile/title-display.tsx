@@ -28,7 +28,13 @@ export function TitleDisplay({ userId }: TitleDisplayProps) {
         .maybeSingle();
 
       if (equipped?.equipped_title) {
-        setEquippedTitle(equipped.equipped_title as ShopItem);
+        // Handle both array and single object cases
+        const title = Array.isArray(equipped.equipped_title) 
+          ? equipped.equipped_title[0] 
+          : equipped.equipped_title;
+        if (title) {
+          setEquippedTitle(title as ShopItem);
+        }
       }
       setLoading(false);
     }

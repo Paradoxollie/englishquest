@@ -70,7 +70,22 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
 
       if (items) setShopItems(items as ShopItem[]);
       if (owned) setUserItems(owned as any);
-      if (equipped) setEquippedItems(equipped as any);
+      if (equipped) {
+        // Handle potential array returns from Supabase relations
+        const equippedData: any = {
+          ...equipped,
+          equipped_avatar: Array.isArray(equipped.equipped_avatar) 
+            ? equipped.equipped_avatar[0] 
+            : equipped.equipped_avatar,
+          equipped_title: Array.isArray(equipped.equipped_title) 
+            ? equipped.equipped_title[0] 
+            : equipped.equipped_title,
+          equipped_background: Array.isArray(equipped.equipped_background) 
+            ? equipped.equipped_background[0] 
+            : equipped.equipped_background,
+        };
+        setEquippedItems(equippedData);
+      }
       setLoading(false);
     }
 
@@ -120,7 +135,22 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
         `)
         .eq("user_id", userId)
         .maybeSingle();
-      if (equipped) setEquippedItems(equipped as any);
+      if (equipped) {
+        // Handle potential array returns from Supabase relations
+        const equippedData: any = {
+          ...equipped,
+          equipped_avatar: Array.isArray(equipped.equipped_avatar) 
+            ? equipped.equipped_avatar[0] 
+            : equipped.equipped_avatar,
+          equipped_title: Array.isArray(equipped.equipped_title) 
+            ? equipped.equipped_title[0] 
+            : equipped.equipped_title,
+          equipped_background: Array.isArray(equipped.equipped_background) 
+            ? equipped.equipped_background[0] 
+            : equipped.equipped_background,
+        };
+        setEquippedItems(equippedData);
+      }
       
       // Dispatch event to update customization display
       window.dispatchEvent(new CustomEvent('itemPurchased'));
@@ -172,7 +202,20 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
         console.log("Reloaded equipped items:", { equipped, equippedError });
         
         if (equipped) {
-          setEquippedItems(equipped as any);
+          // Handle potential array returns from Supabase relations
+          const equippedData: any = {
+            ...equipped,
+            equipped_avatar: Array.isArray(equipped.equipped_avatar) 
+              ? equipped.equipped_avatar[0] 
+              : equipped.equipped_avatar,
+            equipped_title: Array.isArray(equipped.equipped_title) 
+              ? equipped.equipped_title[0] 
+              : equipped.equipped_title,
+            equipped_background: Array.isArray(equipped.equipped_background) 
+              ? equipped.equipped_background[0] 
+              : equipped.equipped_background,
+          };
+          setEquippedItems(equippedData);
         }
         
         // Dispatch events to update displays
