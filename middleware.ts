@@ -17,11 +17,14 @@ export async function middleware(request: NextRequest) {
   // - Les fichiers statiques (images, CSS, JS, etc.)
   // - Les API routes (sauf celle de tracking elle-même)
   // - Les fichiers Next.js internes
+  // - Les fichiers de configuration (ads.txt, robots.txt)
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/favicon.ico') ||
-    pathname.match(/\.(ico|png|jpg|jpeg|svg|gif|webp|css|js|woff|woff2|ttf|eot)$/i)
+    pathname === '/ads.txt' ||
+    pathname === '/robots.txt' ||
+    pathname.match(/\.(ico|png|jpg|jpeg|svg|gif|webp|css|js|woff|woff2|ttf|eot|txt)$/i)
   ) {
     return NextResponse.next();
   }
