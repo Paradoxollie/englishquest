@@ -45,12 +45,12 @@ export async function uploadShopItemImageAction(
       };
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024; // 5MB
+    // Validate file size (max 5MB for our app, but Supabase free tier allows 50MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB (conservative limit)
     if (file.size > maxSize) {
       return {
         success: false,
-        error: "L'image est trop grande. Taille maximum: 5MB.",
+        error: "L'image est trop grande. Taille maximum: 5MB. (Supabase permet jusqu'à 50MB sur le plan gratuit, mais nous limitons à 5MB pour optimiser les performances)",
       };
     }
 
@@ -85,36 +85,70 @@ export async function uploadShopItemImageAction(
     const fileName = `${shopItem.item_type}/${itemId}.${fileExt}`;
     const filePath = `shop-items/${fileName}`;
 
-    // Upload to Supabase Storage
-    // Note: Storage API requires user authentication, so we use the regular client
-    // The RLS policies will allow admins to upload
-    console.log("Uploading to path:", filePath);
-    const { data: uploadData, error: uploadError } = await supabase.storage
+    // Upload to Supabase Storage using admin client to bypass RLS
+    console.log("Uploading to path:", filePath, "Size:", buffer.length, "bytes");
+    
+    // Try to delete existing file first if it exists (to avoid conflicts and save space)
+    try {
+      const { error: deleteError } = await adminClient.storage
+        .from("custom-images")
+        .remove([filePath]);
+      if (deleteError) {
+        // Ignore errors if file doesn't exist - this is normal
+        console.log("No existing file to delete (this is OK)");
+      } else {
+        console.log("Deleted existing file before upload");
+      }
+    } catch (deleteError) {
+      // Ignore errors - file might not exist
+      console.log("Delete attempt completed (file may not have existed)");
+    }
+    
+    const { data: uploadData, error: uploadError } = await adminClient.storage
       .from("custom-images")
       .upload(filePath, buffer, {
         contentType: file.type,
         upsert: true, // Replace if exists
+        cacheControl: "3600", // Cache for 1 hour
       });
 
     if (uploadError) {
       console.error("Upload error details:", {
         message: uploadError.message,
         error: uploadError,
+        statusCode: (uploadError as any).statusCode,
       });
+      
+      // Provide more specific error messages
+      let errorMessage = uploadError.message || "Erreur inconnue";
+      
+      // Check for common Supabase limits
+      if (errorMessage.includes("413") || errorMessage.includes("too large") || errorMessage.includes("File size")) {
+        errorMessage = "Le fichier est trop volumineux. Limite : 50 Mo (plan gratuit) ou 500 Go (plan Pro).";
+      } else if (errorMessage.includes("429") || errorMessage.includes("rate limit") || errorMessage.includes("too many")) {
+        errorMessage = "Trop de requêtes. Veuillez patienter quelques instants avant de réessayer.";
+      } else if (errorMessage.includes("quota") || errorMessage.includes("storage")) {
+        errorMessage = "Limite de stockage atteinte. Vérifiez votre quota Supabase (1 Go sur le plan gratuit).";
+      } else if (errorMessage.includes("permission") || errorMessage.includes("policy") || errorMessage.includes("RLS")) {
+        errorMessage = "Erreur de permissions. Vérifiez les politiques RLS dans Supabase.";
+      }
+      
       return {
         success: false,
-        error: `Erreur lors de l'upload: ${uploadError.message || "Erreur inconnue"}`,
+        error: `Erreur lors de l'upload: ${errorMessage}`,
       };
     }
 
     console.log("Upload successful:", uploadData);
 
-    // Get public URL
-    const { data: urlData } = supabase.storage
+    // Get public URL using admin client with cache busting
+    // Add timestamp to force cache refresh
+    const { data: urlData } = adminClient.storage
       .from("custom-images")
       .getPublicUrl(filePath);
 
-    const imageUrl = urlData.publicUrl;
+    // Add cache busting parameter to force browser/CDN to reload
+    const imageUrl = `${urlData.publicUrl}?t=${Date.now()}`;
 
     // Update shop item with image URL
     const { error: updateError } = await adminClient

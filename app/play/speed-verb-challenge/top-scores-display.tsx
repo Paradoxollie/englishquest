@@ -96,39 +96,44 @@ export function TopScoresDisplay({ selectedDifficulty, currentScore }: TopScores
             {globalTop3.map((entry) => (
               <div
                 key={entry.user_id}
-                className="comic-panel bg-slate-800 border-2 border-black p-3 flex items-center justify-between"
+                className="comic-panel bg-slate-800 border-2 border-black p-3 grid grid-cols-[40px_1fr_100px] items-start gap-3"
               >
-                {/* Rang à gauche */}
+                {/* Rang à gauche - largeur fixe */}
                 <div
-                  className={`comic-panel ${DIFFICULTY_COLORS[selectedDifficulty]} border-2 border-black w-8 h-8 flex items-center justify-center font-bold text-white text-outline text-xs flex-shrink-0`}
+                  className={`comic-panel ${DIFFICULTY_COLORS[selectedDifficulty]} border-2 border-black w-8 h-8 flex items-center justify-center font-bold text-white text-outline text-xs`}
                 >
                   {entry.rank}
                 </div>
                 
-                {/* Avatar, nom et titre centrés au milieu */}
-                <div className="flex-1 flex flex-col items-center justify-center gap-1">
-                  <LeaderboardAvatar
-                    userId={entry.user_id}
-                    username={entry.username}
-                    equippedAvatar={entry.equipped_avatar}
-                    equippedBackground={entry.equipped_background}
-                    equippedTitle={entry.equipped_title}
-                    size="lg"
-                  />
-                  <div className="text-center">
-                    <div className="font-bold text-white text-outline">{entry.username}</div>
-                    {entry.equipped_title && (
-                      <div className="text-xs font-semibold text-cyan-400 text-outline">
-                        {entry.equipped_title.name}
-                      </div>
-                    )}
+                {/* Avatar, nom et titre centrés au milieu - avatars alignés horizontalement */}
+                <div className="flex justify-center">
+                  <div className="flex flex-col items-center gap-1">
+                    {/* Conteneur avec hauteur fixe pour aligner tous les avatars */}
+                    <div className="h-24 flex items-center justify-center">
+                      <LeaderboardAvatar
+                        userId={entry.user_id}
+                        username={entry.username}
+                        equippedAvatar={entry.equipped_avatar}
+                        equippedBackground={entry.equipped_background}
+                        equippedTitle={entry.equipped_title}
+                        size="lg"
+                      />
+                    </div>
+                    <div className="text-center min-w-0 max-w-full">
+                      <div className="font-bold text-white text-outline truncate">{entry.username}</div>
+                      {entry.equipped_title && (
+                        <div className="text-xs font-semibold text-cyan-400 text-outline truncate">
+                          {entry.equipped_title.name}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
                 
-                {/* Score à droite */}
-                <div className="flex items-center gap-2 flex-shrink-0">
+                {/* Score à droite - largeur fixe */}
+                <div className="flex items-center justify-end gap-2 pt-1">
                   {entry.rank === 1 && (
-                    <TrophyIcon className="w-5 h-5 text-amber-400" />
+                    <TrophyIcon className="w-5 h-5 text-amber-400 flex-shrink-0" />
                   )}
                   <div className="text-lg font-bold text-cyan-400 text-outline">
                     {entry.score}

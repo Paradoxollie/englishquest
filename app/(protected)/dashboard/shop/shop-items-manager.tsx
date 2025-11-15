@@ -8,6 +8,7 @@ import { useState, useEffect, useRef } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { ShopItem } from "@/types/shop";
 import { uploadShopItemImageAction, updateShopItemAction, createShopItemAction } from "./actions";
+import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
 import { ImageCropper } from "@/components/ui/image-cropper";
 
 export function ShopItemsManager() {
@@ -81,7 +82,8 @@ export function ShopItemsManager() {
       // Convert cropped image URL to File
       const response = await fetch(croppedImageUrl);
       const blob = await response.blob();
-      const file = new File([blob], "cropped-avatar.jpg", { type: "image/jpeg" });
+      // Use PNG to match the cropper output format
+      const file = new File([blob], "cropped-avatar.png", { type: "image/png" });
 
       const result = await uploadShopItemImageAction(croppingImage.itemId, file);
       console.log("Upload result:", result);
@@ -304,7 +306,7 @@ export function ShopItemsManager() {
                   <div className="flex items-center justify-center rounded-lg border-2 border-black bg-slate-900 overflow-hidden" style={{ aspectRatio: "2/3", width: "100%" }}>
                     {item.image_url ? (
                       <img
-                        src={item.image_url}
+                        src={addCacheBustingIfSupabase(item.image_url)}
                         alt={item.name}
                         className="w-full h-full object-cover"
                       />

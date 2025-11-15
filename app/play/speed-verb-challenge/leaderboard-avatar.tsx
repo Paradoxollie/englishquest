@@ -6,6 +6,7 @@
  */
 
 import type { ShopItem } from "@/types/shop";
+import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
 
 interface LeaderboardAvatarProps {
   userId: string;
@@ -59,13 +60,13 @@ export function LeaderboardAvatar({
       }`}
       style={
         equippedBackground?.image_url
-          ? { backgroundImage: `url(${equippedBackground.image_url})` }
+          ? { backgroundImage: `url(${addCacheBustingIfSupabase(equippedBackground.image_url)})` }
           : undefined
       }
     >
       {equippedAvatar?.image_url ? (
         <img
-          src={equippedAvatar.image_url}
+          src={addCacheBustingIfSupabase(equippedAvatar.image_url)}
           alt={equippedAvatar.name}
           className={`rounded-full border-2 border-black object-cover ${classes.avatar}`}
           style={{ objectPosition: "center top" }}

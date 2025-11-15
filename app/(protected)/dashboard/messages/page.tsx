@@ -33,9 +33,10 @@ export default async function MessagesPage() {
     let messages = [];
     
     try {
+      // D'abord, récupérer les messages sans jointure pour éviter les erreurs
       const { data, error } = await adminClient
         .from("contact_messages")
-        .select("*, profiles!contact_messages_replied_by_fkey(username)")
+        .select("*")
         .order("created_at", { ascending: false });
 
       if (error) {
@@ -45,8 +46,10 @@ export default async function MessagesPage() {
         
         if (
           errorCode === "42P01" || 
+          errorCode === "PGRST116" ||
           errorMessage.includes("does not exist") ||
           errorMessage.includes("relation") ||
+          errorMessage.includes("not found") ||
           Object.keys(error).length === 0 // Objet vide = probablement table inexistante
         ) {
           // Table n'existe pas encore, on continue avec un tableau vide
@@ -56,10 +59,42 @@ export default async function MessagesPage() {
         }
       } else {
         messages = data || [];
+        
+        // Log pour debug (à retirer en production)
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[Messages Page] Found ${messages.length} messages`);
+        }
+        
+        // Si on a des messages avec replied_by, récupérer les usernames séparément
+        if (messages.length > 0) {
+          const repliedByUserIds = messages
+            .map((m: any) => m.replied_by)
+            .filter((id: string | null) => id !== null && id !== undefined);
+          
+          if (repliedByUserIds.length > 0) {
+            const { data: profiles } = await adminClient
+              .from("profiles")
+              .select("id, username")
+              .in("id", repliedByUserIds);
+            
+            // Créer un map pour accès rapide
+            const profilesMap = new Map(
+              (profiles || []).map((p: any) => [p.id, p.username])
+            );
+            
+            // Ajouter les usernames aux messages
+            messages = messages.map((m: any) => ({
+              ...m,
+              profiles: m.replied_by ? {
+                username: profilesMap.get(m.replied_by) || null
+              } : null
+            }));
+          }
+        }
       }
     } catch (error) {
       // Table n'existe pas encore ou autre erreur, on continue avec un tableau vide
-      // Pas besoin de logger
+      console.error("Error in messages page:", error);
     }
 
     return (

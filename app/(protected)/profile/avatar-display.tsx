@@ -7,6 +7,7 @@
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { UserEquippedItems, ShopItem } from "@/types/shop";
+import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
 
 interface AvatarDisplayProps {
   userId: string;
@@ -114,13 +115,13 @@ export function AvatarDisplay({ userId, username, size = "md" }: AvatarDisplayPr
       }`}
       style={
         currentBackground?.image_url
-          ? { backgroundImage: `url(${currentBackground.image_url})` }
+          ? { backgroundImage: `url(${addCacheBustingIfSupabase(currentBackground.image_url)})` }
           : undefined
       }
     >
       {currentAvatar?.image_url ? (
         <img
-          src={currentAvatar.image_url}
+          src={addCacheBustingIfSupabase(currentAvatar.image_url)}
           alt={currentAvatar.name}
           className={`rounded-full border-2 border-black object-cover ${classes.avatar}`}
           style={{ objectPosition: "center top" }}

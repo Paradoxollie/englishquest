@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { equipItemAction } from "./shop/actions";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { UserEquippedItems, ShopItem } from "@/types/shop";
+import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
 import { useRouter } from "next/navigation";
 
 interface CustomizationDisplayProps {
@@ -240,17 +241,17 @@ export function CustomizationDisplay({ userId, username }: CustomizationDisplayP
                 ? getItemColor(currentBackground.color_theme)
                 : "bg-gradient-to-br from-emerald-950/30 to-emerald-900/30"
             }`}
-            style={
-              currentBackground?.image_url
-                ? { backgroundImage: `url(${currentBackground.image_url})` }
-                : undefined
-            }
+              style={
+                currentBackground?.image_url
+                  ? { backgroundImage: `url(${addCacheBustingIfSupabase(currentBackground.image_url)})` }
+                  : undefined
+              }
           />
           {/* Avatar */}
           <div className="absolute inset-0 flex items-center justify-center p-2">
             {currentAvatar?.image_url ? (
               <img
-                src={currentAvatar.image_url}
+                src={addCacheBustingIfSupabase(currentAvatar.image_url)}
                 alt={currentAvatar.name}
                 className="w-full h-full rounded-lg border-2 border-black object-cover"
               />
@@ -319,7 +320,7 @@ export function CustomizationDisplay({ userId, username }: CustomizationDisplayP
                   {avatar.image_url ? (
                     <div className="w-full" style={{ aspectRatio: "2/3" }}>
                       <img
-                        src={avatar.image_url}
+                        src={addCacheBustingIfSupabase(avatar.image_url)}
                         alt={avatar.name}
                         className="w-full h-full object-cover rounded"
                       />
@@ -431,7 +432,7 @@ export function CustomizationDisplay({ userId, username }: CustomizationDisplayP
         >
           {currentBackground?.image_url ? (
             <img
-              src={currentBackground.image_url}
+              src={addCacheBustingIfSupabase(currentBackground.image_url)}
               alt={currentBackground.name}
               className="w-full h-full object-cover"
             />
@@ -499,7 +500,7 @@ export function CustomizationDisplay({ userId, username }: CustomizationDisplayP
                   {bg.image_url ? (
                     <div className="w-full" style={{ aspectRatio: "2/3" }}>
                       <img
-                        src={bg.image_url}
+                        src={addCacheBustingIfSupabase(bg.image_url)}
                         alt={bg.name}
                         className="w-full h-full object-cover rounded"
                       />

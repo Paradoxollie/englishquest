@@ -66,6 +66,11 @@ export function ImageCropper({
     canvas.width = outputWidth;
     canvas.height = outputHeight;
 
+    // Clear canvas with transparent background
+    // This preserves the original image transparency
+    ctx.clearRect(0, 0, outputWidth, outputHeight);
+
+    // Draw the cropped image
     ctx.drawImage(
       image,
       pixelCrop.x,
@@ -79,6 +84,8 @@ export function ImageCropper({
     );
 
     return new Promise((resolve, reject) => {
+      // Use PNG to preserve quality and avoid black background issues
+      // PNG supports transparency if needed, but we use white background above
       canvas.toBlob(
         (blob) => {
           if (!blob) {
@@ -88,7 +95,7 @@ export function ImageCropper({
           const url = URL.createObjectURL(blob);
           resolve(url);
         },
-        "image/jpeg",
+        "image/png", // Changed from JPEG to PNG for better quality
         0.95
       );
     });

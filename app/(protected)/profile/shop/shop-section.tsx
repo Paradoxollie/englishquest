@@ -10,6 +10,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { ShopItem, UserItem, UserEquippedItems } from "@/types/shop";
 import { GoldIcon } from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
+import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
 
 interface ShopSectionProps {
   userLevel: number;
@@ -366,7 +367,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
                 <div className="flex items-center justify-center rounded-lg border-2 border-black bg-slate-900 overflow-hidden" style={{ aspectRatio: "2/3", width: "100%" }}>
                   {item.image_url ? (
                     <img
-                      src={item.image_url}
+                      src={addCacheBustingIfSupabase(item.image_url)}
                       alt={item.name}
                       className="w-full h-full object-cover"
                     />
