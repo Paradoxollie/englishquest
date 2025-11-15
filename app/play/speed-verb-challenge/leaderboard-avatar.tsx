@@ -48,32 +48,37 @@ export function LeaderboardAvatar({
   };
 
   const classes = sizeClasses[size];
+  
+  // Normalize to handle undefined/null
+  const avatar = equippedAvatar ?? null;
+  const background = equippedBackground ?? null;
+  const title = equippedTitle ?? null;
 
   return (
     <div
       className={`relative flex items-center justify-center rounded-full border-2 border-black ${classes.container} ${
-        equippedBackground?.image_url
+        background?.image_url
           ? "bg-cover bg-center"
-          : equippedBackground?.color_theme
-          ? getItemColor(equippedBackground.color_theme)
+          : background?.color_theme
+          ? getItemColor(background.color_theme)
           : "bg-gradient-to-br from-emerald-950/30 to-emerald-900/30 border-emerald-800/40"
       }`}
       style={
-        equippedBackground?.image_url
-          ? { backgroundImage: `url(${addCacheBustingIfSupabase(equippedBackground.image_url)})` }
+        background?.image_url
+          ? { backgroundImage: `url(${addCacheBustingIfSupabase(background.image_url)})` }
           : undefined
       }
     >
-      {equippedAvatar?.image_url ? (
+      {avatar?.image_url ? (
         <img
-          src={addCacheBustingIfSupabase(equippedAvatar.image_url)}
-          alt={equippedAvatar.name}
+          src={addCacheBustingIfSupabase(avatar.image_url)}
+          alt={avatar.name || username}
           className={`rounded-full border-2 border-black object-cover ${classes.avatar}`}
           style={{ objectPosition: "center top" }}
         />
-      ) : equippedAvatar?.color_theme ? (
+      ) : avatar?.color_theme ? (
         <div
-          className={`rounded-full border-2 border-black ${getItemColor(equippedAvatar.color_theme)} ${classes.avatar}`}
+          className={`rounded-full border-2 border-black ${getItemColor(avatar.color_theme)} ${classes.avatar}`}
         />
       ) : (
         <span className={`font-bold text-white text-outline ${classes.text}`}>

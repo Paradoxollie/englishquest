@@ -24,7 +24,7 @@ export default async function PlayPage() {
         <div className="comic-panel-dark mb-12 p-8" style={{ background: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)" }}>
           <div className="relative z-10">
             <div className="mb-6 flex items-center gap-4">
-              <div className="comic-panel bg-cyan-600 border-2 border-black p-4">
+              <div className="comic-panel bg-gradient-to-br from-cyan-500 to-blue-600 border-2 border-black p-4">
                 <GameIcon className="w-8 h-8 text-white text-outline" />
               </div>
               <h1 className="text-4xl font-bold text-white md:text-5xl text-outline">

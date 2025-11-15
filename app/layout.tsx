@@ -51,7 +51,7 @@ export default function RootLayout({
 
               {/* Simple footer with muted text */}
               <footer className="text-center text-xs text-slate-400">
-                © English Quest – Apprentissage de l'anglais gamifié gratuit
+                © English Quest – Apprentissage de l'anglais gamifié
               </footer>
             </div>
           </div>

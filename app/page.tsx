@@ -78,8 +78,7 @@ export default async function PublicHomePage() {
               Progressez en anglais comme dans vos jeux favoris.
             </h1>
             <p className="text-lg leading-relaxed text-slate-300 md:text-xl">
-              Suivez un parcours de 50 cours où chaque défi vous rapporte de l'XP, des pièces d'or et des récompenses. 
-              Entièrement gratuit pour les élèves et les professeurs.
+              Suivez un parcours de 50 cours où chaque défi vous rapporte de l'XP, des pièces d'or et des récompenses.
             </p>
           </div>
           <div className="flex flex-wrap gap-4">
@@ -117,9 +116,9 @@ export default async function PublicHomePage() {
                      <p className="mt-1 text-xs text-emerald-400/80">✓ Données liées à votre compte</p>
                    )}
                  </div>
-                 <div className="flex items-center gap-2 rounded-lg bg-emerald-950/20 px-4 py-2 border border-emerald-900/20">
-                   <LevelIcon className="w-4 h-4 text-emerald-500" />
-                   <span className="text-sm font-bold text-emerald-400">Niveau {displayData.level}</span>
+                 <div className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 px-4 py-2 border-2 border-black">
+                   <LevelIcon className="w-4 h-4 text-white" />
+                   <span className="text-sm font-bold text-white">Niveau {displayData.level}</span>
                  </div>
                </div>
                
@@ -147,8 +146,8 @@ export default async function PublicHomePage() {
               <div className="grid gap-3">
                  <div className="group relative overflow-hidden rounded-xl border border-emerald-950/30 bg-slate-900/30 p-4 backdrop-blur-sm transition-all duration-300 hover:border-emerald-900/30 hover:bg-slate-900/50">
                    <div className="flex items-start gap-3">
-                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-950/20 border border-emerald-900/20">
-                       <ScrollIcon className="w-5 h-5 text-emerald-500" />
+                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black">
+                       <ScrollIcon className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-white">Cours du jour</p>
@@ -158,8 +157,8 @@ export default async function PublicHomePage() {
                 </div>
                 <div className="group relative overflow-hidden rounded-xl border border-slate-700/50 bg-slate-800/40 p-4 backdrop-blur-sm transition-all duration-300 hover:border-amber-500/30 hover:bg-slate-800/60">
                   <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20">
-                      <GiftIcon className="w-5 h-5 text-amber-400" />
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-yellow-500 border-2 border-black">
+                      <GiftIcon className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-white">Prochaine récompense</p>
@@ -202,8 +201,8 @@ export default async function PublicHomePage() {
                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                  
                  <div className="relative z-10">
-                   <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-950/20 to-emerald-900/20 border border-emerald-900/20 shadow-lg shadow-emerald-950/20 transition-transform duration-300 group-hover:scale-110 group-hover:shadow-emerald-950/30">
-                     <Icon className="w-7 h-7 text-emerald-500" />
+                   <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black shadow-lg transition-transform duration-300 group-hover:scale-110">
+                     <Icon className="w-7 h-7 text-white" />
                   </div>
                   <h3 className="mb-3 text-2xl font-bold text-white">{card.title}</h3>
                   <p className="leading-relaxed text-slate-300">{card.copy}</p>
@@ -225,7 +224,7 @@ export default async function PublicHomePage() {
              <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-950/30 to-emerald-900/30 border border-emerald-900/30 text-3xl font-bold text-emerald-400 shadow-lg shadow-emerald-950/20 transition-all duration-300 group-hover:scale-110 group-hover:shadow-emerald-950/30">
               1
             </div>
-            <h3 className="mb-3 text-xl font-bold text-white">Créez un compte gratuit</h3>
+            <h3 className="mb-3 text-xl font-bold text-white">Créez un compte</h3>
             <p className="leading-relaxed text-slate-300">
               Inscrivez-vous en quelques secondes et commencez votre parcours d'apprentissage de l'anglais.
             </p>

@@ -203,9 +203,9 @@ export default async function ProfilePage() {
                   <TitleDisplay userId={user.id} />
                 </div>
               </div>
-              <div className="flex items-center gap-2 rounded-lg bg-emerald-950/20 px-4 py-2 border border-emerald-900/20">
-                <LevelIcon className="w-4 h-4 text-emerald-500" />
-                <span className="text-sm font-bold text-emerald-400">Niveau {profile.level}</span>
+              <div className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 px-4 py-2 border-2 border-black">
+                <LevelIcon className="w-4 h-4 text-white" />
+                <span className="text-sm font-bold text-white">Niveau {profile.level}</span>
               </div>
             </div>
             
@@ -257,8 +257,8 @@ export default async function ProfilePage() {
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             
             <div className="relative z-10">
-              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-950/20 to-emerald-900/20 border border-emerald-900/20 shadow-lg shadow-emerald-950/20">
-                <AvatarIcon className="w-7 h-7 text-emerald-500" />
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 border-2 border-black shadow-lg">
+                <AvatarIcon className="w-7 h-7 text-white" />
               </div>
               <h3 className="mb-4 text-2xl font-bold text-white">Informations du compte</h3>
               <dl className="space-y-4 text-sm">
@@ -284,8 +284,8 @@ export default async function ProfilePage() {
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             
             <div className="relative z-10">
-              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-950/20 to-emerald-900/20 border border-emerald-900/20 shadow-lg shadow-emerald-950/20">
-                <ScrollIcon className="w-7 h-7 text-emerald-500" />
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 border-2 border-black shadow-lg">
+                <ScrollIcon className="w-7 h-7 text-white" />
               </div>
               <h3 className="mb-4 text-2xl font-bold text-white">Statistiques</h3>
               <dl className="space-y-4 text-sm">
@@ -330,7 +330,9 @@ export default async function ProfilePage() {
       <MotionCard>
         <div className="comic-panel-dark p-6" style={{ position: "relative", zIndex: 1, pointerEvents: "auto" }}>
           <div className="flex items-center gap-3 mb-6">
-            <GiftIcon className="w-8 h-8 text-cyan-400" />
+            <div className="comic-panel bg-gradient-to-br from-cyan-500 to-blue-600 border-2 border-black p-2">
+              <GiftIcon className="w-6 h-6 text-white" />
+            </div>
             <h2 className="text-2xl font-bold text-white text-outline">Boutique</h2>
           </div>
           <div style={{ position: "relative", zIndex: 2, pointerEvents: "auto" }}>
@@ -350,8 +352,8 @@ export default async function ProfilePage() {
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             
             <div className="relative z-10">
-              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-950/20 to-emerald-900/20 border border-emerald-900/20 shadow-lg shadow-emerald-950/20">
-                <GameIcon className="w-7 h-7 text-emerald-500" />
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 border-2 border-black shadow-lg">
+                <GameIcon className="w-7 h-7 text-white" />
               </div>
               <h3 className="mb-4 text-2xl font-bold text-white">Meilleurs scores</h3>
               <div className="space-y-3">

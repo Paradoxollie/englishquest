@@ -46,7 +46,7 @@ export const games: GameConfig[] = [
     tags: ["Vocabulary", "Word Games"],
     icon: "📜",
     gradient: "linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(34, 197, 94, 0.2) 100%)",
-    iconBg: "bg-emerald-500/20",
+    iconBg: "bg-gradient-to-br from-emerald-500 to-green-600",
     iconColor: "text-emerald-400",
   },
   {
@@ -57,7 +57,7 @@ export const games: GameConfig[] = [
     tags: ["Grammar", "Sentence Building"],
     icon: "⚗️",
     gradient: "linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%)",
-    iconBg: "bg-purple-500/20",
+    iconBg: "bg-gradient-to-br from-purple-500 to-pink-600",
     iconColor: "text-purple-400",
   },
   {
@@ -68,7 +68,7 @@ export const games: GameConfig[] = [
     tags: ["Spelling", "Vocabulary"],
     icon: "🔤",
     gradient: "linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%)",
-    iconBg: "bg-yellow-500/20",
+    iconBg: "bg-gradient-to-br from-yellow-400 to-amber-500",
     iconColor: "text-yellow-400",
   },
   {
@@ -79,7 +79,7 @@ export const games: GameConfig[] = [
     tags: ["Listening", "Comprehension"],
     icon: "👂",
     gradient: "linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(220, 38, 38, 0.2) 100%)",
-    iconBg: "bg-red-500/20",
+    iconBg: "bg-gradient-to-br from-red-500 to-rose-600",
     iconColor: "text-red-400",
   },
   {
@@ -90,7 +90,7 @@ export const games: GameConfig[] = [
     tags: ["Grammar", "Verbs", "Speed"],
     icon: "⚡",
     gradient: "linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%)",
-    iconBg: "bg-amber-500/20",
+    iconBg: "bg-gradient-to-br from-amber-500 to-yellow-500",
     iconColor: "text-amber-400",
   },
 ];

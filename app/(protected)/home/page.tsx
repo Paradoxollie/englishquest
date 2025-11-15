@@ -37,8 +37,8 @@ export default async function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <div className="relative z-10">
               <div className="mb-4 flex items-center gap-3">
-                <div className="rounded-xl bg-cyan-500/20 p-3">
-                  <FlameIcon className="w-8 h-8 text-cyan-400" />
+                <div className="rounded-xl bg-cyan-500 p-3">
+                  <FlameIcon className="w-8 h-8 text-white" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-cyan-300 text-outline">Jeu du jour</p>
@@ -82,8 +82,8 @@ export default async function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-green-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <div className="relative z-10">
               <div className="mb-4 flex items-center gap-3">
-                <div className="rounded-xl bg-emerald-500/20 p-3">
-                  <QuestIcon className="w-8 h-8 text-emerald-400" />
+                <div className="rounded-xl bg-emerald-500 p-3">
+                  <QuestIcon className="w-8 h-8 text-white" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300 text-outline">Cours</p>
@@ -112,8 +112,8 @@ export default async function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <div className="relative z-10">
               <div className="mb-4 flex items-center gap-3">
-                <div className="rounded-xl bg-purple-500/20 p-3">
-                  <GameIcon className="w-8 h-8 text-purple-400" />
+                <div className="rounded-xl bg-purple-500 p-3">
+                  <GameIcon className="w-8 h-8 text-white" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-purple-300 text-outline">Jeux</p>
@@ -139,8 +139,8 @@ export default async function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
               <div className="relative z-10">
                 <div className="mb-4 flex items-center gap-3">
-                  <div className="rounded-xl bg-amber-500/20 p-3">
-                    <TeacherIcon className="w-8 h-8 text-amber-400" />
+                  <div className="rounded-xl bg-amber-500 p-3">
+                    <TeacherIcon className="w-8 h-8 text-white" />
                   </div>
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-wider text-amber-300 text-outline">Professeurs</p>
@@ -159,15 +159,15 @@ export default async function HomePage() {
 
           {/* Classement */}
           <Link
-            href="/profile"
+            href="/leaderboard"
             className="comic-card-dark group relative p-8"
             style={{ background: "linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%)" }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-amber-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <div className="relative z-10">
               <div className="mb-4 flex items-center gap-3">
-                <div className="rounded-xl bg-yellow-500/20 p-3">
-                  <TrophyIcon className="w-8 h-8 text-yellow-400" />
+                <div className="rounded-xl bg-yellow-500 p-3">
+                  <TrophyIcon className="w-8 h-8 text-white" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-yellow-300 text-outline">Classement</p>
@@ -192,8 +192,8 @@ export default async function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-blue-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <div className="relative z-10">
               <div className="mb-4 flex items-center gap-3">
-                <div className="rounded-xl bg-indigo-500/20 p-3">
-                  <BookIcon className="w-8 h-8 text-indigo-400" />
+                <div className="rounded-xl bg-indigo-500 p-3">
+                  <BookIcon className="w-8 h-8 text-white" />
                 </div>
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-indigo-300 text-outline">Bibliothèque</p>

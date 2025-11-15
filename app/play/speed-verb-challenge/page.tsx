@@ -492,7 +492,9 @@ export default function SpeedVerbChallengePage() {
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xl">{DIFFICULTY_LABELS[diff]}</span>
                       {selectedDifficulty === diff && (
-                        <CheckCircleIcon className="w-6 h-6" />
+                        <div className="comic-panel bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black p-1">
+                          <CheckCircleIcon className="w-5 h-5 text-white" />
+                        </div>
                       )}
                     </div>
                     <span className="block text-sm opacity-90 mt-1">
@@ -550,7 +552,9 @@ export default function SpeedVerbChallengePage() {
                   whileHover={{ scale: 1.05 }}
                 >
                   <div className="flex items-center justify-center gap-1 text-xs text-white/80 mb-1 text-outline font-semibold">
-                    <FireIcon className="w-3 h-3" />
+                    <div className="comic-panel bg-gradient-to-br from-orange-500 to-red-600 border-2 border-black p-1">
+                      <FireIcon className="w-3 h-3 text-white" />
+                    </div>
                     SÉRIE
                   </div>
                   <div className="text-3xl font-bold text-white text-outline">
@@ -562,7 +566,9 @@ export default function SpeedVerbChallengePage() {
                   whileHover={{ scale: 1.05 }}
                 >
                   <div className="flex items-center justify-center gap-1 text-xs text-white/80 mb-1 text-outline font-semibold">
-                    <StarIcon className="w-3 h-3" />
+                    <div className="comic-panel bg-gradient-to-br from-yellow-400 to-amber-500 border-2 border-black p-1">
+                      <StarIcon className="w-3 h-3 text-white" />
+                    </div>
                     COMBO
                   </div>
                   <div className="text-3xl font-bold text-white text-outline">
@@ -578,7 +584,9 @@ export default function SpeedVerbChallengePage() {
                   whileHover={{ scale: 1.05 }}
                 >
                   <div className="flex items-center justify-center gap-1 text-xs text-white/80 mb-1 text-outline font-semibold">
-                    <ClockIcon className="w-3 h-3" />
+                    <div className="comic-panel bg-gradient-to-br from-blue-500 to-indigo-600 border-2 border-black p-1">
+                      <ClockIcon className="w-3 h-3 text-white" />
+                    </div>
                     TEMPS
                   </div>
                   <div className="text-3xl font-bold text-white text-outline">
@@ -764,7 +772,9 @@ export default function SpeedVerbChallengePage() {
                     }}
                   >
                     <span className="flex items-center justify-center gap-2">
-                      <CheckCircleIcon className="w-5 h-5" />
+                      <div className="comic-panel bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black p-1">
+                        <CheckCircleIcon className="w-4 h-4 text-white" />
+                      </div>
                       Valider
                     </span>
                   </motion.button>
@@ -798,9 +808,13 @@ export default function SpeedVerbChallengePage() {
                     >
                       <div className="flex items-center justify-center gap-3 mb-4">
                         {feedback.isCorrect ? (
-                          <CheckCircleIcon className="w-8 h-8" />
+                          <div className="comic-panel bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black p-2">
+                            <CheckCircleIcon className="w-6 h-6 text-white" />
+                          </div>
                         ) : (
-                          <XCircleIcon className="w-8 h-8" />
+                          <div className="comic-panel bg-gradient-to-br from-red-500 to-rose-600 border-2 border-black p-2">
+                            <XCircleIcon className="w-6 h-6 text-white" />
+                          </div>
                         )}
                         <div className="text-center font-bold text-xl text-outline">
                           {feedback.message}

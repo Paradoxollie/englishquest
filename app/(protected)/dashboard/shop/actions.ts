@@ -45,12 +45,12 @@ export async function uploadShopItemImageAction(
       };
     }
 
-    // Validate file size (max 5MB for our app, but Supabase free tier allows 50MB)
+    // Validate file size (max 5MB for our app)
     const maxSize = 5 * 1024 * 1024; // 5MB (conservative limit)
     if (file.size > maxSize) {
       return {
         success: false,
-        error: "L'image est trop grande. Taille maximum: 5MB. (Supabase permet jusqu'à 50MB sur le plan gratuit, mais nous limitons à 5MB pour optimiser les performances)",
+        error: "L'image est trop grande. Taille maximum: 5MB.",
       };
     }
 
@@ -124,11 +124,11 @@ export async function uploadShopItemImageAction(
       
       // Check for common Supabase limits
       if (errorMessage.includes("413") || errorMessage.includes("too large") || errorMessage.includes("File size")) {
-        errorMessage = "Le fichier est trop volumineux. Limite : 50 Mo (plan gratuit) ou 500 Go (plan Pro).";
+        errorMessage = "Le fichier est trop volumineux. Limite : 50 Mo.";
       } else if (errorMessage.includes("429") || errorMessage.includes("rate limit") || errorMessage.includes("too many")) {
         errorMessage = "Trop de requêtes. Veuillez patienter quelques instants avant de réessayer.";
       } else if (errorMessage.includes("quota") || errorMessage.includes("storage")) {
-        errorMessage = "Limite de stockage atteinte. Vérifiez votre quota Supabase (1 Go sur le plan gratuit).";
+        errorMessage = "Limite de stockage atteinte. Vérifiez votre quota Supabase.";
       } else if (errorMessage.includes("permission") || errorMessage.includes("policy") || errorMessage.includes("RLS")) {
         errorMessage = "Erreur de permissions. Vérifiez les politiques RLS dans Supabase.";
       }
