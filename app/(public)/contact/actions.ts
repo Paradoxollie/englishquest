@@ -1,6 +1,8 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export type ContactFormState = {
   error?: string;
@@ -11,27 +13,40 @@ export async function submitContactMessageAction(
   prevState: ContactFormState,
   formData: FormData
 ): Promise<ContactFormState> {
-  const name = formData.get("name")?.toString().trim();
-  const email = formData.get("email")?.toString().trim();
+  // Vérifier que l'utilisateur est authentifié
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    redirect("/auth/login?redirect=/contact");
+  }
+
   const subject = formData.get("subject")?.toString().trim();
   const message = formData.get("message")?.toString().trim();
 
-  if (!name || !email || !subject || !message) {
-    return { error: "Tous les champs sont requis." };
+  if (!subject || !message) {
+    return { error: "Le sujet et le message sont requis." };
   }
 
-  // Validation basique de l'email
-  if (!email.includes("@") || !email.includes(".")) {
-    return { error: "Veuillez entrer une adresse email valide." };
+  // Récupérer le profil de l'utilisateur pour obtenir le nom et l'email
+  const adminClient = createSupabaseAdminClient();
+  const { data: profile } = await adminClient
+    .from("profiles")
+    .select("username, email")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (!profile) {
+    return { error: "Profil utilisateur introuvable. Veuillez réessayer." };
   }
 
-  const supabase = await createSupabaseServerClient();
-
-  const { error } = await supabase
+  // Insérer le message avec les données du profil
+  const { error } = await adminClient
     .from("contact_messages")
     .insert({
-      name,
-      email,
+      user_id: user.id,
+      name: profile.username,
+      email: profile.email || null,
       subject,
       message,
     });
@@ -41,7 +56,7 @@ export async function submitContactMessageAction(
     return { error: "Erreur lors de l'envoi du message. Veuillez réessayer." };
   }
 
-  return { success: "Votre message a été envoyé avec succès ! Nous vous répondrons bientôt." };
+  return { success: "Votre message a été envoyé avec succès ! Vous recevrez une réponse ici même." };
 }
 
 

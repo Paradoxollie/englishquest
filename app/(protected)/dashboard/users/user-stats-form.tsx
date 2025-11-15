@@ -42,20 +42,41 @@ export function UserStatsForm({
   const [gold, setGold] = useState(currentGold.toString());
   const [level, setLevel] = useState(currentLevel.toString());
 
+  // Synchroniser les valeurs locales avec les props quand elles changent (après refresh)
+  useEffect(() => {
+    setXp(currentXP.toString());
+    setGold(currentGold.toString());
+    setLevel(currentLevel.toString());
+  }, [currentXP, currentGold, currentLevel]);
+
+  // Rafraîchir la page après succès pour récupérer les nouvelles valeurs depuis la DB
   useEffect(() => {
     if (state.success) {
-      router.refresh();
-      // Réinitialiser les champs après succès
-      setTimeout(() => {
-        setXp(currentXP.toString());
-        setGold(currentGold.toString());
-        setLevel(currentLevel.toString());
-      }, 1000);
+      // Attendre un peu pour que la DB soit mise à jour, puis rafraîchir
+      const timer = setTimeout(() => {
+        router.refresh();
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  }, [state.success, router, currentXP, currentGold, currentLevel]);
+  }, [state.success, router]);
+
+  const handleSubmit = async (formData: FormData) => {
+    // Log pour debug
+    const xpValue = formData.get("xp");
+    const goldValue = formData.get("gold");
+    const levelValue = formData.get("level");
+    console.log("Form submitted with values:", { 
+      userId, 
+      xp: xpValue, 
+      gold: goldValue, 
+      level: levelValue,
+      current: { currentXP, currentGold, currentLevel }
+    });
+    return formAction(formData);
+  };
 
   return (
-    <form action={formAction} className="flex flex-col gap-1">
+    <form action={handleSubmit} className="flex flex-col gap-1">
       <input type="hidden" name="userId" value={userId} />
       <div className="flex items-center gap-1">
         <input
@@ -64,6 +85,7 @@ export function UserStatsForm({
           value={xp}
           onChange={(e) => setXp(e.target.value)}
           min="0"
+          required
           className="comic-panel w-20 border-2 border-black bg-slate-800 px-2 py-1 text-xs font-bold text-white focus:border-cyan-400 focus:outline-none"
           placeholder="XP"
         />
@@ -73,6 +95,7 @@ export function UserStatsForm({
           value={gold}
           onChange={(e) => setGold(e.target.value)}
           min="0"
+          required
           className="comic-panel w-20 border-2 border-black bg-slate-800 px-2 py-1 text-xs font-bold text-white focus:border-cyan-400 focus:outline-none"
           placeholder="Gold"
         />
@@ -82,6 +105,7 @@ export function UserStatsForm({
           value={level}
           onChange={(e) => setLevel(e.target.value)}
           min="1"
+          required
           className="comic-panel w-16 border-2 border-black bg-slate-800 px-2 py-1 text-xs font-bold text-white focus:border-cyan-400 focus:outline-none"
           placeholder="Lvl"
         />

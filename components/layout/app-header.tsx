@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { logoutAction } from "@/app/(protected)/actions";
 import { useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { EnvelopeIcon } from "@/components/ui/icons";
 
 const baseNavLinks = [
   { label: "Accueil", href: "/" },
@@ -80,6 +81,14 @@ export function AppHeader() {
             <div className="h-10 w-32 animate-pulse comic-panel bg-slate-700/50" />
           ) : user ? (
             <>
+              <Link
+                href="/messages"
+                className="comic-button bg-purple-600 text-white p-2.5 hover:bg-purple-700 relative flex items-center justify-center"
+                title="Mes messages"
+                aria-label="Mes messages"
+              >
+                <EnvelopeIcon className="w-5 h-5" />
+              </Link>
               <Link
                 href="/profile"
                 className="comic-button bg-slate-800 text-white px-4 py-2 text-sm font-bold hover:bg-slate-700"

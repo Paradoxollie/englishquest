@@ -75,6 +75,72 @@ export default async function AdminDashboardPage() {
             />
           </div>
 
+          {/* Statistiques de visiteurs */}
+          <div className="comic-panel-dark p-6">
+            <h3 className="mb-4 text-lg font-bold text-white">Statistiques de visiteurs</h3>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
+              <StatCard
+                title="Visiteurs uniques (total)"
+                value={stats.visitors.totalUniqueVisitors.toLocaleString()}
+                icon="👤"
+                color="purple"
+              />
+              <StatCard
+                title="Visites totales"
+                value={stats.visitors.totalVisits.toLocaleString()}
+                icon="📊"
+                color="cyan"
+              />
+              <StatCard
+                title="Visiteurs uniques (aujourd'hui)"
+                value={stats.visitors.uniqueVisitorsToday.toLocaleString()}
+                icon="🌅"
+                color="green"
+              />
+              <StatCard
+                title="Visites (aujourd'hui)"
+                value={stats.visitors.visitsToday.toLocaleString()}
+                icon="📈"
+                color="amber"
+              />
+            </div>
+
+            {/* Statistiques par jour */}
+            {stats.visitors.dailyStats.length > 0 && (
+              <div>
+                <h4 className="mb-3 text-md font-semibold text-slate-300">Visiteurs par jour (30 derniers jours)</h4>
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {stats.visitors.dailyStats.map((day) => (
+                    <div
+                      key={day.date}
+                      className="comic-panel bg-slate-800/50 flex items-center justify-between px-4 py-3"
+                    >
+                      <div className="flex items-center gap-4">
+                        <span className="text-sm font-semibold text-slate-400 min-w-[100px]">
+                          {new Date(day.date).toLocaleDateString("fr-FR", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </span>
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-slate-500 font-semibold">Uniques:</span>
+                            <span className="font-bold text-purple-300">{day.uniqueVisitors}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-slate-500 font-semibold">Total:</span>
+                            <span className="font-bold text-cyan-300">{day.totalVisits}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Statistiques détaillées */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {/* Utilisateurs par rôle */}
@@ -180,6 +246,12 @@ export default async function AdminDashboardPage() {
                     {stats.unreadMessages}
                   </span>
                 )}
+              </Link>
+              <Link
+                href="/dashboard/shop"
+                className="comic-button bg-amber-500 text-white px-6 py-3 font-bold hover:bg-amber-600"
+              >
+                Gérer la Boutique
               </Link>
             </>
           ) : (

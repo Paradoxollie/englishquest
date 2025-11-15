@@ -31,14 +31,20 @@ export default async function UsersManagementPage() {
   const adminClient = createSupabaseAdminClient();
   const { data: profiles, error } = await adminClient
     .from("profiles")
-    .select("id, username, email, role, xp, gold, level, created_at")
+    .select("id, username, email, role, xp, gold, level, created_at, updated_at")
     .order("created_at", { ascending: false });
 
   if (error) {
     console.error("Error fetching users:", error);
   }
 
-  const users = (profiles || []) as Profile[];
+  // S'assurer que les valeurs XP, Gold et Level ne sont pas null/undefined
+  const users = (profiles || []).map((profile: any) => ({
+    ...profile,
+    xp: profile.xp ?? 0,
+    gold: profile.gold ?? 0,
+    level: profile.level ?? 1,
+  })) as Profile[];
 
   // Récupérer l'ID de l'utilisateur actuel pour éviter qu'il se modifie/supprime lui-même
   const currentUserId = user.id;

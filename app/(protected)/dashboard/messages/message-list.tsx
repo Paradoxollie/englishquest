@@ -1,17 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { markMessageAsReadAction, deleteMessageAction } from "./actions";
+import { useState, useEffect } from "react";
+import { useActionState, useFormStatus } from "react";
+import { markMessageAsReadAction, deleteMessageAction, replyToMessageAction } from "./actions";
 import { useRouter } from "next/navigation";
 
 type Message = {
   id: string;
   name: string;
-  email: string;
+  email: string | null;
   subject: string;
   message: string;
   read: boolean;
   replied: boolean;
+  reply: string | null;
+  replied_by: string | null;
+  replied_at: string | null;
   created_at: string;
 };
 
@@ -152,17 +156,34 @@ export function MessageList({ messages: initialMessages }: MessageListProps) {
                     </button>
                   </div>
                 </div>
-                <div className="comic-panel bg-slate-800/50 border-2 border-black p-4">
+                <div className="comic-panel bg-slate-800/50 border-2 border-black p-4 mb-4">
                   <p className="text-slate-200 whitespace-pre-wrap font-semibold">{message.message}</p>
                 </div>
-                <div className="mt-4">
-                  <a
-                    href={`mailto:${message.email}?subject=Re: ${encodeURIComponent(message.subject)}`}
-                    className="comic-button inline-block bg-cyan-500 text-white px-4 py-2 text-sm font-bold hover:bg-cyan-600"
-                  >
-                    Répondre par email
-                  </a>
-                </div>
+
+                {/* Afficher la réponse si elle existe */}
+                {message.reply && (
+                  <div className="mb-4 comic-panel bg-green-950/30 border-2 border-green-500/50 p-4">
+                    <p className="text-sm font-semibold text-green-300 mb-2">Votre réponse :</p>
+                    <p className="text-green-200 whitespace-pre-wrap font-semibold">{message.reply}</p>
+                    {message.replied_at && (
+                      <p className="text-xs text-green-400 mt-2 font-semibold">
+                        Répondu le{" "}
+                        {new Date(message.replied_at).toLocaleString("fr-FR", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Formulaire de réponse */}
+                {!message.reply && (
+                  <ReplyForm messageId={message.id} />
+                )}
               </div>
             );
           })()
@@ -173,6 +194,64 @@ export function MessageList({ messages: initialMessages }: MessageListProps) {
         )}
       </div>
     </div>
+  );
+}
+
+function ReplyForm({ messageId }: { messageId: string }) {
+  const router = useRouter();
+  const [state, formAction] = useActionState(replyToMessageAction, {});
+
+  // Rafraîchir après succès
+  useEffect(() => {
+    if (state.success) {
+      const timer = setTimeout(() => {
+        router.refresh();
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [state.success, router]);
+
+  return (
+    <form action={formAction} className="mt-4 space-y-3">
+      <input type="hidden" name="messageId" value={messageId} />
+      <div>
+        <label htmlFor="reply" className="block text-sm font-bold text-slate-200 mb-2">
+          Répondre au message
+        </label>
+        <textarea
+          id="reply"
+          name="reply"
+          required
+          rows={6}
+          className="comic-panel w-full border-2 border-black bg-slate-800 px-4 py-3 font-semibold text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none resize-none"
+          placeholder="Tapez votre réponse ici..."
+        />
+      </div>
+      {state.error && (
+        <div className="comic-panel border-2 border-black bg-red-500 text-white px-4 py-3 text-sm font-bold">
+          {state.error}
+        </div>
+      )}
+      {state.success && (
+        <div className="comic-panel border-2 border-black bg-green-500 text-white px-4 py-3 text-sm font-bold">
+          {state.success}
+        </div>
+      )}
+      <SubmitReplyButton />
+    </form>
+  );
+}
+
+function SubmitReplyButton() {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      className="comic-button bg-cyan-500 text-white px-6 py-3 font-bold hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      {pending ? "Envoi en cours..." : "Envoyer la réponse"}
+    </button>
   );
 }
 

@@ -39,6 +39,8 @@ import {
 } from "@/components/ui/game-icons";
 import { useAuth } from "@/components/auth/auth-provider";
 import { SpeedVerbLeaderboard } from "./leaderboard";
+import { submitSpeedVerbScore } from "./actions";
+import { TopScoresDisplay } from "./top-scores-display";
 
 interface SessionStats {
   totalCorrect: number;
@@ -99,8 +101,16 @@ export default function SpeedVerbChallengePage() {
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isGameEnded, setIsGameEnded] = useState(false);
   const [showFeedbackAnimation, setShowFeedbackAnimation] = useState(false);
+  const [scoreSubmitted, setScoreSubmitted] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [submissionResult, setSubmissionResult] = useState<{
+    isNewPersonalBest?: boolean;
+    isNewGlobalBest?: boolean;
+    personalBest?: number;
+  } | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const lastTickRef = useRef<number>(Date.now());
+  const gameStartTimeRef = useRef<number | null>(null);
 
   // Initialize game state
   const initializeGame = useCallback(() => {
@@ -128,7 +138,14 @@ export default function SpeedVerbChallengePage() {
     setGameState(newState);
     setIsGameStarted(true);
     setIsGameEnded(false);
+    setScoreSubmitted(false);
+    setSubmissionError(null);
+    setSessionStats({ totalCorrect: 0, totalAttempts: 0, bestStreak: 0 });
+    setMissedVerbs([]);
+    setAnswer({ pastSimple: "", pastParticiple: "", translation: "" });
+    setFeedback(null);
     lastTickRef.current = now;
+    gameStartTimeRef.current = now;
   }, [gameState]);
 
   // Handle answer submission
@@ -308,6 +325,48 @@ export default function SpeedVerbChallengePage() {
     initializeGame();
   }, [initializeGame]);
 
+  // Submit score when game ends
+  useEffect(() => {
+    async function handleGameEnd() {
+      if (!isGameEnded || !gameState || !user || scoreSubmitted) {
+        return;
+      }
+
+      // Calculate game duration
+      const durationMs = gameStartTimeRef.current
+        ? Date.now() - gameStartTimeRef.current
+        : 0;
+
+      // Submit the score
+      try {
+        const result = await submitSpeedVerbScore({
+          difficulty: selectedDifficulty,
+          correctCount: gameState.roundsCompleted,
+          totalRounds: sessionStats.totalAttempts,
+          durationMs: durationMs,
+        });
+
+        if (result.success) {
+          setScoreSubmitted(true);
+          setSubmissionResult({
+            isNewPersonalBest: result.isNewPersonalBest,
+            isNewGlobalBest: result.isNewGlobalBest,
+            personalBest: result.personalBest,
+          });
+          console.log("Score submitted successfully:", result.rewards);
+        } else {
+          setSubmissionError(result.error || "Erreur lors de la sauvegarde");
+          console.error("Error submitting score:", result.error);
+        }
+      } catch (error) {
+        setSubmissionError("Erreur lors de la sauvegarde du score");
+        console.error("Error submitting score:", error);
+      }
+    }
+
+    handleGameEnd();
+  }, [isGameEnded, gameState, user, scoreSubmitted, selectedDifficulty, sessionStats.totalAttempts]);
+
   // Handle difficulty change
   const handleDifficultyChange = useCallback(
     (difficulty: Difficulty) => {
@@ -444,9 +503,11 @@ export default function SpeedVerbChallengePage() {
               </div>
             </div>
 
-            {/* Leaderboard for Selected Difficulty */}
+            {/* Top Scores Display */}
             <div className="mt-8">
-              <SpeedVerbLeaderboard initialDifficulty={selectedDifficulty === 1 ? "easy" : selectedDifficulty === 2 ? "medium" : "hard"} />
+              <TopScoresDisplay 
+                selectedDifficulty={selectedDifficulty === 1 ? "easy" : selectedDifficulty === 2 ? "medium" : "hard"}
+              />
             </div>
 
             {/* Start Button */}
@@ -843,12 +904,46 @@ export default function SpeedVerbChallengePage() {
                     </p>
                   )}
                   {user && (
-                    <p className="text-sm text-emerald-300 mt-4 text-outline">
-                      ✅ Votre score sera sauvegardé automatiquement.
-                    </p>
+                    <div className="mt-4">
+                      {scoreSubmitted ? (
+                        <div className="space-y-2">
+                          <p className="text-sm text-emerald-300 text-outline">
+                            ✅ Score sauvegardé avec succès!
+                          </p>
+                          {submissionResult?.isNewPersonalBest && (
+                            <p className="text-sm text-cyan-300 text-outline font-bold">
+                              🎉 Nouveau record personnel!
+                            </p>
+                          )}
+                          {submissionResult?.isNewGlobalBest && (
+                            <p className="text-sm text-amber-300 text-outline font-bold">
+                              🏆 Nouveau record global!
+                            </p>
+                          )}
+                        </div>
+                      ) : submissionError ? (
+                        <p className="text-sm text-red-300 text-outline">
+                          ❌ {submissionError}
+                        </p>
+                      ) : (
+                        <p className="text-sm text-amber-300 text-outline">
+                          ⏳ Sauvegarde en cours...
+                        </p>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
+
+              {/* Top Scores Display */}
+              {user && (
+                <div className="comic-panel-dark p-6">
+                  <TopScoresDisplay 
+                    selectedDifficulty={selectedDifficulty === 1 ? "easy" : selectedDifficulty === 2 ? "medium" : "hard"}
+                    currentScore={gameState.roundsCompleted}
+                  />
+                </div>
+              )}
 
               {/* Missed Verbs Section */}
               {missedVerbs.length > 0 && (

@@ -56,6 +56,9 @@ export async function submitSpeedVerbScore(params: {
     goldEarned: number;
     newLevel?: number;
   };
+  isNewPersonalBest?: boolean;
+  isNewGlobalBest?: boolean;
+  personalBest?: number;
 }> {
   try {
     const supabase = await createSupabaseServerClient();
@@ -96,9 +99,22 @@ export async function submitSpeedVerbScore(params: {
     };
     const difficulty = difficultyMap[params.difficulty];
 
+    // Get user's current personal best score for this difficulty
+    const { data: personalBest } = await adminClient
+      .from("game_scores")
+      .select("id, score")
+      .eq("user_id", user.id)
+      .eq("game_id", game.id)
+      .eq("difficulty", difficulty)
+      .order("score", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const currentPersonalBest = personalBest?.score ?? 0;
+    const isNewPersonalBest = params.correctCount > currentPersonalBest;
+
     // Check if this is a new global best score for this difficulty
-    // Query the current top score for this difficulty
-    const { data: topScore } = await adminClient
+    const { data: globalTopScore } = await adminClient
       .from("game_scores")
       .select("score")
       .eq("game_id", game.id)
@@ -107,33 +123,50 @@ export async function submitSpeedVerbScore(params: {
       .limit(1)
       .maybeSingle();
 
-    const currentBest = topScore?.score ?? 0;
-    const isNewGlobalBest = params.correctCount > currentBest;
+    const currentGlobalBest = globalTopScore?.score ?? 0;
+    const isNewGlobalBest = params.correctCount > currentGlobalBest;
 
-    // Calculate rewards
+    // Calculate rewards (always calculate, even if not saving)
     const rewards = computeSpeedVerbRewards({
       difficulty,
       correctCount: params.correctCount,
       isNewGlobalBest,
     });
 
-    // Insert the game score
-    // The game_scores table has a "difficulty" column (added in gamification.sql migration)
-    const { error: insertError } = await supabase.from("game_scores").insert({
-      user_id: user.id,
-      game_id: game.id,
-      score: params.correctCount,
-      max_score: params.totalRounds,
-      duration_ms: params.durationMs,
-      difficulty: difficulty,
-    });
+    // Only save if it's a new personal best
+    if (isNewPersonalBest) {
+      // Delete old personal best if it exists
+      if (personalBest?.id) {
+        const { error: deleteError } = await adminClient
+          .from("game_scores")
+          .delete()
+          .eq("id", personalBest.id);
 
-    if (insertError) {
-      console.error("Error inserting game score:", insertError);
-      return {
-        success: false,
-        error: "Failed to save score",
-      };
+        if (deleteError) {
+          console.error("Error deleting old personal best:", deleteError);
+          // Continue anyway, we'll try to insert the new one
+        }
+      }
+
+      // Insert the new personal best score
+      const { error: insertError } = await adminClient
+        .from("game_scores")
+        .insert({
+          user_id: user.id,
+          game_id: game.id,
+          score: params.correctCount,
+          max_score: params.totalRounds,
+          duration_ms: params.durationMs,
+          difficulty: difficulty,
+        });
+
+      if (insertError) {
+        console.error("Error inserting game score:", insertError);
+        return {
+          success: false,
+          error: "Failed to save score",
+        };
+      }
     }
 
     // Update user profile with rewards
@@ -179,6 +212,9 @@ export async function submitSpeedVerbScore(params: {
         goldEarned: rewards.goldEarned,
         newLevel: newLevel > profile.level ? newLevel : undefined,
       },
+      isNewPersonalBest,
+      isNewGlobalBest,
+      personalBest: isNewPersonalBest ? params.correctCount : currentPersonalBest,
     };
   } catch (error) {
     console.error("Error in submitSpeedVerbScore:", error);

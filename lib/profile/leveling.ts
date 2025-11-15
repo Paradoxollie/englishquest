@@ -8,6 +8,11 @@
  * - Rewards depend ONLY on correct answers and difficulty (no time, accuracy, or streak)
  * - Significant bonus for achieving a new global best score on leaderboard
  * - Level progression is slow and meaningful (200 XP per level)
+ * 
+ * Architecture:
+ * - Only ONE table game_scores with a "difficulty" column
+ * - 3 leaderboards (easy / medium / hard) are built by filtering on difficulty
+ * - XP and gold are wired to Supabase (profiles + game_scores + leaderboards)
  */
 
 export type Difficulty = "easy" | "medium" | "hard";
@@ -42,23 +47,37 @@ export type RewardResult = {
 /**
  * Compute XP and gold rewards for a Speed Verb Challenge game session.
  * 
- * Reward Philosophy:
+ * IMPORTANT: Rewards depend ONLY on:
+ * - Number of correct answers (correctCount)
+ * - Difficulty level (easy/medium/hard)
+ * - Whether this is a new global best score (isNewGlobalBest)
+ * 
+ * NO other factors are considered:
+ * - NO time/duration
+ * - NO streak
+ * - NO accuracy percentage
+ * - NO other metrics
+ * 
+ * Reward Formula:
  * - Base XP per correct answer: 1 (easy), 2 (medium), 3 (hard)
- * - Gold is calculated as floor(XP / 8), making it even slower to farm
- * - Bonus XP (+80) for achieving a new global best score on the leaderboard
+ * - Base XP = correctCount × XP per correct
+ * - Bonus XP: +80 if this is a new global best score for the difficulty
+ * - Gold = floor(total XP / 8)
  * 
  * This ensures:
  * - Even looping games won't allow rapid XP/gold farming
  * - Difficulty directly impacts rewards (harder = more rewards)
- * - Leaderboard competition is incentivized with significant bonus
+ * - Leaderboard competition is incentivized with significant bonus (+80 XP)
+ * - Gold is even slower to farm than XP (8:1 ratio)
  * 
  * Example calculations:
- * - Easy, 10 correct, no best: 10 XP, 1 gold
- * - Medium, 15 correct, no best: 30 XP, 3 gold
- * - Hard, 20 correct, new best: 80 XP (60 base + 20 bonus), 10 gold
+ * - Easy, 10 correct, no best: 10 XP, 1 gold (floor(10/8) = 1)
+ * - Medium, 15 correct, no best: 30 XP, 3 gold (floor(30/8) = 3)
+ * - Hard, 20 correct, no best: 60 XP, 7 gold (floor(60/8) = 7)
+ * - Hard, 20 correct, new best: 140 XP (60 base + 80 bonus), 17 gold (floor(140/8) = 17)
  * 
  * @param params - Reward calculation parameters
- * @param params.difficulty - Game difficulty level
+ * @param params.difficulty - Game difficulty level ("easy" | "medium" | "hard")
  * @param params.correctCount - Number of correct answers in the session
  * @param params.isNewGlobalBest - Whether this score is a new global best for the difficulty
  * @returns Reward result with XP and gold earned
@@ -70,7 +89,13 @@ export function computeSpeedVerbRewards(params: {
 }): RewardResult {
   const { difficulty, correctCount, isNewGlobalBest } = params;
 
+  // Validate inputs
+  if (correctCount < 0) {
+    return { xpEarned: 0, goldEarned: 0 };
+  }
+
   // XP per correct answer based on difficulty
+  // This is the ONLY factor (besides global best bonus) that affects XP
   const perCorrect: Record<Difficulty, number> = {
     easy: 1,
     medium: 2,
@@ -78,9 +103,11 @@ export function computeSpeedVerbRewards(params: {
   };
 
   // Base XP = correct answers × XP per correct
+  // This is the core reward formula - simple and slow to farm
   let xpBase = correctCount * perCorrect[difficulty];
 
-  // Bonus for achieving a new global best score
+  // Significant bonus for achieving a new global best score on the leaderboard
+  // This incentivizes competition and reaching the top of the leaderboard
   // Only applies if the player got at least one correct answer
   if (isNewGlobalBest && correctCount > 0) {
     xpBase += 80;
@@ -88,6 +115,7 @@ export function computeSpeedVerbRewards(params: {
 
   // Gold is calculated as floor(XP / 8)
   // This makes gold even slower to farm than XP
+  // The 8:1 ratio ensures players need significant XP to earn gold
   const goldEarned = Math.floor(xpBase / 8);
 
   return {

@@ -1,9 +1,15 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { isAdmin } from "@/lib/auth/roles";
 import type { Profile } from "@/types/profile";
 import { MotionCard } from "@/components/ui/motion-card";
 import { XPIcon, GoldIcon, LevelIcon, AvatarIcon, ScrollIcon, GiftIcon, GameIcon } from "@/components/ui/icons";
+import { CustomizationDisplay } from "./customization-display";
+import { ShopSection } from "./shop/shop-section";
+import { AvatarDisplay } from "./avatar-display";
+import { TitleDisplay } from "./title-display";
 
 // Force dynamic rendering - this page requires authentication
 export const dynamic = 'force-dynamic';
@@ -107,7 +113,7 @@ export default async function ProfilePage() {
     .from("game_scores")
     .select(`
       score,
-      played_at,
+      created_at,
       games (
         id,
         name
@@ -155,12 +161,27 @@ export default async function ProfilePage() {
     admin: "Administrateur",
   };
 
+  // Vérifier si l'utilisateur est admin
+  const userIsAdmin = await isAdmin();
+
   return (
     <div className="space-y-8 md:space-y-12">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-white md:text-4xl lg:text-5xl">Mon profil</h1>
-        <p className="mt-2 text-lg text-slate-400">Gérez vos informations et consultez vos statistiques</p>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-white md:text-4xl lg:text-5xl">Mon profil</h1>
+            <p className="mt-2 text-lg text-slate-400">Gérez vos informations et consultez vos statistiques</p>
+          </div>
+          {userIsAdmin && (
+            <Link
+              href="/dashboard"
+              className="comic-button bg-cyan-500 text-white px-6 py-3 font-bold hover:bg-cyan-600 transition-colors w-full sm:w-auto text-center"
+            >
+              Dashboard Admin
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Player Panel Card */}
@@ -173,20 +194,13 @@ export default async function ProfilePage() {
             <div className="flex items-center justify-between border-b border-slate-700/50 pb-4">
               <div className="flex items-center gap-4">
                 {/* Avatar */}
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-950/30 to-emerald-900/30 border-2 border-emerald-800/40">
-                  {profile.avatar_id ? (
-                    <AvatarIcon className="w-10 h-10 text-emerald-400" />
-                  ) : (
-                    <span className="text-2xl font-bold text-emerald-400">
-                      {profile.username.charAt(0).toUpperCase()}
-                    </span>
-                  )}
-                </div>
+                <AvatarDisplay userId={user.id} username={profile.username} size="md" />
                 <div>
                   <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
                     {roleLabels[profile.role] || profile.role}
                   </p>
                   <p className="mt-1 text-2xl font-bold text-white">{profile.username}</p>
+                  <TitleDisplay userId={user.id} />
                 </div>
               </div>
               <div className="flex items-center gap-2 rounded-lg bg-emerald-950/20 px-4 py-2 border border-emerald-900/20">
@@ -307,6 +321,28 @@ export default async function ProfilePage() {
         </MotionCard>
       </div>
 
+      {/* Personnalisation */}
+      <MotionCard>
+        <CustomizationDisplay userId={user.id} username={profile.username} />
+      </MotionCard>
+
+      {/* Boutique */}
+      <MotionCard>
+        <div className="comic-panel-dark p-6" style={{ position: "relative", zIndex: 1, pointerEvents: "auto" }}>
+          <div className="flex items-center gap-3 mb-6">
+            <GiftIcon className="w-8 h-8 text-cyan-400" />
+            <h2 className="text-2xl font-bold text-white text-outline">Boutique</h2>
+          </div>
+          <div style={{ position: "relative", zIndex: 2, pointerEvents: "auto" }}>
+            <ShopSection
+              userLevel={profile.level}
+              userGold={profile.gold}
+              userId={user.id}
+            />
+          </div>
+        </div>
+      </MotionCard>
+
       {/* Meilleurs scores */}
       {bestScores && bestScores.length > 0 && (
         <MotionCard>
@@ -326,7 +362,7 @@ export default async function ProfilePage() {
                       <div>
                         <p className="font-semibold text-white">{game?.name || "Jeu inconnu"}</p>
                         <p className="text-xs text-slate-400">
-                          {new Date(scoreData.played_at).toLocaleDateString('fr-FR')}
+                          {new Date(scoreData.created_at).toLocaleDateString('fr-FR')}
                         </p>
                       </div>
                       <div className="text-right">

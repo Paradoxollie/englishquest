@@ -176,6 +176,12 @@ values
     'Arcane Listening Trials',
     'Écoutez et comprenez des dialogues en anglais. Développez vos compétences d''écoute avec des défis progressifs.',
     'hard'
+  ),
+  (
+    'speed-verb-challenge',
+    'Speed Verb Challenge',
+    'Conjuguez les verbes irréguliers anglais le plus rapidement possible. Testez votre vitesse et votre mémoire avec ce défi chronométré.',
+    'medium'
   )
 on conflict (slug) do nothing;
 

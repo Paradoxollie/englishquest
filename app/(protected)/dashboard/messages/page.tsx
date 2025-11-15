@@ -35,7 +35,7 @@ export default async function MessagesPage() {
     try {
       const { data, error } = await adminClient
         .from("contact_messages")
-        .select("*")
+        .select("*, profiles!contact_messages_replied_by_fkey(username)")
         .order("created_at", { ascending: false });
 
       if (error) {

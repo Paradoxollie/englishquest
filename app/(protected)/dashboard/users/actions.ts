@@ -110,51 +110,97 @@ export async function updateUserStatsAction(
     return { error: "Vous ne pouvez pas modifier vos propres statistiques." };
   }
 
-  const updates: { xp?: number; gold?: number; level?: number } = {};
-
-  if (xpStr !== null && xpStr !== undefined) {
-    const xp = parseInt(xpStr, 10);
-    if (isNaN(xp) || xp < 0) {
-      return { error: "XP doit être un nombre positif." };
-    }
-    updates.xp = xp;
-  }
-
-  if (goldStr !== null && goldStr !== undefined) {
-    const gold = parseInt(goldStr, 10);
-    if (isNaN(gold) || gold < 0) {
-      return { error: "Gold doit être un nombre positif." };
-    }
-    updates.gold = gold;
-  }
-
-  if (levelStr !== null && levelStr !== undefined) {
-    const level = parseInt(levelStr, 10);
-    if (isNaN(level) || level < 1) {
-      return { error: "Level doit être un nombre supérieur à 0." };
-    }
-    updates.level = level;
-  }
-
-  if (Object.keys(updates).length === 0) {
-    return { error: "Aucune valeur à mettre à jour." };
-  }
-
-  // Mettre à jour les stats avec le client admin
+  // Récupérer les valeurs actuelles de l'utilisateur pour les conserver si non modifiées
   const adminClient = createSupabaseAdminClient();
-  const { error } = await adminClient
+  const { data: currentProfile, error: fetchCurrentError } = await adminClient
+    .from("profiles")
+    .select("xp, gold, level")
+    .eq("id", userId)
+    .single();
+
+  if (fetchCurrentError || !currentProfile) {
+    console.error("Error fetching current profile:", fetchCurrentError);
+    return { error: `Impossible de récupérer le profil : ${fetchCurrentError?.message || "Profil introuvable"}` };
+  }
+
+  // Parser les valeurs du formulaire - elles sont toujours envoyées
+  let xp = currentProfile.xp ?? 0;
+  let gold = currentProfile.gold ?? 0;
+  let level = currentProfile.level ?? 1;
+
+  if (xpStr !== null && xpStr !== undefined && xpStr !== "") {
+    const parsedXp = parseInt(xpStr, 10);
+    if (!isNaN(parsedXp) && parsedXp >= 0) {
+      xp = parsedXp;
+    }
+  }
+
+  if (goldStr !== null && goldStr !== undefined && goldStr !== "") {
+    const parsedGold = parseInt(goldStr, 10);
+    if (!isNaN(parsedGold) && parsedGold >= 0) {
+      gold = parsedGold;
+    }
+  }
+
+  if (levelStr !== null && levelStr !== undefined && levelStr !== "") {
+    const parsedLevel = parseInt(levelStr, 10);
+    if (!isNaN(parsedLevel) && parsedLevel >= 1) {
+      level = parsedLevel;
+    }
+  }
+
+  const updates = {
+    xp: xp,
+    gold: gold,
+    level: level,
+    updated_at: new Date().toISOString(),
+  };
+
+  console.log("Updating user stats:", { 
+    userId, 
+    current: { xp: currentProfile.xp, gold: currentProfile.gold, level: currentProfile.level },
+    new: updates,
+    formValues: { xpStr, goldStr, levelStr }
+  });
+
+  // Mettre à jour avec le client admin (bypass RLS)
+  const { data: updatedData, error } = await adminClient
     .from("profiles")
     .update(updates)
-    .eq("id", userId);
+    .eq("id", userId)
+    .select("xp, gold, level")
+    .single();
 
   if (error) {
-    console.error("Error updating user stats:", error);
-    return { error: "Erreur lors de la mise à jour des statistiques." };
+    console.error("Error updating user stats:", {
+      error,
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      updates,
+      userId,
+    });
+    return { 
+      error: `Erreur lors de la mise à jour : ${error.message || error.code || "Erreur inconnue"}` 
+    };
   }
 
+  if (!updatedData) {
+    console.error("Update succeeded but no data returned");
+    return { error: "Mise à jour effectuée mais aucune donnée retournée." };
+  }
+
+  // Revalider les chemins pour forcer le rechargement des données
   revalidatePath("/dashboard/users");
-  const updatedFields = Object.keys(updates).join(", ");
-  return { success: `Statistiques mises à jour : ${updatedFields}` };
+  revalidatePath("/dashboard");
+  revalidatePath("/profile");
+  revalidatePath("/home");
+  
+  console.log("Stats updated successfully:", updatedData);
+  return { 
+    success: `Statistiques mises à jour ! XP: ${updatedData.xp}, Gold: ${updatedData.gold}, Level: ${updatedData.level}` 
+  };
 }
 
 export async function deleteUserAction(

@@ -1,6 +1,25 @@
+import { redirect } from "next/navigation";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { ContactForm } from "./contact-form";
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  // Vérifier que l'utilisateur est authentifié
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    redirect("/auth/login?redirect=/contact");
+  }
+
+  // Récupérer le profil pour afficher le nom
+  const adminClient = createSupabaseAdminClient();
+  const { data: profile } = await adminClient
+    .from("profiles")
+    .select("username")
+    .eq("id", user.id)
+    .maybeSingle();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern px-4 py-12">
       <div className="mx-auto max-w-2xl">
@@ -15,6 +34,11 @@ export default function ContactPage() {
             <p className="text-lg text-slate-200 font-semibold text-outline">
               Une question ? Une suggestion ? N'hésitez pas à nous envoyer un message !
             </p>
+            {profile && (
+              <p className="mt-2 text-sm text-slate-300 font-semibold">
+                Connecté en tant que : <span className="text-cyan-300 font-bold">{profile.username}</span>
+              </p>
+            )}
           </div>
         </div>
         <div className="comic-panel-dark p-8">
