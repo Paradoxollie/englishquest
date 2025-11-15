@@ -5,6 +5,7 @@ import "./globals.css";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { AppHeader } from "@/components/layout/app-header";
 import { FooterAd } from "@/components/ads/FooterAd";
+import { FooterAdContainer } from "@/components/ads/FooterAdServer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -62,7 +63,9 @@ export default function RootLayout({
 
               <main className="flex-1">{children}</main>
 
-              {/* AdSense Footer Banner */}
+              {/* AdSense Footer Banner - Container serveur pour HTML source */}
+              <FooterAdContainer />
+              {/* Initialisation client AdSense */}
               <FooterAd />
 
               {/* Simple footer with muted text */}
