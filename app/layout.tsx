@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { AppHeader } from "@/components/layout/app-header";
+import { FooterAd } from "@/components/ads/FooterAd";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -27,6 +29,13 @@ export default function RootLayout({
         className={`${inter.variable} min-h-screen text-slate-100 antialiased`}
         suppressHydrationWarning
       >
+        <Script
+          id="google-adsense"
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6094969027977372"
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         <AuthProvider>
           {/* 
             Full-screen dark radial gradient background
@@ -48,6 +57,9 @@ export default function RootLayout({
               <AppHeader />
 
               <main className="flex-1">{children}</main>
+
+              {/* AdSense Footer Banner */}
+              <FooterAd />
 
               {/* Simple footer with muted text */}
               <footer className="text-center text-xs text-slate-400">
