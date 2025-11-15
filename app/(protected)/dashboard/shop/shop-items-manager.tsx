@@ -100,7 +100,7 @@ export function ShopItemsManager() {
     } finally {
       setUploading(null);
       setCroppingImage(null);
-      URL.revokeObjectURL(croppingImageUrl);
+      URL.revokeObjectURL(croppedImageUrl);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
