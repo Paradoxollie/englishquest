@@ -62,19 +62,24 @@ export type RewardResult = {
  * - Base XP per correct answer: 1 (easy), 2 (medium), 3 (hard)
  * - Base XP = correctCount × XP per correct
  * - Bonus XP: +80 if this is a new global best score for the difficulty
- * - Gold = floor(total XP / 8)
+ * - Gold based on correct answers with specific thresholds:
+ *   * 1 gold at 10 correct answers
+ *   * 2 gold at 30 correct answers
+ *   * 3 gold at 60 correct answers
+ *   * Formula: floor(correctCount / 10) for 0-29, then floor(correctCount / 15) for 30-59, then floor(correctCount / 20) for 60+
  * 
  * This ensures:
  * - Even looping games won't allow rapid XP/gold farming
  * - Difficulty directly impacts rewards (harder = more rewards)
  * - Leaderboard competition is incentivized with significant bonus (+80 XP)
- * - Gold is even slower to farm than XP (8:1 ratio)
+ * - Gold is VERY slow to farm - purchasing avatars (50 gold) requires significant effort
  * 
  * Example calculations:
- * - Easy, 10 correct, no best: 10 XP, 1 gold (floor(10/8) = 1)
- * - Medium, 15 correct, no best: 30 XP, 3 gold (floor(30/8) = 3)
- * - Hard, 20 correct, no best: 60 XP, 7 gold (floor(60/8) = 7)
- * - Hard, 20 correct, new best: 140 XP (60 base + 80 bonus), 17 gold (floor(140/8) = 17)
+ * - Easy, 10 correct, no best: 10 XP, 1 gold
+ * - Medium, 30 correct, no best: 60 XP, 2 gold
+ * - Hard, 60 correct, no best: 180 XP, 3 gold
+ * - Hard, 20 correct, new best: 140 XP (60 base + 80 bonus), 2 gold (based on correctCount, not XP)
+ * - To earn 50 gold (avatar price): need ~1000 correct answers
  * 
  * @param params - Reward calculation parameters
  * @param params.difficulty - Game difficulty level ("easy" | "medium" | "hard")
@@ -113,10 +118,24 @@ export function computeSpeedVerbRewards(params: {
     xpBase += 80;
   }
 
-  // Gold is calculated as floor(XP / 8)
-  // This makes gold even slower to farm than XP
-  // The 8:1 ratio ensures players need significant XP to earn gold
-  const goldEarned = Math.floor(xpBase / 8);
+  // Gold is calculated based on correct answers with specific thresholds
+  // Formula ensures:
+  // - 1 gold at 10 correct answers
+  // - 2 gold at 30 correct answers  
+  // - 3 gold at 60 correct answers
+  // Then continues scaling slowly
+  let goldEarned = 0;
+  if (correctCount >= 60) {
+    // At 60+, give 3 gold and then 1 gold per 20 additional correct answers
+    goldEarned = 3 + Math.floor((correctCount - 60) / 20);
+  } else if (correctCount >= 30) {
+    // At 30-59, give 2 gold
+    goldEarned = 2;
+  } else if (correctCount >= 10) {
+    // At 10-29, give 1 gold
+    goldEarned = 1;
+  }
+  // Below 10 correct answers = 0 gold
 
   return {
     xpEarned: xpBase,
