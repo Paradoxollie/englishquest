@@ -11,7 +11,7 @@ interface MotionCardProps {
 /**
  * Reusable motion card component with:
  * - Subtle float animation (up/down)
- * - Hover tilt effect (rotateX / rotateY)
+ * - Hover scale effect (sans rotations 3D pour éviter le flou)
  * - Smooth transitions
  * 
  * Use this for hero cards and info cards throughout the app.
@@ -35,14 +35,15 @@ export function MotionCard({ children, className = "" }: MotionCardProps) {
         },
       }}
       whileHover={{
-        // Hover tilt effect
-        rotateX: 5,
-        rotateY: 5,
+        // Hover effect sans rotations 3D pour éviter le flou
         scale: 1.02,
+        y: -4,
         transition: { duration: 0.3 },
       }}
       style={{
-        transformStyle: "preserve-3d",
+        // Optimisations pour éviter le flou lors des transformations
+        willChange: "transform",
+        backfaceVisibility: "hidden",
       }}
     >
       {children}

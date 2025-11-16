@@ -56,8 +56,7 @@ export default async function TeachersPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
-      <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
+    <div className="space-y-8 md:space-y-12">
         {/* Hero Section */}
         <div className="comic-panel-dark mb-8 p-6" style={{ background: "linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(249, 115, 22, 0.2) 100%)" }}>
           <div className="flex items-center gap-4 mb-4">
@@ -183,7 +182,6 @@ export default async function TeachersPage() {
             Restez connecté pour être informé de l'ouverture de cette section !
           </p>
         </div>
-      </div>
     </div>
   );
 }

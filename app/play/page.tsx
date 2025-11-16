@@ -20,6 +20,7 @@ export default async function PlayPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
+        <div className="comic-panel-dark w-full p-6 md:p-8">
         {/* Hero Section */}
         <div className="comic-panel-dark mb-12 p-8" style={{ background: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)" }}>
           <div className="relative z-10">
@@ -126,6 +127,7 @@ export default async function PlayPage() {
               </Link>
             </MotionCard>
           ))}
+        </div>
         </div>
       </div>
     </div>

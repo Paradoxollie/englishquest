@@ -30,9 +30,17 @@ export default async function MyMessagesPage() {
   return (
     <div className="space-y-8 md:space-y-12">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-white md:text-4xl lg:text-5xl">Mes messages</h1>
-        <p className="mt-2 text-lg text-slate-400">Consultez vos messages et les réponses de l'équipe</p>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-white md:text-4xl lg:text-5xl">Mes messages</h1>
+          <p className="mt-2 text-lg text-slate-400">Consultez vos messages et les réponses de l'équipe</p>
+        </div>
+        <a
+          href="/contact"
+          className="comic-button bg-cyan-500 text-white px-6 py-3 font-bold hover:bg-cyan-600 inline-block"
+        >
+          Me contacter
+        </a>
       </div>
 
       {/* Liste des messages */}
@@ -43,7 +51,7 @@ export default async function MyMessagesPage() {
             href="/contact"
             className="comic-button inline-block mt-4 bg-cyan-500 text-white px-6 py-3 font-bold hover:bg-cyan-600"
           >
-            Envoyer un message
+            Me contacter
           </a>
         </div>
       ) : (

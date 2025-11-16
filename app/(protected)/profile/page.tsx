@@ -166,27 +166,44 @@ export default async function ProfilePage() {
 
   return (
     <div className="space-y-8 md:space-y-12">
-      {/* Header */}
-      <div>
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-white md:text-4xl lg:text-5xl">Mon profil</h1>
-            <p className="mt-2 text-lg text-slate-400">Gérez vos informations et consultez vos statistiques</p>
-          </div>
-          {userIsAdmin && (
-            <Link
-              href="/dashboard"
-              className="comic-button bg-cyan-500 text-white px-6 py-3 font-bold hover:bg-cyan-600 transition-colors w-full sm:w-auto text-center"
-            >
-              Dashboard Admin
-            </Link>
-          )}
+      {/* Header avec infos utilisateur */}
+      <header className="comic-panel-dark flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between mb-8">
+        <div>
+          <p className="text-sm uppercase tracking-[0.3em] text-cyan-300 font-bold text-outline">EnglishQuest</p>
+          <h1 className="text-3xl font-bold text-white text-outline">
+            Welcome back, <span className="text-cyan-300 text-outline">{profile.username}</span>
+          </h1>
+          <p className="text-sm text-slate-400 text-outline">
+            Role: <span className="font-bold text-amber-300 text-outline">{profile.role}</span>
+          </p>
         </div>
-      </div>
+        <div className="flex flex-wrap items-center gap-4 text-sm">
+          <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#059669' }}>
+            <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>XP</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.xp}</span>
+          </div>
+          <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#d97706' }}>
+            <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>Gold</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.gold}</span>
+          </div>
+          <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#0891b2' }}>
+            <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>Level</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.level}</span>
+          </div>
+        </div>
+      </header>
+      
+      {userIsAdmin && (
+        <div className="mb-8">
+          <Link
+            href="/dashboard"
+            className="comic-button bg-cyan-500 text-white px-6 py-3 font-bold hover:bg-cyan-600 transition-colors w-full sm:w-auto text-center inline-block"
+          >
+            Dashboard Admin
+          </Link>
+        </div>
+      )}
 
       {/* Player Panel Card */}
       <MotionCard className="relative">
-        <div className="relative overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/95 via-slate-950/90 to-slate-900/95 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.8)] backdrop-blur-xl">
+        <div className="relative overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/95 via-slate-950/90 to-slate-900/95 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3" />
           
           <div className="relative z-10 space-y-6">
@@ -231,14 +248,14 @@ export default async function ProfilePage() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-emerald-950/30 bg-slate-900/30 p-4 backdrop-blur-sm">
+              <div className="rounded-xl border border-emerald-950/30 bg-slate-900/30 p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <XPIcon className="w-4 h-4 text-emerald-500" />
                   <p className="text-xs font-medium uppercase tracking-wider text-slate-500">XP</p>
                 </div>
                 <p className="text-2xl font-bold text-emerald-400">{profile.xp.toLocaleString('fr-FR')}</p>
               </div>
-              <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 p-4 backdrop-blur-sm">
+              <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <GoldIcon className="w-4 h-4 text-amber-400" />
                   <p className="text-xs font-medium uppercase tracking-wider text-slate-400">Or</p>
@@ -253,7 +270,7 @@ export default async function ProfilePage() {
       {/* Account Information */}
       <div className="grid gap-6 md:grid-cols-2">
         <MotionCard>
-          <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
+          <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             
             <div className="relative z-10">
@@ -280,7 +297,7 @@ export default async function ProfilePage() {
         </MotionCard>
 
         <MotionCard>
-          <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
+          <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             
             <div className="relative z-10">
@@ -348,7 +365,7 @@ export default async function ProfilePage() {
       {/* Meilleurs scores */}
       {bestScores && bestScores.length > 0 && (
         <MotionCard>
-          <div className="group relative overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
+          <div className="group relative overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             
             <div className="relative z-10">

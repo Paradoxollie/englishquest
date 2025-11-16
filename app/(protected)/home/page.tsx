@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isAdminOrTeacher } from "@/lib/auth/roles";
 import { getUserHomeData } from "./user-data";
 import { GameIcon, QuestIcon, TeacherIcon, FlameIcon, TrophyIcon, BookIcon } from "@/components/ui/icons";
+import type { Profile } from "@/types/profile";
 
 // Force dynamic rendering - this page requires authentication
 export const dynamic = 'force-dynamic';
@@ -23,9 +25,43 @@ export default async function HomePage() {
   const userData = await getUserHomeData(user.id);
   const canAccessTeachers = await isAdminOrTeacher();
 
+  // Récupérer le profil pour le header
+  const adminClient = createSupabaseAdminClient();
+  const { data: profileData } = await adminClient
+    .from("profiles")
+    .select("username, role, xp, gold, level")
+    .eq("id", user.id)
+    .maybeSingle();
+  
+  const profile = profileData as Profile | null;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
-      <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
+    <div className="space-y-8 md:space-y-12">
+      {/* Header avec infos utilisateur */}
+      {profile && (
+        <header className="comic-panel-dark flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between mb-8">
+          <div>
+            <p className="text-sm uppercase tracking-[0.3em] text-cyan-300 font-bold text-outline">EnglishQuest</p>
+            <h1 className="text-3xl font-bold text-white text-outline">
+              Welcome back, <span className="text-cyan-300 text-outline">{profile.username}</span>
+            </h1>
+            <p className="text-sm text-slate-400 text-outline">
+              Role: <span className="font-bold text-amber-300 text-outline">{profile.role}</span>
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-4 text-sm">
+            <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#059669' }}>
+              <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>XP</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.xp}</span>
+            </div>
+            <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#d97706' }}>
+              <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>Gold</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.gold}</span>
+            </div>
+            <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#0891b2' }}>
+              <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>Level</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.level}</span>
+            </div>
+          </div>
+        </header>
+      )}
         {/* Section principale avec les activités - Style BD avec contours noirs */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Le jeu du jour - Grande carte mise en avant */}
@@ -86,7 +122,7 @@ export default async function HomePage() {
                   <QuestIcon className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300 text-outline">Cours</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300 text-outline">Aventure</p>
                   <p className="text-2xl font-bold text-white text-outline">Continuer l'aventure</p>
                 </div>
               </div>
@@ -185,7 +221,7 @@ export default async function HomePage() {
 
           {/* Bibliothèque de cours */}
           <Link
-            href="/quest"
+            href="/tous-les-cours"
             className="comic-card-dark group relative p-8"
             style={{ background: "linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)" }}
           >
@@ -250,7 +286,6 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }

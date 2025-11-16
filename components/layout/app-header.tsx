@@ -11,9 +11,9 @@ import { EnvelopeIcon } from "@/components/ui/icons";
 const baseNavLinks = [
   { label: "Accueil", href: "/" },
   { label: "Jouer", href: "/play" },
-  { label: "Cours", href: "/quest" },
+  { label: "Cours", href: "/tous-les-cours" },
+  { label: "Aventure", href: "/quest" },
   { label: "Professeurs", href: "/teachers" },
-  { label: "Contact", href: "/contact" },
 ];
 
 export function AppHeader() {
@@ -55,28 +55,33 @@ export function AppHeader() {
   ];
 
   return (
-    <header className="comic-panel-dark p-6">
-      <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-        <div>
-          <Link href="/" className="text-2xl font-bold tracking-tight text-white transition-colors hover:text-cyan-300 text-outline">
+    <header className="comic-panel-dark p-4 md:p-6">
+      <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
+        {/* Logo */}
+        <div className="flex-shrink-0">
+          <Link href="/" className="text-xl md:text-2xl font-bold tracking-tight text-white transition-colors hover:text-cyan-300 text-outline">
             English Quest
           </Link>
           <p className="mt-1 text-xs font-bold uppercase tracking-[0.3em] text-cyan-400 text-outline">
             L'anglais devient un jeu
           </p>
         </div>
-        <nav className="flex flex-wrap gap-2 text-sm font-bold">
+        
+        {/* Navigation - Grille sur mobile, ligne sur desktop */}
+        <nav className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm font-bold md:flex md:flex-nowrap md:flex-1 md:justify-center md:mx-4 md:gap-2">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="comic-button bg-slate-800 text-white px-4 py-2 hover:bg-slate-700"
+              className="comic-button bg-slate-800 text-white px-2 py-2 text-xs sm:px-3 md:px-3 md:text-sm hover:bg-slate-700 whitespace-nowrap text-center"
             >
               {link.label}
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-3">
+        
+        {/* Actions utilisateur */}
+        <div className="flex items-center justify-end gap-2 md:gap-3 flex-shrink-0">
           {loading ? (
             <div className="h-10 w-32 animate-pulse comic-panel bg-slate-700/50" />
           ) : user ? (
@@ -91,13 +96,13 @@ export function AppHeader() {
               </Link>
               <Link
                 href="/profile"
-                className="comic-button bg-slate-800 text-white px-4 py-2 text-sm font-bold hover:bg-slate-700"
+                className="comic-button bg-slate-800 text-white px-3 py-2 text-xs md:px-4 md:text-sm font-bold hover:bg-slate-700"
               >
                 Profil
               </Link>
               <button
                 onClick={handleLogout}
-                className="comic-button bg-red-600 text-white px-4 py-2 text-sm font-bold hover:bg-red-700"
+                className="comic-button bg-red-600 text-white px-3 py-2 text-xs md:px-4 md:text-sm font-bold hover:bg-red-700"
               >
                 Déconnexion
               </button>
@@ -106,13 +111,13 @@ export function AppHeader() {
             <>
               <Link
                 href="/auth/login"
-                className="comic-button bg-slate-800 text-white px-4 py-2 text-sm font-bold hover:bg-slate-700"
+                className="comic-button bg-slate-800 text-white px-3 py-2 text-xs md:px-4 md:text-sm font-bold hover:bg-slate-700"
               >
                 Connexion
               </Link>
               <Link
                 href="/auth/signup"
-                className="comic-button bg-emerald-600 text-white px-6 py-2 text-sm font-bold hover:bg-emerald-700"
+                className="comic-button bg-emerald-600 text-white px-4 py-2 text-xs md:px-6 md:text-sm font-bold hover:bg-emerald-700"
               >
                 S'inscrire
               </Link>

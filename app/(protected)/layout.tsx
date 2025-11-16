@@ -102,40 +102,8 @@ export default async function ProtectedLayout({ children }: ProtectedLayoutProps
   }
 
   return (
-    <div className="min-h-screen bg-stone-950 comic-dot-pattern">
+    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-4 py-8 md:py-12">
-        {/* Header simplifié - la navigation est déjà dans le header global (AppHeader) */}
-        <header className="comic-panel-dark flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between">
-          <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-cyan-300 font-bold text-outline">EnglishQuest</p>
-            <h1 className="text-3xl font-bold text-white text-outline">
-              Welcome back, <span className="text-cyan-300 text-outline">{profile.username}</span>
-            </h1>
-            <p className="text-sm text-slate-400 text-outline">
-              Role: <span className="font-bold text-amber-300 text-outline">{profile.role}</span>
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-4 text-sm">
-            <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#059669' }}>
-              <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>XP</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.xp}</span>
-            </div>
-            <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#d97706' }}>
-              <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>Gold</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.gold}</span>
-            </div>
-            <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#0891b2' }}>
-              <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>Level</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.level}</span>
-            </div>
-            <form action={logoutAction}>
-              <button
-                type="submit"
-                className="comic-button bg-slate-700 text-white px-4 py-2 text-sm font-bold hover:bg-slate-600"
-              >
-                Déconnexion
-              </button>
-            </form>
-          </div>
-        </header>
-
         <main className="flex-1">
           <div className="comic-panel-dark w-full p-6 md:p-8">{children}</div>
         </main>

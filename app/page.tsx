@@ -91,7 +91,7 @@ export default async function PublicHomePage() {
              </Link>
              <Link
                href="/auth/signup"
-               className="rounded-xl border-2 border-emerald-900/30 bg-slate-950/40 px-8 py-4 text-sm font-semibold text-slate-200 backdrop-blur-sm transition-all duration-300 hover:border-emerald-800/40 hover:bg-slate-950/60 hover:text-emerald-300"
+               className="rounded-xl border-2 border-emerald-900/30 bg-slate-950/40 px-8 py-4 text-sm font-semibold text-slate-200 transition-all duration-300 hover:border-emerald-800/40 hover:bg-slate-950/60 hover:text-emerald-300"
              >
               Créer mon compte
             </Link>
@@ -100,7 +100,7 @@ export default async function PublicHomePage() {
 
         {/* Right Column - Player Panel Card */}
         <MotionCard className="relative">
-           <div className="relative overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/95 via-slate-950/90 to-slate-900/95 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.8)] backdrop-blur-xl">
+           <div className="relative overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/95 via-slate-950/90 to-slate-900/95 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
              {/* Decorative gradient overlay */}
              <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3" />
              
@@ -144,7 +144,7 @@ export default async function PublicHomePage() {
 
               {/* Quest & Reward Cards */}
               <div className="grid gap-3">
-                 <div className="group relative overflow-hidden rounded-xl border border-emerald-950/30 bg-slate-900/30 p-4 backdrop-blur-sm transition-all duration-300 hover:border-emerald-900/30 hover:bg-slate-900/50">
+                 <div className="group relative overflow-hidden rounded-xl border border-emerald-950/30 bg-slate-900/30 p-4 transition-all duration-300 hover:border-emerald-900/30 hover:bg-slate-900/50">
                    <div className="flex items-start gap-3">
                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black">
                        <ScrollIcon className="w-5 h-5 text-white" />
@@ -155,7 +155,7 @@ export default async function PublicHomePage() {
                     </div>
                   </div>
                 </div>
-                <div className="group relative overflow-hidden rounded-xl border border-slate-700/50 bg-slate-800/40 p-4 backdrop-blur-sm transition-all duration-300 hover:border-amber-500/30 hover:bg-slate-800/60">
+                <div className="group relative overflow-hidden rounded-xl border border-slate-700/50 bg-slate-800/40 p-4 transition-all duration-300 hover:border-amber-500/30 hover:bg-slate-800/60">
                   <div className="flex items-start gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-yellow-500 border-2 border-black">
                       <GiftIcon className="w-5 h-5 text-white" />
@@ -170,14 +170,14 @@ export default async function PublicHomePage() {
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 gap-3">
-                 <div className="rounded-xl border border-emerald-950/30 bg-slate-900/30 p-4 backdrop-blur-sm">
+                 <div className="rounded-xl border border-emerald-950/30 bg-slate-900/30 p-4">
                    <div className="flex items-center gap-2 mb-2">
                      <XPIcon className="w-4 h-4 text-emerald-500" />
                      <p className="text-xs font-medium uppercase tracking-wider text-slate-500">XP</p>
                    </div>
                    <p className="text-2xl font-bold text-emerald-400">{displayData.xp.toLocaleString('fr-FR')}</p>
                  </div>
-                <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 p-4 backdrop-blur-sm">
+                <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 p-4">
                   <div className="flex items-center gap-2 mb-2">
                     <GoldIcon className="w-4 h-4 text-amber-400" />
                     <p className="text-xs font-medium uppercase tracking-wider text-slate-400">Or</p>
@@ -196,7 +196,7 @@ export default async function PublicHomePage() {
           const Icon = card.Icon;
           return (
             <MotionCard key={card.title}>
-               <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] backdrop-blur-xl transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
+               <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
                  {/* Decorative gradient on hover */}
                  <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                  
@@ -251,7 +251,7 @@ export default async function PublicHomePage() {
       </section>
 
       {/* Final CTA Band */}
-       <section className="relative overflow-hidden rounded-3xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/95 via-slate-900/95 to-slate-950/95 p-12 text-center shadow-[0_20px_60px_rgba(0,0,0,0.8)] backdrop-blur-xl md:p-16">
+       <section className="relative overflow-hidden rounded-3xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/95 via-slate-900/95 to-slate-950/95 p-12 text-center shadow-[0_20px_60px_rgba(0,0,0,0.8)] md:p-16">
          <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3" />
          <div className="relative z-10">
            <h2 className="mb-6 text-3xl font-bold text-white md:text-4xl lg:text-5xl">
