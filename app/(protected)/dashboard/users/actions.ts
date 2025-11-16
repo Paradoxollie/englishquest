@@ -100,15 +100,8 @@ export async function updateUserStatsAction(
     return { error: "ID utilisateur manquant." };
   }
 
-  // Empêcher un utilisateur de modifier ses propres stats (sécurité)
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (user?.id === userId) {
-    return { error: "Vous ne pouvez pas modifier vos propres statistiques." };
-  }
+  // Les admins peuvent modifier les stats de n'importe quel utilisateur, y compris les leurs
+  // La vérification admin a déjà été faite plus haut, donc on autorise la modification
 
   // Récupérer les valeurs actuelles de l'utilisateur pour les conserver si non modifiées
   const adminClient = createSupabaseAdminClient();

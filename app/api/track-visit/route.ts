@@ -41,6 +41,31 @@ function getClientIP(request: NextRequest): string {
   return request.headers.get('x-real-ip') || 'unknown';
 }
 
+/**
+ * Vérifie si le User-Agent est un bot/crawler
+ */
+function isBot(userAgent: string | null): boolean {
+  if (!userAgent) return false;
+  
+  const botPatterns = [
+    /bot/i, /crawler/i, /spider/i, /scraper/i,
+    /googlebot/i, /bingbot/i, /slurp/i, /duckduckbot/i,
+    /baiduspider/i, /yandexbot/i, /sogou/i, /exabot/i,
+    /facebot/i, /ia_archiver/i, /facebookexternalhit/i,
+    /twitterbot/i, /rogerbot/i, /linkedinbot/i,
+    /embedly/i, /quora/i, /pinterest/i, /slackbot/i,
+    /redditbot/i, /applebot/i, /whatsapp/i, /flipboard/i,
+    /tumblr/i, /bitlybot/i, /skypeuripreview/i,
+    /nuzzel/i, /discordbot/i, /qwantify/i, /pinterestbot/i,
+    /bitrix/i, /xing-contenttabreceiver/i, /chrome-lighthouse/i,
+    /google-inspectiontool/i, /ahrefsbot/i, /semrushbot/i,
+    /mj12bot/i, /dotbot/i, /megaindex/i, /blexbot/i,
+    /petalbot/i, /applebot/i, /bingpreview/i,
+  ];
+  
+  return botPatterns.some(pattern => pattern.test(userAgent));
+}
+
 export async function POST(request: NextRequest) {
   try {
     const adminClient = createSupabaseAdminClient();
@@ -51,8 +76,28 @@ export async function POST(request: NextRequest) {
     const userAgent = request.headers.get('user-agent') || null;
     const referrer = request.headers.get('referer') || body.referrer || null;
     
+    // FILTRE 1: Ignorer les bots et crawlers
+    if (isBot(userAgent)) {
+      return NextResponse.json({ success: true, skipped: 'bot' });
+    }
+    
+    // FILTRE 2: Ignorer les prefetch requests de Next.js
+    const isPrefetch = request.headers.get('x-middleware-prefetch') === '1' ||
+                       request.headers.get('purpose') === 'prefetch' ||
+                       request.headers.get('x-purpose') === 'prefetch';
+    
+    if (isPrefetch) {
+      return NextResponse.json({ success: true, skipped: 'prefetch' });
+    }
+    
     // Obtenir l'IP et créer un hash
     const clientIP = getClientIP(request);
+    
+    // FILTRE 3: Ignorer les IPs invalides ou locales
+    if (!clientIP || clientIP === 'unknown' || clientIP.startsWith('127.') || clientIP.startsWith('::1')) {
+      return NextResponse.json({ success: true, skipped: 'invalid-ip' });
+    }
+    
     const visitorHash = hashIP(clientIP);
     
     // Obtenir l'ID utilisateur si connecté (depuis le header ou le body)
@@ -60,6 +105,23 @@ export async function POST(request: NextRequest) {
     
     // Date de visite (normalisée à minuit UTC)
     const visitDate = new Date().toISOString().split('T')[0];
+    
+    // FILTRE 4: Déduplication - Vérifier si une visite similaire existe déjà dans les 30 dernières secondes
+    // (pour éviter de compter plusieurs fois le même chargement de page)
+    const thirtySecondsAgo = new Date(Date.now() - 30 * 1000).toISOString();
+    const { data: recentVisit } = await adminClient
+      .from('site_visits')
+      .select('id')
+      .eq('visitor_hash', visitorHash)
+      .eq('path', path)
+      .gte('visited_at', thirtySecondsAgo)
+      .limit(1)
+      .maybeSingle();
+    
+    // Si une visite similaire existe déjà dans les 30 dernières secondes, on ignore
+    if (recentVisit) {
+      return NextResponse.json({ success: true, skipped: 'duplicate' });
+    }
     
     // Enregistrer la visite dans la base de données
     const { error } = await adminClient

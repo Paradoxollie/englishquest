@@ -112,14 +112,12 @@ export default async function UsersManagementPage() {
                           <div className="text-xs text-slate-400">
                             XP: {userProfile.xp} | Gold: {userProfile.gold} | Level: {userProfile.level}
                           </div>
-                          {!isCurrentUser && (
-                            <UserStatsForm
-                              userId={userProfile.id}
-                              currentXP={userProfile.xp}
-                              currentGold={userProfile.gold}
-                              currentLevel={userProfile.level}
-                            />
-                          )}
+                          <UserStatsForm
+                            userId={userProfile.id}
+                            currentXP={userProfile.xp}
+                            currentGold={userProfile.gold}
+                            currentLevel={userProfile.level}
+                          />
                         </div>
                       </td>
                       <td className="py-3 pr-4">

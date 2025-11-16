@@ -168,7 +168,7 @@ export default async function ProfilePage() {
     <div className="space-y-8 md:space-y-12">
       {/* Header avec infos utilisateur */}
       <header className="comic-panel-dark flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between mb-8">
-        <div>
+      <div>
           <p className="text-sm uppercase tracking-[0.3em] text-cyan-300 font-bold text-outline">EnglishQuest</p>
           <h1 className="text-3xl font-bold text-white text-outline">
             Welcome back, <span className="text-cyan-300 text-outline">{profile.username}</span>
@@ -190,14 +190,14 @@ export default async function ProfilePage() {
         </div>
       </header>
       
-      {userIsAdmin && (
+          {userIsAdmin && (
         <div className="mb-8">
-          <Link
-            href="/dashboard"
+            <Link
+              href="/dashboard"
             className="comic-button bg-cyan-500 text-white px-6 py-3 font-bold hover:bg-cyan-600 transition-colors w-full sm:w-auto text-center inline-block"
-          >
-            Dashboard Admin
-          </Link>
+            >
+              Dashboard Admin
+            </Link>
         </div>
       )}
 

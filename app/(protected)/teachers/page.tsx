@@ -181,7 +181,7 @@ export default async function TeachersPage() {
           <p className="text-slate-400 text-outline font-semibold">
             Restez connecté pour être informé de l'ouverture de cette section !
           </p>
-        </div>
+      </div>
     </div>
   );
 }

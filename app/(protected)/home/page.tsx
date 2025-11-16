@@ -283,9 +283,9 @@ export default async function HomePage() {
                   </div>
                 );
               })}
-            </div>
           </div>
         </div>
+      </div>
     </div>
   );
 }
