@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Script from "next/script";
+import Link from "next/link";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { AppHeader } from "@/components/layout/app-header";
@@ -14,9 +15,50 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "EnglishQuest",
+  title: {
+    default: "English Quest - Apprendre l'anglais en jouant",
+    template: "%s | English Quest",
+  },
   description:
-    "Level up your English with quests, games, and teacher missions tailored for French students.",
+    "Apprenez l'anglais de manière ludique avec English Quest. Jeux pédagogiques, cours structurés et activités gamifiées pour progresser en anglais. Créé par Pierre Marienne, professeur d'anglais dans le Val-d'Oise.",
+  keywords: [
+    "apprendre anglais",
+    "cours anglais",
+    "jeux anglais",
+    "apprentissage anglais",
+    "anglais gamifié",
+    "cours anglais en ligne",
+    "apprendre anglais français",
+  ],
+  authors: [{ name: "Pierre Marienne" }],
+  creator: "Pierre Marienne",
+  publisher: "English Quest",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "fr_FR",
+    url: "https://englishquest.fr",
+    siteName: "English Quest",
+    title: "English Quest - Apprendre l'anglais en jouant",
+    description:
+      "Apprenez l'anglais de manière ludique avec des jeux pédagogiques, des cours structurés et des activités gamifiées.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "English Quest - Apprendre l'anglais en jouant",
+    description:
+      "Apprenez l'anglais de manière ludique avec des jeux pédagogiques et des cours structurés.",
+  },
   other: {
     "google-adsense-account": "ca-pub-6094969027977372",
   },
@@ -72,8 +114,16 @@ export default function RootLayout({
               <FooterAd />
 
               {/* Simple footer with muted text */}
-              <footer className="text-center text-xs text-slate-400">
-                © English Quest – Apprentissage de l'anglais gamifié
+              <footer className="text-center text-xs text-slate-400 space-y-2">
+                <div>© English Quest – Apprentissage de l'anglais gamifié</div>
+                <div className="flex justify-center gap-4 text-slate-500">
+                  <Link href="/about" className="hover:text-slate-400 transition-colors">
+                    À propos
+                  </Link>
+                  <Link href="/contact" className="hover:text-slate-400 transition-colors">
+                    Contact
+                  </Link>
+                </div>
               </footer>
             </div>
           </div>

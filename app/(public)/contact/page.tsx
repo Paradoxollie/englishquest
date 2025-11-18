@@ -1,24 +1,30 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { ContactForm } from "./contact-form";
 
+export const metadata: Metadata = {
+  title: "Contactez-nous - English Quest",
+  description:
+    "Une question ? Une suggestion ? Contactez l'équipe d'English Quest. Nous sommes là pour vous aider dans votre apprentissage de l'anglais.",
+};
+
 export default async function ContactPage() {
-  // Vérifier que l'utilisateur est authentifié
+  // Vérifier si l'utilisateur est authentifié (optionnel)
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   
-  if (!user) {
-    redirect("/auth/login?redirect=/contact");
+  // Récupérer le profil si l'utilisateur est connecté
+  let profile = null;
+  if (user) {
+    const adminClient = createSupabaseAdminClient();
+    profile = await adminClient
+      .from("profiles")
+      .select("username, email")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => data);
   }
-
-  // Récupérer le profil pour afficher le nom
-  const adminClient = createSupabaseAdminClient();
-  const { data: profile } = await adminClient
-    .from("profiles")
-    .select("username")
-    .eq("id", user.id)
-    .maybeSingle();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern px-4 py-12">
@@ -42,7 +48,7 @@ export default async function ContactPage() {
           </div>
         </div>
         <div className="comic-panel-dark p-8">
-          <ContactForm />
+          <ContactForm user={user} profile={profile} />
         </div>
       </div>
     </div>
