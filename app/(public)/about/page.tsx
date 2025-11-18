@@ -29,10 +29,10 @@ export default function AboutPage() {
                 </h2>
                 <div className="space-y-3 text-slate-200 leading-relaxed">
                   <p>
-                    Je m'appelle <span className="font-bold text-white">Pierre Marienne</span>. Ancien ingénieur du son, j'ai développé une sensibilité particulière pour les univers créatifs et les mécaniques de jeu.
+                    Je m'appelle <span className="font-bold text-white">Pierre Marienne</span>. Professeur d'anglais depuis 10 ans, j'ai enseigné au collège, au lycée et à l'université.
                   </p>
                   <p>
-                    Aujourd'hui professeur d'anglais dans le Val-d'Oise, je combine cette expérience avec ma passion pour l'enseignement.
+                    Grâce à mon parcours professionnel et personnel, j'ai développé une sensibilité particulière pour les mécaniques de jeu et les univers créatifs. Cette expérience m'a permis d'imaginer une approche pédagogique qui allie apprentissage sérieux et engagement ludique.
                   </p>
                 </div>
               </div>
@@ -65,7 +65,7 @@ export default function AboutPage() {
                 </h2>
                 <div className="space-y-3 text-slate-200 leading-relaxed">
                   <p>
-                    English Quest propose un espace clair et accessible pour progresser en anglais.
+                    English Quest a pour but de proposer un espace clair et accessible pour progresser en anglais.
                   </p>
                   <p>
                     Les contenus sont structurés, régulièrement mis à jour, et fidèles aux programmes officiels.
