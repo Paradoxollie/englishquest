@@ -253,6 +253,12 @@ export default async function AdminDashboardPage() {
               >
                 Gérer la Boutique
               </Link>
+              <Link
+                href="/dashboard/walking-while-waiting"
+                className="comic-button bg-green-500 text-white px-6 py-3 font-bold hover:bg-green-600"
+              >
+                Walking While Waiting 🌲
+              </Link>
             </>
           ) : (
             <Link
