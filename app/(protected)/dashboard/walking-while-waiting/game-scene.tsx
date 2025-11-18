@@ -630,7 +630,7 @@ const Scene = () => {
           <CelestialBody position={skyInfo.moonPosition as [number, number, number]} color="#ddddff" scale={6} intensity={0.5} />
       )}
       
-      <Cloud position={[0, 100, cameraZ - 50]} opacity={skyInfo.starOpacity > 0.5 ? 0.1 : 0.5} speed={0.05} width={150} depth={20} segments={30} color="white" />
+      <Cloud position={[0, 100, cameraZ - 50]} opacity={skyInfo.starOpacity > 0.5 ? 0.1 : 0.5} speed={0.05} segments={30} />
 
       <CustomStars opacity={skyInfo.starOpacity} />
 
