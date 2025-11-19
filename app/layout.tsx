@@ -103,8 +103,8 @@ export default function RootLayout({
           </div>
 
           {/* Centered container */}
-          <div className="relative z-10 mx-auto min-h-screen max-w-6xl px-4 py-6">
-            <div className="flex min-h-screen flex-col gap-10">
+          <div className="relative z-10 mx-auto min-h-screen max-w-6xl px-2 md:px-4 py-3 md:py-6">
+            <div className="flex min-h-screen flex-col gap-4 md:gap-10">
               {/* Glass panel header */}
               <AppHeader />
 

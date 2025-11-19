@@ -39,24 +39,24 @@ export default async function HomePage() {
     <div className="space-y-8 md:space-y-12">
       {/* Header avec infos utilisateur */}
       {profile && (
-        <header className="comic-panel-dark flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between mb-8">
-          <div>
-            <p className="text-sm uppercase tracking-[0.3em] text-cyan-300 font-bold text-outline">EnglishQuest</p>
-            <h1 className="text-3xl font-bold text-white text-outline">
+        <header className="comic-panel-dark flex flex-col gap-3 md:gap-6 p-3 md:p-6 md:flex-row md:items-center md:justify-between mb-4 md:mb-8">
+          <div className="min-w-0 flex-1">
+            <p className="text-xs md:text-sm uppercase tracking-[0.2em] md:tracking-[0.3em] text-cyan-300 font-bold text-outline">EnglishQuest</p>
+            <h1 className="text-xl md:text-3xl font-bold text-white text-outline leading-tight md:leading-normal break-words">
               Welcome back, <span className="text-cyan-300 text-outline">{profile.username}</span>
             </h1>
-            <p className="text-sm text-slate-400 text-outline">
+            <p className="text-xs md:text-sm text-slate-400 text-outline break-words">
               Role: <span className="font-bold text-amber-300 text-outline">{profile.role}</span>
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-4 text-sm">
-            <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#059669' }}>
+          <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm flex-shrink-0">
+            <div className="comic-panel border-2 md:border-4 border-black px-2 py-1.5 md:px-4 md:py-2" style={{ background: '#059669' }}>
               <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>XP</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.xp}</span>
             </div>
-            <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#d97706' }}>
+            <div className="comic-panel border-2 md:border-4 border-black px-2 py-1.5 md:px-4 md:py-2" style={{ background: '#d97706' }}>
               <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>Gold</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.gold}</span>
             </div>
-            <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#0891b2' }}>
+            <div className="comic-panel border-2 md:border-4 border-black px-2 py-1.5 md:px-4 md:py-2" style={{ background: '#0891b2' }}>
               <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>Level</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.level}</span>
             </div>
           </div>

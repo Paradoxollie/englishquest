@@ -15,6 +15,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import type { TouchEvent, MouseEvent } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -97,6 +98,7 @@ export default function EnigmaScrollPage() {
   const gameStartTimeRef = useRef<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const particleIdRef = useRef(0);
+  const touchHandledRef = useRef(false);
   const { user } = useAuth();
 
   // Load word lists on mount
@@ -265,6 +267,95 @@ export default function EnigmaScrollPage() {
     }
   }, [gameState, timeRemaining, isGameStarted, sessionStats, achievements]);
 
+  // Handle touch input (mobile) - prevents double input
+  const handleTouchInput = useCallback(
+    (letter: string, e: TouchEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      touchHandledRef.current = true;
+      handleLetterInput(letter);
+      // Reset flag after a short delay to allow next touch
+      setTimeout(() => {
+        touchHandledRef.current = false;
+      }, 300);
+    },
+    [handleLetterInput]
+  );
+
+  // Handle click input (desktop) - only if not from touch
+  const handleClickInput = useCallback(
+    (letter: string, e: MouseEvent<HTMLButtonElement>) => {
+      // Ignore click if it was triggered by a touch event
+      if (touchHandledRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      handleLetterInput(letter);
+    },
+    [handleLetterInput]
+  );
+
+  // Handle touch submit (mobile) - prevents double submit
+  const handleTouchSubmit = useCallback(
+    (e: TouchEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      touchHandledRef.current = true;
+      handleSubmitGuess();
+      setTimeout(() => {
+        touchHandledRef.current = false;
+      }, 300);
+    },
+    [handleSubmitGuess]
+  );
+
+  // Handle click submit (desktop) - only if not from touch
+  const handleClickSubmit = useCallback(
+    (e: MouseEvent<HTMLButtonElement>) => {
+      if (touchHandledRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      handleSubmitGuess();
+    },
+    [handleSubmitGuess]
+  );
+
+  // Handle touch backspace (mobile) - prevents double backspace
+  const handleTouchBackspace = useCallback(
+    (e: TouchEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      touchHandledRef.current = true;
+      handleBackspace();
+      setTimeout(() => {
+        touchHandledRef.current = false;
+      }, 300);
+    },
+    [handleBackspace]
+  );
+
+  // Handle click backspace (desktop) - only if not from touch
+  const handleClickBackspace = useCallback(
+    (e: MouseEvent<HTMLButtonElement>) => {
+      if (touchHandledRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      e.preventDefault();
+      e.stopPropagation();
+      handleBackspace();
+    },
+    [handleBackspace]
+  );
+
   // Submit score when game ends
   useEffect(() => {
     async function handleGameEnd() {
@@ -373,10 +464,16 @@ export default function EnigmaScrollPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isGameStarted, showGameOver, handleSubmitGuess, handleBackspace, handleLetterInput]);
 
-  // Initialize on mount and when difficulty changes
+  // Initialize on mount and when difficulty changes (only after word lists are loaded)
   useEffect(() => {
-    initializeGame(selectedDifficulty);
-  }, [initializeGame, selectedDifficulty]);
+    if (!wordListsLoaded) return;
+    try {
+      initializeGame(selectedDifficulty);
+    } catch (error) {
+      console.error("Error initializing game:", error);
+      setErrorMessage("Erreur lors de l'initialisation du jeu. Veuillez rafraîchir la page.");
+    }
+  }, [initializeGame, selectedDifficulty, wordListsLoaded]);
 
   // Get keyboard state for visual feedback
   const getKeyboardState = (): Record<string, LetterStatus> => {
@@ -949,16 +1046,8 @@ export default function EnigmaScrollPage() {
                         return (
                           <motion.button
                             key={letter}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleLetterInput(letter);
-                            }}
-                            onTouchStart={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleLetterInput(letter);
-                            }}
+                            onClick={(e) => handleClickInput(letter, e)}
+                            onTouchStart={(e) => handleTouchInput(letter, e)}
                             whileHover={{ scale: 1.1, y: -2 }}
                             whileTap={{ scale: 0.92 }}
                             className={`flex-1 max-w-[9%] md:max-w-none aspect-[1.2/1] md:aspect-auto min-h-[36px] md:min-h-[48px] md:px-4 md:py-3 flex items-center justify-center text-sm md:text-lg font-extrabold md:font-extrabold text-white text-outline border-2 md:border-4 border-black rounded-md md:rounded-lg relative overflow-hidden transition-all ${
@@ -996,16 +1085,8 @@ export default function EnigmaScrollPage() {
                         return (
                           <motion.button
                             key={letter}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleLetterInput(letter);
-                            }}
-                            onTouchStart={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleLetterInput(letter);
-                            }}
+                            onClick={(e) => handleClickInput(letter, e)}
+                            onTouchStart={(e) => handleTouchInput(letter, e)}
                             whileHover={{ scale: 1.1, y: -2 }}
                             whileTap={{ scale: 0.92 }}
                             className={`flex-1 max-w-[10%] md:max-w-none aspect-[1.2/1] md:aspect-auto min-h-[36px] md:min-h-[48px] md:px-4 md:py-3 flex items-center justify-center text-sm md:text-lg font-extrabold text-white text-outline border-2 md:border-4 border-black rounded-md md:rounded-lg relative overflow-hidden transition-all ${
@@ -1034,16 +1115,8 @@ export default function EnigmaScrollPage() {
                   {/* Row 3 */}
                   <div className="flex gap-1 md:gap-2 justify-center w-full max-w-full px-1 md:px-0">
                     <motion.button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleSubmitGuess();
-                      }}
-                      onTouchStart={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleSubmitGuess();
-                      }}
+                      onClick={handleClickSubmit}
+                      onTouchStart={handleTouchSubmit}
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.92 }}
                       className="flex-[1.3] max-w-[12%] md:max-w-none md:min-w-[80px] aspect-[2/1] md:aspect-auto min-h-[36px] md:min-h-[48px] md:px-6 md:py-3 flex items-center justify-center text-xs md:text-base font-extrabold text-white text-outline border-2 md:border-4 border-black rounded-md md:rounded-lg bg-gradient-to-br from-emerald-500 via-green-600 to-emerald-700 relative overflow-hidden transition-all"
@@ -1070,16 +1143,8 @@ export default function EnigmaScrollPage() {
                       return (
                         <motion.button
                           key={letter}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleLetterInput(letter);
-                          }}
-                          onTouchStart={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handleLetterInput(letter);
-                          }}
+                          onClick={(e) => handleClickInput(letter, e)}
+                          onTouchStart={(e) => handleTouchInput(letter, e)}
                           whileHover={{ scale: 1.1, y: -2 }}
                           whileTap={{ scale: 0.92 }}
                           className={`flex-1 max-w-[10%] md:max-w-none aspect-[1.2/1] md:aspect-auto min-h-[36px] md:min-h-[48px] md:px-4 md:py-3 flex items-center justify-center text-sm md:text-lg font-extrabold text-white text-outline border-2 md:border-4 border-black rounded-md md:rounded-lg relative overflow-hidden transition-all ${
@@ -1088,7 +1153,7 @@ export default function EnigmaScrollPage() {
                               : isPresent
                               ? "bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 md:bg-gradient-to-br md:from-yellow-400 md:via-amber-500 md:to-yellow-600"
                               : isAbsent
-                              ? "bg-gray-500 md:bg-gradient-to-br md:from-gray-500 md:via-gray-600 md:to-gray-700"
+                              ? "bg-gray-700 opacity-50 md:bg-gradient-to-br md:from-gray-900 md:via-black md:to-gray-900 md:opacity-100"
                               : "bg-slate-600 hover:bg-slate-500 md:bg-gradient-to-br md:from-slate-700 md:via-slate-800 md:to-slate-900"
                           }`}
                           style={{
@@ -1103,16 +1168,8 @@ export default function EnigmaScrollPage() {
                       );
                     })}
                     <motion.button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleBackspace();
-                      }}
-                      onTouchStart={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        handleBackspace();
-                      }}
+                      onClick={handleClickBackspace}
+                      onTouchStart={handleTouchBackspace}
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.92 }}
                       className="flex-[1.3] max-w-[12%] md:max-w-none md:min-w-[80px] aspect-[2/1] md:aspect-auto min-h-[36px] md:min-h-[48px] md:px-6 md:py-3 flex items-center justify-center text-lg md:text-xl font-extrabold text-white text-outline border-2 md:border-4 border-black rounded-md md:rounded-lg bg-gradient-to-br from-red-500 via-rose-600 to-red-700 relative overflow-hidden transition-all"

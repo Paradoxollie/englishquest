@@ -135,32 +135,32 @@ export function LessonLayout({ courseNumber, title, objective, children }: Lesso
 
           <div className="relative z-10">
             {/* Back Button */}
-            <div className="mb-6">
+            <div className="mb-4 md:mb-6">
               <Link
                 href="/tous-les-cours"
-                className="comic-button bg-slate-800 text-white px-5 py-2.5 font-bold hover:bg-slate-700 inline-flex items-center gap-2 transition-all hover:scale-105"
+                className="comic-button bg-slate-800 text-white px-3 py-1.5 md:px-5 md:py-2.5 text-xs md:text-base font-bold hover:bg-slate-700 inline-flex items-center gap-1.5 md:gap-2 transition-all hover:scale-105 border-2 md:border-4 border-black"
               >
-                <ArrowLeftIcon className="w-4 h-4" />
+                <ArrowLeftIcon className="w-3 h-3 md:w-4 md:h-4" />
                 Retour aux cours
               </Link>
             </div>
 
             {/* Header */}
-            <header className="mb-10">
-              <div className="mb-5">
-                <span className="comic-panel bg-gradient-to-r from-indigo-600 to-purple-600 border-2 border-black px-4 py-2 text-sm font-bold text-white text-outline inline-block shadow-lg">
+            <header className="mb-6 md:mb-10">
+              <div className="mb-3 md:mb-5">
+                <span className="comic-panel bg-gradient-to-r from-indigo-600 to-purple-600 border-2 md:border-4 border-black px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-bold text-white text-outline inline-block shadow-lg">
                   Cours {courseNumber}
                 </span>
               </div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-5 leading-tight"
+              <h1 className="text-xl md:text-4xl lg:text-5xl font-bold text-white mb-3 md:mb-5 leading-tight break-words"
                   style={{
                     textShadow: '3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000',
                   }}>
                 {title}
               </h1>
               {objective && (
-                <div className="comic-panel bg-slate-800/50 border-2 border-slate-700/50 p-4 rounded-lg">
-                  <p className="text-lg text-slate-200 text-outline leading-relaxed">
+                <div className="comic-panel bg-slate-800/50 border-2 md:border-4 border-slate-700/50 p-3 md:p-4 rounded-lg">
+                  <p className="text-sm md:text-lg text-slate-200 text-outline leading-tight md:leading-relaxed break-words">
                     {objective}
                   </p>
                 </div>

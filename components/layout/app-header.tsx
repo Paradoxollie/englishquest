@@ -55,25 +55,25 @@ export function AppHeader() {
   ];
 
   return (
-    <header className="comic-panel-dark p-4 md:p-6">
-      <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-6">
+    <header className="comic-panel-dark p-2 md:p-6">
+      <div className="relative z-10 flex flex-col gap-2 md:gap-6 md:flex-row md:items-center md:justify-between">
         {/* Logo */}
-        <div className="flex-shrink-0">
-          <Link href="/" className="text-xl md:text-2xl font-bold tracking-tight text-white transition-colors hover:text-cyan-300 text-outline">
+        <div className="flex-shrink-0 min-w-0">
+          <Link href="/" className="text-lg md:text-2xl font-bold tracking-tight text-white transition-colors hover:text-cyan-300 text-outline leading-tight md:leading-normal break-words">
             English Quest
           </Link>
-          <p className="mt-1 text-xs font-bold uppercase tracking-[0.3em] text-cyan-400 text-outline">
+          <p className="mt-0.5 md:mt-1 text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-cyan-400 text-outline leading-tight md:leading-normal">
             L'anglais devient un jeu
           </p>
         </div>
         
         {/* Navigation - Grille sur mobile, ligne sur desktop */}
-        <nav className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm font-bold md:flex md:flex-nowrap md:flex-1 md:justify-center md:mx-4 md:gap-2">
+        <nav className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 md:gap-2 text-xs md:text-sm font-bold md:flex md:flex-nowrap md:flex-1 md:justify-center md:mx-4">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="comic-button bg-slate-800 text-white px-2 py-2 text-xs sm:px-3 md:px-3 md:text-sm hover:bg-slate-700 whitespace-nowrap text-center"
+              className="comic-button bg-slate-800 text-white px-2 py-1.5 md:px-3 md:py-2 text-xs md:text-sm hover:bg-slate-700 whitespace-nowrap text-center border-2 md:border-4 border-black"
             >
               {link.label}
             </Link>
@@ -81,28 +81,28 @@ export function AppHeader() {
         </nav>
         
         {/* Actions utilisateur */}
-        <div className="flex items-center justify-end gap-2 md:gap-3 flex-shrink-0">
+        <div className="flex items-center justify-end gap-1.5 md:gap-3 flex-shrink-0 flex-wrap">
           {loading ? (
-            <div className="h-10 w-32 animate-pulse comic-panel bg-slate-700/50" />
+            <div className="h-8 md:h-10 w-24 md:w-32 animate-pulse comic-panel bg-slate-700/50" />
           ) : user ? (
             <>
               <Link
                 href="/messages"
-                className="comic-button bg-purple-600 text-white p-2.5 hover:bg-purple-700 relative flex items-center justify-center"
+                className="comic-button bg-purple-600 text-white p-2 md:p-2.5 hover:bg-purple-700 relative flex items-center justify-center border-2 md:border-4 border-black"
                 title="Mes messages"
                 aria-label="Mes messages"
               >
-                <EnvelopeIcon className="w-5 h-5" />
+                <EnvelopeIcon className="w-4 h-4 md:w-5 md:h-5" />
               </Link>
               <Link
                 href="/profile"
-                className="comic-button bg-slate-800 text-white px-3 py-2 text-xs md:px-4 md:text-sm font-bold hover:bg-slate-700"
+                className="comic-button bg-slate-800 text-white px-2 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-bold hover:bg-slate-700 border-2 md:border-4 border-black whitespace-nowrap"
               >
                 Profil
               </Link>
               <button
                 onClick={handleLogout}
-                className="comic-button bg-red-600 text-white px-3 py-2 text-xs md:px-4 md:text-sm font-bold hover:bg-red-700"
+                className="comic-button bg-red-600 text-white px-2 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-bold hover:bg-red-700 border-2 md:border-4 border-black whitespace-nowrap"
               >
                 Déconnexion
               </button>
@@ -111,13 +111,13 @@ export function AppHeader() {
             <>
               <Link
                 href="/auth/login"
-                className="comic-button bg-slate-800 text-white px-3 py-2 text-xs md:px-4 md:text-sm font-bold hover:bg-slate-700"
+                className="comic-button bg-slate-800 text-white px-2 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-bold hover:bg-slate-700 border-2 md:border-4 border-black whitespace-nowrap"
               >
                 Connexion
               </Link>
               <Link
                 href="/auth/signup"
-                className="comic-button bg-emerald-600 text-white px-4 py-2 text-xs md:px-6 md:text-sm font-bold hover:bg-emerald-700"
+                className="comic-button bg-emerald-600 text-white px-3 py-1.5 md:px-6 md:py-2 text-xs md:text-sm font-bold hover:bg-emerald-700 border-2 md:border-4 border-black whitespace-nowrap"
               >
                 S'inscrire
               </Link>
