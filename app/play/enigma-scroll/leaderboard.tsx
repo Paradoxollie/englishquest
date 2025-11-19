@@ -257,20 +257,20 @@ export function EnigmaScrollLeaderboard({ initialDifficulty = "easy" }: EnigmaSc
             {currentLeaderboard.map((entry) => (
               <div
                 key={entry.user_id}
-                className="comic-panel bg-slate-800 border-2 border-black p-4 grid grid-cols-[60px_1fr_120px] items-start gap-4"
+                className="comic-panel bg-slate-800 border-2 border-black p-3 md:p-4 grid grid-cols-[45px_1fr_95px] md:grid-cols-[60px_1fr_120px] items-start gap-2 md:gap-4"
               >
                 {/* Rang à gauche - largeur fixe */}
                 <div
-                  className={`comic-panel ${DIFFICULTY_COLORS[selectedDifficulty]} border-2 border-black w-12 h-12 flex items-center justify-center font-bold text-white text-outline`}
+                  className={`comic-panel ${DIFFICULTY_COLORS[selectedDifficulty]} border-2 border-black w-10 h-10 md:w-12 md:h-12 flex items-center justify-center font-bold text-white text-outline text-sm md:text-base`}
                 >
                   {entry.rank}
                 </div>
                 
                 {/* Avatar, nom et titre centrés au milieu - avatars alignés horizontalement */}
-                <div className="flex justify-center">
-                  <div className="flex flex-col items-center gap-2">
+                <div className="flex justify-center min-w-0">
+                  <div className="flex flex-col items-center gap-1.5 md:gap-2 w-full">
                     {/* Conteneur avec hauteur fixe pour aligner tous les avatars */}
-                    <div className="h-28 flex items-center justify-center">
+                    <div className="h-20 md:h-28 flex items-center justify-center">
                       <LeaderboardAvatar
                         userId={entry.user_id}
                         username={entry.username}
@@ -280,14 +280,14 @@ export function EnigmaScrollLeaderboard({ initialDifficulty = "easy" }: EnigmaSc
                         size="xl"
                       />
                     </div>
-                    <div className="text-center min-w-0 max-w-full">
-                      <div className="font-bold text-white text-outline truncate">{entry.username}</div>
+                    <div className="text-center min-w-0 w-full px-1">
+                      <div className="font-bold text-white text-outline truncate text-sm md:text-base">{entry.username}</div>
                       {entry.equipped_title && (
-                        <div className="text-sm font-semibold text-cyan-400 text-outline truncate">
+                        <div className="text-xs md:text-sm font-semibold text-cyan-400 text-outline truncate">
                           {entry.equipped_title.name}
                         </div>
                       )}
-                      <div className="text-sm text-slate-400 text-outline">
+                      <div className="text-xs md:text-sm text-slate-400 text-outline">
                         {entry.games_played} partie{entry.games_played > 1 ? "s" : ""}
                       </div>
                     </div>
@@ -295,12 +295,12 @@ export function EnigmaScrollLeaderboard({ initialDifficulty = "easy" }: EnigmaSc
                 </div>
                 
                 {/* Score à droite - largeur fixe */}
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-1 md:gap-2 pt-1 md:pt-2 min-w-0">
                   {entry.rank === 1 && (
-                    <TrophyIcon className="w-6 h-6 text-amber-400 flex-shrink-0" />
+                    <TrophyIcon className="w-4 h-4 md:w-6 md:h-6 text-amber-400 flex-shrink-0" />
                   )}
-                  <div className="text-xl font-bold text-cyan-400 text-outline">
-                    {entry.best_score}
+                  <div className="text-base md:text-xl font-bold text-cyan-400 text-outline whitespace-nowrap">
+                    {entry.best_score.toLocaleString('fr-FR')}
                   </div>
                 </div>
               </div>

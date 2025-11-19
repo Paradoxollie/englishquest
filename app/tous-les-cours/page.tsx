@@ -27,17 +27,17 @@ export default async function TousLesCoursPage() {
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
         <div className="comic-panel-dark w-full p-6 md:p-8">
         {/* Hero Section */}
-        <div className="comic-panel-dark mb-12 p-8" style={{ background: "linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)" }}>
+        <div className="comic-panel-dark mb-6 md:mb-12 p-4 md:p-8" style={{ background: "linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)" }}>
           <div className="relative z-10">
-            <div className="mb-6 flex items-center gap-4">
-              <div className="comic-panel bg-indigo-600 border-2 border-black p-4">
-                <BookIcon className="w-8 h-8 text-white text-outline" />
+            <div className="mb-4 md:mb-6 flex items-center gap-2 md:gap-4">
+              <div className="comic-panel bg-indigo-600 border-2 border-black p-2 md:p-4 flex-shrink-0">
+                <BookIcon className="w-6 h-6 md:w-8 md:h-8 text-white text-outline" />
               </div>
-              <div>
-                <h1 className="text-4xl font-bold text-white md:text-5xl text-outline">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white text-outline break-words">
                   Tous les cours
                 </h1>
-                <p className="mt-2 text-lg text-slate-200 font-semibold text-outline">
+                <p className="mt-2 text-sm md:text-lg text-slate-200 font-semibold text-outline break-words">
                   Choisis un cours pour t'entraîner avant de retourner dans l'aventure.
                 </p>
               </div>
@@ -46,13 +46,13 @@ export default async function TousLesCoursPage() {
         </div>
 
         {/* Explicative Paragraph */}
-        <div className="comic-panel-dark mb-12 p-6">
+        <div className="comic-panel-dark mb-6 md:mb-12 p-4 md:p-6">
           <div className="relative z-10">
-            <p className="mb-4 text-base leading-relaxed text-slate-200 text-outline">
+            <p className="mb-3 md:mb-4 text-sm md:text-base leading-relaxed text-slate-200 text-outline break-words">
               Cette page est une <strong className="text-white">liste complète d'entraînement</strong> de tous les cours de grammaire et de méthodologie fondamentaux. 
               Chaque bloc de 10 cours constitue un <strong className="text-white">palier</strong> dans ton parcours d'apprentissage.
             </p>
-            <p className="text-base leading-relaxed text-slate-200 text-outline">
+            <p className="text-sm md:text-base leading-relaxed text-slate-200 text-outline break-words">
               Tu peux soit suivre les cours dans l'ordre (1 → 50), soit accéder directement à un sujet spécifique quand tu en as besoin.
             </p>
           </div>
@@ -125,19 +125,19 @@ export default async function TousLesCoursPage() {
                 >
                   <div className="relative z-10">
                     {/* Palier Header */}
-                    <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                      <div>
-                        <div className="mb-2 flex items-center gap-3">
-                          <div className={`comic-panel ${palierColor.badge} border-2 border-black px-4 py-2`}>
-                            <span className="text-xl font-bold text-white text-outline">
+                    <div className="mb-4 md:mb-6 flex flex-col gap-3 md:gap-4 md:flex-row md:items-center md:justify-between">
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-2 flex items-center gap-2 md:gap-3">
+                          <div className={`comic-panel ${palierColor.badge} border-2 border-black px-3 py-1.5 md:px-4 md:py-2 flex-shrink-0`}>
+                            <span className="text-base md:text-xl font-bold text-white text-outline">
                               Palier {palier.id}
                             </span>
                           </div>
                         </div>
-                        <h2 className="text-2xl font-bold text-white mb-2 text-outline">
+                        <h2 className="text-xl md:text-2xl font-bold text-white mb-2 text-outline break-words">
                           {palier.title}
                         </h2>
-                        <p className="text-slate-300 text-outline">
+                        <p className="text-sm md:text-base text-slate-300 text-outline break-words">
                           {palier.description}
                         </p>
                       </div>
@@ -161,23 +161,23 @@ export default async function TousLesCoursPage() {
                           >
                             <div className="relative z-10 w-full flex flex-col items-center">
                               {/* Course Number - Simple bulle avec juste le numéro */}
-                              <div className="mb-4 flex items-center justify-center">
-                                <div className="comic-panel bg-slate-800 border-2 border-black w-12 h-12 rounded-full flex items-center justify-center shadow-lg">
-                                  <span className="text-lg font-bold text-white text-outline">
+                              <div className="mb-3 md:mb-4 flex items-center justify-center">
+                                <div className="comic-panel bg-slate-800 border-2 border-black w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-lg">
+                                  <span className="text-base md:text-lg font-bold text-white text-outline">
                                     {course.id}
                                   </span>
                                 </div>
                               </div>
 
                               {/* Course Title - Centré avec meilleure lisibilité */}
-                              <div className="mb-4 min-h-[4rem] flex items-center justify-center px-2">
-                                <h3 className="text-base font-bold text-white text-outline line-clamp-3 leading-tight" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 0, 0, 0.6)' }}>
+                              <div className="mb-3 md:mb-4 min-h-[3.5rem] md:min-h-[4rem] flex items-center justify-center px-2">
+                                <h3 className="text-sm md:text-base font-bold text-white text-outline line-clamp-3 leading-tight break-words" style={{ textShadow: '0 2px 4px rgba(0, 0, 0, 0.8), 0 0 8px rgba(0, 0, 0, 0.6)' }}>
                                   {course.title}
                                 </h3>
                               </div>
 
                               {/* CTA Button */}
-                              <div className="comic-button bg-emerald-600 text-white px-4 py-2.5 text-sm font-bold hover:bg-emerald-700 w-full">
+                              <div className="comic-button bg-emerald-600 text-white px-3 py-2 md:px-4 md:py-2.5 text-xs md:text-sm font-bold hover:bg-emerald-700 w-full">
                                 Voir le cours
                               </div>
                             </div>

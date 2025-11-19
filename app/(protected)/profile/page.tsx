@@ -167,24 +167,24 @@ export default async function ProfilePage() {
   return (
     <div className="space-y-8 md:space-y-12">
       {/* Header avec infos utilisateur */}
-      <header className="comic-panel-dark flex flex-col gap-6 p-6 md:flex-row md:items-center md:justify-between mb-8">
-      <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-cyan-300 font-bold text-outline">EnglishQuest</p>
-          <h1 className="text-3xl font-bold text-white text-outline">
+      <header className="comic-panel-dark flex flex-col gap-3 md:gap-6 p-3 md:p-6 md:flex-row md:items-center md:justify-between mb-4 md:mb-8">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs md:text-sm uppercase tracking-[0.2em] md:tracking-[0.3em] text-cyan-300 font-bold text-outline">EnglishQuest</p>
+          <h1 className="text-xl md:text-3xl font-bold text-white text-outline leading-tight md:leading-normal break-words">
             Welcome back, <span className="text-cyan-300 text-outline">{profile.username}</span>
           </h1>
-          <p className="text-sm text-slate-400 text-outline">
+          <p className="text-xs md:text-sm text-slate-400 text-outline break-words">
             Role: <span className="font-bold text-amber-300 text-outline">{profile.role}</span>
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-4 text-sm">
-          <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#059669' }}>
+        <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm flex-shrink-0">
+          <div className="comic-panel border-2 md:border-2 border-black px-3 py-1.5 md:px-4 md:py-2" style={{ background: '#059669' }}>
             <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>XP</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.xp}</span>
           </div>
-          <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#d97706' }}>
+          <div className="comic-panel border-2 md:border-2 border-black px-3 py-1.5 md:px-4 md:py-2" style={{ background: '#d97706' }}>
             <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>Gold</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.gold}</span>
           </div>
-          <div className="comic-panel border-2 border-black px-4 py-2" style={{ background: '#0891b2' }}>
+          <div className="comic-panel border-2 md:border-2 border-black px-3 py-1.5 md:px-4 md:py-2" style={{ background: '#0891b2' }}>
             <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>Level</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.level}</span>
           </div>
         </div>
@@ -203,26 +203,26 @@ export default async function ProfilePage() {
 
       {/* Player Panel Card */}
       <MotionCard className="relative">
-        <div className="relative overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/95 via-slate-950/90 to-slate-900/95 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+        <div className="relative overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/95 via-slate-950/90 to-slate-900/95 p-4 md:p-8 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3" />
           
-          <div className="relative z-10 space-y-6">
+          <div className="relative z-10 space-y-4 md:space-y-6">
             {/* Player Header */}
-            <div className="flex items-center justify-between border-b border-slate-700/50 pb-4">
-              <div className="flex items-center gap-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0 border-b border-slate-700/50 pb-3 md:pb-4">
+              <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
                 {/* Avatar */}
                 <AvatarDisplay userId={user.id} username={profile.username} size="md" />
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
                     {roleLabels[profile.role] || profile.role}
                   </p>
-                  <p className="mt-1 text-2xl font-bold text-white">{profile.username}</p>
+                  <p className="mt-1 text-lg md:text-2xl font-bold text-white break-words">{profile.username}</p>
                   <TitleDisplay userId={user.id} />
                 </div>
               </div>
-              <div className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 px-4 py-2 border-2 border-black">
-                <LevelIcon className="w-4 h-4 text-white" />
-                <span className="text-sm font-bold text-white">Niveau {profile.level}</span>
+              <div className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 px-3 py-1.5 md:px-4 md:py-2 border-2 border-black flex-shrink-0">
+                <LevelIcon className="w-3 h-3 md:w-4 md:h-4 text-white" />
+                <span className="text-xs md:text-sm font-bold text-white">Niveau {profile.level}</span>
               </div>
             </div>
             
@@ -247,20 +247,20 @@ export default async function ProfilePage() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl border border-emerald-950/30 bg-slate-900/30 p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <XPIcon className="w-4 h-4 text-emerald-500" />
+            <div className="grid grid-cols-2 gap-2 md:gap-3">
+              <div className="rounded-xl border border-emerald-950/30 bg-slate-900/30 p-3 md:p-4">
+                <div className="flex items-center gap-1.5 md:gap-2 mb-1.5 md:mb-2">
+                  <XPIcon className="w-3 h-3 md:w-4 md:h-4 text-emerald-500" />
                   <p className="text-xs font-medium uppercase tracking-wider text-slate-500">XP</p>
                 </div>
-                <p className="text-2xl font-bold text-emerald-400">{profile.xp.toLocaleString('fr-FR')}</p>
+                <p className="text-xl md:text-2xl font-bold text-emerald-400">{profile.xp.toLocaleString('fr-FR')}</p>
               </div>
-              <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <GoldIcon className="w-4 h-4 text-amber-400" />
+              <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 p-3 md:p-4">
+                <div className="flex items-center gap-1.5 md:gap-2 mb-1.5 md:mb-2">
+                  <GoldIcon className="w-3 h-3 md:w-4 md:h-4 text-amber-400" />
                   <p className="text-xs font-medium uppercase tracking-wider text-slate-400">Or</p>
                 </div>
-                <p className="text-2xl font-bold text-amber-300">{profile.gold.toLocaleString('fr-FR')}</p>
+                <p className="text-xl md:text-2xl font-bold text-amber-300">{profile.gold.toLocaleString('fr-FR')}</p>
               </div>
             </div>
           </div>
@@ -270,26 +270,26 @@ export default async function ProfilePage() {
       {/* Account Information */}
       <div className="grid gap-6 md:grid-cols-2">
         <MotionCard>
-          <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
+          <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-4 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             
             <div className="relative z-10">
-              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 border-2 border-black shadow-lg">
-                <AvatarIcon className="w-7 h-7 text-white" />
+              <div className="mb-4 md:mb-6 flex h-10 w-10 md:h-14 md:w-14 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 border-2 border-black shadow-lg">
+                <AvatarIcon className="w-5 h-5 md:w-7 md:h-7 text-white" />
               </div>
-              <h3 className="mb-4 text-2xl font-bold text-white">Informations du compte</h3>
-              <dl className="space-y-4 text-sm">
+              <h3 className="mb-3 md:mb-4 text-xl md:text-2xl font-bold text-white">Informations du compte</h3>
+              <dl className="space-y-3 md:space-y-4 text-sm">
                 <div>
                   <dt className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Nom d'utilisateur</dt>
-                  <dd className="text-lg font-semibold text-white">{profile.username}</dd>
+                  <dd className="text-base md:text-lg font-semibold text-white break-words">{profile.username}</dd>
                 </div>
                 <div>
                   <dt className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Rôle</dt>
-                  <dd className="text-lg font-semibold text-emerald-400">{roleLabels[profile.role] || profile.role}</dd>
+                  <dd className="text-base md:text-lg font-semibold text-emerald-400">{roleLabels[profile.role] || profile.role}</dd>
                 </div>
                 <div>
                   <dt className="text-xs font-medium uppercase tracking-wider text-slate-400 mb-1">Email</dt>
-                  <dd className="text-lg text-slate-300">{profile.email ?? "Non renseigné"}</dd>
+                  <dd className="text-base md:text-lg text-slate-300 break-words">{profile.email ?? "Non renseigné"}</dd>
                 </div>
               </dl>
             </div>
@@ -297,26 +297,26 @@ export default async function ProfilePage() {
         </MotionCard>
 
         <MotionCard>
-          <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
+          <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-4 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             
             <div className="relative z-10">
-              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 border-2 border-black shadow-lg">
-                <ScrollIcon className="w-7 h-7 text-white" />
+              <div className="mb-4 md:mb-6 flex h-10 w-10 md:h-14 md:w-14 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 border-2 border-black shadow-lg">
+                <ScrollIcon className="w-5 h-5 md:w-7 md:h-7 text-white" />
               </div>
-              <h3 className="mb-4 text-2xl font-bold text-white">Statistiques</h3>
-              <dl className="space-y-4 text-sm">
+              <h3 className="mb-3 md:mb-4 text-xl md:text-2xl font-bold text-white">Statistiques</h3>
+              <dl className="space-y-3 md:space-y-4 text-sm">
                 <div>
                   <dt className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Niveau actuel</dt>
-                  <dd className="text-lg font-semibold text-emerald-400">Niveau {profile.level}</dd>
+                  <dd className="text-base md:text-lg font-semibold text-emerald-400">Niveau {profile.level}</dd>
                 </div>
                 <div>
                   <dt className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Progression XP</dt>
-                  <dd className="text-lg text-slate-400">{xpProgress.percentage}% vers le niveau {profile.level + 1}</dd>
+                  <dd className="text-base md:text-lg text-slate-400 break-words">{xpProgress.percentage}% vers le niveau {profile.level + 1}</dd>
                 </div>
                 <div>
                   <dt className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Cours le plus haut</dt>
-                  <dd className="text-lg text-slate-300">
+                  <dd className="text-base md:text-lg text-slate-300 break-words">
                     {highestCourse 
                       ? `Cours ${highestCourse.course_number}: ${highestCourse.title}`
                       : "Aucun cours commencé"}
@@ -324,7 +324,7 @@ export default async function ProfilePage() {
                 </div>
                 <div>
                   <dt className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Membre depuis</dt>
-                  <dd className="text-lg text-slate-400">
+                  <dd className="text-base md:text-lg text-slate-400 break-words">
                     {new Date(profile.created_at).toLocaleDateString('fr-FR', { 
                       year: 'numeric', 
                       month: 'long', 
@@ -345,12 +345,12 @@ export default async function ProfilePage() {
 
       {/* Boutique */}
       <MotionCard>
-        <div className="comic-panel-dark p-6" style={{ position: "relative", zIndex: 1, pointerEvents: "auto" }}>
-          <div className="flex items-center gap-3 mb-6">
-            <div className="comic-panel bg-gradient-to-br from-cyan-500 to-blue-600 border-2 border-black p-2">
-              <GiftIcon className="w-6 h-6 text-white" />
+        <div className="comic-panel-dark p-4 md:p-6" style={{ position: "relative", zIndex: 1, pointerEvents: "auto" }}>
+          <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
+            <div className="comic-panel bg-gradient-to-br from-cyan-500 to-blue-600 border-2 border-black p-1.5 md:p-2">
+              <GiftIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-white text-outline">Boutique</h2>
+            <h2 className="text-xl md:text-2xl font-bold text-white text-outline">Boutique</h2>
           </div>
           <div style={{ position: "relative", zIndex: 2, pointerEvents: "auto" }}>
             <ShopSection
@@ -365,14 +365,14 @@ export default async function ProfilePage() {
       {/* Meilleurs scores */}
       {bestScores && bestScores.length > 0 && (
         <MotionCard>
-          <div className="group relative overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
+          <div className="group relative overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-4 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             
             <div className="relative z-10">
-              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 border-2 border-black shadow-lg">
-                <GameIcon className="w-7 h-7 text-white" />
+              <div className="mb-4 md:mb-6 flex h-10 w-10 md:h-14 md:w-14 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 border-2 border-black shadow-lg">
+                <GameIcon className="w-5 h-5 md:w-7 md:h-7 text-white" />
               </div>
-              <h3 className="mb-4 text-2xl font-bold text-white">Meilleurs scores</h3>
+              <h3 className="mb-3 md:mb-4 text-xl md:text-2xl font-bold text-white">Meilleurs scores</h3>
               <div className="space-y-3">
                 {bestScores.map((scoreData: any, index: number) => {
                   const game = scoreData.games as { name: string } | null;
