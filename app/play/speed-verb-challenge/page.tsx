@@ -111,6 +111,14 @@ export default function SpeedVerbChallengePage() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const lastTickRef = useRef<number>(Date.now());
   const gameStartTimeRef = useRef<number | null>(null);
+  const roundStartTimeRef = useRef<number | null>(null);
+  const [milestoneNotification, setMilestoneNotification] = useState<{
+    show: boolean;
+    streak: number;
+  } | null>(null);
+  const [timeBonusFlash, setTimeBonusFlash] = useState(false);
+  const [lastTimeBonus, setLastTimeBonus] = useState(0);
+  const [backgroundFlash, setBackgroundFlash] = useState<"green" | "red" | null>(null);
 
   // Initialize game state
   const initializeGame = useCallback(() => {
@@ -128,6 +136,7 @@ export default function SpeedVerbChallengePage() {
     setSessionStats({ totalCorrect: 0, totalAttempts: 0, bestStreak: 0 });
     setMissedVerbs([]);
     setShowFeedbackAnimation(false);
+    setBackgroundFlash(null); // Reset background flash
   }, [selectedDifficulty]);
 
   // Start the game
@@ -146,13 +155,19 @@ export default function SpeedVerbChallengePage() {
     setFeedback(null);
     lastTickRef.current = now;
     gameStartTimeRef.current = now;
+    roundStartTimeRef.current = now;
   }, [gameState]);
 
   // Handle answer submission
   const handleSubmit = useCallback(() => {
     if (!gameState || !gameState.currentRound || gameState.ended) return;
 
-    const { state: newState, result } = submitAnswer(gameState, answer);
+    // Calculate answer time
+    const answerTime = roundStartTimeRef.current 
+      ? Date.now() - roundStartTimeRef.current 
+      : undefined;
+
+    const { state: newState, result } = submitAnswer(gameState, answer, answerTime);
 
     // Update session stats
     setSessionStats((prev) => ({
@@ -166,12 +181,38 @@ export default function SpeedVerbChallengePage() {
 
     // Show feedback
     if (result.isCorrect) {
-      const message = `+${result.pointsAwarded} points • Série: ${result.streakAfter}`;
+      // Build message with bonuses
+      let message = `+${result.pointsAwarded} points`;
+      if (result.speedBonus && result.speedBonus > 0) {
+        message += ` (+${result.speedBonus} vitesse)`;
+      }
+      if (result.timeBonus && result.timeBonus > 0) {
+        message += ` (+${Math.round(result.timeBonus / 1000)}s)`;
+      }
+      message += ` • Série: ${result.streakAfter}`;
+
       setFeedback({
         show: true,
         isCorrect: true,
         message,
       });
+
+      // Trigger milestone notification
+      if (result.isMilestone) {
+        setMilestoneNotification({ show: true, streak: result.streakAfter });
+        setTimeout(() => setMilestoneNotification(null), 3000);
+      }
+      
+      // Flash time bonus indicator
+      if (result.timeBonus && result.timeBonus > 0) {
+        setLastTimeBonus(result.timeBonus);
+        setTimeBonusFlash(true);
+        setTimeout(() => setTimeBonusFlash(false), 1000);
+      }
+      
+      // Flash background green for correct answer
+      setBackgroundFlash("green");
+      setTimeout(() => setBackgroundFlash(null), 600);
     } else {
       // Show correct answers when wrong
       const verb = gameState.currentRound.currentVerb;
@@ -199,6 +240,10 @@ export default function SpeedVerbChallengePage() {
         correctAnswers,
       });
 
+      // Flash background red for incorrect answer
+      setBackgroundFlash("red");
+      setTimeout(() => setBackgroundFlash(null), 600);
+
       // Track missed verb
       setMissedVerbs((prev) => [
         ...prev,
@@ -224,6 +269,7 @@ export default function SpeedVerbChallengePage() {
         const now = Date.now();
         const nextState = startNewRound(newState, now);
         setGameState(nextState);
+        roundStartTimeRef.current = now;
       } else if (newState.ended) {
         setIsGameEnded(true);
       }
@@ -284,6 +330,7 @@ export default function SpeedVerbChallengePage() {
       const now = Date.now();
       const nextState = startNewRound(gameState, now);
       setGameState(nextState);
+      roundStartTimeRef.current = now;
     }, 2000);
   }, [gameState]);
 
@@ -412,6 +459,40 @@ export default function SpeedVerbChallengePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 comic-dot-pattern p-4 md:p-8">
+      {/* Milestone Notification */}
+      <AnimatePresence>
+        {milestoneNotification?.show && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5, y: -100 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.5, y: -100 }}
+            transition={{ type: "spring", stiffness: 200, damping: 15 }}
+            className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50"
+          >
+            <div className="comic-panel bg-gradient-to-br from-amber-500 via-yellow-500 to-orange-500 border-4 border-black p-6 shadow-2xl">
+              <div className="text-center">
+                <motion.div
+                  animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }}
+                  transition={{ duration: 0.5, repeat: 2 }}
+                  className="mb-3"
+                >
+                  <TrophyIcon className="w-12 h-12 text-white mx-auto" />
+                </motion.div>
+                <h3 className="text-3xl font-bold text-white mb-2 text-outline">
+                  🎉 MILESTONE! 🎉
+                </h3>
+                <p className="text-2xl font-bold text-white text-outline">
+                  {milestoneNotification.streak} séries consécutives!
+                </p>
+                <p className="text-lg text-white/90 mt-2 text-outline">
+                  Bonus de points et temps accordés!
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
         <motion.div
@@ -595,9 +676,13 @@ export default function SpeedVerbChallengePage() {
                   className={`comic-panel border-2 border-black p-4 text-center ${
                     isTimeLow
                       ? "bg-gradient-to-br from-red-600 to-orange-600 animate-comic-flash"
+                      : timeBonusFlash
+                      ? "bg-gradient-to-br from-emerald-500 to-green-500 animate-comic-pulse-success"
                       : "bg-gradient-to-br from-amber-600 to-yellow-600"
                   }`}
                   whileHover={{ scale: 1.05 }}
+                  animate={timeBonusFlash ? { scale: [1, 1.1, 1] } : {}}
+                  transition={{ duration: 0.3 }}
                 >
                   <div className="flex items-center justify-center gap-1 text-xs text-white/80 mb-1 text-outline font-semibold">
                     <div className="comic-panel bg-gradient-to-br from-blue-500 to-indigo-600 border-2 border-black p-1">
@@ -608,6 +693,16 @@ export default function SpeedVerbChallengePage() {
                   <div className="text-3xl font-bold text-white text-outline">
                     {formatTime(gameState.timeLeftMs)}
                   </div>
+                  {timeBonusFlash && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="text-xs text-emerald-200 font-bold mt-1 text-outline"
+                    >
+                      +{Math.round(lastTimeBonus / 1000)}s
+                    </motion.div>
+                  )}
                 </motion.div>
               </div>
 
@@ -647,8 +742,31 @@ export default function SpeedVerbChallengePage() {
                 background: "linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(168, 85, 247, 0.15) 50%, rgba(236, 72, 153, 0.15) 100%)",
               }}
             >
+              {/* Background Flash Effect - only in game area */}
+              <AnimatePresence>
+                {backgroundFlash && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 0.3, 0.2, 0] }}
+                    exit={{ opacity: 0 }}
+                    transition={{ 
+                      duration: 0.5,
+                      ease: "easeOut"
+                    }}
+                    className={`absolute inset-0 z-0 pointer-events-none rounded-lg ${
+                      backgroundFlash === "green" 
+                        ? "bg-green-400" 
+                        : "bg-red-400"
+                    }`}
+                    style={{
+                      mixBlendMode: "screen",
+                    }}
+                  />
+                )}
+              </AnimatePresence>
+
               {/* Decorative background elements */}
-              <div className="absolute inset-0 opacity-10 pointer-events-none">
+              <div className="absolute inset-0 opacity-10 pointer-events-none z-0">
                 <div className="absolute top-10 left-10 w-32 h-32 bg-cyan-500 rounded-full blur-3xl" />
                 <div className="absolute bottom-10 right-10 w-40 h-40 bg-purple-500 rounded-full blur-3xl" />
                 <div className="absolute top-1/2 left-1/2 w-24 h-24 bg-pink-500 rounded-full blur-2xl transform -translate-x-1/2 -translate-y-1/2" />
@@ -824,9 +942,13 @@ export default function SpeedVerbChallengePage() {
                     >
                       <div className="flex items-center justify-center gap-3 mb-4">
                         {feedback.isCorrect ? (
-                          <div className="comic-panel bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black p-2">
+                          <motion.div
+                            animate={{ scale: [1, 1.2, 1], rotate: [0, 360] }}
+                            transition={{ duration: 0.6 }}
+                            className="comic-panel bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black p-2"
+                          >
                             <CheckCircleIcon className="w-6 h-6 text-white" />
-                          </div>
+                          </motion.div>
                         ) : (
                           <div className="comic-panel bg-gradient-to-br from-red-500 to-rose-600 border-2 border-black p-2">
                             <XCircleIcon className="w-6 h-6 text-white" />

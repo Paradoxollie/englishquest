@@ -50,6 +50,9 @@ export interface SubmitResult {
   pointsAwarded: number;
   streakAfter: number;
   comboAfter: number;
+  speedBonus?: number;
+  timeBonus?: number;
+  isMilestone?: boolean;
 }
 
 export interface GameState {
@@ -157,7 +160,11 @@ export function startNewRound(state: GameState, nowMs: number): GameState {
   };
 }
 
-export function submitAnswer(state: GameState, answer: AnswerPayload): { state: GameState; result: SubmitResult } {
+export function submitAnswer(
+  state: GameState, 
+  answer: AnswerPayload,
+  answerTimeMs?: number
+): { state: GameState; result: SubmitResult } {
   if (state.ended || !state.currentRound) {
     return {
       state,
@@ -170,7 +177,7 @@ export function submitAnswer(state: GameState, answer: AnswerPayload): { state: 
     };
   }
 
-  const { currentVerb, required } = state.currentRound;
+  const { currentVerb, required, shownAtMs } = state.currentRound;
   const userPS = normalize(answer.pastSimple);
   const userPP = normalize(answer.pastParticiple);
   const userTR = normalize(answer.translation);
@@ -182,23 +189,62 @@ export function submitAnswer(state: GameState, answer: AnswerPayload): { state: 
 
   const isCorrect = psOk && ppOk && trOk;
 
+  // Calculate time taken (in seconds)
+  const timeTaken = answerTimeMs !== undefined 
+    ? answerTimeMs / 1000 
+    : (Date.now() - shownAtMs) / 1000;
+
   let newStreak = state.streak;
   let newCombo = state.comboMultiplier;
   let points = 0;
+  let speedBonus = 0;
+  let timeBonus = 0;
+  let isMilestone = false;
 
   if (isCorrect) {
     newStreak = state.streak + 1;
     newCombo = computeCombo(newStreak);
     const base = state.config.difficulty; // 1 / 2 / 3
     points = Math.round(base * newCombo);
+
+    // Speed bonus: faster answers get bonus points
+    // < 3 seconds: 50% bonus, < 5 seconds: 30% bonus, < 8 seconds: 15% bonus
+    if (timeTaken < 3) {
+      speedBonus = Math.round(points * 0.5);
+    } else if (timeTaken < 5) {
+      speedBonus = Math.round(points * 0.3);
+    } else if (timeTaken < 8) {
+      speedBonus = Math.round(points * 0.15);
+    }
+
+    // Time bonus: very fast answers (< 3s) add 1 second to timer
+    if (timeTaken < 3) {
+      timeBonus = 1000; // 1 second
+    }
+
+    // Check for milestone streaks (10, 20, 30, 50, 100, etc.)
+    const milestoneStreaks = [10, 20, 30, 50, 100];
+    if (milestoneStreaks.includes(newStreak)) {
+      isMilestone = true;
+      // Milestone bonus: extra points for reaching milestones
+      speedBonus += Math.round(points * 0.5);
+      timeBonus += 2000; // 2 extra seconds for milestones
+    }
   } else {
     newStreak = 0;
     newCombo = 1;
   }
 
+  const totalPoints = points + speedBonus;
+  const newTimeLeft = Math.min(
+    state.config.totalTimeMs,
+    state.timeLeftMs + timeBonus
+  );
+
   const newState: GameState = {
     ...state,
-    score: state.score + points,
+    score: state.score + totalPoints,
+    timeLeftMs: newTimeLeft,
     streak: newStreak,
     highestStreak: Math.max(state.highestStreak, newStreak),
     comboMultiplier: newCombo,
@@ -210,9 +256,12 @@ export function submitAnswer(state: GameState, answer: AnswerPayload): { state: 
     state: newState,
     result: {
       isCorrect,
-      pointsAwarded: points,
+      pointsAwarded: totalPoints,
       streakAfter: newStreak,
       comboAfter: newCombo,
+      speedBonus,
+      timeBonus,
+      isMilestone,
     },
   };
 }
