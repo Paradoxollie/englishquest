@@ -443,14 +443,14 @@ export default function EnigmaScrollPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 comic-dot-pattern p-4 md:p-8">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 comic-dot-pattern p-2 md:p-8">
+      <div className="max-w-5xl mx-auto space-y-3 md:space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="comic-panel-dark p-6 relative overflow-hidden"
+          className="comic-panel-dark p-3 md:p-6 relative overflow-hidden"
           style={{
             background: "linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(59, 130, 246, 0.2) 50%, rgba(236, 72, 153, 0.2) 100%)",
           }}
@@ -461,32 +461,32 @@ export default function EnigmaScrollPage() {
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-pink-500 rounded-full blur-3xl" />
           </div>
 
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex items-center gap-4">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-3 md:gap-4">
+            <div className="flex items-center gap-2 md:gap-4 min-w-0 flex-1">
               <motion.div
-                className="comic-panel bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-700 border-4 border-black p-4 relative overflow-hidden"
+                className="comic-panel bg-gradient-to-br from-purple-600 via-indigo-600 to-purple-700 border-2 md:border-4 border-black p-2 md:p-4 relative overflow-hidden flex-shrink-0"
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 style={{
                   boxShadow: "0 6px 0 0 #000, 0 0 25px rgba(139, 92, 246, 0.6), inset 0 2px 4px rgba(0,0,0,0.2)",
                 }}
               >
-                <BookOpenIcon className="w-8 h-8 md:w-10 md:h-10 text-white relative z-10" />
+                <BookOpenIcon className="w-6 h-6 md:w-10 md:h-10 text-white relative z-10" />
               </motion.div>
-              <div>
-                <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-2 text-outline" style={{
+              <div className="min-w-0 flex-1">
+                <h1 className="text-xl md:text-5xl font-extrabold text-white mb-1 md:mb-2 text-outline leading-tight md:leading-normal break-words" style={{
                   textShadow: "0 0 10px rgba(139, 92, 246, 0.5), 0 0 20px rgba(139, 92, 246, 0.3), 0 4px 8px rgba(0,0,0,0.8), 2px 2px 0 rgba(0,0,0,1)",
                 }}>
                   Enigma Scroll
                 </h1>
-                <p className="text-slate-200 text-lg font-semibold text-outline">
+                <p className="text-slate-200 text-xs md:text-lg font-semibold text-outline leading-tight md:leading-normal break-words">
                   Devine le mot secret en un nombre limité de tentatives!
                 </p>
               </div>
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2 md:gap-3 justify-center md:justify-end flex-shrink-0">
               <Link
                 href="/play/enigma-scroll/leaderboard"
-                className="comic-button bg-gradient-to-br from-amber-600 via-yellow-600 to-amber-700 text-white px-6 py-3 font-extrabold hover:from-amber-700 hover:to-yellow-700 text-outline border-4 border-black"
+                className="comic-button bg-gradient-to-br from-amber-600 via-yellow-600 to-amber-700 text-white px-3 py-2 md:px-6 md:py-3 text-xs md:text-base font-extrabold hover:from-amber-700 hover:to-yellow-700 text-outline border-2 md:border-4 border-black whitespace-nowrap"
                 style={{
                   boxShadow: "0 5px 0 0 #000, 0 8px 16px rgba(0,0,0,0.4)",
                   textShadow: "0 0 4px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,1)",
@@ -496,7 +496,7 @@ export default function EnigmaScrollPage() {
               </Link>
               <Link
                 href="/play"
-                className="comic-button bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 text-white px-6 py-3 font-extrabold hover:from-slate-600 hover:to-slate-700 text-outline border-4 border-black"
+                className="comic-button bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 text-white px-3 py-2 md:px-6 md:py-3 text-xs md:text-base font-extrabold hover:from-slate-600 hover:to-slate-700 text-outline border-2 md:border-4 border-black whitespace-nowrap"
                 style={{
                   boxShadow: "0 5px 0 0 #000, 0 8px 16px rgba(0,0,0,0.4)",
                   textShadow: "0 0 4px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,1)",
@@ -516,17 +516,17 @@ export default function EnigmaScrollPage() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3 }}
-              className="comic-panel-dark p-8"
+              className="comic-panel-dark p-4 md:p-8"
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="comic-panel bg-gradient-to-br from-cyan-600 to-blue-600 border-2 border-black p-3">
-                  <BookOpenIcon className="w-6 h-6 text-white" />
+              <div className="flex items-start gap-2 md:gap-4 mb-4 md:mb-6">
+                <div className="comic-panel bg-gradient-to-br from-cyan-600 to-blue-600 border-2 border-black p-2 md:p-3 flex-shrink-0">
+                  <BookOpenIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-white mb-4 text-outline">
+                <div className="min-w-0 flex-1">
+                  <h2 className="text-lg md:text-2xl font-bold text-white mb-3 md:mb-4 text-outline">
                     Règles du jeu
                   </h2>
-                  <ul className="space-y-3 text-slate-300 text-outline">
+                  <ul className="space-y-2 md:space-y-3 text-sm md:text-base text-slate-300 text-outline">
                     <li className="flex items-start gap-2">
                       <span className="text-cyan-400 font-bold mt-1">•</span>
                       <span>
@@ -562,32 +562,32 @@ export default function EnigmaScrollPage() {
               </div>
 
               {/* Difficulty Selection */}
-              <div className="mt-8">
-                <label className="block text-white font-bold mb-4 text-outline text-lg">
+              <div className="mt-6 md:mt-8">
+                <label className="block text-white font-bold mb-3 md:mb-4 text-outline text-base md:text-lg">
                   Choisissez la difficulté:
                 </label>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                   {([4, 5, 6] as Difficulty[]).map((diff) => (
                     <motion.button
                       key={diff}
                       onClick={() => setSelectedDifficulty(diff)}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className={`comic-button p-4 font-bold text-outline text-left ${
+                      className={`comic-button p-3 md:p-4 font-bold text-outline text-left ${
                         selectedDifficulty === diff
-                          ? "bg-gradient-to-br from-cyan-600 to-blue-600 text-white border-4 border-black"
-                          : "bg-slate-700 text-white hover:bg-slate-600"
+                          ? "bg-gradient-to-br from-cyan-600 to-blue-600 text-white border-2 md:border-4 border-black"
+                          : "bg-slate-700 text-white hover:bg-slate-600 border-2 md:border-4 border-black"
                       }`}
                     >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xl">{DIFFICULTY_LABELS[diff]}</span>
+                      <div className="flex items-center justify-between mb-1 md:mb-2">
+                        <span className="text-base md:text-xl">{DIFFICULTY_LABELS[diff]}</span>
                         {selectedDifficulty === diff && (
                           <div className="comic-panel bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black p-1">
                             <StarIcon className="w-5 h-5 text-white" />
                           </div>
                         )}
                       </div>
-                      <span className="block text-sm opacity-90 mt-1">
+                      <span className="block text-xs md:text-sm opacity-90 mt-1">
                         {DIFFICULTY_DESCRIPTIONS[diff]}
                       </span>
                     </motion.button>
@@ -605,15 +605,15 @@ export default function EnigmaScrollPage() {
               )}
 
               {/* Start Button */}
-              <div className="mt-8 flex justify-center">
+              <div className="mt-6 md:mt-8 flex justify-center">
                 <motion.button
                   onClick={startGame}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="comic-button bg-gradient-to-r from-emerald-600 to-green-600 text-white px-12 py-4 text-xl font-bold hover:from-emerald-700 hover:to-green-700 text-outline animate-comic-glow"
+                  className="comic-button bg-gradient-to-r from-emerald-600 to-green-600 text-white px-6 py-3 md:px-12 md:py-4 text-base md:text-xl font-bold hover:from-emerald-700 hover:to-green-700 text-outline animate-comic-glow border-2 md:border-4 border-black w-full md:w-auto"
                 >
-                  <span className="flex items-center gap-2">
-                    <BookOpenIcon className="w-6 h-6" />
+                  <span className="flex items-center justify-center gap-2">
+                    <BookOpenIcon className="w-5 h-5 md:w-6 md:h-6" />
                     Commencer le jeu
                   </span>
                 </motion.button>
@@ -629,11 +629,11 @@ export default function EnigmaScrollPage() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="comic-panel-dark p-6"
+              className="comic-panel-dark p-3 md:p-6"
             >
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-3 md:mb-4">
                 <motion.div
-                  className="comic-panel bg-gradient-to-br from-purple-500 via-indigo-600 to-purple-700 border-4 border-black p-4 md:p-5 text-center relative overflow-hidden"
+                  className="comic-panel bg-gradient-to-br from-purple-500 via-indigo-600 to-purple-700 border-2 md:border-4 border-black p-2 md:p-5 text-center relative overflow-hidden"
                   whileHover={{ scale: 1.08, y: -3 }}
                   style={{
                     boxShadow: "0 6px 0 0 #000, 0 0 20px rgba(139, 92, 246, 0.5), inset 0 2px 4px rgba(0,0,0,0.2)",
@@ -642,14 +642,14 @@ export default function EnigmaScrollPage() {
                   <div className="text-xs md:text-sm text-white/90 mb-2 text-outline font-extrabold uppercase tracking-wider">
                     SCORE
                   </div>
-                  <div className="text-3xl md:text-4xl font-extrabold text-white text-outline" style={{
+                  <div className="text-xl md:text-4xl font-extrabold text-white text-outline" style={{
                     textShadow: "0 0 10px rgba(139, 92, 246, 0.6), 0 4px 8px rgba(0,0,0,0.8), 2px 2px 0 rgba(0,0,0,1)",
                   }}>
                     {gameState.totalScore}
                   </div>
                 </motion.div>
                 <motion.div
-                  className="comic-panel bg-gradient-to-br from-cyan-500 via-blue-600 to-cyan-700 border-4 border-black p-4 md:p-5 text-center relative overflow-hidden"
+                  className="comic-panel bg-gradient-to-br from-cyan-500 via-blue-600 to-cyan-700 border-2 md:border-4 border-black p-2 md:p-5 text-center relative overflow-hidden"
                   whileHover={{ scale: 1.08, y: -3 }}
                   style={{
                     boxShadow: "0 6px 0 0 #000, 0 0 20px rgba(6, 182, 212, 0.5), inset 0 2px 4px rgba(0,0,0,0.2)",
@@ -662,7 +662,7 @@ export default function EnigmaScrollPage() {
                     SÉRIE
                   </div>
                   <motion.div 
-                    className="text-3xl md:text-4xl font-extrabold text-white text-outline relative"
+                    className="text-xl md:text-4xl font-extrabold text-white text-outline relative"
                     style={{
                       textShadow: "0 0 10px rgba(6, 182, 212, 0.6), 0 4px 8px rgba(0,0,0,0.8), 2px 2px 0 rgba(0,0,0,1)",
                     }}
@@ -687,7 +687,7 @@ export default function EnigmaScrollPage() {
                   </motion.div>
                 </motion.div>
                 <motion.div
-                  className="comic-panel bg-gradient-to-br from-pink-500 via-rose-600 to-pink-700 border-4 border-black p-4 md:p-5 text-center relative overflow-hidden"
+                  className="comic-panel bg-gradient-to-br from-pink-500 via-rose-600 to-pink-700 border-2 md:border-4 border-black p-2 md:p-5 text-center relative overflow-hidden"
                   whileHover={{ scale: 1.08, y: -3 }}
                   style={{
                     boxShadow: "0 6px 0 0 #000, 0 0 20px rgba(236, 72, 153, 0.5), inset 0 2px 4px rgba(0,0,0,0.2)",
@@ -699,14 +699,14 @@ export default function EnigmaScrollPage() {
                     </div>
                     TROUVÉS
                   </div>
-                  <div className="text-3xl md:text-4xl font-extrabold text-white text-outline" style={{
+                  <div className="text-xl md:text-4xl font-extrabold text-white text-outline" style={{
                     textShadow: "0 0 10px rgba(236, 72, 153, 0.6), 0 4px 8px rgba(0,0,0,0.8), 2px 2px 0 rgba(0,0,0,1)",
                   }}>
                     {gameState.wordsFound}
                   </div>
                 </motion.div>
                 <motion.div
-                  className={`comic-panel border-4 border-black p-4 md:p-5 text-center relative overflow-hidden ${
+                  className={`comic-panel border-2 md:border-4 border-black p-2 md:p-5 text-center relative overflow-hidden ${
                     isTimeLow
                       ? "bg-gradient-to-br from-red-500 via-orange-600 to-red-700 animate-comic-flash"
                       : "bg-gradient-to-br from-amber-500 via-yellow-600 to-amber-700"
@@ -724,7 +724,7 @@ export default function EnigmaScrollPage() {
                     </div>
                     TEMPS
                   </div>
-                  <div className={`text-3xl md:text-4xl font-extrabold text-white text-outline ${isTimeLow ? "animate-pulse" : ""}`} style={{
+                  <div className={`text-xl md:text-4xl font-extrabold text-white text-outline ${isTimeLow ? "animate-pulse" : ""}`} style={{
                     textShadow: isTimeLow
                       ? "0 0 15px rgba(239, 68, 68, 0.8), 0 4px 8px rgba(0,0,0,0.8), 2px 2px 0 rgba(0,0,0,1)"
                       : "0 0 10px rgba(234, 179, 8, 0.6), 0 4px 8px rgba(0,0,0,0.8), 2px 2px 0 rgba(0,0,0,1)",
@@ -735,7 +735,7 @@ export default function EnigmaScrollPage() {
               </div>
 
               {/* Timer Bar */}
-              <div className="comic-panel bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 border-4 border-black h-6 md:h-7 rounded-full overflow-hidden relative">
+              <div className="comic-panel bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800 border-2 md:border-4 border-black h-5 md:h-7 rounded-full overflow-hidden relative">
                 <motion.div
                   className={`h-full relative ${
                     isTimeLow
@@ -776,7 +776,7 @@ export default function EnigmaScrollPage() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              className="comic-panel-dark p-8 relative overflow-hidden"
+              className="comic-panel-dark p-4 md:p-8 relative overflow-hidden"
               style={{
                 background: "linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(168, 85, 247, 0.15) 50%, rgba(236, 72, 153, 0.15) 100%)",
               }}
@@ -789,11 +789,11 @@ export default function EnigmaScrollPage() {
               </div>
 
               <div className="relative z-10">
-                <div className="flex flex-col items-center gap-3 md:gap-4">
+                <div className="flex flex-col items-center gap-2 md:gap-4">
                   {gameState.rows.map((row, rowIndex) => (
                     <motion.div
                       key={rowIndex}
-                      className="flex gap-2 md:gap-3"
+                      className="flex gap-1.5 md:gap-3"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ 
                         opacity: rowIndex === gameState.currentAttemptIndex ? 1 : 0.8,
@@ -818,7 +818,7 @@ export default function EnigmaScrollPage() {
                         return (
                           <motion.div
                             key={cellIndex}
-                            className="w-16 h-16 md:w-20 md:h-20 border-4 border-black flex items-center justify-center text-3xl md:text-4xl font-extrabold relative overflow-hidden rounded-lg"
+                            className="w-12 h-12 md:w-20 md:h-20 border-2 md:border-4 border-black flex items-center justify-center text-2xl md:text-4xl font-extrabold relative overflow-hidden rounded-lg"
                             style={{
                               // Couleurs directement sur le fond
                               background: isCorrect
@@ -892,7 +892,7 @@ export default function EnigmaScrollPage() {
                   initial={{ opacity: 0, scale: 0.9, y: -10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.9 }}
-                  className="mt-6 comic-panel bg-gradient-to-br from-red-500 via-rose-600 to-red-700 border-4 border-black p-5 text-center relative overflow-hidden"
+                  className="mt-4 md:mt-6 comic-panel bg-gradient-to-br from-red-500 via-rose-600 to-red-700 border-2 md:border-4 border-black p-3 md:p-5 text-center relative overflow-hidden"
                   style={{
                     boxShadow: "0 6px 0 0 #000, 0 0 25px rgba(239, 68, 68, 0.7), inset 0 2px 4px rgba(0,0,0,0.2)",
                   }}
@@ -908,7 +908,7 @@ export default function EnigmaScrollPage() {
                       repeatDelay: 2,
                     }}
                   />
-                  <p className="text-white font-extrabold text-lg text-outline relative z-10" style={{
+                  <p className="text-white font-extrabold text-sm md:text-lg text-outline relative z-10 break-words" style={{
                     textShadow: "0 0 8px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.9), 2px 2px 0 rgba(0,0,0,1)",
                   }}>
                     {errorMessage}

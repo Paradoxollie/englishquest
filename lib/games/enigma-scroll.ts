@@ -269,6 +269,22 @@ function isValidWord(word: string, wordLength: number): boolean {
   return validGuesses ? validGuesses.includes(normalized) : false;
 }
 
+function isTargetWord(word: string, wordLength: number): boolean {
+  const normalized = normalizeWord(word);
+  
+  if (normalized.length !== wordLength) {
+    return false;
+  }
+  
+  if (!/^[A-Z]+$/.test(normalized)) {
+    return false;
+  }
+  
+  const wordLists = getWordLists();
+  const targetWords = wordLists.targetWords[wordLength];
+  return targetWords ? targetWords.includes(normalized) : false;
+}
+
 function getRandomWord(wordLength: number, excludeWords: Set<string> = new Set()): string {
   const wordLists = getWordLists();
   const targetWords = wordLists.targetWords[wordLength];
@@ -391,8 +407,9 @@ export function createInitialGameState(
   const normalizedTarget = normalizeWord(targetWord);
   const wordLength = normalizedTarget.length;
   
-  if (!isValidWord(normalizedTarget, wordLength)) {
-    throw new Error(`Word "${normalizedTarget}" is not in the word list for length ${wordLength}`);
+  // Vérifier que le mot est dans targetWords (liste de base), pas dans validGuesses
+  if (!isTargetWord(normalizedTarget, wordLength)) {
+    throw new Error(`Word "${normalizedTarget}" is not in the target words list for length ${wordLength}`);
   }
   
   const defaultConfig = DEFAULT_CONFIGS[wordLength];
