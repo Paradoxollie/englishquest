@@ -1,3 +1,5 @@
+"use client";
+
 import { EnigmaScrollLeaderboard } from "../leaderboard";
 import Link from "next/link";
 import { BookOpenIcon } from "@/components/ui/game-icons";
