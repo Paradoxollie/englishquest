@@ -407,6 +407,41 @@ export default function EnigmaScrollPage() {
   const keyboardState = getKeyboardState();
   const isTimeLow = timeRemaining < 10;
 
+  // Detect if mobile
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Helper function to get button styles
+  const getButtonStyle = (isCorrect: boolean, isPresent: boolean, isAbsent: boolean) => {
+    if (isMobile) {
+      return {
+        boxShadow: isCorrect
+          ? "0 3px 0 0 #000, inset 0 1px 2px rgba(255,255,255,0.2)"
+          : isPresent
+          ? "0 3px 0 0 #000, inset 0 1px 2px rgba(255,255,255,0.2)"
+          : isAbsent
+          ? "0 2px 0 0 #000"
+          : "0 3px 0 0 #000, inset 0 1px 2px rgba(255,255,255,0.1)",
+        textShadow: "1px 1px 2px rgba(0,0,0,0.8)",
+      };
+    }
+    return {
+      boxShadow: isCorrect
+        ? "0 5px 0 0 #000, 0 0 15px rgba(34, 197, 94, 0.5), inset 0 2px 4px rgba(0,0,0,0.2)"
+        : isPresent
+        ? "0 5px 0 0 #000, 0 0 15px rgba(234, 179, 8, 0.5), inset 0 2px 4px rgba(0,0,0,0.2)"
+        : isAbsent
+        ? "0 5px 0 0 #000, 0 0 10px rgba(0, 0, 0, 0.8), inset 0 2px 4px rgba(0,0,0,0.5)"
+        : "0 4px 0 0 #000, 0 6px 12px rgba(0,0,0,0.3)",
+      textShadow: "0 0 4px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,1)",
+    };
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 comic-dot-pattern p-4 md:p-8">
       <div className="max-w-5xl mx-auto space-y-6">
@@ -884,25 +919,26 @@ export default function EnigmaScrollPage() {
           )}
         </AnimatePresence>
 
-        {/* Virtual Keyboard */}
+        {/* Virtual Keyboard - Responsive: Compact Mobile / Professional Desktop */}
         <AnimatePresence>
           {isGameStarted && gameState && !showGameOver && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="comic-panel-dark p-6 relative overflow-hidden"
+              className="comic-panel-dark p-2 md:p-6 relative overflow-hidden"
+              style={{ touchAction: "manipulation" }}
             >
-              {/* Decorative background */}
-              <div className="absolute inset-0 opacity-5 pointer-events-none">
+              {/* Decorative background - Desktop only */}
+              <div className="hidden md:block absolute inset-0 opacity-5 pointer-events-none">
                 <div className="absolute top-0 left-1/4 w-32 h-32 bg-cyan-500 rounded-full blur-3xl" />
                 <div className="absolute bottom-0 right-1/4 w-32 h-32 bg-purple-500 rounded-full blur-3xl" />
               </div>
 
               <div className="relative z-10">
-                <div className="flex flex-col items-center gap-2 md:gap-3">
+                <div className="flex flex-col items-center gap-1 md:gap-3">
                   {/* Row 1 */}
-                  <div className="flex gap-1.5 md:gap-2">
+                  <div className="flex gap-1 md:gap-2 justify-center w-full max-w-full px-1 md:px-0">
                     {["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"].map(
                       (letter) => {
                         const status = keyboardState[letter];
@@ -913,27 +949,32 @@ export default function EnigmaScrollPage() {
                         return (
                           <motion.button
                             key={letter}
-                            onClick={() => handleLetterInput(letter)}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleLetterInput(letter);
+                            }}
+                            onTouchStart={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleLetterInput(letter);
+                            }}
                             whileHover={{ scale: 1.1, y: -2 }}
-                            whileTap={{ scale: 0.95, y: 0 }}
-                            className={`comic-button px-3 py-2.5 md:px-4 md:py-3 text-base md:text-lg font-extrabold text-white text-outline border-4 border-black relative overflow-hidden ${
+                            whileTap={{ scale: 0.92 }}
+                            className={`flex-1 max-w-[9%] md:max-w-none aspect-[1.2/1] md:aspect-auto min-h-[36px] md:min-h-[48px] md:px-4 md:py-3 flex items-center justify-center text-sm md:text-lg font-extrabold md:font-extrabold text-white text-outline border-2 md:border-4 border-black rounded-md md:rounded-lg relative overflow-hidden transition-all ${
                               isCorrect
-                                ? "bg-gradient-to-br from-green-400 via-emerald-500 to-green-600"
+                                ? "bg-gradient-to-br from-green-400 via-emerald-500 to-green-600 md:bg-gradient-to-br md:from-green-400 md:via-emerald-500 md:to-green-600"
                                 : isPresent
-                                ? "bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600"
+                                ? "bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 md:bg-gradient-to-br md:from-yellow-400 md:via-amber-500 md:to-yellow-600"
                                 : isAbsent
-                                ? "bg-gradient-to-br from-gray-900 via-black to-gray-900"
-                                : "bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900"
+                                ? "bg-gray-700 opacity-50 md:bg-gradient-to-br md:from-gray-900 md:via-black md:to-gray-900 md:opacity-100"
+                                : "bg-slate-600 hover:bg-slate-500 md:bg-gradient-to-br md:from-slate-700 md:via-slate-800 md:to-slate-900"
                             }`}
                             style={{
-                              boxShadow: isCorrect
-                                ? "0 5px 0 0 #000, 0 0 15px rgba(34, 197, 94, 0.5), inset 0 2px 4px rgba(0,0,0,0.2)"
-                                : isPresent
-                                ? "0 5px 0 0 #000, 0 0 15px rgba(234, 179, 8, 0.5), inset 0 2px 4px rgba(0,0,0,0.2)"
-                                : isAbsent
-                                ? "0 5px 0 0 #000, 0 0 10px rgba(0, 0, 0, 0.8), inset 0 2px 4px rgba(0,0,0,0.5)"
-                                : "0 4px 0 0 #000, 0 6px 12px rgba(0,0,0,0.3)",
-                              textShadow: "0 0 4px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,1)",
+                              ...getButtonStyle(isCorrect, isPresent, isAbsent),
+                              touchAction: "manipulation",
+                              WebkitTapHighlightColor: "transparent",
+                              userSelect: "none",
                             }}
                           >
                             {letter}
@@ -942,8 +983,9 @@ export default function EnigmaScrollPage() {
                       }
                     )}
                   </div>
+                  
                   {/* Row 2 */}
-                  <div className="flex gap-1.5 md:gap-2">
+                  <div className="flex gap-1 md:gap-2 justify-center w-full max-w-full px-2 md:px-0">
                     {["A", "S", "D", "F", "G", "H", "J", "K", "L"].map(
                       (letter) => {
                         const status = keyboardState[letter];
@@ -954,27 +996,32 @@ export default function EnigmaScrollPage() {
                         return (
                           <motion.button
                             key={letter}
-                            onClick={() => handleLetterInput(letter)}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleLetterInput(letter);
+                            }}
+                            onTouchStart={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleLetterInput(letter);
+                            }}
                             whileHover={{ scale: 1.1, y: -2 }}
-                            whileTap={{ scale: 0.95, y: 0 }}
-                            className={`comic-button px-3 py-2.5 md:px-4 md:py-3 text-base md:text-lg font-extrabold text-white text-outline border-4 border-black ${
+                            whileTap={{ scale: 0.92 }}
+                            className={`flex-1 max-w-[10%] md:max-w-none aspect-[1.2/1] md:aspect-auto min-h-[36px] md:min-h-[48px] md:px-4 md:py-3 flex items-center justify-center text-sm md:text-lg font-extrabold text-white text-outline border-2 md:border-4 border-black rounded-md md:rounded-lg relative overflow-hidden transition-all ${
                               isCorrect
-                                ? "bg-gradient-to-br from-green-400 via-emerald-500 to-green-600"
+                                ? "bg-gradient-to-br from-green-400 via-emerald-500 to-green-600 md:bg-gradient-to-br md:from-green-400 md:via-emerald-500 md:to-green-600"
                                 : isPresent
-                                ? "bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600"
+                                ? "bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 md:bg-gradient-to-br md:from-yellow-400 md:via-amber-500 md:to-yellow-600"
                                 : isAbsent
-                                ? "bg-gradient-to-br from-gray-900 via-black to-gray-900"
-                                : "bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900"
+                                ? "bg-gray-700 opacity-50 md:bg-gradient-to-br md:from-gray-900 md:via-black md:to-gray-900 md:opacity-100"
+                                : "bg-slate-600 hover:bg-slate-500 md:bg-gradient-to-br md:from-slate-700 md:via-slate-800 md:to-slate-900"
                             }`}
                             style={{
-                              boxShadow: isCorrect
-                                ? "0 5px 0 0 #000, 0 0 15px rgba(34, 197, 94, 0.5), inset 0 2px 4px rgba(0,0,0,0.2)"
-                                : isPresent
-                                ? "0 5px 0 0 #000, 0 0 15px rgba(234, 179, 8, 0.5), inset 0 2px 4px rgba(0,0,0,0.2)"
-                                : isAbsent
-                                ? "0 5px 0 0 #000, 0 0 10px rgba(0, 0, 0, 0.8), inset 0 2px 4px rgba(0,0,0,0.5)"
-                                : "0 4px 0 0 #000, 0 6px 12px rgba(0,0,0,0.3)",
-                              textShadow: "0 0 4px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,1)",
+                              ...getButtonStyle(isCorrect, isPresent, isAbsent),
+                              touchAction: "manipulation",
+                              WebkitTapHighlightColor: "transparent",
+                              userSelect: "none",
                             }}
                           >
                             {letter}
@@ -983,16 +1030,33 @@ export default function EnigmaScrollPage() {
                       }
                     )}
                   </div>
+                  
                   {/* Row 3 */}
-                  <div className="flex gap-1.5 md:gap-2">
+                  <div className="flex gap-1 md:gap-2 justify-center w-full max-w-full px-1 md:px-0">
                     <motion.button
-                      onClick={handleSubmitGuess}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSubmitGuess();
+                      }}
+                      onTouchStart={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleSubmitGuess();
+                      }}
                       whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95, y: 0 }}
-                      className="comic-button px-4 py-2.5 md:px-6 md:py-3 text-sm md:text-base font-extrabold text-white text-outline border-4 border-black bg-gradient-to-br from-emerald-500 via-green-600 to-emerald-700 relative overflow-hidden"
+                      whileTap={{ scale: 0.92 }}
+                      className="flex-[1.3] max-w-[12%] md:max-w-none md:min-w-[80px] aspect-[2/1] md:aspect-auto min-h-[36px] md:min-h-[48px] md:px-6 md:py-3 flex items-center justify-center text-xs md:text-base font-extrabold text-white text-outline border-2 md:border-4 border-black rounded-md md:rounded-lg bg-gradient-to-br from-emerald-500 via-green-600 to-emerald-700 relative overflow-hidden transition-all"
                       style={{
-                        boxShadow: "0 5px 0 0 #000, 0 0 20px rgba(16, 185, 129, 0.6), inset 0 2px 4px rgba(0,0,0,0.2)",
-                        textShadow: "0 0 4px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,1)",
+                        boxShadow: isMobile
+                          ? "0 3px 0 0 #000, inset 0 1px 2px rgba(255,255,255,0.2)"
+                          : "0 5px 0 0 #000, 0 0 20px rgba(16, 185, 129, 0.6), inset 0 2px 4px rgba(0,0,0,0.2)",
+                        textShadow: isMobile
+                          ? "1px 1px 2px rgba(0,0,0,0.8)"
+                          : "0 0 4px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,1)",
+                        touchAction: "manipulation",
+                        WebkitTapHighlightColor: "transparent",
+                        userSelect: "none",
                       }}
                     >
                       <span className="relative z-10">ENTER</span>
@@ -1006,27 +1070,32 @@ export default function EnigmaScrollPage() {
                       return (
                         <motion.button
                           key={letter}
-                          onClick={() => handleLetterInput(letter)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleLetterInput(letter);
+                          }}
+                          onTouchStart={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleLetterInput(letter);
+                          }}
                           whileHover={{ scale: 1.1, y: -2 }}
-                          whileTap={{ scale: 0.95, y: 0 }}
-                          className={`comic-button px-3 py-2.5 md:px-4 md:py-3 text-base md:text-lg font-extrabold text-white text-outline border-4 border-black ${
+                          whileTap={{ scale: 0.92 }}
+                          className={`flex-1 max-w-[10%] md:max-w-none aspect-[1.2/1] md:aspect-auto min-h-[36px] md:min-h-[48px] md:px-4 md:py-3 flex items-center justify-center text-sm md:text-lg font-extrabold text-white text-outline border-2 md:border-4 border-black rounded-md md:rounded-lg relative overflow-hidden transition-all ${
                             isCorrect
-                              ? "bg-gradient-to-br from-green-400 via-emerald-500 to-green-600"
+                              ? "bg-gradient-to-br from-green-400 via-emerald-500 to-green-600 md:bg-gradient-to-br md:from-green-400 md:via-emerald-500 md:to-green-600"
                               : isPresent
-                              ? "bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600"
+                              ? "bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 md:bg-gradient-to-br md:from-yellow-400 md:via-amber-500 md:to-yellow-600"
                               : isAbsent
-                              ? "bg-gradient-to-br from-gray-500 via-gray-600 to-gray-700"
-                              : "bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900"
+                              ? "bg-gray-500 md:bg-gradient-to-br md:from-gray-500 md:via-gray-600 md:to-gray-700"
+                              : "bg-slate-600 hover:bg-slate-500 md:bg-gradient-to-br md:from-slate-700 md:via-slate-800 md:to-slate-900"
                           }`}
                           style={{
-                            boxShadow: isCorrect
-                              ? "0 5px 0 0 #000, 0 0 15px rgba(34, 197, 94, 0.5), inset 0 2px 4px rgba(0,0,0,0.2)"
-                              : isPresent
-                              ? "0 5px 0 0 #000, 0 0 15px rgba(234, 179, 8, 0.5), inset 0 2px 4px rgba(0,0,0,0.2)"
-                              : isAbsent
-                              ? "0 5px 0 0 #000, inset 0 2px 4px rgba(0,0,0,0.3)"
-                              : "0 4px 0 0 #000, 0 6px 12px rgba(0,0,0,0.3)",
-                            textShadow: "0 0 4px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,1)",
+                            ...getButtonStyle(isCorrect, isPresent, isAbsent),
+                            touchAction: "manipulation",
+                            WebkitTapHighlightColor: "transparent",
+                            userSelect: "none",
                           }}
                         >
                           {letter}
@@ -1034,13 +1103,29 @@ export default function EnigmaScrollPage() {
                       );
                     })}
                     <motion.button
-                      onClick={handleBackspace}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleBackspace();
+                      }}
+                      onTouchStart={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleBackspace();
+                      }}
                       whileHover={{ scale: 1.05, y: -2 }}
-                      whileTap={{ scale: 0.95, y: 0 }}
-                      className="comic-button px-4 py-2.5 md:px-6 md:py-3 text-lg md:text-xl font-extrabold text-white text-outline border-4 border-black bg-gradient-to-br from-red-500 via-rose-600 to-red-700 relative overflow-hidden"
+                      whileTap={{ scale: 0.92 }}
+                      className="flex-[1.3] max-w-[12%] md:max-w-none md:min-w-[80px] aspect-[2/1] md:aspect-auto min-h-[36px] md:min-h-[48px] md:px-6 md:py-3 flex items-center justify-center text-lg md:text-xl font-extrabold text-white text-outline border-2 md:border-4 border-black rounded-md md:rounded-lg bg-gradient-to-br from-red-500 via-rose-600 to-red-700 relative overflow-hidden transition-all"
                       style={{
-                        boxShadow: "0 5px 0 0 #000, 0 0 20px rgba(239, 68, 68, 0.6), inset 0 2px 4px rgba(0,0,0,0.2)",
-                        textShadow: "0 0 4px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,1)",
+                        boxShadow: isMobile
+                          ? "0 3px 0 0 #000, inset 0 1px 2px rgba(255,255,255,0.2)"
+                          : "0 5px 0 0 #000, 0 0 20px rgba(239, 68, 68, 0.6), inset 0 2px 4px rgba(0,0,0,0.2)",
+                        textShadow: isMobile
+                          ? "1px 1px 2px rgba(0,0,0,0.8)"
+                          : "0 0 4px rgba(0,0,0,0.8), 0 2px 4px rgba(0,0,0,0.9), 1px 1px 0 rgba(0,0,0,1)",
+                        touchAction: "manipulation",
+                        WebkitTapHighlightColor: "transparent",
+                        userSelect: "none",
                       }}
                     >
                       <span className="relative z-10">⌫</span>
