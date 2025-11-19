@@ -338,10 +338,26 @@ export default function SpeedVerbChallengePage() {
         : 0;
 
       // Submit the score
+      // IMPORTANT: 
+      // - score = gameState.score (TOTAL SCORE with streak bonuses) - this is what gets saved and compared
+      // - correctCount = sessionStats.totalCorrect (number of correct answers) - used for XP/gold rewards
+      // The score includes bonuses from maintaining streaks, making it the true competitive metric
+      const totalScore = gameState.score; // Total score with streak bonuses
+      const totalCorrect = sessionStats.totalCorrect; // Number of correct answers (for rewards)
+      
+      console.log("Submitting score:", {
+        totalScore, // This is what gets saved and compared on leaderboards
+        totalCorrect, // This is used for XP/gold rewards
+        roundsCompleted: gameState.roundsCompleted,
+        highestStreak: gameState.highestStreak,
+        totalAttempts: sessionStats.totalAttempts,
+      });
+      
       try {
         const result = await submitSpeedVerbScore({
           difficulty: selectedDifficulty,
-          correctCount: gameState.roundsCompleted,
+          score: totalScore, // Total score with streak bonuses (saved and compared)
+          correctCount: totalCorrect, // Number of correct answers (for XP/gold rewards)
           totalRounds: sessionStats.totalAttempts,
           durationMs: durationMs,
         });
@@ -365,7 +381,7 @@ export default function SpeedVerbChallengePage() {
     }
 
     handleGameEnd();
-  }, [isGameEnded, gameState, user, scoreSubmitted, selectedDifficulty, sessionStats.totalAttempts]);
+  }, [isGameEnded, gameState, user, scoreSubmitted, selectedDifficulty, sessionStats.totalAttempts, sessionStats.totalCorrect]);
 
   // Handle difficulty change
   const handleDifficultyChange = useCallback(
