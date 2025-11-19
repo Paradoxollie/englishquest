@@ -890,7 +890,7 @@ const Scene = () => {
       <fog attach="fog" args={[skyInfo.skyColor, 15, (CHUNK_LENGTH - 1) * CHUNK_SIZE]} />
       
       <hemisphereLight 
-        skyColor={skyInfo.skyColor}
+        color={skyInfo.skyColor}
         groundColor={skyInfo.starOpacity > 0.5 ? "#050510" : "#335533"}
         intensity={skyInfo.starOpacity > 0.5 ? 0.2 : 0.5}
       />
