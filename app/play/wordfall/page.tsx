@@ -106,11 +106,11 @@ export default function WordfallPage() {
       } else {
         // Fallback: check if input is focused (less reliable but works on more devices)
         const activeElement = document.activeElement;
-        const isInputFocused = activeElement && (
+        const isInputFocused = !!(activeElement && (
           activeElement.tagName === 'INPUT' || 
           activeElement.tagName === 'TEXTAREA'
-        );
-        setIsKeyboardOpen(isMobile && isInputFocused);
+        ));
+        setIsKeyboardOpen(!!(isMobile && isInputFocused));
       }
     };
     
