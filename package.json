@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test-supabase": "node test-supabase.js",
-    "update-word-lists": "node scripts/update-word-lists.js"
+    "update-word-lists": "node scripts/update-word-lists.js",
+    "update-wordfall-dictionary": "node scripts/update-wordfall-dictionary.js"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

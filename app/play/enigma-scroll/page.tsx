@@ -57,9 +57,9 @@ interface SessionStats {
 type Difficulty = 4 | 5 | 6;
 
 const DIFFICULTY_LABELS: Record<Difficulty, string> = {
-  4: "Facile (4 lettres)",
-  5: "Moyen (5 lettres)",
-  6: "Difficile (6 lettres)",
+  4: "4 Lettres",
+  5: "5 Lettres",
+  6: "6 Lettres",
 };
 
 const DIFFICULTY_DESCRIPTIONS: Record<Difficulty, string> = {

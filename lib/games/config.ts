@@ -93,6 +93,17 @@ export const games: GameConfig[] = [
     iconBg: "bg-gradient-to-br from-amber-500 to-yellow-500",
     iconColor: "text-amber-400",
   },
+  {
+    slug: "wordfall",
+    name: "Wordfall",
+    description: "Type falling words before they hit the ground. In free mode, invent as many valid words as you can!",
+    difficulty: "easy",
+    tags: ["Vocabulary", "Typing", "Speed"],
+    icon: "📝",
+    gradient: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)",
+    iconBg: "bg-gradient-to-br from-cyan-500 to-blue-600",
+    iconColor: "text-cyan-400",
+  },
 ];
 
 /**

@@ -65,30 +65,30 @@ export default async function PlayPage() {
         {/* Games Grid */}
         <div className="grid gap-3 md:gap-6 md:grid-cols-2 lg:grid-cols-3">
           {games.map((game, index) => (
-            <MotionCard key={game.slug}>
-              <Link href={`/play/${game.slug}`}>
-                <div className="comic-card-dark h-full p-4 md:p-6 group" style={{ background: game.gradient }}>
+            <MotionCard key={game.slug} className="h-full">
+              <Link href={`/play/${game.slug}`} className="h-full block">
+                <div className="comic-card-dark h-full min-h-[320px] md:min-h-[380px] p-4 md:p-6 group flex flex-col" style={{ background: game.gradient }}>
                   <div className="absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100" 
                     style={{ 
                       background: game.gradient.replace('0.2', '0.3').replace('0.2', '0.3')
                     }} 
                   />
-                  <div className="relative z-10">
+                  <div className="relative z-10 flex flex-col h-full">
                     {/* Game Icon and Name */}
-                    <div className="mb-3 md:mb-4 flex items-center gap-2 md:gap-3">
+                    <div className="mb-3 md:mb-4 flex items-center gap-2 md:gap-3 flex-shrink-0">
                       <div className={`comic-panel ${game.iconBg} border-2 md:border-4 border-black p-2 md:p-3 text-lg md:text-2xl flex-shrink-0`}>
                         {game.icon}
                       </div>
                       <h2 className="text-lg md:text-2xl font-bold text-white text-outline leading-tight md:leading-normal break-words min-w-0 flex-1">{game.name}</h2>
                     </div>
 
-                    {/* Description */}
-                    <p className="mb-3 md:mb-4 text-xs md:text-base text-slate-200 font-semibold leading-tight md:leading-relaxed text-outline break-words">
+                    {/* Description - Fixed height with overflow */}
+                    <p className="mb-3 md:mb-4 text-xs md:text-base text-slate-200 font-semibold leading-tight md:leading-relaxed text-outline break-words flex-shrink-0 min-h-[48px] md:min-h-[60px]">
                       {game.description}
                     </p>
 
-                    {/* Tags */}
-                    <div className="mb-3 md:mb-4 flex flex-wrap gap-1.5 md:gap-2">
+                    {/* Tags - Fixed height */}
+                    <div className="mb-3 md:mb-4 flex flex-wrap gap-1.5 md:gap-2 flex-shrink-0 min-h-[24px] md:min-h-[32px]">
                       {game.tags.map((tag, tagIndex) => {
                         const tagColors = [
                           "bg-cyan-600",
@@ -107,17 +107,20 @@ export default async function PlayPage() {
                       })}
                     </div>
 
-                    {/* Difficulty Badge */}
-                    <div className="mb-3 md:mb-4">
+                    {/* Difficulty Badge - Fixed height */}
+                    <div className="mb-3 md:mb-4 flex-shrink-0 h-[24px] md:h-[32px] flex items-center">
                       <span
-                        className={`comic-panel ${difficultyColors[game.difficulty]} border-2 border-black px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-bold text-white text-outline`}
+                        className={`comic-panel ${difficultyColors[game.difficulty]} border-2 border-black px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-bold text-white text-outline inline-block`}
                       >
                         {game.difficulty === "easy" ? "Easy" : game.difficulty === "medium" ? "Medium" : "Hard"}
                       </span>
                     </div>
 
-                    {/* Play Button */}
-                    <div className="mt-4 md:mt-6">
+                    {/* Spacer to push button to bottom */}
+                    <div className="flex-grow"></div>
+
+                    {/* Play Button - Always at bottom */}
+                    <div className="mt-auto pt-2 md:pt-4 flex-shrink-0">
                       <div className="comic-button bg-gradient-to-r from-cyan-600 to-blue-600 text-white w-full text-center px-3 py-2 md:px-4 md:py-3 text-xs md:text-base font-bold hover:from-cyan-700 hover:to-blue-700 text-outline border-2 md:border-4 border-black">
                         Jouer →
                       </div>

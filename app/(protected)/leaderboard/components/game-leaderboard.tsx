@@ -20,11 +20,22 @@ interface Game {
 
 // Types are imported from actions.ts
 
-const DIFFICULTY_LABELS: Record<Difficulty, string> = {
-  easy: "Facile",
-  medium: "Moyen",
-  hard: "Difficile",
-};
+// Get difficulty labels based on game
+function getDifficultyLabels(gameSlug: string | null): Record<Difficulty, string> {
+  if (gameSlug === "enigma-scroll") {
+    return {
+      easy: "4 Lettres",
+      medium: "5 Lettres",
+      hard: "6 Lettres",
+    };
+  }
+  // Default labels for other games
+  return {
+    easy: "Facile",
+    medium: "Moyen",
+    hard: "Difficile",
+  };
+}
 
 const DIFFICULTY_COLORS: Record<Difficulty, string> = {
   easy: "bg-green-600",
@@ -79,6 +90,7 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
   }
 
   const currentLeaderboard = leaderboard[selectedDifficulty];
+  const difficultyLabels = getDifficultyLabels(selectedGame?.slug || null);
 
   if (games.length === 0) {
     return (
@@ -135,7 +147,7 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
                     : "bg-slate-700 text-white hover:bg-slate-600"
                 }`}
               >
-                {DIFFICULTY_LABELS[diff]}
+                {difficultyLabels[diff]}
               </button>
             ))}
           </div>
@@ -146,7 +158,7 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
       {selectedGame && (
         <div className="comic-panel-dark p-6">
           <h3 className="text-2xl font-bold text-white mb-6 text-outline text-center">
-            🏆 Top 5 - {selectedGame.name} - {DIFFICULTY_LABELS[selectedDifficulty]}
+            🏆 Top 5 - {selectedGame.name} - {difficultyLabels[selectedDifficulty]}
           </h3>
 
           {loading ? (

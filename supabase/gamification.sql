@@ -182,6 +182,12 @@ values
     'Speed Verb Challenge',
     'Conjuguez les verbes irréguliers anglais le plus rapidement possible. Testez votre vitesse et votre mémoire avec ce défi chronométré.',
     'medium'
+  ),
+  (
+    'wordfall',
+    'Wordfall',
+    'Type falling words before they hit the ground. In free mode, invent as many valid words as you can!',
+    'easy'
   )
 on conflict (slug) do nothing;
 
