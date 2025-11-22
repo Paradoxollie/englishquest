@@ -86,6 +86,7 @@ export default function WordfallPage() {
   const previousScoreRef = useRef(0);
   const previousWordsCompletedRef = useRef(0);
   const gameStartTimeRef = useRef<number | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
 
   // Detect mobile and keyboard state
@@ -328,10 +329,29 @@ export default function WordfallPage() {
       setWordInput("");
       setErrorMessage(null);
       
-      // Restore scroll position
-      requestAnimationFrame(() => {
-        window.scrollTo(0, scrollY);
-      });
+      // Keep input focused on mobile to prevent keyboard from closing
+      if (isMobile && inputRef.current) {
+        // Store scroll position before refocus
+        const savedScrollY = scrollY;
+        // Use setTimeout to ensure focus happens after state update
+        setTimeout(() => {
+          if (inputRef.current) {
+            // Refocus without triggering scroll
+            inputRef.current.focus({ preventScroll: true });
+            // Restore scroll position after a short delay to account for keyboard animation
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                window.scrollTo({ top: savedScrollY, behavior: 'instant' });
+              });
+            });
+          }
+        }, 10);
+      } else {
+        // Restore scroll position on desktop
+        requestAnimationFrame(() => {
+          window.scrollTo(0, scrollY);
+        });
+      }
     } else {
       setErrorMessage(result.reason || "Invalid word");
       setTimeout(() => setErrorMessage(null), 2000);
@@ -340,10 +360,29 @@ export default function WordfallPage() {
       setBackgroundFlash("red");
       setTimeout(() => setBackgroundFlash(null), 600);
       
-      // Restore scroll position
-      requestAnimationFrame(() => {
-        window.scrollTo(0, scrollY);
-      });
+      // Keep input focused on mobile to prevent keyboard from closing
+      if (isMobile && inputRef.current) {
+        // Store scroll position before refocus
+        const savedScrollY = scrollY;
+        // Use setTimeout to ensure focus happens after state update
+        setTimeout(() => {
+          if (inputRef.current) {
+            // Refocus without triggering scroll
+            inputRef.current.focus({ preventScroll: true });
+            // Restore scroll position after a short delay to account for keyboard animation
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                window.scrollTo({ top: savedScrollY, behavior: 'instant' });
+              });
+            });
+          }
+        }, 10);
+      } else {
+        // Restore scroll position on desktop
+        requestAnimationFrame(() => {
+          window.scrollTo(0, scrollY);
+        });
+      }
     }
   }, [gameState, wordInput]);
 
@@ -1332,6 +1371,7 @@ export default function WordfallPage() {
                 }`}
               >
                 <motion.input
+                  ref={inputRef}
                   type="text"
                   value={wordInput}
                   onChange={(e) => {
@@ -1356,13 +1396,18 @@ export default function WordfallPage() {
                   disabled={isPaused}
                   whileFocus={{ scale: 1.02 }}
                   onFocus={(e) => {
-                    // Prevent scroll on focus
+                    // On mobile, prevent scroll when keyboard opens
+                    // But allow it only on the first focus, not when we refocus after submit
                     if (isMobile) {
-                      setTimeout(() => {
-                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      }, 300);
-                    } else {
-                      e.target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                      // Store current scroll position
+                      const currentScrollY = window.scrollY;
+                      // Use requestAnimationFrame to restore scroll after browser adjusts for keyboard
+                      requestAnimationFrame(() => {
+                        // Only restore if scroll changed significantly (keyboard opened)
+                        if (Math.abs(window.scrollY - currentScrollY) > 50) {
+                          window.scrollTo(0, currentScrollY);
+                        }
+                      });
                     }
                   }}
                 />
