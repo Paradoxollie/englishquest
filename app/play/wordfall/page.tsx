@@ -78,6 +78,8 @@ export default function WordfallPage() {
     isNewGlobalBest?: boolean;
     personalBest?: number;
   } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const gameLoopRef = useRef<number | null>(null);
   const lastUpdateRef = useRef<number>(Date.now());
   const particleIdRef = useRef(0);
@@ -85,6 +87,65 @@ export default function WordfallPage() {
   const previousWordsCompletedRef = useRef(0);
   const gameStartTimeRef = useRef<number | null>(null);
   const { user } = useAuth();
+
+  // Detect mobile and keyboard state
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+    };
+    
+    const checkKeyboard = () => {
+      if (typeof window !== 'undefined' && 'visualViewport' in window) {
+        const viewport = window.visualViewport;
+        if (viewport) {
+          // Keyboard is likely open if visual viewport height is significantly less than window height
+          const heightDiff = window.innerHeight - viewport.height;
+          setIsKeyboardOpen(heightDiff > 150); // Threshold for keyboard detection
+        }
+      } else {
+        // Fallback: check if input is focused (less reliable but works on more devices)
+        const activeElement = document.activeElement;
+        const isInputFocused = activeElement && (
+          activeElement.tagName === 'INPUT' || 
+          activeElement.tagName === 'TEXTAREA'
+        );
+        setIsKeyboardOpen(isMobile && isInputFocused);
+      }
+    };
+    
+    checkMobile();
+    checkKeyboard();
+    
+    window.addEventListener('resize', checkMobile);
+    if (typeof window !== 'undefined' && 'visualViewport' in window && window.visualViewport) {
+      window.visualViewport.addEventListener('resize', checkKeyboard);
+    }
+    
+    // Also check on focus/blur events for input
+    const handleFocus = () => {
+      if (isMobile) {
+        setTimeout(checkKeyboard, 300); // Delay to allow keyboard to appear
+      }
+    };
+    const handleBlur = () => {
+      if (isMobile) {
+        setTimeout(() => setIsKeyboardOpen(false), 300); // Delay to allow keyboard to hide
+      }
+    };
+    
+    document.addEventListener('focusin', handleFocus);
+    document.addEventListener('focusout', handleBlur);
+    
+    return () => {
+      window.removeEventListener('resize', checkMobile);
+      if (typeof window !== 'undefined' && 'visualViewport' in window && window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', checkKeyboard);
+      }
+      document.removeEventListener('focusin', handleFocus);
+      document.removeEventListener('focusout', handleBlur);
+    };
+  }, [isMobile]);
 
   // Load word lists on mount
   useEffect(() => {
@@ -203,7 +264,7 @@ export default function WordfallPage() {
 
     // Prevent scroll by maintaining current scroll position
     const scrollY = window.scrollY;
-    
+
     const result = processWordInput(gameState, wordInput);
     
     if (result.success) {
@@ -384,7 +445,7 @@ export default function WordfallPage() {
   useEffect(() => {
     if (!wordListsLoaded) return;
     try {
-      initializeGame(selectedMode);
+    initializeGame(selectedMode);
     } catch (error) {
       console.error("Failed to initialize game:", error);
       setErrorMessage("Failed to initialize game. Please refresh the page.");
@@ -447,7 +508,9 @@ export default function WordfallPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 comic-dot-pattern p-4 md:p-8">
+    <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 comic-dot-pattern ${
+      isMobile ? "p-2 pb-4" : "p-4 md:p-8"
+    }`}>
       {/* Streak Notification */}
       <AnimatePresence>
         {showStreakNotification && (
@@ -456,18 +519,26 @@ export default function WordfallPage() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.5, y: -100 }}
             transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50"
+            className={`fixed left-1/2 transform -translate-x-1/2 z-50 ${
+              isMobile ? "top-16" : "top-20"
+            }`}
           >
-            <div className="comic-panel bg-gradient-to-br from-amber-500 via-yellow-500 to-orange-500 border-4 border-black p-6 shadow-2xl">
+            <div className={`comic-panel bg-gradient-to-br from-amber-500 via-yellow-500 to-orange-500 border-4 border-black shadow-2xl ${
+              isMobile ? "p-3 border-2" : "p-6"
+            }`}>
               <div className="text-center">
                 <motion.div
                   animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }}
                   transition={{ duration: 0.5, repeat: 2 }}
-                  className="mb-3"
+                  className={isMobile ? "mb-2" : "mb-3"}
                 >
-                  <FireIcon className="w-12 h-12 text-white mx-auto" />
+                  <FireIcon className={`text-white mx-auto ${
+                    isMobile ? "w-8 h-8" : "w-12 h-12"
+                  }`} />
                 </motion.div>
-                <h3 className="text-2xl font-bold text-white text-outline">
+                <h3 className={`font-bold text-white text-outline ${
+                  isMobile ? "text-base" : "text-2xl"
+                }`}>
                   {streakNotificationText || `${gameState?.streak || 0} mots en série! 🔥`}
                 </h3>
               </div>
@@ -484,90 +555,135 @@ export default function WordfallPage() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.5, y: -100 }}
             transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            className="fixed top-32 left-1/2 transform -translate-x-1/2 z-50"
+            className={`fixed left-1/2 transform -translate-x-1/2 z-50 ${
+              isMobile ? "top-24" : "top-32"
+            }`}
           >
-            <div className="comic-panel bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 border-4 border-black p-4 shadow-2xl">
+            <div className={`comic-panel bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 border-4 border-black shadow-2xl ${
+              isMobile ? "p-2 border-2" : "p-4"
+            }`}>
               <div className="text-center">
                 <motion.div
                   animate={{ rotate: [0, 360], scale: [1, 1.3, 1] }}
                   transition={{ duration: 0.6 }}
-                  className="mb-2"
+                  className={isMobile ? "mb-1" : "mb-2"}
                 >
-                  <StarIcon className="w-10 h-10 text-white mx-auto" />
+                  <StarIcon className={`text-white mx-auto ${
+                    isMobile ? "w-6 h-6" : "w-10 h-10"
+                  }`} />
                 </motion.div>
-                <h3 className="text-xl font-bold text-white text-outline">
+                <h3 className={`font-bold text-white text-outline ${
+                  isMobile ? "text-base" : "text-xl"
+                }`}>
                   PERFECT CATCH! ⭐
                 </h3>
-                <p className="text-sm text-white/90 text-outline mt-1">
-                  +5 points bonus
-                </p>
+                {!isMobile && (
+                  <p className="text-sm text-white/90 text-outline mt-1">
+                    +5 points bonus
+                  </p>
+                )}
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="max-w-5xl mx-auto space-y-6">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="comic-panel-dark p-6"
-          style={{ background: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)" }}
-        >
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <motion.div
-                animate={{ rotate: [0, 5, -5, 0] }}
-                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                className="comic-panel bg-gradient-to-br from-cyan-600 to-blue-600 border-2 border-black p-3 flex-shrink-0"
-              >
-                <BookOpenIcon className="w-8 h-8 text-white" />
-              </motion.div>
-              <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-white mb-1 text-outline">
-                  Wordfall
-                </h1>
-                <p className="text-slate-200 text-outline font-semibold">
-                  Tapez les mots avant qu'ils n'atteignent le bas!
-                </p>
+      <div className={`max-w-5xl mx-auto ${
+        isMobile ? "space-y-2" : "space-y-6"
+      }`}>
+          {/* Header */}
+        {(!isMobile || !isKeyboardOpen) && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5 }}
+            className={`comic-panel-dark ${
+              isMobile ? "p-3" : "p-6"
+            }`}
+            style={{ background: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)" }}
+          >
+            <div className={`flex flex-col md:flex-row md:items-center md:justify-between ${
+              isMobile ? "gap-2" : "gap-4"
+            }`}>
+              <div className={`flex items-center ${
+                isMobile ? "gap-2" : "gap-4"
+              }`}>
+                <motion.div
+                  animate={{ rotate: [0, 5, -5, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                  className={`comic-panel bg-gradient-to-br from-cyan-600 to-blue-600 border-2 border-black flex-shrink-0 ${
+                    isMobile ? "p-2" : "p-3"
+                  }`}
+                >
+                  <BookOpenIcon className={isMobile ? "w-5 h-5 text-white" : "w-8 h-8 text-white"} />
+                </motion.div>
+                <div>
+                  <h1 className={`font-bold text-white mb-1 text-outline ${
+                    isMobile ? "text-xl" : "text-3xl md:text-4xl"
+                  }`}>
+                    Wordfall
+                  </h1>
+                  {!isMobile && (
+                    <p className="text-slate-200 text-outline font-semibold">
+                      Tapez les mots avant qu'ils n'atteignent le bas!
+                    </p>
+                  )}
+                </div>
               </div>
+              {!isMobile && (
+              <Link
+                href="/play"
+                  className="comic-button bg-slate-700 text-white px-4 py-2 font-bold hover:bg-slate-600 text-outline transition-all hover:scale-105"
+              >
+                  ← Retour
+              </Link>
+              )}
             </div>
-            <Link
-              href="/play"
-              className="comic-button bg-slate-700 text-white px-4 py-2 font-bold hover:bg-slate-600 text-outline transition-all hover:scale-105"
-            >
-              ← Retour
-            </Link>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
 
-        {/* Mode Selector */}
+            {/* Mode Selector */}
         <AnimatePresence>
-          {!gameState?.isRunning && (
+          {!gameState?.isRunning && (!isMobile || !isKeyboardOpen) && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3 }}
-              className="comic-panel-dark p-6"
+              className={`comic-panel-dark ${
+                isMobile ? "p-3" : "p-6"
+              }`}
               style={{ background: "linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%)" }}
             >
-              <div className="flex items-start gap-4 mb-6">
-                <div className="comic-panel bg-gradient-to-br from-purple-600 to-indigo-600 border-2 border-black p-3 flex-shrink-0">
-                  <LightningIcon className="w-6 h-6 text-white" />
+              <div className={`flex items-start ${
+                isMobile ? "gap-2 mb-3" : "gap-4 mb-6"
+              }`}>
+                <div className={`comic-panel bg-gradient-to-br from-purple-600 to-indigo-600 border-2 border-black flex-shrink-0 ${
+                  isMobile ? "p-2" : "p-3"
+                }`}>
+                  <LightningIcon className={`text-white ${
+                    isMobile ? "w-4 h-4" : "w-6 h-6"
+                  }`} />
                 </div>
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold text-white mb-1 text-outline">Choisissez le mode</h2>
-                  <p className="text-slate-300 text-outline text-sm mb-4">Sélectionnez votre style de jeu</p>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <h2 className={`font-bold text-white mb-1 text-outline ${
+                    isMobile ? "text-lg" : "text-2xl"
+                  }`}>Choisissez le mode</h2>
+                  {!isMobile && (
+                    <p className="text-slate-300 text-outline text-sm mb-4">Sélectionnez votre style de jeu</p>
+                  )}
+                  <div className={`grid grid-cols-1 md:grid-cols-2 ${
+                    isMobile ? "gap-2" : "gap-4"
+                  }`}>
                     <motion.button
-                      onClick={() => setSelectedMode("exact")}
+                  onClick={() => setSelectedMode("exact")}
                       whileHover={{ scale: 1.02, y: -2 }}
                       whileTap={{ scale: 0.98 }}
-                      className={`comic-button p-5 font-bold text-outline text-left transition-all relative overflow-hidden ${
-                        selectedMode === "exact"
+                      className={`comic-button font-bold text-outline text-left transition-all relative overflow-hidden ${
+                        isMobile ? "p-3" : "p-5"
+                      } ${
+                    selectedMode === "exact"
                           ? "bg-gradient-to-br from-cyan-600 to-blue-600 text-white border-4 border-black shadow-lg"
                           : "bg-slate-700 text-white hover:bg-slate-600 border-2 border-slate-600"
                       }`}
@@ -580,31 +696,43 @@ export default function WordfallPage() {
                         />
                       )}
                       <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl">Exact Word</span>
+                        <div className={`flex items-center justify-between ${
+                          isMobile ? "mb-1" : "mb-2"
+                        }`}>
+                          <div className={`flex items-center ${
+                            isMobile ? "gap-1" : "gap-2"
+                          }`}>
+                            <span className={isMobile ? "text-base" : "text-xl"}>Exact Word</span>
                             {selectedMode === "exact" && (
                               <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                className="comic-panel bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black p-1"
+                                className={`comic-panel bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black ${
+                                  isMobile ? "p-0.5" : "p-1"
+                                }`}
                               >
-                                <CheckCircleIcon className="w-5 h-5 text-white" />
+                                <CheckCircleIcon className={`text-white ${
+                                  isMobile ? "w-3 h-3" : "w-5 h-5"
+                                }`} />
                               </motion.div>
                             )}
                           </div>
                         </div>
-                        <span className="block text-sm opacity-90 mt-2 leading-relaxed">
+                        <span className={`block opacity-90 mt-2 leading-relaxed ${
+                          isMobile ? "text-xs" : "text-sm"
+                        }`}>
                           Tapez le mot exact qui tombe avec sa traduction française
                         </span>
                       </div>
                     </motion.button>
                     <motion.button
-                      onClick={() => setSelectedMode("free")}
+                  onClick={() => setSelectedMode("free")}
                       whileHover={{ scale: 1.02, y: -2 }}
                       whileTap={{ scale: 0.98 }}
-                      className={`comic-button p-5 font-bold text-outline text-left transition-all relative overflow-hidden ${
-                        selectedMode === "free"
+                      className={`comic-button font-bold text-outline text-left transition-all relative overflow-hidden ${
+                        isMobile ? "p-3" : "p-5"
+                      } ${
+                    selectedMode === "free"
                           ? "bg-gradient-to-br from-purple-600 to-indigo-600 text-white border-4 border-black shadow-lg"
                           : "bg-slate-700 text-white hover:bg-slate-600 border-2 border-slate-600"
                       }`}
@@ -617,21 +745,31 @@ export default function WordfallPage() {
                         />
                       )}
                       <div className="relative z-10">
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xl">Free Word</span>
+                        <div className={`flex items-center justify-between ${
+                          isMobile ? "mb-1" : "mb-2"
+                        }`}>
+                          <div className={`flex items-center ${
+                            isMobile ? "gap-1" : "gap-2"
+                          }`}>
+                            <span className={isMobile ? "text-base" : "text-xl"}>Free Word</span>
                             {selectedMode === "free" && (
                               <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
-                                className="comic-panel bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black p-1"
+                                className={`comic-panel bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black ${
+                                  isMobile ? "p-0.5" : "p-1"
+                                }`}
                               >
-                                <CheckCircleIcon className="w-5 h-5 text-white" />
+                                <CheckCircleIcon className={`text-white ${
+                                  isMobile ? "w-3 h-3" : "w-5 h-5"
+                                }`} />
                               </motion.div>
-                            )}
-                          </div>
+            )}
+          </div>
                         </div>
-                        <span className="block text-sm opacity-90 mt-2 leading-relaxed">
+                        <span className={`block opacity-90 mt-2 leading-relaxed ${
+                          isMobile ? "text-xs" : "text-sm"
+                        }`}>
                           Tapez n'importe quel mot valide commençant par la lettre
                         </span>
                       </div>
@@ -643,23 +781,37 @@ export default function WordfallPage() {
           )}
         </AnimatePresence>
 
-        {/* Game Stats */}
+          {/* Game Stats */}
         <AnimatePresence>
-          {gameState && (
+          {gameState && (!isMobile || !isKeyboardOpen) && (
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="comic-panel-dark p-6"
+              className={`comic-panel-dark ${
+                isMobile ? "p-2" : "p-6"
+              }`}
             >
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className={`grid gap-2 md:gap-4 ${
+                isMobile && isKeyboardOpen 
+                  ? "grid-cols-3" 
+                  : isMobile 
+                    ? "grid-cols-3" 
+                    : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6"
+              }`}>
                 <motion.div
-                  className="comic-panel bg-gradient-to-br from-purple-600 to-indigo-600 border-2 border-black p-4 text-center relative"
+                  className={`comic-panel bg-gradient-to-br from-purple-600 to-indigo-600 border-2 border-black text-center relative ${
+                    isMobile ? "p-2" : "p-4"
+                  }`}
                   whileHover={{ scale: 1.05 }}
-                  style={{ minHeight: "100px" }}
+                  style={{ minHeight: isMobile ? "70px" : "100px" }}
                 >
-                  <div className="text-xs text-white/80 mb-1 text-outline font-semibold">SCORE</div>
-                  <div className="text-3xl font-bold text-white text-outline">{gameState.score}</div>
+                  <div className={`text-white/80 mb-1 text-outline font-semibold ${
+                    isMobile ? "text-[10px]" : "text-xs"
+                  }`}>SCORE</div>
+                  <div className={`font-bold text-white text-outline ${
+                    isMobile ? "text-xl" : "text-3xl"
+                  }`}>{gameState.score}</div>
                   <div style={{ height: "20px", position: "relative" }}>
                     {lastScoreIncrease > 0 && (
                       <motion.div
@@ -672,83 +824,122 @@ export default function WordfallPage() {
                         +{lastScoreIncrease}
                       </motion.div>
                     )}
-                  </div>
+                </div>
                 </motion.div>
                 <motion.div
-                  className={`comic-panel border-2 border-black p-4 text-center ${
+                  className={`comic-panel border-2 border-black text-center ${
                     gameState.lives <= 1
                       ? "bg-gradient-to-br from-red-600 to-orange-600 animate-comic-flash"
                       : "bg-gradient-to-br from-pink-600 to-rose-600"
-                  }`}
+                  } ${isMobile ? "p-2" : "p-4"}`}
                   whileHover={{ scale: 1.05 }}
+                  style={{ minHeight: isMobile ? "70px" : "100px" }}
                 >
-                  <div className="text-xs text-white/80 mb-1 text-outline font-semibold">VIES</div>
-                  <div className="text-3xl font-bold text-white text-outline">
-                    {gameState.lives}
-                  </div>
+                  <div className={`text-white/80 mb-1 text-outline font-semibold ${
+                    isMobile ? "text-[10px]" : "text-xs"
+                  }`}>VIES</div>
+                  <div className={`font-bold text-white text-outline ${
+                    isMobile ? "text-xl" : "text-3xl"
+                  }`}>
+                  {gameState.lives}
+                </div>
                 </motion.div>
-                <motion.div
-                  className="comic-panel bg-gradient-to-br from-cyan-600 to-blue-600 border-2 border-black p-4 text-center"
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <div className="text-xs text-white/80 mb-1 text-outline font-semibold">NIVEAU</div>
-                  <div className="text-3xl font-bold text-white text-outline">
-                    {gameState.level}
-                  </div>
-                </motion.div>
-                <motion.div
-                  className="comic-panel bg-gradient-to-br from-amber-600 to-yellow-600 border-2 border-black p-4 text-center"
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <div className="flex items-center justify-center gap-1 text-xs text-white/80 mb-1 text-outline font-semibold">
-                    <StarIcon className="w-3 h-3" />
-                    MOTS
-                  </div>
-                  <div className="text-3xl font-bold text-white text-outline">
-                    {gameState.wordsCompleted}
-                  </div>
-                </motion.div>
+                {(!isMobile || !isKeyboardOpen) && (
+                  <>
+                    <motion.div
+                      className={`comic-panel bg-gradient-to-br from-cyan-600 to-blue-600 border-2 border-black text-center ${
+                        isMobile ? "p-2" : "p-4"
+                      }`}
+                      whileHover={{ scale: 1.05 }}
+                      style={{ minHeight: isMobile ? "70px" : "100px" }}
+                    >
+                      <div className={`text-white/80 mb-1 text-outline font-semibold ${
+                        isMobile ? "text-[10px]" : "text-xs"
+                      }`}>NIVEAU</div>
+                      <div className={`font-bold text-white text-outline ${
+                        isMobile ? "text-xl" : "text-3xl"
+                      }`}>
+                  {gameState.level}
+                </div>
+                    </motion.div>
+                    <motion.div
+                      className={`comic-panel bg-gradient-to-br from-amber-600 to-yellow-600 border-2 border-black text-center ${
+                        isMobile ? "p-2" : "p-4"
+                      }`}
+                      whileHover={{ scale: 1.05 }}
+                      style={{ minHeight: isMobile ? "70px" : "100px" }}
+                    >
+                      <div className={`flex items-center justify-center gap-1 text-white/80 mb-1 text-outline font-semibold ${
+                        isMobile ? "text-[10px]" : "text-xs"
+                      }`}>
+                        <StarIcon className={isMobile ? "w-2 h-2" : "w-3 h-3"} />
+                        MOTS
+              </div>
+                      <div className={`font-bold text-white text-outline ${
+                        isMobile ? "text-xl" : "text-3xl"
+                      }`}>
+                  {gameState.wordsCompleted}
+                </div>
+                    </motion.div>
+                  </>
+                )}
                 
                 {/* Streak Display */}
-                {gameState.streak > 0 && (
+                {gameState.streak > 0 && (!isMobile || !isKeyboardOpen) && (
                   <motion.div
-                    className="comic-panel bg-gradient-to-br from-orange-600 to-red-600 border-2 border-black p-4 text-center"
+                    className={`comic-panel bg-gradient-to-br from-orange-600 to-red-600 border-2 border-black text-center ${
+                      isMobile ? "p-2" : "p-4"
+                    }`}
                     whileHover={{ scale: 1.05 }}
                     animate={gameState.streak >= 5 ? { scale: [1, 1.1, 1] } : {}}
                     transition={{ duration: 0.5, repeat: gameState.streak >= 5 ? Infinity : 0, repeatDelay: 1 }}
-                    style={{ minHeight: "100px" }}
+                    style={{ minHeight: isMobile ? "70px" : "100px" }}
                   >
-                    <div className="flex items-center justify-center gap-2 mb-1">
-                      <FireIcon className="w-4 h-4 text-white" />
-                      <div className="text-xs text-white/80 text-outline font-semibold">STREAK</div>
-                    </div>
-                    <div className="text-3xl font-bold text-white text-outline">{gameState.streak}</div>
-                    {gameState.highestStreak > 0 && gameState.highestStreak !== gameState.streak && (
+                    <div className={`flex items-center justify-center gap-2 mb-1 ${
+                      isMobile ? "gap-1" : ""
+                    }`}>
+                      <FireIcon className={isMobile ? "w-3 h-3" : "w-4 h-4 text-white"} />
+                      <div className={`text-white/80 text-outline font-semibold ${
+                        isMobile ? "text-[10px]" : "text-xs"
+                      }`}>STREAK</div>
+              </div>
+                    <div className={`font-bold text-white text-outline ${
+                      isMobile ? "text-xl" : "text-3xl"
+                    }`}>{gameState.streak}</div>
+                    {gameState.highestStreak > 0 && gameState.highestStreak !== gameState.streak && !isMobile && (
                       <div className="text-xs text-white/60 text-outline mt-1">Meilleur: {gameState.highestStreak}</div>
                     )}
                   </motion.div>
                 )}
                 
                 {/* Combo Multiplier */}
-                {gameState.combo > 1 && (
+                {gameState.combo > 1 && (!isMobile || !isKeyboardOpen) && (
                   <motion.div
-                    className="comic-panel bg-gradient-to-br from-yellow-500 to-orange-500 border-2 border-black p-4 text-center"
+                    className={`comic-panel bg-gradient-to-br from-yellow-500 to-orange-500 border-2 border-black text-center ${
+                      isMobile ? "p-2" : "p-4"
+                    }`}
                     whileHover={{ scale: 1.05 }}
                     animate={{ scale: [1, 1.15, 1] }}
                     transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
-                    style={{ minHeight: "100px" }}
+                    style={{ minHeight: isMobile ? "70px" : "100px" }}
                   >
-                    <div className="text-xs text-white/80 mb-1 text-outline font-semibold">COMBO</div>
-                    <div className="text-3xl font-bold text-white text-outline">×{gameState.combo}</div>
-                    <div className="text-xs text-white/60 text-outline mt-1">Multiplicateur</div>
+                    <div className={`text-white/80 mb-1 text-outline font-semibold ${
+                      isMobile ? "text-[10px]" : "text-xs"
+                    }`}>COMBO</div>
+                    <div className={`font-bold text-white text-outline ${
+                      isMobile ? "text-xl" : "text-3xl"
+                    }`}>×{gameState.combo}</div>
+                    {!isMobile && (
+                      <div className="text-xs text-white/60 text-outline mt-1">Multiplicateur</div>
+                    )}
                   </motion.div>
                 )}
-              </div>
+            </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        {/* Main Game Area */}
+          {/* Main Game Area */}
         <AnimatePresence mode="wait">
           {gameState && (
             <motion.div
@@ -759,9 +950,9 @@ export default function WordfallPage() {
               transition={{ duration: 0.3 }}
               className="comic-panel-dark relative overflow-hidden"
               style={{
-                height: "500px",
-                minHeight: "500px",
-                maxHeight: "500px",
+                height: isMobile ? (isKeyboardOpen ? "250px" : "300px") : "500px",
+                minHeight: isMobile ? (isKeyboardOpen ? "250px" : "300px") : "500px",
+                maxHeight: isMobile ? (isKeyboardOpen ? "250px" : "300px") : "500px",
                 background: "linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(168, 85, 247, 0.15) 50%, rgba(236, 72, 153, 0.15) 100%)",
                 position: "relative",
                 contain: "layout style paint",
@@ -863,16 +1054,16 @@ export default function WordfallPage() {
                     )}
                   </AnimatePresence>
 
-                  {/* Falling Word */}
-                  {gameState?.activeWord && (
-                    <motion.div
+                {/* Falling Word */}
+                {gameState?.activeWord && (
+                  <motion.div
                       initial={{ top: "-60px", scale: 0.8, opacity: 0 }}
                       animate={{ 
-                        top: `${Math.max(-60, Math.min(500, (gameState.activeWord.y / 100) * 560 - 60))}px`,
+                        top: `${Math.max(-60, Math.min(isMobile ? (isKeyboardOpen ? 250 : 300) : 500, (gameState.activeWord.y / 100) * (isMobile ? (isKeyboardOpen ? 310 : 360) : 560) - 60))}px`,
                         scale: 1,
                         opacity: 1,
                       }}
-                      transition={{ duration: 0.1, ease: "linear" }}
+                    transition={{ duration: 0.1, ease: "linear" }}
                       className="absolute left-1/2 transform -translate-x-1/2 z-10"
                     >
                       <motion.div
@@ -885,16 +1076,22 @@ export default function WordfallPage() {
                           repeat: Infinity,
                           ease: "easeInOut"
                         }}
-                        className="comic-panel bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 border-4 border-black px-6 py-4 shadow-2xl"
-                        style={{
+                        className={`comic-panel bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 border-4 border-black shadow-2xl ${
+                          isMobile ? "px-3 py-2 border-2" : "px-6 py-4"
+                        }`}
+                    style={{
                           boxShadow: "0 8px 0 0 #000, 0 12px 24px rgba(6, 182, 212, 0.4)",
                         }}
                       >
-                        <div className="text-3xl md:text-5xl font-bold text-white text-outline text-center">
+                        <div className={`font-bold text-white text-outline text-center ${
+                          isMobile ? "text-xl" : "text-3xl md:text-5xl"
+                        }`}>
                           {gameState.activeWord.text || ""}
-                        </div>
+                      </div>
                         {gameState.activeWord.translation && (
-                          <div className="text-3xl md:text-5xl font-bold text-white text-outline text-center mt-2">
+                          <div className={`font-bold text-white text-outline text-center mt-2 ${
+                            isMobile ? "text-xl" : "text-3xl md:text-5xl"
+                          }`}>
                             {(() => {
                               // Clean translation for display: remove parentheses, slashes, and take first part
                               let cleaned = gameState.activeWord.translation || '';
@@ -912,14 +1109,14 @@ export default function WordfallPage() {
                               cleaned = cleaned.replace(/\s+/g, ' ').trim();
                               return cleaned;
                             })()}
-                          </div>
+                    </div>
                         )}
                       </motion.div>
-                    </motion.div>
-                  )}
+                  </motion.div>
+                )}
 
-                  {/* Game Over Overlay */}
-                  {gameState?.gameOver && (
+                {/* Game Over Overlay */}
+                {gameState?.gameOver && (
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -939,12 +1136,12 @@ export default function WordfallPage() {
                           <TrophyIcon className="w-16 h-16 text-yellow-400 mx-auto" />
                         </motion.div>
                         <h2 className="text-3xl md:text-4xl font-bold text-white text-outline mb-4">
-                          Game Over!
-                        </h2>
+                        Game Over!
+                      </h2>
                         <p className="text-xl md:text-2xl text-slate-200 text-outline mb-2">
                           Score Final: {gameState.score}
-                        </p>
-                        <p className="text-base md:text-lg text-slate-300 text-outline mb-6">
+                      </p>
+                      <p className="text-base md:text-lg text-slate-300 text-outline mb-6">
                           Mots Complétés: {gameState.wordsCompleted}
                         </p>
                         {scoreSubmitted ? (
@@ -962,7 +1159,7 @@ export default function WordfallPage() {
                                 🏆 Nouveau record mondial!
                               </p>
                             )}
-                          </div>
+                    </div>
                         ) : submissionError ? (
                           <p className="text-sm text-red-300 text-outline mb-6">
                             ⚠️ {submissionError}
@@ -987,10 +1184,10 @@ export default function WordfallPage() {
                         </motion.button>
                       </motion.div>
                     </motion.div>
-                  )}
+                )}
 
-                  {/* Pause Overlay */}
-                  {isPaused && !gameState?.gameOver && (
+                {/* Pause Overlay */}
+                {isPaused && !gameState?.gameOver && (
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -1004,9 +1201,9 @@ export default function WordfallPage() {
                       >
                         <h2 className="text-3xl md:text-4xl font-bold text-white text-outline mb-6">
                           Pause
-                        </h2>
+                      </h2>
                         <motion.button
-                          onClick={handlePauseToggle}
+                        onClick={handlePauseToggle}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           className="comic-button bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-8 py-4 text-lg font-bold hover:from-cyan-700 hover:to-blue-700 border-4 border-black"
@@ -1015,10 +1212,10 @@ export default function WordfallPage() {
                         </motion.button>
                       </motion.div>
                     </motion.div>
-                  )}
+                )}
 
-                  {/* Start Screen */}
-                  {gameState && !gameState.isRunning && !gameState.gameOver && (
+                {/* Start Screen */}
+                {gameState && !gameState.isRunning && !gameState.gameOver && (
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
@@ -1038,15 +1235,15 @@ export default function WordfallPage() {
                           <BookOpenIcon className="w-16 h-16 text-cyan-400 mx-auto" />
                         </motion.div>
                         <h2 className="text-2xl md:text-3xl font-bold text-white text-outline mb-4">
-                          {selectedMode === "exact" ? "Exact Word Mode" : "Free Word Mode"}
-                        </h2>
+                        {selectedMode === "exact" ? "Exact Word Mode" : "Free Word Mode"}
+                      </h2>
                         <p className="text-base md:text-lg text-slate-200 text-outline mb-6">
-                          {selectedMode === "exact"
+                        {selectedMode === "exact"
                             ? "Tapez le mot anglais puis sa traduction française (ex: BOOK livre)!"
                             : "Tapez n'importe quel mot valide commençant par la lettre affichée!"}
-                        </p>
+                      </p>
                         <motion.button
-                          onClick={handleStartGame}
+                        onClick={handleStartGame}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           className="comic-button bg-gradient-to-r from-emerald-600 to-green-600 text-white px-8 py-4 text-lg font-bold hover:from-emerald-700 hover:to-green-700 border-4 border-black animate-comic-glow"
@@ -1063,32 +1260,34 @@ export default function WordfallPage() {
               )}
             </AnimatePresence>
 
-        {/* Used Words Panel (Free Mode) */}
+            {/* Used Words Panel (Free Mode) */}
         <AnimatePresence>
-          {selectedMode === "free" && gameState && gameState.isRunning && !gameState.gameOver && (
+          {selectedMode === "free" && gameState && gameState.isRunning && !gameState.gameOver && (!isMobile || !isKeyboardOpen) && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
-              className="comic-panel-dark p-6 overflow-hidden"
+              className={`comic-panel-dark overflow-hidden ${
+                isMobile ? "p-3" : "p-6"
+              }`}
               style={{ 
-                maxHeight: "300px", 
+                maxHeight: isMobile ? "150px" : "300px", 
                 overflowY: "auto",
-                minHeight: gameState.usedWords.length === 0 ? "120px" : "150px"
+                minHeight: gameState.usedWords.length === 0 ? (isMobile ? "80px" : "120px") : (isMobile ? "100px" : "150px")
               }}
             >
               <div className="flex items-center gap-2 mb-4">
                 <StarIcon className="w-5 h-5 text-yellow-400" />
                 <h3 className="text-xl font-bold text-white text-outline">
                   Mots Utilisés
-                </h3>
+                  </h3>
               </div>
               {gameState.usedWords.length === 0 ? (
-                <p className="text-sm md:text-base text-slate-400 text-outline">
+                    <p className="text-sm md:text-base text-slate-400 text-outline">
                   Aucun mot utilisé pour le moment
-                </p>
-              ) : (
+                    </p>
+                  ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
                   <AnimatePresence>
                     {gameState.usedWords.slice(-5).map((word, index) => (
@@ -1099,34 +1298,38 @@ export default function WordfallPage() {
                         exit={{ opacity: 0, scale: 0.8 }}
                         transition={{ delay: index * 0.03 }}
                         className="comic-panel bg-gradient-to-br from-slate-700 to-slate-800 border-2 border-black px-3 py-2 text-center"
-                      >
-                        <span className="text-sm md:text-base font-semibold text-white text-outline">
-                          {word}
-                        </span>
+                        >
+                          <span className="text-sm md:text-base font-semibold text-white text-outline">
+                            {word}
+                          </span>
                       </motion.div>
-                    ))}
+                      ))}
                   </AnimatePresence>
-                </div>
-              )}
+                    </div>
+                  )}
             </motion.div>
-          )}
+            )}
         </AnimatePresence>
 
-        {/* Input Area */}
+          {/* Input Area */}
         <AnimatePresence>
           {gameState?.isRunning && !gameState.gameOver && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="space-y-4"
+              className={`space-y-4 ${
+                isMobile && isKeyboardOpen ? "sticky bottom-0 z-50 bg-slate-900/95 backdrop-blur-sm pb-2 pt-2" : ""
+              }`}
             >
               <form 
                 onSubmit={(e) => {
                   e.preventDefault();
                   handleSubmitWord(e);
                 }}
-                className="flex flex-col md:flex-row gap-4"
+                className={`flex gap-2 md:gap-4 ${
+                  isMobile ? "flex-col" : "flex-col md:flex-row"
+                }`}
               >
                 <motion.input
                   type="text"
@@ -1146,35 +1349,55 @@ export default function WordfallPage() {
                     }
                   }}
                   placeholder={selectedMode === "exact" ? "MOT traduction (ex: BOOK livre)" : "Tapez un mot commençant par la lettre..."}
-                  className="flex-1 comic-panel-dark border-4 border-black px-6 py-4 text-lg font-bold text-white bg-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className={`flex-1 comic-panel-dark border-4 border-black font-bold text-white bg-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 ${
+                    isMobile ? "px-3 py-3 text-base border-2" : "px-6 py-4 text-lg"
+                  }`}
                   autoFocus
                   disabled={isPaused}
                   whileFocus={{ scale: 1.02 }}
                   onFocus={(e) => {
                     // Prevent scroll on focus
-                    e.target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    if (isMobile) {
+                      setTimeout(() => {
+                        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }, 300);
+                    } else {
+                      e.target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
                   }}
                 />
-                <motion.button
-                  type="submit"
+                <div className={`flex gap-2 md:gap-4 ${
+                  isMobile ? "flex-row" : ""
+                }`}>
+                  <motion.button
+                    type="submit"
                   disabled={isPaused || !wordInput.trim()}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="comic-button bg-gradient-to-r from-emerald-600 to-green-600 text-white px-8 py-4 text-lg font-bold hover:from-emerald-700 hover:to-green-700 border-4 border-black disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <span className="flex items-center gap-2">
-                    <CheckCircleIcon className="w-5 h-5" />
-                    Valider
-                  </span>
-                </motion.button>
-                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`comic-button bg-gradient-to-r from-emerald-600 to-green-600 text-white font-bold hover:from-emerald-700 hover:to-green-700 border-4 border-black disabled:opacity-50 disabled:cursor-not-allowed ${
+                      isMobile ? "px-4 py-3 text-base border-2 flex-1" : "px-8 py-4 text-lg"
+                    }`}
+                  >
+                    <span className={`flex items-center gap-2 justify-center ${
+                      isMobile ? "gap-1" : ""
+                    }`}>
+                      <CheckCircleIcon className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
+                      {isMobile ? "OK" : "Valider"}
+                    </span>
+                  </motion.button>
+                  {(!isMobile || !isKeyboardOpen) && (
+                    <motion.button
                   onClick={handlePauseToggle}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="comic-button bg-gradient-to-r from-amber-600 to-yellow-600 text-white px-6 py-4 text-lg font-bold hover:from-amber-700 hover:to-yellow-700 border-4 border-black"
-                >
-                  {isPaused ? "Reprendre" : "Pause"}
-                </motion.button>
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`comic-button bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-bold hover:from-amber-700 hover:to-yellow-700 border-4 border-black ${
+                        isMobile ? "px-4 py-3 text-base border-2" : "px-6 py-4 text-lg"
+                      }`}
+                    >
+                      {isPaused ? "Reprendre" : "Pause"}
+                    </motion.button>
+                  )}
+              </div>
               </form>
 
               {/* Error Message */}
@@ -1191,8 +1414,8 @@ export default function WordfallPage() {
                     <div className="flex items-center gap-2 justify-center">
                       <XCircleIcon className="w-5 h-5 text-white" />
                       <p className="text-base font-bold text-white text-outline text-center">
-                        {errorMessage}
-                      </p>
+                      {errorMessage}
+                    </p>
                     </div>
                   </motion.div>
                 )}
@@ -1201,30 +1424,42 @@ export default function WordfallPage() {
           )}
         </AnimatePresence>
 
-        {/* Instructions */}
+          {/* Instructions */}
         <AnimatePresence>
-          {!gameState?.isRunning && !gameState?.gameOver && (
+          {!gameState?.isRunning && !gameState?.gameOver && (!isMobile || !isKeyboardOpen) && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
-              className="comic-panel-dark p-6"
+              className={`comic-panel-dark ${
+                isMobile ? "p-3" : "p-6"
+              }`}
               style={{ background: "linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)" }}
             >
-              <div className="flex items-start gap-4">
-                <div className="comic-panel bg-gradient-to-br from-cyan-600 to-blue-600 border-2 border-black p-3 flex-shrink-0">
-                  <BookOpenIcon className="w-6 h-6 text-white" />
+              <div className={`flex items-start ${
+                isMobile ? "gap-2" : "gap-4"
+              }`}>
+                <div className={`comic-panel bg-gradient-to-br from-cyan-600 to-blue-600 border-2 border-black flex-shrink-0 ${
+                  isMobile ? "p-2" : "p-3"
+                }`}>
+                  <BookOpenIcon className={`text-white ${
+                    isMobile ? "w-4 h-4" : "w-6 h-6"
+                  }`} />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white text-outline mb-1">
+                  <h3 className={`font-bold text-white text-outline mb-1 ${
+                    isMobile ? "text-base" : "text-xl"
+                  }`}>
                     Comment jouer
-                  </h3>
-                  <p className="text-slate-300 text-outline text-sm mb-4">
-                    {selectedMode === "exact" ? "Mode Exact" : "Mode Libre"}
-                  </p>
+              </h3>
+                  {!isMobile && (
+                    <p className="text-slate-300 text-outline text-sm mb-4">
+                      {selectedMode === "exact" ? "Mode Exact" : "Mode Libre"}
+                    </p>
+                  )}
                   <div className="space-y-2.5 text-slate-200 text-outline">
-                    {selectedMode === "exact" ? (
-                      <>
+                {selectedMode === "exact" ? (
+                  <>
                         <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
                           <span className="text-cyan-400 font-bold mt-0.5 text-lg">•</span>
                           <span className="flex-1">Les mots tombent du haut de l'écran</span>
@@ -1245,9 +1480,9 @@ export default function WordfallPage() {
                           <span className="text-cyan-400 font-bold mt-0.5 text-lg">•</span>
                           <span className="flex-1">Le jeu s'accélère très doucement au fur et à mesure</span>
                         </div>
-                      </>
-                    ) : (
-                      <>
+                  </>
+                ) : (
+                  <>
                         <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
                           <span className="text-cyan-400 font-bold mt-0.5 text-lg">•</span>
                           <span className="flex-1">Une lettre tombe du haut de l'écran</span>
@@ -1268,10 +1503,10 @@ export default function WordfallPage() {
                           <span className="text-cyan-400 font-bold mt-0.5 text-lg">•</span>
                           <span className="flex-1">Le jeu s'accélère au fur et à mesure</span>
                         </div>
-                      </>
-                    )}
-                  </div>
-                </div>
+                  </>
+                )}
+              </div>
+            </div>
               </div>
             </motion.div>
           )}
