@@ -4,7 +4,7 @@
  * Generic Game Leaderboard Component
  * Displays leaderboards for any game with difficulty selection
  * 
- * Games without difficulty selection (like space-lex) show a single global leaderboard
+ * Games without difficulty selection (like space-lex) just show "medium" difficulty
  */
 
 import { useEffect, useState } from "react";
@@ -28,7 +28,7 @@ const VALID_GAME_SLUGS = [
   "space-lex",
 ];
 
-// Games that DON'T have difficulty selection (single global leaderboard)
+// Games that DON'T have difficulty selection (single leaderboard, uses "medium" by default)
 const GAMES_WITHOUT_DIFFICULTY = ["space-lex"];
 
 // Get difficulty labels based on game
@@ -74,21 +74,30 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
   // Check if selected game has difficulty selection
   const hasDifficulty = selectedGame ? !GAMES_WITHOUT_DIFFICULTY.includes(selectedGame.slug) : true;
 
-  // Reset difficulty when game changes
+  // Reset to appropriate difficulty when game changes
   useEffect(() => {
     if (selectedGame) {
       // For games without difficulty, use "medium" as default
-      setSelectedDifficulty(hasDifficulty ? "easy" : "medium");
-      fetchLeaderboard(selectedGame.id);
+      if (GAMES_WITHOUT_DIFFICULTY.includes(selectedGame.slug)) {
+        setSelectedDifficulty("medium");
+      } else {
+        setSelectedDifficulty("easy");
+      }
     }
-  }, [selectedGame, hasDifficulty]);
+  }, [selectedGame]);
 
-  // Fetch leaderboard when difficulty changes
+  // Fetch leaderboard when game or difficulty changes
   useEffect(() => {
     if (selectedGame) {
       fetchLeaderboard(selectedGame.id);
     }
-  }, [selectedDifficulty, selectedGame]);
+  }, [selectedGame]);
+
+  // Also refetch when difficulty changes (only for games with difficulty)
+  useEffect(() => {
+    // No need to refetch - we already have all difficulties from the first fetch
+    // Just changing selectedDifficulty will show the right data
+  }, [selectedDifficulty]);
 
   async function fetchLeaderboard(gameId: string) {
     setLoading(true);
@@ -107,14 +116,8 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
     }
   }
 
-  // For games without difficulty, combine all entries from all difficulties
-  const currentLeaderboard = hasDifficulty
-    ? leaderboard[selectedDifficulty]
-    : [...leaderboard.easy, ...leaderboard.medium, ...leaderboard.hard]
-      .sort((a, b) => b.best_score - a.best_score)
-      .slice(0, 5)
-      .map((entry, index) => ({ ...entry, rank: index + 1 }));
-
+  // Just use the selected difficulty's data directly - no combining
+  const currentLeaderboard = leaderboard[selectedDifficulty];
   const difficultyLabels = getDifficultyLabels(selectedGame?.slug || null);
 
   if (validGames.length === 0) {
