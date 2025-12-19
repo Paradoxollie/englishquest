@@ -10,6 +10,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { submitLexiconBlasterScore } from "./actions";
+import { LexiconBlasterLeaderboard } from "./leaderboard";
 import {
   type GameState,
   type Mission,
@@ -416,6 +418,15 @@ function SpaceShip({ x, isRunning, skinImageUrl }: { x: number; isRunning: boole
   );
 }
 
+// Types for score submission results
+interface ScoreResult {
+  xpEarned: number;
+  goldEarned: number;
+  newLevel?: number;
+  isNewPersonalBest?: boolean;
+  isNewGlobalBest?: boolean;
+}
+
 export default function SpaceLexShooterPage() {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [shipSkinImageUrl, setShipSkinImageUrl] = useState<string | null>(null);
@@ -425,6 +436,11 @@ export default function SpaceLexShooterPage() {
   const [comboBurst, setComboBurst] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [keysPressed, setKeysPressed] = useState<Set<string>>(new Set());
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [scoreResult, setScoreResult] = useState<ScoreResult | null>(null);
+  const [isSubmittingScore, setIsSubmittingScore] = useState(false);
+  const gameStartTimeRef = useRef<number>(Date.now());
+  const scoreSubmittedRef = useRef<boolean>(false);
   const gameLoopRef = useRef<number | null>(null);
   const lastUpdateRef = useRef<number>(Date.now());
   const gameAreaRef = useRef<HTMLDivElement>(null);
@@ -498,6 +514,10 @@ export default function SpaceLexShooterPage() {
     setGameState(newState);
     setIsPaused(false);
     lastUpdateRef.current = Date.now();
+    gameStartTimeRef.current = Date.now();
+    scoreSubmittedRef.current = false;
+    setScoreResult(null);
+    setShowLeaderboard(false);
   }, [gameState]);
 
   // Pause/Resume
@@ -522,7 +542,50 @@ export default function SpaceLexShooterPage() {
     const newState = resetGame(gameState);
     setGameState(newState);
     setIsPaused(false);
+    gameStartTimeRef.current = Date.now();
+    scoreSubmittedRef.current = false;
+    setScoreResult(null);
+    setShowLeaderboard(false);
   }, [gameState]);
+
+  // Submit score when game ends
+  useEffect(() => {
+    if (!gameState?.gameOver || scoreSubmittedRef.current || isSubmittingScore || !user) return;
+
+    const submitScore = async () => {
+      setIsSubmittingScore(true);
+      scoreSubmittedRef.current = true;
+
+      const durationMs = Date.now() - gameStartTimeRef.current;
+
+      try {
+        const result = await submitLexiconBlasterScore({
+          score: gameState.score,
+          wave: gameState.waveNumber,
+          maxCombo: gameState.maxCombo,
+          wordsMastered: gameState.learnedWords.length,
+          wordsMissed: gameState.missedWords.length,
+          durationMs,
+        });
+
+        if (result.success && result.rewards) {
+          setScoreResult({
+            xpEarned: result.rewards.xpEarned,
+            goldEarned: result.rewards.goldEarned,
+            newLevel: result.rewards.newLevel,
+            isNewPersonalBest: result.isNewPersonalBest,
+            isNewGlobalBest: result.isNewGlobalBest,
+          });
+        }
+      } catch (error) {
+        console.error("Error submitting score:", error);
+      } finally {
+        setIsSubmittingScore(false);
+      }
+    };
+
+    submitScore();
+  }, [gameState?.gameOver, gameState?.score, gameState?.waveNumber, gameState?.maxCombo, gameState?.learnedWords.length, gameState?.missedWords.length, user, isSubmittingScore]);
 
   const handleActivateSuper = useCallback(() => {
     setGameState(prev => prev ? activateSuper(prev) : prev);
@@ -1410,12 +1473,65 @@ export default function SpaceLexShooterPage() {
                     )}
                   </div>
                 </div>
-                <div className="flex gap-3 justify-center">
+
+                {/* Rewards Section */}
+                {user && (
+                  <div className="bg-gradient-to-r from-amber-900/40 to-yellow-900/40 p-3 rounded-xl border-2 border-amber-700/50 mb-4">
+                    {isSubmittingScore ? (
+                      <div className="text-sm text-amber-300 text-outline animate-pulse">
+                        Enregistrement du score...
+                      </div>
+                    ) : scoreResult ? (
+                      <div className="space-y-2">
+                        {/* New Record Badges */}
+                        {scoreResult.isNewGlobalBest && (
+                          <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-3 py-1 rounded-full inline-block mb-2">
+                            <span className="text-xs font-bold text-white">🌟 NOUVEAU RECORD MONDIAL !</span>
+                          </div>
+                        )}
+                        {scoreResult.isNewPersonalBest && !scoreResult.isNewGlobalBest && (
+                          <div className="bg-gradient-to-r from-cyan-600 to-blue-600 px-3 py-1 rounded-full inline-block mb-2">
+                            <span className="text-xs font-bold text-white">⭐ NOUVEAU RECORD PERSONNEL !</span>
+                          </div>
+                        )}
+
+                        <div className="flex justify-center gap-4">
+                          <div className="text-center">
+                            <div className="text-xs text-amber-400 uppercase">XP Gagné</div>
+                            <div className="text-lg font-bold text-amber-300">+{scoreResult.xpEarned}</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-xs text-yellow-400 uppercase">Gold</div>
+                            <div className="text-lg font-bold text-yellow-300">+{scoreResult.goldEarned}</div>
+                          </div>
+                        </div>
+
+                        {scoreResult.newLevel && (
+                          <div className="text-center mt-2">
+                            <span className="text-sm font-bold text-green-400">🎉 Niveau {scoreResult.newLevel} atteint !</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-sm text-slate-400 text-outline">
+                        Connectez-vous pour sauvegarder vos scores
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-3 justify-center">
                   <button
                     onClick={handleReset}
                     className="comic-button bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-4 py-2 md:px-6 md:py-3 text-sm md:text-base font-bold hover:from-cyan-700 hover:to-blue-700 text-outline border-2 md:border-4 border-black"
                   >
                     REJOUER
+                  </button>
+                  <button
+                    onClick={() => setShowLeaderboard(true)}
+                    className="comic-button bg-gradient-to-r from-amber-500 to-yellow-500 text-white px-4 py-2 md:px-6 md:py-3 text-sm md:text-base font-bold hover:from-amber-600 hover:to-yellow-600 text-outline border-2 md:border-4 border-black"
+                  >
+                    🏆 CLASSEMENT
                   </button>
                   <Link
                     href="/play"
@@ -1496,6 +1612,40 @@ export default function SpaceLexShooterPage() {
           </div>
         </div>
       </div>
+
+      {/* Leaderboard Modal Overlay */}
+      <AnimatePresence>
+        {showLeaderboard && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4 overflow-y-auto"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            >
+              <div className="comic-panel-dark p-4 md:p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl md:text-2xl font-bold text-white text-outline">
+                    🏆 Classement Lexicon Blaster
+                  </h2>
+                  <button
+                    onClick={() => setShowLeaderboard(false)}
+                    className="comic-button bg-slate-700 text-white px-3 py-1 md:px-4 md:py-2 text-sm font-bold hover:bg-slate-600 text-outline border-2 border-black"
+                  >
+                    ✕ Fermer
+                  </button>
+                </div>
+                <LexiconBlasterLeaderboard />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
