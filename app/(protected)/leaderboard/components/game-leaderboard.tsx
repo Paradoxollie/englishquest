@@ -3,6 +3,8 @@
 /**
  * Generic Game Leaderboard Component
  * Displays leaderboards for any game with difficulty selection
+ * 
+ * Games without difficulty selection (like space-lex) show a single global leaderboard
  */
 
 import { useEffect, useState } from "react";
@@ -18,7 +20,16 @@ interface Game {
   description: string | null;
 }
 
-// Types are imported from actions.ts
+// List of game slugs that have valid leaderboards
+const VALID_GAME_SLUGS = [
+  "speed-verb-challenge",
+  "enigma-scroll",
+  "wordfall",
+  "space-lex",
+];
+
+// Games that DON'T have difficulty selection (single global leaderboard)
+const GAMES_WITHOUT_DIFFICULTY = ["space-lex"];
 
 // Get difficulty labels based on game
 function getDifficultyLabels(gameSlug: string | null): Record<Difficulty, string> {
@@ -48,7 +59,10 @@ interface GameLeaderboardProps {
 }
 
 export function GameLeaderboard({ games }: GameLeaderboardProps) {
-  const [selectedGame, setSelectedGame] = useState<Game | null>(games[0] || null);
+  // Filter to only show valid games
+  const validGames = games.filter(game => VALID_GAME_SLUGS.includes(game.slug));
+
+  const [selectedGame, setSelectedGame] = useState<Game | null>(validGames[0] || null);
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>("easy");
   const [leaderboard, setLeaderboard] = useState<LeaderboardData>({
     easy: [],
@@ -57,13 +71,17 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
   });
   const [loading, setLoading] = useState(true);
 
+  // Check if selected game has difficulty selection
+  const hasDifficulty = selectedGame ? !GAMES_WITHOUT_DIFFICULTY.includes(selectedGame.slug) : true;
+
   // Reset difficulty when game changes
   useEffect(() => {
     if (selectedGame) {
-      setSelectedDifficulty("easy");
+      // For games without difficulty, use "medium" as default
+      setSelectedDifficulty(hasDifficulty ? "easy" : "medium");
       fetchLeaderboard(selectedGame.id);
     }
-  }, [selectedGame]);
+  }, [selectedGame, hasDifficulty]);
 
   // Fetch leaderboard when difficulty changes
   useEffect(() => {
@@ -89,10 +107,17 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
     }
   }
 
-  const currentLeaderboard = leaderboard[selectedDifficulty];
+  // For games without difficulty, combine all entries from all difficulties
+  const currentLeaderboard = hasDifficulty
+    ? leaderboard[selectedDifficulty]
+    : [...leaderboard.easy, ...leaderboard.medium, ...leaderboard.hard]
+      .sort((a, b) => b.best_score - a.best_score)
+      .slice(0, 5)
+      .map((entry, index) => ({ ...entry, rank: index + 1 }));
+
   const difficultyLabels = getDifficultyLabels(selectedGame?.slug || null);
 
-  if (games.length === 0) {
+  if (validGames.length === 0) {
     return (
       <div className="comic-panel-dark p-8 text-center">
         <p className="text-slate-300 text-outline">Aucun jeu disponible pour le moment.</p>
@@ -106,15 +131,14 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
       <div className="comic-panel-dark p-4">
         <h2 className="text-lg font-bold text-white mb-4 text-outline">Sélectionner un jeu</h2>
         <div className="flex flex-wrap gap-3">
-          {games.map((game) => (
+          {validGames.map((game) => (
             <button
               key={game.id}
               onClick={() => setSelectedGame(game)}
-              className={`comic-button px-6 py-3 font-bold text-outline transition ${
-                selectedGame?.id === game.id
+              className={`comic-button px-6 py-3 font-bold text-outline transition ${selectedGame?.id === game.id
                   ? "bg-cyan-500 text-white border-4 border-black"
                   : "bg-slate-700 text-white hover:bg-slate-600"
-              }`}
+                }`}
             >
               {game.name}
             </button>
@@ -132,8 +156,8 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
         </div>
       )}
 
-      {/* Difficulty Selector */}
-      {selectedGame && (
+      {/* Difficulty Selector - Only show for games WITH difficulty */}
+      {selectedGame && hasDifficulty && (
         <div className="comic-panel-dark p-4">
           <h2 className="text-lg font-bold text-white mb-4 text-outline">Niveau de difficulté</h2>
           <div className="flex flex-wrap gap-3 justify-center">
@@ -141,11 +165,10 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
               <button
                 key={diff}
                 onClick={() => setSelectedDifficulty(diff)}
-                className={`comic-button px-6 py-2 font-bold text-outline transition ${
-                  selectedDifficulty === diff
+                className={`comic-button px-6 py-2 font-bold text-outline transition ${selectedDifficulty === diff
                     ? `${DIFFICULTY_COLORS[diff]} text-white border-4 border-black`
                     : "bg-slate-700 text-white hover:bg-slate-600"
-                }`}
+                  }`}
               >
                 {difficultyLabels[diff]}
               </button>
@@ -158,7 +181,7 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
       {selectedGame && (
         <div className="comic-panel-dark p-6">
           <h3 className="text-2xl font-bold text-white mb-6 text-outline text-center">
-            🏆 Top 5 - {selectedGame.name} - {difficultyLabels[selectedDifficulty]}
+            🏆 Top 5 - {selectedGame.name}{hasDifficulty ? ` - ${difficultyLabels[selectedDifficulty]}` : ""}
           </h3>
 
           {loading ? (
@@ -167,7 +190,7 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
             </div>
           ) : currentLeaderboard.length === 0 ? (
             <div className="text-center text-slate-400 text-outline py-8">
-              Aucun score enregistré pour cette difficulté.
+              Aucun score enregistré{hasDifficulty ? " pour cette difficulté" : ""}.
             </div>
           ) : (
             <div className="space-y-3">
@@ -176,17 +199,16 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
                   key={entry.user_id}
                   className="comic-panel bg-slate-800 border-2 border-black p-3 md:p-4 grid grid-cols-[45px_1fr_95px] md:grid-cols-[60px_1fr_120px] items-start gap-2 md:gap-4"
                 >
-                  {/* Rang à gauche - largeur fixe */}
+                  {/* Rank */}
                   <div
-                    className={`comic-panel ${DIFFICULTY_COLORS[selectedDifficulty]} border-2 border-black w-10 h-10 md:w-12 md:h-12 flex items-center justify-center font-bold text-white text-outline text-sm md:text-base`}
+                    className={`comic-panel ${hasDifficulty ? DIFFICULTY_COLORS[selectedDifficulty] : "bg-gradient-to-br from-cyan-600 to-blue-600"} border-2 border-black w-10 h-10 md:w-12 md:h-12 flex items-center justify-center font-bold text-white text-outline text-sm md:text-base`}
                   >
                     {entry.rank}
                   </div>
-                  
-                  {/* Avatar, nom et titre centrés au milieu - avatars alignés horizontalement */}
+
+                  {/* Avatar and name */}
                   <div className="flex justify-center min-w-0">
                     <div className="flex flex-col items-center gap-1.5 md:gap-2 w-full">
-                      {/* Conteneur avec hauteur fixe pour aligner tous les avatars */}
                       <div className="h-20 md:h-28 flex items-center justify-center">
                         <LeaderboardAvatar
                           userId={entry.user_id}
@@ -210,8 +232,8 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Score à droite - largeur fixe */}
+
+                  {/* Score */}
                   <div className="flex items-center justify-end gap-1 md:gap-2 pt-1 md:pt-2 min-w-0">
                     {entry.rank === 1 && (
                       <TrophyIcon className="w-4 h-4 md:w-6 md:h-6 text-amber-400 flex-shrink-0" />
@@ -229,4 +251,3 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
     </div>
   );
 }
-

@@ -12,6 +12,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { submitLexiconBlasterScore } from "./actions";
 import { LexiconBlasterLeaderboard } from "./leaderboard";
+import { TopScoresDisplay } from "./top-scores-display";
 import {
   type GameState,
   type Mission,
@@ -1611,6 +1612,11 @@ export default function SpaceLexShooterPage() {
             </div>
           </div>
         </div>
+
+        {/* Top Scores Display - Only show when game is not running */}
+        {!gameState.isRunning && (
+          <TopScoresDisplay currentScore={gameState.gameOver ? gameState.score : undefined} />
+        )}
       </div>
 
       {/* Leaderboard Modal Overlay */}

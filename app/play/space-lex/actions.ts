@@ -7,26 +7,16 @@
  * - Submitting game scores
  * - Calculating and applying rewards (XP, gold, level)
  * - Checking for new global best scores
+ * 
+ * Note: This game has NO difficulty levels - all scores use "medium" as default
  */
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import {
-    calculateLevelFromXP,
-    type Difficulty,
-} from "@/lib/profile/leveling";
+import { calculateLevelFromXP } from "@/lib/profile/leveling";
 
-/**
- * Map wave number to difficulty for leaderboard categorization
- * - Waves 1-5: Easy (Secteurs 1-5)
- * - Waves 6-10: Medium (Secteurs 6-10)
- * - Waves 11+: Hard (Secteurs 11+)
- */
-function mapWaveToDifficulty(wave: number): Difficulty {
-    if (wave <= 5) return "easy";
-    if (wave <= 10) return "medium";
-    return "hard";
-}
+// Default difficulty for all Lexicon Blaster scores (no difficulty selection in this game)
+const DEFAULT_DIFFICULTY = "medium" as const;
 
 /**
  * Calculate rewards for Lexicon Blaster based on performance
@@ -136,16 +126,12 @@ export async function submitLexiconBlasterScore(params: {
             };
         }
 
-        // Map wave to difficulty
-        const difficulty = mapWaveToDifficulty(params.wave);
-
-        // Get user's current personal best score for this difficulty
+        // Get user's current personal best score (no difficulty filter - global for this game)
         const { data: personalBest } = await adminClient
             .from("game_scores")
             .select("id, score")
             .eq("user_id", user.id)
             .eq("game_id", game.id)
-            .eq("difficulty", difficulty)
             .order("score", { ascending: false })
             .limit(1)
             .maybeSingle();
@@ -153,12 +139,11 @@ export async function submitLexiconBlasterScore(params: {
         const currentPersonalBest = personalBest?.score ?? 0;
         const isNewPersonalBest = params.score > currentPersonalBest;
 
-        // Check if this is a new global best score for this difficulty
+        // Check if this is a new global best score (no difficulty filter)
         const { data: globalTopScore } = await adminClient
             .from("game_scores")
             .select("score")
             .eq("game_id", game.id)
-            .eq("difficulty", difficulty)
             .order("score", { ascending: false })
             .limit(1)
             .maybeSingle();
@@ -198,7 +183,7 @@ export async function submitLexiconBlasterScore(params: {
                     score: params.score,
                     max_score: params.wave, // Use max_score to store wave reached
                     duration_ms: params.durationMs,
-                    difficulty: difficulty,
+                    difficulty: DEFAULT_DIFFICULTY, // Always use default difficulty
                 });
 
             if (insertError) {
