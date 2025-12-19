@@ -1,0 +1,33 @@
+# Robots.txt pour English Quest
+# Autorise l'indexation des pages publiques importantes
+# Bloque les pages privées et administratives
+
+User-agent: *
+
+# Autoriser les pages publiques importantes
+Allow: /
+Allow: /play
+Allow: /play/*
+Allow: /cours
+Allow: /cours/*
+Allow: /tous-les-cours
+Allow: /about
+Allow: /contact
+
+# Bloquer les pages privées nécessitant une authentification
+Disallow: /auth
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /home
+Disallow: /leaderboard
+Disallow: /messages
+Disallow: /teachers
+Disallow: /quest
+
+# Bloquer les pages de diagnostic et techniques
+Disallow: /adsense-check
+Disallow: /api
+
+# Autoriser les fichiers importants pour AdSense et SEO
+Allow: /ads.txt
+Allow: /robots.txt

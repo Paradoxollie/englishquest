@@ -1,0 +1,645 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --background: #020617;
+  --foreground: #f8fafc;
+  --card: rgba(15, 23, 42, 0.75);
+  --border: rgba(148, 163, 184, 0.2);
+  --accent: #06b6d4;
+  --accent-secondary: #facc15;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--background);
+  background-image: linear-gradient(180deg, #010101 0%, #020617 50%, #010101 100%);
+  color: var(--foreground);
+  font-family: var(--font-inter, "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+}
+
+/* Contour de texte très léger pour améliorer la lisibilité */
+.text-outline {
+  text-shadow: 
+    0 0 1px rgba(0, 0, 0, 0.3),
+    0 0 2px rgba(0, 0, 0, 0.2),
+    0.5px 0.5px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Contour plus fort pour les textes sur fonds clairs */
+.text-outline-strong {
+  text-shadow: 
+    0 0 2px rgba(0, 0, 0, 0.5),
+    0 0 3px rgba(0, 0, 0, 0.4),
+    1px 1px 0 rgba(0, 0, 0, 0.6);
+}
+
+.glass-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+  border-radius: 1.5rem;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* Style BD/Comics Marvel */
+.comic-panel {
+  position: relative;
+  border: 4px solid #000;
+  border-radius: 1rem;
+  background: #1e293b; /* Fond sombre au lieu de blanc pour éviter texte blanc sur fond blanc */
+  box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.comic-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 2px 2px, rgba(0, 0, 0, 0.12) 1px, transparent 0);
+  background-size: 8px 8px;
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.comic-panel-dark {
+  position: relative;
+  border: 4px solid #000;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.comic-panel-dark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.08) 1px, transparent 0);
+  background-size: 8px 8px;
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.comic-card {
+  position: relative;
+  border: 4px solid #000;
+  border-radius: 1rem;
+  background: #1e293b; /* Fond sombre au lieu de blanc pour éviter texte blanc sur fond blanc */
+  box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.comic-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 0 #000, 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.comic-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 1.5px 1.5px, rgba(0, 0, 0, 0.1) 1px, transparent 0);
+  background-size: 8px 8px;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.comic-card-dark {
+  position: relative;
+  border: 4px solid #000;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.3);
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.comic-card-dark:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 0 #000, 0 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.comic-card-dark::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.06) 1px, transparent 0);
+  background-size: 8px 8px;
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.comic-button {
+  position: relative;
+  border: 3px solid #000;
+  border-radius: 0.75rem;
+  font-weight: bold;
+  box-shadow: 0 3px 0 0 #000, 0 6px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.15s ease;
+  overflow: hidden;
+}
+
+.comic-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 2px 2px, rgba(0, 0, 0, 0.08) 1px, transparent 0);
+  background-size: 6px 6px;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.comic-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.comic-button:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 0 0 #000, 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Texture de points pour les backgrounds */
+.comic-dot-pattern {
+  background-image: radial-gradient(circle at 2px 2px, rgba(0, 0, 0, 0.08) 1px, transparent 0);
+  background-size: 10px 10px;
+}
+
+.comic-dot-pattern-light {
+  background-image: radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.05) 1px, transparent 0);
+  background-size: 10px 10px;
+}
+
+/* Lignes de vitesse style comics */
+.comic-speed-lines {
+  position: relative;
+  overflow: hidden;
+}
+
+.comic-speed-lines::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(0, 0, 0, 0.05) 10px,
+    rgba(0, 0, 0, 0.05) 20px
+  );
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+/* Effet de pop style comics */
+@keyframes comic-pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-comic-pop {
+  animation: comic-pop 0.3s ease;
+}
+
+/* Effet de flash pour les événements */
+@keyframes comic-flash {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-comic-flash {
+  animation: comic-flash 0.5s ease;
+}
+
+/* Effet de shake pour les erreurs */
+@keyframes comic-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-4px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(4px);
+  }
+}
+
+.animate-comic-shake {
+  animation: comic-shake 0.5s ease;
+}
+
+/* Effet de pulse pour les succès */
+@keyframes comic-pulse-success {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+  }
+}
+
+.animate-comic-pulse-success {
+  animation: comic-pulse-success 0.6s ease;
+}
+
+/* Effet de glow pour les éléments importants */
+@keyframes comic-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(6, 182, 212, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.8), 0 0 30px rgba(6, 182, 212, 0.6);
+  }
+}
+
+.animate-comic-glow {
+  animation: comic-glow 2s ease-in-out infinite;
+}
+
+/* Animation pour les bonus de vitesse */
+@keyframes speed-bonus-pop {
+  0% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(180deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 1;
+  }
+}
+
+.animate-speed-bonus {
+  animation: speed-bonus-pop 0.6s ease-out;
+}
+
+/* Animation pour les milestones */
+@keyframes milestone-celebration {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+  50% {
+    transform: scale(1.15) rotate(5deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(-5deg);
+  }
+}
+
+.animate-milestone-celebration {
+  animation: milestone-celebration 0.8s ease-in-out;
+}
+
+/* ============================================================================
+   SPACE LEX SHOOTER - PIXEL ART STYLES
+   ============================================================================ */
+
+.pixel-art {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.pixel-text {
+  font-family: 'Courier New', monospace;
+  text-rendering: optimizeSpeed;
+  letter-spacing: 0.05em;
+}
+
+.game-area {
+  background: 
+    linear-gradient(180deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(59, 130, 246, 0.03) 2px,
+      rgba(59, 130, 246, 0.03) 4px
+    );
+  position: relative;
+  overflow: hidden;
+}
+
+.star-field {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(2px 2px at 20% 30%, white, transparent),
+    radial-gradient(2px 2px at 60% 70%, white, transparent),
+    radial-gradient(1px 1px at 50% 50%, white, transparent),
+    radial-gradient(1px 1px at 80% 10%, white, transparent),
+    radial-gradient(2px 2px at 90% 40%, white, transparent),
+    radial-gradient(1px 1px at 33% 60%, white, transparent),
+    radial-gradient(3px 3px at 10% 90%, white, transparent),
+    radial-gradient(2px 2px at 40% 20%, white, transparent);
+  background-size: 200% 200%;
+  animation: starMove 20s linear infinite;
+  opacity: 0.6;
+}
+
+@keyframes starMove {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+
+.ship {
+  filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.8));
+  transition: transform 0.1s ease-out;
+}
+
+.ship-thrust {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 12px;
+  background: linear-gradient(180deg, #ff6b00 0%, #ffaa00 50%, transparent 100%);
+  border-radius: 50% 50% 0 0;
+  opacity: 0.8;
+  animation: thrustPulse 0.3s ease-in-out infinite;
+}
+
+@keyframes thrustPulse {
+  0%, 100% { transform: translateX(-50%) scaleY(1); opacity: 0.8; }
+  50% { transform: translateX(-50%) scaleY(1.2); opacity: 0.6; }
+}
+
+.bullet {
+  background: linear-gradient(180deg, #00ffff 0%, #0088ff 100%);
+  box-shadow: 0 0 6px rgba(0, 255, 255, 0.8), 0 0 12px rgba(0, 136, 255, 0.6);
+  border-radius: 2px;
+}
+
+.enemy-target {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  border: 2px solid #15803d;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6), inset 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.enemy-distractor {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: 2px solid #b91c1c;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.6), inset 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.explosion {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.explosion-hit {
+  background: radial-gradient(circle, #ffd700 0%, #ffaa00 30%, #ff6600 60%, transparent 100%);
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 40px rgba(255, 170, 0, 0.6);
+}
+
+.explosion-miss {
+  background: radial-gradient(circle, #ff4444 0%, #cc0000 30%, #990000 60%, transparent 100%);
+  box-shadow: 0 0 20px rgba(255, 68, 68, 0.8), 0 0 40px rgba(204, 0, 0, 0.6);
+}
+
+.mission-banner {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  border: 3px solid #d97706;
+  box-shadow: 
+    0 0 20px rgba(251, 191, 36, 0.6),
+    inset 0 0 20px rgba(255, 255, 255, 0.3),
+    0 4px 0 0 #92400e;
+  animation: missionPulse 2s ease-in-out infinite;
+}
+
+@keyframes missionPulse {
+  0%, 100% { 
+    box-shadow: 
+      0 0 20px rgba(251, 191, 36, 0.6), 
+      inset 0 0 20px rgba(255, 255, 255, 0.3), 
+      0 4px 0 0 #92400e; 
+  }
+  50% { 
+    box-shadow: 
+      0 0 30px rgba(251, 191, 36, 0.8), 
+      inset 0 0 25px rgba(255, 255, 255, 0.4), 
+      0 4px 0 0 #92400e; 
+  }
+}
+
+/* ============================================================================
+   SPACE LEX SHOOTER - VECTOR STYLE (PROFESSIONAL)
+   ============================================================================ */
+
+.game-area-vector {
+  background: 
+    linear-gradient(180deg, #0a0e27 0%, #1a1f3a 30%, #0f172a 70%, #0a0e27 100%),
+    radial-gradient(ellipse at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+  position: relative;
+  overflow: hidden;
+}
+
+.star-field-vector {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(2px 2px at 60% 70%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(1px 1px at 80% 10%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(2px 2px at 90% 40%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 33% 60%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(3px 3px at 10% 90%, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(2px 2px at 40% 20%, rgba(255, 255, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 70% 80%, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(2px 2px at 15% 50%, rgba(255, 255, 255, 0.7), transparent);
+  background-size: 200% 200%;
+  animation: starMoveVector 25s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes starMoveVector {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 100% 100%; }
+}
+
+.bullet-vector {
+  background: linear-gradient(180deg, #00ffff 0%, #00ccff 30%, #0088ff 60%, #0066cc 100%);
+  box-shadow: 
+    0 0 12px rgba(0, 255, 255, 1),
+    0 0 24px rgba(0, 200, 255, 0.9),
+    0 0 36px rgba(0, 136, 255, 0.7),
+    inset 0 0 6px rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
+  border: 2px solid rgba(100, 255, 255, 0.8);
+  animation: bulletPulse 0.15s ease-in-out infinite alternate;
+}
+
+@keyframes bulletPulse {
+  0% {
+    box-shadow: 
+      0 0 12px rgba(0, 255, 255, 1),
+      0 0 24px rgba(0, 200, 255, 0.9),
+      0 0 36px rgba(0, 136, 255, 0.7),
+      inset 0 0 6px rgba(255, 255, 255, 0.8);
+  }
+  100% {
+    box-shadow: 
+      0 0 18px rgba(0, 255, 255, 1),
+      0 0 32px rgba(0, 200, 255, 1),
+      0 0 48px rgba(0, 136, 255, 0.9),
+      inset 0 0 8px rgba(255, 255, 255, 1);
+  }
+}
+
+.enemy-target-vector {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
+  border: 2px solid #15803d;
+  box-shadow: 
+    0 0 12px rgba(34, 197, 94, 0.7),
+    inset 0 0 12px rgba(255, 255, 255, 0.25),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.enemy-distractor-vector {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+  border: 2px solid #b91c1c;
+  box-shadow: 
+    0 0 12px rgba(239, 68, 68, 0.7),
+    inset 0 0 12px rgba(255, 255, 255, 0.25),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.explosion-vector {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.explosion-hit-vector {
+  background: radial-gradient(
+    circle,
+    #ffd700 0%,
+    #ffaa00 25%,
+    #ff6600 50%,
+    #ff4400 75%,
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 30px rgba(255, 215, 0, 0.9),
+    0 0 60px rgba(255, 170, 0, 0.7),
+    0 0 90px rgba(255, 102, 0, 0.5);
+}
+
+.explosion-miss-vector {
+  background: radial-gradient(
+    circle,
+    #ff4444 0%,
+    #cc0000 25%,
+    #990000 50%,
+    #660000 75%,
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 30px rgba(255, 68, 68, 0.9),
+    0 0 60px rgba(204, 0, 0, 0.7),
+    0 0 90px rgba(153, 0, 0, 0.5);
+}
+
+.mission-banner-vector {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  border: 3px solid #d97706;
+  box-shadow: 
+    0 0 25px rgba(251, 191, 36, 0.7),
+    inset 0 0 25px rgba(255, 255, 255, 0.35),
+    0 4px 0 0 #92400e,
+    0 8px 16px rgba(0, 0, 0, 0.3);
+  animation: missionPulseVector 2.5s ease-in-out infinite;
+}
+
+@keyframes missionPulseVector {
+  0%, 100% { 
+    box-shadow: 
+      0 0 25px rgba(251, 191, 36, 0.7), 
+      inset 0 0 25px rgba(255, 255, 255, 0.35), 
+      0 4px 0 0 #92400e,
+      0 8px 16px rgba(0, 0, 0, 0.3); 
+  }
+  50% { 
+    box-shadow: 
+      0 0 35px rgba(251, 191, 36, 0.9), 
+      inset 0 0 30px rgba(255, 255, 255, 0.45), 
+      0 4px 0 0 #92400e,
+      0 8px 20px rgba(0, 0, 0, 0.4); 
+  }
+}
+
+/* Enhanced Pixel Art Enemy Styles - Neutral Color */
+.enemy-neutral-pixel {
+  background: linear-gradient(135deg, #475569 0%, #334155 30%, #1e293b 60%, #0f172a 100%);
+  border-color: #64748b;
+  position: relative;
+  box-shadow: 
+    0 0 15px rgba(100, 116, 139, 0.6), 
+    inset 0 0 10px rgba(255, 255, 255, 0.15), 
+    0 4px 0 rgba(0, 0, 0, 0.5);
+}
+
+.enemy-neutral-pixel::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* Upcoming Enemy Preview */
+.upcoming-enemy-preview {
+  animation: previewPulse 1s ease-in-out infinite;
+}
+
+@keyframes previewPulse {
+  0%, 100% {
+    opacity: 0.8;
+    transform: translateX(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.05);
+  }
+}

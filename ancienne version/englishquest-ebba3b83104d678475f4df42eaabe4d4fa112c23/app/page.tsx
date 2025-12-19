@@ -1,0 +1,323 @@
+import Link from "next/link";
+import { MotionCard } from "@/components/ui/motion-card";
+import { GameIcon, QuestIcon, TeacherIcon, XPIcon, GoldIcon, ScrollIcon, GiftIcon, LevelIcon, AvatarIcon } from "@/components/ui/icons";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { Profile } from "@/types/profile";
+
+const featureCards = [
+  {
+    title: "Jeux",
+    Icon: GameIcon,
+    copy: "Jouez à des jeux ludiques pour apprendre l'anglais. Chaque jeu vous donne un score et vous pouvez voir qui est le meilleur au classement général.",
+  },
+  {
+    title: "Chemin de cours",
+    Icon: QuestIcon,
+    copy: "Suivez un parcours de 50 cours progressifs avec XP, pièces d'or et récompenses pour suivre votre apprentissage.",
+  },
+  {
+    title: "Professeurs",
+    Icon: TeacherIcon,
+    copy: "Accédez à des cours et activités ludiques clés en main, prêts à utiliser en classe avec vos élèves.",
+  },
+];
+
+/**
+ * Calcule l'XP nécessaire pour passer au niveau suivant
+ * Formule : XP_required = level * 1000
+ */
+function getXPForNextLevel(level: number): number {
+  return level * 1000;
+}
+
+/**
+ * Calcule le pourcentage de progression vers le prochain niveau
+ */
+function getXPProgress(currentXP: number, level: number): { current: number; required: number; percentage: number } {
+  const required = getXPForNextLevel(level);
+  const percentage = required > 0 ? Math.min((currentXP / required) * 100, 100) : 0;
+  return {
+    current: currentXP,
+    required,
+    percentage: Math.round(percentage),
+  };
+}
+
+export default async function PublicHomePage() {
+  // Récupérer les données de l'utilisateur connecté (si connecté)
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  // Si l'utilisateur est connecté, rediriger vers la page d'accueil connectée
+  if (user) {
+    const { redirect } = await import("next/navigation");
+    redirect("/home");
+  }
+
+  // Données à afficher pour les invités
+  const displayData = {
+    username: "Invité",
+    level: 1,
+    xp: 0,
+    gold: 0,
+    isGuest: true,
+  };
+
+  const xpProgress = getXPProgress(displayData.xp, displayData.level);
+  return (
+    <div className="space-y-8 md:space-y-24">
+      {/* Hero Section */}
+      <section className="grid gap-6 md:gap-10 md:grid-cols-2 md:items-center">
+        {/* Left Column */}
+        <div className="space-y-4 md:space-y-6">
+          {/* 
+            Main hero text - to tweak, modify the h1 below
+          */}
+          <div className="space-y-3 md:space-y-4">
+            <h1 className="text-2xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-white break-words">
+              Progressez en anglais comme dans vos jeux favoris.
+            </h1>
+            <p className="text-sm md:text-xl leading-tight md:leading-relaxed text-slate-300 break-words">
+              Suivez un parcours de 50 cours où chaque défi vous rapporte de l'XP, des pièces d'or et des récompenses.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2 md:gap-4">
+            <Link
+              href="/play"
+              className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-emerald-700 to-emerald-800 px-4 py-2.5 md:px-8 md:py-4 text-xs md:text-sm font-bold text-white shadow-lg shadow-emerald-950/30 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-emerald-950/40 whitespace-nowrap"
+            >
+              <span className="relative z-10">Commencer à jouer</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-emerald-700 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            </Link>
+            <Link
+              href="/auth/signup"
+              className="rounded-xl border-2 border-emerald-900/30 bg-slate-950/40 px-4 py-2.5 md:px-8 md:py-4 text-xs md:text-sm font-semibold text-slate-200 transition-all duration-300 hover:border-emerald-800/40 hover:bg-slate-950/60 hover:text-emerald-300 whitespace-nowrap"
+            >
+              Créer mon compte
+            </Link>
+          </div>
+        </div>
+
+        {/* Right Column - Player Panel Card */}
+        <MotionCard className="relative">
+          <div className="relative overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/95 via-slate-950/90 to-slate-900/95 p-4 md:p-8 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+            {/* Decorative gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3" />
+
+            <div className="relative z-10 space-y-4 md:space-y-6">
+              {/* Player Header */}
+              <div className="flex items-center justify-between border-b border-slate-700/50 pb-3 md:pb-4 gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="text-[10px] md:text-xs font-medium uppercase tracking-wider text-slate-400">
+                    {displayData.isGuest ? "Profil invité" : "Profil joueur"}
+                  </p>
+                  <p className="mt-0.5 md:mt-1 text-lg md:text-2xl font-bold text-white break-words">{displayData.username}</p>
+                  {!displayData.isGuest && (
+                    <p className="mt-0.5 md:mt-1 text-[10px] md:text-xs text-emerald-400/80 break-words">✓ Données liées à votre compte</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-1.5 md:gap-2 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 px-2 py-1.5 md:px-4 md:py-2 border-2 border-black flex-shrink-0">
+                  <LevelIcon className="w-3 h-3 md:w-4 md:h-4 text-white" />
+                  <span className="text-xs md:text-sm font-bold text-white">Niveau {displayData.level}</span>
+                </div>
+              </div>
+
+              {/* XP Progress Bar */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5 font-medium text-slate-400">
+                    <XPIcon className="w-4 h-4 text-emerald-500" />
+                    <span>Points d'expérience</span>
+                  </div>
+                  <span className="font-semibold text-slate-400">{xpProgress.current.toLocaleString('fr-FR')} / {xpProgress.required.toLocaleString('fr-FR')}</span>
+                </div>
+                <div className="relative h-3 overflow-hidden rounded-full bg-slate-900/60">
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/20 to-emerald-900/20" />
+                  <div
+                    className="relative h-full rounded-full bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-500 shadow-lg shadow-emerald-950/40"
+                    style={{ width: `${xpProgress.percentage}%` }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Quest & Reward Cards */}
+              <div className="grid gap-3">
+                <div className="group relative overflow-hidden rounded-xl border border-emerald-950/30 bg-slate-900/30 p-4 transition-all duration-300 hover:border-emerald-900/30 hover:bg-slate-900/50">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black">
+                      <ScrollIcon className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-white">Cours du jour</p>
+                      <p className="mt-0.5 text-xs text-slate-400">Jouer à 3 jeux</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="group relative overflow-hidden rounded-xl border border-slate-700/50 bg-slate-800/40 p-4 transition-all duration-300 hover:border-amber-500/30 hover:bg-slate-800/60">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500 to-yellow-500 border-2 border-black">
+                      <GiftIcon className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-white">Prochaine récompense</p>
+                      <p className="mt-0.5 text-xs text-slate-400">Nouvel avatar</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-emerald-950/30 bg-slate-900/30 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <XPIcon className="w-4 h-4 text-emerald-500" />
+                    <p className="text-xs font-medium uppercase tracking-wider text-slate-500">XP</p>
+                  </div>
+                  <p className="text-2xl font-bold text-emerald-400">{displayData.xp.toLocaleString('fr-FR')}</p>
+                </div>
+                <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <GoldIcon className="w-4 h-4 text-amber-400" />
+                    <p className="text-xs font-medium uppercase tracking-wider text-slate-400">Or</p>
+                  </div>
+                  <p className="text-2xl font-bold text-amber-300">{displayData.gold.toLocaleString('fr-FR')}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </MotionCard>
+      </section>
+
+      {/* Feature Cards Section */}
+      <section className="grid gap-4 md:gap-6 md:grid-cols-3">
+        {featureCards.map((card) => {
+          const Icon = card.Icon;
+          return (
+            <MotionCard key={card.title}>
+              <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-4 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
+                {/* Decorative gradient on hover */}
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+
+                <div className="relative z-10">
+                  <div className="mb-4 md:mb-6 flex h-10 w-10 md:h-14 md:w-14 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black shadow-lg transition-transform duration-300 group-hover:scale-110">
+                    <Icon className="w-5 h-5 md:w-7 md:h-7 text-white" />
+                  </div>
+                  <h3 className="mb-2 md:mb-3 text-lg md:text-2xl font-bold text-white break-words">{card.title}</h3>
+                  <p className="text-sm md:text-base leading-tight md:leading-relaxed text-slate-300 break-words">{card.copy}</p>
+                </div>
+              </div>
+            </MotionCard>
+          );
+        })}
+      </section>
+
+      {/* How it Works Section */}
+      <section className="space-y-6 md:space-y-12">
+        <div className="text-center">
+          <h2 className="text-2xl md:text-4xl lg:text-5xl font-bold text-white break-words">Comment ça marche</h2>
+          <p className="mt-2 md:mt-4 text-sm md:text-lg text-slate-400 break-words">Commencez en trois étapes simples</p>
+        </div>
+        <div className="grid gap-6 md:gap-8 md:grid-cols-3">
+          <div className="group relative text-center">
+            <div className="mb-4 md:mb-6 inline-flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-950/30 to-emerald-900/30 border border-emerald-900/30 text-2xl md:text-3xl font-bold text-emerald-400 shadow-lg shadow-emerald-950/20 transition-all duration-300 group-hover:scale-110 group-hover:shadow-emerald-950/30">
+              1
+            </div>
+            <h3 className="mb-2 md:mb-3 text-lg md:text-xl font-bold text-white break-words">Créez un compte</h3>
+            <p className="text-sm md:text-base leading-tight md:leading-relaxed text-slate-300 break-words">
+              Inscrivez-vous en quelques secondes et commencez votre parcours d'apprentissage de l'anglais.
+            </p>
+          </div>
+          <div className="group relative text-center">
+            <div className="mb-4 md:mb-6 inline-flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-950/30 to-emerald-900/30 border border-emerald-900/30 text-2xl md:text-3xl font-bold text-emerald-400 shadow-lg shadow-emerald-950/20 transition-all duration-300 group-hover:scale-110 group-hover:shadow-emerald-950/30">
+              2
+            </div>
+            <h3 className="mb-2 md:mb-3 text-lg md:text-xl font-bold text-white break-words">Jouez aux jeux et suivez les cours</h3>
+            <p className="text-sm md:text-base leading-tight md:leading-relaxed text-slate-300 break-words">
+              Gagnez de l'XP et des pièces d'or en jouant aux jeux ludiques et en progressant à travers 50 cours de difficulté croissante.
+            </p>
+          </div>
+          <div className="group relative text-center">
+            <div className="mb-4 md:mb-6 inline-flex h-12 w-12 md:h-16 md:w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-950/30 to-emerald-900/30 border border-emerald-900/30 text-2xl md:text-3xl font-bold text-emerald-400 shadow-lg shadow-emerald-950/20 transition-all duration-300 group-hover:scale-110 group-hover:shadow-emerald-950/30">
+              3
+            </div>
+            <h3 className="mb-2 md:mb-3 text-lg md:text-xl font-bold text-white break-words">Débloquez des avatars et grimpez au classement</h3>
+            <p className="text-sm md:text-base leading-tight md:leading-relaxed text-slate-300 break-words">
+              Personnalisez votre profil et rivalisez avec les autres apprenants.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Methodology Section - Added for AdSense Content Value */}
+      <section className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
+        <div className="space-y-6">
+          <h2 className="text-2xl md:text-4xl font-bold text-white">Une méthode pédagogique éprouvée</h2>
+          <div className="space-y-4 text-slate-300 leading-relaxed">
+            <p>
+              English Quest n'est pas seulement un jeu, c'est une méthode d'apprentissage complète conçue par des professeurs.
+              Nous combinons les principes de la <strong>gamification</strong> avec une progression pédagogique rigoureuse.
+            </p>
+            <p>
+              Chaque cours est structuré pour introduire progressivement de nouveaux concepts grammaticaux et lexicaux,
+              renforcés immédiatement par des exercices ludiques. Cette approche active favorise la mémorisation à long terme
+              et maintient la motivation intacte.
+            </p>
+            <ul className="space-y-2 mt-4">
+              <li className="flex items-center gap-2">
+                <span className="text-emerald-400">✓</span> 50 leçons progressives
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-emerald-400">✓</span> Exercices interactifs variés
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-emerald-400">✓</span> Suivi précis de la progression
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="relative">
+          <div className="absolute inset-0 bg-emerald-500/20 blur-3xl rounded-full" />
+          <MotionCard>
+            <div className="relative bg-slate-900/80 border border-slate-700 p-6 rounded-2xl backdrop-blur-sm">
+              <h3 className="text-xl font-bold text-white mb-4">Pourquoi ça marche ?</h3>
+              <p className="text-slate-300 mb-4">
+                "L'apprentissage par le jeu permet de dédramatiser l'erreur. Dans un jeu, perdre une vie n'est pas un échec,
+                c'est une opportunité de recommencer et de s'améliorer. C'est exactement l'état d'esprit qu'il faut pour apprendre une langue."
+              </p>
+              <div className="flex items-center gap-3 pt-4 border-t border-slate-700">
+                <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-white">PM</div>
+                <div>
+                  <p className="text-white font-semibold">Pierre Marienne</p>
+                  <p className="text-xs text-slate-400">Créateur d'English Quest</p>
+                </div>
+              </div>
+            </div>
+          </MotionCard>
+        </div>
+      </section>
+
+      {/* Final CTA Band */}
+      <section className="relative overflow-hidden rounded-3xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/95 via-slate-900/95 to-slate-950/95 p-6 md:p-16 text-center shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3" />
+        <div className="relative z-10">
+          <h2 className="mb-4 md:mb-6 text-xl md:text-4xl lg:text-5xl font-bold text-white break-words">
+            Prêt à commencer votre parcours en anglais ?
+          </h2>
+          <p className="mb-6 md:mb-8 text-sm md:text-lg text-slate-400 break-words">
+            Rejoignez des milliers d'apprenants qui progressent en anglais
+          </p>
+          <Link
+            href="/auth/signup"
+            className="group relative inline-block overflow-hidden rounded-xl bg-gradient-to-r from-emerald-700 to-emerald-800 px-6 py-3 md:px-10 md:py-5 text-xs md:text-base font-bold text-white shadow-lg shadow-emerald-950/30 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-emerald-950/40 whitespace-nowrap"
+          >
+            <span className="relative z-10">Commencer maintenant</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 to-emerald-700 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+          </Link>
+        </div>
+      </section>
+    </div>
+  );
+}
+

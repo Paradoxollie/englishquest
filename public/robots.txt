@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Allow: /ads.txt
+
+Sitemap: https://englishquest.fr/sitemap.xml
+
