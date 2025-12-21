@@ -7,7 +7,7 @@ values
   (
     'flash-translation',
     'Flash Translation',
-    'Testez vos réflexes ! Trouvez la bonne traduction le plus vite possible dans ce défi chronométré inspiré de Human Benchmark.',
+    'Testez vos réflexes ! Trouvez la bonne traduction le plus vite possible dans ce défi de vitesse ultime.',
     'medium'
   )
 on conflict (slug) do nothing;

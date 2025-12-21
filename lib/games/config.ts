@@ -85,7 +85,7 @@ export const games: GameConfig[] = [
   {
     slug: "flash-translation",
     name: "Flash Translation",
-    description: "Testez vos réflexes ! Trouvez la bonne traduction le plus vite possible dans ce défi chronométré inspiré de Human Benchmark.",
+    description: "Testez vos réflexes ! Trouvez la bonne traduction le plus vite possible dans ce défi de vitesse ultime.",
     difficulty: "medium",
     tags: ["Vocabulaire", "Réflexes", "Vitesse"],
     icon: "⚡",

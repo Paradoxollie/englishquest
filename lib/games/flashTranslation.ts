@@ -2,7 +2,7 @@
  * Flash Translation - Core Game Logic
  * 
  * A reaction speed game where players must quickly select the correct
- * English translation of French words. Inspired by Human Benchmark.
+ * English translation of French words. A test of speed and vocabulary.
  * 
  * Game Flow:
  * 1. Show French word with random wait time (2000-4000ms)
