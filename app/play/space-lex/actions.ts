@@ -31,25 +31,25 @@ function computeLexiconBlasterRewards(params: {
     xpEarned: number;
     goldEarned: number;
 } {
-    // Base XP from score (1 XP per 50 points)
-    let xpEarned = Math.floor(params.score / 50);
+    // Base XP from score (1 XP per 20 points - Boosted for longer play)
+    let xpEarned = Math.floor(params.score / 20);
 
-    // Wave bonus (5 XP per wave reached)
-    xpEarned += params.wave * 5;
+    // Wave bonus (20 XP per wave reached)
+    xpEarned += params.wave * 20;
 
-    // Words mastered bonus (2 XP per word)
-    xpEarned += params.wordsMastered * 2;
+    // Words mastered bonus (5 XP per word)
+    xpEarned += params.wordsMastered * 5;
 
-    // Combo bonus (1 XP per max combo point)
-    xpEarned += params.maxCombo;
+    // Combo bonus (2 XP per max combo point)
+    xpEarned += params.maxCombo * 2;
 
     // Global best bonus
     if (params.isNewGlobalBest) {
-        xpEarned += 100;
+        xpEarned += 150;
     }
 
-    // Gold: 1 gold per 4 XP
-    const goldEarned = Math.floor(xpEarned / 4);
+    // Gold: 1 gold per 10 XP (balanced for ~25-30 gold per good run)
+    const goldEarned = Math.floor(xpEarned / 10);
 
     return {
         xpEarned,

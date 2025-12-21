@@ -118,24 +118,11 @@ export function computeSpeedVerbRewards(params: {
     xpBase += 80;
   }
 
-  // Gold is calculated based on correct answers with specific thresholds
-  // Formula ensures:
-  // - 1 gold at 10 correct answers
-  // - 2 gold at 30 correct answers  
-  // - 3 gold at 60 correct answers
-  // Then continues scaling slowly
-  let goldEarned = 0;
-  if (correctCount >= 60) {
-    // At 60+, give 3 gold and then 1 gold per 20 additional correct answers
-    goldEarned = 3 + Math.floor((correctCount - 60) / 20);
-  } else if (correctCount >= 30) {
-    // At 30-59, give 2 gold
-    goldEarned = 2;
-  } else if (correctCount >= 10) {
-    // At 10-29, give 1 gold
-    goldEarned = 1;
-  }
-  // Below 10 correct answers = 0 gold
+  // Gold: Linear progression to encourage farming
+  // 1 Gold for every 5 correct answers
+  // 30 correct = 6 Gold
+  // 60 correct = 12 Gold
+  const goldEarned = Math.floor(correctCount / 5);
 
   return {
     xpEarned: xpBase,

@@ -25,36 +25,33 @@ function computeFlashTranslationRewards(params: {
     xpEarned: number;
     goldEarned: number;
 } {
-    // Base rewards
-    let xp = 50;
-    let gold = 25;
+    // Base rewards (Reduced to prevent farming abuse)
+    let xp = 10;
+    let gold = 1;
 
     // Bonus for perfect score (no wrong answers)
     if (params.wrongAnswers === 0) {
-        xp += 100;
-        gold += 50;
+        xp += 20;
+        gold += 2;
     }
 
     // Bonus for fast time (under 10 seconds total)
     if (params.totalTimeMs < 10000) {
-        xp += 75;
-        gold += 35;
+        xp += 15;
+        gold += 2;
     } else if (params.totalTimeMs < 15000) {
-        xp += 50;
-        gold += 25;
-    } else if (params.totalTimeMs < 20000) {
-        xp += 25;
-        gold += 15;
+        xp += 10;
+        gold += 1;
     }
 
     // Penalty for wrong answers
-    xp = Math.max(10, xp - (params.wrongAnswers * 10));
-    gold = Math.max(5, gold - (params.wrongAnswers * 5));
+    xp = Math.max(5, xp - (params.wrongAnswers * 5));
+    gold = Math.max(0, gold - (params.wrongAnswers * 1));
 
-    // Global best bonus
+    // ONE-TIME Huge Bonus for Global Best (incentivize competition)
     if (params.isNewGlobalBest) {
-        xp += 200;
-        gold += 100;
+        xp += 100;
+        gold += 50;
     }
 
     return { xpEarned: xp, goldEarned: gold };
