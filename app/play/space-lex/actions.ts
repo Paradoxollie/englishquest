@@ -48,9 +48,9 @@ function computeLexiconBlasterRewards(params: {
         xpEarned += 80;
     }
 
-    // Gold: Hardcore Farming (XP / 35)
-    // 350 XP -> 10 Gold (Requires a VERY good run)
-    const goldEarned = Math.floor(xpEarned / 35);
+    // Gold: CHALLENGING FARM (XP / 20)
+    // 350 XP -> 17 Gold (Good reward for a long run)
+    const goldEarned = Math.floor(xpEarned / 20);
 
     return {
         xpEarned,

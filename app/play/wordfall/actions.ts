@@ -40,9 +40,9 @@ function computeWordfallRewards(params: {
     xpEarned += 50;
   }
 
-  // Gold: Hardcore Farming (XP / 20)
-  // 50 words approx 160 XP -> 8 Gold
-  const goldEarned = Math.floor(xpEarned / 20);
+  // Gold: SKILL FARM (XP / 15)
+  // 50 words approx 160 XP -> 10 Gold
+  const goldEarned = Math.floor(xpEarned / 15);
 
   return {
     xpEarned,

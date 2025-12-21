@@ -29,13 +29,13 @@ function computeFlashTranslationRewards(params: {
     let xp = 5;
     let gold = 0;
 
-    // Bonus for perfect score: Gives 1 Gold
+    // Bonus for perfect score: Gives 2 Gold (Valid farming strategy)
     if (params.wrongAnswers === 0) {
-        xp += 10;
-        gold += 1;
+        xp += 15;
+        gold += 2;
     }
 
-    // Bonus for fast time: Gives 1 Gold
+    // Bonus for fast time: Gives +1 Gold
     if (params.totalTimeMs < 10000) {
         xp += 10;
         gold += 1;

@@ -116,11 +116,11 @@ export function computeSpeedVerbRewards(params: {
     xpBase += 50;
   }
 
-  // Gold: HARDCORE FARMING
-  // 1 Gold for every 20 correct answers
-  // 20 correct = 1 Gold
-  // 60 correct = 3 Gold
-  const goldEarned = Math.floor(correctCount / 20);
+  // Gold: HARDCORE FARMING (Semi-Pro)
+  // 1 Gold for every 15 correct answers
+  // 30 correct = 2 Gold
+  // 60 correct = 4 Gold
+  const goldEarned = Math.floor(correctCount / 15);
 
   return {
     xpEarned: xpBase,

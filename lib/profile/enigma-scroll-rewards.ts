@@ -77,44 +77,26 @@ export function computeEnigmaScrollRewards(params: {
   }
 
   // XP per word found based on difficulty
-  // This is the ONLY factor (besides global best bonus) that affects XP
-  // Aligned with Speed Verb Challenge: 1 (easy), 2 (medium), 3 (hard)
+  // Reduced for balanced progression
   const perWord: Record<Difficulty, number> = {
     easy: 1,
-    medium: 2,
-    hard: 3,
+    medium: 1,
+    hard: 2,
   };
 
   // Base XP = words found × XP per word
-  // This is the core reward formula - simple and slow to farm
   let xpBase = wordsFound * perWord[difficulty];
 
-  // Significant bonus for achieving a new global best score on the leaderboard
-  // This incentivizes competition and reaching the top of the leaderboard
-  // Only applies if the player found at least one word
-  // Aligned with Speed Verb Challenge: +80 XP bonus
+  // Global Best Bonus: Prestige (XP) only
   if (isNewGlobalBest && wordsFound > 0) {
-    xpBase += 80;
+    xpBase += 50;
   }
 
-  // Gold is calculated based on words found with specific thresholds
-  // Formula ensures (aligned with Speed Verb Challenge):
-  // - 1 gold at 10 words found
-  // - 2 gold at 30 words found
-  // - 3 gold at 60 words found
-  // Then continues scaling slowly
-  let goldEarned = 0;
-  if (wordsFound >= 60) {
-    // At 60+, give 3 gold and then 1 gold per 20 additional words found
-    goldEarned = 3 + Math.floor((wordsFound - 60) / 20);
-  } else if (wordsFound >= 30) {
-    // At 30-59, give 2 gold
-    goldEarned = 2;
-  } else if (wordsFound >= 10) {
-    // At 10-29, give 1 gold
-    goldEarned = 1;
-  }
-  // Below 10 words found = 0 gold
+  // Gold: HARDCORE FARMING (Semi-Pro)
+  // 1 Gold for every 15 words found
+  // 30 words = 2 Gold
+  // 60 words = 4 Gold
+  const goldEarned = Math.floor(wordsFound / 15);
 
   return {
     xpEarned: xpBase,
