@@ -8,7 +8,7 @@
  */
 export function addCacheBusting(url: string | null | undefined): string {
   if (!url) return "";
-  
+
   // If URL already has query parameters, append with &
   // Otherwise, add with ?
   const separator = url.includes("?") ? "&" : "?";
@@ -21,14 +21,10 @@ export function addCacheBusting(url: string | null | undefined): string {
  */
 export function addCacheBustingIfSupabase(url: string | null | undefined): string {
   if (!url) return "";
-  
-  // Check if it's a Supabase storage URL
-  const isSupabaseStorage = url.includes("supabase.co/storage") || url.includes("supabase.storage");
-  
-  if (isSupabaseStorage) {
-    return addCacheBusting(url);
-  }
-  
+
+  // OPTIMIZATION: Do NOT add cache busting for read operations.
+  // This was causing massive bandwidth usage (Cached Egress) because every render fetched a "new" image.
+  // We rely on standard browser caching now.
   return url;
 }
 
