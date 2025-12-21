@@ -121,7 +121,7 @@ export default function FlashTranslationPage() {
         const currentRound = getCurrentRound(gameState);
         if (!currentRound) return;
 
-        const isCorrect = choiceIndex === currentRound.correctChoiceIndex;
+        const isCorrect = choiceIndex === currentRound.correctIndex;
 
         // Visual "Juice" Logic with styling update
         if (isCorrect) {
