@@ -67,59 +67,63 @@ export default async function PlayPage() {
             {games.map((game, index) => (
               <MotionCard key={game.slug}>
                 <Link href={`/play/${game.slug}`}>
-                  <div className="comic-card-dark h-full p-4 md:p-6 group" style={{ background: game.gradient }}>
+                  <div className="comic-card-dark h-full p-4 md:p-6 group flex flex-col" style={{ background: game.gradient }}>
                     <div className="absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                       style={{
                         background: game.gradient.replace('0.2', '0.3').replace('0.2', '0.3')
                       }}
                     />
-                    <div className="relative z-10">
+                    <div className="relative z-10 flex flex-col flex-grow">
                       {/* Game Icon and Name */}
                       <div className="mb-3 md:mb-4 flex items-center gap-2 md:gap-3">
                         <div className={`comic-panel ${game.iconBg} border-2 md:border-4 border-black p-2 md:p-3 text-lg md:text-2xl flex-shrink-0`}>
                           {game.icon}
                         </div>
-                        <h2 className="text-lg md:text-2xl font-bold text-white text-outline leading-tight md:leading-normal break-words min-w-0 flex-1">{game.name}</h2>
+                        <h2 className="text-lg md:text-2xl font-bold text-white text-outline leading-tight text-balance min-w-0 flex-1">{game.name}</h2>
                       </div>
 
                       {/* Description */}
-                      <p className="mb-3 md:mb-4 text-xs md:text-base text-slate-200 font-semibold leading-tight md:leading-relaxed text-outline break-words">
-                        {game.description}
-                      </p>
+                      <div className="flex-grow">
+                        <p className="mb-3 md:mb-4 text-xs md:text-base text-slate-200 font-semibold leading-tight md:leading-relaxed text-outline text-balance">
+                          {game.description}
+                        </p>
 
-                      {/* Tags */}
-                      <div className="mb-3 md:mb-4 flex flex-wrap gap-1.5 md:gap-2">
-                        {game.tags.map((tag, tagIndex) => {
-                          const tagColors = [
-                            "bg-cyan-600",
-                            "bg-purple-600",
-                            "bg-pink-600",
-                            "bg-indigo-600",
-                          ];
-                          return (
-                            <span
-                              key={tag}
-                              className={`comic-panel ${tagColors[tagIndex % tagColors.length]} border-2 border-black px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-bold text-white text-outline`}
-                            >
-                              {tag}
-                            </span>
-                          );
-                        })}
+                        {/* Tags */}
+                        <div className="mb-3 md:mb-4 flex flex-wrap gap-1.5 md:gap-2">
+                          {game.tags.map((tag, tagIndex) => {
+                            const tagColors = [
+                              "bg-cyan-600",
+                              "bg-purple-600",
+                              "bg-pink-600",
+                              "bg-indigo-600",
+                            ];
+                            return (
+                              <span
+                                key={tag}
+                                className={`comic-panel ${tagColors[tagIndex % tagColors.length]} border-2 border-black px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-bold text-white text-outline`}
+                              >
+                                {tag}
+                              </span>
+                            );
+                          })}
+                        </div>
                       </div>
 
-                      {/* Difficulty Badge */}
-                      <div className="mb-3 md:mb-4">
-                        <span
-                          className={`comic-panel ${difficultyColors[game.difficulty]} border-2 border-black px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-bold text-white text-outline`}
-                        >
-                          {game.difficulty === "easy" ? "Facile" : game.difficulty === "medium" ? "Moyen" : "Difficile"}
-                        </span>
-                      </div>
+                      {/* Difficulty Badge - Pushed to bottom with button */}
+                      <div className="mt-auto">
+                        <div className="mb-3 md:mb-4">
+                          <span
+                            className={`comic-panel ${difficultyColors[game.difficulty]} border-2 border-black px-2 py-0.5 md:px-3 md:py-1 text-[10px] md:text-xs font-bold text-white text-outline`}
+                          >
+                            {game.difficulty === "easy" ? "Facile" : game.difficulty === "medium" ? "Moyen" : "Difficile"}
+                          </span>
+                        </div>
 
-                      {/* Play Button */}
-                      <div className="mt-4 md:mt-6">
-                        <div className="comic-button bg-gradient-to-r from-cyan-600 to-blue-600 text-white w-full text-center px-3 py-2 md:px-4 md:py-3 text-xs md:text-base font-bold hover:from-cyan-700 hover:to-blue-700 text-outline border-2 md:border-4 border-black">
-                          Jouer →
+                        {/* Play Button */}
+                        <div>
+                          <div className="comic-button bg-gradient-to-r from-cyan-600 to-blue-600 text-white w-full text-center px-3 py-2 md:px-4 md:py-3 text-xs md:text-base font-bold hover:from-cyan-700 hover:to-blue-700 text-outline border-2 md:border-4 border-black">
+                            Jouer →
+                          </div>
                         </div>
                       </div>
                     </div>

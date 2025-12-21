@@ -123,11 +123,11 @@ export default async function HomePage() {
         {/* Continuer l'aventure */}
         <Link
           href="/quest"
-          className="comic-card-dark group relative p-8"
+          className="comic-card-dark group relative p-8 flex flex-col h-full"
           style={{ background: "linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(34, 197, 94, 0.2) 100%)" }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-green-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          <div className="relative z-10">
+          <div className="relative z-10 flex flex-col flex-grow">
             <div className="mb-4 flex items-center gap-3">
               <div className="rounded-xl bg-emerald-500 p-3">
                 <QuestIcon className="w-8 h-8 text-white" />
@@ -137,12 +137,12 @@ export default async function HomePage() {
                 <p className="text-2xl font-bold text-white text-outline">Continuer l'aventure</p>
               </div>
             </div>
-            <p className="mb-4 text-slate-300 text-outline">
+            <p className="mb-4 text-slate-300 text-outline text-balance flex-grow">
               {userData.currentCourse
                 ? `Continue le cours #${userData.currentCourse.course_number}: ${userData.currentCourse.title}`
                 : "Commence ton premier cours et progresse dans ton parcours d'apprentissage."}
             </p>
-            <div className="flex items-center gap-2 text-sm text-emerald-300">
+            <div className="flex items-center gap-2 text-sm text-emerald-300 mt-auto">
               <span className="font-semibold">
                 {userData.currentCourse ? "Continuer →" : "Commencer →"}
               </span>
@@ -153,11 +153,11 @@ export default async function HomePage() {
         {/* Choisir son jeu */}
         <Link
           href="/play"
-          className="comic-card-dark group relative p-8"
+          className="comic-card-dark group relative p-8 flex flex-col h-full"
           style={{ background: "linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%)" }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          <div className="relative z-10">
+          <div className="relative z-10 flex flex-col flex-grow">
             <div className="mb-4 flex items-center gap-3">
               <div className="rounded-xl bg-purple-500 p-3">
                 <GameIcon className="w-8 h-8 text-white" />
@@ -167,10 +167,10 @@ export default async function HomePage() {
                 <p className="text-2xl font-bold text-white text-outline">Choisir son jeu</p>
               </div>
             </div>
-            <p className="mb-4 text-slate-300 text-outline">
+            <p className="mb-4 text-slate-300 text-outline text-balance flex-grow">
               Explore tous les jeux disponibles et trouve celui qui te plaît le plus !
             </p>
-            <div className="flex items-center gap-2 text-sm text-purple-300">
+            <div className="flex items-center gap-2 text-sm text-purple-300 mt-auto">
               <span className="font-semibold">Explorer →</span>
             </div>
           </div>
@@ -180,11 +180,11 @@ export default async function HomePage() {
         {canAccessTeachers && (
           <Link
             href="/teachers"
-            className="comic-card-dark group relative p-8"
+            className="comic-card-dark group relative p-8 flex flex-col h-full"
             style={{ background: "linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(249, 115, 22, 0.2) 100%)" }}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            <div className="relative z-10">
+            <div className="relative z-10 flex flex-col flex-grow">
               <div className="mb-4 flex items-center gap-3">
                 <div className="rounded-xl bg-amber-500 p-3">
                   <TeacherIcon className="w-8 h-8 text-white" />
@@ -194,10 +194,10 @@ export default async function HomePage() {
                   <p className="text-2xl font-bold text-white text-outline">Le coin des profs</p>
                 </div>
               </div>
-              <p className="mb-4 text-slate-300 text-outline">
+              <p className="mb-4 text-slate-300 text-outline text-balance flex-grow">
                 Accède aux cours, activités et ressources pour tes élèves.
               </p>
-              <div className="flex items-center gap-2 text-sm text-amber-300">
+              <div className="flex items-center gap-2 text-sm text-amber-300 mt-auto">
                 <span className="font-semibold">Accéder →</span>
               </div>
             </div>
@@ -207,11 +207,11 @@ export default async function HomePage() {
         {/* Classement */}
         <Link
           href="/leaderboard"
-          className="comic-card-dark group relative p-8"
+          className="comic-card-dark group relative p-8 flex flex-col h-full"
           style={{ background: "linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%)" }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-amber-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          <div className="relative z-10">
+          <div className="relative z-10 flex flex-col flex-grow">
             <div className="mb-4 flex items-center gap-3">
               <div className="rounded-xl bg-yellow-500 p-3">
                 <TrophyIcon className="w-8 h-8 text-white" />
@@ -221,10 +221,10 @@ export default async function HomePage() {
                 <p className="text-2xl font-bold text-white text-outline">Voir le classement</p>
               </div>
             </div>
-            <p className="mb-4 text-slate-300 text-outline">
+            <p className="mb-4 text-slate-300 text-outline text-balance flex-grow">
               Découvre où tu te situes parmi les autres apprenants !
             </p>
-            <div className="flex items-center gap-2 text-sm text-yellow-300">
+            <div className="flex items-center gap-2 text-sm text-yellow-300 mt-auto">
               <span className="font-semibold">Voir →</span>
             </div>
           </div>
@@ -233,11 +233,11 @@ export default async function HomePage() {
         {/* Bibliothèque de cours */}
         <Link
           href="/tous-les-cours"
-          className="comic-card-dark group relative p-8"
+          className="comic-card-dark group relative p-8 flex flex-col h-full"
           style={{ background: "linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)" }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-blue-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          <div className="relative z-10">
+          <div className="relative z-10 flex flex-col flex-grow">
             <div className="mb-4 flex items-center gap-3">
               <div className="rounded-xl bg-indigo-500 p-3">
                 <BookIcon className="w-8 h-8 text-white" />
@@ -247,10 +247,10 @@ export default async function HomePage() {
                 <p className="text-2xl font-bold text-white text-outline">Tous les cours</p>
               </div>
             </div>
-            <p className="mb-4 text-slate-300 text-outline">
+            <p className="mb-4 text-slate-300 text-outline text-balance flex-grow">
               Explore tous les cours disponibles et choisis celui qui t'intéresse.
             </p>
-            <div className="flex items-center gap-2 text-sm text-indigo-300">
+            <div className="flex items-center gap-2 text-sm text-indigo-300 mt-auto">
               <span className="font-semibold">Explorer →</span>
             </div>
           </div>

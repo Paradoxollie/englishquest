@@ -128,171 +128,171 @@ export default async function QuestPage() {
     <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
         <div className="comic-panel-dark w-full p-6 md:p-8">
-        {/* Hero Section */}
-        <div className="comic-panel-dark mb-12 p-8" style={{ background: "linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(34, 197, 94, 0.2) 100%)" }}>
-          <div className="relative z-10">
-            <div className="mb-6 flex items-center gap-4">
-              <div className="comic-panel bg-emerald-600 border-2 border-black p-4">
-                <QuestIcon className="w-8 h-8 text-white text-outline" />
+          {/* Hero Section */}
+          <div className="comic-panel-dark mb-12 p-8" style={{ background: "linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(34, 197, 94, 0.2) 100%)" }}>
+            <div className="relative z-10">
+              <div className="mb-6 flex items-center gap-4">
+                <div className="comic-panel bg-emerald-600 border-2 border-black p-4">
+                  <QuestIcon className="w-8 h-8 text-white text-outline" />
+                </div>
+                <h1 className="text-4xl font-bold text-white md:text-5xl text-outline">
+                  Chemin de cours
+                </h1>
               </div>
-              <h1 className="text-4xl font-bold text-white md:text-5xl text-outline">
-                Chemin de cours
-              </h1>
-            </div>
-            <p className="mb-4 text-lg text-slate-200 font-semibold text-outline">
-              Suivez un parcours de 50 cours progressifs. Chaque niveau vous rapporte de l'XP et de l'or.
-            </p>
-            {!isLoggedIn && (
-              <p className="text-sm text-amber-300 font-bold text-outline">
-                💡 Connectez-vous pour débloquer les cours et suivre votre progression.
+              <p className="mb-4 text-lg text-slate-200 font-semibold text-outline">
+                Suivez un parcours de 50 cours progressifs. Chaque niveau vous rapporte de l'XP et de l'or.
               </p>
-            )}
+              {!isLoggedIn && (
+                <p className="text-sm text-amber-300 font-bold text-outline">
+                  💡 Connectez-vous pour débloquer les cours et suivre votre progression.
+                </p>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Call to Action for non-logged users */}
-        {!isLoggedIn && (
-          <div className="mb-8 flex flex-wrap gap-4 justify-center">
-            <Link
-              href="/auth/signup"
-              className="comic-button bg-emerald-600 text-white px-6 py-3 font-bold hover:bg-emerald-700"
-            >
-              Créer mon compte
-            </Link>
-            <Link
-              href="/auth/login"
-              className="comic-button bg-slate-800 text-white px-6 py-3 font-bold hover:bg-slate-700"
-            >
-              Se connecter
-            </Link>
-          </div>
-        )}
+          {/* Call to Action for non-logged users */}
+          {!isLoggedIn && (
+            <div className="mb-8 flex flex-wrap gap-4 justify-center">
+              <Link
+                href="/auth/signup"
+                className="comic-button bg-emerald-600 text-white px-6 py-3 font-bold hover:bg-emerald-700"
+              >
+                Créer mon compte
+              </Link>
+              <Link
+                href="/auth/login"
+                className="comic-button bg-slate-800 text-white px-6 py-3 font-bold hover:bg-slate-700"
+              >
+                Se connecter
+              </Link>
+            </div>
+          )}
 
-        {/* Quest Map - Mobile: Vertical Timeline, Desktop: Zigzag */}
-        <div className="space-y-8">
-          {/* Mobile: Vertical Timeline */}
-          <div className="md:hidden">
-            {levels.map((level, index) => (
-              <MotionCard key={level.number}>
-                <div className="relative">
-                      {/* Connection Line (except last) */}
-                  {index < levels.length - 1 && (
-                    <div className="absolute left-8 top-16 h-8 w-1 bg-gradient-to-b from-cyan-500 to-emerald-500" />
-                  )}
-                  
-                  <div className="comic-card-dark p-6" style={{ background: levelGradients[(level.number - 1) % levelGradients.length] }}>
-                    <div className="relative z-10">
-                      {/* Level Number Badge */}
-                      <div className="mb-4 flex items-center gap-4">
-                        <div className="comic-panel bg-cyan-600 border-2 border-black px-4 py-2">
-                          <span className="text-2xl font-bold text-white text-outline">
-                            {level.number}
+          {/* Quest Map - Mobile: Vertical Timeline, Desktop: Zigzag */}
+          <div className="space-y-8">
+            {/* Mobile: Vertical Timeline */}
+            <div className="md:hidden">
+              {levels.map((level, index) => (
+                <MotionCard key={level.number}>
+                  <div className="relative">
+                    {/* Connection Line (except last) */}
+                    {index < levels.length - 1 && (
+                      <div className="absolute left-8 top-16 h-8 w-1 bg-gradient-to-b from-cyan-500 to-emerald-500" />
+                    )}
+
+                    <div className="comic-card-dark p-6" style={{ background: levelGradients[(level.number - 1) % levelGradients.length] }}>
+                      <div className="relative z-10">
+                        {/* Level Number Badge */}
+                        <div className="mb-4 flex items-center gap-4">
+                          <div className="comic-panel bg-cyan-600 border-2 border-black px-4 py-2">
+                            <span className="text-2xl font-bold text-white text-outline">
+                              {level.number}
+                            </span>
+                          </div>
+                          <span
+                            className={`comic-panel ${statusColors[level.status]} border-2 border-black px-3 py-1 text-xs font-bold text-white text-outline`}
+                          >
+                            {statusLabels[level.status]}
                           </span>
                         </div>
-                        <span
-                          className={`comic-panel ${statusColors[level.status]} border-2 border-black px-3 py-1 text-xs font-bold text-white text-outline`}
-                        >
-                          {statusLabels[level.status]}
-                        </span>
-                      </div>
 
-                      {/* Title and Description */}
-                      <h2 className="text-xl font-bold text-white mb-2 text-outline">
-                        {level.title}
-                      </h2>
-                      <p className="text-slate-200 font-semibold mb-4 text-outline">
-                        {level.description}
-                      </p>
+                        {/* Title and Description */}
+                        <h2 className="text-xl font-bold text-white mb-2 text-outline text-balance">
+                          {level.title}
+                        </h2>
+                        <p className="text-slate-200 font-semibold mb-4 text-outline text-balance">
+                          {level.description}
+                        </p>
 
-                      {/* Rewards */}
-                      <div className="flex gap-4">
-                        <div className="comic-panel bg-amber-600 border-2 border-black px-3 py-1">
-                          <div className="flex items-center gap-2">
-                            <XPIcon className="w-4 h-4 text-white text-outline" />
-                            <span className="text-xs font-bold text-white text-outline">{level.xpReward} XP</span>
+                        {/* Rewards */}
+                        <div className="flex gap-4">
+                          <div className="comic-panel bg-amber-600 border-2 border-black px-3 py-1">
+                            <div className="flex items-center gap-2">
+                              <XPIcon className="w-4 h-4 text-white text-outline" />
+                              <span className="text-xs font-bold text-white text-outline">{level.xpReward} XP</span>
+                            </div>
                           </div>
-                        </div>
-                        <div className="comic-panel bg-yellow-600 border-2 border-black px-3 py-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs">🪙</span>
-                            <span className="text-xs font-bold text-white text-outline">{level.goldReward}</span>
+                          <div className="comic-panel bg-yellow-600 border-2 border-black px-3 py-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs">🪙</span>
+                              <span className="text-xs font-bold text-white text-outline">{level.goldReward}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </MotionCard>
-            ))}
-          </div>
+                </MotionCard>
+              ))}
+            </div>
 
-          {/* Desktop: Zigzag Timeline */}
-          <div className="hidden md:block">
-            <div className="relative">
-              {/* Central Path Line */}
-              <div className="absolute left-1/2 top-0 h-full w-1 -translate-x-1/2 bg-gradient-to-b from-cyan-500 via-purple-500 to-emerald-500" />
+            {/* Desktop: Zigzag Timeline */}
+            <div className="hidden md:block">
+              <div className="relative">
+                {/* Central Path Line */}
+                <div className="absolute left-1/2 top-0 h-full w-1 -translate-x-1/2 bg-gradient-to-b from-cyan-500 via-purple-500 to-emerald-500" />
 
-              {levels.map((level, index) => {
-                const isLeft = index % 2 === 0;
-                return (
-                  <MotionCard key={level.number}>
-                    <div className={`relative mb-8 flex ${isLeft ? "justify-start" : "justify-end"}`}>
-                      {/* Connection Dot */}
-                      <div className="absolute left-1/2 top-8 h-4 w-4 -translate-x-1/2 rounded-full border-2 border-black bg-gradient-to-br from-cyan-400 to-blue-500 shadow-lg" />
+                {levels.map((level, index) => {
+                  const isLeft = index % 2 === 0;
+                  return (
+                    <MotionCard key={level.number}>
+                      <div className={`relative mb-8 flex ${isLeft ? "justify-start" : "justify-end"}`}>
+                        {/* Connection Dot */}
+                        <div className="absolute left-1/2 top-8 h-4 w-4 -translate-x-1/2 rounded-full border-2 border-black bg-gradient-to-br from-cyan-400 to-blue-500 shadow-lg" />
 
-                      {/* Level Card */}
-                      <div className={`w-5/12 ${isLeft ? "pr-8" : "pl-8"}`}>
-                        <div className="comic-card-dark p-6" style={{ background: levelGradients[(level.number - 1) % levelGradients.length] }}>
-                          <div className="relative z-10">
-                            {/* Level Number Badge */}
-                            <div className="mb-4 flex items-center gap-4">
-                              <div className="comic-panel bg-cyan-600 border-2 border-black px-4 py-2">
-                                <span className="text-2xl font-bold text-white text-outline">
-                                  {level.number}
+                        {/* Level Card */}
+                        <div className={`w-5/12 ${isLeft ? "pr-8" : "pl-8"}`}>
+                          <div className="comic-card-dark p-6" style={{ background: levelGradients[(level.number - 1) % levelGradients.length] }}>
+                            <div className="relative z-10">
+                              {/* Level Number Badge */}
+                              <div className="mb-4 flex items-center gap-4">
+                                <div className="comic-panel bg-cyan-600 border-2 border-black px-4 py-2">
+                                  <span className="text-2xl font-bold text-white text-outline">
+                                    {level.number}
+                                  </span>
+                                </div>
+                                <span
+                                  className={`comic-panel ${statusColors[level.status]} border-2 border-black px-3 py-1 text-xs font-bold text-white text-outline`}
+                                >
+                                  {statusLabels[level.status]}
                                 </span>
                               </div>
-                              <span
-                                className={`comic-panel ${statusColors[level.status]} border-2 border-black px-3 py-1 text-xs font-bold text-white text-outline`}
-                              >
-                                {statusLabels[level.status]}
-                              </span>
-                            </div>
 
-                            {/* Title and Description */}
-                            <h2 className="text-xl font-bold text-white mb-2 text-outline">
-                              {level.title}
-                            </h2>
-                            <p className="text-slate-200 font-semibold mb-4 text-outline">
-                              {level.description}
-                            </p>
+                              {/* Title and Description */}
+                              <h2 className="text-xl font-bold text-white mb-2 text-outline">
+                                {level.title}
+                              </h2>
+                              <p className="text-slate-200 font-semibold mb-4 text-outline">
+                                {level.description}
+                              </p>
 
-                            {/* Rewards */}
-                            <div className="flex gap-4">
-                              <div className="comic-panel bg-amber-600 border-2 border-black px-3 py-1">
-                                <div className="flex items-center gap-2">
-                                  <XPIcon className="w-4 h-4 text-white text-outline" />
-                                  <span className="text-xs font-bold text-white text-outline">{level.xpReward} XP</span>
+                              {/* Rewards */}
+                              <div className="flex gap-4">
+                                <div className="comic-panel bg-amber-600 border-2 border-black px-3 py-1">
+                                  <div className="flex items-center gap-2">
+                                    <XPIcon className="w-4 h-4 text-white text-outline" />
+                                    <span className="text-xs font-bold text-white text-outline">{level.xpReward} XP</span>
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="comic-panel bg-yellow-600 border-2 border-black px-3 py-1">
-                                <div className="flex items-center gap-2">
-                                  <span className="text-xs">🪙</span>
-                                  <span className="text-xs font-bold text-white text-outline">{level.goldReward}</span>
+                                <div className="comic-panel bg-yellow-600 border-2 border-black px-3 py-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs">🪙</span>
+                                    <span className="text-xs font-bold text-white text-outline">{level.goldReward}</span>
+                                  </div>
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </MotionCard>
-                );
-              })}
+                    </MotionCard>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* TODO: Replace static levels with dynamic data from Supabase:
+          {/* TODO: Replace static levels with dynamic data from Supabase:
         
         const { data: courses } = await supabase
           .from('courses')

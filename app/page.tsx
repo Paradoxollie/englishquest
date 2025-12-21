@@ -74,10 +74,10 @@ export default async function PublicHomePage() {
             Main hero text - to tweak, modify the h1 below
           */}
           <div className="space-y-3 md:space-y-4">
-            <h1 className="text-2xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-white break-words">
+            <h1 className="text-2xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-white text-balance">
               Progressez en anglais comme dans vos jeux favoris.
             </h1>
-            <p className="text-sm md:text-xl leading-tight md:leading-relaxed text-slate-300 break-words">
+            <p className="text-sm md:text-xl leading-tight md:leading-relaxed text-slate-300 text-balance">
               Suivez un parcours de 50 cours où chaque défi vous rapporte de l'XP, des pièces d'or et des récompenses.
             </p>
           </div>
@@ -195,17 +195,17 @@ export default async function PublicHomePage() {
         {featureCards.map((card) => {
           const Icon = card.Icon;
           return (
-            <MotionCard key={card.title}>
-              <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-4 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
+            <MotionCard key={card.title} className="h-full">
+              <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-4 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)] flex flex-col">
                 {/* Decorative gradient on hover */}
                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-                <div className="relative z-10">
+                <div className="relative z-10 flex flex-col flex-grow">
                   <div className="mb-4 md:mb-6 flex h-10 w-10 md:h-14 md:w-14 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black shadow-lg transition-transform duration-300 group-hover:scale-110">
                     <Icon className="w-5 h-5 md:w-7 md:h-7 text-white" />
                   </div>
-                  <h3 className="mb-2 md:mb-3 text-lg md:text-2xl font-bold text-white break-words">{card.title}</h3>
-                  <p className="text-sm md:text-base leading-tight md:leading-relaxed text-slate-300 break-words">{card.copy}</p>
+                  <h3 className="mb-2 md:mb-3 text-lg md:text-2xl font-bold text-white text-balance">{card.title}</h3>
+                  <p className="text-sm md:text-base leading-tight md:leading-relaxed text-slate-300 text-balance flex-grow">{card.copy}</p>
                 </div>
               </div>
             </MotionCard>

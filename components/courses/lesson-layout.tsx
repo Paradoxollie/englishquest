@@ -177,7 +177,7 @@ export function LessonLayout({ courseNumber, title, objective, children, backUrl
 
                 return (
                   <div className="mb-6 flex flex-col items-center">
-                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight break-words max-w-3xl mb-2"
+                    <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-tight text-balance max-w-3xl mb-2"
                       style={{
                         textShadow: '4px 4px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000',
                       }}>

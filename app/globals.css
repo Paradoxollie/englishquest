@@ -20,15 +20,24 @@ body {
 
 /* Contour de texte très léger pour améliorer la lisibilité */
 .text-outline {
-  text-shadow: 
+  text-shadow:
     0 0 1px rgba(0, 0, 0, 0.3),
     0 0 2px rgba(0, 0, 0, 0.2),
     0.5px 0.5px 0 rgba(0, 0, 0, 0.4);
 }
 
+/* Typography utilities */
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-pretty {
+  text-wrap: pretty;
+}
+
 /* Contour plus fort pour les textes sur fonds clairs */
 .text-outline-strong {
-  text-shadow: 
+  text-shadow:
     0 0 2px rgba(0, 0, 0, 0.5),
     0 0 3px rgba(0, 0, 0, 0.4),
     1px 1px 0 rgba(0, 0, 0, 0.6);
@@ -45,6 +54,7 @@ body {
   0% {
     transform: translateX(-100%);
   }
+
   100% {
     transform: translateX(100%);
   }
@@ -59,7 +69,8 @@ body {
   position: relative;
   border: 4px solid #000;
   border-radius: 1rem;
-  background: #1e293b; /* Fond sombre au lieu de blanc pour éviter texte blanc sur fond blanc */
+  background: #1e293b;
+  /* Fond sombre au lieu de blanc pour éviter texte blanc sur fond blanc */
   box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.4);
   overflow: hidden;
 }
@@ -68,7 +79,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     radial-gradient(circle at 2px 2px, rgba(0, 0, 0, 0.12) 1px, transparent 0);
   background-size: 8px 8px;
   opacity: 0.25;
@@ -88,7 +99,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.08) 1px, transparent 0);
   background-size: 8px 8px;
   opacity: 0.3;
@@ -99,7 +110,8 @@ body {
   position: relative;
   border: 4px solid #000;
   border-radius: 1rem;
-  background: #1e293b; /* Fond sombre au lieu de blanc pour éviter texte blanc sur fond blanc */
+  background: #1e293b;
+  /* Fond sombre au lieu de blanc pour éviter texte blanc sur fond blanc */
   box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.3);
   transition: all 0.2s ease;
   overflow: hidden;
@@ -114,7 +126,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     radial-gradient(circle at 1.5px 1.5px, rgba(0, 0, 0, 0.1) 1px, transparent 0);
   background-size: 8px 8px;
   opacity: 0.2;
@@ -140,7 +152,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.06) 1px, transparent 0);
   background-size: 8px 8px;
   opacity: 0.25;
@@ -198,13 +210,11 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 10px,
-    rgba(0, 0, 0, 0.05) 10px,
-    rgba(0, 0, 0, 0.05) 20px
-  );
+  background-image: repeating-linear-gradient(45deg,
+      transparent,
+      transparent 10px,
+      rgba(0, 0, 0, 0.05) 10px,
+      rgba(0, 0, 0, 0.05) 20px);
   opacity: 0.3;
   pointer-events: none;
 }
@@ -214,9 +224,11 @@ body {
   0% {
     transform: scale(1);
   }
+
   50% {
     transform: scale(1.05);
   }
+
   100% {
     transform: scale(1);
   }
@@ -228,9 +240,12 @@ body {
 
 /* Effet de flash pour les événements */
 @keyframes comic-flash {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.7;
   }
@@ -242,13 +257,24 @@ body {
 
 /* Effet de shake pour les erreurs */
 @keyframes comic-shake {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateX(0);
   }
-  10%, 30%, 50%, 70%, 90% {
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
     transform: translateX(-4px);
   }
-  20%, 40%, 60%, 80% {
+
+  20%,
+  40%,
+  60%,
+  80% {
     transform: translateX(4px);
   }
 }
@@ -259,10 +285,13 @@ body {
 
 /* Effet de pulse pour les succès */
 @keyframes comic-pulse-success {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
   }
+
   50% {
     transform: scale(1.02);
     box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
@@ -275,9 +304,12 @@ body {
 
 /* Effet de glow pour les éléments importants */
 @keyframes comic-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 5px rgba(6, 182, 212, 0.5);
   }
+
   50% {
     box-shadow: 0 0 20px rgba(6, 182, 212, 0.8), 0 0 30px rgba(6, 182, 212, 0.6);
   }
@@ -293,10 +325,12 @@ body {
     transform: scale(0) rotate(0deg);
     opacity: 0;
   }
+
   50% {
     transform: scale(1.2) rotate(180deg);
     opacity: 1;
   }
+
   100% {
     transform: scale(1) rotate(360deg);
     opacity: 1;
@@ -309,15 +343,20 @@ body {
 
 /* Animation pour les milestones */
 @keyframes milestone-celebration {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: scale(1) rotate(0deg);
   }
+
   25% {
     transform: scale(1.1) rotate(-5deg);
   }
+
   50% {
     transform: scale(1.15) rotate(5deg);
   }
+
   75% {
     transform: scale(1.1) rotate(-5deg);
   }
@@ -344,15 +383,13 @@ body {
 }
 
 .game-area {
-  background: 
+  background:
     linear-gradient(180deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%),
-    repeating-linear-gradient(
-      0deg,
+    repeating-linear-gradient(0deg,
       transparent,
       transparent 2px,
       rgba(59, 130, 246, 0.03) 2px,
-      rgba(59, 130, 246, 0.03) 4px
-    );
+      rgba(59, 130, 246, 0.03) 4px);
   position: relative;
   overflow: hidden;
 }
@@ -360,7 +397,7 @@ body {
 .star-field {
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     radial-gradient(2px 2px at 20% 30%, white, transparent),
     radial-gradient(2px 2px at 60% 70%, white, transparent),
     radial-gradient(1px 1px at 50% 50%, white, transparent),
@@ -375,8 +412,13 @@ body {
 }
 
 @keyframes starMove {
-  0% { background-position: 0% 0%; }
-  100% { background-position: 100% 100%; }
+  0% {
+    background-position: 0% 0%;
+  }
+
+  100% {
+    background-position: 100% 100%;
+  }
 }
 
 .ship {
@@ -398,8 +440,17 @@ body {
 }
 
 @keyframes thrustPulse {
-  0%, 100% { transform: translateX(-50%) scaleY(1); opacity: 0.8; }
-  50% { transform: translateX(-50%) scaleY(1.2); opacity: 0.6; }
+
+  0%,
+  100% {
+    transform: translateX(-50%) scaleY(1);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: translateX(-50%) scaleY(1.2);
+    opacity: 0.6;
+  }
 }
 
 .bullet {
@@ -439,7 +490,7 @@ body {
 .mission-banner {
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   border: 3px solid #d97706;
-  box-shadow: 
+  box-shadow:
     0 0 20px rgba(251, 191, 36, 0.6),
     inset 0 0 20px rgba(255, 255, 255, 0.3),
     0 4px 0 0 #92400e;
@@ -447,17 +498,20 @@ body {
 }
 
 @keyframes missionPulse {
-  0%, 100% { 
-    box-shadow: 
-      0 0 20px rgba(251, 191, 36, 0.6), 
-      inset 0 0 20px rgba(255, 255, 255, 0.3), 
-      0 4px 0 0 #92400e; 
+
+  0%,
+  100% {
+    box-shadow:
+      0 0 20px rgba(251, 191, 36, 0.6),
+      inset 0 0 20px rgba(255, 255, 255, 0.3),
+      0 4px 0 0 #92400e;
   }
-  50% { 
-    box-shadow: 
-      0 0 30px rgba(251, 191, 36, 0.8), 
-      inset 0 0 25px rgba(255, 255, 255, 0.4), 
-      0 4px 0 0 #92400e; 
+
+  50% {
+    box-shadow:
+      0 0 30px rgba(251, 191, 36, 0.8),
+      inset 0 0 25px rgba(255, 255, 255, 0.4),
+      0 4px 0 0 #92400e;
   }
 }
 
@@ -466,7 +520,7 @@ body {
    ============================================================================ */
 
 .game-area-vector {
-  background: 
+  background:
     linear-gradient(180deg, #0a0e27 0%, #1a1f3a 30%, #0f172a 70%, #0a0e27 100%),
     radial-gradient(ellipse at center, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
   position: relative;
@@ -476,7 +530,7 @@ body {
 .star-field-vector {
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.8), transparent),
     radial-gradient(2px 2px at 60% 70%, rgba(255, 255, 255, 0.8), transparent),
     radial-gradient(1px 1px at 50% 50%, rgba(255, 255, 255, 0.6), transparent),
@@ -493,13 +547,18 @@ body {
 }
 
 @keyframes starMoveVector {
-  0% { background-position: 0% 0%; }
-  100% { background-position: 100% 100%; }
+  0% {
+    background-position: 0% 0%;
+  }
+
+  100% {
+    background-position: 100% 100%;
+  }
 }
 
 .bullet-vector {
   background: linear-gradient(180deg, #00ffff 0%, #00ccff 30%, #0088ff 60%, #0066cc 100%);
-  box-shadow: 
+  box-shadow:
     0 0 12px rgba(0, 255, 255, 1),
     0 0 24px rgba(0, 200, 255, 0.9),
     0 0 36px rgba(0, 136, 255, 0.7),
@@ -511,14 +570,15 @@ body {
 
 @keyframes bulletPulse {
   0% {
-    box-shadow: 
+    box-shadow:
       0 0 12px rgba(0, 255, 255, 1),
       0 0 24px rgba(0, 200, 255, 0.9),
       0 0 36px rgba(0, 136, 255, 0.7),
       inset 0 0 6px rgba(255, 255, 255, 0.8);
   }
+
   100% {
-    box-shadow: 
+    box-shadow:
       0 0 18px rgba(0, 255, 255, 1),
       0 0 32px rgba(0, 200, 255, 1),
       0 0 48px rgba(0, 136, 255, 0.9),
@@ -529,7 +589,7 @@ body {
 .enemy-target-vector {
   background: linear-gradient(135deg, #22c55e 0%, #16a34a 50%, #15803d 100%);
   border: 2px solid #15803d;
-  box-shadow: 
+  box-shadow:
     0 0 12px rgba(34, 197, 94, 0.7),
     inset 0 0 12px rgba(255, 255, 255, 0.25),
     0 2px 4px rgba(0, 0, 0, 0.3);
@@ -538,7 +598,7 @@ body {
 .enemy-distractor-vector {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
   border: 2px solid #b91c1c;
-  box-shadow: 
+  box-shadow:
     0 0 12px rgba(239, 68, 68, 0.7),
     inset 0 0 12px rgba(255, 255, 255, 0.25),
     0 2px 4px rgba(0, 0, 0, 0.3);
@@ -551,30 +611,26 @@ body {
 }
 
 .explosion-hit-vector {
-  background: radial-gradient(
-    circle,
-    #ffd700 0%,
-    #ffaa00 25%,
-    #ff6600 50%,
-    #ff4400 75%,
-    transparent 100%
-  );
-  box-shadow: 
+  background: radial-gradient(circle,
+      #ffd700 0%,
+      #ffaa00 25%,
+      #ff6600 50%,
+      #ff4400 75%,
+      transparent 100%);
+  box-shadow:
     0 0 30px rgba(255, 215, 0, 0.9),
     0 0 60px rgba(255, 170, 0, 0.7),
     0 0 90px rgba(255, 102, 0, 0.5);
 }
 
 .explosion-miss-vector {
-  background: radial-gradient(
-    circle,
-    #ff4444 0%,
-    #cc0000 25%,
-    #990000 50%,
-    #660000 75%,
-    transparent 100%
-  );
-  box-shadow: 
+  background: radial-gradient(circle,
+      #ff4444 0%,
+      #cc0000 25%,
+      #990000 50%,
+      #660000 75%,
+      transparent 100%);
+  box-shadow:
     0 0 30px rgba(255, 68, 68, 0.9),
     0 0 60px rgba(204, 0, 0, 0.7),
     0 0 90px rgba(153, 0, 0, 0.5);
@@ -583,7 +639,7 @@ body {
 .mission-banner-vector {
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
   border: 3px solid #d97706;
-  box-shadow: 
+  box-shadow:
     0 0 25px rgba(251, 191, 36, 0.7),
     inset 0 0 25px rgba(255, 255, 255, 0.35),
     0 4px 0 0 #92400e,
@@ -592,19 +648,22 @@ body {
 }
 
 @keyframes missionPulseVector {
-  0%, 100% { 
-    box-shadow: 
-      0 0 25px rgba(251, 191, 36, 0.7), 
-      inset 0 0 25px rgba(255, 255, 255, 0.35), 
+
+  0%,
+  100% {
+    box-shadow:
+      0 0 25px rgba(251, 191, 36, 0.7),
+      inset 0 0 25px rgba(255, 255, 255, 0.35),
       0 4px 0 0 #92400e,
-      0 8px 16px rgba(0, 0, 0, 0.3); 
+      0 8px 16px rgba(0, 0, 0, 0.3);
   }
-  50% { 
-    box-shadow: 
-      0 0 35px rgba(251, 191, 36, 0.9), 
-      inset 0 0 30px rgba(255, 255, 255, 0.45), 
+
+  50% {
+    box-shadow:
+      0 0 35px rgba(251, 191, 36, 0.9),
+      inset 0 0 30px rgba(255, 255, 255, 0.45),
       0 4px 0 0 #92400e,
-      0 8px 20px rgba(0, 0, 0, 0.4); 
+      0 8px 20px rgba(0, 0, 0, 0.4);
   }
 }
 
@@ -613,9 +672,9 @@ body {
   background: linear-gradient(135deg, #475569 0%, #334155 30%, #1e293b 60%, #0f172a 100%);
   border-color: #64748b;
   position: relative;
-  box-shadow: 
-    0 0 15px rgba(100, 116, 139, 0.6), 
-    inset 0 0 10px rgba(255, 255, 255, 0.15), 
+  box-shadow:
+    0 0 15px rgba(100, 116, 139, 0.6),
+    inset 0 0 10px rgba(255, 255, 255, 0.15),
     0 4px 0 rgba(0, 0, 0, 0.5);
 }
 
@@ -634,10 +693,13 @@ body {
 }
 
 @keyframes previewPulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.8;
     transform: translateX(-50%) scale(1);
   }
+
   50% {
     opacity: 1;
     transform: translateX(-50%) scale(1.05);
