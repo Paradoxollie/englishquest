@@ -71,10 +71,10 @@ export function TopScoresDisplay() {
                 {topScores.map((score) => (
                     <div
                         key={score.rank}
-                        className="comic-panel bg-slate-800 border-2 border-black p-3 grid grid-cols-[100px_1fr_100px] items-start gap-3"
+                        className="comic-panel bg-slate-800 border-2 border-black p-2 md:p-3 grid grid-cols-[auto_1fr_auto] items-center gap-2 md:gap-3"
                     >
                         {/* Rank */}
-                        <div className="flex items-center justify-start pl-2">
+                        <div className="flex items-center justify-center w-8 md:w-10">
                             <div
                                 className={`comic-panel border-2 border-black w-8 h-8 flex items-center justify-center font-bold text-white text-outline text-xs
                                 ${score.rank === 1 ? "bg-amber-500" : score.rank === 2 ? "bg-slate-500" : "bg-orange-700"}
@@ -85,22 +85,36 @@ export function TopScoresDisplay() {
                         </div>
 
                         {/* Avatar & Name - Centered */}
-                        <div className="flex justify-center">
-                            <div className="flex flex-col items-center gap-1">
-                                <div className="h-24 flex items-center justify-center">
-                                    <LeaderboardAvatar
-                                        userId={score.user_id}
-                                        username={score.username}
-                                        equippedAvatar={score.equipped_avatar}
-                                        equippedBackground={score.equipped_background}
-                                        equippedTitle={score.equipped_title}
-                                        size="lg"
-                                    />
+                        <div className="flex justify-center min-w-0">
+                            <div className="flex flex-col items-center gap-1 w-full">
+                                <div className="h-20 md:h-24 flex items-center justify-center">
+                                    {/* Mobile Avatar (MD) */}
+                                    <div className="md:hidden">
+                                        <LeaderboardAvatar
+                                            userId={score.user_id}
+                                            username={score.username}
+                                            equippedAvatar={score.equipped_avatar}
+                                            equippedBackground={score.equipped_background}
+                                            equippedTitle={score.equipped_title}
+                                            size="md"
+                                        />
+                                    </div>
+                                    {/* Desktop Avatar (LG) */}
+                                    <div className="hidden md:block">
+                                        <LeaderboardAvatar
+                                            userId={score.user_id}
+                                            username={score.username}
+                                            equippedAvatar={score.equipped_avatar}
+                                            equippedBackground={score.equipped_background}
+                                            equippedTitle={score.equipped_title}
+                                            size="lg"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="text-center min-w-0 max-w-full">
-                                    <div className="font-bold text-white text-outline truncate">{score.username}</div>
+                                <div className="text-center w-full min-w-0 px-1">
+                                    <div className="font-bold text-white text-outline truncate text-sm md:text-base">{score.username}</div>
                                     {score.equipped_title && (
-                                        <div className="text-xs font-semibold text-cyan-400 text-outline truncate">
+                                        <div className="text-[10px] md:text-xs font-semibold text-cyan-400 text-outline truncate">
                                             {score.equipped_title.name}
                                         </div>
                                     )}
@@ -109,11 +123,11 @@ export function TopScoresDisplay() {
                         </div>
 
                         {/* Score (Right) */}
-                        <div className="flex items-center justify-end gap-2 pt-1">
+                        <div className="flex items-center justify-end gap-1 md:gap-2">
                             {score.rank === 1 && (
-                                <TrophyIcon className="w-5 h-5 text-amber-400 flex-shrink-0" />
+                                <TrophyIcon className="w-4 h-4 md:w-5 md:h-5 text-amber-400 flex-shrink-0" />
                             )}
-                            <div className="text-lg font-bold text-cyan-400 text-outline">
+                            <div className="text-base md:text-lg font-bold text-cyan-400 text-outline whitespace-nowrap">
                                 {(score.score / 1000).toFixed(2)}s
                             </div>
                         </div>
