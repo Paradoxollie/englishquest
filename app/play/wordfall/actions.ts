@@ -28,21 +28,21 @@ function computeWordfallRewards(params: {
   xpEarned: number;
   goldEarned: number;
 } {
-  // Base XP per word completed (Boosted for typing effort)
-  const baseXPPerWord = params.mode === "exact" ? 5 : 7;
+  // Base XP per word completed (Reduced)
+  const baseXPPerWord = params.mode === "exact" ? 2 : 4;
   let xpEarned = params.wordsCompleted * baseXPPerWord;
 
-  // Score bonus (1 XP per 10 points)
-  xpEarned += Math.floor(params.score / 10);
+  // Score bonus (1 XP per 20 points)
+  xpEarned += Math.floor(params.score / 20);
 
   // Global best bonus
   if (params.isNewGlobalBest) {
-    xpEarned += 100;
+    xpEarned += 50;
   }
 
-  // Gold: 1 gold per 10 XP
-  // 50 words approx 300 XP -> 30 Gold
-  const goldEarned = Math.floor(xpEarned / 10);
+  // Gold: Hardcore Farming (XP / 20)
+  // 50 words approx 160 XP -> 8 Gold
+  const goldEarned = Math.floor(xpEarned / 20);
 
   return {
     xpEarned,

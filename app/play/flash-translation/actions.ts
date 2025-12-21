@@ -25,33 +25,34 @@ function computeFlashTranslationRewards(params: {
     xpEarned: number;
     goldEarned: number;
 } {
-    // Base rewards (Reduced to prevent farming abuse)
-    let xp = 10;
-    let gold = 1;
+    // Base rewards: XP only, NO Gold for just playing
+    let xp = 5;
+    let gold = 0;
 
-    // Bonus for perfect score (no wrong answers)
+    // Bonus for perfect score: Gives 1 Gold
     if (params.wrongAnswers === 0) {
-        xp += 20;
-        gold += 2;
-    }
-
-    // Bonus for fast time (under 10 seconds total)
-    if (params.totalTimeMs < 10000) {
-        xp += 15;
-        gold += 2;
-    } else if (params.totalTimeMs < 15000) {
         xp += 10;
         gold += 1;
     }
 
-    // Penalty for wrong answers
-    xp = Math.max(5, xp - (params.wrongAnswers * 5));
-    gold = Math.max(0, gold - (params.wrongAnswers * 1));
+    // Bonus for fast time: Gives 1 Gold
+    if (params.totalTimeMs < 10000) {
+        xp += 10;
+        gold += 1;
+    } else if (params.totalTimeMs < 15000) {
+        xp += 5;
+        // No gold for slower times
+    }
 
-    // ONE-TIME Huge Bonus for Global Best (incentivize competition)
+    // Penalty for wrong answers
+    xp = Math.max(1, xp - (params.wrongAnswers * 2));
+    // Gold can't go negative, stays at calculation result
+
+    // ONE-TIME Bonus for Global Best
+    // Reward is XP focused (Prestige). Gold is symbolic.
     if (params.isNewGlobalBest) {
-        xp += 100;
-        gold += 50;
+        xp += 50;
+        gold += 10;
     }
 
     return { xpEarned: xp, goldEarned: gold };

@@ -101,28 +101,26 @@ export function computeSpeedVerbRewards(params: {
 
   // XP per correct answer based on difficulty
   // This is the ONLY factor (besides global best bonus) that affects XP
+  // XP per correct answer (Reduced for slower leveling)
   const perCorrect: Record<Difficulty, number> = {
     easy: 1,
-    medium: 2,
-    hard: 3,
+    medium: 1, // Medium same as easy
+    hard: 2,   // Hard gives slightly more
   };
 
   // Base XP = correct answers × XP per correct
-  // This is the core reward formula - simple and slow to farm
   let xpBase = correctCount * perCorrect[difficulty];
 
-  // Significant bonus for achieving a new global best score on the leaderboard
-  // This incentivizes competition and reaching the top of the leaderboard
-  // Only applies if the player got at least one correct answer
+  // Global Best Bonus: Prestige (XP) only, modest amount
   if (isNewGlobalBest && correctCount > 0) {
-    xpBase += 80;
+    xpBase += 50;
   }
 
-  // Gold: Linear progression to encourage farming
-  // 1 Gold for every 5 correct answers
-  // 30 correct = 6 Gold
-  // 60 correct = 12 Gold
-  const goldEarned = Math.floor(correctCount / 5);
+  // Gold: HARDCORE FARMING
+  // 1 Gold for every 20 correct answers
+  // 20 correct = 1 Gold
+  // 60 correct = 3 Gold
+  const goldEarned = Math.floor(correctCount / 20);
 
   return {
     xpEarned: xpBase,
