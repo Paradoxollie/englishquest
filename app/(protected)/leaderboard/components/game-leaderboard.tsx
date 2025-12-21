@@ -26,10 +26,11 @@ const VALID_GAME_SLUGS = [
   "enigma-scroll",
   "wordfall",
   "space-lex",
+  "flash-translation",
 ];
 
 // Games that DON'T have difficulty selection (single leaderboard, uses "medium" by default)
-const GAMES_WITHOUT_DIFFICULTY = ["space-lex"];
+const GAMES_WITHOUT_DIFFICULTY = ["space-lex", "flash-translation"];
 
 // Get difficulty labels based on game
 function getDifficultyLabels(gameSlug: string | null): Record<Difficulty, string> {
@@ -139,8 +140,8 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
               key={game.id}
               onClick={() => setSelectedGame(game)}
               className={`comic-button px-6 py-3 font-bold text-outline transition ${selectedGame?.id === game.id
-                  ? "bg-cyan-500 text-white border-4 border-black"
-                  : "bg-slate-700 text-white hover:bg-slate-600"
+                ? "bg-cyan-500 text-white border-4 border-black"
+                : "bg-slate-700 text-white hover:bg-slate-600"
                 }`}
             >
               {game.name}
@@ -169,8 +170,8 @@ export function GameLeaderboard({ games }: GameLeaderboardProps) {
                 key={diff}
                 onClick={() => setSelectedDifficulty(diff)}
                 className={`comic-button px-6 py-2 font-bold text-outline transition ${selectedDifficulty === diff
-                    ? `${DIFFICULTY_COLORS[diff]} text-white border-4 border-black`
-                    : "bg-slate-700 text-white hover:bg-slate-600"
+                  ? `${DIFFICULTY_COLORS[diff]} text-white border-4 border-black`
+                  : "bg-slate-700 text-white hover:bg-slate-600"
                   }`}
               >
                 {difficultyLabels[diff]}

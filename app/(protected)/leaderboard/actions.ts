@@ -38,6 +38,19 @@ export async function getGameLeaderboard(gameId: string): Promise<LeaderboardDat
     hard: [],
   };
 
+  // Get game details to check slug (for sorting logic)
+  const { data: game } = await adminClient
+    .from("games")
+    .select("slug")
+    .eq("id", gameId)
+    .single();
+
+  const isTimeBased = game?.slug === "flash-translation";
+  const sortOrder = isTimeBased ? { ascending: true } : { ascending: false };
+
+  // For games without difficulty, we only care about "medium" (as per convention)
+  // But the generic loop is fine, as long as we sort correctly.
+
   for (const difficulty of difficulties) {
     // Get all scores for this game and difficulty
     const { data: scores, error } = await adminClient
@@ -45,7 +58,7 @@ export async function getGameLeaderboard(gameId: string): Promise<LeaderboardDat
       .select("user_id, score")
       .eq("game_id", gameId)
       .eq("difficulty", difficulty)
-      .order("score", { ascending: false });
+      .order("score", sortOrder);
 
     if (error || !scores || scores.length === 0) {
       continue;
@@ -78,14 +91,14 @@ export async function getGameLeaderboard(gameId: string): Promise<LeaderboardDat
     const equippedMap = new Map<string, { avatar?: ShopItem | null; background?: ShopItem | null; title?: ShopItem | null }>();
     if (equippedItems) {
       for (const item of equippedItems) {
-        const avatar = Array.isArray(item.equipped_avatar) 
-          ? item.equipped_avatar[0] 
+        const avatar = Array.isArray(item.equipped_avatar)
+          ? item.equipped_avatar[0]
           : item.equipped_avatar;
-        const background = Array.isArray(item.equipped_background) 
-          ? item.equipped_background[0] 
+        const background = Array.isArray(item.equipped_background)
+          ? item.equipped_background[0]
           : item.equipped_background;
-        const title = Array.isArray(item.equipped_title) 
-          ? item.equipped_title[0] 
+        const title = Array.isArray(item.equipped_title)
+          ? item.equipped_title[0]
           : item.equipped_title;
         equippedMap.set(item.user_id, { avatar, background, title });
       }
@@ -110,7 +123,11 @@ export async function getGameLeaderboard(gameId: string): Promise<LeaderboardDat
         });
       } else {
         const userData = userMap.get(userId)!;
-        userData.bestScore = Math.max(userData.bestScore, score);
+        // For time-based games (lower is better), use Math.min
+        // For score-based games (higher is better), use Math.max
+        userData.bestScore = isTimeBased
+          ? Math.min(userData.bestScore, score)
+          : Math.max(userData.bestScore, score);
         userData.gamesPlayed += 1;
       }
     }
@@ -130,7 +147,10 @@ export async function getGameLeaderboard(gameId: string): Promise<LeaderboardDat
           equipped_title: equipped?.title || null,
         };
       })
-      .sort((a, b) => b.best_score - a.best_score)
+      .sort((a, b) => isTimeBased
+        ? a.best_score - b.best_score // Ascending for time
+        : b.best_score - a.best_score // Descending for score
+      )
       .slice(0, 5) // Top 5
       .map((entry, index) => ({
         ...entry,

@@ -18,7 +18,7 @@ begin
       (
         'wordfall',
         'Wordfall',
-        'Type falling words before they hit the ground. In free mode, invent as many valid words as you can!',
+        'Tapez les mots qui tombent avant qu''ils ne touchent le sol. En mode libre, inventez autant de mots valides que possible !',
         'easy'
       )
     on conflict (slug) do nothing;
@@ -46,7 +46,7 @@ begin
       (
         'wordfall',
         'Wordfall',
-        'Type falling words before they hit the ground. In free mode, invent as many valid words as you can!',
+        'Tapez les mots qui tombent avant qu''ils ne touchent le sol. En mode libre, inventez autant de mots valides que possible !',
         'easy'
       )
     on conflict (slug) do nothing;
