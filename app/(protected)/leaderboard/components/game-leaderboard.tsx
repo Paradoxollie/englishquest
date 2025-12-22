@@ -27,10 +27,11 @@ const VALID_GAME_SLUGS = [
   "wordfall",
   "space-lex",
   "flash-translation",
+  "echo-lex",
 ];
 
 // Games that DON'T have difficulty selection (single leaderboard, uses "medium" by default)
-const GAMES_WITHOUT_DIFFICULTY = ["space-lex", "flash-translation"];
+const GAMES_WITHOUT_DIFFICULTY = ["space-lex", "flash-translation", "echo-lex"];
 
 // Get difficulty labels based on game
 function getDifficultyLabels(gameSlug: string | null): Record<Difficulty, string> {

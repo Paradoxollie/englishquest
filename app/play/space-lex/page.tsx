@@ -814,7 +814,7 @@ export default function SpaceLexShooterPage() {
                   LEXICON BLASTER
                 </h1>
                 <p className="text-xs md:text-sm text-slate-300 text-outline">
-                  Master English by defending space!
+                  Maîtrisez l'anglais en défendant l'espace !
                 </p>
               </div>
             </div>
@@ -823,7 +823,7 @@ export default function SpaceLexShooterPage() {
                 href="/play"
                 className="comic-button bg-slate-700 text-white px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-base font-bold hover:bg-slate-600 text-outline transition-all hover:scale-105"
               >
-                ← Back
+                ← Retour
               </Link>
             </div>
           </div>
@@ -895,7 +895,7 @@ export default function SpaceLexShooterPage() {
               )}
             </div>
             {gameState.superBar >= 100 && (
-              <div className="text-[10px] font-bold text-white animate-bounce">SPACE TO USE!</div>
+              <div className="text-[10px] font-bold text-white animate-bounce">ESPACE POUR ACTIVER !</div>
             )}
           </div>
 
@@ -1411,19 +1411,19 @@ export default function SpaceLexShooterPage() {
                 </h2>
                 <div className="grid grid-cols-2 gap-4 mb-6">
                   <div className="bg-slate-800/50 p-3 rounded border border-slate-700">
-                    <div className="text-xs text-slate-400 uppercase">Final Score</div>
+                    <div className="text-xs text-slate-400 uppercase">Score Final</div>
                     <div className="text-xl font-bold text-cyan-400">{gameState.score}</div>
                   </div>
                   <div className="bg-slate-800/50 p-3 rounded border border-slate-700">
-                    <div className="text-xs text-slate-400 uppercase">Max Combo</div>
+                    <div className="text-xs text-slate-400 uppercase">Combo Max</div>
                     <div className="text-xl font-bold text-yellow-400">X{gameState.maxCombo}</div>
                   </div>
                   <div className="bg-slate-800/50 p-3 rounded border border-slate-700">
-                    <div className="text-xs text-slate-400 uppercase">Level</div>
+                    <div className="text-xs text-slate-400 uppercase">Niveau</div>
                     <div className="text-xl font-bold text-amber-400">{gameState.level}</div>
                   </div>
                   <div className="bg-slate-800/50 p-3 rounded border border-slate-700">
-                    <div className="text-xs text-slate-400 uppercase">Wave</div>
+                    <div className="text-xs text-slate-400 uppercase">Vague</div>
                     <div className="text-xl font-bold text-blue-400">{gameState.waveNumber}</div>
                   </div>
                 </div>
@@ -1431,14 +1431,14 @@ export default function SpaceLexShooterPage() {
                 {/* Session Learning Summary */}
                 <div className="bg-black/40 p-4 rounded-xl border-2 border-slate-700 mb-6 max-h-48 overflow-y-auto custom-scrollbar">
                   <h3 className="text-sm font-black text-white text-outline-sm mb-3 uppercase tracking-widest border-b border-slate-700 pb-1">
-                    Learning Summary
+                    Résumé de la session
                   </h3>
 
                   <div className="space-y-4 text-left">
                     {gameState.learnedWords.length > 0 && (
                       <div>
                         <div className="text-[10px] text-green-400 font-bold uppercase mb-1 flex items-center gap-1">
-                          <StarIcon className="w-3 h-3" /> Words Mastered
+                          <StarIcon className="w-3 h-3" /> Mots Maîtrisés
                         </div>
                         <div className="flex flex-wrap gap-1">
                           {gameState.learnedWords.slice(0, 15).map((word, i) => (
@@ -1454,7 +1454,7 @@ export default function SpaceLexShooterPage() {
                     {gameState.missedWords.length > 0 && (
                       <div>
                         <div className="text-[10px] text-red-400 font-bold uppercase mb-1 flex items-center gap-1">
-                          <BookOpenIcon className="w-3 h-3" /> Focus Needed
+                          <BookOpenIcon className="w-3 h-3" /> À Revoir
                         </div>
                         <div className="flex flex-wrap gap-1">
                           {gameState.missedWords.slice(0, 15).map((word, i) => (
@@ -1469,7 +1469,7 @@ export default function SpaceLexShooterPage() {
 
                     {gameState.learnedWords.length === 0 && gameState.missedWords.length === 0 && (
                       <div className="text-xs text-slate-500 text-center py-2 italic">
-                        No words captured this session.
+                        Aucun mot capturé cette session.
                       </div>
                     )}
                   </div>
@@ -1579,8 +1579,8 @@ export default function SpaceLexShooterPage() {
                   LEXICON BLASTER
                 </h2>
                 <p className="text-sm md:text-base text-slate-300 text-outline mb-6">
-                  Dive into an epic space adventure! Pilot your ship and shoot words matching your lexical missions. Challenge your English vocabulary in a thrilling arcade game where every word counts. Ready for takeoff?
-                  {isMobile && " On mobile, swipe to move your ship."}
+                  Plongez dans une aventure spatiale épique ! Pilotez votre vaisseau et détruisez les mots correspondant à vos missions lexicales. Testez votre vocabulaire avec ce jeu d'arcade palpitant où chaque mot compte. Paré au décollage ?
+                  {isMobile && " Sur mobile, glissez pour déplacer le vaisseau."}
                 </p>
                 <button
                   onClick={handleStartGame}
@@ -1599,15 +1599,15 @@ export default function SpaceLexShooterPage() {
             <BookOpenIcon className="w-5 h-5 md:w-6 md:h-6 text-cyan-400 flex-shrink-0 mt-1" />
             <div>
               <h3 className="text-sm md:text-lg font-bold text-white text-outline mb-2">
-                HOW TO PLAY
+                COMMENT JOUER
               </h3>
               <ul className="text-xs md:text-sm text-slate-300 text-outline space-y-1">
-                <li>• Missions appear at the top - shoot the matching words!</li>
-                <li>• Identify the correct words yourself (no color hints)</li>
-                <li>• Hit the right words to score points</li>
-                <li>• Hit wrong words or let correct ones reach the bottom = lose a life</li>
-                <li>• Desktop: Arrow keys or A/D to move | Auto-fire enabled</li>
-                <li>• Mobile: Swipe your finger to move the ship</li>
+                <li>• Les missions apparaissent en haut - tirez sur les mots correspondants !</li>
+                <li>• Identifiez vous-même les bons mots (pas d'indices de couleur)</li>
+                <li>• Touchez les bons mots pour marquer des points</li>
+                <li>• Tirer sur les mauvais mots ou laisser passer les bons = perte de vie</li>
+                <li>• Ordi : Flèches ou A/D pour bouger | Tir auto activé</li>
+                <li>• Mobile : Glissez le doigt pour déplacer le vaisseau</li>
               </ul>
             </div>
           </div>

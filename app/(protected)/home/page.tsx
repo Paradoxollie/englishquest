@@ -66,14 +66,13 @@ export default async function HomePage() {
       {/* Section principale avec les activités - Style BD avec contours noirs */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Le jeu du jour - Grande carte mise en avant */}
-        <Link
-          href="/play"
+        <div
           className="comic-card-dark group relative p-8 md:col-span-2 lg:col-span-1"
           style={{ background: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)" }}
         >
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
           <div className="relative z-10">
-            <div className="mb-4 flex items-center gap-3">
+            <Link href="/play" className="mb-4 flex items-center gap-3 hover:opacity-80 transition-opacity">
               <div className="rounded-xl bg-cyan-500 p-3">
                 <FlameIcon className="w-8 h-8 text-white" />
               </div>
@@ -81,7 +80,7 @@ export default async function HomePage() {
                 <p className="text-xs font-semibold uppercase tracking-wider text-cyan-300 text-outline">Jeu du jour</p>
                 <p className="text-2xl font-bold text-white text-outline">Défi quotidien</p>
               </div>
-            </div>
+            </Link>
             <p className="mb-4 text-slate-300 text-outline">
               Complète les 3 jeux du jour pour gagner un bonus de 50 XP et 5 pièces d'or !
             </p>
@@ -114,11 +113,11 @@ export default async function HomePage() {
                 {userData.dailyGoalProgress}/3 jeux du jour complétés
               </p>
             </div>
-            <div className="flex items-center gap-2 text-sm text-cyan-300">
+            <Link href="/play" className="flex items-center gap-2 text-sm text-cyan-300 hover:underline">
               <span className="font-semibold">Commencer →</span>
-            </div>
+            </Link>
           </div>
-        </Link>
+        </div>
 
         {/* Continuer l'aventure */}
         <Link

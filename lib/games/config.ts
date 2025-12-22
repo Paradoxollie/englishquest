@@ -93,6 +93,17 @@ export const games: GameConfig[] = [
     iconBg: "bg-gradient-to-br from-red-600 to-orange-600",
     iconColor: "text-red-400",
   },
+  {
+    slug: "echo-lex",
+    name: "Flashback",
+    description: "Mémorisez les mots et testez votre capacité à reconnaître ceux que vous avez déjà vus. Attention au chrono !",
+    difficulty: "medium",
+    tags: ["Vocabulaire", "Mémoire", "Apprentissage"],
+    icon: "🧠",
+    gradient: "linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%)",
+    iconBg: "bg-gradient-to-br from-indigo-600 to-purple-600",
+    iconColor: "text-indigo-400",
+  },
 ];
 
 /**

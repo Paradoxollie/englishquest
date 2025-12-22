@@ -104,3 +104,43 @@ export function TrophyIcon({ className = "w-6 h-6" }: { className?: string }) {
   );
 }
 
+export function ChevronLeftIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M15 19l-7-7 7-7"
+      />
+    </svg>
+  );
+}
+
+export function ChevronRightIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M9 5l7 7-7 7"
+      />
+    </svg>
+  );
+}
+
+export function PlayIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
+    </svg>
+  );
+}
