@@ -12,7 +12,6 @@ import {
     XPIcon
 } from "@/components/ui/icons";
 import { motion, AnimatePresence } from "framer-motion";
-import { motion, AnimatePresence } from "framer-motion";
 
 export type Question = {
     id: number;
