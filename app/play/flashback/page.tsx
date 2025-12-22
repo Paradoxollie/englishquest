@@ -23,7 +23,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { submitEchoLexScore } from "./actions";
 import { EchoLexLeaderboard } from "./leaderboard";
 import { TopScoresDisplay } from "./top-scores-display";
-import { ComboCounter, HitEffect, TimelineBar, FireBackground } from "./echo-lex-effects";
+import { ComboCounter, HitEffect, TimelineBar, FireBackground } from "./flashback-effects";
 
 const TIMER_SECONDS = 5;
 

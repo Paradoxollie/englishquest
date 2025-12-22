@@ -94,7 +94,7 @@ export const games: GameConfig[] = [
     iconColor: "text-red-400",
   },
   {
-    slug: "echo-lex",
+    slug: "flashback",
     name: "Flashback",
     description: "Mémorisez les mots et testez votre capacité à reconnaître ceux que vous avez déjà vus. Attention au chrono !",
     difficulty: "medium",

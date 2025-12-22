@@ -79,7 +79,7 @@ export async function submitEchoLexScore(params: {
         const { data: game, error: gameError } = await adminClient
             .from("games")
             .select("id")
-            .eq("slug", "echo-lex")
+            .eq("slug", "flashback")
             .single();
 
         if (gameError || !game) {
@@ -152,7 +152,7 @@ export async function submitEchoLexScore(params: {
 
             // Daily Challenge
             const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
-            const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "echo-lex");
+            const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "flashback");
 
             return {
                 success: true,
@@ -184,7 +184,7 @@ export async function getEchoLexTopScores() {
         const { data: game } = await adminClient
             .from("games")
             .select("id")
-            .eq("slug", "echo-lex")
+            .eq("slug", "flashback")
             .single();
 
         if (!game) return [];
@@ -268,7 +268,7 @@ export async function getUserPersonalBest() {
         const { data: game } = await adminClient
             .from("games")
             .select("id")
-            .eq("slug", "echo-lex")
+            .eq("slug", "flashback")
             .single();
 
         if (!game) return null;
@@ -299,7 +299,7 @@ export async function getEchoLexGameLeaderboard() {
         const { data: game } = await adminClient
             .from("games")
             .select("id")
-            .eq("slug", "echo-lex")
+            .eq("slug", "flashback")
             .single();
 
         if (!game) return [];
