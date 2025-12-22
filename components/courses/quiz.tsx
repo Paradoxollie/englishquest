@@ -12,7 +12,7 @@ import {
     XPIcon
 } from "@/components/ui/icons";
 import { motion, AnimatePresence } from "framer-motion";
-import confetti from "canvas-confetti";
+import { motion, AnimatePresence } from "framer-motion";
 
 export type Question = {
     id: number;
@@ -62,16 +62,8 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
             setScore((prev) => prev + 1);
             setGainedXP((prev) => prev + 100 + (newCombo * 10));
 
-            // Confetti for correct answer
-            const colors = ['#34d399', '#10b981', '#059669']; // Emerald greens
-            confetti({
-                particleCount: 30,
-                spread: 50,
-                origin: { x: 0.5, y: 0.7 },
-                colors: colors,
-                disableForReducedMotion: true,
-                scalar: 0.8
-            });
+
+            // Confetti removed
 
         } else {
             playSound('wrong');
@@ -87,14 +79,7 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
         } else {
             playSound('complete');
             setShowResult(true);
-            // Big Confetti for completion
-            if (score > questions.length / 2) {
-                confetti({
-                    particleCount: 150,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
-            }
+
         }
     };
 
