@@ -14,6 +14,26 @@ const DEFAULT_DIFFICULTY = "medium" as const;
  * Calculate rewards for Echo Lex based on performance
  * Optimized for FARMING as requested.
  */
+async function resolveFlashbackGameId(adminClient: any) {
+    // Try new slug first
+    let { data: game } = await adminClient
+        .from("games")
+        .select("id")
+        .eq("slug", "flashback")
+        .maybeSingle();
+
+    // Fallback to old slug if not found
+    if (!game) {
+        const { data: oldGame } = await adminClient
+            .from("games")
+            .select("id")
+            .eq("slug", "echo-lex")
+            .maybeSingle();
+        game = oldGame;
+    }
+    return game;
+}
+
 function computeEchoLexRewards(params: {
     score: number;
     isNewPersonalBest: boolean;
@@ -76,13 +96,9 @@ export async function submitEchoLexScore(params: {
         }
 
         // Get the Echo Lex game ID
-        const { data: game, error: gameError } = await adminClient
-            .from("games")
-            .select("id")
-            .eq("slug", "flashback")
-            .single();
+        const game = await resolveFlashbackGameId(adminClient);
 
-        if (gameError || !game) {
+        if (!game) {
             return { success: false, error: "Game not found" };
         }
 
@@ -181,11 +197,7 @@ export async function getEchoLexTopScores() {
     try {
         const adminClient = createSupabaseAdminClient();
 
-        const { data: game } = await adminClient
-            .from("games")
-            .select("id")
-            .eq("slug", "flashback")
-            .single();
+        const game = await resolveFlashbackGameId(adminClient);
 
         if (!game) return [];
 
@@ -265,11 +277,7 @@ export async function getUserPersonalBest() {
         if (!user) return null;
 
         const adminClient = createSupabaseAdminClient();
-        const { data: game } = await adminClient
-            .from("games")
-            .select("id")
-            .eq("slug", "flashback")
-            .single();
+        const game = await resolveFlashbackGameId(adminClient);
 
         if (!game) return null;
 
@@ -296,11 +304,7 @@ export async function getEchoLexGameLeaderboard() {
     try {
         const adminClient = createSupabaseAdminClient();
 
-        const { data: game } = await adminClient
-            .from("games")
-            .select("id")
-            .eq("slug", "flashback")
-            .single();
+        const game = await resolveFlashbackGameId(adminClient);
 
         if (!game) return [];
 
