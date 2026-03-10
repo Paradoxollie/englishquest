@@ -52,26 +52,6 @@ export default function EchoLexPage() {
         setGameState(createGameState());
     }, []);
 
-    // Timer logic
-    useEffect(() => {
-        if (isGameStarted && !isGameEnded && gameState?.phase === "playing") {
-            timerRef.current = setInterval(() => {
-                setTimeLeft((prev) => {
-                    if (prev <= 0.1) {
-                        handleDecision(false, true); // Timeout
-                        return TIMER_SECONDS;
-                    }
-                    return prev - 0.1;
-                });
-            }, 100);
-        } else {
-            if (timerRef.current) clearInterval(timerRef.current);
-        }
-        return () => {
-            if (timerRef.current) clearInterval(timerRef.current);
-        };
-    }, [isGameStarted, isGameEnded, gameState?.phase]);
-
     const handleStartGame = useCallback(() => {
         if (!gameState) return;
         const newState = startGame(gameState);
@@ -116,6 +96,26 @@ export default function EchoLexPage() {
             }, 600);
         }
     }, [gameState]);
+
+    // Timer logic
+    useEffect(() => {
+        if (isGameStarted && !isGameEnded && gameState?.phase === "playing") {
+            timerRef.current = setInterval(() => {
+                setTimeLeft((prev) => {
+                    if (prev <= 0.1) {
+                        handleDecision(false, true);
+                        return TIMER_SECONDS;
+                    }
+                    return prev - 0.1;
+                });
+            }, 100);
+        } else if (timerRef.current) {
+            clearInterval(timerRef.current);
+        }
+        return () => {
+            if (timerRef.current) clearInterval(timerRef.current);
+        };
+    }, [handleDecision, isGameStarted, isGameEnded, gameState?.phase]);
 
     // Keyboard controls
     useEffect(() => {

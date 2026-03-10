@@ -18,7 +18,7 @@ const featureCards = [
   {
     title: "Professeurs",
     Icon: TeacherIcon,
-    copy: "Accédez à des cours et activités ludiques clés en main, prêts à utiliser en classe avec vos élèves.",
+    copy: "Un espace enseignants est en préparation pour centraliser cours, activités et suivi de classe sans brouiller l'expérience principale des apprenants.",
   },
 ];
 
@@ -320,4 +320,3 @@ export default async function PublicHomePage() {
     </div>
   );
 }
-

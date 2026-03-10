@@ -1,8 +1,7 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isAdmin } from "@/lib/auth/roles";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 export type PromoteAdminState = {
@@ -14,16 +13,20 @@ export async function promoteToAdminAction(
   prevState: PromoteAdminState,
   formData: FormData
 ): Promise<PromoteAdminState> {
+  const canManageAdmins = await isAdmin();
+
+  if (!canManageAdmins) {
+    return { error: "Acces refuse. Seuls les admins peuvent promouvoir un utilisateur." };
+  }
+
   const username = formData.get("username")?.toString().trim().toLowerCase();
 
   if (!username) {
     return { error: "Le username est requis." };
   }
 
-  // Utiliser le client admin pour contourner RLS
   const adminClient = createSupabaseAdminClient();
 
-  // Trouver l'utilisateur
   const { data: profile, error: findError } = await adminClient
     .from("profiles")
     .select("id, username, role")
@@ -36,10 +39,9 @@ export async function promoteToAdminAction(
   }
 
   if (!profile) {
-    return { error: `Aucun utilisateur trouvé avec le username "${username}".` };
+    return { error: `Aucun utilisateur trouve avec le username "${username}".` };
   }
 
-  // Mettre à jour le rôle
   const { error: updateError } = await adminClient
     .from("profiles")
     .update({ role: "admin" })
@@ -47,15 +49,13 @@ export async function promoteToAdminAction(
 
   if (updateError) {
     console.error("Error updating role:", updateError);
-    return { error: "Erreur lors de la mise à jour du rôle." };
+    return { error: "Erreur lors de la mise a jour du role." };
   }
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/users");
-  
-  return { 
-    success: `L'utilisateur "${profile.username}" a été promu admin avec succès !` 
+
+  return {
+    success: `L'utilisateur "${profile.username}" a ete promu admin avec succes.`,
   };
 }
-
-

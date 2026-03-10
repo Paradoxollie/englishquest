@@ -55,6 +55,8 @@ interface Particle {
   x: number;
   y: number;
   delay: number;
+  targetX: number;
+  targetY: number;
 }
 
 export default function WordfallPage() {
@@ -81,7 +83,7 @@ export default function WordfallPage() {
   const [isMobile, setIsMobile] = useState(false);
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const gameLoopRef = useRef<number | null>(null);
-  const lastUpdateRef = useRef<number>(Date.now());
+  const lastUpdateRef = useRef<number>(0);
   const particleIdRef = useRef(0);
   const previousScoreRef = useRef(0);
   const previousWordsCompletedRef = useRef(0);
@@ -311,6 +313,8 @@ export default function WordfallPage() {
         x: 50 + Math.random() * 20 - 10,
         y: 50 + Math.random() * 20 - 10,
         delay: i * 0.03,
+        targetX: (Math.random() - 0.5) * 40,
+        targetY: (Math.random() - 0.5) * 40,
       }));
       setParticles(newParticles);
       setTimeout(() => setParticles([]), 2000);
@@ -384,7 +388,7 @@ export default function WordfallPage() {
         });
       }
     }
-  }, [gameState, wordInput]);
+  }, [gameState, isMobile, wordInput]);
 
   // Spawn new word when needed
   const spawnNewWord = useCallback(() => {
@@ -1041,8 +1045,8 @@ export default function WordfallPage() {
                         animate={{ 
                           opacity: [0, 1, 0],
                           scale: [0, 1, 0],
-                          x: `${particle.x + (Math.random() - 0.5) * 40}%`,
-                          y: `${particle.y + (Math.random() - 0.5) * 40}%`,
+                          x: `${particle.x + particle.targetX}%`,
+                          y: `${particle.y + particle.targetY}%`,
                         }}
                         transition={{ 
                           delay: particle.delay,

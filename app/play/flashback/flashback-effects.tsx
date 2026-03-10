@@ -41,7 +41,7 @@ interface HitEffectProps {
 export function HitEffect({ type, id }: HitEffectProps) {
     const text = type === "hit" ? "NICE!" : "MISS!";
     const color = type === "hit" ? "text-emerald-400" : "text-red-500";
-    const rotation = Math.random() * 30 - 15;
+    const rotation = (id % 31) - 15;
 
     return (
         <motion.div

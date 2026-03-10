@@ -1,31 +1,57 @@
 import { MetadataRoute } from "next";
+import { paliers } from "@/lib/courses/data";
+import { games } from "@/lib/games/config";
 
-// URL de base du site
 const BASE_URL = "https://englishquest.fr";
+const LAST_MODIFIED = new Date("2026-03-10T00:00:00.000Z");
 
 export default function sitemap(): MetadataRoute.Sitemap {
-    // Pages statiques principales
-    const staticPages = [
-        "",
-        "/about",
-        "/contact",
-        "/auth/login",
-        "/auth/signup",
-        "/tous-les-cours",
-    ].map((route) => ({
-        url: `${BASE_URL}${route}`,
-        lastModified: new Date(),
-        changeFrequency: "monthly" as const,
-        priority: route === "" ? 1 : 0.8,
-    }));
+  const staticPages = [
+    "",
+    "/about",
+    "/contact",
+    "/auth/login",
+    "/auth/signup",
+    "/play",
+    "/quest",
+    "/tous-les-cours",
+  ].map((route) => {
+    const changeFrequency: "weekly" | "monthly" = route === "" ? "weekly" : "monthly";
+    const priority =
+      route === "" ? 1 : route === "/quest" || route === "/tous-les-cours" ? 0.9 : 0.8;
 
-    // Génération des URLs pour les 50 cours
-    const coursePages = Array.from({ length: 50 }, (_, i) => i + 1).map((id) => ({
-        url: `${BASE_URL}/cours/${id}`,
-        lastModified: new Date(),
-        changeFrequency: "weekly" as const,
-        priority: 0.7,
-    }));
+    return {
+      url: `${BASE_URL}${route}`,
+      lastModified: LAST_MODIFIED,
+      changeFrequency,
+      priority,
+    };
+  });
 
-    return [...staticPages, ...coursePages];
+  const coursePages = paliers.flatMap((palier) =>
+    palier.courses.map((course) => ({
+      url: `${BASE_URL}/cours/${course.id}`,
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    }))
+  );
+
+  const gamePages = games.map((game) => ({
+    url: `${BASE_URL}/play/${game.slug}`,
+    lastModified: LAST_MODIFIED,
+    changeFrequency: "monthly" as const,
+    priority: 0.7,
+  }));
+
+  const extraPages = [
+    {
+      url: `${BASE_URL}/play/enigma-scroll/leaderboard`,
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "weekly" as const,
+      priority: 0.5,
+    },
+  ];
+
+  return [...staticPages, ...coursePages, ...gamePages, ...extraPages];
 }

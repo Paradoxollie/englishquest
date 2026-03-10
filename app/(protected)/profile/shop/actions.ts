@@ -1,16 +1,28 @@
 "use server";
 
-/**
- * Server Actions for the Shop System
- */
-
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import type { ShopPurchaseResult, EquipItemResult } from "@/types/shop";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isCustomItemKey } from "@/lib/shop/visibility";
+import type { EquipItemResult, ShopPurchaseResult } from "@/types/shop";
 
-/**
- * Purchase a shop item
- */
+type PurchaseRpcResult = {
+  success?: boolean;
+  error?: string;
+  newGold?: number;
+};
+
+function isMissingPurchaseRpc(error: { message?: string; code?: string } | null): boolean {
+  if (!error) {
+    return false;
+  }
+
+  return (
+    error.code === "42883" ||
+    error.message?.includes("purchase_shop_item") === true ||
+    error.message?.includes("Could not find the function") === true
+  );
+}
+
 export async function purchaseShopItemAction(
   shopItemId: string
 ): Promise<ShopPurchaseResult> {
@@ -18,7 +30,6 @@ export async function purchaseShopItemAction(
     const supabase = await createSupabaseServerClient();
     const adminClient = createSupabaseAdminClient();
 
-    // Get current user
     const {
       data: { user },
       error: userError,
@@ -31,7 +42,6 @@ export async function purchaseShopItemAction(
       };
     }
 
-    // Get the shop item
     const { data: shopItem, error: itemError } = await adminClient
       .from("shop_items")
       .select("*")
@@ -46,7 +56,13 @@ export async function purchaseShopItemAction(
       };
     }
 
-    // Get user profile to check level and gold
+    if (isCustomItemKey(shopItem.item_key)) {
+      return {
+        success: false,
+        error: "Cet item personnalise n'est pas disponible a l'achat.",
+      };
+    }
+
     const { data: profile, error: profileError } = await adminClient
       .from("profiles")
       .select("level, gold")
@@ -60,7 +76,6 @@ export async function purchaseShopItemAction(
       };
     }
 
-    // Check if user already owns this item
     const { data: existingItem } = await adminClient
       .from("user_items")
       .select("id")
@@ -71,67 +86,108 @@ export async function purchaseShopItemAction(
     if (existingItem) {
       return {
         success: false,
-        error: "Vous possédez déjà cet item",
+        error: "Vous possedez deja cet item",
       };
     }
 
-    // Check level requirement
     if (profile.level < shopItem.required_level) {
       return {
         success: false,
-        error: `Niveau ${shopItem.required_level} requis (vous êtes niveau ${profile.level})`,
+        error: `Niveau ${shopItem.required_level} requis (vous etes niveau ${profile.level})`,
       };
     }
 
-    // Check if user has enough gold
     if (profile.gold < shopItem.price_gold) {
       return {
         success: false,
-        error: `Pas assez d'or. Nécessaire: ${shopItem.price_gold}, Vous avez: ${profile.gold}`,
+        error: `Pas assez d'or. Necessaire: ${shopItem.price_gold}, Vous avez: ${profile.gold}`,
       };
     }
 
-    // Start transaction: deduct gold and add item
+    const { data: rpcPurchase, error: rpcError } = await adminClient.rpc(
+      "purchase_shop_item",
+      {
+        p_user_id: user.id,
+        p_shop_item_id: shopItemId,
+      }
+    );
+
+    if (!rpcError && rpcPurchase && typeof rpcPurchase === "object") {
+      const purchaseResult = rpcPurchase as PurchaseRpcResult;
+
+      if (purchaseResult.success) {
+        return {
+          success: true,
+          newGold:
+            typeof purchaseResult.newGold === "number"
+              ? purchaseResult.newGold
+              : profile.gold - shopItem.price_gold,
+          purchasedItem: shopItem as any,
+        };
+      }
+
+      if (purchaseResult.error) {
+        return {
+          success: false,
+          error: purchaseResult.error,
+        };
+      }
+    } else if (rpcError && !isMissingPurchaseRpc(rpcError)) {
+      console.error("purchase_shop_item RPC failed:", rpcError);
+      return {
+        success: false,
+        error: "Erreur lors de l'achat de l'item",
+      };
+    }
+
     const newGold = profile.gold - shopItem.price_gold;
 
-    // Update user gold
-    const { error: updateGoldError } = await adminClient
+    const { data: updatedProfiles, error: updateGoldError } = await adminClient
       .from("profiles")
       .update({
         gold: newGold,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", user.id);
+      .eq("id", user.id)
+      .eq("gold", profile.gold)
+      .select("id");
 
     if (updateGoldError) {
       return {
         success: false,
-        error: "Erreur lors de la mise à jour de l'or",
+        error: "Erreur lors de la mise a jour de l'or",
       };
     }
 
-    // Add item to user_items
-    const { error: insertItemError } = await adminClient
-      .from("user_items")
-      .insert({
-        user_id: user.id,
-        shop_item_id: shopItemId,
-        price_paid: shopItem.price_gold,
-      });
+    if (!updatedProfiles?.length) {
+      return {
+        success: false,
+        error: "Votre solde a change. Rechargez la page et recommencez.",
+      };
+    }
+
+    const { error: insertItemError } = await adminClient.from("user_items").insert({
+      user_id: user.id,
+      shop_item_id: shopItemId,
+      price_paid: shopItem.price_gold,
+    });
 
     if (insertItemError) {
-      // Rollback: restore gold
       await adminClient
         .from("profiles")
         .update({
           gold: profile.gold,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", user.id);
+        .eq("id", user.id)
+        .eq("gold", newGold);
 
       return {
         success: false,
-        error: "Erreur lors de l'achat de l'item",
+        error:
+          insertItemError.code === "23505"
+            ? "Vous possedez deja cet item."
+            : "Erreur lors de l'achat de l'item",
       };
     }
 
@@ -149,9 +205,6 @@ export async function purchaseShopItemAction(
   }
 }
 
-/**
- * Equip an item (avatar, title, or background)
- */
 export async function equipItemAction(
   shopItemId: string | null,
   itemType: "avatar" | "title" | "background"
@@ -160,7 +213,6 @@ export async function equipItemAction(
     const supabase = await createSupabaseServerClient();
     const adminClient = createSupabaseAdminClient();
 
-    // Get current user
     const {
       data: { user },
       error: userError,
@@ -173,27 +225,20 @@ export async function equipItemAction(
       };
     }
 
-    // If equipping an item (not null), verify user owns it or it's free
-    // If shopItemId is null, we're unequipping (setting to null)
     if (shopItemId !== null && shopItemId !== undefined) {
-      // Check if item exists and get its details
       const { data: shopItem, error: shopItemError } = await adminClient
         .from("shop_items")
-        .select("item_type, price_gold, is_active")
+        .select("item_type, item_key, price_gold, is_active")
         .eq("id", shopItemId)
         .single();
 
-      console.log("Shop item check:", { shopItem, shopItemError, shopItemId });
-
       if (shopItemError || !shopItem) {
-        console.error("Shop item not found:", shopItemError);
         return {
           success: false,
           error: "Item introuvable",
         };
       }
 
-      // Check if item is active
       if (!shopItem.is_active) {
         return {
           success: false,
@@ -201,17 +246,14 @@ export async function equipItemAction(
         };
       }
 
-      // Verify item type matches
       if (shopItem.item_type !== itemType) {
-        console.error("Item type mismatch:", { shopItemType: shopItem.item_type, requestedType: itemType });
         return {
           success: false,
           error: "Type d'item incorrect",
         };
       }
 
-      // If item is not free, verify user owns it
-      if (shopItem.price_gold > 0) {
+      if (shopItem.price_gold > 0 || isCustomItemKey(shopItem.item_key)) {
         const { data: userItem, error: userItemError } = await adminClient
           .from("user_items")
           .select("id")
@@ -219,25 +261,22 @@ export async function equipItemAction(
           .eq("shop_item_id", shopItemId)
           .maybeSingle();
 
-        console.log("User item check:", { userItem, userItemError, userId: user.id, shopItemId });
-
         if (userItemError) {
-          console.error("Error checking user item:", userItemError);
+          return {
+            success: false,
+            error: "Impossible de verifier la possession de l'item",
+          };
         }
 
         if (!userItem) {
           return {
             success: false,
-            error: "Vous ne possédez pas cet item",
+            error: "Vous ne possedez pas cet item",
           };
         }
-      } else {
-        // Item is free - no need to check ownership, it's available to everyone
-        console.log("Item is free, allowing equip:", shopItemId);
       }
     }
 
-    // Get or create user_equipped_items
     const { data: equippedItems } = await adminClient
       .from("user_equipped_items")
       .select("*")
@@ -248,53 +287,39 @@ export async function equipItemAction(
       itemType === "avatar"
         ? "equipped_avatar_id"
         : itemType === "title"
-        ? "equipped_title_id"
-        : "equipped_background_id";
+          ? "equipped_title_id"
+          : "equipped_background_id";
 
-    // Prepare update data - shopItemId can be null to unequip
-    const updateData: any = {
-      [updateField]: shopItemId, // Can be null
+    const updateData: Record<string, string | null> = {
+      [updateField]: shopItemId,
       updated_at: new Date().toISOString(),
     };
 
     if (equippedItems) {
-      // Update existing record
       const { error: updateError } = await adminClient
         .from("user_equipped_items")
         .update(updateData)
         .eq("user_id", user.id);
 
       if (updateError) {
-        console.error("Error updating equipped items:", updateError);
         return {
           success: false,
-          error: `Erreur lors de l'équipement: ${updateError.message || "Erreur inconnue"}`,
+          error: `Erreur lors de l'equipement: ${updateError.message || "Erreur inconnue"}`,
         };
       }
-      console.log("Successfully updated equipped item:", { updateField, shopItemId, isNull: shopItemId === null });
-    } else {
-      // Create new record only if we're equipping something (not null)
-      if (shopItemId !== null && shopItemId !== undefined) {
-        const insertData: any = {
+    } else if (shopItemId !== null && shopItemId !== undefined) {
+      const { error: insertError } = await adminClient
+        .from("user_equipped_items")
+        .insert({
           user_id: user.id,
           [updateField]: shopItemId,
+        });
+
+      if (insertError) {
+        return {
+          success: false,
+          error: `Erreur lors de l'equipement: ${insertError.message || "Erreur inconnue"}`,
         };
-
-        const { error: insertError } = await adminClient
-          .from("user_equipped_items")
-          .insert(insertData);
-
-        if (insertError) {
-          console.error("Error inserting equipped items:", insertError);
-          return {
-            success: false,
-            error: `Erreur lors de l'équipement: ${insertError.message || "Erreur inconnue"}`,
-          };
-        }
-        console.log("Successfully created equipped item:", { updateField, shopItemId });
-      } else {
-        // Trying to unequip when nothing is equipped - this is fine, just return success
-        console.log("Nothing to unequip, user has no equipped items");
       }
     }
 
@@ -309,4 +334,3 @@ export async function equipItemAction(
     };
   }
 }
-

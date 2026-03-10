@@ -4,6 +4,7 @@ import Script from "next/script";
 import Link from "next/link";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth/auth-provider";
+import { ConditionalAdSlot } from "@/components/ads/ConditionalAdSlot";
 import { AppHeader } from "@/components/layout/app-header";
 import { FooterAd } from "@/components/ads/FooterAd";
 import { FooterAdContainer } from "@/components/ads/FooterAdServer";
@@ -115,17 +116,20 @@ export default function RootLayout({
                 <main className="flex-1 min-w-0 max-w-5xl">
                   {children}
 
-                  {/* AdSense Containers - Moved here for proper z-index and visibility */}
-                  <FooterAdContainer />
-                  <FooterAd />
+                  <ConditionalAdSlot>
+                    <FooterAdContainer />
+                    <FooterAd />
+                  </ConditionalAdSlot>
                 </main>
 
                 {/* Sidebar Ad - Visible only on 2XL screens to maintain centering */}
                 {/* On smaller screens (laptop), we hide it to prioritize content centering */}
                 <aside className="hidden 2xl:block w-[300px] flex-shrink-0">
                   <div className="sticky top-6">
-                    <SidebarAdContainer />
-                    <SidebarAd />
+                    <ConditionalAdSlot>
+                      <SidebarAdContainer />
+                      <SidebarAd />
+                    </ConditionalAdSlot>
                   </div>
                 </aside>
               </div>

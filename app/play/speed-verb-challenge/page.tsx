@@ -117,7 +117,7 @@ export default function SpeedVerbChallengePage() {
     };
   } | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const lastTickRef = useRef<number>(Date.now());
+  const lastTickRef = useRef<number>(0);
   const gameStartTimeRef = useRef<number | null>(null);
   const roundStartTimeRef = useRef<number | null>(null);
   const [milestoneNotification, setMilestoneNotification] = useState<{

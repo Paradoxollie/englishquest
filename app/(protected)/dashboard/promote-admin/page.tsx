@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
+import { isAdmin } from "@/lib/auth/roles";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PromoteAdminForm } from "./promote-admin-form";
 
-// Force dynamic rendering - this page requires authentication
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
-export const fetchCache = 'force-no-store';
+export const fetchCache = "force-no-store";
 
 export default async function PromoteAdminPage() {
   const supabase = await createSupabaseServerClient();
@@ -17,7 +17,12 @@ export default async function PromoteAdminPage() {
     redirect("/auth/login");
   }
 
-  // Vérifier le rôle actuel
+  const canManageAdmins = await isAdmin();
+
+  if (!canManageAdmins) {
+    redirect("/dashboard");
+  }
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("username, role")
@@ -29,9 +34,10 @@ export default async function PromoteAdminPage() {
       <div>
         <h2 className="text-2xl font-semibold text-white">Promouvoir en Admin</h2>
         <p className="text-sm text-slate-400">
-          Utilisez cette page pour promouvoir un utilisateur en admin. 
+          Cette page est reservee aux admins.
           <br />
-          <strong className="text-amber-300">Attention :</strong> Cette fonctionnalité est temporaire et devrait être supprimée après la première promotion.
+          Promouvoir un compte applique immediatement de nouveaux droits sur tout le
+          back-office.
         </p>
       </div>
 
@@ -40,7 +46,7 @@ export default async function PromoteAdminPage() {
           <p className="text-sm text-slate-300">
             Votre compte actuel : <span className="font-semibold text-white">{profile?.username}</span>
             <br />
-            Rôle actuel : <span className="font-semibold text-amber-300">{profile?.role}</span>
+            Role actuel : <span className="font-semibold text-amber-300">{profile?.role}</span>
           </p>
         </div>
 
@@ -49,4 +55,3 @@ export default async function PromoteAdminPage() {
     </section>
   );
 }
-

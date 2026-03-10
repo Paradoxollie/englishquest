@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# English Quest
 
-## Getting Started
+Plateforme d'apprentissage de l'anglais orientee gamification, parcours progressif et jeux educatifs.
 
-First, run the development server:
+## Produit
+
+- `50` cours structures, organises en `5` paliers (`A1` a `C1`)
+- parcours principal sur `/quest`
+- bibliotheque complete sur `/tous-les-cours`
+- mini-jeux sur `/play`
+- espace connecte avec progression, profil, shop et classement
+
+## Stack
+
+- Next.js `16`
+- React `19`
+- TypeScript
+- Supabase (auth, data, storage)
+- Tailwind CSS `4`
+
+## Scripts
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run start
+npm run lint
+npm run test-supabase
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Structure utile
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- `app/` : pages App Router
+- `components/` : UI, layout, ads, auth, cours
+- `lib/courses/` : source de verite des 50 cours
+- `lib/games/` : configuration des jeux
+- `lib/supabase/` : clients navigateur, serveur et admin
+- `supabase/` : scripts SQL d'installation et de maintenance
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Base de donnees
 
-## Learn More
+Les scripts SQL principaux sont dans `supabase/` :
 
-To learn more about Next.js, take a look at the following resources:
+- `games_and_progress.sql` : jeux, cours, progression
+- `shop_system.sql` : boutique, items possedes, items equipes
+- `profiles.sql` et `gamification.sql` : profils et progression joueur
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Le durcissement recent du shop est documente dans :
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `supabase/shop_hardening.sql`
 
-## Deploy on Vercel
+## Principes produit
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `/quest` et `/tous-les-cours` doivent toujours refleter le meme corpus de cours
+- les uploads personnalises ne doivent jamais devenir visibles ou equipables par d'autres utilisateurs
+- les zones d'apprentissage ne doivent pas etre degradees par des distractions ou des incoherences produit
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Verification recommandee
+
+Avant mise en production :
+
+```bash
+npm install
+npm run lint
+npm run build
+```

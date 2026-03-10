@@ -86,7 +86,18 @@ export default function EnigmaScrollPage() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [showStreakNotification, setShowStreakNotification] = useState(false);
   const [achievements, setAchievements] = useState<Set<string>>(new Set());
-  const [particles, setParticles] = useState<Array<{ id: number; x: number; y: number; delay: number }>>([]);
+  const [particles, setParticles] = useState<
+    Array<{
+      id: number;
+      x: number;
+      y: number;
+      delay: number;
+      color: string;
+      shadowColor: string;
+      targetX: number;
+      targetY: number;
+    }>
+  >([]);
   const [lastPointsEarned, setLastPointsEarned] = useState(0);
   const [shakeRow, setShakeRow] = useState<number | null>(null);
   const [scoreSubmitted, setScoreSubmitted] = useState(false);
@@ -231,6 +242,10 @@ export default function EnigmaScrollPage() {
         x: 50 + Math.random() * 20 - 10,
         y: 50 + Math.random() * 20 - 10,
         delay: i * 0.05,
+        color: ['#22c55e', '#eab308', '#3b82f6', '#a855f7', '#ec4899'][Math.floor(Math.random() * 5)],
+        shadowColor: ['#22c55e', '#eab308', '#3b82f6', '#a855f7', '#ec4899'][Math.floor(Math.random() * 5)],
+        targetX: (Math.random() - 0.5) * 200,
+        targetY: (Math.random() - 0.5) * 200,
       }));
       setParticles(newParticles);
       setTimeout(() => setParticles([]), 2000);
@@ -1517,12 +1532,8 @@ export default function EnigmaScrollPage() {
                   style={{
                     left: `${particle.x}%`,
                     top: `${particle.y}%`,
-                    background: `radial-gradient(circle, ${
-                      ['#22c55e', '#eab308', '#3b82f6', '#a855f7', '#ec4899'][Math.floor(Math.random() * 5)]
-                    } 0%, transparent 70%)`,
-                    boxShadow: `0 0 10px ${
-                      ['#22c55e', '#eab308', '#3b82f6', '#a855f7', '#ec4899'][Math.floor(Math.random() * 5)]
-                    }`,
+                    background: `radial-gradient(circle, ${particle.color} 0%, transparent 70%)`,
+                    boxShadow: `0 0 10px ${particle.shadowColor}`,
                   }}
                   initial={{
                     scale: 0,
@@ -1532,8 +1543,8 @@ export default function EnigmaScrollPage() {
                   }}
                   animate={{
                     scale: [0, 1.5, 0],
-                    x: (Math.random() - 0.5) * 200,
-                    y: (Math.random() - 0.5) * 200,
+                    x: particle.targetX,
+                    y: particle.targetY,
                     opacity: [1, 1, 0],
                   }}
                   transition={{
@@ -1576,4 +1587,3 @@ export default function EnigmaScrollPage() {
     </div>
   );
 }
-
