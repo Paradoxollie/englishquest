@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LessonLayout, LessonSection } from "@/components/courses/lesson-layout";
+import {
+  LessonLayout,
+  LessonSection,
+  createLessonSectionId,
+} from "@/components/courses/lesson-layout";
 import { CourseExperiencePanel } from "@/components/courses/course-experience-panel";
+import { CourseTableOfContents } from "@/components/courses/course-table-of-contents";
 import { getCourseById, getPalierForCourse, paliers } from "@/lib/courses/data";
 import { lessons } from "@/lib/courses/lessons";
 import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
@@ -65,6 +70,12 @@ export default async function CoursePage({ params }: CoursePageProps) {
     roadmap.entries.find((entry) => entry.courseId === courseId - 1) ?? null;
   const nextEntry =
     roadmap.entries.find((entry) => entry.courseId === courseId + 1) ?? null;
+  const sectionAnchors = lesson
+    ? lesson.sections.map((section, index) => ({
+        id: createLessonSectionId(section.title, index),
+        title: section.title,
+      }))
+    : [];
 
   if (!lesson) {
     return (
@@ -106,8 +117,14 @@ export default async function CoursePage({ params }: CoursePageProps) {
           isAuthenticated={Boolean(user)}
         />
       )}
+      {sectionAnchors.length > 1 && <CourseTableOfContents sections={sectionAnchors} />}
       {lesson.sections.map((section, index) => (
-        <LessonSection key={index} title={section.title}>
+        <LessonSection
+          key={sectionAnchors[index]?.id ?? index}
+          id={sectionAnchors[index]?.id}
+          sectionIndex={index}
+          title={section.title}
+        >
           {section.content}
         </LessonSection>
       ))}
