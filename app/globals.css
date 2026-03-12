@@ -16,6 +16,7 @@ body {
   background-image: linear-gradient(180deg, #010101 0%, #020617 50%, #010101 100%);
   color: var(--foreground);
   font-family: var(--font-inter, "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif);
+  text-rendering: optimizeLegibility;
 }
 
 html {
@@ -73,9 +74,9 @@ html {
   position: relative;
   border: 4px solid #000;
   border-radius: 1rem;
-  background: #1e293b;
+  background: linear-gradient(180deg, #1f2937 0%, #172033 100%);
   /* Fond sombre au lieu de blanc pour éviter texte blanc sur fond blanc */
-  box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 0 0 #000, 0 12px 24px rgba(0, 0, 0, 0.32);
   overflow: hidden;
 }
 
@@ -86,7 +87,16 @@ html {
   background-image:
     radial-gradient(circle at 2px 2px, rgba(0, 0, 0, 0.12) 1px, transparent 0);
   background-size: 8px 8px;
-  opacity: 0.25;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.comic-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   pointer-events: none;
 }
 
@@ -94,8 +104,8 @@ html {
   position: relative;
   border: 4px solid #000;
   border-radius: 1rem;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, #172033 0%, #0f172a 58%, #0a1220 100%);
+  box-shadow: 0 4px 0 0 #000, 0 14px 28px rgba(0, 0, 0, 0.34);
   overflow: hidden;
 }
 
@@ -106,7 +116,16 @@ html {
   background-image:
     radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.08) 1px, transparent 0);
   background-size: 8px 8px;
-  opacity: 0.3;
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+.comic-panel-dark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   pointer-events: none;
 }
 
@@ -114,16 +133,16 @@ html {
   position: relative;
   border: 4px solid #000;
   border-radius: 1rem;
-  background: #1e293b;
+  background: linear-gradient(180deg, #1e293b 0%, #172033 100%);
   /* Fond sombre au lieu de blanc pour éviter texte blanc sur fond blanc */
-  box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 0 0 #000, 0 12px 24px rgba(0, 0, 0, 0.28);
   transition: all 0.2s ease;
   overflow: hidden;
 }
 
 .comic-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 0 #000, 0 12px 24px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 0 #000, 0 14px 28px rgba(0, 0, 0, 0.34);
 }
 
 .comic-card::before {
@@ -133,7 +152,16 @@ html {
   background-image:
     radial-gradient(circle at 1.5px 1.5px, rgba(0, 0, 0, 0.1) 1px, transparent 0);
   background-size: 8px 8px;
-  opacity: 0.2;
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.comic-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   pointer-events: none;
 }
 
@@ -141,15 +169,15 @@ html {
   position: relative;
   border: 4px solid #000;
   border-radius: 1rem;
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  box-shadow: 0 4px 0 0 #000, 0 8px 16px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(135deg, #172033 0%, #0f172a 58%, #0a1220 100%);
+  box-shadow: 0 4px 0 0 #000, 0 14px 28px rgba(0, 0, 0, 0.32);
   transition: all 0.2s ease;
   overflow: hidden;
 }
 
 .comic-card-dark:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 0 #000, 0 12px 24px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 0 #000, 0 16px 30px rgba(0, 0, 0, 0.36);
 }
 
 .comic-card-dark::before {
@@ -159,7 +187,16 @@ html {
   background-image:
     radial-gradient(circle at 2px 2px, rgba(255, 255, 255, 0.06) 1px, transparent 0);
   background-size: 8px 8px;
-  opacity: 0.25;
+  opacity: 0.16;
+  pointer-events: none;
+}
+
+.comic-card-dark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
   pointer-events: none;
 }
 

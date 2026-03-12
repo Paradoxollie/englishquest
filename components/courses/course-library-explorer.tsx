@@ -148,16 +148,24 @@ export function CourseLibraryExplorer({
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {filteredEntries.map((entry) => {
           const isRecommended = entry.courseId === recommendedCourseId;
+          const ctaLabel =
+            entry.status === "completed"
+              ? "Reviser"
+              : entry.status === "in_progress"
+                ? "Continuer"
+                : entry.status === "locked" && isAuthenticated
+                  ? "Voir le module"
+                  : "Ouvrir";
 
           return (
             <Link
               key={entry.courseId}
               href={`/cours/${entry.courseId}`}
-              className="comic-card-dark flex h-full flex-col p-5 transition-transform duration-200 hover:scale-[1.02]"
+              className="comic-card-dark flex h-full flex-col p-5 md:p-6"
               style={{
                 background: isRecommended
-                  ? "linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(6, 182, 212, 0.18) 100%)"
-                  : "linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.92) 100%)",
+                  ? "linear-gradient(135deg, rgba(16, 185, 129, 0.24) 0%, rgba(15, 23, 42, 0.98) 78%)"
+                  : "linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.96) 100%)",
               }}
             >
               <div className="flex flex-wrap items-center gap-2">
@@ -176,7 +184,7 @@ export function CourseLibraryExplorer({
                 )}
               </div>
 
-              <div className="mt-4 flex items-start gap-3">
+              <div className="mt-5 flex items-start gap-3">
                 <div className="comic-panel border-2 border-black bg-indigo-600 p-3">
                   <BookIcon className="h-5 w-5 text-white" />
                 </div>
@@ -184,13 +192,13 @@ export function CourseLibraryExplorer({
                   <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-300">
                     {entry.levelLabel}
                   </p>
-                  <h3 className="text-xl font-bold text-white text-outline">{entry.title}</h3>
+                  <h3 className="mt-1 text-xl font-bold text-white md:text-2xl">{entry.title}</h3>
                 </div>
               </div>
 
-              <p className="mt-4 flex-grow text-sm font-semibold leading-relaxed text-slate-200 text-outline">
-                {entry.summary}
-              </p>
+              <div className="mt-4 comic-panel border-2 border-black bg-slate-900/80 p-4">
+                <p className="text-sm leading-relaxed text-slate-200 md:text-[15px]">{entry.summary}</p>
+              </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {entry.focusTags.map((tag) => (
@@ -203,18 +211,24 @@ export function CourseLibraryExplorer({
                 ))}
               </div>
 
-              <div className="mt-4 flex items-center justify-between gap-3">
-                <div className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
-                  {entry.estimatedMinutes} min · {entry.rewardXp} XP
+              <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="comic-panel border-2 border-black bg-slate-900/80 p-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                      Duree
+                    </p>
+                    <p className="mt-1 text-sm font-bold text-white">{entry.estimatedMinutes} min</p>
+                  </div>
+                  <div className="comic-panel border-2 border-black bg-slate-900/80 p-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                      Recompense
+                    </p>
+                    <p className="mt-1 text-sm font-bold text-white">{entry.rewardXp} XP</p>
+                  </div>
                 </div>
-                <span className="comic-button inline-flex items-center gap-2 bg-slate-800 px-4 py-2 text-xs font-bold text-white hover:bg-slate-700">
-                  {entry.status === "completed"
-                    ? "Reviser"
-                    : entry.status === "in_progress"
-                      ? "Continuer"
-                      : entry.status === "locked" && isAuthenticated
-                        ? "Voir le module"
-                        : "Ouvrir"}
+
+                <span className="comic-button inline-flex items-center justify-center gap-2 bg-slate-800 px-4 py-3 text-xs font-bold text-white hover:bg-slate-700">
+                  {ctaLabel}
                   <ArrowRightIcon className="h-4 w-4" />
                 </span>
               </div>

@@ -10,38 +10,26 @@ interface MotionCardProps {
 
 /**
  * Reusable motion card component with:
- * - Subtle float animation (up/down)
- * - Hover scale effect (sans rotations 3D pour éviter le flou)
+ * - Clean entry animation
+ * - Subtle hover lift without continuous floating
  * - Smooth transitions
- * 
- * Use this for hero cards and info cards throughout the app.
  */
 export function MotionCard({ children, className = "" }: MotionCardProps) {
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ 
-        opacity: 1,
-        y: [0, -8, 0],
-      }}
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{
-        opacity: { duration: 0.5 },
-        y: {
-          duration: 4,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 0.5, // Start float after initial entrance
-        },
+        opacity: { duration: 0.45 },
+        y: { duration: 0.45, ease: "easeOut" },
       }}
       whileHover={{
-        // Hover effect sans rotations 3D pour éviter le flou
-        scale: 1.02,
-        y: -4,
-        transition: { duration: 0.3 },
+        scale: 1.01,
+        y: -3,
+        transition: { duration: 0.18 },
       }}
       style={{
-        // Optimisations pour éviter le flou lors des transformations
         willChange: "transform",
         backfaceVisibility: "hidden",
       }}
@@ -50,4 +38,3 @@ export function MotionCard({ children, className = "" }: MotionCardProps) {
     </motion.div>
   );
 }
-
