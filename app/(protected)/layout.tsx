@@ -1,103 +1,78 @@
-import Link from "next/link";
 import { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Profile } from "@/types/profile";
-import { logoutAction } from "./actions";
 
-// Force dynamic rendering - this layout requires authentication
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
-export const fetchCache = 'force-no-store';
-
-// When we ship the real Play/Quest/Profile/Teachers/Dashboard pages, update this list
-// to point to the new routes or add/remove entries as needed.
-// Navigation supprimée - elle est déjà dans le header global (AppHeader)
+export const fetchCache = "force-no-store";
 
 type ProtectedLayoutProps = {
   children: ReactNode;
 };
 
-export default async function ProtectedLayout({ children }: ProtectedLayoutProps) {
-  const supabase = await createSupabaseServerClient();
-  
-  // Vérifie d'abord la session
-  const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-  if (sessionError) {
-    console.error("Session error in ProtectedLayout:", {
-      message: sessionError.message,
-      status: sessionError.status,
-    });
-  }
-  
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError) {
-    console.error("Error getting user in ProtectedLayout:", {
-      message: userError.message,
-      status: userError.status,
-    });
-  }
-
-  if (!user) {
-    console.log("No user found in ProtectedLayout, redirecting to login");
-    redirect("/auth/login");
-  }
-  
-  // Utiliser le client admin pour contourner RLS et s'assurer de récupérer le profil
+async function ensureProfile(userId: string, email: string | null, usernameSeed: string | null) {
   const adminClient = createSupabaseAdminClient();
-  
-  let { data: profileData, error: profileError } = await adminClient
+  const { data: profileData, error: profileError } = await adminClient
     .from("profiles")
     .select("id, username, role, xp, gold, level, avatar_id, created_at, updated_at, email")
-    .eq("id", user.id)
+    .eq("id", userId)
     .maybeSingle();
 
   if (profileError && profileError.code !== "PGRST116") {
-    console.error("Error loading profile in ProtectedLayout:", {
-      code: profileError.code,
-      message: profileError.message,
-    });
+    throw profileError;
   }
 
-  let profile = profileData as Profile | null;
-
-  // Si le profil n'existe pas, créons-le maintenant
-  if (!profile && user) {
-    const username = user.user_metadata?.username || user.email?.split("@")[0] || `user_${user.id.slice(0, 8)}`;
-    const cleanUsername = username.toLowerCase().replace(/[^a-z0-9_]/g, '_').substring(0, 50);
-    
-    const { data: newProfile, error: createError } = await adminClient
-      .from("profiles")
-      .insert({
-        id: user.id,
-        username: cleanUsername,
-        email: user.email || null,
-        role: "student",
-        xp: 0,
-        gold: 0,
-        level: 1,
-      })
-      .select()
-      .single();
-
-    if (createError) {
-      console.error("Error creating profile in ProtectedLayout:", {
-        code: createError.code,
-        message: createError.message,
-      });
-    } else {
-      profile = newProfile as Profile;
-    }
+  if (profileData) {
+    return profileData as Profile;
   }
 
-  // Si on n'a toujours pas de profil après avoir essayé de le créer, on redirige
-  if (!profile) {
-    console.log("Could not create profile, redirecting to login");
+  const baseUsername =
+    usernameSeed || email?.split("@")[0] || `user_${userId.slice(0, 8)}`;
+  const cleanUsername = baseUsername
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, "_")
+    .substring(0, 50);
+
+  const { data: createdProfile, error: createError } = await adminClient
+    .from("profiles")
+    .insert({
+      id: userId,
+      username: cleanUsername,
+      email,
+      role: "student",
+      xp: 0,
+      gold: 0,
+      level: 1,
+    })
+    .select()
+    .single();
+
+  if (createError || !createdProfile) {
+    throw createError ?? new Error("Unable to create profile");
+  }
+
+  return createdProfile as Profile;
+}
+
+export default async function ProtectedLayout({ children }: ProtectedLayoutProps) {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/auth/login");
+  }
+
+  try {
+    await ensureProfile(
+      user.id,
+      user.email ?? null,
+      (user.user_metadata?.username as string | undefined) ?? null
+    );
+  } catch {
     redirect("/auth/login");
   }
 
@@ -111,4 +86,3 @@ export default async function ProtectedLayout({ children }: ProtectedLayoutProps
     </div>
   );
 }
-
