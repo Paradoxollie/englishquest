@@ -204,32 +204,6 @@ html {
   background-size: 10px 10px;
 }
 
-.lesson-shell {
-  position: relative;
-}
-
-.lesson-shell::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 20% 15%, rgba(6, 182, 212, 0.06), transparent 26%),
-    radial-gradient(circle at 80% 18%, rgba(124, 58, 237, 0.06), transparent 24%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.015), transparent 35%);
-}
-
-.lesson-section-shell::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(140deg, rgba(255, 255, 255, 0.03), transparent 28%),
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.04), transparent 26%);
-  opacity: 0.8;
-}
-
 .lesson-section-content > * + * {
   margin-top: 1.25rem;
 }

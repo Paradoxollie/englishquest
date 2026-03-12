@@ -2,11 +2,6 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@/components/ui/icons";
 
-/**
- * Composant reutilisable pour afficher les cours de grammaire
- * Style English Quest: comics premium, structure editoriale nette.
- */
-
 export type CalloutType = "remember" | "warning" | "tip";
 
 interface CalloutBoxProps {
@@ -54,8 +49,6 @@ export function parseLessonSectionTitle(title: string, index: number): ParsedLes
     badgeLabel = "Validation";
   } else if (/introduction|ouverture/i.test(remainingTitle)) {
     badgeLabel = "Ouverture";
-  } else if (/vigilance|piege|attention/i.test(remainingTitle)) {
-    badgeLabel = "Vigilance";
   }
 
   return {
@@ -69,13 +62,12 @@ export function parseLessonSectionTitle(title: string, index: number): ParsedLes
 function CalloutBox({ type, children }: CalloutBoxProps) {
   const styles = {
     remember: {
-      bg: "linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(34, 197, 94, 0.08) 100%)",
-      border: "border-emerald-500/50",
-      iconBg: "bg-emerald-500",
+      bg: "linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(34, 197, 94, 0.15) 100%)",
+      border: "border-emerald-500/60",
+      iconBg: "bg-emerald-600",
       title: "A retenir",
-      glow: "shadow-[0_0_0_1px_rgba(16,185,129,0.18),0_24px_50px_rgba(16,185,129,0.08)]",
       icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -86,13 +78,12 @@ function CalloutBox({ type, children }: CalloutBoxProps) {
       ),
     },
     warning: {
-      bg: "linear-gradient(135deg, rgba(245, 158, 11, 0.18) 0%, rgba(217, 119, 6, 0.08) 100%)",
-      border: "border-amber-500/50",
-      iconBg: "bg-amber-500",
+      bg: "linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(251, 191, 36, 0.15) 100%)",
+      border: "border-amber-500/60",
+      iconBg: "bg-amber-600",
       title: "Attention",
-      glow: "shadow-[0_0_0_1px_rgba(245,158,11,0.18),0_24px_50px_rgba(245,158,11,0.08)]",
       icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -103,13 +94,12 @@ function CalloutBox({ type, children }: CalloutBoxProps) {
       ),
     },
     tip: {
-      bg: "linear-gradient(135deg, rgba(6, 182, 212, 0.18) 0%, rgba(59, 130, 246, 0.08) 100%)",
-      border: "border-cyan-500/50",
-      iconBg: "bg-cyan-500",
+      bg: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.15) 100%)",
+      border: "border-cyan-500/60",
+      iconBg: "bg-cyan-600",
       title: "Astuce",
-      glow: "shadow-[0_0_0_1px_rgba(6,182,212,0.18),0_24px_50px_rgba(6,182,212,0.08)]",
       icon: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -125,21 +115,23 @@ function CalloutBox({ type, children }: CalloutBoxProps) {
 
   return (
     <div
-      className={`lesson-callout ${style.glow} relative my-6 overflow-hidden rounded-[1.35rem] border-2 p-5 ${style.border}`}
+      className={`comic-panel relative my-6 overflow-hidden border-2 p-5 ${style.border}`}
       style={{ background: style.bg }}
     >
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute -right-8 top-0 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+      <div className="absolute inset-0 opacity-5 pointer-events-none">
+        <div
+          className={`absolute top-0 right-0 h-32 w-32 rounded-full blur-3xl ${
+            type === "remember" ? "bg-emerald-500" : type === "warning" ? "bg-amber-500" : "bg-cyan-500"
+          }`}
+        />
       </div>
       <div className="relative z-10 flex items-start gap-4">
-        <div className={`${style.iconBg} flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-2 border-black text-white shadow-[0_4px_0_0_#000]`}>
-          {style.icon}
+        <div className={`${style.iconBg} rounded-lg border-2 border-black p-2 shadow-lg`}>
+          <div className="text-white">{style.icon}</div>
         </div>
-        <div className="min-w-0 flex-1">
-          <h4 className="mb-2 text-lg font-black uppercase tracking-[0.16em] text-white text-outline">
-            {style.title}
-          </h4>
-          <div className="text-slate-100 text-outline leading-relaxed">{children}</div>
+        <div className="flex-1">
+          <h4 className="mb-3 text-lg font-bold text-white text-outline">{style.title}</h4>
+          <div className="leading-relaxed text-slate-100 text-outline">{children}</div>
         </div>
       </div>
     </div>
@@ -167,57 +159,44 @@ function LessonSection({
   return (
     <section
       id={anchorId}
-      className={`lesson-section-shell comic-panel-dark relative mb-8 scroll-mt-28 overflow-hidden p-6 md:p-8 ${className}`}
+      className={`comic-panel-dark relative mb-8 scroll-mt-28 overflow-hidden p-6 md:p-8 ${className}`}
       style={{
-        background:
-          "linear-gradient(135deg, rgba(24, 39, 68, 0.97) 0%, rgba(15, 23, 42, 0.98) 45%, rgba(10, 18, 35, 0.98) 100%)",
+        background: "linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%)",
       }}
     >
-      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-500 via-indigo-500 to-fuchsia-500 opacity-85" />
-      <div className="absolute inset-y-0 left-0 w-px bg-gradient-to-b from-cyan-400/30 via-transparent to-transparent" />
-      <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-cyan-500/8 blur-3xl" />
+      <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-500 opacity-60" />
 
       <div className="relative z-10">
-        <div className="mb-8 flex flex-col gap-5 border-b border-white/10 pb-6 md:flex-row md:items-start md:justify-between">
-          <div className="flex items-start gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.1rem] border-2 border-black bg-slate-950/70 shadow-[0_4px_0_0_#000]">
-              <span className="bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 bg-clip-text text-xl font-black text-transparent">
-                {parsed.numericIndex ?? sectionIndex + 1}
-              </span>
-            </div>
+        <div className="mb-8 flex flex-col items-center gap-2 text-center">
+          {parsed.numericIndex !== null && (
+            <span className="comic-panel border-2 border-black bg-slate-900 px-4 py-1 text-sm font-bold text-cyan-300">
+              Etape {parsed.numericIndex}
+            </span>
+          )}
 
-            <div className="min-w-0">
-              <p className="mb-2 text-[11px] font-black uppercase tracking-[0.24em] text-cyan-300/90">
-                {parsed.badgeLabel}
-              </p>
-              <h2
-                className="text-2xl font-black leading-tight text-white md:text-3xl"
-                style={{
-                  textShadow:
-                    "3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000",
-                }}
-              >
-                {parsed.mainTitle}
-              </h2>
-              {parsed.subTitle && (
-                <p className="mt-2 text-sm font-bold uppercase tracking-[0.18em] text-violet-300 md:text-base">
-                  {parsed.subTitle}
-                </p>
-              )}
-            </div>
-          </div>
+          <div className="mb-4 h-1 w-24 rounded-full bg-gradient-to-r from-cyan-400 to-indigo-400" />
 
-          <Link
-            href={`#${anchorId}`}
-            className="inline-flex items-center gap-2 self-start rounded-full border border-white/15 bg-slate-950/45 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-slate-300 transition-colors hover:border-cyan-400/50 hover:text-cyan-200"
+          <h2
+            className="text-2xl font-bold leading-tight text-white md:text-3xl"
+            style={{
+              textShadow:
+                "3px 3px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000",
+            }}
           >
-            Ancre
-          </Link>
+            {parsed.mainTitle}
+          </h2>
+
+          {parsed.subTitle && (
+            <span
+              className="mt-1 block text-lg font-bold uppercase tracking-wide text-cyan-400 md:text-xl"
+              style={{ textShadow: "1px 1px 0 rgba(0,0,0,0.5)" }}
+            >
+              {parsed.subTitle}
+            </span>
+          )}
         </div>
 
-        <div className="lesson-section-content text-slate-200 text-outline leading-relaxed">
-          {children}
-        </div>
+        <div className="lesson-section-content leading-relaxed text-slate-200 text-outline">{children}</div>
       </div>
     </section>
   );
@@ -238,83 +217,76 @@ export function LessonLayout({
   children,
   backUrl = "/tous-les-cours",
 }: LessonLayoutProps) {
-  const titleMatch = title.match(/^(.*?)\s*\((.*)\)\s*$/);
-  const mainTitle = titleMatch ? titleMatch[1] : title;
-  const subTitle = titleMatch ? titleMatch[2] : null;
-
   return (
-    <main className="lesson-shell min-h-screen bg-gradient-to-br from-stone-950 via-[#071324] to-stone-950 comic-dot-pattern">
-      <div className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-12">
+    <main className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
+      <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">
         <div
-          className="comic-panel-dark relative w-full overflow-hidden p-6 md:p-8 lg:p-10"
+          className="comic-panel-dark relative w-full overflow-hidden p-6 md:p-8"
           style={{
-            background:
-              "linear-gradient(135deg, rgba(22, 35, 61, 0.98) 0%, rgba(15, 23, 42, 0.99) 48%, rgba(7, 18, 36, 0.99) 100%)",
+            background: "linear-gradient(135deg, rgba(30, 41, 59, 0.98) 0%, rgba(15, 23, 42, 0.98) 100%)",
           }}
         >
-          <div className="absolute inset-0 opacity-10 pointer-events-none">
-            <div className="absolute left-10 top-10 h-64 w-64 rounded-full bg-cyan-500 blur-3xl" />
-            <div className="absolute bottom-8 right-8 h-52 w-52 rounded-full bg-violet-500 blur-3xl" />
+          <div className="absolute inset-0 opacity-5 pointer-events-none">
+            <div className="absolute top-10 right-10 h-64 w-64 rounded-full bg-cyan-500 blur-3xl" />
+            <div className="absolute bottom-10 left-10 h-48 w-48 rounded-full bg-indigo-500 blur-3xl" />
           </div>
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent" />
 
           <div className="relative z-10">
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-4 md:mb-8">
+            <div className="mb-6 md:mb-8">
               <Link
                 href={backUrl}
-                className="comic-button inline-flex items-center gap-2 bg-slate-800 px-4 py-2 text-sm font-bold text-white hover:bg-slate-700"
+                className="comic-button inline-flex items-center gap-1.5 border-2 border-black bg-slate-800 px-3 py-1.5 text-xs font-bold text-white hover:bg-slate-700 md:gap-2 md:border-4 md:px-5 md:py-2.5 md:text-base"
               >
-                <ArrowLeftIcon className="h-4 w-4" />
+                <ArrowLeftIcon className="h-3 w-3 md:h-4 md:w-4" />
                 Retour aux cours
               </Link>
+            </div>
 
-              <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-slate-300">
-                <span className="comic-panel border-2 border-black bg-slate-950/70 px-3 py-1">
-                  Parcours English Quest
-                </span>
-                <span className="comic-panel border-2 border-black bg-indigo-700 px-3 py-1 text-white">
+            <header className="mb-8 flex flex-col items-center text-center md:mb-12">
+              <div className="mb-4 md:mb-6">
+                <span className="comic-panel inline-block border-2 border-black bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-sm font-bold text-white text-outline shadow-lg md:border-4 md:text-base">
                   Cours {courseNumber}
                 </span>
               </div>
-            </div>
 
-            <header className="mb-8 md:mb-12">
-              <div className="mx-auto max-w-3xl text-center">
-                <p className="mb-4 text-[11px] font-black uppercase tracking-[0.34em] text-cyan-300 md:text-xs">
-                  Lecon structuree, claire et progressive
-                </p>
+              {(() => {
+                const match = title.match(/^(.*?)\s*\((.*)\)\s*$/);
+                const main = match ? match[1] : title;
+                const sub = match ? match[2] : null;
 
-                <h1
-                  className="text-4xl font-black leading-none text-white md:text-6xl"
-                  style={{
-                    textShadow:
-                      "4px 4px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000",
-                  }}
-                >
-                  {mainTitle}
-                </h1>
-
-                {subTitle && (
-                  <p className="mt-4 bg-gradient-to-r from-cyan-300 via-sky-300 to-violet-300 bg-clip-text text-2xl font-black tracking-[0.08em] text-transparent md:text-4xl">
-                    {subTitle}
-                  </p>
-                )}
-
-                {objective && (
-                  <div className="mt-8 rounded-[1.6rem] border-2 border-white/10 bg-slate-950/35 p-5 shadow-[0_28px_60px_rgba(0,0,0,0.28)] md:p-6">
-                    <div className="mx-auto mb-4 h-1.5 w-24 rounded-full bg-gradient-to-r from-cyan-400 via-sky-400 to-violet-400" />
-                    <p className="mb-2 text-[11px] font-black uppercase tracking-[0.26em] text-cyan-300">
-                      Objectif de maitrise
-                    </p>
-                    <p className="text-base leading-relaxed text-slate-100 md:text-xl">
-                      {objective}
-                    </p>
+                return (
+                  <div className="mb-6 flex flex-col items-center">
+                    <h1
+                      className="mb-2 max-w-3xl text-3xl font-black leading-tight text-white text-balance md:text-5xl lg:text-6xl"
+                      style={{
+                        textShadow:
+                          "4px 4px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000",
+                      }}
+                    >
+                      {main}
+                    </h1>
+                    {sub && (
+                      <h2
+                        className="mt-2 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-xl font-bold tracking-wide text-transparent md:text-3xl"
+                        style={{ filter: "drop-shadow(2px 2px 0px rgba(0,0,0,0.5))" }}
+                      >
+                        {sub}
+                      </h2>
+                    )}
                   </div>
-                )}
-              </div>
+                );
+              })()}
+
+              {objective && (
+                <div className="comic-panel max-w-2xl rounded-xl border-2 border-slate-700/50 bg-slate-800/80 p-4 md:border-4 md:p-6">
+                  <p className="text-base leading-tight text-slate-100 text-outline text-balance md:text-xl md:leading-relaxed">
+                    {objective}
+                  </p>
+                </div>
+              )}
             </header>
 
-            <div className="space-y-8 md:space-y-10">{children}</div>
+            <div className="space-y-8">{children}</div>
           </div>
         </div>
       </div>
