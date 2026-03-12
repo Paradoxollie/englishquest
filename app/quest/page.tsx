@@ -2,14 +2,10 @@ import Link from "next/link";
 import { MotionCard } from "@/components/ui/motion-card";
 import { BookIcon, GoldIcon, QuestIcon, XPIcon } from "@/components/ui/icons";
 import { paliers } from "@/lib/courses/data";
+import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type QuestStatus = "locked" | "unlocked" | "in_progress" | "completed";
-
-type RewardSummary = {
-  xp: number;
-  gold: number;
-};
 
 const palierGradients = [
   "linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(34, 197, 94, 0.22) 100%)",
@@ -33,99 +29,17 @@ const statusLabels: Record<QuestStatus, string> = {
   completed: "Termine",
 };
 
-function getFallbackRewards(courseNumber: number): RewardSummary {
-  return {
-    xp: 100 + (courseNumber - 1) * 20,
-    gold: 50 + (courseNumber - 1) * 10,
-  };
-}
-
-function buildCourseStatuses(progressByNumber: Map<number, QuestStatus>): Map<number, QuestStatus> {
-  const derivedStatuses = new Map<number, QuestStatus>();
-
-  for (const palier of paliers) {
-    for (const course of palier.courses) {
-      const storedStatus = progressByNumber.get(course.id);
-
-      if (storedStatus) {
-        derivedStatuses.set(course.id, storedStatus);
-        continue;
-      }
-
-      if (course.id === 1) {
-        derivedStatuses.set(course.id, "unlocked");
-        continue;
-      }
-
-      const previousStatus = derivedStatuses.get(course.id - 1);
-      derivedStatuses.set(course.id, previousStatus === "completed" ? "unlocked" : "locked");
-    }
-  }
-
-  return derivedStatuses;
-}
-
 export default async function QuestPage() {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   const isLoggedIn = Boolean(user);
-
-  const rewardsByNumber = new Map<number, RewardSummary>();
-  const progressByNumber = new Map<number, QuestStatus>();
-
-  if (user) {
-    const [{ data: dbCourses }, { data: dbProgress }] = await Promise.all([
-      supabase
-        .from("courses")
-        .select("id, course_number, reward_xp, reward_gold")
-        .order("course_number", { ascending: true }),
-      supabase.from("user_course_progress").select("course_id, status").eq("user_id", user.id),
-    ]);
-
-    const courseIdToNumber = new Map<string, number>();
-
-    for (const course of dbCourses ?? []) {
-      courseIdToNumber.set(course.id, course.course_number);
-      rewardsByNumber.set(course.course_number, {
-        xp: course.reward_xp,
-        gold: course.reward_gold,
-      });
-    }
-
-    for (const progress of dbProgress ?? []) {
-      const courseNumber = courseIdToNumber.get(progress.course_id);
-      if (!courseNumber) {
-        continue;
-      }
-
-      if (
-        progress.status === "locked" ||
-        progress.status === "unlocked" ||
-        progress.status === "in_progress" ||
-        progress.status === "completed"
-      ) {
-        progressByNumber.set(courseNumber, progress.status);
-      }
-    }
-  }
-
-  const statusByCourseNumber = buildCourseStatuses(progressByNumber);
-  const flatCourses = paliers.flatMap((palier) =>
-    palier.courses.map((course) => ({
-      ...course,
-      palierId: palier.id,
-      rewards: rewardsByNumber.get(course.id) ?? getFallbackRewards(course.id),
-      status: statusByCourseNumber.get(course.id) ?? "locked",
-    }))
-  );
-
-  const totalCourses = flatCourses.length;
-  const completedCount = flatCourses.filter((course) => course.status === "completed").length;
-  const activeCourse =
-    flatCourses.find((course) => course.status === "in_progress") ||
-    flatCourses.find((course) => course.status === "unlocked");
+  const roadmap = user ? await getUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
+  const flatCourses = roadmap.entries;
+  const totalCourses = roadmap.totalCourses;
+  const completedCount = roadmap.completedCount;
+  const activeCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
@@ -175,7 +89,7 @@ export default async function QuestPage() {
                   </p>
                   <p className="mt-2 text-lg font-bold text-white">
                     {activeCourse
-                      ? `Cours ${activeCourse.id} : ${activeCourse.title}`
+                      ? `Cours ${activeCourse.courseId} : ${activeCourse.title}`
                       : "Tout le parcours est complete"}
                   </p>
                 </div>
@@ -247,9 +161,9 @@ export default async function QuestPage() {
 
                     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                       {palier.courses.map((course) => {
-                        const entry = flatCourses.find((item) => item.id === course.id)!;
+                        const entry = flatCourses.find((item) => item.courseId === course.id)!;
                         const isCurrentCourse =
-                          activeCourse?.id === course.id && entry.status !== "completed";
+                          activeCourse?.courseId === course.id && entry.status !== "completed";
 
                         return (
                           <div
@@ -264,7 +178,7 @@ export default async function QuestPage() {
                               <div className="flex items-start justify-between gap-3">
                                 <div className="comic-panel border-2 border-black bg-slate-800 px-3 py-2">
                                   <span className="text-lg font-bold text-white text-outline">
-                                    {course.id}
+                                    {entry.courseId}
                                   </span>
                                 </div>
                                 <div className="flex flex-wrap justify-end gap-2">
@@ -280,8 +194,8 @@ export default async function QuestPage() {
                               </div>
 
                               <div className="space-y-2">
-                                <h3 className="text-xl font-bold text-white text-outline">
-                                  {course.title}
+                                  <h3 className="text-xl font-bold text-white text-outline">
+                                  {entry.title}
                                 </h3>
                                 {isCurrentCourse && (
                                   <p className="text-sm font-semibold text-cyan-300">
@@ -294,13 +208,13 @@ export default async function QuestPage() {
                                 <div className="comic-panel border-2 border-black bg-emerald-700/70 px-3 py-2">
                                   <div className="flex items-center gap-2 text-xs font-bold text-white text-outline">
                                     <XPIcon className="h-4 w-4" />
-                                    <span>{entry.rewards.xp} XP</span>
+                                    <span>{entry.rewardXp} XP</span>
                                   </div>
                                 </div>
                                 <div className="comic-panel border-2 border-black bg-amber-600/80 px-3 py-2">
                                   <div className="flex items-center gap-2 text-xs font-bold text-white text-outline">
                                     <GoldIcon className="h-4 w-4" />
-                                    <span>{entry.rewards.gold} or</span>
+                                    <span>{entry.rewardGold} or</span>
                                   </div>
                                 </div>
                               </div>

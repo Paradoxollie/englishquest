@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LessonLayout, LessonSection } from "@/components/courses/lesson-layout";
+import { CourseExperiencePanel } from "@/components/courses/course-experience-panel";
 import { getCourseById, getPalierForCourse, paliers } from "@/lib/courses/data";
 import { lessons } from "@/lib/courses/lessons";
+import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 interface CoursePageProps {
   params: Promise<{ id: string }>;
 }
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 export function generateStaticParams() {
   return paliers.flatMap((palier) =>
@@ -47,6 +54,17 @@ export default async function CoursePage({ params }: CoursePageProps) {
   const courseId = Number.parseInt(id, 10);
   const lesson = lessons[courseId];
   const course = getCourseById(courseId);
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const roadmap = user ? await getUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
+  const roadmapEntry =
+    roadmap.entries.find((entry) => entry.courseId === courseId) ?? null;
+  const previousEntry =
+    roadmap.entries.find((entry) => entry.courseId === courseId - 1) ?? null;
+  const nextEntry =
+    roadmap.entries.find((entry) => entry.courseId === courseId + 1) ?? null;
 
   if (!lesson) {
     return (
@@ -80,6 +98,14 @@ export default async function CoursePage({ params }: CoursePageProps) {
       title={lesson.title}
       objective={lesson.objective}
     >
+      {roadmapEntry && (
+        <CourseExperiencePanel
+          entry={roadmapEntry}
+          previousEntry={previousEntry}
+          nextEntry={nextEntry}
+          isAuthenticated={Boolean(user)}
+        />
+      )}
       {lesson.sections.map((section, index) => (
         <LessonSection key={index} title={section.title}>
           {section.content}
