@@ -1,4 +1,5 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getCourseMissionPlan } from "@/lib/courses/campaign";
 import { getUserCourseChallengeProgress } from "@/lib/courses/mission-progress";
 import { getUserCourseRoadmap, type CourseRoadmapEntry } from "@/lib/courses/progress";
 
@@ -99,6 +100,29 @@ function buildCourseMissionState(
   };
 }
 
+function buildFallbackCourseMissionState(entry: CourseRoadmapEntry): CourseMissionState {
+  const telemetry = decodeCourseMissionTelemetry(entry.missionTelemetry);
+  const mission = getCourseMissionPlan(entry);
+  const hasQuizResult = telemetry.quizTotal > 0;
+  const quizAccuracy = hasQuizResult
+    ? Math.round((telemetry.quizScore / telemetry.quizTotal) * 100)
+    : null;
+  const quizPassed = hasQuizResult
+    ? isCourseQuizScorePassing(telemetry.quizScore, telemetry.quizTotal)
+    : false;
+
+  return {
+    readingCheckpointReached: telemetry.readingCheckpointReached || hasQuizResult,
+    quizScore: hasQuizResult ? telemetry.quizScore : null,
+    quizTotal: hasQuizResult ? telemetry.quizTotal : null,
+    quizAccuracy,
+    quizPassed,
+    bestGameScore: null,
+    gameChallengeReached: !mission.primaryGameSlug,
+    readyToComplete: quizPassed && !mission.primaryGameSlug,
+  };
+}
+
 async function refreshMissionState(userId: string, courseNumber: number) {
   const roadmap = await getUserCourseRoadmap(userId);
   const entry = roadmap.entries.find((item) => item.courseId === courseNumber) ?? null;
@@ -140,10 +164,14 @@ export async function getUserCourseMissionState(
   userId: string,
   entry: CourseRoadmapEntry
 ): Promise<CourseMissionState> {
-  const telemetry = decodeCourseMissionTelemetry(entry.missionTelemetry);
-  const gameChallenge = await getUserCourseChallengeProgress(userId, entry);
+  try {
+    const telemetry = decodeCourseMissionTelemetry(entry.missionTelemetry);
+    const gameChallenge = await getUserCourseChallengeProgress(userId, entry);
 
-  return buildCourseMissionState(telemetry, gameChallenge);
+    return buildCourseMissionState(telemetry, gameChallenge);
+  } catch {
+    return buildFallbackCourseMissionState(entry);
+  }
 }
 
 export async function recordCourseReadingCheckpoint(

@@ -11,52 +11,59 @@ export async function getUserCourseChallengeProgress(
   userId: string,
   entry: CourseRoadmapEntry
 ): Promise<CourseChallengeProgress> {
-  const mission = getCourseMissionPlan(entry);
+  try {
+    const mission = getCourseMissionPlan(entry);
 
-  if (!mission.primaryGameSlug) {
+    if (!mission.primaryGameSlug) {
+      return {
+        bestScore: null,
+        reached: true,
+      };
+    }
+
+    const adminClient = createSupabaseAdminClient();
+    const { data: game } = await adminClient
+      .from("games")
+      .select("id")
+      .eq("slug", mission.primaryGameSlug)
+      .maybeSingle();
+
+    if (!game) {
+      return {
+        bestScore: null,
+        reached: false,
+      };
+    }
+
+    const { data: bestScoreRow } = await adminClient
+      .from("game_scores")
+      .select("score")
+      .eq("user_id", userId)
+      .eq("game_id", game.id)
+      .order("score", { ascending: mission.scoreDirection === "lower" })
+      .limit(1)
+      .maybeSingle();
+
+    const bestScore = bestScoreRow?.score ?? null;
+
+    if (bestScore === null) {
+      return {
+        bestScore: null,
+        reached: false,
+      };
+    }
+
     return {
-      bestScore: null,
-      reached: true,
+      bestScore,
+      reached:
+        mission.scoreDirection === "lower"
+          ? bestScore <= mission.scoreTarget
+          : bestScore >= mission.scoreTarget,
     };
-  }
-
-  const adminClient = createSupabaseAdminClient();
-  const { data: game } = await adminClient
-    .from("games")
-    .select("id")
-    .eq("slug", mission.primaryGameSlug)
-    .maybeSingle();
-
-  if (!game) {
+  } catch {
     return {
       bestScore: null,
       reached: false,
     };
   }
-
-  const { data: bestScoreRow } = await adminClient
-    .from("game_scores")
-    .select("score")
-    .eq("user_id", userId)
-    .eq("game_id", game.id)
-    .order("score", { ascending: mission.scoreDirection === "lower" })
-    .limit(1)
-    .maybeSingle();
-
-  const bestScore = bestScoreRow?.score ?? null;
-
-  if (bestScore === null) {
-    return {
-      bestScore: null,
-      reached: false,
-    };
-  }
-
-  return {
-    bestScore,
-    reached:
-      mission.scoreDirection === "lower"
-        ? bestScore <= mission.scoreTarget
-        : bestScore >= mission.scoreTarget,
-  };
 }
