@@ -8,14 +8,13 @@ export const metadata = {
 export default function SignupPage() {
   return (
     <AuthCard
-      title="Create your hero"
-      subtitle="Pick a pseudonym, choose a password, and start earning XP."
-      footerHint="Already have an account?"
-      footerLinkLabel="Log in"
+      title="Cree ton profil"
+      subtitle="Choisis un pseudo, definis ton mot de passe et entre dans l'univers English Quest."
+      footerHint="Tu as deja un compte ?"
+      footerLinkLabel="Se connecter"
       footerHref="/auth/login"
     >
       <SignupForm />
     </AuthCard>
   );
 }
-

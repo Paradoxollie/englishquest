@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { GameEmblem } from "@/components/play/game-emblem";
 import { GameRecommendationCard } from "@/components/play/game-recommendation-card";
 import { BookIcon, GameIcon, QuestIcon } from "@/components/ui/icons";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -61,9 +62,7 @@ export default async function GamePage({ params }: PageProps) {
         <div className="comic-panel-dark mb-8 p-8">
           <div className="relative z-10 space-y-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-center">
-              <div className={`comic-panel ${game.iconBg} border-2 border-black p-4 text-4xl`}>
-                {game.icon}
-              </div>
+              <GameEmblem game={game} className="h-20 w-20 shrink-0 md:h-24 md:w-24" />
               <div>
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                   <span
@@ -174,6 +173,13 @@ export default async function GamePage({ params }: PageProps) {
                     game={alternative}
                     badgeLabel="Alternative"
                     ctaLabel="Jouer a la place"
+                    className={
+                      alternatives.length > 1 &&
+                      alternatives.length % 2 === 1 &&
+                      alternative.slug === alternatives[alternatives.length - 1]?.slug
+                        ? "md:col-span-2"
+                        : ""
+                    }
                   />
                 ))}
               </div>

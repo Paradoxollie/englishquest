@@ -1,33 +1,72 @@
 import Link from "next/link";
-import { MotionCard } from "@/components/ui/motion-card";
-import { BookIcon, GoldIcon, QuestIcon, XPIcon } from "@/components/ui/icons";
-import { paliers } from "@/lib/courses/data";
+import {
+  CampaignTreasureMap,
+  type QuestPlayerToken,
+} from "@/components/quest/campaign-treasure-map";
+import {
+  BookIcon,
+  GameIcon,
+  GoldIcon,
+  QuestIcon,
+  TrophyIcon,
+  XPIcon,
+} from "@/components/ui/icons";
+import { getCourseMissionPlan } from "@/lib/courses/campaign";
+import { getUserCourseMissionState } from "@/lib/courses/mission-state";
+import { getCourseVisualProfile } from "@/lib/courses/presentation";
 import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-type QuestStatus = "locked" | "unlocked" | "in_progress" | "completed";
+async function getQuestPlayerToken(
+  userId: string,
+  fallbackName: string | undefined
+): Promise<QuestPlayerToken | null> {
+  try {
+    const adminClient = createSupabaseAdminClient();
+    const [{ data: profile }, { data: equipped }] = await Promise.all([
+      adminClient.from("profiles").select("username").eq("id", userId).maybeSingle(),
+      adminClient
+        .from("user_equipped_items")
+        .select(
+          `
+            equipped_avatar:shop_items!equipped_avatar_id(image_url,color_theme,name),
+            equipped_background:shop_items!equipped_background_id(image_url,color_theme,name)
+          `
+        )
+        .eq("user_id", userId)
+        .maybeSingle(),
+    ]);
 
-const palierGradients = [
-  "linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(34, 197, 94, 0.22) 100%)",
-  "linear-gradient(135deg, rgba(6, 182, 212, 0.22) 0%, rgba(59, 130, 246, 0.22) 100%)",
-  "linear-gradient(135deg, rgba(99, 102, 241, 0.22) 0%, rgba(139, 92, 246, 0.22) 100%)",
-  "linear-gradient(135deg, rgba(168, 85, 247, 0.22) 0%, rgba(236, 72, 153, 0.22) 100%)",
-  "linear-gradient(135deg, rgba(239, 68, 68, 0.22) 0%, rgba(249, 115, 22, 0.22) 100%)",
-];
+    const avatar = Array.isArray(equipped?.equipped_avatar)
+      ? equipped.equipped_avatar[0]
+      : equipped?.equipped_avatar;
+    const background = Array.isArray(equipped?.equipped_background)
+      ? equipped.equipped_background[0]
+      : equipped?.equipped_background;
+    const username = profile?.username ?? fallbackName ?? "Joueur";
 
-const statusStyles: Record<QuestStatus, string> = {
-  locked: "bg-slate-700",
-  unlocked: "bg-cyan-600",
-  in_progress: "bg-amber-600",
-  completed: "bg-emerald-600",
-};
+    return {
+      username,
+      initial: username.charAt(0).toUpperCase(),
+      avatarImageUrl: avatar?.image_url ?? null,
+      backgroundImageUrl: background?.image_url ?? null,
+      backgroundTheme: background?.color_theme ?? avatar?.color_theme ?? null,
+    };
+  } catch {
+    if (!fallbackName) {
+      return null;
+    }
 
-const statusLabels: Record<QuestStatus, string> = {
-  locked: "Verrouille",
-  unlocked: "Debloque",
-  in_progress: "En cours",
-  completed: "Termine",
-};
+    return {
+      username: fallbackName,
+      initial: fallbackName.charAt(0).toUpperCase(),
+      avatarImageUrl: null,
+      backgroundImageUrl: null,
+      backgroundTheme: "cyan",
+    };
+  }
+}
 
 export default async function QuestPage() {
   const supabase = await createSupabaseServerClient();
@@ -36,217 +75,256 @@ export default async function QuestPage() {
   } = await supabase.auth.getUser();
   const isLoggedIn = Boolean(user);
   const roadmap = user ? await getUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
-  const flatCourses = roadmap.entries;
-  const totalCourses = roadmap.totalCourses;
-  const completedCount = roadmap.completedCount;
   const activeCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
+  const activeMission = activeCourse ? getCourseMissionPlan(activeCourse) : null;
+  const activeMissionState =
+    user && activeCourse ? await getUserCourseMissionState(user.id, activeCourse) : null;
+  const activeProfile = getCourseVisualProfile(activeCourse?.palierId ?? 1);
+  const fallbackName =
+    user?.user_metadata?.username ??
+    (user?.email ? user.email.split("@")[0] : undefined);
+  const playerToken = user ? await getQuestPlayerToken(user.id, fallbackName) : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
       <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
-        <div className="comic-panel-dark w-full p-6 md:p-8">
-          <div
-            className="comic-panel-dark mb-8 p-8"
-            style={{
-              background:
-                "linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(6, 182, 212, 0.22) 100%)",
-            }}
+        <div className="comic-panel-dark w-full p-4 md:p-6">
+          <section
+            className="comic-panel-dark relative overflow-hidden p-5 md:p-6"
+            style={{ background: activeProfile.bannerBackground }}
           >
-            <div className="relative z-10 space-y-6">
-              <div className="flex items-center gap-4">
-                <div className="comic-panel border-2 border-black bg-emerald-600 p-4">
-                  <QuestIcon className="h-8 w-8 text-white text-outline" />
-                </div>
-                <div>
-                  <h1 className="text-4xl font-bold text-white text-outline md:text-5xl">
-                    Chemin de cours
-                  </h1>
-                  <p className="mt-2 text-lg font-semibold text-slate-200 text-outline">
-                    Le parcours principal s'appuie sur les 50 vrais cours du site, organises en 5
-                    paliers progressifs.
-                  </p>
-                </div>
+            <div className="absolute inset-0 opacity-[0.16] comic-dot-pattern-light" />
+            <div
+              className="absolute inset-0 opacity-[0.12]"
+              style={{
+                background:
+                  "repeating-linear-gradient(128deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 18px)",
+              }}
+            />
+            <div className="absolute inset-y-0 left-0 w-3" style={{ background: activeProfile.rail }} />
+
+            <div className="relative z-10 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+              <div className="max-w-3xl">
+                <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-300 text-outline">
+                  Campagne Marvel
+                </p>
+                <h1 className="mt-3 text-3xl font-bold text-white text-outline md:text-5xl">
+                  La carte de campagne
+                </h1>
+                <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-200 text-outline md:text-lg">
+                  Traverse les actes, avance sur la route principale et fais progresser ton pion de
+                  mission en mission. `Aventure` devient enfin une vraie carte de progression.
+                </p>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="comic-panel border-2 border-black bg-slate-900/60 p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                    Contenu
-                  </p>
-                  <p className="mt-2 text-2xl font-bold text-white">{totalCourses} cours</p>
+              <div className="flex flex-wrap gap-3">
+                <div className="rounded-full border border-black/50 bg-slate-950/72 px-4 py-2 text-sm font-bold text-white">
+                  {roadmap.completedCount}/{roadmap.totalCourses} missions validees
                 </div>
-                <div className="comic-panel border-2 border-black bg-slate-900/60 p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                    Progression
-                  </p>
-                  <p className="mt-2 text-2xl font-bold text-white">
-                    {completedCount}/{totalCourses} termines
-                  </p>
-                </div>
-                <div className="comic-panel border-2 border-black bg-slate-900/60 p-4">
-                  <p className="text-xs uppercase tracking-[0.2em] text-slate-400">
-                    Focus
-                  </p>
-                  <p className="mt-2 text-lg font-bold text-white">
-                    {activeCourse
-                      ? `Cours ${activeCourse.courseId} : ${activeCourse.title}`
-                      : "Tout le parcours est complete"}
-                  </p>
-                </div>
-              </div>
-
-              {!isLoggedIn && (
-                <div className="space-y-4">
-                  <p className="text-sm font-bold text-amber-300 text-outline">
-                    Connectez-vous pour sauvegarder votre progression, l'XP et l'or gagnes sur ce
-                    parcours.
-                  </p>
-                  <div className="flex flex-wrap gap-4">
-                    <Link
-                      href="/auth/signup"
-                      className="comic-button bg-emerald-600 px-6 py-3 font-bold text-white hover:bg-emerald-700"
-                    >
-                      Creer mon compte
-                    </Link>
-                    <Link
-                      href="/tous-les-cours"
-                      className="comic-button bg-slate-800 px-6 py-3 font-bold text-white hover:bg-slate-700"
-                    >
-                      Voir la bibliotheque complete
-                    </Link>
+                {activeCourse && (
+                  <div className="rounded-full border border-black/50 bg-slate-950/56 px-4 py-2 text-sm font-bold text-slate-100">
+                    Acte {activeCourse.palierId} / {activeProfile.chapterLabel}
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-8">
-            {paliers.map((palier, palierIndex) => (
-              <MotionCard key={palier.id}>
-                <section
-                  className="comic-card-dark border-2 border-black p-6 md:p-8"
-                  style={{ background: palierGradients[palierIndex] }}
+                )}
+                <Link
+                  href="/tous-les-cours"
+                  className="comic-button inline-flex items-center gap-2 bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-slate-800"
                 >
-                  <div className="relative z-10 space-y-6">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                          <div className="comic-panel border-2 border-black bg-slate-900 px-4 py-2">
-                            <span className="text-sm font-bold uppercase tracking-[0.18em] text-cyan-300">
-                              Palier {palier.id}
-                            </span>
-                          </div>
-                          <div className="comic-panel border-2 border-black bg-black/40 px-4 py-2">
-                            <span className="text-sm font-bold text-white">{palier.level}</span>
-                          </div>
+                  <BookIcon className="h-4 w-4" />
+                  Bibliotheque libre
+                </Link>
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-6 space-y-6">
+            <CampaignTreasureMap
+              entries={roadmap.entries}
+              activeCourseId={activeCourse?.courseId ?? null}
+              playerToken={playerToken}
+            />
+
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
+              <div
+                className="comic-panel relative overflow-hidden border-2 border-black p-5 md:p-6"
+                style={{ background: activeProfile.cardBackground }}
+              >
+                <div className="absolute inset-0 opacity-[0.16] comic-dot-pattern-light" />
+                <div className="absolute inset-y-0 left-0 w-2" style={{ background: activeProfile.rail }} />
+
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-full border-2 border-black p-3" style={{ background: activeProfile.rail }}>
+                      <TrophyIcon className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-300">
+                        Mission active
+                      </p>
+                      <h2 className="text-xl font-bold text-white text-outline md:text-2xl">
+                        {activeCourse
+                          ? `Mission ${activeCourse.courseId}: ${activeCourse.title}`
+                          : "Mission 1"}
+                      </h2>
+                    </div>
+                  </div>
+
+                  {activeCourse && activeMission ? (
+                    <div className="mt-5 space-y-5">
+                      <p className="text-sm font-semibold leading-relaxed text-slate-100 text-outline">
+                        {activeMission.objective}
+                      </p>
+
+                      <div className="grid gap-3 md:grid-cols-3">
+                        <div className="rounded-2xl border border-cyan-400/20 bg-cyan-950/25 p-4">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">
+                            1. Point
+                          </p>
+                          <p className="mt-2 text-sm font-bold text-white">
+                            {activeMissionState?.readingCheckpointReached
+                              ? "Point atteint"
+                              : "Atteindre le quiz"}
+                          </p>
+                          <p className="mt-1 text-xs font-semibold text-slate-300">
+                            {activeCourse.estimatedMinutes} min pour descendre au checkpoint
+                          </p>
                         </div>
-                        <div>
-                          <h2 className="text-2xl font-bold text-white text-outline md:text-3xl">
-                            {palier.title}
-                          </h2>
-                          <p className="mt-2 max-w-3xl text-slate-200 text-outline">
-                            {palier.description}
+                        <div className="rounded-2xl border border-indigo-400/20 bg-indigo-950/25 p-4">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-indigo-300">
+                            2. Quiz
+                          </p>
+                          <p className="mt-2 text-sm font-bold text-white">
+                            {activeMissionState?.quizPassed ? "Quiz valide" : "80% minimum"}
+                          </p>
+                          <p className="mt-1 text-xs font-semibold text-slate-300">
+                            {activeMissionState?.quizScore != null &&
+                            activeMissionState?.quizTotal != null
+                              ? `${activeMissionState.quizScore}/${activeMissionState.quizTotal}`
+                              : activeMission.validationLabel}
+                          </p>
+                        </div>
+                        <div className="rounded-2xl border border-amber-400/20 bg-amber-950/25 p-4">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-300">
+                            3. Jeu
+                          </p>
+                          <p className="mt-2 text-sm font-bold text-white">
+                            {activeMission.primaryGameName ?? "Defi final"}
+                          </p>
+                          <p className="mt-1 text-xs font-semibold text-slate-300">
+                            {activeMissionState?.gameChallengeReached
+                              ? "Score cible atteint"
+                              : activeMission.gameChallengeLabel}
                           </p>
                         </div>
                       </div>
 
-                      <Link
-                        href="/tous-les-cours"
-                        className="comic-button inline-flex items-center gap-2 bg-slate-900 px-5 py-3 font-bold text-white hover:bg-slate-800"
-                      >
-                        <BookIcon className="h-5 w-5" />
-                        Bibliotheque
-                      </Link>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                      {palier.courses.map((course) => {
-                        const entry = flatCourses.find((item) => item.courseId === course.id)!;
-                        const isCurrentCourse =
-                          activeCourse?.courseId === course.id && entry.status !== "completed";
-
-                        return (
-                          <div
-                            key={course.id}
-                            className={`comic-panel border-2 border-black p-5 ${
-                              isCurrentCourse
-                                ? "bg-gradient-to-br from-cyan-900/40 to-emerald-900/30"
-                                : "bg-slate-900/70"
-                            }`}
-                          >
-                            <div className="space-y-4">
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="comic-panel border-2 border-black bg-slate-800 px-3 py-2">
-                                  <span className="text-lg font-bold text-white text-outline">
-                                    {entry.courseId}
-                                  </span>
-                                </div>
-                                <div className="flex flex-wrap justify-end gap-2">
-                                  <span
-                                    className={`comic-panel border-2 border-black px-3 py-1 text-xs font-bold text-white text-outline ${statusStyles[entry.status]}`}
-                                  >
-                                    {statusLabels[entry.status]}
-                                  </span>
-                                  <span className="comic-panel border-2 border-black bg-black/40 px-3 py-1 text-xs font-bold text-slate-200">
-                                    {course.type === "grammar" ? "Grammaire" : "Methodologie"}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="space-y-2">
-                                  <h3 className="text-xl font-bold text-white text-outline">
-                                  {entry.title}
-                                </h3>
-                                {isCurrentCourse && (
-                                  <p className="text-sm font-semibold text-cyan-300">
-                                    Prochain cours conseille
-                                  </p>
-                                )}
-                              </div>
-
-                              <div className="flex flex-wrap gap-3">
-                                <div className="comic-panel border-2 border-black bg-emerald-700/70 px-3 py-2">
-                                  <div className="flex items-center gap-2 text-xs font-bold text-white text-outline">
-                                    <XPIcon className="h-4 w-4" />
-                                    <span>{entry.rewardXp} XP</span>
-                                  </div>
-                                </div>
-                                <div className="comic-panel border-2 border-black bg-amber-600/80 px-3 py-2">
-                                  <div className="flex items-center gap-2 text-xs font-bold text-white text-outline">
-                                    <GoldIcon className="h-4 w-4" />
-                                    <span>{entry.rewardGold} or</span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <Link
-                                href={`/cours/${course.id}`}
-                                className={`comic-button inline-flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-white ${
-                                  entry.status === "completed"
-                                    ? "bg-emerald-600 hover:bg-emerald-700"
-                                    : entry.status === "in_progress" || entry.status === "unlocked"
-                                      ? "bg-cyan-600 hover:bg-cyan-700"
-                                      : "bg-slate-700 hover:bg-slate-600"
-                                }`}
-                              >
-                                {entry.status === "completed"
-                                  ? "Reviser le cours"
-                                  : entry.status === "in_progress"
-                                    ? "Continuer"
-                                    : entry.status === "unlocked"
-                                      ? "Commencer"
-                                      : "Consulter"}
-                              </Link>
-                            </div>
+                      <div className="grid gap-3 sm:grid-cols-2 lg:max-w-[26rem]">
+                        <div className="rounded-2xl border border-white/10 bg-slate-950/72 p-4">
+                          <div className="flex items-center gap-2 text-sm font-bold text-white">
+                            <XPIcon className="h-4 w-4 text-emerald-300" />
+                            <span>{activeCourse.rewardXp} XP</span>
                           </div>
-                        );
-                      })}
+                        </div>
+                        <div className="rounded-2xl border border-white/10 bg-slate-950/72 p-4">
+                          <div className="flex items-center gap-2 text-sm font-bold text-white">
+                            <GoldIcon className="h-4 w-4 text-amber-300" />
+                            <span>{activeCourse.rewardGold} or</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {isLoggedIn && activeMission.primaryGameSlug && (
+                        <p
+                          className={`text-sm font-bold ${
+                            activeMissionState?.readyToComplete ? "text-emerald-300" : "text-amber-300"
+                          } text-outline`}
+                        >
+                          {activeMissionState?.readyToComplete
+                            ? "Mission prete: le point, le quiz et le defi jeu sont valides."
+                            : activeMissionState?.quizPassed
+                              ? "Le score du jeu est encore requis pour boucler cette mission."
+                              : "Le quiz et le defi jeu restent a valider pour ouvrir la suite."}
+                        </p>
+                      )}
+
+                      <div className="flex flex-wrap gap-3">
+                        <Link
+                          href={`/cours/${activeCourse.courseId}`}
+                          className="comic-button inline-flex items-center gap-2 px-4 py-3 text-sm font-bold text-white"
+                          style={{ background: activeProfile.rail }}
+                        >
+                          <QuestIcon className="h-4 w-4" />
+                          Entrer dans la mission
+                        </Link>
+                        {activeMission.primaryGameSlug && (
+                          <Link
+                            href={`/play/${activeMission.primaryGameSlug}`}
+                            className="comic-button inline-flex items-center gap-2 bg-amber-600 px-4 py-3 text-sm font-bold text-white hover:bg-amber-700"
+                          >
+                            <GameIcon className="h-4 w-4" />
+                            Lancer le defi
+                          </Link>
+                        )}
+                      </div>
                     </div>
+                  ) : (
+                    <p className="mt-4 text-sm font-semibold text-slate-300">
+                      La campagne commence par la premiere mission du parcours.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <div className="space-y-5">
+                <div className="comic-panel border-2 border-black bg-slate-900/82 p-5">
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
+                    Regles du parcours
+                  </p>
+                  <div className="mt-4 space-y-3 text-sm font-semibold leading-relaxed text-slate-200">
+                    <p>Atteins le point de passage en descendant jusqu'au quiz du cours.</p>
+                    <p>Valide ensuite le quiz avec au moins 80% de bonnes reponses.</p>
+                    <p>Termine par le score de jeu demande pour deverrouiller le point suivant.</p>
                   </div>
-                </section>
-              </MotionCard>
-            ))}
-          </div>
+
+                  {!isLoggedIn && (
+                      <div className="mt-5 rounded-2xl border border-amber-400/20 bg-amber-950/20 p-4">
+                        <p className="text-sm font-semibold text-amber-200 text-outline">
+                          En invite, la carte reste visible mais la progression n'est pas sauvegardee.
+                        </p>
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        <Link
+                          href="/auth/signup"
+                          className="comic-button bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
+                        >
+                          Creer mon compte
+                        </Link>
+                        <Link
+                          href="/auth/login"
+                          className="comic-button bg-slate-800 px-4 py-3 text-sm font-bold text-white hover:bg-slate-700"
+                        >
+                          Me connecter
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {activeCourse && activeMission && (
+                  <div className="comic-panel border-2 border-black bg-slate-900/82 p-5">
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">
+                      Mission en vue
+                    </p>
+                    <p className="mt-3 text-xl font-bold leading-tight text-white text-outline">
+                      {activeCourse.title}
+                    </p>
+                    <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-200">
+                      {activeMission.gameChallengeLabel}
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     </div>

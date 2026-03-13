@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useCourseMission } from "@/components/courses/course-mission-provider";
 import {
   CheckIcon,
   XIcon,
@@ -10,6 +11,7 @@ import {
   QuestIcon,
 } from "@/components/ui/icons";
 import { motion, AnimatePresence } from "framer-motion";
+import { isCourseQuizScorePassing } from "@/lib/courses/mission-state";
 
 export type Question = {
   id: number;
@@ -25,6 +27,7 @@ interface QuizProps {
 }
 
 export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
+  const mission = useCourseMission();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
@@ -33,10 +36,83 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
   const [combo, setCombo] = useState(0);
   const [maxCombo, setMaxCombo] = useState(0);
   const [gainedXP, setGainedXP] = useState(0);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const hasSubmittedResultRef = useRef(false);
 
   const playSound = () => {
     // Placeholder for future audio.
   };
+
+  useEffect(() => {
+    if (
+      !mission?.isAuthenticated ||
+      mission.missionState?.readingCheckpointReached ||
+      !containerRef.current
+    ) {
+      return;
+    }
+
+    const node = containerRef.current;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const isVisible = entries.some(
+          (entry) => entry.isIntersecting && entry.intersectionRatio >= 0.55
+        );
+
+        if (!isVisible) {
+          return;
+        }
+
+        observer.disconnect();
+        void mission.markReadingCheckpoint();
+      },
+      {
+        threshold: [0.55],
+      }
+    );
+
+    observer.observe(node);
+
+    return () => observer.disconnect();
+  }, [
+    mission,
+    mission?.isAuthenticated,
+    mission?.missionState?.readingCheckpointReached,
+  ]);
+
+  useEffect(() => {
+    if (!showResult || hasSubmittedResultRef.current) {
+      return;
+    }
+
+    hasSubmittedResultRef.current = true;
+    const accuracy = Math.round((score / questions.length) * 100);
+
+    if (!mission?.isAuthenticated) {
+      return;
+    }
+
+    void (async () => {
+      const updatedState = await mission.submitQuizResult(score, questions.length);
+
+      if (!updatedState) {
+        return;
+      }
+
+      if (updatedState.readyToComplete) {
+        setSyncMessage("Quiz valide. Le score jeu est deja atteint, tu peux boucler la mission.");
+        return;
+      }
+
+      if (updatedState.quizPassed) {
+        setSyncMessage("Quiz valide. Il reste maintenant le defi jeu pour ouvrir la suite.");
+        return;
+      }
+
+      setSyncMessage(`Quiz sauvegarde: ${accuracy}% pour l'instant. Il faut 80% pour valider.`);
+    })();
+  }, [mission, questions.length, score, showResult]);
 
   const handleOptionClick = (index: number) => {
     if (isAnswered) return;
@@ -81,13 +157,19 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
     setMaxCombo(0);
     setGainedXP(0);
     setShowResult(false);
+    setSyncMessage(null);
+    hasSubmittedResultRef.current = false;
   };
 
   if (showResult) {
     const accuracy = Math.round((score / questions.length) * 100);
+    const quizPassed = isCourseQuizScorePassing(score, questions.length);
 
     return (
-      <div className="comic-panel-dark relative overflow-hidden border-2 border-slate-700 bg-slate-900 p-8 text-center">
+      <div
+        ref={containerRef}
+        className="comic-panel-dark relative overflow-hidden border-2 border-slate-700 bg-slate-900 p-8 text-center"
+      >
         <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-5" />
 
         <div className="relative z-10 mb-6 flex justify-center">
@@ -100,6 +182,9 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
         <h3 className="mb-2 text-3xl font-bold uppercase tracking-wider text-white text-outline">
           Mission terminee
         </h3>
+        <p className="mb-6 text-sm font-bold uppercase tracking-[0.22em] text-cyan-300">
+          {quizPassed ? "Point de passage valide" : "Validation en cours"}
+        </p>
 
         <div className="mx-auto mb-8 grid max-w-md gap-4 md:grid-cols-3">
           <div className="rounded-xl border border-slate-600 bg-slate-800/80 p-4">
@@ -128,13 +213,19 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
           {score === questions.length ? (
             <p className="text-lg font-bold text-emerald-300">Legendaire. Sans-faute absolu.</p>
           ) : score >= questions.length * 0.8 ? (
-            <p className="text-lg font-bold text-cyan-300">Excellent. Le point est presque verrouille.</p>
+            <p className="text-lg font-bold text-cyan-300">Excellent. Le quiz est valide.</p>
           ) : score >= questions.length * 0.5 ? (
-            <p className="text-lg font-bold text-yellow-300">Bien joue. Encore un peu d'entrainement.</p>
+            <p className="text-lg font-bold text-yellow-300">Bien joue. Il manque encore quelques reponses justes.</p>
           ) : (
             <p className="text-lg font-bold text-orange-400">Encore une passe de revision et cela va monter vite.</p>
           )}
         </div>
+
+        {mission?.isAuthenticated && syncMessage && (
+          <p className="relative z-10 mx-auto mb-6 max-w-xl rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-slate-100">
+            {syncMessage}
+          </p>
+        )}
 
         <button
           onClick={resetQuiz}
@@ -148,9 +239,14 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
   }
 
   const question = questions[currentQuestion];
+  const checkpointReached = mission?.missionState?.readingCheckpointReached ?? false;
+  const quizValidated = mission?.missionState?.quizPassed ?? false;
 
   return (
-    <div className="comic-panel-dark relative flex flex-col overflow-hidden border-2 border-indigo-500/30 bg-slate-900 p-0">
+    <div
+      ref={containerRef}
+      className="comic-panel-dark relative flex flex-col overflow-hidden border-2 border-indigo-500/30 bg-slate-900 p-0"
+    >
       <AnimatePresence>
         {combo > 1 && (
           <motion.div
@@ -174,6 +270,31 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
           <span className="text-xs font-bold text-slate-400">
             {currentQuestion + 1} / {questions.length}
           </span>
+        </div>
+        <div className="mb-3 flex flex-wrap gap-2">
+          <span
+            className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${
+              checkpointReached
+                ? "border-cyan-400/30 bg-cyan-500/16 text-cyan-100"
+                : "border-white/10 bg-slate-900/80 text-slate-300"
+            }`}
+          >
+            {checkpointReached ? "Point atteint" : "Point en approche"}
+          </span>
+          <span
+            className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${
+              quizValidated
+                ? "border-emerald-400/30 bg-emerald-500/16 text-emerald-100"
+                : "border-indigo-400/25 bg-indigo-500/14 text-indigo-100"
+            }`}
+          >
+            {quizValidated ? "Quiz valide" : "80% requis"}
+          </span>
+          {mission?.isSyncing && (
+            <span className="rounded-full border border-white/10 bg-slate-950/80 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-300">
+              Sauvegarde...
+            </span>
+          )}
         </div>
         <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
           <motion.div

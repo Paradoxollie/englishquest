@@ -19,6 +19,7 @@ type DbProgressRecord = {
   id: string;
   course_id: string;
   status: CourseStatus;
+  best_score: number | null;
   completed_at: string | null;
   updated_at: string;
   created_at: string;
@@ -27,6 +28,7 @@ type DbProgressRecord = {
 export type CourseRoadmapEntry = {
   databaseId: string | null;
   progressId: string | null;
+  missionTelemetry: number | null;
   courseId: number;
   title: string;
   type: CourseType;
@@ -146,7 +148,7 @@ async function ensureUserProgressRows(
   const adminClient = createSupabaseAdminClient();
   const { data: existingProgress, error: existingError } = await adminClient
     .from("user_course_progress")
-    .select("id, course_id, status, completed_at, updated_at, created_at")
+    .select("id, course_id, status, best_score, completed_at, updated_at, created_at")
     .eq("user_id", userId);
 
   if (existingError) {
@@ -192,7 +194,7 @@ async function ensureUserProgressRows(
 
   const { data: refreshedProgress, error: refreshError } = await adminClient
     .from("user_course_progress")
-    .select("id, course_id, status, completed_at, updated_at, created_at")
+    .select("id, course_id, status, best_score, completed_at, updated_at, created_at")
     .eq("user_id", userId);
 
   if (refreshError || !refreshedProgress) {
@@ -261,6 +263,7 @@ function buildRoadmapEntries(
       return {
         databaseId: catalogEntry?.id ?? null,
         progressId: progressEntry?.id ?? null,
+        missionTelemetry: progressEntry?.best_score ?? null,
         courseId: course.id,
         title: course.title,
         type: course.type,

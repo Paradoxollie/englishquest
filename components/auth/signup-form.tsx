@@ -9,49 +9,53 @@ export function SignupForm() {
   const [state, formAction] = useActionState(signUpAction, authInitialState);
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="space-y-5">
       <label className="block space-y-2">
-        <span className="text-sm text-slate-300">Pseudonym</span>
+        <span className="text-sm font-bold text-slate-300">Pseudonym</span>
         <input
           type="text"
           name="username"
           required
           placeholder="ShadowFox"
-          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+          className="comic-panel w-full border-2 border-black bg-slate-900/80 px-4 py-3 font-semibold text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
         />
       </label>
 
       <label className="block space-y-2">
-        <span className="text-sm text-slate-300">
+        <span className="text-sm font-bold text-slate-300">
           Email <span className="text-slate-500">(optional, for password resets)</span>
         </span>
         <input
           type="email"
           name="email"
           placeholder="you@example.com"
-          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+          className="comic-panel w-full border-2 border-black bg-slate-900/80 px-4 py-3 font-semibold text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
         />
       </label>
 
       <label className="block space-y-2">
-        <span className="text-sm text-slate-300">Password</span>
+        <span className="text-sm font-bold text-slate-300">Password</span>
         <input
           type="password"
           name="password"
           required
           minLength={8}
-          placeholder="••••••••"
-          className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+          placeholder="********"
+          className="comic-panel w-full border-2 border-black bg-slate-900/80 px-4 py-3 font-semibold text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
         />
       </label>
 
       {state.error ? (
-        <p className="text-sm font-semibold text-rose-300">{state.error}</p>
+        <p className="rounded-2xl border border-rose-400/20 bg-rose-950/40 px-4 py-3 text-sm font-semibold text-rose-300">
+          {state.error}
+        </p>
       ) : state.success ? (
-        <p className="text-sm font-semibold text-emerald-300">{state.success}</p>
+        <p className="rounded-2xl border border-emerald-400/20 bg-emerald-950/40 px-4 py-3 text-sm font-semibold text-emerald-300">
+          {state.success}
+        </p>
       ) : null}
 
-      <SubmitButton label="Create account" />
+      <SubmitButton label="Creer mon compte" />
     </form>
   );
 }
@@ -63,10 +67,9 @@ function SubmitButton({ label }: { label: string }) {
     <button
       type="submit"
       disabled={pending}
-      className="w-full rounded-xl bg-cyan-500 px-4 py-3 text-center text-sm font-semibold text-slate-900 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
+      className="comic-button w-full bg-cyan-500 px-4 py-3 text-center text-sm font-bold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
     >
-      {pending ? "Creating..." : label}
+      {pending ? "Creation..." : label}
     </button>
   );
 }
-

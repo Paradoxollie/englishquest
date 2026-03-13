@@ -5,10 +5,12 @@ import {
   LessonSection,
   createLessonSectionId,
 } from "@/components/courses/lesson-layout";
+import { CourseMissionProvider } from "@/components/courses/course-mission-provider";
 import { CourseExperiencePanel } from "@/components/courses/course-experience-panel";
 import { CourseTableOfContents } from "@/components/courses/course-table-of-contents";
 import { getCourseById, getPalierForCourse, paliers } from "@/lib/courses/data";
 import { lessons } from "@/lib/courses/lessons";
+import { getUserCourseMissionState } from "@/lib/courses/mission-state";
 import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -70,6 +72,10 @@ export default async function CoursePage({ params }: CoursePageProps) {
     roadmap.entries.find((entry) => entry.courseId === courseId - 1) ?? null;
   const nextEntry =
     roadmap.entries.find((entry) => entry.courseId === courseId + 1) ?? null;
+  const missionState =
+    user && roadmapEntry
+      ? await getUserCourseMissionState(user.id, roadmapEntry)
+      : null;
   const sectionAnchors = lesson
     ? lesson.sections.map((section, index) => ({
         id: createLessonSectionId(section.title, index),
@@ -104,30 +110,37 @@ export default async function CoursePage({ params }: CoursePageProps) {
   }
 
   return (
-    <LessonLayout
+    <CourseMissionProvider
       courseNumber={lesson.courseNumber}
-      title={lesson.title}
-      objective={lesson.objective}
+      isAuthenticated={Boolean(user)}
+      initialMissionState={missionState}
     >
-      {roadmapEntry && (
-        <CourseExperiencePanel
-          entry={roadmapEntry}
-          previousEntry={previousEntry}
-          nextEntry={nextEntry}
-          isAuthenticated={Boolean(user)}
-        />
-      )}
-      {sectionAnchors.length > 1 && <CourseTableOfContents sections={sectionAnchors} />}
-      {lesson.sections.map((section, index) => (
-        <LessonSection
-          key={sectionAnchors[index]?.id ?? index}
-          id={sectionAnchors[index]?.id}
-          sectionIndex={index}
-          title={section.title}
-        >
-          {section.content}
-        </LessonSection>
-      ))}
-    </LessonLayout>
+      <LessonLayout
+        courseNumber={lesson.courseNumber}
+        title={lesson.title}
+        objective={lesson.objective}
+      >
+        {roadmapEntry && (
+          <CourseExperiencePanel
+            entry={roadmapEntry}
+            previousEntry={previousEntry}
+            nextEntry={nextEntry}
+            missionState={missionState}
+            isAuthenticated={Boolean(user)}
+          />
+        )}
+        {sectionAnchors.length > 1 && <CourseTableOfContents sections={sectionAnchors} />}
+        {lesson.sections.map((section, index) => (
+          <LessonSection
+            key={sectionAnchors[index]?.id ?? index}
+            id={sectionAnchors[index]?.id}
+            sectionIndex={index}
+            title={section.title}
+          >
+            {section.content}
+          </LessonSection>
+        ))}
+      </LessonLayout>
+    </CourseMissionProvider>
   );
 }

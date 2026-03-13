@@ -8,14 +8,13 @@ export const metadata = {
 export default function LoginPage() {
   return (
     <AuthCard
-      title="Welcome back"
-      subtitle="Log in to continue your EnglishQuest adventure."
-      footerHint="Need an account?"
-      footerLinkLabel="Sign up"
+      title="Reprends ton aventure"
+      subtitle="Connecte-toi pour retrouver ton parcours, tes jeux et ta progression."
+      footerHint="Pas encore de compte ?"
+      footerLinkLabel="S'inscrire"
       footerHref="/auth/signup"
     >
       <LoginForm />
     </AuthCard>
   );
 }
-

@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useDeferredValue, useState } from "react";
 import type { CourseRoadmapEntry } from "@/lib/courses/progress";
-import { ArrowRightIcon, BookIcon, QuestIcon } from "@/components/ui/icons";
+import { ArrowRightIcon, QuestIcon } from "@/components/ui/icons";
+import { getCourseMissionPlan } from "@/lib/courses/campaign";
+import { getCourseVisualProfile } from "@/lib/courses/presentation";
 
 type CourseLibraryExplorerProps = {
   entries: CourseRoadmapEntry[];
@@ -12,10 +14,10 @@ type CourseLibraryExplorerProps = {
 };
 
 const statusLabels = {
-  locked: "Verrouille",
-  unlocked: "Pret",
-  in_progress: "En cours",
-  completed: "Termine",
+  locked: "Verrouillee",
+  unlocked: "Prete",
+  in_progress: "En jeu",
+  completed: "Validee",
 } as const;
 
 const statusStyles = {
@@ -39,7 +41,7 @@ const statusOptions = [
   { label: "Recommande", value: "recommended" },
   { label: "En cours", value: "in_progress" },
   { label: "Disponibles", value: "available" },
-  { label: "Termines", value: "completed" },
+  { label: "Valides", value: "completed" },
 ];
 
 export function CourseLibraryExplorer({
@@ -54,10 +56,12 @@ export function CourseLibraryExplorer({
 
   const normalizedSearch = deferredSearch.trim().toLowerCase();
   const filteredEntries = entries.filter((entry) => {
+    const mission = getCourseMissionPlan(entry);
     const matchesSearch =
       normalizedSearch.length === 0 ||
       entry.title.toLowerCase().includes(normalizedSearch) ||
       entry.summary.toLowerCase().includes(normalizedSearch) ||
+      mission.objective.toLowerCase().includes(normalizedSearch) ||
       entry.focusTags.some((tag) => tag.toLowerCase().includes(normalizedSearch));
 
     const matchesPalier = palier === "all" || String(entry.palierId) === palier;
@@ -75,53 +79,91 @@ export function CourseLibraryExplorer({
 
   return (
     <div className="space-y-6">
-      <div className="comic-panel-dark p-5 md:p-6">
-        <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr_1fr]">
-          <label className="space-y-2">
-            <span className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
-              Rechercher un cours
-            </span>
-            <input
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Present perfect, questions, conditionnel..."
-              className="w-full rounded-xl border-2 border-black bg-slate-900 px-4 py-3 text-sm font-semibold text-white outline-none ring-0 placeholder:text-slate-500 focus:border-cyan-400"
-            />
-          </label>
+      <div
+        className="comic-panel-dark relative overflow-hidden p-5 md:p-6"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(5, 12, 24, 0.98) 0%, rgba(9, 18, 32, 0.97) 52%, rgba(7, 14, 26, 0.99) 100%)",
+        }}
+      >
+        <div className="absolute inset-0 opacity-[0.12] comic-dot-pattern-light" />
+        <div
+          className="absolute inset-0 opacity-[0.1]"
+          style={{
+            background:
+              "repeating-linear-gradient(128deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 18px)",
+          }}
+        />
 
-          <label className="space-y-2">
-            <span className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
-              Niveau
-            </span>
-            <select
-              value={palier}
-              onChange={(event) => setPalier(event.target.value)}
-              className="w-full rounded-xl border-2 border-black bg-slate-900 px-4 py-3 text-sm font-semibold text-white outline-none focus:border-cyan-400"
-            >
-              {palierOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className="relative z-10 space-y-5">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
+                Radar de mission
+              </p>
+              <p className="mt-2 text-sm font-semibold text-slate-300">
+                Filtre rapidement les modules libres sans perdre la lisibilite.
+              </p>
+            </div>
 
-          <label className="space-y-2">
-            <span className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
-              Etat
-            </span>
-            <select
-              value={status}
-              onChange={(event) => setStatus(event.target.value)}
-              className="w-full rounded-xl border-2 border-black bg-slate-900 px-4 py-3 text-sm font-semibold text-white outline-none focus:border-cyan-400"
-            >
-              {statusOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
+            {recommendedCourseId && (
+              <Link
+                href={`/cours/${recommendedCourseId}`}
+                className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
+              >
+                <QuestIcon className="h-4 w-4" />
+                Reprendre la campagne
+              </Link>
+            )}
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-[1.6fr_1fr_1fr]">
+            <label className="space-y-2">
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
+                Rechercher une mission
+              </span>
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Present perfect, conditionnel, questions..."
+                className="w-full rounded-xl border-2 border-black bg-slate-900 px-4 py-3 text-sm font-semibold text-white outline-none ring-0 placeholder:text-slate-500 focus:border-cyan-400"
+              />
+            </label>
+
+            <label className="space-y-2">
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
+                Niveau
+              </span>
+              <select
+                value={palier}
+                onChange={(event) => setPalier(event.target.value)}
+                className="w-full rounded-xl border-2 border-black bg-slate-900 px-4 py-3 text-sm font-semibold text-white outline-none focus:border-cyan-400"
+              >
+                {palierOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label className="space-y-2">
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
+                Etat
+              </span>
+              <select
+                value={status}
+                onChange={(event) => setStatus(event.target.value)}
+                className="w-full rounded-xl border-2 border-black bg-slate-900 px-4 py-3 text-sm font-semibold text-white outline-none focus:border-cyan-400"
+              >
+                {statusOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -131,105 +173,151 @@ export function CourseLibraryExplorer({
             Bibliotheque active
           </p>
           <p className="text-sm font-semibold text-slate-200">
-            {filteredEntries.length} cours affiches sur {entries.length}
+            {filteredEntries.length} missions affichees sur {entries.length}
           </p>
         </div>
-        {recommendedCourseId && (
-          <Link
-            href={`/cours/${recommendedCourseId}`}
-            className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
-          >
-            <QuestIcon className="h-4 w-4" />
-            Reprendre la progression
-          </Link>
+        {!isAuthenticated && (
+          <p className="text-sm font-semibold text-slate-400">
+            En mode invite, tu peux consulter librement mais la campagne ne se sauvegarde pas.
+          </p>
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-5 md:grid-cols-2">
         {filteredEntries.map((entry) => {
+          const mission = getCourseMissionPlan(entry);
+          const profile = getCourseVisualProfile(entry.palierId);
           const isRecommended = entry.courseId === recommendedCourseId;
           const ctaLabel =
             entry.status === "completed"
-              ? "Reviser"
+              ? "Rejouer la mission"
               : entry.status === "in_progress"
                 ? "Continuer"
                 : entry.status === "locked" && isAuthenticated
-                  ? "Voir le module"
+                  ? "Voir la mission"
                   : "Ouvrir";
 
           return (
             <Link
               key={entry.courseId}
               href={`/cours/${entry.courseId}`}
-              className="comic-card-dark flex h-full flex-col p-5 md:p-6"
-              style={{
-                background: isRecommended
-                  ? "linear-gradient(135deg, rgba(16, 185, 129, 0.24) 0%, rgba(15, 23, 42, 0.98) 78%)"
-                  : "linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.96) 100%)",
-              }}
+              className="group flex h-full min-w-0 flex-col"
             >
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-black/50 bg-slate-900/80 px-3 py-1 text-xs font-bold text-white">
-                  Cours {entry.courseId}
-                </span>
-                <span
-                  className={`rounded-full border border-black/50 px-3 py-1 text-xs font-bold text-white ${statusStyles[entry.status]}`}
+              <div className="comic-card-dark flex h-full min-w-0 flex-col p-3 md:p-4">
+                <div
+                  className="comic-panel relative overflow-hidden border-2 border-black p-4 md:p-5"
+                  style={{ background: profile.cardBackground, minHeight: 242 }}
                 >
-                  {statusLabels[entry.status]}
-                </span>
-                {isRecommended && (
-                  <span className="rounded-full border border-black/50 bg-emerald-600 px-3 py-1 text-xs font-bold text-white">
-                    Focus
-                  </span>
-                )}
-              </div>
+                  <div className="absolute inset-y-0 left-0 w-2" style={{ background: profile.rail }} />
+                  <div className="absolute inset-0 opacity-[0.16] comic-dot-pattern-light" />
+                  <div
+                    className="absolute inset-0 opacity-[0.12]"
+                    style={{
+                      background:
+                        "repeating-linear-gradient(128deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 18px)",
+                    }}
+                  />
+                  <div className="absolute right-4 top-1 text-6xl font-black tracking-[-0.08em] text-white/5">
+                    {entry.courseId.toString().padStart(2, "0")}
+                  </div>
 
-              <div className="mt-5 flex items-start gap-3">
-                <div className="rounded-2xl border-2 border-black/80 bg-indigo-600 p-3 shadow-[0_8px_20px_rgba(0,0,0,0.28)]">
-                  <BookIcon className="h-5 w-5 text-white" />
+                  <div className="relative z-10 flex h-full flex-col">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span
+                            className="rounded-full border border-black/50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white"
+                            style={{ background: `${profile.accent}22` }}
+                          >
+                            Mission {entry.courseId}
+                          </span>
+                          <span className="rounded-full border border-white/10 bg-black/35 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-200">
+                            {entry.levelLabel.split(" - ")[0]}
+                          </span>
+                          {isRecommended && (
+                            <span className="rounded-full border border-black/50 bg-emerald-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
+                              Campagne
+                            </span>
+                          )}
+                        </div>
+
+                        <h3 className="mt-3 text-xl font-bold leading-tight text-white text-outline md:text-2xl">
+                          {entry.title}
+                        </h3>
+                      </div>
+
+                      <span
+                        className={`shrink-0 rounded-full border border-black/50 px-3 py-1 text-xs font-bold text-white ${statusStyles[entry.status]}`}
+                      >
+                        {statusLabels[entry.status]}
+                      </span>
+                    </div>
+
+                    <p
+                      className="mt-4 text-sm font-semibold leading-relaxed text-slate-100 text-outline"
+                      style={{
+                        display: "-webkit-box",
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                      }}
+                    >
+                      {mission.objective}
+                    </p>
+
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="rounded-full border border-white/10 bg-slate-950/65 px-3 py-1 text-[11px] font-semibold text-slate-100">
+                        {entry.estimatedMinutes} min
+                      </span>
+                      <span className="rounded-full border border-white/10 bg-slate-950/65 px-3 py-1 text-[11px] font-semibold text-slate-100">
+                        {mission.gameChallengeCompact}
+                      </span>
+                      <span className="rounded-full border border-white/10 bg-slate-950/65 px-3 py-1 text-[11px] font-semibold text-slate-100">
+                        {entry.typeLabel}
+                      </span>
+                    </div>
+
+                    <div className="mt-auto border-t border-white/10 pt-4">
+                      <p
+                        className="text-sm font-semibold leading-relaxed text-slate-300"
+                        style={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                        }}
+                      >
+                        {entry.summary}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-300">
-                    {entry.levelLabel} / {entry.typeLabel}
-                  </p>
-                  <h3 className="mt-1 text-xl font-bold text-white md:text-2xl">{entry.title}</h3>
+
+                <div className="mt-4 comic-panel border-2 border-black bg-slate-950/84 p-4">
+                  <div className="flex flex-wrap gap-2">
+                    {entry.focusTags.slice(0, 3).map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full border border-white/12 bg-slate-900/75 px-3 py-1 text-[11px] font-semibold text-slate-100"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
+                    <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">
+                      {entry.rewardXp} XP / {mission.primaryGameName ?? "Defi final"}
+                    </div>
+                    <span
+                      className="inline-flex items-center gap-2 text-sm font-bold"
+                      style={{ color: profile.accent }}
+                    >
+                      {ctaLabel}
+                      <ArrowRightIcon className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                    </span>
+                  </div>
                 </div>
-              </div>
-
-              <p
-                className="mt-4 text-sm leading-relaxed text-slate-200 md:text-[15px]"
-                style={{
-                  display: "-webkit-box",
-                  WebkitLineClamp: 3,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                }}
-              >
-                {entry.summary}
-              </p>
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {entry.focusTags.slice(0, 4).map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full border border-white/12 bg-slate-900/75 px-3 py-1 text-[11px] font-semibold text-slate-100"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-semibold text-slate-300">
-                  <span>{entry.estimatedMinutes} min</span>
-                  <span className="text-slate-500">/</span>
-                  <span>{entry.status === "completed" ? "Revision ouverte" : entry.typeLabel}</span>
-                </div>
-
-                <span className="inline-flex items-center justify-center gap-2 text-sm font-bold text-cyan-300">
-                  {ctaLabel}
-                  <ArrowRightIcon className="h-4 w-4" />
-                </span>
               </div>
             </Link>
           );
