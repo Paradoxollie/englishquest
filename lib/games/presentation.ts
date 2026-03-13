@@ -1,6 +1,16 @@
 import type { GameConfig } from "./config";
 
-const manualPresentations = {
+export type GamePresentation = {
+  mark: string;
+  emblem: "scroll" | "crosshair" | "bolt" | "tiles" | "arrows" | "memory";
+  mode: string;
+  hook: string;
+  action: string;
+  primary: string;
+  secondary: string;
+};
+
+const manualPresentations: Record<string, GamePresentation> = {
   "enigma-scroll": {
     mark: "ES",
     emblem: "scroll",
@@ -55,27 +65,6 @@ const manualPresentations = {
     primary: "#7c3aed",
     secondary: "#c4b5fd",
   },
-} satisfies Record<
-  string,
-  {
-    mark: string;
-    emblem: "scroll" | "crosshair" | "bolt" | "tiles" | "arrows" | "memory";
-    mode: string;
-    hook: string;
-    action: string;
-    primary: string;
-    secondary: string;
-  }
->;
-
-export type GamePresentation = {
-  mark: string;
-  emblem: "scroll" | "crosshair" | "bolt" | "tiles" | "arrows" | "memory";
-  mode: string;
-  hook: string;
-  action: string;
-  primary: string;
-  secondary: string;
 };
 
 export function getGameMark(game: Pick<GameConfig, "slug" | "name">): string {
