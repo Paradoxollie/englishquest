@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { GameRecommendationCard } from "@/components/play/game-recommendation-card";
 import { BookIcon, GameIcon, QuestIcon } from "@/components/ui/icons";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
@@ -166,36 +167,14 @@ export default async function GamePage({ params }: PageProps) {
                 </div>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {alternatives.map((alternative) => (
-                  <Link
+                  <GameRecommendationCard
                     key={alternative.slug}
-                    href={`/play/${alternative.slug}`}
-                    className="comic-card-dark p-5 transition-transform hover:scale-[1.02]"
-                    style={{ background: alternative.gradient }}
-                  >
-                    <div className="relative z-10 flex h-full flex-col">
-                      <div className="mb-3 flex items-center gap-3">
-                        <div className={`comic-panel border-2 border-black ${alternative.iconBg} p-2`}>
-                          <span className="text-xl">{alternative.icon}</span>
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-white text-outline">
-                            {alternative.name}
-                          </p>
-                          <p className="text-[11px] text-slate-200">
-                            {alternative.tags.slice(0, 2).join(" / ")}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="mb-4 flex-grow text-sm font-semibold text-slate-200 text-outline">
-                        {alternative.description}
-                      </p>
-                      <div className="comic-button bg-slate-900/80 px-3 py-2 text-center text-xs font-bold text-white">
-                        Jouer a la place
-                      </div>
-                    </div>
-                  </Link>
+                    game={alternative}
+                    badgeLabel="Alternative"
+                    ctaLabel="Jouer a la place"
+                  />
                 ))}
               </div>
             </div>

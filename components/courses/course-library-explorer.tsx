@@ -125,7 +125,7 @@ export function CourseLibraryExplorer({
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
             Bibliotheque active
@@ -145,7 +145,7 @@ export function CourseLibraryExplorer({
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         {filteredEntries.map((entry) => {
           const isRecommended = entry.courseId === recommendedCourseId;
           const ctaLabel =
@@ -169,65 +169,64 @@ export function CourseLibraryExplorer({
               }}
             >
               <div className="flex flex-wrap items-center gap-2">
-                <span className="comic-panel border-2 border-black bg-slate-800 px-3 py-1 text-xs font-bold text-white">
+                <span className="rounded-full border border-black/50 bg-slate-900/80 px-3 py-1 text-xs font-bold text-white">
                   Cours {entry.courseId}
                 </span>
                 <span
-                  className={`comic-panel border-2 border-black px-3 py-1 text-xs font-bold text-white ${statusStyles[entry.status]}`}
+                  className={`rounded-full border border-black/50 px-3 py-1 text-xs font-bold text-white ${statusStyles[entry.status]}`}
                 >
                   {statusLabels[entry.status]}
                 </span>
                 {isRecommended && (
-                  <span className="comic-panel border-2 border-black bg-emerald-600 px-3 py-1 text-xs font-bold text-white">
-                    Recommande
+                  <span className="rounded-full border border-black/50 bg-emerald-600 px-3 py-1 text-xs font-bold text-white">
+                    Focus
                   </span>
                 )}
               </div>
 
               <div className="mt-5 flex items-start gap-3">
-                <div className="comic-panel border-2 border-black bg-indigo-600 p-3">
+                <div className="rounded-2xl border-2 border-black/80 bg-indigo-600 p-3 shadow-[0_8px_20px_rgba(0,0,0,0.28)]">
                   <BookIcon className="h-5 w-5 text-white" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-300">
-                    {entry.levelLabel}
+                    {entry.levelLabel} / {entry.typeLabel}
                   </p>
                   <h3 className="mt-1 text-xl font-bold text-white md:text-2xl">{entry.title}</h3>
                 </div>
               </div>
 
-              <div className="mt-4 comic-panel border-2 border-black bg-slate-900/80 p-4">
-                <p className="text-sm leading-relaxed text-slate-200 md:text-[15px]">{entry.summary}</p>
-              </div>
+              <p
+                className="mt-4 text-sm leading-relaxed text-slate-200 md:text-[15px]"
+                style={{
+                  display: "-webkit-box",
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}
+              >
+                {entry.summary}
+              </p>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                {entry.focusTags.map((tag) => (
+                {entry.focusTags.slice(0, 4).map((tag) => (
                   <span
                     key={tag}
-                    className="comic-panel border-2 border-black bg-slate-800 px-3 py-1 text-[11px] font-bold text-slate-100"
+                    className="rounded-full border border-white/12 bg-slate-900/75 px-3 py-1 text-[11px] font-semibold text-slate-100"
                   >
                     {tag}
                   </span>
                 ))}
               </div>
 
-              <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="comic-panel border-2 border-black bg-slate-900/80 p-3">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
-                      Duree
-                    </p>
-                    <p className="mt-1 text-sm font-bold text-white">{entry.estimatedMinutes} min</p>
-                  </div>
-                  <div className="comic-panel border-2 border-black bg-slate-900/80 p-3">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
-                      Recompense
-                    </p>
-                    <p className="mt-1 text-sm font-bold text-white">{entry.rewardXp} XP</p>
-                  </div>
+              <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-semibold text-slate-300">
+                  <span>{entry.estimatedMinutes} min</span>
+                  <span className="text-slate-500">/</span>
+                  <span>{entry.status === "completed" ? "Revision ouverte" : entry.typeLabel}</span>
                 </div>
 
-                <span className="comic-button inline-flex items-center justify-center gap-2 bg-slate-800 px-4 py-3 text-xs font-bold text-white hover:bg-slate-700">
+                <span className="inline-flex items-center justify-center gap-2 text-sm font-bold text-cyan-300">
                   {ctaLabel}
                   <ArrowRightIcon className="h-4 w-4" />
                 </span>

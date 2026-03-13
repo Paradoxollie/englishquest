@@ -36,20 +36,20 @@ export default async function TousLesCoursPage() {
                 </div>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="comic-panel border-2 border-black bg-slate-900/60 p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Catalogue</p>
-                  <p className="mt-2 text-2xl font-bold text-white">{roadmap.totalCourses} cours</p>
+              <div className="flex flex-wrap gap-3">
+                <div className="rounded-full border border-white/10 bg-slate-950/45 px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Catalogue</p>
+                  <p className="mt-1 text-lg font-bold text-white">{roadmap.totalCourses} cours</p>
                 </div>
-                <div className="comic-panel border-2 border-black bg-slate-900/60 p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Progression</p>
-                  <p className="mt-2 text-2xl font-bold text-white">
+                <div className="rounded-full border border-white/10 bg-slate-950/45 px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Progression</p>
+                  <p className="mt-1 text-lg font-bold text-white">
                     {roadmap.completedCount}/{roadmap.totalCourses} termines
                   </p>
                 </div>
-                <div className="comic-panel border-2 border-black bg-slate-900/60 p-4">
-                  <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Focus</p>
-                  <p className="mt-2 text-lg font-bold text-white">
+                <div className="rounded-3xl border border-white/10 bg-slate-950/45 px-4 py-3">
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Focus</p>
+                  <p className="mt-1 text-sm font-bold text-white md:text-base">
                     {recommendedCourse
                       ? `Cours ${recommendedCourse.courseId}: ${recommendedCourse.title}`
                       : "Revision libre"}
