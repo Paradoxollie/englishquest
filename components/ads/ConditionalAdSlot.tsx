@@ -1,27 +1,13 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-
-const AD_FREE_PREFIXES = [
-  "/auth",
-  "/cours",
-  "/dashboard",
-  "/home",
-  "/leaderboard",
-  "/messages",
-  "/play",
-  "/profile",
-  "/quest",
-  "/teachers",
-  "/tous-les-cours",
-];
+import { getAdRouteSettings } from "@/lib/ads/config";
 
 export function ConditionalAdSlot({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const adSettings = getAdRouteSettings(pathname);
 
-  const hideAds = AD_FREE_PREFIXES.some((prefix) => pathname.startsWith(prefix));
-
-  if (hideAds) {
+  if (!adSettings.footer && !adSettings.sidebar) {
     return null;
   }
 

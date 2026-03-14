@@ -1,0 +1,46 @@
+export type AdRouteSettings = {
+  loadScript: boolean;
+  footer: boolean;
+  sidebar: boolean;
+};
+
+export const ADSENSE_CLIENT =
+  process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-6094969027977372";
+
+export const ADSENSE_SLOTS = {
+  footer: process.env.NEXT_PUBLIC_ADSENSE_FOOTER_SLOT ?? "1844574488",
+  sidebar:
+    process.env.NEXT_PUBLIC_ADSENSE_SIDEBAR_SLOT ??
+    process.env.NEXT_PUBLIC_ADSENSE_FOOTER_SLOT ??
+    "1844574488",
+} as const;
+
+const DEFAULT_AD_SETTINGS: AdRouteSettings = {
+  loadScript: false,
+  footer: false,
+  sidebar: false,
+};
+
+const EXACT_ROUTE_SETTINGS: Record<string, AdRouteSettings> = {
+  "/": {
+    loadScript: true,
+    footer: true,
+    sidebar: false,
+  },
+  "/about": {
+    loadScript: true,
+    footer: true,
+    sidebar: true,
+  },
+};
+
+export function getAdRouteSettings(pathname?: string | null): AdRouteSettings {
+  if (!pathname) {
+    return DEFAULT_AD_SETTINGS;
+  }
+
+  const normalizedPath =
+    pathname.length > 1 && pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+
+  return EXACT_ROUTE_SETTINGS[normalizedPath] ?? DEFAULT_AD_SETTINGS;
+}
