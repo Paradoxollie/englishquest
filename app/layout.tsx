@@ -5,6 +5,7 @@ import { AdLayoutShell } from "@/components/ads/AdLayoutShell";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { AppHeader } from "@/components/layout/app-header";
 import { ADSENSE_CLIENT } from "@/lib/ads/config";
+import { SITE_URL } from "@/lib/site/config";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -13,6 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "English Quest - Apprendre l'anglais en jouant",
     template: "%s | English Quest",
@@ -45,7 +47,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "fr_FR",
-    url: "https://englishquest.fr",
+    url: SITE_URL,
     siteName: "English Quest",
     title: "English Quest - Apprendre l'anglais en jouant",
     description:

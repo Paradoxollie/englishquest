@@ -1,8 +1,9 @@
 import { MetadataRoute } from "next";
 import { paliers } from "@/lib/courses/data";
 import { games } from "@/lib/games/config";
+import { SITE_URL } from "@/lib/site/config";
 
-const BASE_URL = "https://englishquest.fr";
+const BASE_URL = SITE_URL;
 const LAST_MODIFIED = new Date("2026-03-10T00:00:00.000Z");
 
 export default function sitemap(): MetadataRoute.Sitemap {
