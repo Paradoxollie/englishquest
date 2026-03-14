@@ -68,11 +68,11 @@ function getChallengeDefinition(
         metric: "time",
         defaultTarget: () => 16800 - entry.palierId * 900 - withinPalierIndex * 110,
         defaultLabel: (target) => `Boucle les 10 manches en ${formatSeconds(target)} ou moins.`,
-        averageLabel: (target) => `Fais mieux que le temps moyen: ${formatSeconds(target)} ou moins.`,
+        averageLabel: (target) => `Passe sous le temps de reference: ${formatSeconds(target)} ou moins.`,
         defaultCompact: (target) => `${formatSeconds(target)} max`,
-        averageCompact: (target) => `moy. ${formatSeconds(target)}`,
+        averageCompact: (target) => `${formatSeconds(target)} max`,
         defaultAction: "viser la vitesse",
-        averageAction: "passer sous la moyenne",
+        averageAction: "battre la reference",
       };
     case "flashback":
       return {
@@ -80,11 +80,11 @@ function getChallengeDefinition(
         metric: "words",
         defaultTarget: () => 10 + entry.palierId * 3 + Math.floor(withinPalierIndex / 2),
         defaultLabel: (target) => `Memorise ${target} mots sans casser ta serie.`,
-        averageLabel: (target) => `Fais mieux que la moyenne: ${target} mots.`,
+        averageLabel: (target) => `Passe le score de reference: ${target} mots.`,
         defaultCompact: (target) => `${target} mots`,
-        averageCompact: (target) => `moy. ${target} mots`,
+        averageCompact: (target) => `${target} mots`,
         defaultAction: "tenir la memoire",
-        averageAction: "depasser la moyenne",
+        averageAction: "battre la reference",
       };
     case "space-lex":
       return {
@@ -92,11 +92,11 @@ function getChallengeDefinition(
         metric: "points",
         defaultTarget: () => 650 + entry.palierId * 240 + withinPalierIndex * 40,
         defaultLabel: (target) => `Atteins ${target} points dans l'arene lexicale.`,
-        averageLabel: (target) => `Depasse la moyenne actuelle: ${target} points.`,
+        averageLabel: (target) => `Passe le score de reference: ${target} points.`,
         defaultCompact: (target) => `${target} pts`,
-        averageCompact: (target) => `moy. ${target} pts`,
+        averageCompact: (target) => `${target} pts`,
         defaultAction: "tenir l'arene",
-        averageAction: "depasser la moyenne",
+        averageAction: "battre la reference",
       };
     case "enigma-scroll":
       return {
@@ -104,11 +104,11 @@ function getChallengeDefinition(
         metric: "points",
         defaultTarget: () => 520 + entry.palierId * 180 + withinPalierIndex * 28,
         defaultLabel: (target) => `Depasse ${target} points dans l'enigme.`,
-        averageLabel: (target) => `Depasse la moyenne actuelle: ${target} points.`,
+        averageLabel: (target) => `Passe le score de reference: ${target} points.`,
         defaultCompact: (target) => `${target} pts`,
-        averageCompact: (target) => `moy. ${target} pts`,
+        averageCompact: (target) => `${target} pts`,
         defaultAction: "resoudre vite",
-        averageAction: "depasser la moyenne",
+        averageAction: "battre la reference",
       };
     case "wordfall":
       return {
@@ -116,11 +116,11 @@ function getChallengeDefinition(
         metric: "points",
         defaultTarget: () => 560 + entry.palierId * 160 + withinPalierIndex * 35,
         defaultLabel: (target) => `Nettoie l'ecran et passe ${target} points.`,
-        averageLabel: (target) => `Depasse la moyenne actuelle: ${target} points.`,
+        averageLabel: (target) => `Passe le score de reference: ${target} points.`,
         defaultCompact: (target) => `${target} pts`,
-        averageCompact: (target) => `moy. ${target} pts`,
+        averageCompact: (target) => `${target} pts`,
         defaultAction: "tenir la pression",
-        averageAction: "depasser la moyenne",
+        averageAction: "battre la reference",
       };
     case "speed-verb-challenge":
       return {
@@ -128,11 +128,11 @@ function getChallengeDefinition(
         metric: "points",
         defaultTarget: () => 500 + entry.palierId * 140 + withinPalierIndex * 26,
         defaultLabel: (target) => `Atteins ${target} points en gardant le combo vivant.`,
-        averageLabel: (target) => `Depasse la moyenne actuelle: ${target} points.`,
+        averageLabel: (target) => `Passe le score de reference: ${target} points.`,
         defaultCompact: (target) => `${target} pts`,
-        averageCompact: (target) => `moy. ${target} pts`,
+        averageCompact: (target) => `${target} pts`,
         defaultAction: "garder le combo",
-        averageAction: "depasser la moyenne",
+        averageAction: "battre la reference",
       };
     default:
       return {
@@ -140,11 +140,11 @@ function getChallengeDefinition(
         metric: "points",
         defaultTarget: () => getMissionTargetScore(entry),
         defaultLabel: (target) => `Passe la barre des ${target} points.`,
-        averageLabel: (target) => `Depasse la moyenne actuelle: ${target} points.`,
+        averageLabel: (target) => `Passe le score de reference: ${target} points.`,
         defaultCompact: (target) => `${target} pts`,
-        averageCompact: (target) => `moy. ${target} pts`,
+        averageCompact: (target) => `${target} pts`,
         defaultAction: "viser le score",
-        averageAction: "depasser la moyenne",
+        averageAction: "battre la reference",
       };
   }
 }

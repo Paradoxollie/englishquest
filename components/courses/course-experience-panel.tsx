@@ -193,7 +193,7 @@ export function CourseExperiencePanel({
             </h2>
             <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-200 text-outline">
               Descends dans le cours jusqu'au point de passage, valide au moins 80% au quiz, puis
-              décroche le score demandé dans le jeu pour débloquer la suite.
+              bats le score de reference du jeu. Plus tu avances, plus la cible monte legerement.
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2">

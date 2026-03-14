@@ -14,6 +14,31 @@ function buildSlugKey(slugs: string[]) {
   return [...new Set(slugs)].sort().join(",");
 }
 
+function applyMissionRamp(
+  entry: CourseMissionPlanEntryInput,
+  averageScore: number,
+  mission: CourseMissionPlan
+) {
+  const chapterProgress = Math.max(0, entry.palierId - 1);
+  const withinPalierIndex = (entry.courseId - 1) % 10;
+
+  if (mission.scoreDirection === "lower") {
+    const reductionFactor = Math.max(
+      0.84,
+      1 - chapterProgress * 0.012 - withinPalierIndex * 0.0035
+    );
+    return Math.min(averageScore - 100, averageScore * reductionFactor);
+  }
+
+  const increaseFactor = 1 + chapterProgress * 0.02 + withinPalierIndex * 0.006;
+
+  if (mission.primaryGameSlug === "flashback") {
+    return Math.max(averageScore + 1, averageScore * increaseFactor);
+  }
+
+  return Math.max(averageScore + 10, averageScore * increaseFactor);
+}
+
 async function getBenchmarksForSlugKey(
   slugKey: string
 ): Promise<Record<string, GameBenchmark>> {
@@ -111,10 +136,12 @@ export async function getResolvedCourseMissionPlans(
         return [courseId, plan];
       }
 
+      const rampedTarget = applyMissionRamp(entry, benchmark.averageScore, plan);
+
       return [
         courseId,
         buildCourseMissionPlan(entry, {
-          scoreTarget: benchmark.averageScore,
+          scoreTarget: rampedTarget,
           targetSource: "community_average",
         }),
       ];
