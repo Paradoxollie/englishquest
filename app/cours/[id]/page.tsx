@@ -86,6 +86,9 @@ export default async function CoursePage({ params }: CoursePageProps) {
         title: section.title,
       }))
     : [];
+  const isMissionTrackingEnabled = Boolean(
+    user && roadmapEntry && (roadmapEntry.status === "in_progress" || roadmapEntry.status === "completed")
+  );
 
   if (!lesson) {
     return (
@@ -117,6 +120,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
     <CourseMissionProvider
       courseNumber={lesson.courseNumber}
       isAuthenticated={Boolean(user)}
+      isMissionTrackingEnabled={isMissionTrackingEnabled}
       initialMissionState={missionState}
     >
       <LessonLayout

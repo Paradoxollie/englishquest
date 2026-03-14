@@ -45,7 +45,7 @@ export default async function TousLesCoursPage() {
                   Bibliotheque libre
                 </p>
                 <h1 className="mt-3 break-words text-3xl font-bold text-white text-outline md:text-5xl">
-                  Choisis une mission hors campagne
+                  Choisis un cours librement
                 </h1>
                 <p className="mt-4 max-w-3xl break-words text-sm font-semibold leading-relaxed text-slate-200 text-outline md:text-lg">
                   `Cours` est le hub libre pour reviser, explorer et ouvrir un module quand tu veux.
@@ -55,10 +55,10 @@ export default async function TousLesCoursPage() {
                 <div className="mt-6 grid gap-3 sm:grid-cols-2">
                   <div className="comic-panel border-2 border-black bg-slate-950/55 px-4 py-4">
                     <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Catalogue</p>
-                    <p className="mt-2 text-xl font-bold text-white">{roadmap.totalCourses} missions</p>
+                    <p className="mt-2 text-xl font-bold text-white">{roadmap.totalCourses} cours</p>
                   </div>
                   <div className="comic-panel border-2 border-black bg-slate-950/55 px-4 py-4">
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Progression</p>
+                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Campagne</p>
                     <p className="mt-2 text-xl font-bold text-white">
                       {roadmap.completedCount}/{roadmap.totalCourses} validees
                     </p>
@@ -71,7 +71,7 @@ export default async function TousLesCoursPage() {
                     className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
                   >
                     <QuestIcon className="h-4 w-4" />
-                    Retour a la campagne
+                    Aller dans Aventure
                   </Link>
                   {recommendedCourse && (
                     <Link
@@ -79,7 +79,7 @@ export default async function TousLesCoursPage() {
                       className="comic-button inline-flex items-center gap-2 bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-slate-800"
                     >
                       <BookIcon className="h-4 w-4" />
-                      Ouvrir la mission recommandee
+                      Ouvrir le cours conseille
                     </Link>
                   )}
                 </div>
@@ -104,7 +104,7 @@ export default async function TousLesCoursPage() {
                     </p>
                     <h2 className="text-xl font-bold text-white text-outline md:text-2xl">
                       {recommendedCourse
-                        ? `Mission ${recommendedCourse.courseId}: ${recommendedCourse.title}`
+                        ? `Cours ${recommendedCourse.courseId}: ${recommendedCourse.title}`
                         : "Revision libre"}
                     </h2>
                   </div>
@@ -113,7 +113,7 @@ export default async function TousLesCoursPage() {
                 {recommendedCourse && recommendedMission ? (
                   <div className="mt-5 space-y-4">
                     <p className="text-sm font-semibold leading-relaxed text-slate-100 text-outline">
-                      {recommendedMission.objective}
+                      {recommendedCourse.summary}
                     </p>
 
                     <div className="flex flex-wrap gap-2">
@@ -124,21 +124,21 @@ export default async function TousLesCoursPage() {
                         {recommendedCourse.levelLabel.split(" - ")[0]}
                       </span>
                       <span className="rounded-full border border-white/10 bg-slate-950/65 px-3 py-1 text-[11px] font-semibold text-slate-100">
-                        {recommendedMission.gameChallengeCompact}
+                        {recommendedMission.primaryGameName ?? "Revision"}
                       </span>
                     </div>
 
                     <p className="text-sm font-semibold text-slate-300">
                       {recommendedMission.primaryGameName
-                        ? `Defi associe: ${recommendedMission.primaryGameName}`
-                        : "Defi de validation integre"}
+                        ? `Si tu passes par Aventure, le defi associe se joue sur ${recommendedMission.primaryGameName}.`
+                        : "Ce cours peut aussi s'integrer au parcours Aventure."}
                     </p>
 
                     <Link
                       href={`/cours/${recommendedCourse.courseId}`}
                       className="comic-button inline-flex items-center gap-2 bg-slate-950 px-4 py-3 text-sm font-bold text-white hover:bg-slate-900"
                     >
-                      Ouvrir cette mission
+                      Ouvrir le cours
                     </Link>
                   </div>
                 ) : (

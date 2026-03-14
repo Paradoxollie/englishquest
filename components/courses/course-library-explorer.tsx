@@ -15,20 +15,6 @@ type CourseLibraryExplorerProps = {
   isAuthenticated: boolean;
 };
 
-const statusLabels = {
-  locked: "Verrouillee",
-  unlocked: "Prete",
-  in_progress: "En jeu",
-  completed: "Validee",
-} as const;
-
-const statusStyles = {
-  locked: "bg-slate-700",
-  unlocked: "bg-cyan-600",
-  in_progress: "bg-amber-600",
-  completed: "bg-emerald-600",
-} as const;
-
 const palierOptions = [
   { label: "Tous", value: "all" },
   { label: "A1", value: "1" },
@@ -40,10 +26,8 @@ const palierOptions = [
 
 const statusOptions = [
   { label: "Tous", value: "all" },
-  { label: "Recommande", value: "recommended" },
-  { label: "En cours", value: "in_progress" },
-  { label: "Disponibles", value: "available" },
-  { label: "Valides", value: "completed" },
+  { label: "Focus aventure", value: "recommended" },
+  { label: "Mission active", value: "in_progress" },
 ];
 
 export function CourseLibraryExplorer({
@@ -72,10 +56,7 @@ export function CourseLibraryExplorer({
     const matchesStatus =
       status === "all" ||
       (status === "recommended" && entry.courseId === recommendedCourseId) ||
-      (status === "in_progress" && entry.status === "in_progress") ||
-      (status === "completed" && entry.status === "completed") ||
-      (status === "available" &&
-        (entry.status === "unlocked" || entry.status === "in_progress"));
+      (status === "in_progress" && entry.status === "in_progress");
 
     return matchesSearch && matchesPalier && matchesStatus;
   });
@@ -102,20 +83,20 @@ export function CourseLibraryExplorer({
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
-                Radar de mission
+                Recherche rapide
               </p>
               <p className="mt-2 text-sm font-semibold text-slate-300">
-                Filtre rapidement les modules libres sans perdre la lisibilite.
+                Trouve un cours libre en quelques secondes.
               </p>
             </div>
 
             {recommendedCourseId && (
               <Link
-                href={`/cours/${recommendedCourseId}`}
+                href="/quest"
                 className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
               >
                 <QuestIcon className="h-4 w-4" />
-                Reprendre la campagne
+                Ouvrir Aventure
               </Link>
             )}
           </div>
@@ -181,7 +162,7 @@ export function CourseLibraryExplorer({
         </div>
         {!isAuthenticated && (
           <p className="text-sm font-semibold text-slate-400">
-            En mode invite, tu peux consulter librement mais la campagne ne se sauvegarde pas.
+            En mode invite, les cours restent ouverts. La campagne ne se sauvegarde pas.
           </p>
         )}
       </div>
@@ -191,14 +172,14 @@ export function CourseLibraryExplorer({
           const mission = missionPlans[entry.courseId] ?? getCourseMissionPlan(entry);
           const profile = getCourseVisualProfile(entry.palierId);
           const isRecommended = entry.courseId === recommendedCourseId;
-          const ctaLabel =
-            entry.status === "completed"
-              ? "Rejouer la mission"
-              : entry.status === "in_progress"
-                ? "Continuer"
-                : entry.status === "locked" && isAuthenticated
-                  ? "Voir la mission"
-                  : "Ouvrir";
+          const adventureStatus =
+            entry.status === "in_progress"
+              ? "Mission active"
+              : entry.status === "completed"
+                ? "Mission validee"
+                : entry.status === "unlocked"
+                  ? "Mission disponible"
+                  : "Mission verrouillee";
 
           return (
             <Link
@@ -232,14 +213,17 @@ export function CourseLibraryExplorer({
                             className="rounded-full border border-black/50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white"
                             style={{ background: `${profile.accent}22` }}
                           >
-                            Mission {entry.courseId}
+                            Cours {entry.courseId}
                           </span>
                           <span className="rounded-full border border-white/10 bg-black/35 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-200">
                             {entry.levelLabel.split(" - ")[0]}
                           </span>
+                          <span className="rounded-full border border-white/10 bg-black/35 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-200">
+                            Libre
+                          </span>
                           {isRecommended && (
                             <span className="rounded-full border border-black/50 bg-emerald-600 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white">
-                              Campagne
+                              Conseille
                             </span>
                           )}
                         </div>
@@ -249,11 +233,6 @@ export function CourseLibraryExplorer({
                         </h3>
                       </div>
 
-                      <span
-                        className={`shrink-0 rounded-full border border-black/50 px-3 py-1 text-xs font-bold text-white ${statusStyles[entry.status]}`}
-                      >
-                        {statusLabels[entry.status]}
-                      </span>
                     </div>
 
                     <p
@@ -265,7 +244,7 @@ export function CourseLibraryExplorer({
                         overflow: "hidden",
                       }}
                     >
-                      {mission.objective}
+                      {entry.summary}
                     </p>
 
                     <div className="mt-4 flex flex-wrap gap-2">
@@ -273,7 +252,7 @@ export function CourseLibraryExplorer({
                         {entry.estimatedMinutes} min
                       </span>
                       <span className="rounded-full border border-white/10 bg-slate-950/65 px-3 py-1 text-[11px] font-semibold text-slate-100">
-                        {mission.gameChallengeCompact}
+                        {mission.primaryGameName ?? "Jeu conseille"}
                       </span>
                       <span className="rounded-full border border-white/10 bg-slate-950/65 px-3 py-1 text-[11px] font-semibold text-slate-100">
                         {entry.typeLabel}
@@ -290,7 +269,8 @@ export function CourseLibraryExplorer({
                           overflow: "hidden",
                         }}
                       >
-                        {entry.summary}
+                        En aventure: {adventureStatus.toLowerCase()}. Defi associe:{" "}
+                        {mission.primaryGameName ?? "aucun"}.
                       </p>
                     </div>
                   </div>
@@ -310,13 +290,13 @@ export function CourseLibraryExplorer({
 
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
                     <div className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-300">
-                      {entry.rewardXp} XP / {mission.primaryGameName ?? "Defi final"}
+                      Campagne: {adventureStatus}
                     </div>
                     <span
                       className="inline-flex items-center gap-2 text-sm font-bold"
                       style={{ color: profile.accent }}
                     >
-                      {ctaLabel}
+                      Ouvrir le cours
                       <ArrowRightIcon className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                     </span>
                   </div>

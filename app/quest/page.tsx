@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { completeCourseAction, startCourseAction } from "@/app/cours/actions";
 import {
   CampaignTreasureMap,
   type QuestPlayerToken,
@@ -252,13 +253,40 @@ export default async function QuestPage() {
                       )}
 
                       <div className="flex flex-wrap gap-3">
+                        {isLoggedIn && activeCourse.status === "unlocked" && (
+                          <form action={startCourseAction}>
+                            <input type="hidden" name="courseNumber" value={activeCourse.courseId} />
+                            <button
+                              type="submit"
+                              className="comic-button inline-flex items-center gap-2 px-4 py-3 text-sm font-bold text-white"
+                              style={{ background: activeProfile.rail }}
+                            >
+                              <QuestIcon className="h-4 w-4" />
+                              Lancer la mission
+                            </button>
+                          </form>
+                        )}
+                        {isLoggedIn &&
+                          activeCourse.status === "in_progress" &&
+                          activeMissionState?.readyToComplete && (
+                            <form action={completeCourseAction}>
+                              <input type="hidden" name="courseNumber" value={activeCourse.courseId} />
+                              <button
+                                type="submit"
+                                className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
+                              >
+                                <TrophyIcon className="h-4 w-4" />
+                                Valider la mission
+                              </button>
+                            </form>
+                          )}
                         <Link
                           href={`/cours/${activeCourse.courseId}`}
                           className="comic-button inline-flex items-center gap-2 px-4 py-3 text-sm font-bold text-white"
-                          style={{ background: activeProfile.rail }}
+                          style={{ background: activeCourse.status === "unlocked" ? "#0f172a" : activeProfile.rail }}
                         >
-                          <QuestIcon className="h-4 w-4" />
-                          Entrer dans la mission
+                          <BookIcon className="h-4 w-4" />
+                          Ouvrir le cours
                         </Link>
                         {activeMission.primaryGameSlug && (
                           <Link
@@ -270,6 +298,12 @@ export default async function QuestPage() {
                           </Link>
                         )}
                       </div>
+
+                      {isLoggedIn && activeCourse.status === "unlocked" && (
+                        <p className="text-sm font-semibold text-cyan-200 text-outline">
+                          Lance d'abord la mission ici. Ensuite seulement, le quiz du cours et le score jeu compteront pour la campagne.
+                        </p>
+                      )}
                     </div>
                   ) : (
                     <p className="mt-4 text-sm font-semibold text-slate-300">

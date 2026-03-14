@@ -26,7 +26,7 @@ interface QuizProps {
   questions: Question[];
 }
 
-export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
+export function Quiz({ title = "Quiz du cours", questions }: QuizProps) {
   const mission = useCourseMission();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -35,7 +35,6 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
   const [showResult, setShowResult] = useState(false);
   const [combo, setCombo] = useState(0);
   const [maxCombo, setMaxCombo] = useState(0);
-  const [gainedXP, setGainedXP] = useState(0);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const hasSubmittedResultRef = useRef(false);
@@ -130,7 +129,6 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
       if (newCombo > maxCombo) setMaxCombo(newCombo);
 
       setScore((prev) => prev + 1);
-      setGainedXP((prev) => prev + 100 + newCombo * 10);
     } else {
       playSound();
       setCombo(0);
@@ -155,7 +153,6 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
     setScore(0);
     setCombo(0);
     setMaxCombo(0);
-    setGainedXP(0);
     setShowResult(false);
     setSyncMessage(null);
     hasSubmittedResultRef.current = false;
@@ -164,6 +161,9 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
   if (showResult) {
     const accuracy = Math.round((score / questions.length) * 100);
     const quizPassed = isCourseQuizScorePassing(score, questions.length);
+    const isAdventureTracking = Boolean(
+      mission?.isAuthenticated && mission?.isMissionTrackingEnabled
+    );
 
     return (
       <div
@@ -180,13 +180,17 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
         </div>
 
         <h3 className="mb-2 text-3xl font-bold uppercase tracking-wider text-white text-outline">
-          Mission terminee
+          Quiz termine
         </h3>
         <p className="mb-6 text-sm font-bold uppercase tracking-[0.22em] text-cyan-300">
-          {quizPassed ? "Point de passage valide" : "Validation en cours"}
+          {isAdventureTracking
+            ? quizPassed
+              ? "Checkpoint aventure valide"
+              : "Checkpoint aventure en attente"
+            : "Revision libre"}
         </p>
 
-        <div className="mx-auto mb-8 grid max-w-md gap-4 md:grid-cols-3">
+        <div className="mx-auto mb-8 grid max-w-md gap-4 md:grid-cols-2">
           <div className="rounded-xl border border-slate-600 bg-slate-800/80 p-4">
             <p className="mb-1 text-xs font-bold uppercase text-slate-400">Score</p>
             <p className="text-2xl font-black text-white">
@@ -197,11 +201,7 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
             <p className="mb-1 text-xs font-bold uppercase text-slate-400">Precision</p>
             <p className="text-2xl font-black text-cyan-300">{accuracy}%</p>
           </div>
-          <div className="rounded-xl border border-slate-600 bg-slate-800/80 p-4">
-            <p className="mb-1 text-xs font-bold uppercase text-slate-400">XP gagnee</p>
-            <p className="text-2xl font-black text-emerald-400">+{gainedXP}</p>
-          </div>
-          <div className="rounded-xl border border-slate-600 bg-slate-800/80 p-4 md:col-span-3">
+          <div className="rounded-xl border border-slate-600 bg-slate-800/80 p-4 md:col-span-2">
             <p className="mb-1 text-xs font-bold uppercase text-slate-400">Meilleur combo</p>
             <p className="text-2xl font-black text-indigo-400">
               {maxCombo} <span className="text-sm font-normal text-slate-500">reponses d'affilee</span>
@@ -213,7 +213,9 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
           {score === questions.length ? (
             <p className="text-lg font-bold text-emerald-300">Legendaire. Sans-faute absolu.</p>
           ) : score >= questions.length * 0.8 ? (
-            <p className="text-lg font-bold text-cyan-300">Excellent. Le quiz est valide.</p>
+            <p className="text-lg font-bold text-cyan-300">
+              {isAdventureTracking ? "Excellent. Le quiz aventure est valide." : "Excellent. La notion est bien en place."}
+            </p>
           ) : score >= questions.length * 0.5 ? (
             <p className="text-lg font-bold text-yellow-300">Bien joue. Il manque encore quelques reponses justes.</p>
           ) : (
@@ -221,9 +223,15 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
           )}
         </div>
 
-        {mission?.isAuthenticated && syncMessage && (
+        {mission?.isAuthenticated && mission?.isMissionTrackingEnabled && syncMessage && (
           <p className="relative z-10 mx-auto mb-6 max-w-xl rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-slate-100">
             {syncMessage}
+          </p>
+        )}
+
+        {!mission?.isMissionTrackingEnabled && (
+          <p className="relative z-10 mx-auto mb-6 max-w-xl rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-slate-100">
+            Ce quiz sert ici a t'entrainer. Pour valider une etape de campagne, lance d'abord la mission dans `Aventure`.
           </p>
         )}
 
@@ -232,7 +240,7 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
           className="comic-button inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-8 py-4 text-lg font-bold uppercase tracking-wide text-white shadow-[0_4px_0_rgb(49,46,129)] transition-all hover:translate-y-[2px] hover:bg-indigo-700 hover:shadow-[0_2px_0_rgb(49,46,129)]"
         >
           <RefreshIcon className="h-5 w-5" />
-          Recommencer la mission
+          Refaire le quiz
         </button>
       </div>
     );
@@ -241,6 +249,9 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
   const question = questions[currentQuestion];
   const checkpointReached = mission?.missionState?.readingCheckpointReached ?? false;
   const quizValidated = mission?.missionState?.quizPassed ?? false;
+  const isAdventureTracking = Boolean(
+    mission?.isAuthenticated && mission?.isMissionTrackingEnabled
+  );
 
   return (
     <div
@@ -272,24 +283,32 @@ export function Quiz({ title = "Mission Validation", questions }: QuizProps) {
           </span>
         </div>
         <div className="mb-3 flex flex-wrap gap-2">
-          <span
-            className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${
-              checkpointReached
-                ? "border-cyan-400/30 bg-cyan-500/16 text-cyan-100"
-                : "border-white/10 bg-slate-900/80 text-slate-300"
-            }`}
-          >
-            {checkpointReached ? "Point atteint" : "Point en approche"}
-          </span>
-          <span
-            className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${
-              quizValidated
-                ? "border-emerald-400/30 bg-emerald-500/16 text-emerald-100"
-                : "border-indigo-400/25 bg-indigo-500/14 text-indigo-100"
-            }`}
-          >
-            {quizValidated ? "Quiz valide" : "80% requis"}
-          </span>
+          {isAdventureTracking ? (
+            <>
+              <span
+                className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${
+                  checkpointReached
+                    ? "border-cyan-400/30 bg-cyan-500/16 text-cyan-100"
+                    : "border-white/10 bg-slate-900/80 text-slate-300"
+                }`}
+              >
+                {checkpointReached ? "Point atteint" : "Point en approche"}
+              </span>
+              <span
+                className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${
+                  quizValidated
+                    ? "border-emerald-400/30 bg-emerald-500/16 text-emerald-100"
+                    : "border-indigo-400/25 bg-indigo-500/14 text-indigo-100"
+                }`}
+              >
+                {quizValidated ? "Quiz valide" : "80% requis"}
+              </span>
+            </>
+          ) : (
+            <span className="rounded-full border border-white/10 bg-slate-900/80 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-300">
+              Mode libre
+            </span>
+          )}
           {mission?.isSyncing && (
             <span className="rounded-full border border-white/10 bg-slate-950/80 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-300">
               Sauvegarde...

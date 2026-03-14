@@ -18,6 +18,7 @@ import type { CourseMissionState } from "@/lib/courses/mission-state";
 type CourseMissionContextValue = {
   courseNumber: number;
   isAuthenticated: boolean;
+  isMissionTrackingEnabled: boolean;
   missionState: CourseMissionState | null;
   isSyncing: boolean;
   markReadingCheckpoint: () => Promise<void>;
@@ -29,6 +30,7 @@ const CourseMissionContext = createContext<CourseMissionContextValue | null>(nul
 type CourseMissionProviderProps = {
   courseNumber: number;
   isAuthenticated: boolean;
+  isMissionTrackingEnabled: boolean;
   initialMissionState: CourseMissionState | null;
   children: ReactNode;
 };
@@ -36,6 +38,7 @@ type CourseMissionProviderProps = {
 export function CourseMissionProvider({
   courseNumber,
   isAuthenticated,
+  isMissionTrackingEnabled,
   initialMissionState,
   children,
 }: CourseMissionProviderProps) {
@@ -49,7 +52,7 @@ export function CourseMissionProvider({
   }, [initialMissionState]);
 
   async function markReadingCheckpoint() {
-    if (!isAuthenticated || missionState?.readingCheckpointReached) {
+    if (!isAuthenticated || !isMissionTrackingEnabled || missionState?.readingCheckpointReached) {
       return;
     }
 
@@ -77,7 +80,7 @@ export function CourseMissionProvider({
   }
 
   async function submitQuizResult(score: number, total: number) {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !isMissionTrackingEnabled) {
       return null;
     }
 
@@ -107,6 +110,7 @@ export function CourseMissionProvider({
       value={{
         courseNumber,
         isAuthenticated,
+        isMissionTrackingEnabled,
         missionState,
         isSyncing,
         markReadingCheckpoint,
