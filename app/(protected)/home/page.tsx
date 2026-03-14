@@ -51,6 +51,11 @@ export default async function HomePage() {
   const focusGames = recommendedGames.slice(0, 3);
   const visibleFocusTags = activeCourse?.focusTags.slice(0, 3) ?? [];
   const nextCourseHref = activeCourse ? `/cours/${activeCourse.courseId}` : "/tous-les-cours";
+  const nextDailyGameSlug =
+    userData.requiredGames.find((slug) => !userData.dailyPlayedGames.includes(slug)) ??
+    userData.requiredGames[0] ??
+    null;
+  const nextDailyGame = nextDailyGameSlug ? getGameBySlug(nextDailyGameSlug) : null;
   const missionSteps = activeCourse
     ? [
         {
@@ -311,57 +316,100 @@ export default async function HomePage() {
         >
           <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
           <div className="relative z-10">
-            <Link href="/play" className="mb-4 flex items-center gap-3 transition-opacity hover:opacity-80">
+            <div className="mb-4 flex items-center gap-3">
               <div className="rounded-xl bg-cyan-500 p-3">
                 <FlameIcon className="h-8 w-8 text-white" />
               </div>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-wider text-cyan-300 text-outline">
-                  Jeu du jour
+                  Defi quotidien
                 </p>
-                <p className="text-2xl font-bold text-white text-outline">Defi quotidien</p>
+                <p className="text-2xl font-bold text-white text-outline">
+                  {userData.dailyChallengeLabel}
+                </p>
               </div>
-            </Link>
+            </div>
+
             <p className="mb-4 text-slate-300 text-outline">
-              Complete les 3 jeux du jour pour gagner le bonus quotidien et entretenir ta serie.
+              Chaque jour, 3 jeux changent. Termine les 3 pour gagner un petit bonus et nourrir ta serie.
             </p>
-            <div className="mb-4">
-              <div className="mb-2 flex justify-center gap-4">
-                {userData.requiredGames.map((slug) => {
-                  const game = getGameBySlug(slug);
-                  if (!game) {
-                    return null;
-                  }
 
-                  const isPlayed = userData.dailyPlayedGames.includes(slug);
-
-                  return (
-                    <Link
-                      key={slug}
-                      href={`/play/${slug}`}
-                      className={`relative flex cursor-pointer flex-col items-center rounded-lg border-2 border-black p-2 transition-all hover:scale-105 ${
-                        isPlayed
-                          ? "border-emerald-400 bg-emerald-600/50"
-                          : "border-slate-600 bg-slate-800 hover:border-cyan-400"
-                      }`}
-                      title={game.name}
-                    >
-                      <div className="mb-1 text-2xl">{game.icon}</div>
-                      {isPlayed && (
-                        <div className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full border border-black bg-emerald-500 text-[10px] font-bold text-white shadow-sm">
-                          OK
-                        </div>
-                      )}
-                    </Link>
-                  );
-                })}
+            <div className="mb-4 flex flex-wrap gap-2">
+              <div className="comic-panel border-2 border-black bg-slate-900/80 px-3 py-2 text-xs font-bold text-white">
+                +{userData.dailyBonusXp} XP
               </div>
-              <p className="mt-2 text-center text-xs text-slate-400">
-                {userData.dailyGoalProgress}/3 jeux du jour termines
+              <div className="comic-panel border-2 border-black bg-slate-900/80 px-3 py-2 text-xs font-bold text-white">
+                +{userData.dailyBonusGold} or
+              </div>
+              <div className="comic-panel border-2 border-black bg-slate-900/80 px-3 py-2 text-xs font-bold text-cyan-200">
+                {userData.nextRefreshLabel}
+              </div>
+            </div>
+
+            <div className="mb-4 space-y-3">
+              {userData.requiredGames.map((slug) => {
+                const game = getGameBySlug(slug);
+                if (!game) {
+                  return null;
+                }
+
+                const isPlayed = userData.dailyPlayedGames.includes(slug);
+
+                return (
+                  <Link
+                    key={slug}
+                    href={`/play/${slug}`}
+                    className={`comic-panel flex items-center gap-3 border-2 border-black px-4 py-3 transition-transform hover:-translate-y-0.5 ${
+                      isPlayed
+                        ? "bg-emerald-600/45"
+                        : "bg-slate-900/80 hover:border-cyan-400"
+                    }`}
+                  >
+                    <div
+                      className={`comic-panel shrink-0 border-2 border-black ${game.iconBg} flex h-12 w-12 items-center justify-center`}
+                    >
+                      <span className="text-xl">{game.icon}</span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="break-words text-sm font-bold text-white text-outline">
+                        {game.name}
+                      </p>
+                      <p className="break-words text-xs text-slate-300">
+                        {isPlayed ? "Valide aujourd'hui" : "A faire aujourd'hui"}
+                      </p>
+                    </div>
+                    <span
+                      className={`shrink-0 text-xs font-bold uppercase ${
+                        isPlayed ? "text-emerald-200" : "text-cyan-200"
+                      }`}
+                    >
+                      {isPlayed ? "OK" : "Jouer"}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+
+            <div className="comic-panel border-2 border-black bg-slate-950/70 p-4">
+              <p className="text-sm font-bold text-white text-outline">
+                {userData.dailyGoalProgress}/{userData.dailyGoalTarget} jeux valides aujourd'hui
+              </p>
+              <p className="mt-2 text-xs font-semibold text-slate-300">
+                {userData.dailyBonusClaimedToday
+                  ? "Bonus du jour recupere. Reviens demain pour une nouvelle selection."
+                  : userData.dailyGoalReached
+                    ? "Le bonus est pret a tomber des la validation du dernier score."
+                    : "Il reste encore des jeux a terminer pour gagner le bonus du jour."}
               </p>
             </div>
-            <Link href="/play" className="flex items-center gap-2 text-sm text-cyan-300 hover:underline">
-              <span className="font-semibold">Commencer -&gt;</span>
+
+            <Link
+              href={nextDailyGame ? `/play/${nextDailyGame.slug}` : "/play"}
+              className="mt-4 flex items-center gap-2 text-sm text-cyan-300 hover:underline"
+            >
+              <span className="font-semibold">
+                {nextDailyGame ? `Lancer ${nextDailyGame.name} ->` : "Voir les jeux ->"}
+              </span>
             </Link>
           </div>
         </div>

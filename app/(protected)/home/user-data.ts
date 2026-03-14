@@ -1,7 +1,7 @@
 "use server";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { getDailyRequiredGames } from "@/lib/profile/daily-challenge";
+import { getDailyChallengeState } from "@/lib/profile/daily-challenge";
 
 export type UserHomeData = {
   currentCourse: {
@@ -15,6 +15,13 @@ export type UserHomeData = {
   dailyPlayedGames: string[];
   requiredGames: string[];
   dailyGoalProgress: number;
+  dailyGoalTarget: number;
+  dailyGoalReached: boolean;
+  dailyBonusXp: number;
+  dailyBonusGold: number;
+  dailyBonusClaimedToday: boolean;
+  dailyChallengeLabel: string;
+  nextRefreshLabel: string;
   lastPlayedDate: string | null;
 };
 
@@ -22,26 +29,26 @@ export async function getUserHomeData(userId: string): Promise<UserHomeData> {
   const adminClient = createSupabaseAdminClient();
   const { data: profile } = await adminClient
     .from("profiles")
-    .select("daily_played_games, daily_streak, last_game_date")
+    .select("daily_played_games, daily_streak, last_game_date, last_daily_bonus_date")
     .eq("id", userId)
     .single();
 
-  const today = new Date().toISOString().split("T")[0];
-  const lastGameDate = profile?.last_game_date || null;
-  const dailyPlayedGames =
-    lastGameDate === today ? profile?.daily_played_games || [] : [];
-  const requiredGames = getDailyRequiredGames(new Date());
-  const dailyGoalProgress = requiredGames.filter((slug) =>
-    dailyPlayedGames.includes(slug)
-  ).length;
+  const dailyChallenge = getDailyChallengeState(profile);
 
   return {
     currentCourse: null,
-    dailyStreak: profile?.daily_streak || 0,
-    gamesPlayedToday: dailyPlayedGames.length,
-    dailyPlayedGames,
-    requiredGames,
-    dailyGoalProgress,
-    lastPlayedDate: lastGameDate,
+    dailyStreak: dailyChallenge.dailyStreak,
+    gamesPlayedToday: dailyChallenge.dailyPlayedGames.length,
+    dailyPlayedGames: dailyChallenge.dailyPlayedGames,
+    requiredGames: dailyChallenge.requiredGames,
+    dailyGoalProgress: dailyChallenge.dailyGoalProgress,
+    dailyGoalTarget: dailyChallenge.dailyGoalTarget,
+    dailyGoalReached: dailyChallenge.dailyGoalReached,
+    dailyBonusXp: dailyChallenge.xpBonus,
+    dailyBonusGold: dailyChallenge.goldBonus,
+    dailyBonusClaimedToday: dailyChallenge.bonusClaimedToday,
+    dailyChallengeLabel: dailyChallenge.challengeLabel,
+    nextRefreshLabel: dailyChallenge.nextRefreshLabel,
+    lastPlayedDate: profile?.last_game_date ?? null,
   };
 }
