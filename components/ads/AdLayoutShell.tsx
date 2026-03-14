@@ -6,8 +6,6 @@ import Script from "next/script";
 import { usePathname } from "next/navigation";
 import { FooterAd } from "@/components/ads/FooterAd";
 import { FooterAdContainer } from "@/components/ads/FooterAdServer";
-import { SidebarAd } from "@/components/ads/SidebarAd";
-import { SidebarAdContainer } from "@/components/ads/SidebarAdServer";
 import { ADSENSE_CLIENT, getAdRouteSettings } from "@/lib/ads/config";
 
 export function AdLayoutShell({
@@ -36,18 +34,8 @@ export function AdLayoutShell({
       <div className="flex min-h-screen flex-col gap-4 md:gap-10">
         {header}
 
-        <div className="flex flex-1 justify-center gap-6">
-          {adSettings.sidebar ? (
-            <div className="hidden w-[300px] flex-shrink-0 2xl:block" aria-hidden="true" />
-          ) : null}
-
-          <main
-            className={
-              adSettings.sidebar
-                ? "max-w-5xl min-w-0 flex-1"
-                : "mx-auto w-full max-w-6xl min-w-0 flex-1"
-            }
-          >
+        <div className="flex flex-1 justify-center">
+          <main className="mx-auto w-full max-w-6xl min-w-0 flex-1">
             {children}
 
             {adSettings.footer ? (
@@ -57,15 +45,6 @@ export function AdLayoutShell({
               </>
             ) : null}
           </main>
-
-          {adSettings.sidebar ? (
-            <aside className="hidden w-[300px] flex-shrink-0 2xl:block">
-              <div className="sticky top-6">
-                <SidebarAdContainer />
-                <SidebarAd />
-              </div>
-            </aside>
-          ) : null}
         </div>
 
         <footer className="space-y-2 pb-4 text-center text-xs text-slate-400">

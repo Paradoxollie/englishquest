@@ -9,10 +9,6 @@ export const ADSENSE_CLIENT =
 
 export const ADSENSE_SLOTS = {
   footer: process.env.NEXT_PUBLIC_ADSENSE_FOOTER_SLOT ?? "1844574488",
-  sidebar:
-    process.env.NEXT_PUBLIC_ADSENSE_SIDEBAR_SLOT ??
-    process.env.NEXT_PUBLIC_ADSENSE_FOOTER_SLOT ??
-    "1844574488",
 } as const;
 
 const DEFAULT_AD_SETTINGS: AdRouteSettings = {
@@ -30,7 +26,12 @@ const EXACT_ROUTE_SETTINGS: Record<string, AdRouteSettings> = {
   "/about": {
     loadScript: true,
     footer: true,
-    sidebar: true,
+    sidebar: false,
+  },
+  "/contact": {
+    loadScript: true,
+    footer: true,
+    sidebar: false,
   },
 };
 
