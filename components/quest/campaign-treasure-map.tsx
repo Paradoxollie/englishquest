@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
@@ -617,12 +616,22 @@ export function CampaignTreasureMap({
             >
               <div className="relative">
                 <div className="absolute inset-0 rounded-full bg-cyan-300/25 blur-xl" />
+                {playerToken?.backgroundImageUrl && (
+                  <div
+                    className="absolute inset-[-16px] rounded-full opacity-45 blur-md"
+                    style={{
+                      backgroundImage: `url("${addCacheBustingIfSupabase(playerToken.backgroundImageUrl)}")`,
+                      backgroundPosition: "center",
+                      backgroundSize: "cover",
+                    }}
+                  />
+                )}
                 <div
-                className="relative h-16 w-16 rounded-full border-4 border-black p-1.5 shadow-[0_22px_42px_rgba(0,0,0,0.32)] md:h-20 md:w-20"
-                style={{
-                  background:
+                  className="relative h-16 w-16 rounded-full border-4 border-black p-1.5 shadow-[0_22px_42px_rgba(0,0,0,0.32)] md:h-20 md:w-20"
+                  style={{
+                    background:
                       playerToken?.backgroundImageUrl
-                        ? `url(${addCacheBustingIfSupabase(playerToken.backgroundImageUrl)}) center / cover`
+                        ? `url("${addCacheBustingIfSupabase(playerToken.backgroundImageUrl)}") center / cover`
                         : defaultAvatarThemes[playerToken?.backgroundTheme ?? "cyan"] ?? defaultAvatarThemes.cyan,
                   }}
                 >
@@ -632,14 +641,17 @@ export function CampaignTreasureMap({
                   />
                   <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-full border-2 border-black bg-slate-950">
                     {playerToken?.avatarImageUrl ? (
-                      <Image
-                        src={addCacheBustingIfSupabase(playerToken.avatarImageUrl)}
-                        alt={playerToken.username}
-                        fill
-                        sizes="80px"
-                        className="object-cover"
-                        style={{ objectPosition: "center top" }}
-                      />
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={addCacheBustingIfSupabase(playerToken.avatarImageUrl)}
+                          alt={playerToken.username}
+                          className="h-full w-full rounded-full object-cover"
+                          style={{ objectPosition: "center top" }}
+                          loading="eager"
+                          decoding="async"
+                        />
+                      </>
                     ) : (
                       <span className="text-lg font-black text-white text-outline md:text-2xl">
                         {playerToken?.initial ?? "J"}
