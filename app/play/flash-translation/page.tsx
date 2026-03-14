@@ -13,7 +13,6 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     type GameState,
-    type Round,
     type GameConfig,
     createGameState,
     startGame,
@@ -31,8 +30,6 @@ import {
     XCircleIcon,
     ClockIcon,
     TrophyIcon,
-    BookOpenIcon,
-    StarIcon,
     FireIcon,
 } from "@/components/ui/game-icons";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -44,12 +41,14 @@ const DEFAULT_CONFIG: GameConfig = {
     totalRounds: 10,
     minWaitMs: 2000,
     maxWaitMs: 4000,
-    wrongAnswerPenaltyMs: 3000,
+    wrongAnswerPenaltyMs: 5000,
 };
 
 export default function FlashTranslationPage() {
     const { user } = useAuth();
-    const [gameState, setGameState] = useState<GameState | null>(null);
+    const [gameState, setGameState] = useState<GameState | null>(() =>
+        createGameState(VOCABULARY, DEFAULT_CONFIG)
+    );
     const [isGameStarted, setIsGameStarted] = useState(false);
     const [isGameEnded, setIsGameEnded] = useState(false);
     const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
@@ -60,20 +59,8 @@ export default function FlashTranslationPage() {
     const [combo, setCombo] = useState(0);
     const [shake, setShake] = useState(0); // For screen shake
 
-    const [submissionResult, setSubmissionResult] = useState<{
-        isNewPersonalBest?: boolean;
-        isNewGlobalBest?: boolean;
-        xpEarned?: number;
-        goldEarned?: number;
-    } | null>(null);
     const waitTimerRef = useRef<NodeJS.Timeout | null>(null);
     const feedbackTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-    // Initialize game
-    useEffect(() => {
-        const newState = createGameState(VOCABULARY, DEFAULT_CONFIG);
-        setGameState(newState);
-    }, []);
 
     // Handle start game
     const handleStartGame = useCallback(() => {
@@ -83,7 +70,6 @@ export default function FlashTranslationPage() {
         setIsGameStarted(true);
         setIsGameEnded(false);
         setScoreSubmitted(false);
-        setSubmissionResult(null);
         setShowLeaderboard(false);
         setCombo(0); // Reset combo
     }, [gameState]);
@@ -189,12 +175,6 @@ export default function FlashTranslationPage() {
 
                 if (result.success && result.rewards) {
                     setScoreSubmitted(true);
-                    setSubmissionResult({
-                        isNewPersonalBest: result.isNewPersonalBest,
-                        isNewGlobalBest: result.isNewGlobalBest,
-                        xpEarned: result.rewards.xpEarned,
-                        goldEarned: result.rewards.goldEarned,
-                    });
                 }
             } catch (error) {
                 console.error("Error submitting score:", error);
@@ -298,6 +278,12 @@ export default function FlashTranslationPage() {
                                         <TrophyIcon className="w-8 h-8 text-purple-400 mx-auto mb-2" />
                                         <div className="font-bold text-white text-outline">GLOIRE</div>
                                         <div className="text-xs text-slate-300">Grimpez le classement</div>
+                                    </div>
+                                </div>
+
+                                <div className="mb-10 flex justify-center">
+                                    <div className="comic-panel border-2 border-black bg-red-600 px-5 py-3 text-sm font-black uppercase tracking-wide text-white text-outline">
+                                        Mauvaise reponse = +5 secondes
                                     </div>
                                 </div>
 
@@ -544,7 +530,6 @@ export default function FlashTranslationPage() {
                                             setIsGameStarted(false);
                                             setIsGameEnded(false);
                                             setScoreSubmitted(false);
-                                            setSubmissionResult(null);
                                         }}
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}

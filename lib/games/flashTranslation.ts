@@ -8,7 +8,7 @@
  * 1. Show French word with random wait time (2000-4000ms)
  * 2. Show 4 English choices (1 correct + 3 distractors)
  * 3. Measure reaction time from when choices appear
- * 4. Apply +3000ms penalty for wrong answers
+ * 4. Apply +5000ms penalty for wrong answers
  * 5. Final score = total time (lower is better)
  */
 
@@ -38,7 +38,7 @@ export interface GameConfig {
     totalRounds: number; // 10
     minWaitMs: number; // 2000
     maxWaitMs: number; // 4000
-    wrongAnswerPenaltyMs: number; // 3000
+    wrongAnswerPenaltyMs: number; // 5000
     rng?: () => number; // For testing
 }
 
