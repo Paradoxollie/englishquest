@@ -10,6 +10,7 @@ import { CourseExperiencePanel } from "@/components/courses/course-experience-pa
 import { CourseTableOfContents } from "@/components/courses/course-table-of-contents";
 import { getCourseById, getPalierForCourse, paliers } from "@/lib/courses/data";
 import { lessons } from "@/lib/courses/lessons";
+import { getResolvedCourseMissionPlan } from "@/lib/courses/campaign-server";
 import { getUserCourseMissionState } from "@/lib/courses/mission-state";
 import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -76,6 +77,9 @@ export default async function CoursePage({ params }: CoursePageProps) {
     user && roadmapEntry
       ? await getUserCourseMissionState(user.id, roadmapEntry)
       : null;
+  const missionPlan = roadmapEntry
+    ? await getResolvedCourseMissionPlan(roadmapEntry)
+    : null;
   const sectionAnchors = lesson
     ? lesson.sections.map((section, index) => ({
         id: createLessonSectionId(section.title, index),
@@ -123,6 +127,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
         {roadmapEntry && (
           <CourseExperiencePanel
             entry={roadmapEntry}
+            mission={missionPlan}
             previousEntry={previousEntry}
             nextEntry={nextEntry}
             missionState={missionState}

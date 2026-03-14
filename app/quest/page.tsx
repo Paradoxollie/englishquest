@@ -11,7 +11,7 @@ import {
   TrophyIcon,
   XPIcon,
 } from "@/components/ui/icons";
-import { getCourseMissionPlan } from "@/lib/courses/campaign";
+import { getResolvedCourseMissionPlans } from "@/lib/courses/campaign-server";
 import { getUserCourseMissionState } from "@/lib/courses/mission-state";
 import { getCourseVisualProfile } from "@/lib/courses/presentation";
 import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
@@ -76,7 +76,10 @@ export default async function QuestPage() {
   const isLoggedIn = Boolean(user);
   const roadmap = user ? await getUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
   const activeCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
-  const activeMission = activeCourse ? getCourseMissionPlan(activeCourse) : null;
+  const missionPlans = await getResolvedCourseMissionPlans(roadmap.entries);
+  const activeMission = activeCourse
+    ? missionPlans[activeCourse.courseId] ?? null
+    : null;
   const activeMissionState =
     user && activeCourse ? await getUserCourseMissionState(user.id, activeCourse) : null;
   const activeProfile = getCourseVisualProfile(activeCourse?.palierId ?? 1);
@@ -141,6 +144,7 @@ export default async function QuestPage() {
             <CampaignTreasureMap
               entries={roadmap.entries}
               activeCourseId={activeCourse?.courseId ?? null}
+              missionPlans={missionPlans}
               playerToken={playerToken}
             />
 

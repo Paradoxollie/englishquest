@@ -11,6 +11,7 @@ import {
   XPIcon,
 } from "@/components/ui/icons";
 import { getCourseMissionPlan } from "@/lib/courses/campaign";
+import type { CourseMissionPlan } from "@/lib/courses/campaign";
 import type { CourseMissionState } from "@/lib/courses/mission-state";
 import { getCourseVisualProfile } from "@/lib/courses/presentation";
 import { getGameBySlug } from "@/lib/games/config";
@@ -32,6 +33,7 @@ const statusLabels = {
 
 type CourseExperiencePanelProps = {
   entry: CourseRoadmapEntry;
+  mission: CourseMissionPlan | null;
   previousEntry: CourseRoadmapEntry | null;
   nextEntry: CourseRoadmapEntry | null;
   missionState: CourseMissionState | null;
@@ -72,12 +74,13 @@ function buildGateMessage(entry: CourseRoadmapEntry, previousEntry: CourseRoadma
 
 export function CourseExperiencePanel({
   entry,
+  mission: resolvedMission,
   previousEntry,
   nextEntry,
   missionState,
   isAuthenticated,
 }: CourseExperiencePanelProps) {
-  const mission = getCourseMissionPlan(entry);
+  const mission = resolvedMission ?? getCourseMissionPlan(entry);
   const profile = getCourseVisualProfile(entry.palierId);
   const recommendedGames = entry.recommendedGameSlugs
     .map((slug) => getGameBySlug(slug))

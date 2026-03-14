@@ -1,5 +1,5 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { getCourseMissionPlan } from "@/lib/courses/campaign";
+import { getResolvedCourseMissionPlan } from "@/lib/courses/campaign-server";
 import type { CourseRoadmapEntry } from "@/lib/courses/progress";
 
 export type CourseChallengeProgress = {
@@ -12,7 +12,7 @@ export async function getUserCourseChallengeProgress(
   entry: CourseRoadmapEntry
 ): Promise<CourseChallengeProgress> {
   try {
-    const mission = getCourseMissionPlan(entry);
+    const mission = await getResolvedCourseMissionPlan(entry);
 
     if (!mission.primaryGameSlug) {
       return {

@@ -5,10 +5,12 @@ import { useDeferredValue, useState } from "react";
 import type { CourseRoadmapEntry } from "@/lib/courses/progress";
 import { ArrowRightIcon, QuestIcon } from "@/components/ui/icons";
 import { getCourseMissionPlan } from "@/lib/courses/campaign";
+import type { CourseMissionPlan } from "@/lib/courses/campaign";
 import { getCourseVisualProfile } from "@/lib/courses/presentation";
 
 type CourseLibraryExplorerProps = {
   entries: CourseRoadmapEntry[];
+  missionPlans: Record<number, CourseMissionPlan>;
   recommendedCourseId: number | null;
   isAuthenticated: boolean;
 };
@@ -46,6 +48,7 @@ const statusOptions = [
 
 export function CourseLibraryExplorer({
   entries,
+  missionPlans,
   recommendedCourseId,
   isAuthenticated,
 }: CourseLibraryExplorerProps) {
@@ -56,7 +59,7 @@ export function CourseLibraryExplorer({
 
   const normalizedSearch = deferredSearch.trim().toLowerCase();
   const filteredEntries = entries.filter((entry) => {
-    const mission = getCourseMissionPlan(entry);
+    const mission = missionPlans[entry.courseId] ?? getCourseMissionPlan(entry);
     const matchesSearch =
       normalizedSearch.length === 0 ||
       entry.title.toLowerCase().includes(normalizedSearch) ||
@@ -185,7 +188,7 @@ export function CourseLibraryExplorer({
 
       <div className="grid gap-5 md:grid-cols-2">
         {filteredEntries.map((entry) => {
-          const mission = getCourseMissionPlan(entry);
+          const mission = missionPlans[entry.courseId] ?? getCourseMissionPlan(entry);
           const profile = getCourseVisualProfile(entry.palierId);
           const isRecommended = entry.courseId === recommendedCourseId;
           const ctaLabel =

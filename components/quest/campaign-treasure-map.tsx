@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
 import { getCourseMissionPlan } from "@/lib/courses/campaign";
+import type { CourseMissionPlan } from "@/lib/courses/campaign";
 import { getCourseVisualProfile } from "@/lib/courses/presentation";
 import type { CourseRoadmapEntry } from "@/lib/courses/progress";
 
@@ -19,6 +20,7 @@ type QuestPlayerToken = {
 type CampaignTreasureMapProps = {
   entries: CourseRoadmapEntry[];
   activeCourseId: number | null;
+  missionPlans: Record<number, CourseMissionPlan>;
   playerToken: QuestPlayerToken | null;
 };
 
@@ -284,6 +286,7 @@ function getTooltipPlacement(xPercent: number, y: number, mapHeight: number) {
 export function CampaignTreasureMap({
   entries,
   activeCourseId,
+  missionPlans,
   playerToken,
 }: CampaignTreasureMapProps) {
   const positionedEntries: PositionedEntry[] = entries.map((entry) => {
@@ -497,7 +500,7 @@ export function CampaignTreasureMap({
           {positionedEntries.map((item) => {
             const isCurrent = item.entry.courseId === activePoint?.entry.courseId;
             const tone = getNodeTone(item.entry.status, isCurrent);
-            const mission = getCourseMissionPlan(item.entry);
+            const mission = missionPlans[item.entry.courseId] ?? getCourseMissionPlan(item.entry);
             const profile = getCourseVisualProfile(item.entry.palierId);
             const localIndex = (item.entry.courseId - 1) % 10;
             const isCheckpoint = localIndex === 4;

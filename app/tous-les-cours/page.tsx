@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CourseLibraryExplorer } from "@/components/courses/course-library-explorer";
 import { BookIcon, QuestIcon, TrophyIcon } from "@/components/ui/icons";
 import { getCourseMissionPlan } from "@/lib/courses/campaign";
+import { getResolvedCourseMissionPlans } from "@/lib/courses/campaign-server";
 import { getCourseVisualProfile } from "@/lib/courses/presentation";
 import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -14,7 +15,10 @@ export default async function TousLesCoursPage() {
   const isLoggedIn = Boolean(user);
   const roadmap = user ? await getUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
   const recommendedCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
-  const recommendedMission = recommendedCourse ? getCourseMissionPlan(recommendedCourse) : null;
+  const missionPlans = await getResolvedCourseMissionPlans(roadmap.entries);
+  const recommendedMission = recommendedCourse
+    ? missionPlans[recommendedCourse.courseId] ?? getCourseMissionPlan(recommendedCourse)
+    : null;
   const recommendedProfile = getCourseVisualProfile(recommendedCourse?.palierId ?? 1);
 
   return (
@@ -165,6 +169,7 @@ export default async function TousLesCoursPage() {
 
           <CourseLibraryExplorer
             entries={roadmap.entries}
+            missionPlans={missionPlans}
             recommendedCourseId={recommendedCourse?.courseId ?? null}
             isAuthenticated={isLoggedIn}
           />
