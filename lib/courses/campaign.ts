@@ -1,5 +1,6 @@
 import { getGameBySlug } from "@/lib/games/config";
 import { lessons } from "@/lib/courses/lessons";
+import { getCourseMetadata, getCourseRewardProfile } from "@/lib/courses/metadata";
 import type { CourseRoadmapEntry } from "@/lib/courses/progress";
 
 export type CourseMissionTargetSource = "default" | "community_average";
@@ -23,6 +24,11 @@ export type CourseMissionPlanEntryInput = Pick<
   "courseId" | "summary" | "recommendedGameSlugs" | "palierId" | "rewardXp"
 >;
 
+type CourseMissionGameSelectionInput = Pick<
+  CourseMissionPlanEntryInput,
+  "courseId" | "recommendedGameSlugs" | "palierId" | "rewardXp" | "summary"
+>;
+
 type ChallengeDefinition = {
   scoreDirection: "higher" | "lower";
   metric: "points" | "time" | "words";
@@ -34,6 +40,78 @@ type ChallengeDefinition = {
   defaultAction: string;
   averageAction: string;
 };
+
+const recentMissionGameMemory = 2;
+
+function unique<T>(items: T[]) {
+  return Array.from(new Set(items));
+}
+
+function pickMissionGameSlug(
+  recommendedGameSlugs: string[],
+  recentGameSlugs: string[]
+) {
+  const candidates = unique(recommendedGameSlugs).filter((slug) => Boolean(getGameBySlug(slug)));
+
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  const freshCandidate = candidates.find((slug) => !recentGameSlugs.includes(slug));
+  if (freshCandidate) {
+    return freshCandidate;
+  }
+
+  const latestGameSlug = recentGameSlugs[recentGameSlugs.length - 1];
+  const nonConsecutiveCandidate = candidates.find((slug) => slug !== latestGameSlug);
+  return nonConsecutiveCandidate ?? candidates[0];
+}
+
+function buildSyntheticMissionEntry(courseId: number): CourseMissionPlanEntryInput {
+  const metadata = getCourseMetadata(courseId);
+  const rewards = getCourseRewardProfile(courseId);
+
+  return {
+    courseId,
+    summary: metadata.summary,
+    recommendedGameSlugs: metadata.recommendedGameSlugs,
+    palierId: metadata.palierId,
+    rewardXp: rewards.xp,
+  };
+}
+
+export function resolveMissionPrimaryGameAssignments(
+  entries: CourseMissionGameSelectionInput[]
+): Record<number, string | null> {
+  const sortedEntries = [...entries].sort((left, right) => left.courseId - right.courseId);
+  const recentGameSlugs: string[] = [];
+  const assignments: Record<number, string | null> = {};
+
+  for (const entry of sortedEntries) {
+    const selectedGameSlug = pickMissionGameSlug(entry.recommendedGameSlugs, recentGameSlugs);
+    assignments[entry.courseId] = selectedGameSlug;
+
+    if (selectedGameSlug) {
+      recentGameSlugs.push(selectedGameSlug);
+      if (recentGameSlugs.length > recentMissionGameMemory) {
+        recentGameSlugs.shift();
+      }
+    }
+  }
+
+  return assignments;
+}
+
+function resolveStandalonePrimaryGameSlug(
+  entry: CourseMissionGameSelectionInput
+) {
+  const campaignEntries = Array.from({ length: Math.max(1, entry.courseId) }, (_, index) => {
+    const courseId = index + 1;
+    return courseId === entry.courseId ? entry : buildSyntheticMissionEntry(courseId);
+  });
+
+  return resolveMissionPrimaryGameAssignments(campaignEntries)[entry.courseId] ?? null;
+}
 
 export function getMissionTargetScore(entry: Pick<CourseRoadmapEntry, "palierId" | "rewardXp">) {
   return 900 + entry.palierId * 250 + entry.rewardXp * 4;
@@ -188,16 +266,18 @@ export function buildCourseMissionPlan(
   options?: {
     scoreTarget?: number;
     targetSource?: CourseMissionTargetSource;
+    primaryGameSlug?: string | null;
   }
 ): CourseMissionPlan {
   const lesson = lessons[entry.courseId];
   const validationSection = lesson?.sections.find((section) =>
     /validation|quiz|mission/i.test(section.title)
   );
-  const primaryGame = entry.recommendedGameSlugs
-    .map((slug) => getGameBySlug(slug))
-    .find(Boolean);
-  const challenge = buildGameChallenge(entry, primaryGame?.slug ?? null, options);
+  const primaryGameSlug =
+    options?.primaryGameSlug ??
+    resolveStandalonePrimaryGameSlug(entry);
+  const primaryGame = primaryGameSlug ? getGameBySlug(primaryGameSlug) : null;
+  const challenge = buildGameChallenge(entry, primaryGameSlug, options);
 
   return {
     objective: lesson?.objective ?? entry.summary,
@@ -208,7 +288,7 @@ export function buildCourseMissionPlan(
     gameChallengeLabel: challenge.gameChallengeLabel,
     gameChallengeCompact: challenge.gameChallengeCompact,
     gameChallengeAction: challenge.gameChallengeAction,
-    primaryGameSlug: primaryGame?.slug ?? null,
+    primaryGameSlug: primaryGameSlug,
     primaryGameName: primaryGame?.name ?? null,
     primaryGameTagline: primaryGame?.tags.slice(0, 2).join(" / ") ?? null,
   };

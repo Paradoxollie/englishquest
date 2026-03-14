@@ -1,6 +1,7 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
   buildCourseMissionPlan,
+  resolveMissionPrimaryGameAssignments,
   type CourseMissionPlan,
   type CourseMissionPlanEntryInput,
 } from "@/lib/courses/campaign";
@@ -114,10 +115,13 @@ export async function getResolvedCourseMissionPlans(
     return {};
   }
 
+  const missionGameAssignments = resolveMissionPrimaryGameAssignments(entries);
   const basePlans = entries.map((entry) => ({
     courseId: entry.courseId,
     entry,
-    plan: buildCourseMissionPlan(entry),
+    plan: buildCourseMissionPlan(entry, {
+      primaryGameSlug: missionGameAssignments[entry.courseId] ?? null,
+    }),
   }));
   const slugKey = buildSlugKey(
     basePlans
@@ -152,6 +156,24 @@ export async function getResolvedCourseMissionPlans(
 export async function getResolvedCourseMissionPlan(
   entry: CourseMissionPlanEntryInput
 ): Promise<CourseMissionPlan> {
-  const plans = await getResolvedCourseMissionPlans([entry]);
-  return plans[entry.courseId] ?? buildCourseMissionPlan(entry);
+  const plan = buildCourseMissionPlan(entry);
+
+  if (!plan.primaryGameSlug) {
+    return plan;
+  }
+
+  const benchmarks = await getBenchmarksForSlugKey(plan.primaryGameSlug);
+  const benchmark = benchmarks[plan.primaryGameSlug];
+
+  if (benchmark?.averageScore == null) {
+    return plan;
+  }
+
+  const rampedTarget = applyMissionRamp(entry, benchmark.averageScore, plan);
+
+  return buildCourseMissionPlan(entry, {
+    primaryGameSlug: plan.primaryGameSlug,
+    scoreTarget: rampedTarget,
+    targetSource: "community_average",
+  });
 }
