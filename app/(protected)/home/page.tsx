@@ -47,6 +47,9 @@ export default async function HomePage() {
   const recommendedGames = roadmap.recommendedGameSlugs
     .map((slug) => getGameBySlug(slug))
     .filter((game): game is NonNullable<typeof game> => Boolean(game));
+  const visibleStudyPlan = roadmap.studyPlan.slice(0, 3);
+  const visibleFocusTags = activeCourse?.focusTags.slice(0, 3) ?? [];
+  const nextCourseHref = activeCourse ? `/cours/${activeCourse.courseId}` : "/tous-les-cours";
 
   return (
     <div className="space-y-8 md:space-y-12">
@@ -77,130 +80,200 @@ export default async function HomePage() {
         </header>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-[1.25fr_1fr_1fr]">
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.95fr)]">
         <section
-          className="comic-card-dark p-6"
+          className="comic-card-dark overflow-hidden p-6 md:p-7"
           style={{ background: "linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(6, 182, 212, 0.22) 100%)" }}
         >
-          <div className="mb-4 flex items-center gap-3">
-            <div className="rounded-xl bg-emerald-500 p-3">
-              <QuestIcon className="h-7 w-7 text-white" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300 text-outline">
-                Plan du jour
-              </p>
-              <h2 className="text-2xl font-bold text-white text-outline">Parcours pilote</h2>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {roadmap.studyPlan.map((step) => (
-              <div
-                key={step}
-                className="comic-panel border-2 border-black bg-slate-900/70 p-4 text-sm font-semibold text-slate-100 text-outline"
-              >
-                {step}
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <div className="comic-panel border-2 border-black bg-black/40 p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Progression</p>
-              <p className="mt-2 text-lg font-bold text-white">
-                {roadmap.completedCount}/{roadmap.totalCourses} cours
-              </p>
-            </div>
-            <div className="comic-panel border-2 border-black bg-black/40 p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Completion</p>
-              <p className="mt-2 text-lg font-bold text-white">{roadmap.completionRate}%</p>
-            </div>
-          </div>
-        </section>
-
-        <section
-          className="comic-card-dark p-6"
-          style={{ background: "linear-gradient(135deg, rgba(99, 102, 241, 0.22) 0%, rgba(59, 130, 246, 0.18) 100%)" }}
-        >
-          <div className="mb-4 flex items-center gap-3">
-            <div className="rounded-xl bg-indigo-500 p-3">
-              <BookIcon className="h-7 w-7 text-white" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300 text-outline">
-                Focus actuel
-              </p>
-              <h2 className="text-2xl font-bold text-white text-outline">Prochain cours</h2>
-            </div>
-          </div>
-
-          <p className="text-sm font-semibold text-slate-300 text-outline">
-            {activeCourse
-              ? `Cours ${activeCourse.courseId}: ${activeCourse.title}`
-              : "Le parcours principal est termine. Reprends les modules avances pour consolider."}
-          </p>
-
-          {roadmap.currentPalier && (
-            <div className="mt-4 comic-panel border-2 border-black bg-slate-900/70 p-4">
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Palier en cours</p>
-              <p className="mt-2 text-lg font-bold text-white">{roadmap.currentPalier.title}</p>
-              <p className="text-sm font-semibold text-slate-300">{roadmap.currentPalier.level}</p>
-              <p className="mt-2 text-sm font-semibold text-cyan-300">
-                {roadmap.currentPalier.completedCount}/{roadmap.currentPalier.totalCourses} modules valides
-              </p>
-            </div>
-          )}
-
-          {activeCourse && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {activeCourse.focusTags.map((tag) => (
-                <span
-                  key={tag}
-                  className="comic-panel border-2 border-black bg-slate-800 px-3 py-1 text-xs font-bold text-slate-100"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </section>
-
-        <section
-          className="comic-card-dark p-6"
-          style={{ background: "linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(249, 115, 22, 0.2) 100%)" }}
-        >
-          <div className="mb-4 flex items-center gap-3">
-            <div className="rounded-xl bg-amber-500 p-3">
-              <GameIcon className="h-7 w-7 text-white" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300 text-outline">
-                Pratique ciblee
-              </p>
-              <h2 className="text-2xl font-bold text-white text-outline">Jeux conseilles</h2>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {recommendedGames.map((game) => (
-              <Link
-                key={game.slug}
-                href={`/play/${game.slug}`}
-                className="comic-panel flex items-center justify-between gap-3 border-2 border-black bg-slate-900/70 px-4 py-3 transition-transform hover:scale-[1.02]"
-              >
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div className="min-w-0">
                 <div className="flex items-center gap-3">
-                  <div className={`comic-panel border-2 border-black ${game.iconBg} p-2`}>
-                    <span className="text-lg">{game.icon}</span>
+                  <div className="rounded-xl bg-emerald-500 p-3">
+                    <QuestIcon className="h-7 w-7 text-white" />
                   </div>
-                  <div>
-                    <p className="text-sm font-bold text-white text-outline">{game.name}</p>
-                    <p className="text-xs text-slate-300">{game.tags.slice(0, 2).join(" · ")}</p>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300 text-outline">
+                      Mission du jour
+                    </p>
+                    <h2 className="text-2xl font-bold text-white text-outline md:text-3xl">
+                      Continue la campagne
+                    </h2>
                   </div>
                 </div>
-                <span className="text-sm font-bold text-amber-300">Jouer</span>
+                <p className="mt-4 max-w-2xl break-words text-sm font-semibold leading-6 text-slate-100 text-outline md:text-base">
+                  {activeCourse
+                    ? `Cap sur le cours ${activeCourse.courseId}. Lis la lecon, valide le quiz puis enchaine avec les jeux recommandes pour ouvrir la suite.`
+                    : "Le parcours principal est termine. Repars sur un module libre ou un jeu cible pour garder le rythme."}
+                </p>
+              </div>
+
+              <Link
+                href="/quest"
+                className="comic-panel inline-flex items-center justify-center border-2 border-black bg-emerald-500 px-4 py-2 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+              >
+                Voir la carte
               </Link>
-            ))}
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              {visibleStudyPlan.length > 0 ? (
+                visibleStudyPlan.map((step, index) => (
+                  <div
+                    key={step}
+                    className="comic-panel min-w-0 border-2 border-black bg-slate-950/75 p-4"
+                  >
+                    <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-emerald-300">
+                      Etape {index + 1}
+                    </p>
+                    <p className="mt-2 break-words text-sm font-semibold leading-6 text-slate-100 text-outline">
+                      {step}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="comic-panel min-w-0 border-2 border-black bg-slate-950/75 p-4 md:col-span-3">
+                  <p className="break-words text-sm font-semibold leading-6 text-slate-100 text-outline">
+                    Ouvre un cours ou une mission pour voir ton prochain plan d'action.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="comic-panel border-2 border-black bg-black/45 p-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Cours valides</p>
+                <p className="mt-2 text-lg font-bold text-white">
+                  {roadmap.completedCount}/{roadmap.totalCourses}
+                </p>
+              </div>
+              <div className="comic-panel border-2 border-black bg-black/45 p-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Progression</p>
+                <p className="mt-2 text-lg font-bold text-white">{roadmap.completionRate}%</p>
+              </div>
+              <div className="comic-panel border-2 border-black bg-black/45 p-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Jeux recommandes</p>
+                <p className="mt-2 text-lg font-bold text-white">{recommendedGames.length}</p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href={nextCourseHref}
+                className="comic-panel inline-flex items-center justify-center border-2 border-black bg-cyan-500 px-4 py-2 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+              >
+                {activeCourse ? "Ouvrir le cours" : "Voir les cours"}
+              </Link>
+              <Link
+                href="/play"
+                className="comic-panel inline-flex items-center justify-center border-2 border-black bg-slate-900 px-4 py-2 text-sm font-bold text-cyan-200 transition-transform hover:-translate-y-0.5"
+              >
+                Lancer un jeu
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section
+          className="comic-card-dark overflow-hidden p-6 md:p-7"
+          style={{ background: "linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(245, 158, 11, 0.16) 100%)" }}
+        >
+          <div className="flex flex-col gap-5">
+            <div className="flex items-center gap-3">
+              <div className="rounded-xl bg-indigo-500 p-3">
+                <BookIcon className="h-7 w-7 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300 text-outline">
+                  Focus du moment
+                </p>
+                <h2 className="text-2xl font-bold text-white text-outline">Cours actif</h2>
+              </div>
+            </div>
+
+            <div className="comic-panel min-w-0 border-2 border-black bg-slate-950/75 p-5">
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Cap actuel</p>
+              <p className="mt-2 break-words text-xl font-bold leading-tight text-white text-outline">
+                {activeCourse
+                  ? `Cours ${activeCourse.courseId}: ${activeCourse.title}`
+                  : "Le parcours principal est termine"}
+              </p>
+              <p className="mt-3 break-words text-sm font-semibold leading-6 text-slate-300 text-outline">
+                {activeCourse
+                  ? "Valide le quiz puis vise le score requis pour debloquer le prochain point de passage."
+                  : "Reprends un cours libre ou attaque un jeu rapide pour garder tes reflexes."}
+              </p>
+
+              {roadmap.currentPalier && (
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <span className="comic-panel border-2 border-black bg-indigo-500/80 px-3 py-1 text-xs font-bold text-white">
+                    {roadmap.currentPalier.title}
+                  </span>
+                  <span className="comic-panel border-2 border-black bg-slate-800 px-3 py-1 text-xs font-bold text-slate-100">
+                    {roadmap.currentPalier.level}
+                  </span>
+                  <span className="comic-panel border-2 border-black bg-slate-800 px-3 py-1 text-xs font-bold text-cyan-300">
+                    {roadmap.currentPalier.completedCount}/{roadmap.currentPalier.totalCourses} valides
+                  </span>
+                </div>
+              )}
+
+              {visibleFocusTags.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {visibleFocusTags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="comic-panel border-2 border-black bg-slate-800 px-3 py-1 text-xs font-bold text-slate-100"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="min-w-0">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300 text-outline">
+                    Jeux utiles maintenant
+                  </p>
+                  <p className="text-sm font-semibold text-slate-300 text-outline">
+                    Des formats courts pour fixer la notion et marquer des points.
+                  </p>
+                </div>
+                <Link href="/play" className="text-sm font-bold text-amber-300 hover:underline">
+                  Voir tout
+                </Link>
+              </div>
+
+              {recommendedGames.length > 0 ? (
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                  {recommendedGames.map((game) => (
+                    <Link
+                      key={game.slug}
+                      href={`/play/${game.slug}`}
+                      className="comic-panel flex min-w-0 items-center gap-3 border-2 border-black bg-slate-900/75 px-4 py-3 transition-transform hover:-translate-y-0.5"
+                    >
+                      <div className={`comic-panel shrink-0 border-2 border-black ${game.iconBg} p-2`}>
+                        <span className="text-lg">{game.icon}</span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="break-words text-sm font-bold text-white text-outline">{game.name}</p>
+                        <p className="break-words text-xs text-slate-300">{game.tags.slice(0, 2).join(" / ")}</p>
+                      </div>
+                      <span className="shrink-0 text-sm font-bold text-amber-300">Jouer</span>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="comic-panel border-2 border-black bg-slate-900/75 p-4">
+                  <p className="break-words text-sm font-semibold text-slate-200 text-outline">
+                    Aucun jeu cible pour l'instant. Va dans Play pour choisir ton prochain defi.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </section>
       </div>
