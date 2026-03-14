@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
+import { launchCourseMissionAction } from "@/app/cours/actions";
 import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
 import { getCourseMissionPlan } from "@/lib/courses/campaign";
 import type { CourseMissionPlan } from "@/lib/courses/campaign";
@@ -507,20 +507,25 @@ export function CampaignTreasureMap({
             const nodeSize = isBossGate ? 76 : isCheckpoint ? 64 : 56;
             const badgeLabel = isBossGate ? "Gate" : isCheckpoint ? "CP" : null;
             const tooltipPlacement = getTooltipPlacement(item.xPercent, item.y, mapHeight);
-
-            return (
-              <Link
-                key={item.entry.courseId}
-                href={`/cours/${item.entry.courseId}`}
-                className={`group absolute block ${
-                  isCurrent ? "z-30" : "z-20 hover:z-40 focus-visible:z-40"
-                }`}
-                style={{
-                  left: `${item.xPercent}%`,
-                  top: item.y,
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
+            const canLaunch = item.entry.status !== "locked";
+            const actionLabel =
+              item.entry.status === "completed"
+                ? "Clique pour revoir"
+                : item.entry.status === "in_progress"
+                  ? "Clique pour continuer"
+                  : item.entry.status === "unlocked"
+                    ? "Clique pour lancer"
+                    : "Etape verrouillee";
+            const nodeClasses = `group absolute block ${
+              isCurrent ? "z-30" : "z-20 hover:z-40 focus-visible:z-40"
+            }`;
+            const nodeStyle = {
+              left: `${item.xPercent}%`,
+              top: item.y,
+              transform: "translate(-50%, -50%)",
+            } as const;
+            const nodeBody = (
+              <>
                 <div
                   className={`relative flex items-center justify-center border-4 border-black text-sm font-black text-white md:text-base ${
                     isBossGate ? "rounded-[1.75rem]" : isCheckpoint ? "rounded-[1.4rem]" : "rounded-full"
@@ -575,7 +580,7 @@ export function CampaignTreasureMap({
                 </div>
 
                 <div
-                  className={`pointer-events-none absolute z-20 hidden w-[190px] rounded-[22px] border-2 border-black bg-slate-950/96 p-3 shadow-[0_18px_34px_rgba(0,0,0,0.3)] transition-all duration-200 md:block ${tooltipPlacement.horizontalClass} ${tooltipPlacement.verticalClass} ${tooltipPlacement.textAlignClass} ${
+                  className={`pointer-events-none absolute z-20 hidden w-[210px] rounded-[22px] border-2 border-black bg-slate-950/96 p-3 shadow-[0_18px_34px_rgba(0,0,0,0.3)] transition-all duration-200 md:block ${tooltipPlacement.horizontalClass} ${tooltipPlacement.verticalClass} ${tooltipPlacement.textAlignClass} ${
                     isCurrent
                       ? "opacity-100"
                       : "opacity-0 group-hover:opacity-100"
@@ -593,13 +598,47 @@ export function CampaignTreasureMap({
                   <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-300">
                     {mission.gameChallengeCompact} / {item.entry.levelLabel.split(" - ")[0]}
                   </p>
+                  <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-200">
+                    {actionLabel}
+                  </p>
                   {(isCheckpoint || isBossGate) && (
                     <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-300">
                       {isBossGate ? "Porte d'acte" : "Checkpoint"}
                     </p>
                   )}
                 </div>
-              </Link>
+              </>
+            );
+
+            if (!canLaunch) {
+              return (
+                <div
+                  key={item.entry.courseId}
+                  className={`${nodeClasses} cursor-not-allowed opacity-85`}
+                  style={nodeStyle}
+                  aria-disabled="true"
+                >
+                  {nodeBody}
+                </div>
+              );
+            }
+
+            return (
+              <form
+                key={item.entry.courseId}
+                action={launchCourseMissionAction}
+                className={nodeClasses}
+                style={nodeStyle}
+              >
+                <input type="hidden" name="courseNumber" value={item.entry.courseId} />
+                <button
+                  type="submit"
+                  className="block bg-transparent p-0 text-left"
+                  aria-label={`${actionLabel} : mission ${item.entry.courseId}`}
+                >
+                  {nodeBody}
+                </button>
+              </form>
             );
           })}
 

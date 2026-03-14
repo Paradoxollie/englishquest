@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { completeCourseAction, startCourseAction } from "@/app/cours/actions";
+import { completeCourseAction, launchCourseMissionAction } from "@/app/cours/actions";
 import {
   CampaignTreasureMap,
   type QuestPlayerToken,
@@ -88,6 +88,16 @@ export default async function QuestPage() {
     user?.user_metadata?.username ??
     (user?.email ? user.email.split("@")[0] : undefined);
   const playerToken = user ? await getQuestPlayerToken(user.id, fallbackName) : null;
+  const missionInstruction =
+    activeCourse && activeMission
+      ? activeCourse.status === "unlocked"
+        ? `1. Clique sur "Lancer et ouvrir le cours". 2. Va jusqu'au quiz et atteins 80% minimum. 3. Reussis le defi ${activeMission.primaryGameName ?? "jeu"}. 4. Reviens ici pour valider la mission.`
+        : activeMissionState?.readyToComplete
+          ? "Tout est valide. Clique maintenant sur \"Valider la mission\" pour ouvrir l'etape suivante."
+          : activeMissionState?.quizPassed
+            ? `Le quiz est valide. Il reste seulement le score a atteindre dans ${activeMission.primaryGameName ?? "le jeu demande"}.`
+            : `Commence par ouvrir le cours, descends jusqu'au quiz, puis vise 80% minimum avant de tenter ${activeMission.primaryGameName ?? "le defi jeu"}.`
+      : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
@@ -238,23 +248,28 @@ export default async function QuestPage() {
                         </div>
                       </div>
 
-                      {isLoggedIn && activeMission.primaryGameSlug && (
-                        <p
-                          className={`text-sm font-bold ${
-                            activeMissionState?.readyToComplete ? "text-emerald-300" : "text-amber-300"
-                          } text-outline`}
+                      {missionInstruction && (
+                        <div
+                          className={`rounded-2xl border p-4 ${
+                            activeMissionState?.readyToComplete
+                              ? "border-emerald-400/25 bg-emerald-500/14 text-emerald-100"
+                              : activeCourse.status === "unlocked"
+                                ? "border-cyan-400/25 bg-cyan-500/14 text-cyan-100"
+                                : "border-amber-400/25 bg-amber-500/14 text-amber-100"
+                          }`}
                         >
-                          {activeMissionState?.readyToComplete
-                            ? "Mission prete: le point, le quiz et le defi jeu sont valides."
-                            : activeMissionState?.quizPassed
-                              ? "Le score du jeu est encore requis pour boucler cette mission."
-                              : "Le quiz et le defi jeu restent a valider pour ouvrir la suite."}
-                        </p>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.18em]">
+                            Ce que tu dois faire
+                          </p>
+                          <p className="mt-2 text-sm font-bold leading-relaxed text-outline">
+                            {missionInstruction}
+                          </p>
+                        </div>
                       )}
 
                       <div className="flex flex-wrap gap-3">
                         {isLoggedIn && activeCourse.status === "unlocked" && (
-                          <form action={startCourseAction}>
+                          <form action={launchCourseMissionAction}>
                             <input type="hidden" name="courseNumber" value={activeCourse.courseId} />
                             <button
                               type="submit"
@@ -262,7 +277,7 @@ export default async function QuestPage() {
                               style={{ background: activeProfile.rail }}
                             >
                               <QuestIcon className="h-4 w-4" />
-                              Lancer la mission
+                              Lancer et ouvrir le cours
                             </button>
                           </form>
                         )}
@@ -280,14 +295,16 @@ export default async function QuestPage() {
                               </button>
                             </form>
                           )}
-                        <Link
-                          href={`/cours/${activeCourse.courseId}`}
-                          className="comic-button inline-flex items-center gap-2 px-4 py-3 text-sm font-bold text-white"
-                          style={{ background: activeCourse.status === "unlocked" ? "#0f172a" : activeProfile.rail }}
-                        >
-                          <BookIcon className="h-4 w-4" />
-                          Ouvrir le cours
-                        </Link>
+                        {activeCourse.status !== "unlocked" && (
+                          <Link
+                            href={`/cours/${activeCourse.courseId}`}
+                            className="comic-button inline-flex items-center gap-2 px-4 py-3 text-sm font-bold text-white"
+                            style={{ background: activeProfile.rail }}
+                          >
+                            <BookIcon className="h-4 w-4" />
+                            Continuer le cours
+                          </Link>
+                        )}
                         {activeMission.primaryGameSlug && (
                           <Link
                             href={`/play/${activeMission.primaryGameSlug}`}
@@ -301,7 +318,7 @@ export default async function QuestPage() {
 
                       {isLoggedIn && activeCourse.status === "unlocked" && (
                         <p className="text-sm font-semibold text-cyan-200 text-outline">
-                          Lance d'abord la mission ici. Ensuite seulement, le quiz du cours et le score jeu compteront pour la campagne.
+                          Un clic ici lance la mission puis ouvre directement le cours au bon mode.
                         </p>
                       )}
                     </div>

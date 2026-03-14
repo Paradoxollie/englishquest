@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   completeCourseAndGrantRewards,
@@ -44,6 +45,41 @@ export async function startCourseAction(formData: FormData) {
   } catch (error) {
     console.error("startCourseAction failed", error);
   }
+}
+
+export async function launchCourseMissionAction(formData: FormData) {
+  const courseNumber = Number(formData.get("courseNumber"));
+  if (!Number.isFinite(courseNumber)) {
+    redirect("/quest");
+  }
+
+  let destination = `/cours/${courseNumber}`;
+  const userId = await getAuthenticatedUserId();
+
+  if (!userId) {
+    revalidateCourseSurfaces(courseNumber);
+    redirect(destination);
+  }
+
+  try {
+    const roadmap = await getUserCourseRoadmap(userId);
+    const roadmapEntry = roadmap.entries.find((entry) => entry.courseId === courseNumber);
+
+    if (!roadmapEntry || roadmapEntry.status === "locked") {
+      destination = "/quest";
+      revalidatePath("/quest");
+    } else {
+      if (roadmapEntry.status === "unlocked") {
+        await updateCourseProgressStatus(userId, courseNumber, "in_progress");
+      }
+
+      revalidateCourseSurfaces(courseNumber);
+    }
+  } catch (error) {
+    console.error("launchCourseMissionAction failed", error);
+  }
+
+  redirect(destination);
 }
 
 export async function completeCourseAction(formData: FormData) {
