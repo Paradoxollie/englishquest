@@ -47,9 +47,51 @@ export default async function HomePage() {
   const recommendedGames = roadmap.recommendedGameSlugs
     .map((slug) => getGameBySlug(slug))
     .filter((game): game is NonNullable<typeof game> => Boolean(game));
-  const visibleStudyPlan = roadmap.studyPlan.slice(0, 3);
+  const primaryGame = recommendedGames[0] ?? null;
+  const focusGames = recommendedGames.slice(0, 3);
   const visibleFocusTags = activeCourse?.focusTags.slice(0, 3) ?? [];
   const nextCourseHref = activeCourse ? `/cours/${activeCourse.courseId}` : "/tous-les-cours";
+  const missionSteps = activeCourse
+    ? [
+        {
+          label: "Cours",
+          value: `Cours ${activeCourse.courseId}`,
+          detail: activeCourse.title,
+        },
+        {
+          label: "Quiz",
+          value: "80% minimum",
+          detail: "Descends jusqu'au quiz et valide la notion.",
+        },
+        {
+          label: "Jeu",
+          value: primaryGame?.name ?? "Defi final",
+          detail: "Atteins le score demande pour ouvrir la suite.",
+        },
+      ]
+    : [
+        {
+          label: "Cours",
+          value: "Bibliotheque libre",
+          detail: "Choisis un cours pour repartir.",
+        },
+        {
+          label: "Quiz",
+          value: "Revision",
+          detail: "Refais un quiz pour reprendre le rythme.",
+        },
+        {
+          label: "Jeu",
+          value: "Play",
+          detail: "Relance un jeu rapide pour continuer.",
+        },
+      ];
+  const campaignSummary = activeCourse
+    ? `Cours ${activeCourse.courseId}: ${activeCourse.title}`
+    : "Parcours principal termine";
+  const focusSummary = activeCourse
+    ? `Pour valider: quiz 80% puis score sur ${primaryGame?.name ?? "le jeu demande"}.`
+    : "Choisis un cours libre ou un jeu rapide pour continuer a pratiquer.";
 
   return (
     <div className="space-y-8 md:space-y-12">
@@ -103,8 +145,8 @@ export default async function HomePage() {
                 </div>
                 <p className="mt-4 max-w-2xl break-words text-sm font-semibold leading-6 text-slate-100 text-outline md:text-base">
                   {activeCourse
-                    ? `Cap sur le cours ${activeCourse.courseId}. Lis la lecon, valide le quiz puis enchaine avec les jeux recommandes pour ouvrir la suite.`
-                    : "Le parcours principal est termine. Repars sur un module libre ou un jeu cible pour garder le rythme."}
+                    ? "Un seul objectif: ouvre le cours, valide le quiz, puis reussis le defi jeu pour deverrouiller la suite."
+                    : "Le parcours principal est termine. Repars sur un cours libre ou un jeu cible pour garder le rythme."}
                 </p>
               </div>
 
@@ -112,35 +154,30 @@ export default async function HomePage() {
                 href="/quest"
                 className="comic-panel inline-flex items-center justify-center border-2 border-black bg-emerald-500 px-4 py-2 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
               >
-                Voir la carte
+                Aller dans Aventure
               </Link>
             </div>
 
             <div className="grid gap-3 md:grid-cols-3">
-              {visibleStudyPlan.length > 0 ? (
-                visibleStudyPlan.map((step, index) => (
-                  <div
-                    key={step}
-                    className="comic-panel min-w-0 border-2 border-black bg-slate-950/75 p-4"
-                  >
-                    <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-emerald-300">
-                      Etape {index + 1}
-                    </p>
-                    <p className="mt-2 break-words text-sm font-semibold leading-6 text-slate-100 text-outline">
-                      {step}
-                    </p>
-                  </div>
-                ))
-              ) : (
-                <div className="comic-panel min-w-0 border-2 border-black bg-slate-950/75 p-4 md:col-span-3">
-                  <p className="break-words text-sm font-semibold leading-6 text-slate-100 text-outline">
-                    Ouvre un cours ou une mission pour voir ton prochain plan d'action.
+              {missionSteps.map((step, index) => (
+                <div
+                  key={step.label}
+                  className="comic-panel min-w-0 border-2 border-black bg-slate-950/75 p-4"
+                >
+                  <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-emerald-300">
+                    Etape {index + 1}
+                  </p>
+                  <p className="mt-2 break-words text-sm font-bold text-white text-outline">
+                    {step.label} · {step.value}
+                  </p>
+                  <p className="mt-2 break-words text-xs font-semibold leading-5 text-slate-300">
+                    {step.detail}
                   </p>
                 </div>
-              )}
+              ))}
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2">
               <div className="comic-panel border-2 border-black bg-black/45 p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Cours valides</p>
                 <p className="mt-2 text-lg font-bold text-white">
@@ -150,10 +187,6 @@ export default async function HomePage() {
               <div className="comic-panel border-2 border-black bg-black/45 p-4">
                 <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Progression</p>
                 <p className="mt-2 text-lg font-bold text-white">{roadmap.completionRate}%</p>
-              </div>
-              <div className="comic-panel border-2 border-black bg-black/45 p-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Jeux recommandes</p>
-                <p className="mt-2 text-lg font-bold text-white">{recommendedGames.length}</p>
               </div>
             </div>
 
@@ -165,10 +198,10 @@ export default async function HomePage() {
                 {activeCourse ? "Ouvrir le cours" : "Voir les cours"}
               </Link>
               <Link
-                href="/play"
+                href={primaryGame ? `/play/${primaryGame.slug}` : "/play"}
                 className="comic-panel inline-flex items-center justify-center border-2 border-black bg-slate-900 px-4 py-2 text-sm font-bold text-cyan-200 transition-transform hover:-translate-y-0.5"
               >
-                Lancer un jeu
+                {primaryGame ? `Jouer a ${primaryGame.name}` : "Lancer un jeu"}
               </Link>
             </div>
           </div>
@@ -185,23 +218,19 @@ export default async function HomePage() {
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300 text-outline">
-                  Focus du moment
+                  En ce moment
                 </p>
-                <h2 className="text-2xl font-bold text-white text-outline">Cours actif</h2>
+                <h2 className="text-2xl font-bold text-white text-outline">Cap actuel</h2>
               </div>
             </div>
 
             <div className="comic-panel min-w-0 border-2 border-black bg-slate-950/75 p-5">
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Cap actuel</p>
+              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Cours actif</p>
               <p className="mt-2 break-words text-xl font-bold leading-tight text-white text-outline">
-                {activeCourse
-                  ? `Cours ${activeCourse.courseId}: ${activeCourse.title}`
-                  : "Le parcours principal est termine"}
+                {campaignSummary}
               </p>
               <p className="mt-3 break-words text-sm font-semibold leading-6 text-slate-300 text-outline">
-                {activeCourse
-                  ? "Valide le quiz puis vise le score requis pour debloquer le prochain point de passage."
-                  : "Reprends un cours libre ou attaque un jeu rapide pour garder tes reflexes."}
+                {focusSummary}
               </p>
 
               {roadmap.currentPalier && (
@@ -238,18 +267,15 @@ export default async function HomePage() {
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300 text-outline">
                     Jeux utiles maintenant
                   </p>
-                  <p className="text-sm font-semibold text-slate-300 text-outline">
-                    Des formats courts pour fixer la notion et marquer des points.
-                  </p>
                 </div>
                 <Link href="/play" className="text-sm font-bold text-amber-300 hover:underline">
                   Voir tout
                 </Link>
               </div>
 
-              {recommendedGames.length > 0 ? (
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-                  {recommendedGames.map((game) => (
+              {focusGames.length > 0 ? (
+                <div className="grid gap-3">
+                  {focusGames.map((game) => (
                     <Link
                       key={game.slug}
                       href={`/play/${game.slug}`}
