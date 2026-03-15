@@ -10,6 +10,8 @@ import {
 
 type GameBenchmark = {
   medianScore: number | null;
+  lowerQuantileScore: number | null;
+  upperQuantileScore: number | null;
   sampleSize: number;
 };
 
@@ -18,18 +20,24 @@ function buildSlugKey(slugs: string[]) {
 }
 
 function computeMedian(values: number[]) {
+  return computeQuantile(values, 0.5);
+}
+
+function computeQuantile(values: number[], quantile: number) {
   if (values.length === 0) {
     return null;
   }
 
   const sorted = [...values].sort((left, right) => left - right);
-  const middleIndex = Math.floor(sorted.length / 2);
+  const position = (sorted.length - 1) * quantile;
+  const baseIndex = Math.floor(position);
+  const rest = position - baseIndex;
 
-  if (sorted.length % 2 === 1) {
-    return sorted[middleIndex];
+  if (sorted[baseIndex + 1] !== undefined) {
+    return sorted[baseIndex] + rest * (sorted[baseIndex + 1] - sorted[baseIndex]);
   }
 
-  return (sorted[middleIndex - 1] + sorted[middleIndex]) / 2;
+  return sorted[baseIndex];
 }
 
 function computeProgressDifficultyRatio(
@@ -148,6 +156,40 @@ function applyMissionRamp(
   return baselineScore + difficultyDelta;
 }
 
+function getBenchmarkDifficultyForSlug(slug: string) {
+  switch (slug) {
+    case "wordfall":
+      return "easy";
+    case "speed-verb-challenge":
+      return "easy";
+    case "enigma-scroll":
+      return "medium";
+    case "flash-translation":
+    case "flashback":
+    case "space-lex":
+      return "medium";
+    default:
+      return null;
+  }
+}
+
+function resolveBenchmarkBaseline(
+  benchmark: GameBenchmark,
+  mission: CourseMissionPlan
+) {
+  if (benchmark.medianScore == null) {
+    return null;
+  }
+
+  const sampleConfidence = Math.min(1, benchmark.sampleSize / 30);
+  const conservativeScore =
+    mission.scoreDirection === "lower"
+      ? benchmark.upperQuantileScore ?? benchmark.medianScore
+      : benchmark.lowerQuantileScore ?? benchmark.medianScore;
+
+  return conservativeScore * (1 - sampleConfidence) + benchmark.medianScore * sampleConfidence;
+}
+
 async function getBenchmarksForSlugKeyUncached(
   slugKey: string
 ): Promise<Record<string, GameBenchmark>> {
@@ -175,7 +217,7 @@ async function getBenchmarksForSlugKeyUncached(
     const gameIdToSlug = new Map(games.map((game) => [game.id, game.slug]));
     const { data: scores } = await adminClient
       .from("game_scores")
-      .select("game_id, score")
+      .select("game_id, score, difficulty")
       .in("game_id", gameIds);
 
     const scoreBuckets = new Map<string, number[]>();
@@ -190,6 +232,11 @@ async function getBenchmarksForSlugKeyUncached(
         continue;
       }
 
+      const benchmarkDifficulty = getBenchmarkDifficultyForSlug(slug);
+      if (benchmarkDifficulty && scoreRow.difficulty !== benchmarkDifficulty) {
+        continue;
+      }
+
       const current = scoreBuckets.get(slug) ?? [];
       current.push(scoreRow.score);
       scoreBuckets.set(slug, current);
@@ -201,10 +248,14 @@ async function getBenchmarksForSlugKeyUncached(
       benchmarks[slug] = scoresForGame.length > 0
         ? {
             medianScore: computeMedian(scoresForGame),
+            lowerQuantileScore: computeQuantile(scoresForGame, 0.35),
+            upperQuantileScore: computeQuantile(scoresForGame, 0.65),
             sampleSize: scoresForGame.length,
           }
         : {
             medianScore: null,
+            lowerQuantileScore: null,
+            upperQuantileScore: null,
             sampleSize: 0,
           };
     }
@@ -252,11 +303,15 @@ export async function getResolvedCourseMissionPlans(
         ? benchmarks[plan.primaryGameSlug]
         : null;
 
-      if (benchmark?.medianScore == null) {
+      const baselineScore = benchmark
+        ? resolveBenchmarkBaseline(benchmark, plan)
+        : null;
+
+      if (baselineScore == null) {
         return [courseId, plan];
       }
 
-      const rampedTarget = applyMissionRamp(entry, benchmark.medianScore, plan);
+      const rampedTarget = applyMissionRamp(entry, baselineScore, plan);
 
       return [
         courseId,
@@ -282,11 +337,15 @@ export async function getResolvedCourseMissionPlan(
   const benchmarks = await getBenchmarksForSlugKey(plan.primaryGameSlug);
   const benchmark = benchmarks[plan.primaryGameSlug];
 
-  if (benchmark?.medianScore == null) {
+  const baselineScore = benchmark
+    ? resolveBenchmarkBaseline(benchmark, plan)
+    : null;
+
+  if (baselineScore == null) {
     return plan;
   }
 
-  const rampedTarget = applyMissionRamp(entry, benchmark.medianScore, plan);
+  const rampedTarget = applyMissionRamp(entry, baselineScore, plan);
 
   return buildCourseMissionPlan(entry, {
     primaryGameSlug: plan.primaryGameSlug,

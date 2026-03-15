@@ -134,21 +134,15 @@ export async function submitEchoLexScore(params: {
             durationMs: params.durationMs,
         });
 
-        if (isNewPB) {
-            if (personalBest?.id) {
-                await adminClient.from("game_scores").delete().eq("id", personalBest.id);
-            }
+        await adminClient.from("game_scores").insert({
+            user_id: user.id,
+            game_id: game.id,
+            score: params.score,
+            duration_ms: params.durationMs,
+            difficulty: DEFAULT_DIFFICULTY,
+        });
 
-            await adminClient.from("game_scores").insert({
-                user_id: user.id,
-                game_id: game.id,
-                score: params.score,
-                duration_ms: params.durationMs,
-                difficulty: DEFAULT_DIFFICULTY,
-            });
-
-            revalidateCourseMissionBenchmarks();
-        }
+        revalidateCourseMissionBenchmarks();
 
         // Update profile
         const { data: profile } = await adminClient
@@ -210,7 +204,7 @@ export async function getEchoLexTopScores() {
             .select("user_id, score")
             .eq("game_id", game.id)
             .order("score", { ascending: false })
-            .limit(10); // Fetch more to handle duplicates if any
+            .limit(200);
 
         if (!scores || scores.length === 0) return [];
 
@@ -246,24 +240,31 @@ export async function getEchoLexTopScores() {
             }
         }
 
-        // 5. Combine and Sort
-        // Since we fetched multiple scores, we need to pick the best per user if duplicates exist
-        const uniqueScores = scores
-            .filter((s, index, self) => index === self.findIndex(t => t.user_id === s.user_id))
-            .slice(0, 3);
+        const userBestScores = new Map<string, number>();
+        for (const scoreEntry of scores) {
+            const currentBest = userBestScores.get(scoreEntry.user_id) ?? 0;
+            userBestScores.set(scoreEntry.user_id, Math.max(currentBest, scoreEntry.score));
+        }
 
-        return uniqueScores.map((s, i) => {
-            const equipped = equippedMap.get(s.user_id);
+        return Array.from(userBestScores.entries())
+            .map(([userId, score], i) => {
+            const equipped = equippedMap.get(userId);
             return {
                 rank: i + 1,
-                score: s.score,
-                username: profileMap.get(s.user_id) || "Unknown",
-                user_id: s.user_id,
+                score,
+                username: profileMap.get(userId) || "Unknown",
+                user_id: userId,
                 equippedAvatar: equipped?.avatar || null,
                 equippedBackground: equipped?.background || null,
                 equippedTitle: equipped?.title || null,
             };
-        });
+        })
+            .sort((left, right) => right.score - left.score)
+            .slice(0, 3)
+            .map((entry, index) => ({
+                ...entry,
+                rank: index + 1,
+            }));
     } catch (error) {
         console.error("Error fetching top scores:", error);
         return [];
@@ -316,7 +317,7 @@ export async function getEchoLexGameLeaderboard() {
             .select("user_id, score")
             .eq("game_id", game.id)
             .order("score", { ascending: false })
-            .limit(50);
+            .limit(500);
 
         if (!scores || scores.length === 0) return [];
 
@@ -349,21 +350,42 @@ export async function getEchoLexGameLeaderboard() {
             }
         }
 
-        // Aggregate best score per user if needed, but here we just list them
-        // If sorting games_played, we would calculate it here, but we'll return 1 for now to match interface
-        return scores.map((s, i) => {
-            const equipped = equippedMap.get(s.user_id);
-            return {
-                rank: i + 1,
-                best_score: s.score,
-                username: profileMap.get(s.user_id) || "Unknown",
-                user_id: s.user_id,
-                games_played: 1,
-                equippedAvatar: equipped?.avatar || null,
-                equippedBackground: equipped?.background || null,
-                equippedTitle: equipped?.title || null,
-            };
-        });
+        const userStats = new Map<string, { bestScore: number; gamesPlayed: number }>();
+        for (const scoreEntry of scores) {
+            const existing = userStats.get(scoreEntry.user_id);
+            if (!existing) {
+                userStats.set(scoreEntry.user_id, {
+                    bestScore: scoreEntry.score,
+                    gamesPlayed: 1,
+                });
+                continue;
+            }
+
+            userStats.set(scoreEntry.user_id, {
+                bestScore: Math.max(existing.bestScore, scoreEntry.score),
+                gamesPlayed: existing.gamesPlayed + 1,
+            });
+        }
+
+        return Array.from(userStats.entries())
+            .map(([userId, stats]) => {
+                const equipped = equippedMap.get(userId);
+                return {
+                    rank: 0,
+                    best_score: stats.bestScore,
+                    username: profileMap.get(userId) || "Unknown",
+                    user_id: userId,
+                    games_played: stats.gamesPlayed,
+                    equippedAvatar: equipped?.avatar || null,
+                    equippedBackground: equipped?.background || null,
+                    equippedTitle: equipped?.title || null,
+                };
+            })
+            .sort((left, right) => right.best_score - left.best_score)
+            .map((entry, index) => ({
+                ...entry,
+                rank: index + 1,
+            }));
     } catch (error) {
         console.error("Error fetching leaderboard:", error);
         return [];

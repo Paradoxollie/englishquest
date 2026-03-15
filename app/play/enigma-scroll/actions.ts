@@ -122,38 +122,26 @@ export async function submitEnigmaScrollScore(params: {
       isNewGlobalBest,
     });
 
-    // Only save if it's a new personal best
-    if (isNewPersonalBest) {
-      // Delete old personal best if it exists
-      if (personalBest?.id) {
-        await adminClient
-          .from("game_scores")
-          .delete()
-          .eq("id", personalBest.id);
-      }
+    const { error: insertError } = await adminClient
+      .from("game_scores")
+      .insert({
+        user_id: user.id,
+        game_id: game.id,
+        score: params.totalScore,
+        max_score: params.wordsFound, // Store words found as max_score
+        duration_ms: params.durationMs,
+        difficulty: difficulty,
+      });
 
-      // Insert the new personal best score
-      const { error: insertError } = await adminClient
-        .from("game_scores")
-        .insert({
-          user_id: user.id,
-          game_id: game.id,
-          score: params.totalScore,
-          max_score: params.wordsFound, // Store words found as max_score
-          duration_ms: params.durationMs,
-          difficulty: difficulty,
-        });
-
-      if (insertError) {
-        console.error("Error inserting game score:", insertError);
-        return {
-          success: false,
-          error: "Failed to save score",
-        };
-      }
-
-      revalidateCourseMissionBenchmarks();
+    if (insertError) {
+      console.error("Error inserting game score:", insertError);
+      return {
+        success: false,
+        error: "Failed to save score",
+      };
     }
+
+    revalidateCourseMissionBenchmarks();
 
     // Update user profile with rewards
     const { data: profile } = await adminClient

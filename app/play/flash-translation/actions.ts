@@ -164,42 +164,26 @@ export async function submitFlashTranslationScore(params: {
             isNewGlobalBest,
         });
 
-        // Only save if it's a new personal best
-        if (isNewPersonalBest) {
-            // Delete old personal best if it exists
-            if (personalBest?.id) {
-                const { error: deleteError } = await adminClient
-                    .from("game_scores")
-                    .delete()
-                    .eq("id", personalBest.id);
+        const { error: insertError } = await adminClient
+            .from("game_scores")
+            .insert({
+                user_id: user.id,
+                game_id: game.id,
+                score: params.totalTimeMs, // Lower is better
+                max_score: params.roundsCompleted,
+                duration_ms: params.totalTimeMs,
+                difficulty: "medium", // Default difficulty for this game
+            });
 
-                if (deleteError) {
-                    console.error("Error deleting old personal best:", deleteError);
-                }
-            }
-
-            // Insert the new personal best score
-            const { error: insertError } = await adminClient
-                .from("game_scores")
-                .insert({
-                    user_id: user.id,
-                    game_id: game.id,
-                    score: params.totalTimeMs, // Lower is better
-                    max_score: params.roundsCompleted,
-                    duration_ms: params.totalTimeMs,
-                    difficulty: "medium", // Default difficulty for this game
-                });
-
-            if (insertError) {
-                console.error("Error inserting game score:", insertError);
-                return {
-                    success: false,
-                    error: "Failed to save score",
-                };
-            }
-
-            revalidateCourseMissionBenchmarks();
+        if (insertError) {
+            console.error("Error inserting game score:", insertError);
+            return {
+                success: false,
+                error: "Failed to save score",
+            };
         }
+
+        revalidateCourseMissionBenchmarks();
 
         // Update user profile with rewards
         const { data: profile } = await adminClient
@@ -284,7 +268,7 @@ export async function getFlashTranslationTopScores() {
         .select("user_id, score")
         .eq("game_id", game.id)
         .order("score", { ascending: true }) // Lower is better
-        .limit(10); // Check top 10 to find unique users
+        .limit(200); // Enough rows to dedupe users even when all attempts are stored
 
     if (!scores || scores.length === 0) return [];
 
