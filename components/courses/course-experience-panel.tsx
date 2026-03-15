@@ -49,7 +49,7 @@ function buildAdventureCopy(
     if (missionState?.readyToComplete) {
       return {
         title: "Mission prete a etre finalisee",
-        body: "Le quiz et le defi jeu sont valides. Reviens sur la carte d'aventure pour debloquer la suite et toucher les recompenses.",
+        body: "Le quiz et le defi jeu sont valides. Reviens sur la carte d'aventure: la mission sera finalisee et l'etape suivante s'ouvrira.",
         tone: "border-emerald-400/25 bg-emerald-500/14 text-emerald-100",
       };
     }

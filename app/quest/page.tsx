@@ -15,7 +15,13 @@ import {
 import { getResolvedCourseMissionPlans } from "@/lib/courses/campaign-server";
 import { getUserCourseMissionState } from "@/lib/courses/mission-state";
 import { getCourseVisualProfile } from "@/lib/courses/presentation";
-import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
+import {
+  buildGuestCourseRoadmap,
+  completeCourseAndGrantRewards,
+  getUserCourseRoadmap,
+  type CourseRoadmap,
+  type CourseRoadmapEntry,
+} from "@/lib/courses/progress";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -69,20 +75,66 @@ async function getQuestPlayerToken(
   }
 }
 
+async function resolveQuestRoadmap(userId: string): Promise<{
+  roadmap: CourseRoadmap;
+  activeMissionState: Awaited<ReturnType<typeof getUserCourseMissionState>> | null;
+  recentlyCompletedMission: CourseRoadmapEntry | null;
+}> {
+  const initialRoadmap = await getUserCourseRoadmap(userId);
+  const activeCourse = initialRoadmap.currentCourse;
+
+  if (!activeCourse || activeCourse.status !== "in_progress") {
+    return {
+      roadmap: initialRoadmap,
+      activeMissionState: null,
+      recentlyCompletedMission: null,
+    };
+  }
+
+  const activeMissionState = await getUserCourseMissionState(userId, activeCourse);
+
+  if (!activeMissionState.readyToComplete) {
+    return {
+      roadmap: initialRoadmap,
+      activeMissionState,
+      recentlyCompletedMission: null,
+    };
+  }
+
+  await completeCourseAndGrantRewards(userId, activeCourse.courseId);
+  const refreshedRoadmap = await getUserCourseRoadmap(userId);
+
+  return {
+    roadmap: refreshedRoadmap,
+    activeMissionState: null,
+    recentlyCompletedMission: activeCourse,
+  };
+}
+
 export default async function QuestPage() {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   const isLoggedIn = Boolean(user);
-  const roadmap = user ? await getUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
+  const questState = user
+    ? await resolveQuestRoadmap(user.id)
+    : {
+        roadmap: buildGuestCourseRoadmap(),
+        activeMissionState: null,
+        recentlyCompletedMission: null,
+      };
+  const roadmap = questState.roadmap;
   const activeCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
   const missionPlans = await getResolvedCourseMissionPlans(roadmap.entries);
   const activeMission = activeCourse
     ? missionPlans[activeCourse.courseId] ?? null
     : null;
   const activeMissionState =
-    user && activeCourse ? await getUserCourseMissionState(user.id, activeCourse) : null;
+    user && activeCourse?.status === "in_progress"
+      ? questState.activeMissionState ??
+        (await getUserCourseMissionState(user.id, activeCourse))
+      : null;
   const activeProfile = getCourseVisualProfile(activeCourse?.palierId ?? 1);
   const fallbackName =
     user?.user_metadata?.username ??
@@ -93,7 +145,7 @@ export default async function QuestPage() {
       ? activeCourse.status === "unlocked"
         ? `1. Clique sur "Lancer et ouvrir le cours". 2. Va jusqu'au quiz et atteins 80% minimum. 3. Reussis le defi ${activeMission.primaryGameName ?? "jeu"}. 4. Reviens ici pour valider la mission.`
         : activeMissionState?.readyToComplete
-          ? "Tout est valide. Clique maintenant sur \"Valider la mission\" pour ouvrir l'etape suivante."
+          ? "Tout est valide. Recharge la carte si besoin: la mission se finalise et la suite s'ouvre automatiquement."
           : activeMissionState?.quizPassed
             ? `Le quiz est valide. Il reste seulement le score a atteindre dans ${activeMission.primaryGameName ?? "le jeu demande"}.`
             : `Commence par ouvrir le cours, descends jusqu'au quiz, puis vise 80% minimum avant de tenter ${activeMission.primaryGameName ?? "le defi jeu"}.`
@@ -152,6 +204,18 @@ export default async function QuestPage() {
           </section>
 
           <section className="mt-6 space-y-6">
+            {questState.recentlyCompletedMission && (
+              <div className="rounded-[24px] border border-emerald-400/25 bg-emerald-500/14 px-5 py-4 text-emerald-100">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em]">
+                  Mission validee
+                </p>
+                <p className="mt-2 text-sm font-bold leading-relaxed text-outline">
+                  Mission {questState.recentlyCompletedMission.courseId} bouclee. La suite de la
+                  campagne est maintenant ouverte.
+                </p>
+              </div>
+            )}
+
             <CampaignTreasureMap
               entries={roadmap.entries}
               activeCourseId={activeCourse?.courseId ?? null}
