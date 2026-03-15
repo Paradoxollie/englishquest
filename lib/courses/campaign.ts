@@ -3,7 +3,7 @@ import { lessons } from "@/lib/courses/lessons";
 import { getCourseMetadata, getCourseRewardProfile } from "@/lib/courses/metadata";
 import type { CourseRoadmapEntry } from "@/lib/courses/progress";
 
-export type CourseMissionTargetSource = "default" | "community_average";
+export type CourseMissionTargetSource = "default" | "community_median";
 
 export type CourseMissionPlan = {
   objective: string;
@@ -263,15 +263,15 @@ function buildGameChallenge(
     scoreTarget,
     scoreDirection: definition.scoreDirection,
     gameChallengeLabel:
-      targetSource === "community_average"
+      targetSource === "community_median"
         ? definition.averageLabel(scoreTarget)
         : definition.defaultLabel(scoreTarget),
     gameChallengeCompact:
-      targetSource === "community_average"
+      targetSource === "community_median"
         ? definition.averageCompact(scoreTarget)
         : definition.defaultCompact(scoreTarget),
     gameChallengeAction:
-      targetSource === "community_average"
+      targetSource === "community_median"
         ? definition.averageAction
         : definition.defaultAction,
   };

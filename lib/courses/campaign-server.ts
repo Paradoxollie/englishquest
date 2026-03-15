@@ -7,7 +7,7 @@ import {
 } from "@/lib/courses/campaign";
 
 type GameBenchmark = {
-  averageScore: number | null;
+  medianScore: number | null;
   sampleSize: number;
 };
 
@@ -15,53 +15,135 @@ function buildSlugKey(slugs: string[]) {
   return [...new Set(slugs)].sort().join(",");
 }
 
-function applyMissionRamp(
-  entry: CourseMissionPlanEntryInput,
-  averageScore: number,
-  mission: CourseMissionPlan
-) {
-  const chapterProgress = Math.max(0, entry.palierId - 1);
-  const withinPalierIndex = (entry.courseId - 1) % 10;
-
-  if (mission.scoreDirection === "lower") {
-    const reductionFactor = Math.max(
-      0.84,
-      1 - chapterProgress * 0.012 - withinPalierIndex * 0.0035
-    );
-    return Math.min(averageScore - 100, averageScore * reductionFactor);
+function computeMedian(values: number[]) {
+  if (values.length === 0) {
+    return null;
   }
 
-  const increaseFactor = 1 + chapterProgress * 0.02 + withinPalierIndex * 0.006;
+  const sorted = [...values].sort((left, right) => left - right);
+  const middleIndex = Math.floor(sorted.length / 2);
+
+  if (sorted.length % 2 === 1) {
+    return sorted[middleIndex];
+  }
+
+  return (sorted[middleIndex - 1] + sorted[middleIndex]) / 2;
+}
+
+function computeProgressDifficultyRatio(
+  entry: CourseMissionPlanEntryInput,
+  mission: CourseMissionPlan
+) {
+  const overallProgress = Math.max(0, entry.courseId - 1);
+
+  if (mission.scoreDirection === "lower") {
+    return 0.01 + overallProgress * 0.0015;
+  }
 
   if (mission.primaryGameSlug === "flashback") {
-    return Math.max(
-      averageScore + 1 + chapterProgress * 0.8 + withinPalierIndex * 0.35,
-      averageScore * increaseFactor
-    );
+    return 0.03 + overallProgress * 0.004;
   }
 
   if (mission.primaryGameSlug === "speed-verb-challenge") {
-    return Math.max(
-      averageScore + 6 + chapterProgress * 2 + withinPalierIndex * 0.8,
-      averageScore * (1 + chapterProgress * 0.05 + withinPalierIndex * 0.012)
-    );
-  }
-
-  if (mission.primaryGameSlug === "enigma-scroll") {
-    return Math.max(
-      averageScore + 8 + chapterProgress * 3 + withinPalierIndex * 1.2,
-      averageScore * (1 + chapterProgress * 0.05 + withinPalierIndex * 0.012)
-    );
+    return 0.08 + overallProgress * 0.008;
   }
 
   if (mission.primaryGameSlug === "space-lex") {
-    return Math.max(
-      averageScore + 10 + chapterProgress * 4 + withinPalierIndex * 1.5,
-      averageScore * (1 + chapterProgress * 0.05 + withinPalierIndex * 0.015)
-    );
+    return 0.07 + overallProgress * 0.008;
   }
 
-  return Math.max(averageScore + 10, averageScore * increaseFactor);
+  if (mission.primaryGameSlug === "enigma-scroll") {
+    return 0.075 + overallProgress * 0.009;
+  }
+
+  if (mission.primaryGameSlug === "wordfall") {
+    return 0.05 + overallProgress * 0.006;
+  }
+
+  return 0.05 + overallProgress * 0.006;
+}
+
+function computeAbsoluteDifficultyFloor(
+  baselineScore: number,
+  mission: CourseMissionPlan
+) {
+  if (mission.scoreDirection === "lower") {
+    return Math.max(100, baselineScore * 0.004);
+  }
+
+  if (mission.primaryGameSlug === "flashback") {
+    return 1;
+  }
+
+  if (mission.primaryGameSlug === "speed-verb-challenge") {
+    return Math.max(1, baselineScore * 0.08);
+  }
+
+  if (mission.primaryGameSlug === "space-lex") {
+    return Math.max(5, baselineScore * 0.08);
+  }
+
+  if (mission.primaryGameSlug === "enigma-scroll") {
+    return Math.max(4, baselineScore * 0.08);
+  }
+
+  if (mission.primaryGameSlug === "wordfall") {
+    return Math.max(20, baselineScore * 0.045);
+  }
+
+  return Math.max(3, baselineScore * 0.05);
+}
+
+function computeProgressOffset(
+  entry: CourseMissionPlanEntryInput,
+  baselineScore: number,
+  mission: CourseMissionPlan
+) {
+  const overallProgress = Math.max(0, entry.courseId - 1);
+
+  if (mission.scoreDirection === "lower") {
+    return overallProgress * 20;
+  }
+
+  if (mission.primaryGameSlug === "flashback") {
+    return overallProgress * 0.2;
+  }
+
+  if (mission.primaryGameSlug === "speed-verb-challenge") {
+    return overallProgress * 0.2;
+  }
+
+  if (baselineScore >= 1200) {
+    return overallProgress * 8;
+  }
+
+  if (baselineScore >= 200) {
+    return overallProgress * 3;
+  }
+
+  if (baselineScore >= 40) {
+    return overallProgress * 1;
+  }
+
+  return overallProgress * 0.2;
+}
+
+function applyMissionRamp(
+  entry: CourseMissionPlanEntryInput,
+  baselineScore: number,
+  mission: CourseMissionPlan
+) {
+  const difficultyRatio = computeProgressDifficultyRatio(entry, mission);
+  const absoluteFloor = computeAbsoluteDifficultyFloor(baselineScore, mission);
+  const progressionOffset = computeProgressOffset(entry, baselineScore, mission);
+  const difficultyDelta =
+    Math.max(absoluteFloor, baselineScore * difficultyRatio) + progressionOffset;
+
+  if (mission.scoreDirection === "lower") {
+    return baselineScore - difficultyDelta;
+  }
+
+  return baselineScore + difficultyDelta;
 }
 
 async function getBenchmarksForSlugKey(
@@ -94,7 +176,7 @@ async function getBenchmarksForSlugKey(
       .select("game_id, score")
       .in("game_id", gameIds);
 
-    const accumulators = new Map<string, { total: number; count: number }>();
+    const scoreBuckets = new Map<string, number[]>();
 
     for (const scoreRow of scores ?? []) {
       if (typeof scoreRow.score !== "number" || !Number.isFinite(scoreRow.score)) {
@@ -106,22 +188,21 @@ async function getBenchmarksForSlugKey(
         continue;
       }
 
-      const current = accumulators.get(slug) ?? { total: 0, count: 0 };
-      current.total += scoreRow.score;
-      current.count += 1;
-      accumulators.set(slug, current);
+      const current = scoreBuckets.get(slug) ?? [];
+      current.push(scoreRow.score);
+      scoreBuckets.set(slug, current);
     }
 
     const benchmarks: Record<string, GameBenchmark> = {};
     for (const slug of slugs) {
-      const accumulator = accumulators.get(slug);
-      benchmarks[slug] = accumulator
+      const scoresForGame = scoreBuckets.get(slug) ?? [];
+      benchmarks[slug] = scoresForGame.length > 0
         ? {
-            averageScore: accumulator.total / accumulator.count,
-            sampleSize: accumulator.count,
+            medianScore: computeMedian(scoresForGame),
+            sampleSize: scoresForGame.length,
           }
         : {
-            averageScore: null,
+            medianScore: null,
             sampleSize: 0,
           };
     }
@@ -160,17 +241,18 @@ export async function getResolvedCourseMissionPlans(
         ? benchmarks[plan.primaryGameSlug]
         : null;
 
-      if (benchmark?.averageScore == null) {
+      if (benchmark?.medianScore == null) {
         return [courseId, plan];
       }
 
-      const rampedTarget = applyMissionRamp(entry, benchmark.averageScore, plan);
+      const rampedTarget = applyMissionRamp(entry, benchmark.medianScore, plan);
 
       return [
         courseId,
         buildCourseMissionPlan(entry, {
+          primaryGameSlug: plan.primaryGameSlug,
           scoreTarget: rampedTarget,
-          targetSource: "community_average",
+          targetSource: "community_median",
         }),
       ];
     })
@@ -189,15 +271,15 @@ export async function getResolvedCourseMissionPlan(
   const benchmarks = await getBenchmarksForSlugKey(plan.primaryGameSlug);
   const benchmark = benchmarks[plan.primaryGameSlug];
 
-  if (benchmark?.averageScore == null) {
+  if (benchmark?.medianScore == null) {
     return plan;
   }
 
-  const rampedTarget = applyMissionRamp(entry, benchmark.averageScore, plan);
+  const rampedTarget = applyMissionRamp(entry, benchmark.medianScore, plan);
 
   return buildCourseMissionPlan(entry, {
     primaryGameSlug: plan.primaryGameSlug,
     scoreTarget: rampedTarget,
-    targetSource: "community_average",
+    targetSource: "community_median",
   });
 }
