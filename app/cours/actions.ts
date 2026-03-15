@@ -53,7 +53,7 @@ export async function launchCourseMissionAction(formData: FormData) {
     redirect("/quest");
   }
 
-  let destination = `/cours/${courseNumber}`;
+  const destination = `/cours/${courseNumber}`;
   const userId = await getAuthenticatedUserId();
 
   if (!userId) {
@@ -62,19 +62,8 @@ export async function launchCourseMissionAction(formData: FormData) {
   }
 
   try {
-    const roadmap = await getUserCourseRoadmap(userId);
-    const roadmapEntry = roadmap.entries.find((entry) => entry.courseId === courseNumber);
-
-    if (!roadmapEntry || roadmapEntry.status === "locked") {
-      destination = "/quest";
-      revalidatePath("/quest");
-    } else {
-      if (roadmapEntry.status === "unlocked") {
-        await updateCourseProgressStatus(userId, courseNumber, "in_progress");
-      }
-
-      revalidateCourseSurfaces(courseNumber);
-    }
+    await updateCourseProgressStatus(userId, courseNumber, "in_progress");
+    revalidateCourseSurfaces(courseNumber);
   } catch (error) {
     console.error("launchCourseMissionAction failed", error);
   }

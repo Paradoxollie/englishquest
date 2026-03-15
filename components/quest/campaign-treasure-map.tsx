@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { launchCourseMissionAction } from "@/app/cours/actions";
 import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
@@ -508,6 +509,8 @@ export function CampaignTreasureMap({
             const badgeLabel = isBossGate ? "Gate" : isCheckpoint ? "CP" : null;
             const tooltipPlacement = getTooltipPlacement(item.xPercent, item.y, mapHeight);
             const canLaunch = item.entry.status !== "locked";
+            const usesDirectNavigation =
+              item.entry.status === "in_progress" || item.entry.status === "completed";
             const actionLabel =
               item.entry.status === "completed"
                 ? "Clique pour revoir"
@@ -620,6 +623,20 @@ export function CampaignTreasureMap({
                 >
                   {nodeBody}
                 </div>
+              );
+            }
+
+            if (usesDirectNavigation) {
+              return (
+                <Link
+                  key={item.entry.courseId}
+                  href={`/cours/${item.entry.courseId}`}
+                  className={nodeClasses}
+                  style={nodeStyle}
+                  aria-label={`${actionLabel} : mission ${item.entry.courseId}`}
+                >
+                  {nodeBody}
+                </Link>
               );
             }
 
