@@ -644,7 +644,7 @@ export function CampaignTreasureMap({
 
           {activePoint && (
             <motion.div
-              className="absolute z-30"
+              className="pointer-events-none absolute z-30"
               style={{
                 left: `${activePoint.xPercent}%`,
                 top: activePoint.y - 88,
