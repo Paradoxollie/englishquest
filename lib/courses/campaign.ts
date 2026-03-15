@@ -130,6 +130,22 @@ function normalizeTarget(metric: ChallengeDefinition["metric"], value: number) {
     return Math.max(3, Math.round(value));
   }
 
+  if (value < 40) {
+    return Math.max(10, Math.round(value));
+  }
+
+  if (value < 120) {
+    return Math.max(15, Math.round(value / 5) * 5);
+  }
+
+  if (value < 300) {
+    return Math.max(25, Math.round(value / 10) * 10);
+  }
+
+  if (value < 1200) {
+    return Math.max(50, Math.round(value / 25) * 25);
+  }
+
   return Math.max(100, Math.round(value / 25) * 25);
 }
 

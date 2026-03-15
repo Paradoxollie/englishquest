@@ -34,7 +34,31 @@ function applyMissionRamp(
   const increaseFactor = 1 + chapterProgress * 0.02 + withinPalierIndex * 0.006;
 
   if (mission.primaryGameSlug === "flashback") {
-    return Math.max(averageScore + 1, averageScore * increaseFactor);
+    return Math.max(
+      averageScore + 1 + chapterProgress * 0.8 + withinPalierIndex * 0.35,
+      averageScore * increaseFactor
+    );
+  }
+
+  if (mission.primaryGameSlug === "speed-verb-challenge") {
+    return Math.max(
+      averageScore + 6 + chapterProgress * 2 + withinPalierIndex * 0.8,
+      averageScore * (1 + chapterProgress * 0.05 + withinPalierIndex * 0.012)
+    );
+  }
+
+  if (mission.primaryGameSlug === "enigma-scroll") {
+    return Math.max(
+      averageScore + 8 + chapterProgress * 3 + withinPalierIndex * 1.2,
+      averageScore * (1 + chapterProgress * 0.05 + withinPalierIndex * 0.012)
+    );
+  }
+
+  if (mission.primaryGameSlug === "space-lex") {
+    return Math.max(
+      averageScore + 10 + chapterProgress * 4 + withinPalierIndex * 1.5,
+      averageScore * (1 + chapterProgress * 0.05 + withinPalierIndex * 0.015)
+    );
   }
 
   return Math.max(averageScore + 10, averageScore * increaseFactor);
