@@ -73,13 +73,14 @@ export default async function CoursePage({ params }: CoursePageProps) {
     roadmap.entries.find((entry) => entry.courseId === courseId - 1) ?? null;
   const nextEntry =
     roadmap.entries.find((entry) => entry.courseId === courseId + 1) ?? null;
-  const missionState =
+  const [missionState, missionPlan] = await Promise.all([
     user && roadmapEntry
-      ? await getUserCourseMissionState(user.id, roadmapEntry)
-      : null;
-  const missionPlan = roadmapEntry
-    ? await getResolvedCourseMissionPlan(roadmapEntry)
-    : null;
+      ? getUserCourseMissionState(user.id, roadmapEntry)
+      : Promise.resolve(null),
+    roadmapEntry
+      ? getResolvedCourseMissionPlan(roadmapEntry)
+      : Promise.resolve(null),
+  ]);
   const sectionAnchors = lesson
     ? lesson.sections.map((section, index) => ({
         id: createLessonSectionId(section.title, index),

@@ -126,20 +126,22 @@ export default async function QuestPage() {
       };
   const roadmap = questState.roadmap;
   const activeCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
-  const missionPlans = await getResolvedCourseMissionPlans(roadmap.entries);
-  const activeMission = activeCourse
-    ? missionPlans[activeCourse.courseId] ?? null
-    : null;
-  const activeMissionState =
-    user && activeCourse?.status === "in_progress"
-      ? questState.activeMissionState ??
-        (await getUserCourseMissionState(user.id, activeCourse))
-      : null;
   const activeProfile = getCourseVisualProfile(activeCourse?.palierId ?? 1);
   const fallbackName =
     user?.user_metadata?.username ??
     (user?.email ? user.email.split("@")[0] : undefined);
-  const playerToken = user ? await getQuestPlayerToken(user.id, fallbackName) : null;
+  const [missionPlans, playerToken, activeMissionState] = await Promise.all([
+    getResolvedCourseMissionPlans(roadmap.entries),
+    user ? getQuestPlayerToken(user.id, fallbackName) : Promise.resolve(null),
+    user && activeCourse?.status === "in_progress"
+      ? questState.activeMissionState
+        ? Promise.resolve(questState.activeMissionState)
+        : getUserCourseMissionState(user.id, activeCourse)
+      : Promise.resolve(null),
+  ]);
+  const activeMission = activeCourse
+    ? missionPlans[activeCourse.courseId] ?? null
+    : null;
   const missionInstruction =
     activeCourse && activeMission
       ? activeCourse.status === "unlocked"

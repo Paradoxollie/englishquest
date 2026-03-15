@@ -1,4 +1,6 @@
+import { unstable_cache } from "next/cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { COURSE_MISSION_BENCHMARKS_TAG } from "@/lib/courses/cache";
 import {
   buildCourseMissionPlan,
   resolveMissionPrimaryGameAssignments,
@@ -146,7 +148,7 @@ function applyMissionRamp(
   return baselineScore + difficultyDelta;
 }
 
-async function getBenchmarksForSlugKey(
+async function getBenchmarksForSlugKeyUncached(
   slugKey: string
 ): Promise<Record<string, GameBenchmark>> {
   if (!slugKey) {
@@ -212,6 +214,15 @@ async function getBenchmarksForSlugKey(
     return {};
   }
 }
+
+const getBenchmarksForSlugKey = unstable_cache(
+  async (slugKey: string) => getBenchmarksForSlugKeyUncached(slugKey),
+  ["course-mission-benchmarks"],
+  {
+    revalidate: 300,
+    tags: [COURSE_MISSION_BENCHMARKS_TAG],
+  }
+);
 
 export async function getResolvedCourseMissionPlans(
   entries: CourseMissionPlanEntryInput[]

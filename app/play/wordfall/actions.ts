@@ -11,6 +11,7 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { revalidateCourseMissionBenchmarks } from "@/lib/courses/cache-server";
 import {
   calculateLevelFromXP,
   type Difficulty,
@@ -212,6 +213,8 @@ export async function submitWordfallScore(params: {
           error: "Failed to save score",
         };
       }
+
+      revalidateCourseMissionBenchmarks();
     }
 
     // Update user profile with rewards
@@ -274,8 +277,6 @@ export async function submitWordfallScore(params: {
     };
   }
 }
-
-
 
 
 

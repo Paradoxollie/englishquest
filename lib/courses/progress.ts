@@ -1,5 +1,7 @@
+import { unstable_cache } from "next/cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getGameBySlug } from "@/lib/games/config";
+import { COURSE_CATALOG_TAG } from "./cache";
 import { getCourseMetadata, getCourseRewardProfile } from "./metadata";
 import { getCourseById, paliers, type CourseType } from "./data";
 
@@ -140,6 +142,15 @@ async function ensureCourseCatalog(): Promise<DbCourseRecord[]> {
 
   return data as DbCourseRecord[];
 }
+
+const getCachedCourseCatalog = unstable_cache(
+  async () => ensureCourseCatalog(),
+  ["course-catalog"],
+  {
+    revalidate: 3600,
+    tags: [COURSE_CATALOG_TAG],
+  }
+);
 
 async function ensureUserProgressRows(
   userId: string,
@@ -368,7 +379,7 @@ export function buildGuestCourseRoadmap(): CourseRoadmap {
 
 export async function getUserCourseRoadmap(userId: string): Promise<CourseRoadmap> {
   try {
-    const catalog = await ensureCourseCatalog();
+    const catalog = await getCachedCourseCatalog();
     const progressRows = await ensureUserProgressRows(userId, catalog);
     const catalogByNumber = new Map(catalog.map((entry) => [entry.course_number, entry]));
     const progressByCourseId = new Map(progressRows.map((row) => [row.course_id, row]));
@@ -427,7 +438,7 @@ export async function getUserCourseRoadmap(userId: string): Promise<CourseRoadma
 
 export async function updateCourseProgressStatus(userId: string, courseNumber: number, status: CourseStatus) {
   const adminClient = createSupabaseAdminClient();
-  const catalog = await ensureCourseCatalog();
+  const catalog = await getCachedCourseCatalog();
   const progressRows = await ensureUserProgressRows(userId, catalog);
   const targetCourse = catalog.find((entry) => entry.course_number === courseNumber);
 
@@ -480,9 +491,73 @@ export async function updateCourseProgressStatus(userId: string, courseNumber: n
   }
 }
 
+export async function launchCourseMission(userId: string, courseNumber: number) {
+  const adminClient = createSupabaseAdminClient();
+  const catalog = await getCachedCourseCatalog();
+  const targetCourse = catalog.find((entry) => entry.course_number === courseNumber);
+
+  if (!targetCourse) {
+    throw new Error("Course not found");
+  }
+
+  const previousCourse = catalog.find((entry) => entry.course_number === courseNumber - 1);
+  const relatedCourseIds = [targetCourse.id];
+  if (previousCourse) {
+    relatedCourseIds.push(previousCourse.id);
+  }
+
+  const { data: existingProgress, error: existingError } = await adminClient
+    .from("user_course_progress")
+    .select("id, course_id, status, best_score, completed_at, updated_at, created_at")
+    .eq("user_id", userId)
+    .in("course_id", relatedCourseIds);
+
+  if (existingError) {
+    throw existingError;
+  }
+
+  let targetProgress = (existingProgress ?? []).find((row) => row.course_id === targetCourse.id) as
+    | DbProgressRecord
+    | undefined;
+  let previousProgress = previousCourse
+    ? ((existingProgress ?? []).find((row) => row.course_id === previousCourse.id) as
+        | DbProgressRecord
+        | undefined)
+    : undefined;
+
+  if (!targetProgress) {
+    const progressRows = await ensureUserProgressRows(userId, catalog);
+    targetProgress = progressRows.find((row) => row.course_id === targetCourse.id);
+    previousProgress = previousCourse
+      ? progressRows.find((row) => row.course_id === previousCourse.id)
+      : undefined;
+  }
+
+  if (!targetProgress) {
+    throw new Error("Progress entry not found");
+  }
+
+  if (targetProgress.status === "completed" || targetProgress.status === "in_progress") {
+    return;
+  }
+
+  if (
+    targetProgress.status === "locked" &&
+    courseNumber !== 1 &&
+    previousProgress?.status !== "completed"
+  ) {
+    return;
+  }
+
+  await adminClient
+    .from("user_course_progress")
+    .update({ status: "in_progress" })
+    .eq("id", targetProgress.id);
+}
+
 export async function completeCourseAndGrantRewards(userId: string, courseNumber: number) {
   const adminClient = createSupabaseAdminClient();
-  const catalog = await ensureCourseCatalog();
+  const catalog = await getCachedCourseCatalog();
   const progressRows = await ensureUserProgressRows(userId, catalog);
   const targetCourse = catalog.find((entry) => entry.course_number === courseNumber);
 

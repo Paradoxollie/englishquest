@@ -11,6 +11,7 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { revalidateCourseMissionBenchmarks } from "@/lib/courses/cache-server";
 import { calculateLevelFromXP } from "@/lib/profile/leveling";
 
 /**
@@ -196,6 +197,8 @@ export async function submitFlashTranslationScore(params: {
                     error: "Failed to save score",
                 };
             }
+
+            revalidateCourseMissionBenchmarks();
         }
 
         // Update user profile with rewards

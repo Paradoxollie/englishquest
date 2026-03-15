@@ -11,9 +11,9 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { revalidateCourseMissionBenchmarks } from "@/lib/courses/cache-server";
 import {
   calculateLevelFromXP,
-  type Difficulty,
 } from "@/lib/profile/leveling";
 import {
   computeEnigmaScrollRewards,
@@ -151,6 +151,8 @@ export async function submitEnigmaScrollScore(params: {
           error: "Failed to save score",
         };
       }
+
+      revalidateCourseMissionBenchmarks();
     }
 
     // Update user profile with rewards
@@ -213,4 +215,3 @@ export async function submitEnigmaScrollScore(params: {
     };
   }
 }
-

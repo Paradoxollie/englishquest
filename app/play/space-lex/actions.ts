@@ -13,6 +13,7 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { revalidateCourseMissionBenchmarks } from "@/lib/courses/cache-server";
 import { calculateLevelFromXP } from "@/lib/profile/leveling";
 
 // Default difficulty for all Lexicon Blaster scores (no difficulty selection in this game)
@@ -194,6 +195,8 @@ export async function submitLexiconBlasterScore(params: {
                     error: "Failed to save score",
                 };
             }
+
+            revalidateCourseMissionBenchmarks();
         }
 
         // Update user profile with rewards

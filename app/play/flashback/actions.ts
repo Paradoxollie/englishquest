@@ -6,6 +6,7 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { revalidateCourseMissionBenchmarks } from "@/lib/courses/cache-server";
 import { calculateLevelFromXP } from "@/lib/profile/leveling";
 
 const DEFAULT_DIFFICULTY = "medium" as const;
@@ -145,6 +146,8 @@ export async function submitEchoLexScore(params: {
                 duration_ms: params.durationMs,
                 difficulty: DEFAULT_DIFFICULTY,
             });
+
+            revalidateCourseMissionBenchmarks();
         }
 
         // Update profile

@@ -6,7 +6,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   completeCourseAndGrantRewards,
   getUserCourseRoadmap,
-  updateCourseProgressStatus,
+  launchCourseMission,
 } from "@/lib/courses/progress";
 import {
   getUserCourseMissionState,
@@ -40,7 +40,7 @@ export async function startCourseAction(formData: FormData) {
       return;
     }
 
-    await updateCourseProgressStatus(userId, courseNumber, "in_progress");
+    await launchCourseMission(userId, courseNumber);
     revalidateCourseSurfaces(courseNumber);
   } catch (error) {
     console.error("startCourseAction failed", error);
@@ -62,7 +62,7 @@ export async function launchCourseMissionAction(formData: FormData) {
   }
 
   try {
-    await updateCourseProgressStatus(userId, courseNumber, "in_progress");
+    await launchCourseMission(userId, courseNumber);
     revalidateCourseSurfaces(courseNumber);
   } catch (error) {
     console.error("launchCourseMissionAction failed", error);
