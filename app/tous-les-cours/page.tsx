@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { CourseLibraryExplorer } from "@/components/courses/course-library-explorer";
 import { BookIcon, QuestIcon, TrophyIcon } from "@/components/ui/icons";
@@ -20,161 +21,170 @@ export default async function TousLesCoursPage() {
     ? missionPlans[recommendedCourse.courseId] ?? getCourseMissionPlan(recommendedCourse)
     : null;
   const recommendedProfile = getCourseVisualProfile(recommendedCourse?.palierId ?? 1);
+  const completedPercent =
+    roadmap.totalCourses > 0 ? Math.round((roadmap.completedCount / roadmap.totalCourses) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
-      <div className="mx-auto max-w-6xl px-4 py-8 md:px-6 md:py-12">
-        <div className="comic-panel-dark w-full p-4 md:p-6">
-          <section className="mb-8 grid gap-6 xl:grid-cols-[1fr_0.92fr]">
-            <div
-              className="comic-panel-dark relative overflow-hidden p-6 md:p-8"
-              style={{ background: recommendedProfile.bannerBackground }}
-            >
-              <div className="absolute inset-0 opacity-[0.16] comic-dot-pattern-light" />
-              <div
-                className="absolute inset-0 opacity-[0.12]"
-                style={{
-                  background:
-                    "repeating-linear-gradient(128deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 18px)",
-                }}
-              />
-              <div className="absolute inset-y-0 left-0 w-3" style={{ background: recommendedProfile.rail }} />
+    <div className="relative left-1/2 w-screen -translate-x-1/2 overflow-x-clip bg-[#020617] text-white">
+      <section className="relative overflow-hidden border-b-4 border-black">
+        <Image
+          src="/page-art/courses-hero.png"
+          alt="Illustration comic book d'une bibliotheque de cours."
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-[#020617]/86 to-[#020617]/28" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-black/45" />
+        <div className="absolute inset-0 comic-dot-pattern-light opacity-20" />
 
-              <div className="relative z-10">
-                <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-300 text-outline">
-                  Bibliotheque libre
+        <div className="relative mx-auto grid min-h-[560px] max-w-[1460px] gap-8 px-4 py-10 md:min-h-[620px] md:px-6 md:py-14 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-end xl:px-10">
+          <div className="max-w-4xl self-end">
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-200 text-outline">
+              Catalogue des cours
+            </p>
+            <h1 className="mt-4 max-w-4xl text-4xl font-bold leading-[1.02] text-white text-outline md:text-6xl">
+              Choisis le bon cours, au bon moment.
+            </h1>
+            <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-slate-100 text-outline md:text-xl">
+              Tous les modules restent accessibles pour reviser librement. Le parcours
+              Aventure garde, lui, une route conseillee et une progression suivie.
+            </p>
+
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link
+                href="#catalogue"
+                className="comic-button inline-flex items-center gap-2 bg-cyan-600 px-5 py-3 text-sm font-bold text-white hover:bg-cyan-700"
+              >
+                Explorer le catalogue
+              </Link>
+              <Link
+                href="/quest"
+                className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700"
+              >
+                <QuestIcon className="h-4 w-4" />
+                Ouvrir Aventure
+              </Link>
+              {recommendedCourse && (
+                <Link
+                  href={`/cours/${recommendedCourse.courseId}`}
+                  className="comic-button inline-flex items-center gap-2 bg-slate-900 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800"
+                >
+                  <BookIcon className="h-4 w-4" />
+                  Reprendre le focus
+                </Link>
+              )}
+            </div>
+
+            <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-3">
+              <div className="border-l-4 border-cyan-300 bg-black/52 p-4 backdrop-blur-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                  Catalogue
                 </p>
-                <h1 className="mt-3 break-words text-3xl font-bold text-white text-outline md:text-5xl">
-                  Choisis un cours librement
-                </h1>
-                <p className="mt-4 max-w-3xl break-words text-sm font-semibold leading-relaxed text-slate-200 text-outline md:text-lg">
-                  `Cours` est le hub libre pour reviser, explorer et ouvrir un module quand tu veux.
-                  `Aventure` reste le chemin principal verrouille par la progression.
+                <p className="mt-2 text-2xl font-bold text-white">{roadmap.totalCourses} cours</p>
+              </div>
+              <div className="border-l-4 border-emerald-300 bg-black/52 p-4 backdrop-blur-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                  Campagne
                 </p>
+                <p className="mt-2 text-2xl font-bold text-white">{completedPercent}%</p>
+              </div>
+              <div className="border-l-4 border-amber-300 bg-black/52 p-4 backdrop-blur-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                  Mode
+                </p>
+                <p className="mt-2 text-lg font-bold text-white">Libre</p>
+              </div>
+            </div>
+          </div>
 
-                <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                  <div className="comic-panel border-2 border-black bg-slate-950/55 px-4 py-4">
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Catalogue</p>
-                    <p className="mt-2 text-xl font-bold text-white">{roadmap.totalCourses} cours</p>
-                  </div>
-                  <div className="comic-panel border-2 border-black bg-slate-950/55 px-4 py-4">
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-slate-400">Campagne</p>
-                    <p className="mt-2 text-xl font-bold text-white">
-                      {roadmap.completedCount}/{roadmap.totalCourses} validees
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex flex-wrap gap-3">
-                  <Link
-                    href="/quest"
-                    className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
-                  >
-                    <QuestIcon className="h-4 w-4" />
-                    Aller dans Aventure
-                  </Link>
-                  {recommendedCourse && (
-                    <Link
-                      href={`/cours/${recommendedCourse.courseId}`}
-                      className="comic-button inline-flex items-center gap-2 bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-slate-800"
-                    >
-                      <BookIcon className="h-4 w-4" />
-                      Ouvrir le cours conseille
-                    </Link>
-                  )}
-                </div>
+          <aside className="self-end border-4 border-black bg-slate-950/88 p-5 shadow-[0_4px_0_#000] backdrop-blur-sm md:p-6">
+            <div className="flex items-start gap-3">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center border-4 border-black shadow-[0_3px_0_#000]" style={{ background: recommendedProfile.rail }}>
+                <TrophyIcon className="h-6 w-6 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-300">
+                  Focus du moment
+                </p>
+                <h2 className="mt-2 text-xl font-bold leading-tight text-white text-outline md:text-2xl">
+                  {recommendedCourse
+                    ? `Cours ${recommendedCourse.courseId}: ${recommendedCourse.title}`
+                    : "Revision libre"}
+                </h2>
               </div>
             </div>
 
-            <div
-              className="comic-panel relative overflow-hidden border-2 border-black p-5 md:p-6"
-              style={{ background: recommendedProfile.cardBackground }}
-            >
-              <div className="absolute inset-0 opacity-[0.16] comic-dot-pattern-light" />
-              <div className="absolute inset-y-0 left-0 w-2" style={{ background: recommendedProfile.rail }} />
+            {recommendedCourse && recommendedMission ? (
+              <div className="mt-5 space-y-4">
+                <p className="text-sm font-semibold leading-relaxed text-slate-200">
+                  {recommendedCourse.summary}
+                </p>
 
-              <div className="relative z-10">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-full border-2 border-black p-3" style={{ background: recommendedProfile.rail }}>
-                    <TrophyIcon className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-300">
-                      Focus du moment
-                    </p>
-                    <h2 className="text-xl font-bold text-white text-outline md:text-2xl">
-                      {recommendedCourse
-                        ? `Cours ${recommendedCourse.courseId}: ${recommendedCourse.title}`
-                        : "Revision libre"}
-                    </h2>
-                  </div>
+                <div className="flex flex-wrap gap-2">
+                  <span className="rounded-full border border-white/12 bg-white/5 px-3 py-1 text-[11px] font-semibold text-slate-100">
+                    {recommendedCourse.estimatedMinutes} min
+                  </span>
+                  <span className="rounded-full border border-white/12 bg-white/5 px-3 py-1 text-[11px] font-semibold text-slate-100">
+                    {recommendedCourse.levelLabel.split(" - ")[0]}
+                  </span>
+                  <span className="rounded-full border border-white/12 bg-white/5 px-3 py-1 text-[11px] font-semibold text-slate-100">
+                    {recommendedMission.primaryGameName ?? "Revision"}
+                  </span>
                 </div>
 
-                {recommendedCourse && recommendedMission ? (
-                  <div className="mt-5 space-y-4">
-                    <p className="text-sm font-semibold leading-relaxed text-slate-100 text-outline">
-                      {recommendedCourse.summary}
-                    </p>
-
-                    <div className="flex flex-wrap gap-2">
-                      <span className="rounded-full border border-white/10 bg-slate-950/65 px-3 py-1 text-[11px] font-semibold text-slate-100">
-                        {recommendedCourse.estimatedMinutes} min
-                      </span>
-                      <span className="rounded-full border border-white/10 bg-slate-950/65 px-3 py-1 text-[11px] font-semibold text-slate-100">
-                        {recommendedCourse.levelLabel.split(" - ")[0]}
-                      </span>
-                      <span className="rounded-full border border-white/10 bg-slate-950/65 px-3 py-1 text-[11px] font-semibold text-slate-100">
-                        {recommendedMission.primaryGameName ?? "Revision"}
-                      </span>
-                    </div>
-
-                    <p className="text-sm font-semibold text-slate-300">
-                      {recommendedMission.primaryGameName
-                        ? `Si tu passes par Aventure, le defi associe se joue sur ${recommendedMission.primaryGameName}.`
-                        : "Ce cours peut aussi s'integrer au parcours Aventure."}
-                    </p>
-
-                    <Link
-                      href={`/cours/${recommendedCourse.courseId}`}
-                      className="comic-button inline-flex items-center gap-2 bg-slate-950 px-4 py-3 text-sm font-bold text-white hover:bg-slate-900"
-                    >
-                      Ouvrir le cours
-                    </Link>
-                  </div>
-                ) : (
-                  <p className="mt-4 text-sm font-semibold text-slate-300">
-                    Explore librement les modules disponibles.
-                  </p>
-                )}
+                <Link
+                  href={`/cours/${recommendedCourse.courseId}`}
+                  className="comic-button inline-flex items-center gap-2 bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-slate-800"
+                >
+                  Ouvrir ce cours
+                </Link>
               </div>
-            </div>
-          </section>
+            ) : (
+              <p className="mt-4 text-sm font-semibold text-slate-300">
+                Explore les modules disponibles et reprends le parcours quand tu veux.
+              </p>
+            )}
+          </aside>
+        </div>
+      </section>
 
-          {!isLoggedIn && (
-            <div className="mb-8 flex flex-wrap justify-center gap-4">
+      <main id="catalogue" className="mx-auto max-w-[1460px] px-4 py-10 md:px-6 md:py-14 xl:px-10">
+        {!isLoggedIn && (
+          <div className="mb-8 flex flex-col gap-3 border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-emerald-300">
+                Progression sauvegardee
+              </p>
+              <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-300">
+                Les cours restent consultables en mode invite. Un compte permet de conserver la progression.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
               <Link
                 href="/auth/signup"
-                className="comic-button bg-emerald-600 px-6 py-3 font-bold text-white hover:bg-emerald-700"
+                className="comic-button bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700"
               >
                 Creer mon compte
               </Link>
               <Link
                 href="/auth/login"
-                className="comic-button bg-slate-800 px-6 py-3 font-bold text-white hover:bg-slate-700"
+                className="comic-button bg-slate-800 px-5 py-3 text-sm font-bold text-white hover:bg-slate-700"
               >
                 Se connecter
               </Link>
             </div>
-          )}
+          </div>
+        )}
 
-          <CourseLibraryExplorer
-            entries={roadmap.entries}
-            missionPlans={missionPlans}
-            recommendedCourseId={recommendedCourse?.courseId ?? null}
-            isAuthenticated={isLoggedIn}
-          />
-        </div>
-      </div>
+        <CourseLibraryExplorer
+          entries={roadmap.entries}
+          missionPlans={missionPlans}
+          recommendedCourseId={recommendedCourse?.courseId ?? null}
+          isAuthenticated={isLoggedIn}
+        />
+      </main>
     </div>
   );
 }

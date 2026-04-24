@@ -8,6 +8,9 @@ export type GamePresentation = {
   action: string;
   primary: string;
   secondary: string;
+  artworkSrc: string;
+  logoSrc: string;
+  imageAlt: string;
 };
 
 const manualPresentations: Record<string, GamePresentation> = {
@@ -19,6 +22,9 @@ const manualPresentations: Record<string, GamePresentation> = {
     action: "Decouvrir / deduire",
     primary: "#22c55e",
     secondary: "#86efac",
+    artworkSrc: "/game-art/enigma-scroll-key-art.png",
+    logoSrc: "/game-art/logos/enigma-scroll-logo.png",
+    imageAlt: "Illustration comic book d'un parchemin lumineux pour Enigma Scroll.",
   },
   "space-lex": {
     mark: "LB",
@@ -28,6 +34,9 @@ const manualPresentations: Record<string, GamePresentation> = {
     action: "Viser / eliminer",
     primary: "#8b5cf6",
     secondary: "#c4b5fd",
+    artworkSrc: "/game-art/space-lex-key-art.png",
+    logoSrc: "/game-art/logos/space-lex-logo.png",
+    imageAlt: "Illustration comic book d'un vaisseau spatial pour Lexicon Blaster.",
   },
   "speed-verb-challenge": {
     mark: "SV",
@@ -37,6 +46,9 @@ const manualPresentations: Record<string, GamePresentation> = {
     action: "Conjuguer / enchainer",
     primary: "#f59e0b",
     secondary: "#fde68a",
+    artworkSrc: "/game-art/speed-verb-challenge-key-art-v2.png",
+    logoSrc: "/game-art/logos/speed-verb-challenge-logo.png",
+    imageAlt: "Illustration comic book d'un sprint de conjugaison pour Speed Verb Challenge.",
   },
   wordfall: {
     mark: "WF",
@@ -46,6 +58,9 @@ const manualPresentations: Record<string, GamePresentation> = {
     action: "Taper / survivre",
     primary: "#06b6d4",
     secondary: "#67e8f9",
+    artworkSrc: "/game-art/wordfall-key-art.png",
+    logoSrc: "/game-art/logos/wordfall-logo.png",
+    imageAlt: "Illustration comic book de tuiles de mots qui tombent pour Wordfall.",
   },
   "flash-translation": {
     mark: "FT",
@@ -55,6 +70,9 @@ const manualPresentations: Record<string, GamePresentation> = {
     action: "Traduire / reagir",
     primary: "#f97316",
     secondary: "#fdba74",
+    artworkSrc: "/game-art/flash-translation-key-art.png",
+    logoSrc: "/game-art/logos/flash-translation-logo.png",
+    imageAlt: "Illustration comic book d'un duel de traduction pour Flash Translation.",
   },
   flashback: {
     mark: "FB",
@@ -64,6 +82,9 @@ const manualPresentations: Record<string, GamePresentation> = {
     action: "Memoriser / confirmer",
     primary: "#7c3aed",
     secondary: "#c4b5fd",
+    artworkSrc: "/game-art/flashback-key-art.png",
+    logoSrc: "/game-art/logos/flashback-logo.png",
+    imageAlt: "Illustration comic book de cartes memoire pour Flashback.",
   },
 };
 
@@ -98,5 +119,8 @@ export function getGamePresentation(game: Pick<GameConfig, "slug" | "name">): Ga
     action: "Jouer / progresser",
     primary: "#38bdf8",
     secondary: "#bae6fd",
+    artworkSrc: "/game-art/englishquest-games-hero.png",
+    logoSrc: "/game-art/logos/englishquest-games-logo.png",
+    imageAlt: "Illustration comic book English Quest.",
   };
 }

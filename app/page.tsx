@@ -1,75 +1,81 @@
+import Image from "next/image";
 import Link from "next/link";
-import { MotionCard } from "@/components/ui/motion-card";
 import {
+  ArrowRightIcon,
+  BookIcon,
+  CheckIcon,
   GameIcon,
-  GiftIcon,
   GoldIcon,
   LevelIcon,
   QuestIcon,
-  ScrollIcon,
   TeacherIcon,
+  TrophyIcon,
   XPIcon,
 } from "@/components/ui/icons";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-const featureCards = [
+const heroStats = [
+  { label: "Parcours", value: "50 cours", detail: "du niveau A1 vers C1" },
+  { label: "Jeux", value: "6 modes", detail: "pour ancrer les reflexes" },
+  { label: "Progression", value: "XP + or", detail: "visible a chaque etape" },
+] as const;
+
+const entryCards = [
   {
-    label: "Pratique",
-    title: "Jeux",
+    label: "Cours",
+    title: "Apprendre dans l'ordre",
+    copy: "Ouvre le catalogue, choisis une notion et avance avec des lecons courtes, structurees et faciles a reprendre.",
+    href: "/tous-les-cours",
+    cta: "Voir les cours",
+    Icon: BookIcon,
+    accent: "#22d3ee",
+    background: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(15, 23, 42, 0.98) 72%)",
+  },
+  {
+    label: "Jeux",
+    title: "Reviser en action",
+    copy: "Transforme une notion en partie rapide: vocabulaire, conjugaison, traduction, memoire ou vitesse clavier.",
+    href: "/play",
+    cta: "Entrer dans l'arene",
     Icon: GameIcon,
-    iconBg: "bg-cyan-600",
-    accentText: "text-cyan-300",
-    cardStyle: "linear-gradient(135deg, rgba(8, 145, 178, 0.22) 0%, rgba(15, 23, 42, 0.97) 100%)",
-    copy: "Jouez à des jeux utiles pour apprendre l'anglais. Chaque partie nourrit une progression claire et motivante.",
+    accent: "#facc15",
+    background: "linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(15, 23, 42, 0.98) 72%)",
   },
   {
-    label: "Parcours",
-    title: "Chemin de cours",
+    label: "Aventure",
+    title: "Suivre la campagne",
+    copy: "Garde le cap avec une route conseillee, des objectifs lisibles et des missions qui se debloquent progressivement.",
+    href: "/quest",
+    cta: "Ouvrir l'aventure",
     Icon: QuestIcon,
-    iconBg: "bg-emerald-600",
-    accentText: "text-emerald-300",
-    cardStyle: "linear-gradient(135deg, rgba(5, 150, 105, 0.24) 0%, rgba(15, 23, 42, 0.97) 100%)",
-    copy: "Suivez un parcours de 50 cours progressifs avec XP, récompenses et objectifs visibles à chaque étape.",
-  },
-  {
-    label: "Encadrement",
-    title: "Professeurs",
-    Icon: TeacherIcon,
-    iconBg: "bg-amber-600",
-    accentText: "text-amber-300",
-    cardStyle: "linear-gradient(135deg, rgba(217, 119, 6, 0.24) 0%, rgba(15, 23, 42, 0.97) 100%)",
-    copy: "Un espace enseignants est prévu pour suivre une classe sans brouiller l'expérience des apprenants.",
+    accent: "#34d399",
+    background: "linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(15, 23, 42, 0.98) 72%)",
   },
 ] as const;
 
-const heroHighlights = [
-  { label: "Parcours", value: "50 cours progressifs" },
-  { label: "Jeux", value: "Formats courts et efficaces" },
-  { label: "Récompenses", value: "XP, or et avatars" },
+const methodPoints = [
+  "Une notion claire par cours",
+  "Des exercices courts pour verifier",
+  "Des jeux pour automatiser",
+  "Une progression visible sans surcharge",
 ] as const;
 
-const learningSteps = [
+const rhythmSteps = [
   {
-    number: "1",
-    title: "Créez un compte",
-    copy: "Entrez rapidement dans une plateforme qui rend votre progression lisible dès le premier écran.",
+    number: "01",
+    title: "Comprendre",
+    copy: "Chaque cours pose la notion avec des exemples directs et un objectif precis.",
   },
   {
-    number: "2",
-    title: "Travaillez le bon contenu",
-    copy: "Alternez cours et jeux pour fixer les notions, sans perdre le fil de votre parcours.",
+    number: "02",
+    title: "S'entrainer",
+    copy: "Les questions et les jeux renforcent la notion pendant qu'elle est encore fraiche.",
   },
   {
-    number: "3",
-    title: "Suivez vos acquis",
-    copy: "Voyez ce qui est validé, ce qu'il faut reprendre et ce qui vient ensuite.",
+    number: "03",
+    title: "Rejouer",
+    copy: "Les formats courts aident a revenir souvent, sans transformer l'apprentissage en tunnel.",
   },
-] as const;
-
-const methodologyPoints = [
-  "50 leçons progressives",
-  "Exercices interactifs variés",
-  "Suivi précis de la progression",
 ] as const;
 
 function getXPForNextLevel(level: number): number {
@@ -79,6 +85,7 @@ function getXPForNextLevel(level: number): number {
 function getXPProgress(currentXP: number, level: number): { current: number; required: number; percentage: number } {
   const required = getXPForNextLevel(level);
   const percentage = required > 0 ? Math.min((currentXP / required) * 100, 100) : 0;
+
   return {
     current: currentXP,
     required,
@@ -98,136 +105,168 @@ export default async function PublicHomePage() {
   }
 
   const displayData = {
-    username: "Invité",
+    username: "Invite",
     level: 1,
     xp: 0,
     gold: 0,
-    isGuest: true,
   };
 
   const xpProgress = getXPProgress(displayData.xp, displayData.level);
 
   return (
-    <div className="space-y-8 md:space-y-20">
-      <section className="grid gap-6 md:gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-        <div className="space-y-4 md:space-y-6">
-          <span className="comic-panel inline-flex border-2 border-black bg-cyan-600 px-4 py-2 text-[11px] font-bold uppercase tracking-[0.22em] text-white md:text-xs">
-            La progression avant le bruit
-          </span>
+    <div className="relative left-1/2 w-screen -translate-x-1/2 overflow-x-clip bg-[#020617] text-white">
+      <section className="relative min-h-[680px] overflow-hidden border-b-4 border-black md:min-h-[700px]">
+        <Image
+          src="/page-art/home-hero.png"
+          alt="Illustration comic book d'une academie English Quest."
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-[#020617]/86 to-[#020617]/18" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-black/38" />
+        <div className="absolute inset-0 comic-dot-pattern-light opacity-20" />
 
-          <div className="space-y-3 md:space-y-4">
-            <h1 className="text-balance text-3xl font-bold leading-tight tracking-tight text-white md:text-5xl lg:text-6xl">
-              Progressez en anglais comme dans vos jeux favoris.
-            </h1>
-            <p className="text-balance text-sm leading-relaxed text-slate-200 md:text-xl">
-              Suivez un parcours de 50 cours où chaque défi vous rapporte de l'XP, des pièces d'or et des récompenses.
+        <div className="relative mx-auto flex min-h-[680px] max-w-[1460px] flex-col justify-end px-4 py-10 md:min-h-[700px] md:px-6 md:py-14 xl:px-10">
+          <div className="max-w-4xl">
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-200 text-outline">
+              English Quest
             </p>
-          </div>
+            <h1 className="mt-4 max-w-4xl text-4xl font-bold leading-[1.02] text-white text-outline md:text-6xl xl:text-7xl">
+              Apprendre l'anglais avec un parcours clair et des jeux utiles.
+            </h1>
+            <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-slate-100 text-outline md:text-xl">
+              English Quest garde l'energie du jeu, mais remet la progression au centre:
+              cours structures, entrainements courts, missions lisibles et recompenses.
+            </p>
 
-          <div className="grid gap-3 sm:grid-cols-3">
-            {heroHighlights.map((highlight) => (
-              <div key={highlight.label} className="comic-panel border-2 border-black bg-slate-900/75 px-4 py-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400 md:text-[11px]">
-                  {highlight.label}
-                </p>
-                <p className="mt-1 text-sm font-bold text-white md:text-base">{highlight.value}</p>
-              </div>
-            ))}
-          </div>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link
+                href="/tous-les-cours"
+                className="comic-button inline-flex items-center gap-2 bg-cyan-600 px-5 py-3 text-sm font-bold text-white hover:bg-cyan-700 md:px-6 md:py-4 md:text-base"
+              >
+                Commencer par les cours
+                <ArrowRightIcon className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/play"
+                className="comic-button inline-flex items-center gap-2 bg-slate-900 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800 md:px-6 md:py-4 md:text-base"
+              >
+                Voir les jeux
+              </Link>
+              <Link
+                href="/auth/signup"
+                className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700 md:px-6 md:py-4 md:text-base"
+              >
+                Creer mon compte
+              </Link>
+            </div>
 
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/play"
-              className="comic-button bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700 md:px-8 md:py-4 md:text-base"
-            >
-              Commencer à jouer
-            </Link>
-            <Link
-              href="/auth/signup"
-              className="comic-button bg-slate-800 px-5 py-3 text-sm font-bold text-white hover:bg-slate-700 md:px-8 md:py-4 md:text-base"
-            >
-              Créer mon compte
-            </Link>
+            <div className="mt-8 grid max-w-4xl gap-3 sm:grid-cols-3">
+              {heroStats.map((stat) => (
+                <div key={stat.label} className="border-l-4 border-cyan-300 bg-black/52 p-4 backdrop-blur-sm">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                    {stat.label}
+                  </p>
+                  <p className="mt-2 text-2xl font-bold text-white">{stat.value}</p>
+                  <p className="mt-1 text-xs font-semibold text-slate-300">{stat.detail}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+      </section>
 
-        <MotionCard>
-          <div
-            className="comic-card-dark p-5 md:p-7"
-            style={{ background: "linear-gradient(135deg, rgba(5, 150, 105, 0.24) 0%, rgba(15, 23, 42, 0.98) 72%)" }}
-          >
-            <div className="relative z-10 space-y-4 md:space-y-5">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-300 md:text-xs">
-                    {displayData.isGuest ? "Profil invité" : "Profil joueur"}
+      <main className="mx-auto max-w-[1460px] px-4 py-10 md:px-6 md:py-16 xl:px-10">
+        <section className="grid gap-5 md:grid-cols-3">
+          {entryCards.map((card) => {
+            const Icon = card.Icon;
+
+            return (
+              <Link
+                key={card.title}
+                href={card.href}
+                className="group comic-card-dark flex min-h-[290px] flex-col p-5 md:p-6"
+                style={{ background: card.background }}
+              >
+                <div className="relative z-10 flex h-full flex-col">
+                  <div className="flex items-start justify-between gap-4">
+                    <div
+                      className="flex h-12 w-12 shrink-0 items-center justify-center border-4 border-black bg-slate-950 shadow-[0_3px_0_#000]"
+                      style={{ color: card.accent }}
+                    >
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: card.accent }}>
+                      {card.label}
+                    </p>
+                  </div>
+
+                  <h2 className="mt-5 text-2xl font-bold leading-tight text-white text-outline">
+                    {card.title}
+                  </h2>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-200 md:text-base">
+                    {card.copy}
                   </p>
-                  <p className="mt-1 text-2xl font-bold text-white md:text-3xl">{displayData.username}</p>
-                  <p className="mt-1 text-sm font-semibold text-slate-300">Un aperçu simple, clair et lisible de votre progression.</p>
+
+                  <span className="mt-auto inline-flex items-center gap-2 pt-6 text-sm font-bold" style={{ color: card.accent }}>
+                    {card.cta}
+                    <ArrowRightIcon className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                  </span>
                 </div>
-                <div className="comic-panel flex shrink-0 items-center gap-2 border-2 border-black bg-emerald-600 px-3 py-2 text-white">
+              </Link>
+            );
+          })}
+        </section>
+
+        <section className="mt-12 grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start md:mt-16">
+          <div className="relative overflow-hidden border-4 border-black bg-slate-950 p-6 shadow-[0_4px_0_#000] md:p-8">
+            <div className="absolute inset-0 comic-dot-pattern-light opacity-20" />
+            <div className="relative z-10">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-emerald-300 text-outline">
+                Apercu de progression
+              </p>
+              <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-3xl font-bold text-white">{displayData.username}</p>
+                  <p className="mt-1 text-sm font-semibold text-slate-300">Profil de depart</p>
+                </div>
+                <div className="inline-flex w-fit items-center gap-2 border-4 border-black bg-emerald-600 px-4 py-3 text-sm font-bold text-white shadow-[0_3px_0_#000]">
                   <LevelIcon className="h-4 w-4" />
-                  <span className="text-sm font-bold">Niveau {displayData.level}</span>
+                  Niveau {displayData.level}
                 </div>
               </div>
 
-              <div className="comic-panel border-2 border-black bg-slate-950/70 p-4 md:p-5">
+              <div className="mt-6">
                 <div className="flex items-center justify-between gap-3 text-xs">
                   <div className="flex items-center gap-2 font-semibold text-slate-300">
                     <XPIcon className="h-4 w-4 text-emerald-400" />
-                    <span>Points d'expérience</span>
+                    <span>Experience</span>
                   </div>
                   <span className="font-bold text-slate-400">
                     {xpProgress.current.toLocaleString("fr-FR")} / {xpProgress.required.toLocaleString("fr-FR")}
                   </span>
                 </div>
-                <div className="mt-3 h-3 overflow-hidden rounded-full border border-black bg-slate-950">
+                <div className="mt-3 h-3 overflow-hidden rounded-full border border-black bg-slate-900">
                   <div
-                    className="relative h-full rounded-full bg-gradient-to-r from-emerald-700 via-emerald-500 to-emerald-400"
+                    className="relative h-full rounded-full bg-gradient-to-r from-emerald-700 via-emerald-500 to-emerald-300"
                     style={{ width: `${xpProgress.percentage}%` }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent animate-shimmer" />
                   </div>
                 </div>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-2">
-                <div className="comic-panel border-2 border-black bg-slate-900/80 p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="comic-panel flex h-10 w-10 shrink-0 items-center justify-center border-2 border-black bg-emerald-600 p-2">
-                      <ScrollIcon className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">Objectif</p>
-                      <p className="mt-1 font-bold text-white">Cours du jour</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-300">Jouer à 3 jeux</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="comic-panel border-2 border-black bg-slate-900/80 p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="comic-panel flex h-10 w-10 shrink-0 items-center justify-center border-2 border-black bg-amber-500 p-2">
-                      <GiftIcon className="h-5 w-5 text-white" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">Récompense</p>
-                      <p className="mt-1 font-bold text-white">Prochaine récompense</p>
-                      <p className="mt-1 text-sm font-semibold text-slate-300">Nouvel avatar</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div className="comic-panel border-2 border-black bg-slate-900/75 p-4">
+              <div className="mt-6 grid grid-cols-2 gap-3">
+                <div className="border border-white/10 bg-white/5 p-4">
                   <div className="mb-2 flex items-center gap-2">
                     <XPIcon className="h-4 w-4 text-emerald-400" />
                     <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">XP</p>
                   </div>
                   <p className="text-2xl font-bold text-emerald-300">{displayData.xp.toLocaleString("fr-FR")}</p>
                 </div>
-                <div className="comic-panel border-2 border-black bg-slate-900/75 p-4">
+                <div className="border border-white/10 bg-white/5 p-4">
                   <div className="mb-2 flex items-center gap-2">
                     <GoldIcon className="h-4 w-4 text-amber-400" />
                     <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">Or</p>
@@ -237,145 +276,108 @@ export default async function PublicHomePage() {
               </div>
             </div>
           </div>
-        </MotionCard>
-      </section>
 
-      <section className="grid gap-4 md:gap-6 md:grid-cols-3">
-        {featureCards.map((card) => {
-          const Icon = card.Icon;
-          return (
-            <MotionCard key={card.title} className="h-full">
-              <div
-                className="comic-card-dark flex h-full flex-col p-5 md:p-6"
-                style={{ background: card.cardStyle }}
-              >
-                <div className="relative z-10 flex h-full flex-col">
-                  <div className="flex items-start gap-4">
-                    <div className={`comic-panel flex h-12 w-12 shrink-0 items-center justify-center border-2 border-black ${card.iconBg} p-2 md:h-14 md:w-14`}>
-                      <Icon className="h-6 w-6 text-white md:h-7 md:w-7" />
-                    </div>
-                    <div>
-                      <p className={`text-xs font-bold uppercase tracking-[0.18em] ${card.accentText}`}>{card.label}</p>
-                      <h3 className="mt-1 text-xl font-bold text-white md:text-2xl">{card.title}</h3>
-                    </div>
-                  </div>
-                  <p className="mt-4 flex-grow text-sm leading-relaxed text-slate-200 md:text-base">{card.copy}</p>
-                  <div className="mt-5 comic-panel border-2 border-black bg-slate-900/75 px-4 py-3">
-                    <p className="text-sm font-bold text-white">Une carte claire, un objectif clair.</p>
-                  </div>
-                </div>
-              </div>
-            </MotionCard>
-          );
-        })}
-      </section>
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-300 text-outline">
+              Methode
+            </p>
+            <h2 className="mt-2 text-3xl font-bold leading-tight text-white text-outline md:text-4xl">
+              Une interface de jeu, une logique de cours.
+            </h2>
+            <p className="mt-4 max-w-3xl text-sm font-semibold leading-relaxed text-slate-300 md:text-base">
+              Le style reste bande dessinee, mais chaque ecran doit aider l'apprenant a
+              comprendre ou il est, quoi faire ensuite et pourquoi la session est utile.
+            </p>
 
-      <section className="space-y-6 md:space-y-12">
-        <div className="text-center">
-          <h2 className="break-words text-2xl font-bold text-white md:text-4xl lg:text-5xl">Comment ça marche</h2>
-          <p className="mt-2 text-sm text-slate-300 md:mt-4 md:text-lg">Commencez en trois étapes simples</p>
-        </div>
-
-        <div className="grid gap-6 md:grid-cols-3">
-          {learningSteps.map((step) => (
-            <div
-              key={step.number}
-              className="comic-card-dark h-full p-5 md:p-6"
-              style={{ background: "linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.96) 100%)" }}
-            >
-              <div className="comic-panel mb-4 inline-flex h-12 w-12 items-center justify-center border-2 border-black bg-cyan-600 text-xl font-bold text-white md:h-14 md:w-14 md:text-2xl">
-                {step.number}
-              </div>
-              <h3 className="text-xl font-bold text-white md:text-2xl">{step.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-slate-200 md:text-base">{step.copy}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="grid items-start gap-6 md:grid-cols-2 md:gap-8">
-        <div className="comic-panel-dark p-6 md:p-8">
-          <div className="relative z-10 space-y-5">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">Méthode</p>
-              <h2 className="mt-2 text-2xl font-bold text-white md:text-4xl">Une méthode pédagogique éprouvée</h2>
-            </div>
-            <div className="space-y-4 text-sm leading-relaxed text-slate-200 md:text-base">
-              <p>
-                English Quest n'est pas seulement un jeu, c'est une méthode d'apprentissage complète conçue par des professeurs.
-                Nous combinons les principes de la <strong>gamification</strong> avec une progression pédagogique rigoureuse.
-              </p>
-              <p>
-                Chaque cours est structuré pour introduire progressivement de nouveaux concepts grammaticaux et lexicaux,
-                renforcés immédiatement par des exercices ludiques. Cette approche active favorise la mémorisation à long terme
-                et maintient la motivation intacte.
-              </p>
-            </div>
-            <div className="grid gap-3">
-              {methodologyPoints.map((point) => (
-                <div key={point} className="comic-panel border-2 border-black bg-slate-900/80 px-4 py-3">
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              {methodPoints.map((point) => (
+                <div key={point} className="flex items-center gap-3 border border-white/10 bg-slate-950/70 p-4">
+                  <CheckIcon className="h-5 w-5 shrink-0 text-emerald-300" />
                   <span className="text-sm font-bold text-white">{point}</span>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </section>
 
-        <MotionCard className="h-full">
-          <div
-            className="comic-card-dark h-full p-6 md:p-8"
-            style={{ background: "linear-gradient(135deg, rgba(79, 70, 229, 0.24) 0%, rgba(15, 23, 42, 0.97) 100%)" }}
-          >
-            <div className="relative z-10 space-y-5">
-              <div className="flex items-center gap-3">
-                <div className="comic-panel flex h-12 w-12 items-center justify-center border-2 border-black bg-indigo-600 text-lg font-bold text-white">
-                  PM
-                </div>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-indigo-300">Vision</p>
-                  <h3 className="mt-1 text-2xl font-bold text-white">Pourquoi ça marche ?</h3>
-                </div>
-              </div>
-
-              <div className="comic-panel border-2 border-black bg-slate-950/70 p-5">
-                <p className="text-base leading-relaxed text-slate-100">
-                  "L'apprentissage par le jeu permet de dédramatiser l'erreur. Dans un jeu, perdre une vie n'est pas un échec,
-                  c'est une opportunité de recommencer et de s'améliorer. C'est exactement l'état d'esprit qu'il faut pour apprendre une langue."
-                </p>
-              </div>
-
-              <div className="border-t border-slate-700/70 pt-4">
-                <p className="font-bold text-white">Pierre Marienne</p>
-                <p className="text-sm font-semibold text-slate-300">Créateur d'English Quest</p>
-              </div>
+        <section className="mt-12 md:mt-16">
+          <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-300 text-outline">
+                Rythme
+              </p>
+              <h2 className="mt-2 text-3xl font-bold text-white text-outline md:text-4xl">
+                Une session courte, un resultat visible.
+              </h2>
             </div>
-          </div>
-        </MotionCard>
-      </section>
-
-      <section
-        className="comic-panel-dark p-6 md:p-10"
-        style={{ background: "linear-gradient(135deg, rgba(5, 150, 105, 0.22) 0%, rgba(15, 23, 42, 0.98) 80%)" }}
-      >
-        <div className="relative z-10 flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-300">Prêt à commencer ?</p>
-            <h2 className="mt-2 text-2xl font-bold text-white md:text-4xl">
-              Prêt à commencer votre parcours en anglais ?
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-slate-200 md:text-base">
-              Rejoignez des apprenants qui veulent une progression claire, visible et motivante.
+            <p className="max-w-2xl text-sm font-semibold leading-relaxed text-slate-300 md:text-base">
+              Le parcours alterne explication, entrainement et jeu pour eviter les longues
+              pages passives.
             </p>
           </div>
 
-          <Link
-            href="/auth/signup"
-            className="comic-button inline-flex items-center justify-center bg-emerald-600 px-6 py-3 text-sm font-bold text-white hover:bg-emerald-700 md:px-8 md:py-4 md:text-base"
-          >
-            Commencer maintenant
-          </Link>
-        </div>
-      </section>
+          <div className="grid gap-5 md:grid-cols-3">
+            {rhythmSteps.map((step) => (
+              <div key={step.number} className="border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] md:p-6">
+                <p className="text-sm font-black text-cyan-300">{step.number}</p>
+                <h3 className="mt-3 text-2xl font-bold text-white text-outline">{step.title}</h3>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-300">{step.copy}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-12 overflow-hidden border-4 border-black bg-gradient-to-r from-emerald-950 via-slate-950 to-cyan-950 p-6 shadow-[0_4px_0_#000] md:mt-16 md:p-8">
+          <div className="grid gap-6 md:grid-cols-[1fr_auto] md:items-center">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-emerald-300 text-outline">
+                Pret a demarrer
+              </p>
+              <h2 className="mt-2 text-3xl font-bold text-white text-outline md:text-4xl">
+                Commence par un cours, puis verrouille la notion en jeu.
+              </h2>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/tous-les-cours"
+                className="comic-button inline-flex items-center gap-2 bg-cyan-600 px-5 py-3 text-sm font-bold text-white hover:bg-cyan-700"
+              >
+                Explorer les cours
+                <ArrowRightIcon className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/auth/signup"
+                className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700"
+              >
+                Creer mon compte
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-12 grid gap-5 md:grid-cols-2 md:mt-16">
+          <div className="border border-white/10 bg-slate-950/70 p-5 md:p-6">
+            <div className="flex items-center gap-3">
+              <TeacherIcon className="h-6 w-6 text-amber-300" />
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-300">Pour les enseignants</p>
+            </div>
+            <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-300">
+              L'espace professeur reste separe pour accompagner une classe sans alourdir
+              le parcours des apprenants.
+            </p>
+          </div>
+          <div className="border border-white/10 bg-slate-950/70 p-5 md:p-6">
+            <div className="flex items-center gap-3">
+              <TrophyIcon className="h-6 w-6 text-cyan-300" />
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-300">Pour les apprenants</p>
+            </div>
+            <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-300">
+              Les recompenses donnent du rythme, mais le centre reste toujours le contenu:
+              comprendre, pratiquer et revenir au bon moment.
+            </p>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

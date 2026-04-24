@@ -370,9 +370,6 @@ export function CampaignTreasureMap({
                 "repeating-linear-gradient(126deg, rgba(255, 255, 255, 0.07) 0 2px, transparent 2px 18px)",
             }}
           />
-          <div className="absolute left-[-6%] top-[8%] h-44 w-44 rounded-full bg-cyan-500/10 blur-3xl" />
-          <div className="absolute right-[-10%] top-[36%] h-60 w-60 rounded-full bg-fuchsia-500/10 blur-3xl" />
-          <div className="absolute left-[12%] bottom-[8%] h-56 w-56 rounded-full bg-amber-500/10 blur-3xl" />
         </div>
 
         <div className="relative z-10" style={{ height: mapHeight }}>

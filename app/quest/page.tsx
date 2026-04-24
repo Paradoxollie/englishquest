@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { completeCourseAction, launchCourseMissionAction } from "@/app/cours/actions";
 import {
@@ -142,312 +143,374 @@ export default async function QuestPage() {
   const activeMission = activeCourse
     ? missionPlans[activeCourse.courseId] ?? null
     : null;
+  const completedPercent =
+    roadmap.totalCourses > 0 ? Math.round((roadmap.completedCount / roadmap.totalCourses) * 100) : 0;
   const missionInstruction =
     activeCourse && activeMission
       ? activeCourse.status === "unlocked"
-        ? `1. Clique sur "Lancer et ouvrir le cours". 2. Va jusqu'au quiz et atteins 80% minimum. 3. Reussis le defi ${activeMission.primaryGameName ?? "jeu"}. 4. Reviens ici pour valider la mission.`
+        ? `Lance la mission, ouvre le cours, atteins 80% au quiz, puis reussis le defi ${activeMission.primaryGameName ?? "jeu"}.`
         : activeMissionState?.readyToComplete
-          ? "Tout est valide. Recharge la carte si besoin: la mission se finalise et la suite s'ouvre automatiquement."
+          ? "Tout est valide. Tu peux finaliser la mission pour ouvrir la suite."
           : activeMissionState?.quizPassed
-            ? `Le quiz est valide. Il reste seulement le score a atteindre dans ${activeMission.primaryGameName ?? "le jeu demande"}.`
-            : `Commence par ouvrir le cours, descends jusqu'au quiz, puis vise 80% minimum avant de tenter ${activeMission.primaryGameName ?? "le defi jeu"}.`
+            ? `Le quiz est valide. Il reste le score a atteindre dans ${activeMission.primaryGameName ?? "le jeu demande"}.`
+            : `Commence par le cours, descends jusqu'au quiz, puis vise 80% minimum avant le defi ${activeMission.primaryGameName ?? "jeu"}.`
       : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
-      <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
-        <div className="comic-panel-dark w-full p-4 md:p-6">
-          <section
-            className="comic-panel-dark relative overflow-hidden p-5 md:p-6"
-            style={{ background: activeProfile.bannerBackground }}
-          >
-            <div className="absolute inset-0 opacity-[0.16] comic-dot-pattern-light" />
-            <div
-              className="absolute inset-0 opacity-[0.12]"
-              style={{
-                background:
-                  "repeating-linear-gradient(128deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 18px)",
-              }}
-            />
-            <div className="absolute inset-y-0 left-0 w-3" style={{ background: activeProfile.rail }} />
+    <div className="relative left-1/2 w-screen -translate-x-1/2 overflow-x-clip bg-[#020617] text-white">
+      <section className="relative overflow-hidden border-b-4 border-black">
+        <Image
+          src="/page-art/quest-hero.png"
+          alt="Illustration comic book d'une carte d'aventure English Quest."
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-[#020617]/86 to-[#020617]/24" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-black/45" />
+        <div className="absolute inset-0 comic-dot-pattern-light opacity-20" />
 
-            <div className="relative z-10 flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
-              <div className="max-w-3xl">
-                <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-300 text-outline">
-                  Campagne Marvel
-                </p>
-                <h1 className="mt-3 text-3xl font-bold text-white text-outline md:text-5xl">
-                  La carte de campagne
-                </h1>
-                <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-200 text-outline md:text-lg">
-                  Traverse les actes, avance sur la route principale et fais progresser ton pion de
-                  mission en mission. `Aventure` devient enfin une vraie carte de progression.
-                </p>
-              </div>
+        <div className="relative mx-auto grid min-h-[580px] max-w-[1460px] gap-8 px-4 py-10 md:min-h-[640px] md:px-6 md:py-14 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-end xl:px-10">
+          <div className="max-w-4xl self-end">
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-200 text-outline">
+              Aventure
+            </p>
+            <h1 className="mt-4 max-w-4xl text-4xl font-bold leading-[1.02] text-white text-outline md:text-6xl">
+              Avance mission par mission, sans perdre le cap.
+            </h1>
+            <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-slate-100 text-outline md:text-xl">
+              La carte Aventure donne une route claire: un cours, un quiz, un defi
+              de jeu, puis la mission suivante. Tu sais toujours quoi faire ensuite.
+            </p>
 
-              <div className="flex flex-wrap gap-3">
-                <div className="rounded-full border border-black/50 bg-slate-950/72 px-4 py-2 text-sm font-bold text-white">
-                  {roadmap.completedCount}/{roadmap.totalCourses} missions validees
-                </div>
-                {activeCourse && (
-                  <div className="rounded-full border border-black/50 bg-slate-950/56 px-4 py-2 text-sm font-bold text-slate-100">
-                    Acte {activeCourse.palierId} / {activeProfile.chapterLabel}
-                  </div>
-                )}
+            <div className="mt-7 flex flex-wrap gap-3">
+              {activeCourse && activeCourse.status === "unlocked" && isLoggedIn ? (
+                <form action={launchCourseMissionAction}>
+                  <input type="hidden" name="courseNumber" value={activeCourse.courseId} />
+                  <button
+                    type="submit"
+                    className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700"
+                  >
+                    <QuestIcon className="h-4 w-4" />
+                    Lancer la mission
+                  </button>
+                </form>
+              ) : activeCourse ? (
                 <Link
-                  href="/tous-les-cours"
-                  className="comic-button inline-flex items-center gap-2 bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-slate-800"
+                  href={`/cours/${activeCourse.courseId}`}
+                  className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700"
                 >
                   <BookIcon className="h-4 w-4" />
-                  Bibliotheque libre
+                  Continuer le cours
                 </Link>
+              ) : null}
+              <Link
+                href="#carte"
+                className="comic-button inline-flex items-center gap-2 bg-cyan-600 px-5 py-3 text-sm font-bold text-white hover:bg-cyan-700"
+              >
+                Voir la carte
+              </Link>
+              <Link
+                href="/tous-les-cours"
+                className="comic-button inline-flex items-center gap-2 bg-slate-900 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800"
+              >
+                <BookIcon className="h-4 w-4" />
+                Catalogue libre
+              </Link>
+            </div>
+
+            <div className="mt-8 grid max-w-3xl gap-3 sm:grid-cols-3">
+              <div className="border-l-4 border-cyan-300 bg-black/52 p-4 backdrop-blur-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                  Missions
+                </p>
+                <p className="mt-2 text-2xl font-bold text-white">{roadmap.totalCourses}</p>
+              </div>
+              <div className="border-l-4 border-emerald-300 bg-black/52 p-4 backdrop-blur-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                  Progression
+                </p>
+                <p className="mt-2 text-2xl font-bold text-white">{completedPercent}%</p>
+              </div>
+              <div className="border-l-4 border-amber-300 bg-black/52 p-4 backdrop-blur-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                  Acte
+                </p>
+                <p className="mt-2 truncate text-lg font-bold text-white">
+                  {activeCourse ? activeProfile.chapterLabel : "Depart"}
+                </p>
               </div>
             </div>
-          </section>
+          </div>
 
-          <section className="mt-6 space-y-6">
-            {questState.recentlyCompletedMission && (
-              <div className="rounded-[24px] border border-emerald-400/25 bg-emerald-500/14 px-5 py-4 text-emerald-100">
-                <p className="text-[10px] font-bold uppercase tracking-[0.18em]">
-                  Mission validee
+          <aside className="self-end border-4 border-black bg-slate-950/88 p-5 shadow-[0_4px_0_#000] backdrop-blur-sm md:p-6">
+            <div className="flex items-start gap-3">
+              <div
+                className="flex h-12 w-12 shrink-0 items-center justify-center border-4 border-black shadow-[0_3px_0_#000]"
+                style={{ background: activeProfile.rail }}
+              >
+                <TrophyIcon className="h-6 w-6 text-white" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-300">
+                  Mission active
                 </p>
-                <p className="mt-2 text-sm font-bold leading-relaxed text-outline">
-                  Mission {questState.recentlyCompletedMission.courseId} bouclee. La suite de la
-                  campagne est maintenant ouverte.
+                <h2 className="mt-2 text-xl font-bold leading-tight text-white text-outline md:text-2xl">
+                  {activeCourse
+                    ? `Mission ${activeCourse.courseId}: ${activeCourse.title}`
+                    : "Mission 1"}
+                </h2>
+              </div>
+            </div>
+
+            {activeCourse && activeMission ? (
+              <div className="mt-5 space-y-4">
+                <p className="text-sm font-semibold leading-relaxed text-slate-200">
+                  {activeMission.objective}
                 </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="rounded-full border border-white/12 bg-white/5 px-3 py-1 text-[11px] font-semibold text-slate-100">
+                    {activeCourse.estimatedMinutes} min
+                  </span>
+                  <span className="rounded-full border border-white/12 bg-white/5 px-3 py-1 text-[11px] font-semibold text-slate-100">
+                    {activeCourse.rewardXp} XP
+                  </span>
+                  <span className="rounded-full border border-white/12 bg-white/5 px-3 py-1 text-[11px] font-semibold text-slate-100">
+                    {activeMission.primaryGameName ?? "Defi final"}
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <p className="mt-4 text-sm font-semibold text-slate-300">
+                La campagne commence par la premiere mission du parcours.
+              </p>
+            )}
+          </aside>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-[1460px] px-4 py-10 md:px-6 md:py-14 xl:px-10">
+        {questState.recentlyCompletedMission && (
+          <div className="mb-8 border-4 border-black bg-emerald-950 p-5 shadow-[0_4px_0_#000]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-300">
+              Mission validee
+            </p>
+            <p className="mt-2 text-sm font-bold leading-relaxed text-emerald-100 text-outline">
+              Mission {questState.recentlyCompletedMission.courseId} bouclee. La suite de la
+              campagne est maintenant ouverte.
+            </p>
+          </div>
+        )}
+
+        <section id="carte" className="scroll-mt-8">
+          <CampaignTreasureMap
+            entries={roadmap.entries}
+            activeCourseId={activeCourse?.courseId ?? null}
+            missionPlans={missionPlans}
+            playerToken={playerToken}
+          />
+        </section>
+
+        <section className="mt-8 grid gap-6 xl:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
+          <div
+            className="relative overflow-hidden border-4 border-black p-5 shadow-[0_4px_0_#000] md:p-6"
+            style={{ background: activeProfile.cardBackground }}
+          >
+            <div className="absolute inset-y-0 left-0 w-2" style={{ background: activeProfile.rail }} />
+            <div className="absolute inset-0 comic-dot-pattern-light opacity-15" />
+
+            <div className="relative z-10">
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex h-12 w-12 items-center justify-center border-4 border-black shadow-[0_3px_0_#000]"
+                  style={{ background: activeProfile.rail }}
+                >
+                  <TrophyIcon className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-300">
+                    Objectif actuel
+                  </p>
+                  <h2 className="text-2xl font-bold text-white text-outline">
+                    {activeCourse ? activeCourse.title : "Premiere mission"}
+                  </h2>
+                </div>
+              </div>
+
+              {activeCourse && activeMission ? (
+                <div className="mt-6 space-y-5">
+                  <p className="text-sm font-semibold leading-relaxed text-slate-100 text-outline md:text-base">
+                    {activeMission.objective}
+                  </p>
+
+                  <div className="grid gap-3 md:grid-cols-3">
+                    <div className="border border-cyan-400/20 bg-cyan-950/25 p-4">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">
+                        1. Cours
+                      </p>
+                      <p className="mt-2 text-sm font-bold text-white">
+                        {activeMissionState?.readingCheckpointReached ? "Checkpoint atteint" : "Lire la lecon"}
+                      </p>
+                      <p className="mt-1 text-xs font-semibold text-slate-300">
+                        {activeCourse.estimatedMinutes} min
+                      </p>
+                    </div>
+                    <div className="border border-indigo-400/20 bg-indigo-950/25 p-4">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-indigo-300">
+                        2. Quiz
+                      </p>
+                      <p className="mt-2 text-sm font-bold text-white">
+                        {activeMissionState?.quizPassed ? "Quiz valide" : "80% minimum"}
+                      </p>
+                      <p className="mt-1 text-xs font-semibold text-slate-300">
+                        {activeMissionState?.quizScore != null &&
+                        activeMissionState?.quizTotal != null
+                          ? `${activeMissionState.quizScore}/${activeMissionState.quizTotal}`
+                          : activeMission.validationLabel}
+                      </p>
+                    </div>
+                    <div className="border border-amber-400/20 bg-amber-950/25 p-4">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-300">
+                        3. Jeu
+                      </p>
+                      <p className="mt-2 text-sm font-bold text-white">
+                        {activeMission.primaryGameName ?? "Defi final"}
+                      </p>
+                      <p className="mt-1 text-xs font-semibold text-slate-300">
+                        {activeMissionState?.gameChallengeReached
+                          ? "Score cible atteint"
+                          : activeMission.gameChallengeLabel}
+                      </p>
+                    </div>
+                  </div>
+
+                  {missionInstruction && (
+                    <div className="border border-white/10 bg-slate-950/72 p-4">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">
+                        Ce que tu dois faire
+                      </p>
+                      <p className="mt-2 text-sm font-bold leading-relaxed text-slate-100 text-outline">
+                        {missionInstruction}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-3">
+                    {isLoggedIn && activeCourse.status === "unlocked" && (
+                      <form action={launchCourseMissionAction}>
+                        <input type="hidden" name="courseNumber" value={activeCourse.courseId} />
+                        <button
+                          type="submit"
+                          className="comic-button inline-flex items-center gap-2 px-4 py-3 text-sm font-bold text-white"
+                          style={{ background: activeProfile.rail }}
+                        >
+                          <QuestIcon className="h-4 w-4" />
+                          Lancer et ouvrir le cours
+                        </button>
+                      </form>
+                    )}
+                    {isLoggedIn &&
+                      activeCourse.status === "in_progress" &&
+                      activeMissionState?.readyToComplete && (
+                        <form action={completeCourseAction}>
+                          <input type="hidden" name="courseNumber" value={activeCourse.courseId} />
+                          <button
+                            type="submit"
+                            className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
+                          >
+                            <TrophyIcon className="h-4 w-4" />
+                            Valider la mission
+                          </button>
+                        </form>
+                      )}
+                    {activeCourse.status !== "unlocked" && (
+                      <Link
+                        href={`/cours/${activeCourse.courseId}`}
+                        className="comic-button inline-flex items-center gap-2 px-4 py-3 text-sm font-bold text-white"
+                        style={{ background: activeProfile.rail }}
+                      >
+                        <BookIcon className="h-4 w-4" />
+                        Continuer le cours
+                      </Link>
+                    )}
+                    {activeMission.primaryGameSlug && (
+                      <Link
+                        href={`/play/${activeMission.primaryGameSlug}`}
+                        className="comic-button inline-flex items-center gap-2 bg-amber-600 px-4 py-3 text-sm font-bold text-white hover:bg-amber-700"
+                      >
+                        <GameIcon className="h-4 w-4" />
+                        Lancer le defi
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-4 text-sm font-semibold text-slate-300">
+                  La campagne commence par la premiere mission du parcours.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <aside className="space-y-5">
+            <div className="border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000]">
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
+                Regles du parcours
+              </p>
+              <div className="mt-4 space-y-3 text-sm font-semibold leading-relaxed text-slate-300">
+                <p>1. Lis le cours jusqu'au point de passage.</p>
+                <p>2. Valide le quiz avec au moins 80%.</p>
+                <p>3. Reussis le score demande dans le jeu associe.</p>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+              {activeCourse && (
+                <>
+                  <div className="border border-white/10 bg-slate-950/72 p-4">
+                    <div className="flex items-center gap-2 text-sm font-bold text-white">
+                      <XPIcon className="h-4 w-4 text-emerald-300" />
+                      <span>{activeCourse.rewardXp} XP a gagner</span>
+                    </div>
+                  </div>
+                  <div className="border border-white/10 bg-slate-950/72 p-4">
+                    <div className="flex items-center gap-2 text-sm font-bold text-white">
+                      <GoldIcon className="h-4 w-4 text-amber-300" />
+                      <span>{activeCourse.rewardGold} or a gagner</span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {!isLoggedIn && (
+              <div className="border-4 border-black bg-amber-950/40 p-5 shadow-[0_4px_0_#000]">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">
+                  Mode invite
+                </p>
+                <p className="mt-3 text-sm font-semibold leading-relaxed text-amber-100 text-outline">
+                  La carte reste visible, mais la progression n'est pas sauvegardee.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Link
+                    href="/auth/signup"
+                    className="comic-button bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
+                  >
+                    Creer mon compte
+                  </Link>
+                  <Link
+                    href="/auth/login"
+                    className="comic-button bg-slate-800 px-4 py-3 text-sm font-bold text-white hover:bg-slate-700"
+                  >
+                    Me connecter
+                  </Link>
+                </div>
               </div>
             )}
-
-            <CampaignTreasureMap
-              entries={roadmap.entries}
-              activeCourseId={activeCourse?.courseId ?? null}
-              missionPlans={missionPlans}
-              playerToken={playerToken}
-            />
-
-            <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
-              <div
-                className="comic-panel relative overflow-hidden border-2 border-black p-5 md:p-6"
-                style={{ background: activeProfile.cardBackground }}
-              >
-                <div className="absolute inset-0 opacity-[0.16] comic-dot-pattern-light" />
-                <div className="absolute inset-y-0 left-0 w-2" style={{ background: activeProfile.rail }} />
-
-                <div className="relative z-10">
-                  <div className="flex items-center gap-3">
-                    <div className="rounded-full border-2 border-black p-3" style={{ background: activeProfile.rail }}>
-                      <TrophyIcon className="h-5 w-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-300">
-                        Mission active
-                      </p>
-                      <h2 className="text-xl font-bold text-white text-outline md:text-2xl">
-                        {activeCourse
-                          ? `Mission ${activeCourse.courseId}: ${activeCourse.title}`
-                          : "Mission 1"}
-                      </h2>
-                    </div>
-                  </div>
-
-                  {activeCourse && activeMission ? (
-                    <div className="mt-5 space-y-5">
-                      <p className="text-sm font-semibold leading-relaxed text-slate-100 text-outline">
-                        {activeMission.objective}
-                      </p>
-
-                      <div className="grid gap-3 md:grid-cols-3">
-                        <div className="rounded-2xl border border-cyan-400/20 bg-cyan-950/25 p-4">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">
-                            1. Point
-                          </p>
-                          <p className="mt-2 text-sm font-bold text-white">
-                            {activeMissionState?.readingCheckpointReached
-                              ? "Point atteint"
-                              : "Atteindre le quiz"}
-                          </p>
-                          <p className="mt-1 text-xs font-semibold text-slate-300">
-                            {activeCourse.estimatedMinutes} min pour descendre au checkpoint
-                          </p>
-                        </div>
-                        <div className="rounded-2xl border border-indigo-400/20 bg-indigo-950/25 p-4">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-indigo-300">
-                            2. Quiz
-                          </p>
-                          <p className="mt-2 text-sm font-bold text-white">
-                            {activeMissionState?.quizPassed ? "Quiz valide" : "80% minimum"}
-                          </p>
-                          <p className="mt-1 text-xs font-semibold text-slate-300">
-                            {activeMissionState?.quizScore != null &&
-                            activeMissionState?.quizTotal != null
-                              ? `${activeMissionState.quizScore}/${activeMissionState.quizTotal}`
-                              : activeMission.validationLabel}
-                          </p>
-                        </div>
-                        <div className="rounded-2xl border border-amber-400/20 bg-amber-950/25 p-4">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-300">
-                            3. Jeu
-                          </p>
-                          <p className="mt-2 text-sm font-bold text-white">
-                            {activeMission.primaryGameName ?? "Defi final"}
-                          </p>
-                          <p className="mt-1 text-xs font-semibold text-slate-300">
-                            {activeMissionState?.gameChallengeReached
-                              ? "Score cible atteint"
-                              : activeMission.gameChallengeLabel}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="grid gap-3 sm:grid-cols-2 lg:max-w-[26rem]">
-                        <div className="rounded-2xl border border-white/10 bg-slate-950/72 p-4">
-                          <div className="flex items-center gap-2 text-sm font-bold text-white">
-                            <XPIcon className="h-4 w-4 text-emerald-300" />
-                            <span>{activeCourse.rewardXp} XP</span>
-                          </div>
-                        </div>
-                        <div className="rounded-2xl border border-white/10 bg-slate-950/72 p-4">
-                          <div className="flex items-center gap-2 text-sm font-bold text-white">
-                            <GoldIcon className="h-4 w-4 text-amber-300" />
-                            <span>{activeCourse.rewardGold} or</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {missionInstruction && (
-                        <div
-                          className={`rounded-2xl border p-4 ${
-                            activeMissionState?.readyToComplete
-                              ? "border-emerald-400/25 bg-emerald-500/14 text-emerald-100"
-                              : activeCourse.status === "unlocked"
-                                ? "border-cyan-400/25 bg-cyan-500/14 text-cyan-100"
-                                : "border-amber-400/25 bg-amber-500/14 text-amber-100"
-                          }`}
-                        >
-                          <p className="text-[10px] font-bold uppercase tracking-[0.18em]">
-                            Ce que tu dois faire
-                          </p>
-                          <p className="mt-2 text-sm font-bold leading-relaxed text-outline">
-                            {missionInstruction}
-                          </p>
-                        </div>
-                      )}
-
-                      <div className="flex flex-wrap gap-3">
-                        {isLoggedIn && activeCourse.status === "unlocked" && (
-                          <form action={launchCourseMissionAction}>
-                            <input type="hidden" name="courseNumber" value={activeCourse.courseId} />
-                            <button
-                              type="submit"
-                              className="comic-button inline-flex items-center gap-2 px-4 py-3 text-sm font-bold text-white"
-                              style={{ background: activeProfile.rail }}
-                            >
-                              <QuestIcon className="h-4 w-4" />
-                              Lancer et ouvrir le cours
-                            </button>
-                          </form>
-                        )}
-                        {isLoggedIn &&
-                          activeCourse.status === "in_progress" &&
-                          activeMissionState?.readyToComplete && (
-                            <form action={completeCourseAction}>
-                              <input type="hidden" name="courseNumber" value={activeCourse.courseId} />
-                              <button
-                                type="submit"
-                                className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
-                              >
-                                <TrophyIcon className="h-4 w-4" />
-                                Valider la mission
-                              </button>
-                            </form>
-                          )}
-                        {activeCourse.status !== "unlocked" && (
-                          <Link
-                            href={`/cours/${activeCourse.courseId}`}
-                            className="comic-button inline-flex items-center gap-2 px-4 py-3 text-sm font-bold text-white"
-                            style={{ background: activeProfile.rail }}
-                          >
-                            <BookIcon className="h-4 w-4" />
-                            Continuer le cours
-                          </Link>
-                        )}
-                        {activeMission.primaryGameSlug && (
-                          <Link
-                            href={`/play/${activeMission.primaryGameSlug}`}
-                            className="comic-button inline-flex items-center gap-2 bg-amber-600 px-4 py-3 text-sm font-bold text-white hover:bg-amber-700"
-                          >
-                            <GameIcon className="h-4 w-4" />
-                            Lancer le defi
-                          </Link>
-                        )}
-                      </div>
-
-                      {isLoggedIn && activeCourse.status === "unlocked" && (
-                        <p className="text-sm font-semibold text-cyan-200 text-outline">
-                          Un clic ici lance la mission puis ouvre directement le cours au bon mode.
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <p className="mt-4 text-sm font-semibold text-slate-300">
-                      La campagne commence par la premiere mission du parcours.
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-5">
-                <div className="comic-panel border-2 border-black bg-slate-900/82 p-5">
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-cyan-300">
-                    Regles du parcours
-                  </p>
-                  <div className="mt-4 space-y-3 text-sm font-semibold leading-relaxed text-slate-200">
-                    <p>Atteins le point de passage en descendant jusqu'au quiz du cours.</p>
-                    <p>Valide ensuite le quiz avec au moins 80% de bonnes reponses.</p>
-                    <p>Termine par le score de jeu demande pour deverrouiller le point suivant.</p>
-                  </div>
-
-                  {!isLoggedIn && (
-                      <div className="mt-5 rounded-2xl border border-amber-400/20 bg-amber-950/20 p-4">
-                        <p className="text-sm font-semibold text-amber-200 text-outline">
-                          En invite, la carte reste visible mais la progression n'est pas sauvegardee.
-                        </p>
-                      <div className="mt-4 flex flex-wrap gap-3">
-                        <Link
-                          href="/auth/signup"
-                          className="comic-button bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
-                        >
-                          Creer mon compte
-                        </Link>
-                        <Link
-                          href="/auth/login"
-                          className="comic-button bg-slate-800 px-4 py-3 text-sm font-bold text-white hover:bg-slate-700"
-                        >
-                          Me connecter
-                        </Link>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {activeCourse && activeMission && (
-                  <div className="comic-panel border-2 border-black bg-slate-900/82 p-5">
-                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-amber-300">
-                      Mission en vue
-                    </p>
-                    <p className="mt-3 text-xl font-bold leading-tight text-white text-outline">
-                      {activeCourse.title}
-                    </p>
-                    <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-200">
-                      {activeMission.gameChallengeLabel}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </section>
-        </div>
-      </div>
+          </aside>
+        </section>
+      </main>
     </div>
   );
 }

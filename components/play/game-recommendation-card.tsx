@@ -12,6 +12,7 @@ type GameRecommendationCardProps = {
   footerLabel?: string;
   variant?: "compact" | "showcase";
   className?: string;
+  priority?: boolean;
 };
 
 const difficultyLabels = {
@@ -28,6 +29,7 @@ export function GameRecommendationCard({
   footerLabel,
   variant = "compact",
   className = "",
+  priority = false,
 }: GameRecommendationCardProps) {
   const presentation = getGamePresentation(game);
   const isShowcase = variant === "showcase";
@@ -35,140 +37,89 @@ export function GameRecommendationCard({
   return (
     <Link
       href={href}
-      className={`group comic-card-dark flex h-full min-w-0 flex-col p-3 md:p-4 ${className}`}
-      style={{
-        background:
-          "linear-gradient(180deg, rgba(3, 8, 18, 0.96) 0%, rgba(2, 6, 23, 0.99) 100%)",
-      }}
+      className={`group comic-card-dark flex h-full min-w-0 flex-col overflow-hidden bg-slate-950 ${className}`}
     >
-      <div className="relative z-10 flex h-full flex-col">
+      <div className={`relative border-b-4 border-black ${isShowcase ? "min-h-[310px]" : "min-h-[250px]"}`}>
+        <GameCardArtwork game={game} priority={priority} className="absolute inset-0 h-full w-full" />
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/70 to-slate-950/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-black/40" />
+        <div className="absolute inset-0 comic-dot-pattern-light opacity-25" />
         <div
-          className={`comic-panel relative overflow-hidden border-2 border-black p-4 md:p-5 ${
-            isShowcase ? "min-h-[230px]" : "min-h-[205px]"
-          }`}
+          className="absolute inset-y-0 left-0 w-2"
           style={{
-            background:
-              "linear-gradient(135deg, rgba(10, 16, 31, 0.96) 0%, rgba(6, 10, 20, 0.98) 58%, rgba(3, 6, 15, 0.99) 100%)",
+            background: `linear-gradient(180deg, ${presentation.secondary} 0%, ${presentation.primary} 100%)`,
           }}
-        >
-          <div
-            className="absolute inset-y-0 left-0 w-2"
-            style={{
-              background: `linear-gradient(180deg, ${presentation.secondary} 0%, ${presentation.primary} 100%)`,
-            }}
-          />
-          <div
-            className="absolute inset-0 opacity-15"
-            style={{
-              background:
-                "repeating-linear-gradient(128deg, rgba(255, 255, 255, 0.08) 0 2px, transparent 2px 18px)",
-            }}
-          />
-          <div
-            className="absolute inset-0 opacity-18"
-            style={{
-              background:
-                "repeating-conic-gradient(from -8deg at 78% 22%, rgba(255, 255, 255, 0.12) 0deg 8deg, transparent 8deg 18deg)",
-            }}
-          />
-          <div className="absolute inset-0 comic-dot-pattern-light opacity-20" />
-          <div className="absolute inset-y-4 right-2 w-[36%] opacity-95 sm:w-[44%]">
-            <GameCardArtwork game={game} className="h-full w-full" />
-          </div>
-          <div
-            className="absolute right-4 top-4 h-8 w-16 rounded-full border border-black/50"
-            style={{
-              background: `linear-gradient(90deg, ${presentation.secondary}44 0%, ${presentation.primary}22 100%)`,
-            }}
-          />
+        />
 
-          <div className="relative z-10 flex h-full max-w-[72%] flex-col sm:max-w-[68%]">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                {badgeLabel && (
-                  <p className="text-[10px] font-bold uppercase tracking-[0.26em] text-emerald-200 text-outline">
-                    {badgeLabel}
-                  </p>
-                )}
-                <span
-                  className="mt-2 inline-flex rounded-full border border-black/55 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-white"
-                  style={{
-                    background: `linear-gradient(90deg, ${presentation.secondary}2a 0%, rgba(2, 6, 23, 0.84) 100%)`,
-                  }}
-                >
-                  {presentation.mode}
-                </span>
-              </div>
-
+        <div className="relative z-10 flex min-h-[250px] flex-col justify-between p-4 md:p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              {badgeLabel && (
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-200 text-outline">
+                  {badgeLabel}
+                </p>
+              )}
               <span
-                className={`shrink-0 rounded-full border border-black/50 px-3 py-1 text-[11px] font-bold text-white ${difficultyColors[game.difficulty]}`}
+                className="mt-2 inline-flex max-w-full rounded-full border-2 border-black px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white text-outline"
+                style={{
+                  background: `linear-gradient(90deg, ${presentation.primary}cc 0%, rgba(2, 6, 23, 0.88) 100%)`,
+                }}
               >
-                {difficultyLabels[game.difficulty]}
+                {presentation.mode}
               </span>
             </div>
 
-            <div className="mt-5 flex items-start gap-4">
-              <GameEmblem game={game} className="h-14 w-14 shrink-0 md:h-16 md:w-16" />
-              <div className="min-w-0">
-                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-slate-100/85 text-outline">
-                  {game.tags.slice(0, 2).join(" / ")}
-                </p>
-                <p
-                  className={`mt-3 font-bold leading-tight text-white text-outline ${
-                    isShowcase ? "text-2xl md:text-[2rem]" : "text-xl md:text-2xl"
-                  }`}
-                >
-                  {game.name}
-                </p>
-                <p
-                  className={`mt-2 max-w-xl font-semibold leading-relaxed text-slate-100 text-outline ${
-                    isShowcase ? "text-sm md:text-base" : "text-sm"
-                  }`}
-                >
-                  {presentation.hook}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 comic-panel border-2 border-black bg-slate-950/82 p-4">
-          <p
-            className="text-sm font-semibold leading-relaxed text-slate-100 text-outline"
-            style={{
-              display: "-webkit-box",
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-          >
-            {game.description}
-          </p>
-
-          <div className="mt-4 flex flex-wrap gap-2 border-t border-white/8 pt-4">
-            <span className="rounded-full border border-white/12 bg-slate-900/80 px-3 py-1 text-[11px] font-semibold text-slate-100">
-              {presentation.action}
+            <span
+              className={`shrink-0 rounded-full border-2 border-black px-3 py-1 text-[11px] font-bold text-white text-outline ${difficultyColors[game.difficulty]}`}
+            >
+              {difficultyLabels[game.difficulty]}
             </span>
-            {game.tags.slice(0, isShowcase ? 3 : 2).map((tag) => (
-              <span
-                key={tag}
-                className="rounded-full border border-white/12 bg-slate-950/60 px-3 py-1 text-[11px] font-semibold text-slate-100"
+          </div>
+
+          <div className="flex items-end gap-4">
+            <GameEmblem game={game} priority={priority} className={isShowcase ? "h-24 w-24 md:h-28 md:w-28" : "h-20 w-20"} />
+            <div className="min-w-0 pb-2">
+              <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-100/80 text-outline">
+                {presentation.action}
+              </p>
+              <h3
+                className={`mt-2 font-bold leading-tight text-white text-outline ${
+                  isShowcase ? "text-2xl md:text-3xl" : "text-xl md:text-2xl"
+                }`}
               >
-                {tag}
-              </span>
-            ))}
+                {game.name}
+              </h3>
+            </div>
           </div>
         </div>
+      </div>
 
-        <div className="mt-auto pt-4">
-          <span className="mb-3 block text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 text-outline">
+      <div className="flex flex-1 flex-col p-4 md:p-5">
+        <p className="text-sm font-semibold leading-relaxed text-slate-100 text-outline md:text-base">
+          {presentation.hook}
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-slate-300">{game.description}</p>
+
+        <div className="mt-5 flex flex-wrap gap-2">
+          {game.tags.slice(0, isShowcase ? 3 : 2).map((tag) => (
+            <span
+              key={tag}
+              className="rounded-full border border-white/12 bg-white/5 px-3 py-1 text-[11px] font-semibold text-slate-100"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        <div className="mt-auto pt-5">
+          <span className="mb-3 block text-xs font-semibold uppercase tracking-[0.16em] text-slate-400 text-outline">
             {footerLabel ?? "Pret pour une manche express"}
           </span>
           <span
-            className={`comic-button inline-flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-white text-outline transition-transform duration-200 ${game.iconBg}`}
+            className={`comic-button inline-flex w-full items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-white text-outline ${game.iconBg}`}
           >
             {ctaLabel}
-            <ArrowRightIcon className="h-4 w-4" />
+            <ArrowRightIcon className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
           </span>
         </div>
       </div>

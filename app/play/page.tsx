@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { GameCardArtwork, GameEmblem } from "@/components/play/game-emblem";
+import { GameEmblem } from "@/components/play/game-emblem";
 import { GameRecommendationCard } from "@/components/play/game-recommendation-card";
 import { BookIcon } from "@/components/ui/icons";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -22,280 +23,237 @@ export default async function PlayPage() {
     recommendedCourse && recommendedGames.length === 0 ? games.slice(0, 2) : recommendedGames;
 
   return (
-    <div className="relative left-1/2 min-h-screen w-screen -translate-x-1/2 overflow-x-clip bg-gradient-to-br from-[#04070f] via-[#081425] to-[#140b08] comic-dot-pattern">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-[8%] top-20 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
-        <div className="absolute right-[10%] top-36 h-80 w-80 rounded-full bg-red-500/10 blur-3xl" />
-        <div className="absolute left-1/2 top-[36%] h-96 w-96 -translate-x-1/2 rounded-full bg-amber-400/7 blur-3xl" />
-        <div className="absolute bottom-12 right-[14%] h-72 w-72 rounded-full bg-emerald-500/8 blur-3xl" />
-      </div>
+    <div className="relative left-1/2 min-h-screen w-screen -translate-x-1/2 overflow-x-clip bg-[#020617] text-white">
+      <section className="relative min-h-[660px] overflow-hidden border-b-4 border-black md:min-h-[620px] 2xl:min-h-[740px]">
+        <Image
+          src="/game-art/englishquest-games-hero.png"
+          alt="Illustration comic book du hub de jeux English Quest."
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-[#020617]/80 to-[#020617]/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-black/40" />
+        <div className="absolute inset-0 comic-dot-pattern-light opacity-25" />
 
-      <div className="relative mx-auto max-w-[1460px] px-3 py-6 md:px-6 md:py-12 xl:px-10">
-        <div className="comic-panel-dark w-full p-3 md:p-6">
-          <section
-            className="comic-panel-dark mb-6 overflow-hidden p-5 md:mb-8 md:p-8"
-            style={{
-              background:
-                "linear-gradient(125deg, rgba(8, 18, 36, 0.98) 0%, rgba(12, 30, 54, 0.94) 48%, rgba(28, 14, 28, 0.94) 100%)",
-            }}
-          >
-            <div className="absolute inset-0 opacity-20 comic-speed-lines" />
-            <div className="absolute inset-y-0 left-0 w-3 bg-gradient-to-b from-cyan-300 via-cyan-500 to-red-500" />
-            <div className="relative z-10 grid gap-6 xl:grid-cols-[1.08fr_0.92fr] xl:items-start">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-300 text-outline">
-                  Salle de jeu
-                </p>
-                <h1 className="mt-3 max-w-4xl text-3xl font-bold leading-tight text-white text-outline md:text-5xl">
-                  Choisis ton mode d'attaque.
-                </h1>
-                <p className="mt-4 max-w-4xl text-sm font-semibold leading-relaxed text-slate-100 text-outline md:text-lg">
-                  Entre dans l'arene, choisis ton defi et enchaine des manches courtes pour
-                  faire monter ton anglais sans casser le rythme.
-                </p>
+        <div className="relative mx-auto flex min-h-[660px] max-w-[1460px] flex-col justify-end px-4 py-8 md:min-h-[620px] md:px-6 md:py-10 2xl:min-h-[740px] xl:px-10">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(360px,0.72fr)] lg:items-end">
+            <div className="max-w-4xl">
+              <Image
+                src="/game-art/logos/englishquest-games-logo.png"
+                alt="English Quest Game Arena"
+                width={760}
+                height={241}
+                priority
+                className="mb-4 h-auto w-full max-w-[500px] md:max-w-[560px]"
+              />
+              <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-200 text-outline">
+                Salle de jeu
+              </p>
+              <h1 className="mt-3 max-w-4xl text-4xl font-bold leading-[1.02] text-white text-outline md:text-5xl 2xl:text-6xl">
+                Des mini-jeux nerveux pour ancrer ton anglais.
+              </h1>
+              <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-slate-100 text-outline md:text-lg">
+                Chaque mode travaille une competence precise: vocabulaire, grammaire,
+                reflexes, memoire ou saisie. Tu joues court, tu recommences vite, tu
+                progresses sans perdre le fil du cours.
+              </p>
 
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                  <div className="comic-panel border-2 border-black bg-slate-950/60 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                      Jeux
-                    </p>
-                    <p className="mt-2 text-2xl font-bold text-white">{games.length}</p>
-                    <p className="mt-1 text-xs font-semibold text-slate-300">
-                      Facons de jouer des maintenant.
-                    </p>
-                  </div>
-                  <div className="comic-panel border-2 border-black bg-slate-950/60 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                      Mission
-                    </p>
-                    <p className="mt-2 text-lg font-bold text-white">
-                      {recommendedCourse ? `Cours ${recommendedCourse.courseId}` : "Libre"}
-                    </p>
-                    <p className="mt-1 text-xs font-semibold text-slate-300">
-                      {recommendedCourse
-                        ? recommendedCourse.title
-                        : "Choisis ton prochain combat."}
-                    </p>
-                  </div>
-                  <div className="comic-panel border-2 border-black bg-slate-950/60 p-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-                      Rythme
-                    </p>
-                    <p className="mt-2 text-lg font-bold text-white">Express</p>
-                    <p className="mt-1 text-xs font-semibold text-slate-300">
-                      Des manches nerveuses pour rester en feu.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex flex-wrap gap-3">
-                  {recommendedCourse && (
-                    <Link
-                      href="#focus"
-                      className="comic-button inline-flex items-center gap-2 bg-cyan-600 px-4 py-3 text-sm font-bold text-white hover:bg-cyan-700"
-                    >
-                      Jouer la selection du moment
-                    </Link>
-                  )}
+              <div className="mt-7 flex flex-wrap gap-3">
+                {recommendedCourse && (
                   <Link
-                    href="#catalogue"
-                    className="comic-button inline-flex items-center gap-2 bg-slate-900 px-4 py-3 text-sm font-bold text-white hover:bg-slate-800"
+                    href="#focus"
+                    className="comic-button inline-flex items-center gap-2 bg-cyan-600 px-5 py-3 text-sm font-bold text-white hover:bg-cyan-700"
                   >
-                    Explorer tous les jeux
+                    Jouer la selection
                   </Link>
-                  {recommendedCourse && (
-                    <Link
-                      href={`/cours/${recommendedCourse.courseId}`}
-                      className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
-                    >
-                      <BookIcon className="h-4 w-4" />
-                      Reprendre le cours
-                    </Link>
-                  )}
-                </div>
-
-                {!isLoggedIn && (
-                  <div className="mt-5 flex flex-wrap gap-3">
-                    <Link
-                      href="/auth/signup"
-                      className="comic-button whitespace-nowrap bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
-                    >
-                      Creer mon compte
-                    </Link>
-                    <Link
-                      href="/auth/login"
-                      className="comic-button whitespace-nowrap bg-slate-800 px-4 py-3 text-sm font-bold text-white hover:bg-slate-700"
-                    >
-                      Se connecter
-                    </Link>
-                  </div>
+                )}
+                <Link
+                  href="#catalogue"
+                  className="comic-button inline-flex items-center gap-2 bg-slate-900 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800"
+                >
+                  Voir tous les jeux
+                </Link>
+                {recommendedCourse && (
+                  <Link
+                    href={`/cours/${recommendedCourse.courseId}`}
+                    className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700"
+                  >
+                    <BookIcon className="h-4 w-4" />
+                    Reprendre le cours
+                  </Link>
                 )}
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                {spotlightGames.map((game, index) => {
-                  const presentation = getGamePresentation(game);
+              {!isLoggedIn && (
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Link
+                    href="/auth/signup"
+                    className="comic-button whitespace-nowrap bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
+                  >
+                    Creer mon compte
+                  </Link>
+                  <Link
+                    href="/auth/login"
+                    className="comic-button whitespace-nowrap bg-slate-800 px-4 py-3 text-sm font-bold text-white hover:bg-slate-700"
+                  >
+                    Se connecter
+                  </Link>
+                </div>
+              )}
 
-                  return (
-                    <Link
-                      key={game.slug}
-                      href={`/play/${game.slug}`}
-                      className={`comic-panel group relative overflow-hidden border-2 border-black bg-slate-950/80 p-4 transition-transform duration-200 hover:-translate-y-1 ${
-                        spotlightGames.length > 2 && index === spotlightGames.length - 1
-                          ? "sm:col-span-2"
-                          : ""
-                      }`}
-                    >
-                      <div
-                        className="absolute inset-y-0 left-0 w-2"
-                        style={{
-                          background: `linear-gradient(180deg, ${presentation.secondary} 0%, ${presentation.primary} 100%)`,
-                        }}
-                      />
-                      <div
-                        className="absolute inset-0 opacity-12"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 36%, rgba(255,255,255,0.02) 100%)",
-                        }}
-                      />
-                      <div className="absolute inset-y-0 right-0 w-[34%] opacity-90 sm:w-[42%]">
-                        <GameCardArtwork game={game} className="h-full w-full" />
-                      </div>
-                      <div className="absolute inset-0 opacity-15 comic-speed-lines" />
-                      <div className="relative z-10 flex min-h-[138px] max-w-[74%] flex-col sm:min-h-[152px] sm:max-w-[70%]">
-                        <div className="flex items-start gap-4">
-                          <GameEmblem game={game} className="h-14 w-14 shrink-0 md:h-16 md:w-16" />
-                          <div className="min-w-0">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-slate-200 text-outline">
-                              {presentation.mode}
-                            </p>
-                            <p className="mt-2 text-lg font-bold leading-tight text-white text-outline">
-                              {game.name}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="mt-auto">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-slate-300/90 text-outline">
-                            {presentation.action}
-                          </p>
-                          <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-100 text-outline">
-                            {presentation.hook}
-                          </p>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
-
-                {recommendedCourse && (
-                  <div className="comic-panel border-2 border-black bg-slate-950/70 p-5 sm:col-span-2">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-300">
-                      Mission du moment
-                    </p>
-                    <p className="mt-2 text-xl font-bold text-white">
-                      Cours {recommendedCourse.courseId}: {recommendedCourse.title}
-                    </p>
-                    <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-300">
-                      {recommendedCourse.summary}
-                    </p>
-                  </div>
-                )}
+              <div className="mt-6 grid max-w-3xl gap-3 sm:grid-cols-3">
+                <div className="border-l-4 border-cyan-300 bg-black/50 p-4 backdrop-blur-sm">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                    Jeux
+                  </p>
+                  <p className="mt-2 text-3xl font-bold text-white">{games.length}</p>
+                </div>
+                <div className="border-l-4 border-emerald-300 bg-black/50 p-4 backdrop-blur-sm">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                    Mission
+                  </p>
+                  <p className="mt-2 truncate text-lg font-bold text-white">
+                    {recommendedCourse ? `Cours ${recommendedCourse.courseId}` : "Libre"}
+                  </p>
+                </div>
+                <div className="border-l-4 border-amber-300 bg-black/50 p-4 backdrop-blur-sm">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                    Format
+                  </p>
+                  <p className="mt-2 text-lg font-bold text-white">Express</p>
+                </div>
               </div>
             </div>
-          </section>
 
-          {recommendedCourse && recommendedSelection.length > 0 && (
-            <section
-              id="focus"
-              className="comic-panel-dark mb-6 p-5 md:mb-8 md:p-6"
-              style={{
-                background:
-                  "linear-gradient(180deg, rgba(7, 14, 25, 0.98) 0%, rgba(5, 11, 20, 0.98) 100%)",
-              }}
-            >
-              <div className="mb-6 h-2 w-32 rounded-full bg-gradient-to-r from-emerald-300 via-emerald-500 to-indigo-500" />
-              <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-emerald-300 text-outline">
-                    A jouer maintenant
-                  </p>
-                  <h2 className="mt-2 text-2xl font-bold text-white text-outline md:text-3xl">
-                    Tes meilleurs picks du moment
-                  </h2>
-                </div>
-                <p className="max-w-2xl text-sm font-semibold leading-relaxed text-slate-200">
-                  Lance une partie qui colle a ta progression et garde la bonne notion en tete
-                  pendant que tu joues.
-                </p>
-              </div>
+            <div className="grid gap-3 pb-1">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-200 text-outline">
+                Picks du moment
+              </p>
+              {spotlightGames.map((game, index) => {
+                const presentation = getGamePresentation(game);
 
-              <div className="mt-6 grid gap-5 md:grid-cols-2">
-                {recommendedSelection.map((game) => (
-                  <GameRecommendationCard
+                return (
+                  <Link
                     key={game.slug}
-                    game={game}
-                    badgeLabel="Choix du parcours"
-                    ctaLabel="Jouer maintenant"
-                    footerLabel="Parfait pour ton focus du moment"
-                    className={
-                      recommendedSelection.length > 1 &&
-                      recommendedSelection.length % 2 === 1 &&
-                      game.slug === recommendedSelection[recommendedSelection.length - 1]?.slug
-                        ? "md:col-span-2"
-                        : ""
-                    }
-                  />
-                ))}
-              </div>
-            </section>
-          )}
+                    href={`/play/${game.slug}`}
+                    className="group grid min-h-[118px] grid-cols-[86px_minmax(0,1fr)] items-center gap-4 border-4 border-black bg-slate-950/85 p-3 shadow-[0_4px_0_#000] backdrop-blur-sm transition-transform duration-200 hover:-translate-y-1 md:grid-cols-[104px_minmax(0,1fr)]"
+                  >
+                    <GameEmblem game={game} priority={index === 0} className="h-20 w-20 md:h-24 md:w-24" />
+                    <div className="min-w-0">
+                      <p
+                        className="text-[10px] font-bold uppercase tracking-[0.18em] text-outline"
+                        style={{ color: presentation.secondary }}
+                      >
+                        {presentation.mode}
+                      </p>
+                      <p className="mt-2 truncate text-xl font-bold text-white text-outline">
+                        {game.name}
+                      </p>
+                      <p className="mt-2 line-clamp-2 text-sm font-semibold leading-relaxed text-slate-200">
+                        {presentation.hook}
+                      </p>
+                    </div>
+                  </Link>
+                );
+              })}
 
-          <section
-            id="catalogue"
-            className="comic-panel-dark p-5 md:p-6"
-            style={{
-              background:
-                "linear-gradient(180deg, rgba(5, 10, 19, 0.96) 0%, rgba(4, 8, 16, 0.99) 100%)",
-            }}
-          >
-            <div className="mb-6 h-2 w-32 rounded-full bg-gradient-to-r from-cyan-300 via-cyan-500 to-indigo-500 md:mb-8" />
-            <div className="mb-6 flex flex-col gap-3 md:mb-8 md:flex-row md:items-end md:justify-between">
+              {recommendedCourse && (
+                <div className="border-4 border-black bg-emerald-950/80 p-4 shadow-[0_4px_0_#000] backdrop-blur-sm">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-emerald-200">
+                    Mission du moment
+                  </p>
+                  <p className="mt-2 text-lg font-bold text-white">
+                    Cours {recommendedCourse.courseId}: {recommendedCourse.title}
+                  </p>
+                  <p className="mt-2 line-clamp-3 text-sm font-semibold leading-relaxed text-emerald-50/90">
+                    {recommendedCourse.summary}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="relative mx-auto max-w-[1460px] px-4 py-10 md:px-6 md:py-14 xl:px-10">
+        {recommendedCourse && recommendedSelection.length > 0 && (
+          <section id="focus" className="mb-12 md:mb-16">
+            <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-300 text-outline">
-                  Catalogue complet
+                <p className="text-xs font-bold uppercase tracking-[0.22em] text-emerald-300 text-outline">
+                  A jouer maintenant
                 </p>
-                <h2 className="mt-2 text-2xl font-bold text-white text-outline md:text-3xl">
-                  Trouve ton prochain defi
+                <h2 className="mt-2 text-3xl font-bold text-white text-outline md:text-4xl">
+                  Une selection callee sur ta progression
                 </h2>
               </div>
-              <p className="max-w-3xl text-sm font-semibold leading-relaxed text-slate-300">
-                Reflexes, vitesse, memoire ou vocabulaire: choisis le terrain qui te donne
-                envie d'entrer en jeu.
+              <p className="max-w-2xl text-sm font-semibold leading-relaxed text-slate-300 md:text-base">
+                Ces jeux gardent la bonne notion active pendant que tu joues. Lance une
+                manche, puis reviens au cours quand le reflexe commence a rentrer.
               </p>
             </div>
 
-            <div className="grid gap-6 xl:grid-cols-2">
-              {games.map((game) => {
-                const isRecommended = recommendedGameSlugs.has(game.slug);
-
-                return (
-                  <GameRecommendationCard
-                    key={game.slug}
-                    game={game}
-                    variant="showcase"
-                    badgeLabel={isRecommended ? "Choix du parcours" : undefined}
-                    ctaLabel="Entrer dans l'arene"
-                    footerLabel={
-                      isRecommended ? "Prioritaire pour ta mission du moment" : "Pret pour une partie libre"
-                    }
-                  />
-                );
-              })}
+            <div className="grid gap-6 md:grid-cols-2">
+              {recommendedSelection.map((game, index) => (
+                <GameRecommendationCard
+                  key={game.slug}
+                  game={game}
+                  badgeLabel="Choix du parcours"
+                  ctaLabel="Jouer maintenant"
+                  footerLabel="Parfait pour ton focus du moment"
+                  priority={index < 2}
+                  className={
+                    recommendedSelection.length > 1 &&
+                    recommendedSelection.length % 2 === 1 &&
+                    game.slug === recommendedSelection[recommendedSelection.length - 1]?.slug
+                      ? "md:col-span-2"
+                      : ""
+                  }
+                />
+              ))}
             </div>
           </section>
-        </div>
-      </div>
+        )}
+
+        <section id="catalogue">
+          <div className="mb-6 flex flex-col gap-3 md:mb-8 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-300 text-outline">
+                Catalogue complet
+              </p>
+              <h2 className="mt-2 text-3xl font-bold text-white text-outline md:text-4xl">
+                Choisis ton prochain terrain
+              </h2>
+            </div>
+            <p className="max-w-3xl text-sm font-semibold leading-relaxed text-slate-300 md:text-base">
+              Reflexes, vitesse, memoire ou vocabulaire: chaque carte ouvre un mode
+              court, lisible et rejouable.
+            </p>
+          </div>
+
+          <div className="grid gap-6 xl:grid-cols-2">
+            {games.map((game, index) => {
+              const isRecommended = recommendedGameSlugs.has(game.slug);
+
+              return (
+                <GameRecommendationCard
+                  key={game.slug}
+                  game={game}
+                  variant="showcase"
+                  badgeLabel={isRecommended ? "Choix du parcours" : undefined}
+                  ctaLabel="Entrer dans l'arene"
+                  footerLabel={
+                    isRecommended ? "Prioritaire pour ta mission du moment" : "Pret pour une partie libre"
+                  }
+                  priority={index < 2}
+                />
+              );
+            })}
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
