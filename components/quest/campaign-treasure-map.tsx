@@ -818,11 +818,9 @@ export function CampaignTreasureMap({
                     )}
                   </div>
                 </div>
-                <div
-                  className={`mx-auto rotate-45 border-r-4 border-b-4 border-black bg-cyan-300 ${
-                    shouldDockPlayerToken ? "mt-0 h-3 w-3" : "mt-1 h-4 w-4"
-                  }`}
-                />
+                {!shouldDockPlayerToken && (
+                  <div className="mx-auto mt-1 h-4 w-4 rotate-45 border-r-4 border-b-4 border-black bg-cyan-300" />
+                )}
               </div>
             </motion.div>
           )}
