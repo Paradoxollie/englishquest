@@ -31,78 +31,171 @@ type PositionedEntry = {
   y: number;
 };
 
-type ChapterDecor = {
-  burst: string;
-  subtitle: string;
-  emblem: "shield" | "bolt" | "portal" | "mask" | "crown";
+type ChapterTheme = {
+  place: string;
+  terrain: "harbor" | "cliffs" | "vortex" | "maze" | "citadel";
+  hazard: string;
+  route: string;
+  caption: string;
 };
 
-const mapWidth = 1000;
-const chapterHeight = 1030;
-const chapterTopPadding = 170;
-const nodeSpacingScale = 1.18;
+type HazardMarker = {
+  chapter: number;
+  xPercent: number;
+  yOffset: number;
+  label: string;
+  detail: string;
+  kind: "trap" | "storm" | "bridge" | "maze" | "boss";
+};
+
+const mapWidth = 1200;
+const chapterHeight = 640;
+const chapterTopPadding = 150;
+
 const chapterNodeTemplates: Record<number, Array<{ xPercent: number; yOffset: number }>> = {
   1: [
-    { xPercent: 16, yOffset: 0 },
-    { xPercent: 20, yOffset: 48 },
-    { xPercent: 27, yOffset: 98 },
-    { xPercent: 38, yOffset: 150 },
-    { xPercent: 51, yOffset: 208 },
-    { xPercent: 63, yOffset: 278 },
-    { xPercent: 58, yOffset: 354 },
-    { xPercent: 46, yOffset: 426 },
-    { xPercent: 33, yOffset: 492 },
-    { xPercent: 28, yOffset: 558 },
+    { xPercent: 13, yOffset: 28 },
+    { xPercent: 22, yOffset: 92 },
+    { xPercent: 34, yOffset: 70 },
+    { xPercent: 47, yOffset: 136 },
+    { xPercent: 60, yOffset: 112 },
+    { xPercent: 72, yOffset: 196 },
+    { xPercent: 63, yOffset: 282 },
+    { xPercent: 49, yOffset: 330 },
+    { xPercent: 34, yOffset: 402 },
+    { xPercent: 20, yOffset: 462 },
   ],
   2: [
-    { xPercent: 74, yOffset: 0 },
-    { xPercent: 69, yOffset: 54 },
-    { xPercent: 60, yOffset: 110 },
-    { xPercent: 48, yOffset: 168 },
-    { xPercent: 37, yOffset: 232 },
+    { xPercent: 84, yOffset: 30 },
+    { xPercent: 72, yOffset: 92 },
+    { xPercent: 58, yOffset: 72 },
+    { xPercent: 45, yOffset: 150 },
+    { xPercent: 32, yOffset: 126 },
+    { xPercent: 22, yOffset: 220 },
     { xPercent: 31, yOffset: 304 },
-    { xPercent: 36, yOffset: 378 },
-    { xPercent: 49, yOffset: 446 },
-    { xPercent: 63, yOffset: 510 },
-    { xPercent: 74, yOffset: 576 },
+    { xPercent: 45, yOffset: 360 },
+    { xPercent: 63, yOffset: 410 },
+    { xPercent: 78, yOffset: 472 },
   ],
   3: [
-    { xPercent: 24, yOffset: 0 },
-    { xPercent: 31, yOffset: 56 },
-    { xPercent: 44, yOffset: 114 },
-    { xPercent: 58, yOffset: 176 },
-    { xPercent: 67, yOffset: 244 },
-    { xPercent: 63, yOffset: 320 },
-    { xPercent: 52, yOffset: 394 },
-    { xPercent: 39, yOffset: 464 },
-    { xPercent: 29, yOffset: 536 },
-    { xPercent: 34, yOffset: 604 },
+    { xPercent: 17, yOffset: 30 },
+    { xPercent: 28, yOffset: 88 },
+    { xPercent: 42, yOffset: 78 },
+    { xPercent: 55, yOffset: 154 },
+    { xPercent: 69, yOffset: 130 },
+    { xPercent: 82, yOffset: 220 },
+    { xPercent: 71, yOffset: 306 },
+    { xPercent: 55, yOffset: 360 },
+    { xPercent: 39, yOffset: 420 },
+    { xPercent: 27, yOffset: 482 },
   ],
   4: [
-    { xPercent: 68, yOffset: 0 },
-    { xPercent: 61, yOffset: 58 },
-    { xPercent: 49, yOffset: 118 },
-    { xPercent: 35, yOffset: 182 },
-    { xPercent: 24, yOffset: 252 },
-    { xPercent: 27, yOffset: 328 },
-    { xPercent: 40, yOffset: 400 },
-    { xPercent: 55, yOffset: 470 },
-    { xPercent: 67, yOffset: 538 },
-    { xPercent: 60, yOffset: 608 },
+    { xPercent: 80, yOffset: 30 },
+    { xPercent: 66, yOffset: 90 },
+    { xPercent: 51, yOffset: 76 },
+    { xPercent: 37, yOffset: 154 },
+    { xPercent: 24, yOffset: 130 },
+    { xPercent: 16, yOffset: 226 },
+    { xPercent: 27, yOffset: 310 },
+    { xPercent: 43, yOffset: 366 },
+    { xPercent: 60, yOffset: 418 },
+    { xPercent: 72, yOffset: 482 },
   ],
   5: [
-    { xPercent: 20, yOffset: 0 },
-    { xPercent: 25, yOffset: 60 },
-    { xPercent: 36, yOffset: 124 },
-    { xPercent: 50, yOffset: 190 },
-    { xPercent: 62, yOffset: 262 },
-    { xPercent: 68, yOffset: 340 },
-    { xPercent: 59, yOffset: 418 },
-    { xPercent: 45, yOffset: 490 },
-    { xPercent: 32, yOffset: 558 },
-    { xPercent: 36, yOffset: 628 },
+    { xPercent: 18, yOffset: 32 },
+    { xPercent: 30, yOffset: 92 },
+    { xPercent: 45, yOffset: 78 },
+    { xPercent: 59, yOffset: 158 },
+    { xPercent: 72, yOffset: 132 },
+    { xPercent: 84, yOffset: 230 },
+    { xPercent: 72, yOffset: 316 },
+    { xPercent: 56, yOffset: 374 },
+    { xPercent: 39, yOffset: 430 },
+    { xPercent: 50, yOffset: 506 },
   ],
 };
+
+const chapterThemes: Record<number, ChapterTheme> = {
+  1: {
+    place: "Port des Fondations",
+    terrain: "harbor",
+    hazard: "Fosses des auxiliaires",
+    route: "Route des bases",
+    caption: "Installer les reflexes essentiels.",
+  },
+  2: {
+    place: "Falaises de l'Elan",
+    terrain: "cliffs",
+    hazard: "Pont des modaux",
+    route: "Passage A2",
+    caption: "Traverser les premieres variations.",
+  },
+  3: {
+    place: "Vortex des Temps",
+    terrain: "vortex",
+    hazard: "Tempete des recits",
+    route: "Couloir B1",
+    caption: "Garder le cap dans les temps.",
+  },
+  4: {
+    place: "Labyrinthe Tactique",
+    terrain: "maze",
+    hazard: "Pieges de nuance",
+    route: "Zone B2",
+    caption: "Choisir la bonne structure.",
+  },
+  5: {
+    place: "Citadelle Finale",
+    terrain: "citadel",
+    hazard: "Boss des automatismes",
+    route: "Ascension C1",
+    caption: "Consolider sans hesitation.",
+  },
+};
+
+const hazardMarkers: HazardMarker[] = [
+  {
+    chapter: 1,
+    xPercent: 79,
+    yOffset: 98,
+    label: "Danger",
+    detail: "Auxiliaires pieges",
+    kind: "trap",
+  },
+  {
+    chapter: 2,
+    xPercent: 16,
+    yOffset: 112,
+    label: "Pont",
+    detail: "Modaux instables",
+    kind: "bridge",
+  },
+  {
+    chapter: 3,
+    xPercent: 83,
+    yOffset: 112,
+    label: "Tempete",
+    detail: "Temps composes",
+    kind: "storm",
+  },
+  {
+    chapter: 4,
+    xPercent: 18,
+    yOffset: 118,
+    label: "Piege",
+    detail: "Nuances proches",
+    kind: "maze",
+  },
+  {
+    chapter: 5,
+    xPercent: 78,
+    yOffset: 86,
+    label: "Boss",
+    detail: "Automatismes",
+    kind: "boss",
+  },
+];
+
 const defaultAvatarThemes: Record<string, string> = {
   emerald: "linear-gradient(135deg, #10b981 0%, #34d399 100%)",
   red: "linear-gradient(135deg, #ef4444 0%, #f97316 100%)",
@@ -113,34 +206,6 @@ const defaultAvatarThemes: Record<string, string> = {
   dark: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
   slate: "linear-gradient(135deg, #334155 0%, #64748b 100%)",
   cyan: "linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)",
-};
-
-const chapterDecor: Record<number, ChapterDecor> = {
-  1: {
-    burst: "GO!",
-    subtitle: "Base d'entrainement",
-    emblem: "shield",
-  },
-  2: {
-    burst: "ZAP",
-    subtitle: "Rampe d'elan",
-    emblem: "bolt",
-  },
-  3: {
-    burst: "SHIFT",
-    subtitle: "Couloir des timelines",
-    emblem: "portal",
-  },
-  4: {
-    burst: "CLASH",
-    subtitle: "Zone tactique",
-    emblem: "mask",
-  },
-  5: {
-    burst: "BOSS",
-    subtitle: "Citadelle finale",
-    emblem: "crown",
-  },
 };
 
 function hexToRgba(hex: string, alpha: number) {
@@ -156,62 +221,6 @@ function hexToRgba(hex: string, alpha: number) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function ChapterEmblem({
-  emblem,
-  color,
-  className,
-}: {
-  emblem: ChapterDecor["emblem"];
-  color: string;
-  className?: string;
-}) {
-  const shared = {
-    className,
-    viewBox: "0 0 64 64",
-    fill: "none",
-    xmlns: "http://www.w3.org/2000/svg",
-  };
-
-  switch (emblem) {
-    case "shield":
-      return (
-        <svg {...shared}>
-          <path d="M32 6l18 7v15c0 13-8 23-18 30C22 51 14 41 14 28V13l18-7z" stroke={color} strokeWidth="4" />
-          <path d="M32 18v24M22 30h20" stroke={color} strokeWidth="4" strokeLinecap="round" />
-        </svg>
-      );
-    case "bolt":
-      return (
-        <svg {...shared}>
-          <path d="M36 4L16 34h12l-4 26 24-34H36l0-22z" stroke={color} strokeWidth="4" strokeLinejoin="round" />
-        </svg>
-      );
-    case "portal":
-      return (
-        <svg {...shared}>
-          <circle cx="32" cy="32" r="20" stroke={color} strokeWidth="4" />
-          <circle cx="32" cy="32" r="10" stroke={color} strokeWidth="4" />
-          <path d="M32 6v10M58 32H48M32 58V48M6 32h10" stroke={color} strokeWidth="4" strokeLinecap="round" />
-        </svg>
-      );
-    case "mask":
-      return (
-        <svg {...shared}>
-          <path d="M16 16h32l-2 17c-1 11-8 19-14 21-6-2-13-10-14-21l-2-17z" stroke={color} strokeWidth="4" />
-          <path d="M22 25c2-3 6-5 10-5s8 2 10 5" stroke={color} strokeWidth="4" strokeLinecap="round" />
-          <path d="M24 34c3 2 5 3 8 3s5-1 8-3" stroke={color} strokeWidth="4" strokeLinecap="round" />
-        </svg>
-      );
-    case "crown":
-      return (
-        <svg {...shared}>
-          <path d="M12 48h40l-4-24-12 10-8-18-8 18-12-10-4 24z" stroke={color} strokeWidth="4" strokeLinejoin="round" />
-          <path d="M14 48h36" stroke={color} strokeWidth="4" strokeLinecap="round" />
-        </svg>
-      );
-  }
-}
-
 function buildPath(points: Array<{ x: number; y: number }>) {
   if (points.length === 0) {
     return "";
@@ -224,7 +233,7 @@ function buildPath(points: Array<{ x: number; y: number }>) {
     const current = points[index];
     const beforePrevious = points[index - 2] ?? previous;
     const next = points[index + 1] ?? current;
-    const tension = 0.18;
+    const tension = 0.2;
     const cp1x = previous.x + (current.x - beforePrevious.x) * tension;
     const cp1y = previous.y + (current.y - beforePrevious.y) * tension;
     const cp2x = current.x - (next.x - previous.x) * tension;
@@ -238,38 +247,42 @@ function buildPath(points: Array<{ x: number; y: number }>) {
 function getNodeTone(status: CourseRoadmapEntry["status"], isCurrent: boolean) {
   if (isCurrent) {
     return {
-      ring: "rgba(34, 211, 238, 0.46)",
+      border: "#67e8f9",
       fill: "linear-gradient(135deg, #22d3ee 0%, #38bdf8 100%)",
-      glow: "0 0 0 10px rgba(34, 211, 238, 0.12), 0 18px 40px rgba(8, 145, 178, 0.32)",
+      text: "#020617",
+      glow: "0 0 0 10px rgba(34, 211, 238, 0.18), 0 18px 38px rgba(8, 145, 178, 0.34)",
     };
   }
 
   if (status === "completed") {
     return {
-      ring: "rgba(52, 211, 153, 0.3)",
+      border: "#86efac",
       fill: "linear-gradient(135deg, #22c55e 0%, #10b981 100%)",
-      glow: "0 12px 28px rgba(16, 185, 129, 0.24)",
+      text: "#f8fafc",
+      glow: "0 12px 30px rgba(16, 185, 129, 0.24)",
     };
   }
 
   if (status === "unlocked" || status === "in_progress") {
     return {
-      ring: "rgba(96, 165, 250, 0.24)",
+      border: "#bfdbfe",
       fill: "linear-gradient(135deg, #38bdf8 0%, #6366f1 100%)",
-      glow: "0 12px 28px rgba(56, 189, 248, 0.2)",
+      text: "#f8fafc",
+      glow: "0 12px 30px rgba(56, 189, 248, 0.18)",
     };
   }
 
   return {
-    ring: "rgba(71, 85, 105, 0.18)",
-    fill: "linear-gradient(135deg, #1e293b 0%, #334155 100%)",
-    glow: "0 10px 18px rgba(15, 23, 42, 0.22)",
+    border: "#475569",
+    fill: "linear-gradient(135deg, #101827 0%, #253244 100%)",
+    text: "#cbd5e1",
+    glow: "0 10px 20px rgba(2, 6, 23, 0.32)",
   };
 }
 
 function getTooltipPlacement(xPercent: number, y: number, mapHeight: number) {
-  const isNearLeftEdge = xPercent < 24;
-  const isNearRightEdge = xPercent > 76;
+  const isNearLeftEdge = xPercent < 22;
+  const isNearRightEdge = xPercent > 78;
   const isNearBottomEdge = y > mapHeight - 220;
 
   return {
@@ -281,6 +294,178 @@ function getTooltipPlacement(xPercent: number, y: number, mapHeight: number) {
     verticalClass: isNearBottomEdge ? "bottom-full mb-3" : "top-full mt-3",
     textAlignClass: isNearRightEdge ? "text-right" : "text-left",
   };
+}
+
+function TerrainIllustration({
+  terrain,
+  color,
+  className = "",
+}: {
+  terrain: ChapterTheme["terrain"];
+  color: string;
+  className?: string;
+}) {
+  const stroke = color;
+  const fill = hexToRgba(color, 0.13);
+
+  switch (terrain) {
+    case "harbor":
+      return (
+        <svg viewBox="0 0 220 150" className={className} aria-hidden="true">
+          <path d="M22 110c32-18 60-18 92 0s60 18 84 0" fill="none" stroke={stroke} strokeWidth="8" strokeLinecap="round" opacity="0.55" />
+          <path d="M62 92V38l42-18 42 18v54" fill={fill} stroke={stroke} strokeWidth="7" strokeLinejoin="round" />
+          <path d="M82 90V62h44v28M62 62h84" fill="none" stroke={stroke} strokeWidth="6" strokeLinecap="round" />
+          <path d="M34 118h154" stroke={stroke} strokeWidth="7" strokeLinecap="round" opacity="0.45" />
+        </svg>
+      );
+    case "cliffs":
+      return (
+        <svg viewBox="0 0 220 150" className={className} aria-hidden="true">
+          <path d="M22 122 64 36l32 50 30-64 72 100Z" fill={fill} stroke={stroke} strokeWidth="7" strokeLinejoin="round" />
+          <path d="M64 36 82 82l14 4M126 22l14 54 24 22" fill="none" stroke={stroke} strokeWidth="5" strokeLinecap="round" opacity="0.7" />
+          <path d="M72 114h108" stroke={stroke} strokeWidth="8" strokeLinecap="round" opacity="0.45" />
+        </svg>
+      );
+    case "vortex":
+      return (
+        <svg viewBox="0 0 220 150" className={className} aria-hidden="true">
+          <path d="M156 70c0 32-28 56-62 48-30-7-46-39-32-66 15-30 55-38 82-17 24 19 24 54 2 70-22 17-56 6-62-20-5-22 13-42 35-38 20 4 29 26 17 42-11 15-35 12-40-6" fill="none" stroke={stroke} strokeWidth="7" strokeLinecap="round" opacity="0.65" />
+          <circle cx="112" cy="74" r="18" fill={fill} stroke={stroke} strokeWidth="6" />
+          <path d="M44 36h32M156 116h34M172 34l20-14" stroke={stroke} strokeWidth="5" strokeLinecap="round" opacity="0.55" />
+        </svg>
+      );
+    case "maze":
+      return (
+        <svg viewBox="0 0 220 150" className={className} aria-hidden="true">
+          <path d="M34 120V34h152v86" fill={fill} stroke={stroke} strokeWidth="7" strokeLinejoin="round" />
+          <path d="M62 98V58h38v26h36V58h24v40M62 58h22M136 58h24M100 120V96h36v24" fill="none" stroke={stroke} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M26 120h168" stroke={stroke} strokeWidth="7" strokeLinecap="round" opacity="0.45" />
+        </svg>
+      );
+    case "citadel":
+      return (
+        <svg viewBox="0 0 220 150" className={className} aria-hidden="true">
+          <path d="M44 120V54l26 12 40-34 40 34 26-12v66Z" fill={fill} stroke={stroke} strokeWidth="7" strokeLinejoin="round" />
+          <path d="M86 120V82h48v38M70 66v-28M150 66v-28M102 48h16" fill="none" stroke={stroke} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M32 120h156" stroke={stroke} strokeWidth="8" strokeLinecap="round" opacity="0.45" />
+        </svg>
+      );
+  }
+}
+
+function HazardIcon({
+  kind,
+  className = "",
+}: {
+  kind: HazardMarker["kind"];
+  className?: string;
+}) {
+  switch (kind) {
+    case "trap":
+      return (
+        <svg viewBox="0 0 48 48" className={className} aria-hidden="true">
+          <path d="M8 38h32L24 10Z" fill="none" stroke="currentColor" strokeWidth="5" strokeLinejoin="round" />
+          <path d="M24 20v8M24 34h.01" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+        </svg>
+      );
+    case "storm":
+      return (
+        <svg viewBox="0 0 48 48" className={className} aria-hidden="true">
+          <path d="M14 30c-5 0-8-3-8-8 0-4 3-7 7-8 2-5 6-8 12-8 7 0 12 5 13 11 3 1 5 4 5 7 0 4-3 6-7 6" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+          <path d="M25 28 17 42h8l-2 8 10-16h-8Z" fill="currentColor" />
+        </svg>
+      );
+    case "bridge":
+      return (
+        <svg viewBox="0 0 48 48" className={className} aria-hidden="true">
+          <path d="M7 34c10-16 24-16 34 0" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+          <path d="M12 34h24M16 27v12M24 24v16M32 27v12" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+        </svg>
+      );
+    case "maze":
+      return (
+        <svg viewBox="0 0 48 48" className={className} aria-hidden="true">
+          <path d="M10 10h28v28H10zM18 10v12h12V10M18 38V26h12v12" fill="none" stroke="currentColor" strokeWidth="5" strokeLinejoin="round" />
+        </svg>
+      );
+    case "boss":
+      return (
+        <svg viewBox="0 0 48 48" className={className} aria-hidden="true">
+          <path d="M8 36h32l-3-18-8 7-5-13-5 13-8-7Z" fill="none" stroke="currentColor" strokeWidth="5" strokeLinejoin="round" />
+          <path d="M11 36h26" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+        </svg>
+      );
+  }
+}
+
+function ChapterIsland({
+  chapter,
+  top,
+  height,
+  isEven,
+}: {
+  chapter: number;
+  top: number;
+  height: number;
+  isEven: boolean;
+}) {
+  const profile = getCourseVisualProfile(chapter);
+  const theme = chapterThemes[chapter];
+
+  return (
+    <div
+      className="pointer-events-none absolute inset-x-4 overflow-hidden border-2 border-black/80 bg-slate-950/72 shadow-[0_18px_44px_rgba(0,0,0,0.28)] md:inset-x-8"
+      style={{
+        top,
+        height,
+        clipPath: isEven
+          ? "polygon(1% 7%, 99% 1%, 96% 94%, 4% 100%)"
+          : "polygon(4% 1%, 96% 7%, 99% 100%, 1% 94%)",
+      }}
+    >
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(135deg, ${hexToRgba(profile.accent, 0.15)} 0%, rgba(2, 6, 23, 0.62) 45%, ${hexToRgba(profile.secondary, 0.13)} 100%)`,
+        }}
+      />
+      <div className="absolute inset-0 comic-dot-pattern-light opacity-20" />
+      <div
+        className="absolute inset-0 opacity-15"
+        style={{
+          background: isEven
+            ? "repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px)"
+            : "repeating-linear-gradient(45deg, rgba(255,255,255,0.08) 0 2px, transparent 2px 28px)",
+        }}
+      />
+      <TerrainIllustration
+        terrain={theme.terrain}
+        color={profile.accent}
+        className={`absolute ${isEven ? "right-8" : "left-8"} bottom-6 h-40 w-56 opacity-35 md:h-52 md:w-72`}
+      />
+      <div className={`absolute top-8 max-w-[19rem] ${isEven ? "left-8" : "right-16 text-right"}`}>
+        <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: profile.accent }}>
+          Acte {chapter}
+        </p>
+        <p className="mt-2 text-2xl font-black leading-tight text-white text-outline md:text-3xl">
+          {theme.place}
+        </p>
+        <p className="mt-2 max-w-[18rem] text-xs font-semibold leading-relaxed text-slate-300">
+          {theme.caption}
+        </p>
+      </div>
+      <div
+        className={`absolute ${isEven ? "left-8" : "right-8"} bottom-8 border-2 border-black bg-slate-950/82 px-4 py-3 shadow-[0_3px_0_#000]`}
+      >
+        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-300">
+          {theme.route}
+        </p>
+        <p className="mt-1 max-w-[12rem] text-[10px] font-black uppercase tracking-[0.12em] text-slate-300">
+          Danger: {theme.hazard}
+        </p>
+      </div>
+    </div>
+  );
 }
 
 export function CampaignTreasureMap({
@@ -296,7 +481,7 @@ export function CampaignTreasureMap({
     const point = template[localIndex] ?? template[template.length - 1];
     const xPercent = point.xPercent;
     const xViewBox = (xPercent / 100) * mapWidth;
-    const y = chapterIndex * chapterHeight + chapterTopPadding + Math.round(point.yOffset * nodeSpacingScale);
+    const y = chapterIndex * chapterHeight + chapterTopPadding + point.yOffset;
 
     return {
       entry,
@@ -306,7 +491,8 @@ export function CampaignTreasureMap({
     };
   });
 
-  const mapHeight = (entries.length === 0 ? chapterHeight : positionedEntries[positionedEntries.length - 1].y + 220);
+  const mapHeight =
+    entries.length === 0 ? chapterHeight : positionedEntries[positionedEntries.length - 1].y + 190;
   const activeIndex = positionedEntries.findIndex((item) => item.entry.courseId === activeCourseId);
   const activePoint =
     activeIndex >= 0
@@ -318,107 +504,84 @@ export function CampaignTreasureMap({
       .slice(0, activeIndex >= 0 ? activeIndex + 1 : 1)
       .map((item) => ({ x: item.xViewBox, y: item.y }))
   );
-  const chapterMarkers = [1, 2, 3, 4, 5].map((palierId) => {
-    const firstPoint = positionedEntries.find((item) => item.entry.palierId === palierId);
-    const profile = getCourseVisualProfile(palierId);
-    const decor = chapterDecor[palierId];
-    const chapterEntries = positionedEntries.filter((item) => item.entry.palierId === palierId);
-    const lastPoint = chapterEntries[chapterEntries.length - 1];
-
-    return firstPoint
-      ? {
-          palierId,
-          profile,
-          decor,
-          xPercent: palierId % 2 === 1 ? 72 : 28,
-          y: firstPoint.y - 132,
-          zoneTop: firstPoint.y - 96,
-          zoneHeight: (lastPoint?.y ?? firstPoint.y) - firstPoint.y + 210,
-        }
-      : null;
-  }).filter((marker): marker is NonNullable<typeof marker> => Boolean(marker));
+  const shouldDockPlayerToken =
+    Boolean(activePoint && activePoint.y < 260 && activePoint.xPercent < 20);
+  const playerTokenXPercent = activePoint?.xPercent ?? 0;
+  const playerTokenYOffset = shouldDockPlayerToken ? 145 : 78;
 
   return (
-    <div
-      className="comic-panel-dark relative overflow-hidden border-2 border-black p-4 md:p-6"
-      style={{
-        background:
-          "linear-gradient(180deg, rgba(4, 10, 20, 0.99) 0%, rgba(6, 13, 24, 0.98) 52%, rgba(3, 8, 18, 1) 100%)",
-      }}
-    >
-      <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+    <div className="relative overflow-hidden border-4 border-black bg-slate-950 p-4 shadow-[0_4px_0_#000] md:p-6">
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-300 text-outline">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-300 text-outline">
             Carte de campagne
           </p>
-          <h2 className="mt-2 text-2xl font-bold text-white text-outline md:text-3xl">
+          <h2 className="mt-2 text-3xl font-bold text-white text-outline md:text-4xl">
             La route des missions
           </h2>
         </div>
-        <p className="max-w-xl text-sm font-semibold leading-relaxed text-slate-300">
-          Une carte unique, avec le parcours, les points a franchir et ton pion joueur sur la mission active.
-        </p>
+        <div className="grid gap-2 text-xs font-bold uppercase tracking-[0.16em] text-slate-300 sm:grid-cols-3">
+          <span className="border border-cyan-300/30 bg-cyan-950/35 px-3 py-2 text-cyan-200">
+            Pion actif
+          </span>
+          <span className="border border-amber-300/30 bg-amber-950/30 px-3 py-2 text-amber-200">
+            Danger
+          </span>
+          <span className="border border-emerald-300/30 bg-emerald-950/30 px-3 py-2 text-emerald-200">
+            Checkpoint
+          </span>
+        </div>
       </div>
 
-      <div className="relative rounded-[28px] border-2 border-black bg-slate-950/90 p-3 md:p-4">
-        <div className="absolute inset-0 overflow-hidden rounded-[28px]">
-          <div className="absolute inset-0 opacity-[0.2] comic-dot-pattern-light" />
-          <div
-            className="absolute inset-0 opacity-[0.12]"
-            style={{
-              background:
-                "repeating-linear-gradient(126deg, rgba(255, 255, 255, 0.07) 0 2px, transparent 2px 18px)",
-            }}
-          />
-        </div>
+      <div className="relative overflow-x-auto border-4 border-black bg-[#06111f] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.05)]">
+        <div className="absolute inset-0 comic-dot-pattern-light opacity-16" />
+        <div
+          className="absolute inset-0 opacity-20"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(34,211,238,0.08) 0 1px, transparent 1px 96px), linear-gradient(180deg, rgba(34,211,238,0.08) 0 1px, transparent 1px 96px)",
+          }}
+        />
 
-        <div className="relative z-10" style={{ height: mapHeight }}>
-          {chapterMarkers.map((marker, index) => (
-            <div
-              key={`zone-${marker.palierId}`}
-              className="pointer-events-none absolute inset-x-2 overflow-hidden rounded-[34px] border border-white/6 md:inset-x-4"
-              style={{
-                top: marker.zoneTop,
-                height: marker.zoneHeight,
-                background: `linear-gradient(135deg, ${hexToRgba(marker.profile.accent, 0.08)} 0%, rgba(2, 6, 23, 0.02) 36%, ${hexToRgba(marker.profile.secondary, 0.08)} 100%)`,
-                clipPath:
-                  index % 2 === 0
-                    ? "polygon(0 4%, 97% 0, 100% 96%, 3% 100%)"
-                    : "polygon(3% 0, 100% 4%, 97% 100%, 0 96%)",
-              }}
-            >
-              <div className="absolute inset-0 opacity-[0.15] comic-dot-pattern-light" />
-              <div
-                className="absolute inset-0 opacity-[0.12]"
-                style={{
-                  background:
-                    index % 2 === 0
-                      ? "repeating-linear-gradient(135deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 24px)"
-                      : "repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 24px)",
-                }}
-              />
-              <div
-                className={`absolute ${index % 2 === 0 ? "right-6" : "left-6"} top-8 h-28 w-28 opacity-[0.16] md:h-40 md:w-40`}
-              >
-                <ChapterEmblem
-                  emblem={marker.decor.emblem}
-                  color={marker.profile.accent}
-                  className="h-full w-full"
-                />
-              </div>
-              <div className={`absolute ${index % 2 === 0 ? "left-6" : "right-6"} bottom-8 text-right md:text-left`}>
-                <p
-                  className="text-4xl font-black uppercase tracking-[-0.08em] opacity-[0.18] md:text-6xl"
-                  style={{ color: marker.profile.secondary }}
-                >
-                  {marker.decor.burst}
-                </p>
-                <p className="mt-1 text-xs font-bold uppercase tracking-[0.24em] text-white/60">
-                  {marker.decor.subtitle}
-                </p>
-              </div>
-            </div>
+        <div className="relative min-w-[840px]" style={{ height: mapHeight }}>
+          {[1, 2, 3, 4, 5].map((chapter, index) => (
+            <ChapterIsland
+              key={chapter}
+              chapter={chapter}
+              top={index * chapterHeight + 34}
+              height={chapterHeight - 58}
+              isEven={index % 2 === 0}
+            />
           ))}
+
+          {hazardMarkers.map((hazard) => {
+            const profile = getCourseVisualProfile(hazard.chapter);
+            const top = (hazard.chapter - 1) * chapterHeight + chapterTopPadding + hazard.yOffset;
+
+            return (
+              <div
+                key={`${hazard.chapter}-${hazard.kind}`}
+                className="pointer-events-none absolute z-10 w-40 -translate-x-1/2 border-4 border-black bg-slate-950/90 p-3 text-left shadow-[0_4px_0_#000]"
+                style={{
+                  left: `${hazard.xPercent}%`,
+                  top,
+                  color: profile.secondary,
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <HazardIcon kind={hazard.kind} className="h-6 w-6 shrink-0 text-amber-300" />
+                  <div className="min-w-0">
+                    <p className="text-[9px] font-black uppercase tracking-[0.2em] text-amber-300">
+                      {hazard.label}
+                    </p>
+                    <p className="mt-1 text-xs font-bold leading-tight text-white text-outline">
+                      {hazard.detail}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
 
           <svg
             viewBox={`0 0 ${mapWidth} ${mapHeight}`}
@@ -426,73 +589,56 @@ export function CampaignTreasureMap({
             preserveAspectRatio="none"
             aria-hidden="true"
           >
+            <defs>
+              <linearGradient id="questRoad" x1="0" y1="0" x2="1200" y2={mapHeight}>
+                <stop offset="0%" stopColor="#22d3ee" />
+                <stop offset="35%" stopColor="#34d399" />
+                <stop offset="70%" stopColor="#a78bfa" />
+                <stop offset="100%" stopColor="#fbbf24" />
+              </linearGradient>
+              <filter id="roadGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="8" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
             <path
               d={allPath}
               fill="none"
-              stroke="rgba(71, 85, 105, 0.45)"
-              strokeWidth="20"
+              stroke="rgba(0,0,0,0.86)"
+              strokeWidth="36"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
             <path
               d={allPath}
               fill="none"
-              stroke="rgba(255, 255, 255, 0.08)"
-              strokeWidth="6"
+              stroke="rgba(148, 163, 184, 0.38)"
+              strokeWidth="22"
               strokeLinecap="round"
               strokeLinejoin="round"
-              strokeDasharray="1 24"
+            />
+            <path
+              d={allPath}
+              fill="none"
+              stroke="rgba(255, 255, 255, 0.22)"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeDasharray="18 24"
             />
             <path
               d={progressPath}
               fill="none"
-              stroke="url(#questProgress)"
-              strokeWidth="16"
+              filter="url(#roadGlow)"
+              stroke="url(#questRoad)"
+              strokeWidth="14"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-
-            <defs>
-              <linearGradient id="questProgress" x1="0" y1="0" x2="1000" y2={mapHeight}>
-                <stop offset="0%" stopColor="#22d3ee" />
-                <stop offset="48%" stopColor="#818cf8" />
-                <stop offset="100%" stopColor="#f59e0b" />
-              </linearGradient>
-            </defs>
           </svg>
-
-          {chapterMarkers.map((marker) => (
-            <div
-              key={marker.palierId}
-              className="pointer-events-none absolute z-10 w-[70%] max-w-[220px] -translate-x-1/2 rounded-[24px] border-2 border-black p-3 text-center shadow-[0_18px_35px_rgba(0,0,0,0.28)] md:max-w-[320px] md:p-4"
-              style={{
-                left: `${marker.xPercent}%`,
-                top: marker.y,
-                background: marker.profile.cardBackgroundSoft,
-              }}
-            >
-              <div className="flex items-center justify-center gap-3">
-                <div className="h-10 w-10 rounded-full border-2 border-black bg-slate-950/80 p-1.5 md:h-12 md:w-12">
-                  <ChapterEmblem
-                    emblem={marker.decor.emblem}
-                    color={marker.profile.accent}
-                    className="h-full w-full"
-                  />
-                </div>
-                <div className="text-left">
-                  <p
-                    className="text-[10px] font-bold uppercase tracking-[0.24em]"
-                    style={{ color: marker.profile.accent }}
-                  >
-                    Acte {marker.palierId}
-                  </p>
-                  <p className="mt-1 text-base font-bold text-white text-outline md:text-lg">
-                    {marker.profile.chapterLabel}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
 
           {positionedEntries.map((item) => {
             const isCurrent = item.entry.courseId === activePoint?.entry.courseId;
@@ -501,24 +647,21 @@ export function CampaignTreasureMap({
             const profile = getCourseVisualProfile(item.entry.palierId);
             const localIndex = (item.entry.courseId - 1) % 10;
             const isCheckpoint = localIndex === 4;
-            const isBossGate = localIndex === 9;
-            const nodeSize = isBossGate ? 76 : isCheckpoint ? 64 : 56;
-            const badgeLabel = isBossGate ? "Gate" : isCheckpoint ? "CP" : null;
-            const tooltipPlacement = getTooltipPlacement(item.xPercent, item.y, mapHeight);
+            const isGate = localIndex === 9;
             const canLaunch = item.entry.status !== "locked";
             const usesDirectNavigation =
               item.entry.status === "in_progress" || item.entry.status === "completed";
             const actionLabel =
               item.entry.status === "completed"
-                ? "Clique pour revoir"
+                ? "Revoir"
                 : item.entry.status === "in_progress"
-                  ? "Clique pour continuer"
+                  ? "Continuer"
                   : item.entry.status === "unlocked"
-                    ? "Clique pour lancer"
-                    : "Etape verrouillee";
-            const nodeClasses = `group absolute block ${
-              isCurrent ? "z-30" : "z-20 hover:z-40 focus-visible:z-40"
-            }`;
+                    ? "Lancer"
+                    : "Verrouille";
+            const tooltipPlacement = getTooltipPlacement(item.xPercent, item.y, mapHeight);
+            const nodeSize = isGate ? 76 : isCheckpoint ? 68 : 56;
+            const nodeClasses = `group absolute z-20 block ${isCurrent ? "z-40" : "hover:z-50 focus-visible:z-50"}`;
             const nodeStyle = {
               left: `${item.xPercent}%`,
               top: item.y,
@@ -527,83 +670,51 @@ export function CampaignTreasureMap({
             const nodeBody = (
               <>
                 <div
-                  className={`relative flex items-center justify-center border-4 border-black text-sm font-black text-white md:text-base ${
-                    isBossGate ? "rounded-[1.75rem]" : isCheckpoint ? "rounded-[1.4rem]" : "rounded-full"
+                  className={`relative flex items-center justify-center border-4 text-sm font-black ${
+                    isGate ? "rounded-[1.35rem]" : isCheckpoint ? "rounded-[1rem]" : "rounded-full"
                   }`}
                   style={{
-                    height: nodeSize,
                     width: nodeSize,
+                    height: nodeSize,
+                    color: tone.text,
+                    borderColor: tone.border,
                     background: tone.fill,
                     boxShadow: tone.glow,
                   }}
                 >
-                  <div
-                    className={`${isBossGate ? "rounded-[2rem]" : isCheckpoint ? "rounded-[1.7rem]" : "rounded-full"} absolute inset-[-10px] border`}
-                    style={{
-                      borderColor: tone.ring,
-                      transform: isCheckpoint ? "rotate(8deg)" : undefined,
-                    }}
-                  />
-                  <div
-                    className={`${isBossGate ? "rounded-[1.5rem]" : isCheckpoint ? "rounded-[1.2rem]" : "rounded-full"} absolute inset-[6px] border border-white/10`}
-                    style={{ transform: isBossGate ? "rotate(-6deg)" : undefined }}
-                  />
+                  <div className="absolute inset-[-8px] border border-white/14" style={{ borderRadius: isGate ? 24 : isCheckpoint ? 18 : 999 }} />
                   {isCurrent && (
                     <motion.div
-                      className={`${isBossGate ? "rounded-[2.2rem]" : isCheckpoint ? "rounded-[1.9rem]" : "rounded-full"} absolute inset-[-18px] border-2 border-cyan-300/55`}
-                      animate={{ scale: [0.92, 1.08, 0.92], opacity: [0.4, 0.9, 0.4] }}
-                      transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+                      className="absolute inset-[-18px] rounded-full border-2 border-cyan-200/70"
+                      animate={{ scale: [0.9, 1.12, 0.9], opacity: [0.35, 0.9, 0.35] }}
+                      transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
                     />
                   )}
-                  {badgeLabel && (
-                    <span
-                      className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full border border-black bg-slate-950 px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.18em] text-white"
-                      style={{ color: profile.accent }}
-                    >
-                      {badgeLabel}
+                  {(isCheckpoint || isGate) && (
+                    <span className="absolute -top-4 left-1/2 -translate-x-1/2 border-2 border-black bg-slate-950 px-2 py-0.5 text-[9px] font-black uppercase tracking-[0.16em] text-white">
+                      {isGate ? "Gate" : "CP"}
                     </span>
                   )}
-                  <span
-                    className="relative z-10"
-                    style={{
-                      fontSize: isBossGate ? 16 : 14,
-                    }}
-                  >
-                    {item.entry.courseId}
-                  </span>
-                  {(isCheckpoint || isBossGate) && (
-                    <div
-                      className="pointer-events-none absolute -bottom-3 left-1/2 h-2 w-10 -translate-x-1/2 rounded-full blur-md"
-                      style={{ background: hexToRgba(profile.accent, 0.45) }}
-                    />
-                  )}
+                  <span className="relative z-10">{item.entry.courseId}</span>
                 </div>
 
                 <div
-                  className={`pointer-events-none absolute z-20 hidden w-[210px] rounded-[22px] border-2 border-black bg-slate-950/96 p-3 shadow-[0_18px_34px_rgba(0,0,0,0.3)] transition-all duration-200 md:block ${tooltipPlacement.horizontalClass} ${tooltipPlacement.verticalClass} ${tooltipPlacement.textAlignClass} ${
-                    isCurrent
-                      ? "opacity-100"
-                      : "opacity-0 group-hover:opacity-100"
+                  className={`pointer-events-none absolute z-30 hidden w-[230px] border-4 border-black bg-slate-950/96 p-3 shadow-[0_4px_0_#000] transition-opacity duration-200 md:block ${tooltipPlacement.horizontalClass} ${tooltipPlacement.verticalClass} ${tooltipPlacement.textAlignClass} ${
+                    isCurrent ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                   }`}
                 >
-                  <p
-                    className="text-[10px] font-bold uppercase tracking-[0.18em]"
-                    style={{ color: profile.accent }}
-                  >
-                    Mission {item.entry.courseId}
+                  <p className="text-[10px] font-bold uppercase tracking-[0.18em]" style={{ color: profile.accent }}>
+                    Mission {item.entry.courseId} / {actionLabel}
                   </p>
                   <p className="mt-2 text-sm font-bold leading-tight text-white text-outline">
                     {item.entry.title}
                   </p>
                   <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-300">
-                    {mission.gameChallengeCompact} / {item.entry.levelLabel.split(" - ")[0]}
+                    {mission.gameChallengeCompact} - {item.entry.levelLabel.split(" - ")[0]}
                   </p>
-                  <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-200">
-                    {actionLabel}
-                  </p>
-                  {(isCheckpoint || isBossGate) && (
-                    <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.18em] text-amber-300">
-                      {isBossGate ? "Porte d'acte" : "Checkpoint"}
+                  {(isCheckpoint || isGate) && (
+                    <p className="mt-2 text-[10px] font-black uppercase tracking-[0.18em] text-amber-300">
+                      {isGate ? "Porte de fin d'acte" : "Checkpoint de zone"}
                     </p>
                   )}
                 </div>
@@ -614,7 +725,7 @@ export function CampaignTreasureMap({
               return (
                 <div
                   key={item.entry.courseId}
-                  className={`${nodeClasses} cursor-not-allowed opacity-85`}
+                  className={`${nodeClasses} cursor-not-allowed opacity-80`}
                   style={nodeStyle}
                   aria-disabled="true"
                 >
@@ -630,7 +741,7 @@ export function CampaignTreasureMap({
                   href={`/cours/${item.entry.courseId}`}
                   className={nodeClasses}
                   style={nodeStyle}
-                  aria-label={`${actionLabel} : mission ${item.entry.courseId}`}
+                  aria-label={`${actionLabel} la mission ${item.entry.courseId}`}
                 >
                   {nodeBody}
                 </Link>
@@ -648,7 +759,7 @@ export function CampaignTreasureMap({
                 <button
                   type="submit"
                   className="block bg-transparent p-0 text-left"
-                  aria-label={`${actionLabel} : mission ${item.entry.courseId}`}
+                  aria-label={`${actionLabel} la mission ${item.entry.courseId}`}
                 >
                   {nodeBody}
                 </button>
@@ -658,20 +769,20 @@ export function CampaignTreasureMap({
 
           {activePoint && (
             <motion.div
-              className="pointer-events-none absolute z-30"
+              className="pointer-events-none absolute z-50"
               style={{
-                left: `${activePoint.xPercent}%`,
-                top: activePoint.y - 88,
+                left: `${playerTokenXPercent}%`,
+                top: activePoint.y - playerTokenYOffset,
                 transform: "translate(-50%, -50%)",
               }}
               animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+              transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
             >
               <div className="relative">
-                <div className="absolute inset-0 rounded-full bg-cyan-300/25 blur-xl" />
+                <div className="absolute inset-0 rounded-full bg-cyan-300/30 blur-xl" />
                 {playerToken?.backgroundImageUrl && (
                   <div
-                    className="absolute inset-[-16px] rounded-full opacity-45 blur-md"
+                    className="absolute inset-[-14px] rounded-full opacity-45 blur-md"
                     style={{
                       backgroundImage: `url("${addCacheBustingIfSupabase(playerToken.backgroundImageUrl)}")`,
                       backgroundPosition: "center",
@@ -680,7 +791,7 @@ export function CampaignTreasureMap({
                   />
                 )}
                 <div
-                  className="relative h-16 w-16 rounded-full border-4 border-black p-1.5 shadow-[0_22px_42px_rgba(0,0,0,0.32)] md:h-20 md:w-20"
+                  className="relative h-16 w-16 rounded-full border-4 border-black p-1.5 shadow-[0_18px_34px_rgba(0,0,0,0.34)] md:h-20 md:w-20"
                   style={{
                     background:
                       playerToken?.backgroundImageUrl
@@ -688,23 +799,18 @@ export function CampaignTreasureMap({
                         : defaultAvatarThemes[playerToken?.backgroundTheme ?? "cyan"] ?? defaultAvatarThemes.cyan,
                   }}
                 >
-                  <div
-                    className="absolute inset-[-8px] rounded-full border border-cyan-300/35"
-                    style={{ transform: "rotate(-10deg)" }}
-                  />
+                  <div className="absolute inset-[-8px] rounded-full border-2 border-cyan-200/50" />
                   <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-full border-2 border-black bg-slate-950">
                     {playerToken?.avatarImageUrl ? (
-                      <>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={addCacheBustingIfSupabase(playerToken.avatarImageUrl)}
-                          alt={playerToken.username}
-                          className="h-full w-full rounded-full object-cover"
-                          style={{ objectPosition: "center top" }}
-                          loading="eager"
-                          decoding="async"
-                        />
-                      </>
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={addCacheBustingIfSupabase(playerToken.avatarImageUrl)}
+                        alt={playerToken.username}
+                        className="h-full w-full rounded-full object-cover"
+                        style={{ objectPosition: "center top" }}
+                        loading="eager"
+                        decoding="async"
+                      />
                     ) : (
                       <span className="text-lg font-black text-white text-outline md:text-2xl">
                         {playerToken?.initial ?? "J"}
