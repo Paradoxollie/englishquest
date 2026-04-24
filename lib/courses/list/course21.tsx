@@ -188,7 +188,7 @@ export const course21: LessonContent = {
                         {
                             id: 7,
                             question: "He ___ waiting for you.",
-                            options: ["has hasn&apos;t stopped", "hasn&apos;t stopped"],
+              options: ["hasn&apos;t stop", "hasn&apos;t stopped"],
                             correctAnswer: 1,
                             explanation: "Négation : Has not (Hasn&apos;t) stopped.",
                         },

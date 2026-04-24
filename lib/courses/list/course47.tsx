@@ -138,8 +138,8 @@ export const course47: LessonContent = {
                         {
                             id: 1,
                             question: "___ it was raining, we went out.",
-                            options: ["Although", "Despite"],
-                            correctAnswer: 0,
+                            options: ["Despite", "Although"],
+                            correctAnswer: 1,
                             explanation: "Apres although, on peut mettre une clause complete: it was raining.",
                         },
                         {
@@ -169,15 +169,15 @@ export const course47: LessonContent = {
                         {
                             id: 5,
                             question: "___ having very little time, they finished on schedule.",
-                            options: ["Despite", "Although"],
-                            correctAnswer: 0,
+                            options: ["Although", "Despite"],
+                            correctAnswer: 1,
                             explanation: "Having very little time est une forme en -ing.",
                         },
                         {
                             id: 6,
                             question: "Even though means ...",
-                            options: ["a stronger contrast", "exactly the same register as a noun"],
-                            correctAnswer: 0,
+                            options: ["exactly the same register as a noun", "a stronger contrast"],
+                            correctAnswer: 1,
                             explanation: "Even though renforce souvent l'idee de contraste.",
                         },
                         {
@@ -190,8 +190,8 @@ export const course47: LessonContent = {
                         {
                             id: 8,
                             question: "Nice idea. A bit risky, ___.",
-                            options: ["though", "despite"],
-                            correctAnswer: 0,
+                            options: ["despite", "though"],
+                            correctAnswer: 1,
                             explanation: "Though peut se placer en fin de phrase dans un style courant.",
                         },
                         {
@@ -207,8 +207,8 @@ export const course47: LessonContent = {
                         {
                             id: 10,
                             question: "After despite, the safest structure is ...",
-                            options: ["noun, pronoun or -ing", "subject + verb only"],
-                            correctAnswer: 0,
+                            options: ["subject + verb only", "noun, pronoun or -ing"],
+                            correctAnswer: 1,
                             explanation: "C'est la regle de base a memoriser.",
                         }
                     ]}

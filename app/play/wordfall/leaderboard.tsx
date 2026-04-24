@@ -13,28 +13,10 @@
  */
 
 import { useEffect, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { WordfallMode } from "@/lib/games/wordfall";
 import { TrophyIcon } from "@/components/ui/game-icons";
-
-import type { ShopItem } from "@/types/shop";
 import { LeaderboardAvatar } from "../speed-verb-challenge/leaderboard-avatar";
-
-interface LeaderboardEntry {
-  user_id: string;
-  username: string;
-  best_score: number;
-  games_played: number;
-  rank: number;
-  equipped_avatar?: ShopItem | null;
-  equipped_background?: ShopItem | null;
-  equipped_title?: ShopItem | null;
-}
-
-interface LeaderboardData {
-  exact: LeaderboardEntry[];
-  free: LeaderboardEntry[];
-}
+import { getWordfallLeaderboards, type WordfallLeaderboardData } from "./get-top-scores";
 
 const MODE_LABELS: Record<WordfallMode, string> = {
   exact: "Mode Exact",
@@ -46,16 +28,11 @@ const MODE_COLORS: Record<WordfallMode, string> = {
   free: "bg-blue-600",
 };
 
-/**
- * Map Wordfall mode to difficulty string
- */
-function mapModeToDifficulty(mode: WordfallMode): "easy" | "hard" {
-  return mode === "exact" ? "easy" : "hard";
-}
-
 interface WordfallLeaderboardProps {
   initialMode?: WordfallMode;
 }
+
+type LeaderboardData = WordfallLeaderboardData;
 
 export function WordfallLeaderboard({ initialMode = "exact" }: WordfallLeaderboardProps) {
   const [leaderboards, setLeaderboards] = useState<LeaderboardData>({
@@ -66,142 +43,31 @@ export function WordfallLeaderboard({ initialMode = "exact" }: WordfallLeaderboa
   const [selectedMode, setSelectedMode] = useState<WordfallMode>(initialMode);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function fetchLeaderboards() {
       setLoading(true);
-      const supabase = createSupabaseBrowserClient();
 
-      // Get the Wordfall game ID
-      const { data: game } = await supabase
-        .from("games")
-        .select("id")
-        .eq("slug", "wordfall")
-        .single();
+      try {
+        const leaderboardData = await getWordfallLeaderboards();
 
-      if (!game) {
-        setLoading(false);
-        return;
+        if (!cancelled) {
+          setLeaderboards(leaderboardData);
+        }
+      } catch (error) {
+        console.error("Error fetching Wordfall leaderboards:", error);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-
-      const gameId = game.id;
-
-      // Fetch leaderboards for each mode
-      const modes: WordfallMode[] = ["exact", "free"];
-      const leaderboardData: LeaderboardData = {
-        exact: [],
-        free: [],
-      };
-
-      for (const mode of modes) {
-        const difficulty = mapModeToDifficulty(mode);
-        
-        // Query: Get all scores for this game and mode
-        // We'll group by user_id in JavaScript and join with profiles separately
-        const { data: scores, error } = await supabase
-          .from("game_scores")
-          .select("user_id, score")
-          .eq("game_id", gameId)
-          .eq("difficulty", difficulty)
-          .order("score", { ascending: false });
-
-        if (error) {
-          console.error(`Error fetching ${mode} leaderboard:`, error);
-          continue;
-        }
-
-        if (!scores || scores.length === 0) {
-          continue;
-        }
-
-        // Get unique user IDs
-        const userIds = [...new Set(scores.map((s) => s.user_id))];
-
-        // Fetch usernames for these users
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("id, username")
-          .in("id", userIds);
-
-        const profileMap = new Map(
-          (profiles || []).map((p) => [p.id, p.username])
-        );
-
-        // Fetch equipped items for all users
-        const { data: equippedItems } = await supabase
-          .from("user_equipped_items")
-          .select(`
-            user_id,
-            equipped_avatar:shop_items!equipped_avatar_id(*),
-            equipped_background:shop_items!equipped_background_id(*),
-            equipped_title:shop_items!equipped_title_id(*)
-          `)
-          .in("user_id", userIds);
-
-        const equippedMap = new Map<string, { avatar?: ShopItem | null; background?: ShopItem | null; title?: ShopItem | null }>();
-        if (equippedItems) {
-          for (const item of equippedItems) {
-            const avatar = Array.isArray(item.equipped_avatar) 
-              ? item.equipped_avatar[0] 
-              : item.equipped_avatar;
-            const background = Array.isArray(item.equipped_background) 
-              ? item.equipped_background[0] 
-              : item.equipped_background;
-            const title = Array.isArray(item.equipped_title) 
-              ? item.equipped_title[0] 
-              : item.equipped_title;
-            equippedMap.set(item.user_id, { avatar, background, title });
-          }
-        }
-
-        // Group scores by user_id and get best score + count games
-        const userStats = new Map<
-          string,
-          { bestScore: number; gamesPlayed: number }
-        >();
-
-        for (const scoreEntry of scores) {
-          const existing = userStats.get(scoreEntry.user_id);
-          if (!existing) {
-            userStats.set(scoreEntry.user_id, {
-              bestScore: scoreEntry.score,
-              gamesPlayed: 1,
-            });
-          } else {
-            userStats.set(scoreEntry.user_id, {
-              bestScore: Math.max(existing.bestScore, scoreEntry.score),
-              gamesPlayed: existing.gamesPlayed + 1,
-            });
-          }
-        }
-
-        // Create leaderboard entries
-        const entries: LeaderboardEntry[] = Array.from(userStats.entries())
-          .map(([userId, stats]) => {
-            const equipped = equippedMap.get(userId);
-            return {
-              user_id: userId,
-              username: profileMap.get(userId) || "Unknown",
-              best_score: stats.bestScore,
-              games_played: stats.gamesPlayed,
-              rank: 0, // Will be set after sorting
-              equipped_avatar: equipped?.avatar || null,
-              equipped_background: equipped?.background || null,
-              equipped_title: equipped?.title || null,
-            };
-          })
-          .sort((a, b) => b.best_score - a.best_score)
-          .map((entry, index) => ({
-            ...entry,
-            rank: index + 1,
-          }));
-
-        leaderboardData[mode] = entries;
-      }
-
-      setLeaderboards(leaderboardData);
-      setLoading(false);
     }
 
     fetchLeaderboards();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   if (loading) {
@@ -311,9 +177,6 @@ export function WordfallLeaderboard({ initialMode = "exact" }: WordfallLeaderboa
     </div>
   );
 }
-
-
-
 
 
 

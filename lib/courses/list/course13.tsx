@@ -192,7 +192,7 @@ export const course13: LessonContent = {
             },
             {
               id: 2,
-              question: "___ you ___ havo long hair?",
+              question: "___ you ___ have long hair?",
               options: ["Did / used to", "Did / use to", "Do / use to", "Were / used to"],
               correctAnswer: 1,
               explanation: "Question au passé avec USED TO : L'auxiliaire DID mange le 'D'. ➔ Did you USE to...",

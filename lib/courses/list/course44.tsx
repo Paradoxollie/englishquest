@@ -143,8 +143,8 @@ export const course44: LessonContent = {
                         {
                             id: 1,
                             question: "When we arrived, the concert ___.",
-                            options: ["had started", "started after us"],
-                            correctAnswer: 0,
+                            options: ["started after us", "had started"],
+                            correctAnswer: 1,
                             explanation: "Le concert avait deja commence avant notre arrivee.",
                         },
                         {
@@ -157,8 +157,8 @@ export const course44: LessonContent = {
                         {
                             id: 3,
                             question: "By the time I called, he ___.",
-                            options: ["had gone to bed", "goes to bed"],
-                            correctAnswer: 0,
+                            options: ["goes to bed", "had gone to bed"],
+                            correctAnswer: 1,
                             explanation: "L'action plus ancienne prend le past perfect.",
                         },
                         {
@@ -171,8 +171,8 @@ export const course44: LessonContent = {
                         {
                             id: 5,
                             question: "The shop ___ by the time we got there.",
-                            options: ["had closed", "closed now"],
-                            correctAnswer: 0,
+                            options: ["closed now", "had closed"],
+                            correctAnswer: 1,
                             explanation: "La fermeture etait deja accomplie a notre arrivee.",
                         },
                         {
@@ -192,8 +192,8 @@ export const course44: LessonContent = {
                         {
                             id: 8,
                             question: "By 2001, she ___ to five countries in Europe.",
-                            options: ["had been", "was being"],
-                            correctAnswer: 0,
+                            options: ["was being", "had been"],
+                            correctAnswer: 1,
                             explanation: "On parle du temps accumule jusqu'a un point du passe.",
                         },
                         {

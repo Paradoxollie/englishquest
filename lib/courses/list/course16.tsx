@@ -114,7 +114,7 @@ export const course16: LessonContent = {
               <span className="text-2xl">⚡</span> Le Piège de la Déduction Négative
             </h3>
             <p className="text-slate-200 mb-2">
-              Si vous êtes sur que c'est **FAUX**, n'utilisez jamais "Mustn't".
+              Si vous êtes sûr que c'est <strong>faux</strong>, n'utilisez jamais "mustn't".
               <br />
               Utilisez <strong className="text-red-400">CAN'T</strong>.
             </p>

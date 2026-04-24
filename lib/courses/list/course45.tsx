@@ -162,8 +162,8 @@ export const course45: LessonContent = {
                         {
                             id: 2,
                             question: "She ___ driven here. Her car keys are still on the table.",
-                            options: ["can't have", "must have"],
-                            correctAnswer: 0,
+                            options: ["must have", "can't have"],
+                            correctAnswer: 1,
                             explanation: "Les indices contredisent cette hypothese.",
                         },
                         {
@@ -176,15 +176,15 @@ export const course45: LessonContent = {
                         {
                             id: 4,
                             question: "The thief ___ had a key. The lock wasn't damaged.",
-                            options: ["must have", "should have"],
-                            correctAnswer: 0,
+                            options: ["should have", "must have"],
+                            correctAnswer: 1,
                             explanation: "Must have exprime une deduction forte.",
                         },
                         {
                             id: 5,
                             question: "It ___ been Julia I saw. She is abroad this week.",
-                            options: ["couldn't have", "must have"],
-                            correctAnswer: 0,
+                            options: ["must have", "couldn't have"],
+                            correctAnswer: 1,
                             explanation: "La situation rend cette hypothese impossible.",
                         },
                         {
@@ -197,8 +197,8 @@ export const course45: LessonContent = {
                         {
                             id: 7,
                             question: "Police think the suspect ___ the country using a fake passport.",
-                            options: ["may have left", "can't have left"],
-                            correctAnswer: 0,
+                            options: ["can't have left", "may have left"],
+                            correctAnswer: 1,
                             explanation: "L'enquete n'apporte qu'une hypothese possible.",
                         },
                         {
@@ -211,15 +211,15 @@ export const course45: LessonContent = {
                         {
                             id: 9,
                             question: "The train is late, so they ___ arrived yet.",
-                            options: ["can't have", "must have"],
-                            correctAnswer: 0,
+                            options: ["must have", "can't have"],
+                            correctAnswer: 1,
                             explanation: "Les indices rendent l'arrivee deja accomplie tres improbable.",
                         },
                         {
                             id: 10,
                             question: "Which form means 'possible but not certain'?",
-                            options: ["might have", "must have"],
-                            correctAnswer: 0,
+                            options: ["must have", "might have"],
+                            correctAnswer: 1,
                             explanation: "Might have exprime une deduction ouverte.",
                         }
                     ]}

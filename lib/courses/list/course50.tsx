@@ -133,8 +133,8 @@ export const course50: LessonContent = {
                         {
                             id: 2,
                             question: "If you have no milk left, you have ...",
-                            options: ["run out of milk", "filled in milk"],
-                            correctAnswer: 0,
+                            options: ["run into milk", "run out of milk"],
+                            correctAnswer: 1,
                             explanation: "Run out of = ne plus avoir.",
                         },
                         {
@@ -147,8 +147,8 @@ export const course50: LessonContent = {
                         {
                             id: 4,
                             question: "We need to ___ this complaint quickly.",
-                            options: ["deal with", "drop off"],
-                            correctAnswer: 0,
+                            options: ["drop off", "deal with"],
+                            correctAnswer: 1,
                             explanation: "Deal with = gerer un probleme ou une situation.",
                         },
                         {
@@ -161,8 +161,8 @@ export const course50: LessonContent = {
                         {
                             id: 6,
                             question: "The meeting will continue, so please ___.",
-                            options: ["carry on", "take off"],
-                            correctAnswer: 0,
+                            options: ["take off", "carry on"],
+                            correctAnswer: 1,
                             explanation: "Carry on = continuer.",
                         },
                         {
@@ -175,22 +175,22 @@ export const course50: LessonContent = {
                         {
                             id: 8,
                             question: "Pick up can mean ...",
-                            options: ["collect or lift", "refuse an invitation"],
-                            correctAnswer: 0,
+                            options: ["refuse an invitation", "collect or lift"],
+                            correctAnswer: 1,
                             explanation: "Pick up est tres polyvalent, mais l'idee de prendre ou recuperer reste centrale.",
                         },
                         {
                             id: 9,
-                            question: "Which sentence sounds natural?",
-                            options: ["Can you check out this file for me?", "Can you check this file out for me?"],
+                            question: "Which sentence is correct with the pronoun 'it'?",
+                            options: ["Can you check it out for me?", "Can you check out it for me?"],
                             correctAnswer: 0,
-                            explanation: "Les deux existent souvent, mais la premiere reste une forme tres naturelle et simple.",
+                            explanation: "Avec un pronom objet comme 'it', le pronom se place au milieu : check it out.",
                         },
                         {
                             id: 10,
                             question: "The best strategy with essential phrasal verbs is ...",
-                            options: ["learn a core set deeply in context", "memorize random long lists without examples"],
-                            correctAnswer: 0,
+                            options: ["memorize random long lists without examples", "learn a core set deeply in context"],
+                            correctAnswer: 1,
                             explanation: "Un petit noyau solide vaut mieux qu'une longue liste oubliee.",
                         }
                     ]}

@@ -173,8 +173,8 @@ export const course42: LessonContent = {
                         {
                             id: 1,
                             question: "I wish I ___ the answer.",
-                            options: ["knew", "had known"],
-                            correctAnswer: 0,
+                            options: ["had known", "knew"],
+                            correctAnswer: 1,
                             explanation: "Regret sur le present: wish + past simple.",
                         },
                         {
@@ -187,8 +187,8 @@ export const course42: LessonContent = {
                         {
                             id: 3,
                             question: "I wish you ___ making that noise.",
-                            options: ["would stop", "stopped yesterday"],
-                            correctAnswer: 0,
+                            options: ["stopped yesterday", "would stop"],
+                            correctAnswer: 1,
                             explanation: "Wish + would exprime l'agacement et le desir de changement.",
                         },
                         {
@@ -201,8 +201,8 @@ export const course42: LessonContent = {
                         {
                             id: 5,
                             question: "We wish we ___ closer to our family.",
-                            options: ["lived", "had lived yesterday"],
-                            correctAnswer: 0,
+                            options: ["had lived yesterday", "lived"],
+                            correctAnswer: 1,
                             explanation: "Situation presente irreelle: wish + past simple.",
                         },
                         {
@@ -215,8 +215,8 @@ export const course42: LessonContent = {
                         {
                             id: 7,
                             question: "He wishes his neighbours ___ more considerate.",
-                            options: ["were", "had been yesterday"],
-                            correctAnswer: 0,
+                            options: ["had been yesterday", "were"],
+                            correctAnswer: 1,
                             explanation: "On parle d'une situation actuelle: were.",
                         },
                         {
@@ -229,8 +229,8 @@ export const course42: LessonContent = {
                         {
                             id: 9,
                             question: "If only I ___ more careful!",
-                            options: ["had been", "am"],
-                            correctAnswer: 0,
+                            options: ["am", "had been"],
+                            correctAnswer: 1,
                             explanation: "If only suit la meme logique que wish ici: regret sur le passe.",
                         },
                         {

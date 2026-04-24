@@ -15,6 +15,7 @@ export function LoginForm() {
         <input
           type="text"
           name="login"
+          autoComplete="username"
           required
           placeholder="ShadowFox or shadow@example.com"
           className="comic-panel w-full border-2 border-black bg-slate-900/80 px-4 py-3 font-semibold text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
@@ -26,6 +27,7 @@ export function LoginForm() {
         <input
           type="password"
           name="password"
+          autoComplete="current-password"
           required
           placeholder="********"
           className="comic-panel w-full border-2 border-black bg-slate-900/80 px-4 py-3 font-semibold text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"

@@ -54,6 +54,25 @@ execute procedure public.set_current_timestamp_updated_at();
 
 alter table public.profiles enable row level security;
 
+create or replace function public.is_admin(user_id uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.profiles
+    where id = $1
+      and role = 'admin'
+      and id = auth.uid()
+  );
+$$;
+
+revoke all on function public.is_admin(uuid) from public;
+grant execute on function public.is_admin(uuid) to anon, authenticated, service_role;
+
 drop policy if exists "Users can view own profile" on public.profiles;
 create policy "Users can view own profile"
 on public.profiles
@@ -71,32 +90,14 @@ drop policy if exists "Admins can update any profile" on public.profiles;
 create policy "Admins can update any profile"
 on public.profiles
 for update
-using (
-  exists (
-    select 1 from public.profiles me
-    where me.id = auth.uid()
-      and me.role = 'admin'
-  )
-)
-with check (
-  exists (
-    select 1 from public.profiles me
-    where me.id = auth.uid()
-      and me.role = 'admin'
-  )
-);
+using (public.is_admin(auth.uid()))
+with check (public.is_admin(auth.uid()));
 
 drop policy if exists "Admins can list all profiles" on public.profiles;
 create policy "Admins can list all profiles"
 on public.profiles
 for select
-using (
-  exists (
-    select 1 from public.profiles me
-    where me.id = auth.uid()
-      and me.role = 'admin'
-  )
-);
+using (public.is_admin(auth.uid()));
 
 -- Policy pour permettre aux utilisateurs d'insérer leur propre profil
 -- (utile si le trigger échoue ou pour les migrations)
@@ -171,4 +172,3 @@ after insert on auth.users
 for each row execute procedure public.handle_new_user();
 
 commit;
-

@@ -126,7 +126,7 @@ export const course38: LessonContent = {
                         },
                         {
                             id: 5,
-                            question: "The hotel ___ we stayed at was clear.",
+                            question: "The hotel ___ we stayed at was clean.",
                             options: ["that", "where"],
                             correctAnswer: 0,
                             explanation: "On peut utiliser 'that' (ou rien), mais pas 'where' si la préposition 'at' est à la fin.",
@@ -147,10 +147,10 @@ export const course38: LessonContent = {
                         },
                         {
                             id: 8,
-                            question: "This is the House ___ Jack built.",
+                            question: "This is the house ___ Jack built.",
                             options: ["- (Rien)", "who"],
                             correctAnswer: 0,
-                            explanation: "House est un objet, donc pas 'who'. L'omission est possible (Subject 'Jack' suit).",
+                            explanation: "House est un objet, donc pas 'who'. L'omission est possible car le sujet 'Jack' suit.",
                         },
                         {
                             id: 9,

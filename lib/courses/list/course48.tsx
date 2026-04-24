@@ -135,8 +135,8 @@ export const course48: LessonContent = {
                         {
                             id: 2,
                             question: "She is interested in ___ abroad.",
-                            options: ["working", "to work"],
-                            correctAnswer: 0,
+                            options: ["to work", "working"],
+                            correctAnswer: 1,
                             explanation: "In est une preposition: working.",
                         },
                         {
@@ -149,8 +149,8 @@ export const course48: LessonContent = {
                         {
                             id: 4,
                             question: "He left without ___ goodbye.",
-                            options: ["saying", "to say"],
-                            correctAnswer: 0,
+                            options: ["to say", "saying"],
+                            correctAnswer: 1,
                             explanation: "Without + -ing.",
                         },
                         {
@@ -170,8 +170,8 @@ export const course48: LessonContent = {
                         {
                             id: 7,
                             question: "She insisted on ___ the bill herself.",
-                            options: ["paying", "pay"],
-                            correctAnswer: 0,
+                            options: ["pay", "paying"],
+                            correctAnswer: 1,
                             explanation: "On est une preposition: paying.",
                         },
                         {
@@ -184,15 +184,15 @@ export const course48: LessonContent = {
                         {
                             id: 9,
                             question: "He objected to ___ more money.",
-                            options: ["paying", "pay"],
-                            correctAnswer: 0,
+                            options: ["pay", "paying"],
+                            correctAnswer: 1,
                             explanation: "Object to + -ing.",
                         },
                         {
                             id: 10,
                             question: "After a preposition, the safest pattern is ...",
-                            options: ["verb-ing", "to + base verb"],
-                            correctAnswer: 0,
+                            options: ["to + base verb", "verb-ing"],
+                            correctAnswer: 1,
                             explanation: "C'est la regle centrale du cours.",
                         }
                     ]}

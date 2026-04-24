@@ -15,6 +15,7 @@ export function SignupForm() {
         <input
           type="text"
           name="username"
+          autoComplete="username"
           required
           placeholder="ShadowFox"
           className="comic-panel w-full border-2 border-black bg-slate-900/80 px-4 py-3 font-semibold text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
@@ -28,6 +29,7 @@ export function SignupForm() {
         <input
           type="email"
           name="email"
+          autoComplete="email"
           placeholder="you@example.com"
           className="comic-panel w-full border-2 border-black bg-slate-900/80 px-4 py-3 font-semibold text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
         />
@@ -38,6 +40,7 @@ export function SignupForm() {
         <input
           type="password"
           name="password"
+          autoComplete="new-password"
           required
           minLength={8}
           placeholder="********"

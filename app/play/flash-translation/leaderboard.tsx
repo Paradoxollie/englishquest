@@ -7,7 +7,6 @@
  */
 
 import { useEffect, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { TrophyIcon } from "@/components/ui/game-icons";
 import type { ShopItem } from "@/types/shop";
 import { LeaderboardAvatar } from "../speed-verb-challenge/leaderboard-avatar";

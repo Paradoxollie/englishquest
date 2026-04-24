@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 export const course20: LessonContent = {
   courseNumber: 20,
   title: "Lier ses idées (Logical Connectors)",
-  objective: "Cause, Conséquence et Opposition.",
+  objective: "Relier ses idées avec précision : condition, précaution, cause, conséquence, simultanéité et opposition.",
   sections: [
     {
       title: "1. La Cause (Why?)",

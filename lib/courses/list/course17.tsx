@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 export const course17: LessonContent = {
   courseNumber: 17,
   title: "Conseil (Should / Ought to)",
-  objective: "Tu devrais...",
+  objective: "Formuler des conseils, des avertissements et des regrets avec should, ought to, had better et should have.",
   sections: [
     {
       title: "Introduction : Le Conseiller Bienveillant",

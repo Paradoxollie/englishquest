@@ -22,7 +22,7 @@ export const course3: LessonContent = {
                 <span className="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider border border-amber-500/30">L'autre côté du miroir</span>
               </div>
               <p className="text-slate-300 leading-relaxed text-balance">
-                Revenons à notre piège français <span className="text-white italic">"Je mange"</span>. Ici, on s'intéresse à la **Fréquence** et à la **Permanence**.
+                Revenons à notre piège français <span className="text-white italic">"Je mange"</span>. Ici, on s'intéresse à la <strong>fréquence</strong> et à la <strong>permanence</strong>.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div className="bg-cyan-950/30 p-3 rounded-lg border border-cyan-500/30 relative overflow-hidden opacity-50">

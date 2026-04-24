@@ -1,12 +1,18 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import Script from "next/script";
 import { usePathname } from "next/navigation";
 import { FooterAd } from "@/components/ads/FooterAd";
 import { FooterAdContainer } from "@/components/ads/FooterAdServer";
 import { ADSENSE_CLIENT, getAdRouteSettings } from "@/lib/ads/config";
+
+const DISABLED_AD_SETTINGS = {
+  loadScript: false,
+  footer: false,
+  sidebar: false,
+};
 
 export function AdLayoutShell({
   header,
@@ -16,7 +22,13 @@ export function AdLayoutShell({
   children: ReactNode;
 }) {
   const pathname = usePathname();
-  const adSettings = getAdRouteSettings(pathname);
+  const [canRenderAds, setCanRenderAds] = useState(false);
+  const adSettings = canRenderAds ? getAdRouteSettings(pathname) : DISABLED_AD_SETTINGS;
+
+  useEffect(() => {
+    const localHosts = new Set(["localhost", "127.0.0.1", "::1"]);
+    setCanRenderAds(!localHosts.has(window.location.hostname));
+  }, []);
 
   return (
     <div className="relative z-10 mx-auto min-h-screen max-w-[1600px] px-2 py-3 md:px-4 md:py-6">

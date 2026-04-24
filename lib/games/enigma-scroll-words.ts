@@ -58,6 +58,13 @@ export function loadAndFilterWordLists(
     }
   }
 
+  for (const [length, targets] of Object.entries(targetWords)) {
+    const wordLength = Number(length);
+    validGuesses[wordLength] = Array.from(
+      new Set([...(validGuesses[wordLength] ?? []), ...targets])
+    );
+  }
+
   return {
     targetWords,
     validGuesses
@@ -96,4 +103,3 @@ export function validateWordLists(wordLists: WordLists): { valid: boolean; error
     errors
   };
 }
-

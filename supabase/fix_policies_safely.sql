@@ -7,6 +7,25 @@
 
 begin;
 
+CREATE OR REPLACE FUNCTION public.is_admin(user_id uuid)
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.profiles
+    WHERE id = $1
+    AND role = 'admin'
+    AND id = auth.uid()
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.is_admin(uuid) FROM public;
+GRANT EXECUTE ON FUNCTION public.is_admin(uuid) TO anon, authenticated, service_role;
+
 -- ÉTAPE 1: Vérifier quelles policies existent déjà
 -- (Ne pas exécuter, juste pour information)
 -- SELECT policyname FROM pg_policies WHERE tablename = 'shop_items';
@@ -15,6 +34,10 @@ begin;
 -- On utilise DROP IF EXISTS pour éviter les erreurs
 
 DROP POLICY IF EXISTS "Admins can manage shop items" ON public.shop_items;
+DROP POLICY IF EXISTS "Admins can view all shop items" ON public.shop_items;
+DROP POLICY IF EXISTS "Admins can insert shop items" ON public.shop_items;
+DROP POLICY IF EXISTS "Admins can update shop items" ON public.shop_items;
+DROP POLICY IF EXISTS "Admins can delete shop items" ON public.shop_items;
 
 -- ÉTAPE 3: S'assurer que la policy de lecture publique existe
 -- Si elle existe déjà, on la laisse, sinon on la crée
@@ -44,13 +67,7 @@ BEGIN
     CREATE POLICY "Admins can view all shop items"
       ON public.shop_items
       FOR SELECT
-      USING (
-        EXISTS (
-          SELECT 1 FROM public.profiles
-          WHERE profiles.id = auth.uid()
-          AND profiles.role = 'admin'
-        )
-      );
+      USING (public.is_admin(auth.uid()));
   END IF;
 
   -- Policy pour que les admins puissent insérer
@@ -62,13 +79,7 @@ BEGIN
     CREATE POLICY "Admins can insert shop items"
       ON public.shop_items
       FOR INSERT
-      WITH CHECK (
-        EXISTS (
-          SELECT 1 FROM public.profiles
-          WHERE profiles.id = auth.uid()
-          AND profiles.role = 'admin'
-        )
-      );
+      WITH CHECK (public.is_admin(auth.uid()));
   END IF;
 
   -- Policy pour que les admins puissent modifier
@@ -80,20 +91,8 @@ BEGIN
     CREATE POLICY "Admins can update shop items"
       ON public.shop_items
       FOR UPDATE
-      USING (
-        EXISTS (
-          SELECT 1 FROM public.profiles
-          WHERE profiles.id = auth.uid()
-          AND profiles.role = 'admin'
-        )
-      )
-      WITH CHECK (
-        EXISTS (
-          SELECT 1 FROM public.profiles
-          WHERE profiles.id = auth.uid()
-          AND profiles.role = 'admin'
-        )
-      );
+      USING (public.is_admin(auth.uid()))
+      WITH CHECK (public.is_admin(auth.uid()));
   END IF;
 
   -- Policy pour que les admins puissent supprimer
@@ -105,13 +104,7 @@ BEGIN
     CREATE POLICY "Admins can delete shop items"
       ON public.shop_items
       FOR DELETE
-      USING (
-        EXISTS (
-          SELECT 1 FROM public.profiles
-          WHERE profiles.id = auth.uid()
-          AND profiles.role = 'admin'
-        )
-      );
+      USING (public.is_admin(auth.uid()));
   END IF;
 END $$;
 
@@ -157,8 +150,5 @@ SELECT policyname, cmd
 FROM pg_policies
 WHERE tablename = 'shop_items'
 ORDER BY policyname;
-
-
-
 
 

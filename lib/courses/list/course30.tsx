@@ -176,7 +176,7 @@ export const course30: LessonContent = {
                         },
                         {
                             id: 8,
-                            question: "You represent ___ trouble!",
+                            question: "This is ___ trouble!",
                             options: ["too much", "too many"],
                             correctAnswer: 0,
                             explanation: "Trouble (les ennuis/le problème) est indénombrable = Too much.",

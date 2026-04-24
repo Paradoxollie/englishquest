@@ -4,7 +4,7 @@ import { Quiz } from "@/components/courses/quiz";
 export const course22: LessonContent = {
     courseNumber: 22,
     title: "Present Perfect (2) : Expérience de vie",
-    objective: "Parler de son vécu (le bilan).",
+    objective: "Parler de ses expériences de vie avec le Present Perfect et revenir au Past Simple dès qu'un moment précis est donné.",
     sections: [
         {
             title: "1. Le Concept : Le Bilan de Vie",

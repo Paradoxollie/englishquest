@@ -8,10 +8,10 @@
  */
 
 import { useEffect, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { TrophyIcon } from "@/components/ui/game-icons";
 import type { ShopItem } from "@/types/shop";
 import { LeaderboardAvatar } from "./leaderboard-avatar";
+import { getLexiconBlasterLeaderboard } from "./get-top-scores";
 
 interface LeaderboardEntry {
     user_id: string;
@@ -30,133 +30,43 @@ export function LexiconBlasterLeaderboard() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        let cancelled = false;
+
         async function fetchLeaderboard() {
             setLoading(true);
-            const supabase = createSupabaseBrowserClient();
 
-            // Get the Lexicon Blaster game ID
-            const { data: game } = await supabase
-                .from("games")
-                .select("id")
-                .eq("slug", "space-lex")
-                .single();
+            try {
+                const entries = await getLexiconBlasterLeaderboard();
 
-            if (!game) {
-                setLoading(false);
-                return;
-            }
-
-            const gameId = game.id;
-
-            // Get ALL scores for this game (no difficulty filter)
-            const { data: scores, error } = await supabase
-                .from("game_scores")
-                .select("user_id, score, max_score")
-                .eq("game_id", gameId)
-                .order("score", { ascending: false });
-
-            if (error || !scores || scores.length === 0) {
-                setLoading(false);
-                return;
-            }
-
-            // Get unique user IDs
-            const userIds = [...new Set(scores.map((s) => s.user_id))];
-
-            // Fetch usernames
-            const { data: profiles } = await supabase
-                .from("profiles")
-                .select("id, username")
-                .in("id", userIds);
-
-            const profileMap = new Map(
-                (profiles || []).map((p) => [p.id, p.username])
-            );
-
-            // Fetch equipped items
-            const { data: equippedItems } = await supabase
-                .from("user_equipped_items")
-                .select(`
-          user_id,
-          equipped_avatar:shop_items!equipped_avatar_id(*),
-          equipped_background:shop_items!equipped_background_id(*),
-          equipped_title:shop_items!equipped_title_id(*)
-        `)
-                .in("user_id", userIds);
-
-            const equippedMap = new Map<string, { avatar?: ShopItem | null; background?: ShopItem | null; title?: ShopItem | null }>();
-            if (equippedItems) {
-                for (const item of equippedItems) {
-                    const avatar = Array.isArray(item.equipped_avatar)
-                        ? item.equipped_avatar[0]
-                        : item.equipped_avatar;
-                    const background = Array.isArray(item.equipped_background)
-                        ? item.equipped_background[0]
-                        : item.equipped_background;
-                    const title = Array.isArray(item.equipped_title)
-                        ? item.equipped_title[0]
-                        : item.equipped_title;
-                    equippedMap.set(item.user_id, { avatar, background, title });
+                if (!cancelled) {
+                    setLeaderboard(
+                        entries.map((entry) => ({
+                            user_id: entry.user_id,
+                            username: entry.username,
+                            best_score: entry.best_score,
+                            max_wave: entry.max_score || 1,
+                            games_played: entry.games_played,
+                            rank: entry.rank,
+                            equipped_avatar: entry.equipped_avatar,
+                            equipped_background: entry.equipped_background,
+                            equipped_title: entry.equipped_title,
+                        }))
+                    );
+                }
+            } catch (error) {
+                console.error("Error fetching Lexicon Blaster leaderboard:", error);
+            } finally {
+                if (!cancelled) {
+                    setLoading(false);
                 }
             }
-
-            // Group by user_id and get best score per user
-            const userMap = new Map<
-                string,
-                { username: string; bestScore: number; maxWave: number; gamesPlayed: number }
-            >();
-
-            for (const entry of scores) {
-                const userId = entry.user_id;
-                const score = entry.score;
-                const wave = entry.max_score || 1;
-                const username = profileMap.get(userId) || "Unknown";
-
-                if (!userMap.has(userId)) {
-                    userMap.set(userId, {
-                        username,
-                        bestScore: score,
-                        maxWave: wave,
-                        gamesPlayed: 1,
-                    });
-                } else {
-                    const userData = userMap.get(userId)!;
-                    if (score > userData.bestScore) {
-                        userData.bestScore = score;
-                        userData.maxWave = wave;
-                    }
-                    userData.gamesPlayed += 1;
-                }
-            }
-
-            // Convert to array and sort by best score
-            const entries: LeaderboardEntry[] = Array.from(userMap.entries())
-                .map(([userId, data]) => {
-                    const equipped = equippedMap.get(userId);
-                    return {
-                        user_id: userId,
-                        username: data.username,
-                        best_score: data.bestScore,
-                        max_wave: data.maxWave,
-                        games_played: data.gamesPlayed,
-                        rank: 0,
-                        equipped_avatar: equipped?.avatar || null,
-                        equipped_background: equipped?.background || null,
-                        equipped_title: equipped?.title || null,
-                    };
-                })
-                .sort((a, b) => b.best_score - a.best_score)
-                .map((entry, index) => ({
-                    ...entry,
-                    rank: index + 1,
-                }))
-                .slice(0, 10); // Top 10
-
-            setLeaderboard(entries);
-            setLoading(false);
         }
 
         fetchLeaderboard();
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
     if (loading) {

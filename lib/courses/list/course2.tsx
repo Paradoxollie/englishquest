@@ -282,10 +282,10 @@ export const course2: LessonContent = {
             },
             {
               id: 8,
-              question: "Pourquoi pas 'I am loving you' ?",
-              options: ["C'est grammaticalement incorrect", "C'est possible chez McDo mais pas en grammaire pure", "Ça ne se dit pas", "Les trois réponses"],
-              correctAnswer: 3,
-              explanation: "Love est un verbe de sentiment. 'I'm lovin' it' est un slogan publicitaire, pas de l'anglais correct !",
+              question: "Pourquoi évite-t-on 'I am loving you' pour dire 'je t'aime' ?",
+              options: ["Parce que love exprime généralement un état ou un sentiment", "Parce que le sujet I est interdit", "Parce que love n'existe pas", "Parce que am doit toujours être suivi de a"],
+              correctAnswer: 0,
+              explanation: "En anglais standard, pour un sentiment durable, on dit 'I love you'. Le continu peut exister dans des emplois très contextuels comme 'I'm loving this', mais ce n'est pas la forme de base.",
             },
             {
               id: 9,

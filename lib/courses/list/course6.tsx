@@ -340,7 +340,7 @@ export const course6: LessonContent = {
               question: "It ___ matter.",
               options: ["don't", "isn't", "not", "doesn't"],
               correctAnswer: 3,
-              explanation: "Expression classique. It (3ème pers) + Matter (Verbe impoter). ➔ It DOESN'T matter.",
+              explanation: "Expression classique. It (3ème pers) + matter (verbe importer / compter). ➔ It DOESN'T matter.",
             },
             {
               id: 9,

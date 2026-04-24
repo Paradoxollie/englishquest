@@ -159,7 +159,7 @@ export const course32: LessonContent = {
                             question: "If I ___ rich, I would help everyone.",
                             options: ["was", "were"],
                             correctAnswer: 1,
-                            explanation: "Dans l'imaginaire (Second Conditional), on utilise WERE pour tout le monde.",
+                            explanation: "Dans le second conditional, 'were' est la forme la plus sûre et la plus soignée avec tous les sujets.",
                         },
                         {
                             id: 2,
@@ -208,7 +208,7 @@ export const course32: LessonContent = {
                             question: "I wouldn't buy this car if I ___ you.",
                             options: ["was", "were"],
                             correctAnswer: 1,
-                            explanation: "Toujours 'WERE' avec 'If I' dans le 2nd Conditionnel.",
+                            explanation: "Avec 'If I were you', on garde 'were' : c'est l'expression correcte pour donner un conseil.",
                         },
                         {
                             id: 9,

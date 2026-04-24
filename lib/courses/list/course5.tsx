@@ -201,7 +201,7 @@ export const course5: LessonContent = {
       content: (
         <div className="space-y-8">
           <p className="text-slate-200 text-lg leading-relaxed text-balance">
-            Pour obtenir des informations précises, l'inspecteur ne peut pas juste demander oui ou non. Il a besoin de ses **outils spéificiques** (les "WH-Words").
+            Pour obtenir des informations précises, l'inspecteur ne peut pas juste demander oui ou non. Il a besoin de ses <strong>outils spécifiques</strong> (les "WH-Words").
           </p>
 
           {/* The Toolkit Grid */}

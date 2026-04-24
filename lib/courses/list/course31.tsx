@@ -133,7 +133,7 @@ export const course31: LessonContent = {
                     questions={[
                         {
                             id: 1,
-                            question: "If it ___ sunny, we will go safely.",
+                            question: "If it ___ sunny, we will go outside.",
                             options: ["is", "will be"],
                             correctAnswer: 0,
                             explanation: "Après IF, on utilise le PRÉSENT (is). Jamais de WILL après IF.",

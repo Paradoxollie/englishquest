@@ -186,7 +186,7 @@ export const course14: LessonContent = {
             },
             {
               id: 8,
-              question: "I feel seek. I think I ___ be sick.",
+              question: "I feel sick. I think I ___ be sick.",
               options: ["will", "am going to", "go to", "am being"],
               correctAnswer: 1,
               explanation: "Sensation interne (Preuve sensorielle). 'I feel terrible' ➔ Evidence ➔ GOING TO be sick.",

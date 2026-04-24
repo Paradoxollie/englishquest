@@ -13,29 +13,11 @@
  */
 
 import { useEffect, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Difficulty } from "@/lib/profile/leveling";
 import { TrophyIcon } from "@/components/ui/game-icons";
 
-import type { ShopItem } from "@/types/shop";
 import { LeaderboardAvatar } from "./leaderboard-avatar";
-
-interface LeaderboardEntry {
-  user_id: string;
-  username: string;
-  best_score: number;
-  games_played: number;
-  rank: number;
-  equipped_avatar?: ShopItem | null;
-  equipped_background?: ShopItem | null;
-  equipped_title?: ShopItem | null;
-}
-
-interface LeaderboardData {
-  easy: LeaderboardEntry[];
-  medium: LeaderboardEntry[];
-  hard: LeaderboardEntry[];
-}
+import { getSpeedVerbLeaderboards, type SpeedVerbLeaderboardData } from "./get-top-scores";
 
 const DIFFICULTY_LABELS: Record<Difficulty, string> = {
   easy: "Facile",
@@ -53,6 +35,8 @@ interface SpeedVerbLeaderboardProps {
   initialDifficulty?: Difficulty;
 }
 
+type LeaderboardData = SpeedVerbLeaderboardData;
+
 export function SpeedVerbLeaderboard({ initialDifficulty = "easy" }: SpeedVerbLeaderboardProps) {
   const [leaderboards, setLeaderboards] = useState<LeaderboardData>({
     easy: [],
@@ -63,145 +47,31 @@ export function SpeedVerbLeaderboard({ initialDifficulty = "easy" }: SpeedVerbLe
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>(initialDifficulty);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function fetchLeaderboards() {
       setLoading(true);
-      const supabase = createSupabaseBrowserClient();
 
-      // Get the Speed Verb Challenge game ID
-      const { data: game } = await supabase
-        .from("games")
-        .select("id")
-        .eq("slug", "speed-verb-challenge")
-        .single();
+      try {
+        const leaderboardData = await getSpeedVerbLeaderboards();
 
-      if (!game) {
-        setLoading(false);
-        return;
+        if (!cancelled) {
+          setLeaderboards(leaderboardData);
+        }
+      } catch (error) {
+        console.error("Error fetching Speed Verb leaderboards:", error);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-
-      const gameId = game.id;
-
-      // Fetch leaderboards for each difficulty
-      const difficulties: Difficulty[] = ["easy", "medium", "hard"];
-      const leaderboardData: LeaderboardData = {
-        easy: [],
-        medium: [],
-        hard: [],
-      };
-
-      for (const difficulty of difficulties) {
-        // Query: Get all scores for this game and difficulty
-        // We'll group by user_id in JavaScript and join with profiles separately
-        const { data: scores, error } = await supabase
-          .from("game_scores")
-          .select("user_id, score")
-          .eq("game_id", gameId)
-          .eq("difficulty", difficulty)
-          .order("score", { ascending: false });
-
-        if (error) {
-          console.error(`Error fetching ${difficulty} leaderboard:`, error);
-          continue;
-        }
-
-        if (!scores || scores.length === 0) {
-          continue;
-        }
-
-        // Get unique user IDs
-        const userIds = [...new Set(scores.map((s) => s.user_id))];
-
-        // Fetch usernames for these users
-        const { data: profiles } = await supabase
-          .from("profiles")
-          .select("id, username")
-          .in("id", userIds);
-
-        const profileMap = new Map(
-          (profiles || []).map((p) => [p.id, p.username])
-        );
-
-        // Fetch equipped items for all users
-        const { data: equippedItems } = await supabase
-          .from("user_equipped_items")
-          .select(`
-            user_id,
-            equipped_avatar:shop_items!equipped_avatar_id(*),
-            equipped_background:shop_items!equipped_background_id(*),
-            equipped_title:shop_items!equipped_title_id(*)
-          `)
-          .in("user_id", userIds);
-
-        const equippedMap = new Map<string, { avatar?: ShopItem | null; background?: ShopItem | null; title?: ShopItem | null }>();
-        if (equippedItems) {
-          for (const item of equippedItems) {
-            const avatar = Array.isArray(item.equipped_avatar) 
-              ? item.equipped_avatar[0] 
-              : item.equipped_avatar;
-            const background = Array.isArray(item.equipped_background) 
-              ? item.equipped_background[0] 
-              : item.equipped_background;
-            const title = Array.isArray(item.equipped_title) 
-              ? item.equipped_title[0] 
-              : item.equipped_title;
-            equippedMap.set(item.user_id, { avatar, background, title });
-          }
-        }
-
-        // Group by user_id and calculate best score and games played
-        const userMap = new Map<
-          string,
-          { username: string; bestScore: number; gamesPlayed: number }
-        >();
-
-        for (const entry of scores) {
-          const userId = entry.user_id;
-          const score = entry.score;
-          const username = profileMap.get(userId) || "Unknown";
-
-          if (!userMap.has(userId)) {
-            userMap.set(userId, {
-              username,
-              bestScore: score,
-              gamesPlayed: 1,
-            });
-          } else {
-            const userData = userMap.get(userId)!;
-            userData.bestScore = Math.max(userData.bestScore, score);
-            userData.gamesPlayed += 1;
-          }
-        }
-
-        // Convert to array and sort by best score
-        const entries: LeaderboardEntry[] = Array.from(userMap.entries())
-          .map(([userId, data], index) => {
-            const equipped = equippedMap.get(userId);
-            return {
-              user_id: userId,
-              username: data.username,
-              best_score: data.bestScore,
-              games_played: data.gamesPlayed,
-              rank: index + 1,
-              equipped_avatar: equipped?.avatar || null,
-              equipped_background: equipped?.background || null,
-              equipped_title: equipped?.title || null,
-            };
-          })
-          .sort((a, b) => b.best_score - a.best_score)
-          .map((entry, index) => ({
-            ...entry,
-            rank: index + 1,
-          }))
-          .slice(0, 10); // Top 10
-
-        leaderboardData[difficulty] = entries;
-      }
-
-      setLeaderboards(leaderboardData);
-      setLoading(false);
     }
 
     fetchLeaderboards();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Update selected difficulty when prop changes
@@ -311,4 +181,3 @@ export function SpeedVerbLeaderboard({ initialDifficulty = "easy" }: SpeedVerbLe
     </div>
   );
 }
-

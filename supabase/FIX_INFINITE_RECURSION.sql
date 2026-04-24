@@ -18,14 +18,19 @@ RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER -- IMPORTANT: Bypass RLS pour éviter la récursion
 STABLE
+SET search_path = public
 AS $$
   SELECT EXISTS (
     SELECT 1 
     FROM public.profiles 
-    WHERE id = user_id 
+    WHERE id = $1
     AND role = 'admin'
+    AND id = auth.uid()
   );
 $$;
+
+REVOKE ALL ON FUNCTION public.is_admin(uuid) FROM public;
+GRANT EXECUTE ON FUNCTION public.is_admin(uuid) TO anon, authenticated, service_role;
 
 -- ============================================================================
 -- ÉTAPE 2: Supprimer TOUTES les policies existantes sur shop_items
@@ -160,7 +165,6 @@ SELECT
   cmd
 FROM pg_policies
 WHERE tablename = 'user_items';
-
 
 
 

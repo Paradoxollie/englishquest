@@ -138,8 +138,8 @@ export const course49: LessonContent = {
                         {
                             id: 2,
                             question: "Which one means 'abandonner'?",
-                            options: ["give up", "sit down"],
-                            correctAnswer: 0,
+                            options: ["sit down", "give up"],
+                            correctAnswer: 1,
                             explanation: "Give up est un phrasal verb idiomatique tres frequent.",
                         },
                         {
@@ -152,8 +152,8 @@ export const course49: LessonContent = {
                         {
                             id: 4,
                             question: "Which one is correct?",
-                            options: ["look after them", "look them after"],
-                            correctAnswer: 0,
+                            options: ["look them after", "look after them"],
+                            correctAnswer: 1,
                             explanation: "Look after est inseparable.",
                         },
                         {
@@ -166,8 +166,8 @@ export const course49: LessonContent = {
                         {
                             id: 6,
                             question: "The best way to learn phrasal verbs is ...",
-                            options: ["as complete chunks in context", "particle by particle only"],
-                            correctAnswer: 0,
+                            options: ["particle by particle only", "as complete chunks in context"],
+                            correctAnswer: 1,
                             explanation: "Le sens depend du groupe entier et du contexte.",
                         },
                         {
@@ -180,8 +180,8 @@ export const course49: LessonContent = {
                         {
                             id: 8,
                             question: "Which one means 's'occuper de'?",
-                            options: ["look after", "pick up"],
-                            correctAnswer: 0,
+                            options: ["pick up", "look after"],
+                            correctAnswer: 1,
                             explanation: "Look after = prendre soin de / s'occuper de.",
                         },
                         {
@@ -194,9 +194,9 @@ export const course49: LessonContent = {
                         {
                             id: 10,
                             question: "Which pair is correct?",
-                            options: ["pick up the phone / pick the phone up", "pick up it / pick it up later"],
-                            correctAnswer: 0,
-                            explanation: "La premiere paire illustre bien un phrasal verb separable avec un nom.",
+                            options: ["pick up it / pick the phone it up", "pick up the phone / pick the phone up"],
+                            correctAnswer: 1,
+                            explanation: "La deuxième paire illustre bien un phrasal verb separable avec un nom.",
                         }
                     ]}
                 />

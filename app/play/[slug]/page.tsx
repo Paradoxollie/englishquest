@@ -11,6 +11,12 @@ type PageProps = {
   params: Promise<{ slug: string }>;
 };
 
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return [];
+}
+
 function pickAlternatives(currentSlug: string, recommendedSlugs: string[]) {
   const recommendedFirst = games.filter(
     (game) => game.slug !== currentSlug && recommendedSlugs.includes(game.slug)

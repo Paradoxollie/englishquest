@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import {
   LessonLayout,
   LessonSection,
@@ -20,6 +21,7 @@ interface CoursePageProps {
 }
 
 export const dynamic = "force-dynamic";
+export const dynamicParams = false;
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
@@ -62,6 +64,11 @@ export default async function CoursePage({ params }: CoursePageProps) {
   const courseId = Number.parseInt(id, 10);
   const lesson = lessons[courseId];
   const course = getCourseById(courseId);
+
+  if (!course) {
+    notFound();
+  }
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },

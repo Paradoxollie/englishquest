@@ -161,8 +161,8 @@ export const course43: LessonContent = {
                         {
                             id: 1,
                             question: "This time tomorrow, we ___ over the Alps.",
-                            options: ["will be flying", "will have flown"],
-                            correctAnswer: 0,
+                            options: ["will have flown", "will be flying"],
+                            correctAnswer: 1,
                             explanation: "On imagine l'action en cours a un moment precis du futur.",
                         },
                         {
@@ -175,8 +175,8 @@ export const course43: LessonContent = {
                         {
                             id: 3,
                             question: "At 8 p.m., she ___ her clients.",
-                            options: ["will be meeting", "will have met"],
-                            correctAnswer: 0,
+                            options: ["will have met", "will be meeting"],
+                            correctAnswer: 1,
                             explanation: "A 20h, la reunion sera en cours.",
                         },
                         {
@@ -189,8 +189,8 @@ export const course43: LessonContent = {
                         {
                             id: 5,
                             question: "Don't call at 7. I ___ dinner then.",
-                            options: ["will be cooking", "will have cooked"],
-                            correctAnswer: 0,
+                            options: ["will have cooked", "will be cooking"],
+                            correctAnswer: 1,
                             explanation: "Then renvoie a un moment ou l'action sera en cours.",
                         },
                         {
@@ -210,8 +210,8 @@ export const course43: LessonContent = {
                         {
                             id: 8,
                             question: "By the time you arrive, I ___ everything.",
-                            options: ["will have prepared", "will be preparing"],
-                            correctAnswer: 0,
+                            options: ["will be preparing", "will have prepared"],
+                            correctAnswer: 1,
                             explanation: "By the time annonce une action achevee avant ton arrivee.",
                         },
                         {

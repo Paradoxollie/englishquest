@@ -155,8 +155,8 @@ export const course46: LessonContent = {
                         {
                             id: 2,
                             question: "She had her phone ___ last week.",
-                            options: ["repaired", "repair"],
-                            correctAnswer: 0,
+                            options: ["repair", "repaired"],
+                            correctAnswer: 1,
                             explanation: "La structure demande le past participle: repaired.",
                         },
                         {
@@ -169,8 +169,8 @@ export const course46: LessonContent = {
                         {
                             id: 4,
                             question: "Which sentence means a professional did the work?",
-                            options: ["I had my hair cut.", "I cut my hair."],
-                            correctAnswer: 0,
+                            options: ["I cut my hair.", "I had my hair cut."],
+                            correctAnswer: 1,
                             explanation: "I had my hair cut montre qu'une autre personne s'en est chargee.",
                         },
                         {
@@ -183,8 +183,8 @@ export const course46: LessonContent = {
                         {
                             id: 6,
                             question: "I had the mechanic ___ the brakes.",
-                            options: ["check", "checked"],
-                            correctAnswer: 0,
+                            options: ["checked", "check"],
+                            correctAnswer: 1,
                             explanation: "Have someone do something prend la base verbale apres la personne.",
                         },
                         {
@@ -197,8 +197,8 @@ export const course46: LessonContent = {
                         {
                             id: 8,
                             question: "This structure is often used for ...",
-                            options: ["services and interventions", "general truths only"],
-                            correctAnswer: 0,
+                            options: ["general truths only", "services and interventions"],
+                            correctAnswer: 1,
                             explanation: "Have something done est tres frequent pour les services, reparations et rendez-vous.",
                         },
                         {
@@ -211,9 +211,9 @@ export const course46: LessonContent = {
                         {
                             id: 10,
                             question: "Choose the best sentence for 'je vais faire tester mes yeux'.",
-                            options: ["I'm going to have my eyes tested.", "I'm going to test my eyes."],
-                            correctAnswer: 0,
-                            explanation: "La premiere phrase exprime clairement le rendez-vous avec un professionnel.",
+                            options: ["I'm going to test my eyes.", "I'm going to have my eyes tested."],
+                            correctAnswer: 1,
+                            explanation: "La deuxième phrase exprime clairement le rendez-vous avec un professionnel.",
                         }
                     ]}
                 />

@@ -91,8 +91,8 @@ export const course39: LessonContent = {
                         {
                             id: 1,
                             question: "I enjoy ___ football.",
-                            options: ["playing", "to play"],
-                            correctAnswer: 0,
+                            options: ["to play", "playing"],
+                            correctAnswer: 1,
                             explanation: "ENJOY est toujours suivi de -ING.",
                         },
                         {
@@ -105,8 +105,8 @@ export const course39: LessonContent = {
                         {
                             id: 3,
                             question: "He stopped ___ 5 years ago.",
-                            options: ["smoking", "to smoke"],
-                            correctAnswer: 0,
+                            options: ["to smoke", "smoking"],
+                            correctAnswer: 1,
                             explanation: "STOP + ING = Arrêter une activité (Arrêter de fumer).",
                         },
                         {
@@ -119,8 +119,8 @@ export const course39: LessonContent = {
                         {
                             id: 5,
                             question: "I suggest ___ a break.",
-                            options: ["taking", "to take"],
-                            correctAnswer: 0,
+                            options: ["to take", "taking"],
+                            correctAnswer: 1,
                             explanation: "SUGGEST est toujours suivi de -ING.",
                         },
                         {
@@ -133,8 +133,8 @@ export const course39: LessonContent = {
                         {
                             id: 7,
                             question: "He left without ___ anything.",
-                            options: ["saying", "to say"],
-                            correctAnswer: 0,
+                            options: ["to say", "saying"],
+                            correctAnswer: 1,
                             explanation: "WITHOUT est une préposition ➔ ING.",
                         },
                         {
@@ -147,8 +147,8 @@ export const course39: LessonContent = {
                         {
                             id: 9,
                             question: "We avoided ___ him.",
-                            options: ["meeting", "to meet"],
-                            correctAnswer: 0,
+                            options: ["to meet", "meeting"],
+                            correctAnswer: 1,
                             explanation: "AVOID est toujours suivi de -ING.",
                         },
                         {

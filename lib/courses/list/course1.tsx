@@ -66,7 +66,7 @@ export const course1: LessonContent = {
       content: (
         <div className="space-y-6">
           <p className="text-slate-200 text-lg leading-relaxed text-balance">
-            Pour la <strong>possession</strong>, on privilégie <strong className="text-emerald-300">Have got</strong>. C'est la forme la plus claire pour dire "Je possède".
+            Pour la <strong>possession</strong>, <strong className="text-emerald-300">have got</strong> est très courant, surtout en anglais britannique. La forme simple <strong>have</strong> est aussi correcte, notamment en anglais américain. Ici, on apprend d'abord <strong>have got</strong> pour bien voir la conjugaison de <strong>have</strong>.
           </p>
 
           {/* Equal height cards for Have */}
@@ -199,7 +199,7 @@ export const course1: LessonContent = {
             },
             {
               id: 4,
-              question: "Traduisez : 'Ils sont contents' (They = Ils, Happy = Contenus)",
+              question: "Traduisez : 'Ils sont contents' (They = ils, happy = contents / heureux)",
               options: ["They have happy", "They is happy", "They are happy", "They am happy"],
               correctAnswer: 2,
               explanation: "Le sujet est pluriel ('They'). La forme correcte du verbe Être est 'are'.",
@@ -209,7 +209,7 @@ export const course1: LessonContent = {
               question: "Piège ! Comment dire 'J'ai 25 ans' ?",
               options: ["I have 25 years", "I am 25 years old", "I have 25 years old", "I'm have 25"],
               correctAnswer: 1,
-              explanation: "L'âge est un état civil en anglais, pas une possession. On dit 'Je SUIS vieux de 25 ans' (I am...).",
+              explanation: "L'âge s'exprime avec le verbe BE en anglais, pas avec HAVE. On dit donc : I am 25 years old.",
             },
             {
               id: 6,
@@ -234,7 +234,7 @@ export const course1: LessonContent = {
             },
             {
               id: 9,
-              question: "Possession : ' The cat ___ blue eyes' (Les yeux bleus)",
+              question: "Possession : 'The cat ___ blue eyes' (les yeux bleus)",
               options: ["is", "are", "have got", "has got"],
               correctAnswer: 3,
               explanation: "Le chat (It/He) 'possède' des yeux bleus. 3ème personne du singulier = has got.",

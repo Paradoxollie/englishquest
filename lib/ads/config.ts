@@ -17,6 +17,10 @@ const DEFAULT_AD_SETTINGS: AdRouteSettings = {
   sidebar: false,
 };
 
+const ADSENSE_ENABLED =
+  process.env.NODE_ENV === "production" &&
+  process.env.NEXT_PUBLIC_ADSENSE_ENABLED !== "false";
+
 const EXACT_ROUTE_SETTINGS: Record<string, AdRouteSettings> = {
   "/": {
     loadScript: true,
@@ -36,7 +40,7 @@ const EXACT_ROUTE_SETTINGS: Record<string, AdRouteSettings> = {
 };
 
 export function getAdRouteSettings(pathname?: string | null): AdRouteSettings {
-  if (!pathname) {
+  if (!ADSENSE_ENABLED || !pathname) {
     return DEFAULT_AD_SETTINGS;
   }
 
