@@ -14,6 +14,8 @@ export interface FallingWord {
   text: string;        // full word (for exact mode) or underlying word for free mode
   displayText: string; // what is shown on the block: translation (FR) OR first letter
   translation?: string; // French translation (optional, for vocabulary learning mode)
+  x: number;           // horizontal center position in percent of the board
+  lane: number;        // visual lane index used to avoid overlap
   y: number;           // vertical position, 0 = top, 100 = bottom
   speed: number;       // current falling speed (units per second)
 }
@@ -25,6 +27,7 @@ export interface WordfallState {
   score: number;
   level: number;
   activeWord: FallingWord | null;
+  activeWords: FallingWord[];
   usedWords: string[]; // for free mode
   wordsCompleted: number;
   gameOver: boolean;
@@ -229,8 +232,51 @@ const DEFAULT_CONFIG: Required<Omit<WordfallConfig, "mode" | "rng">> = {
   wordsPerLevel: 5, // Words needed to level up
 };
 
+const FALL_LANES = [18, 50, 82] as const;
+const SAME_LANE_SPAWN_CLEARANCE = 42;
+
 function defaultRng(): number {
   return Math.random();
+}
+
+function getActiveWords(state: WordfallState): FallingWord[] {
+  if (state.activeWords?.length > 0) {
+    return state.activeWords;
+  }
+
+  return state.activeWord ? [state.activeWord] : [];
+}
+
+export function getWordfallMaxActiveWords(state: WordfallState): number {
+  if (state.level >= 7) return 3;
+  if (state.level >= 4) return 2;
+  return 1;
+}
+
+export function getWordfallSpawnDelayMs(state: WordfallState): number {
+  return Math.max(820, 1750 - (state.level - 1) * 135);
+}
+
+function pickFallingLane(state: WordfallState, rng: () => number): { lane: number; x: number } | null {
+  const activeWords = getActiveWords(state);
+  const safeLaneIndexes = FALL_LANES
+    .map((x, lane) => ({ lane, x }))
+    .filter((candidate) =>
+      activeWords.every((word) => word.lane !== candidate.lane || word.y >= SAME_LANE_SPAWN_CLEARANCE)
+    );
+
+  if (safeLaneIndexes.length === 0) {
+    return null;
+  }
+
+  return safeLaneIndexes[Math.floor(rng() * safeLaneIndexes.length)];
+}
+
+function getVariableSpeed(baseSpeed: number, level: number, rng: () => number): number {
+  const variance = 0.9 + rng() * 0.22;
+  const levelPressure = Math.min(1.5, Math.max(0, level - 1) * 0.08);
+
+  return Math.min(14, Math.max(4.2, baseSpeed * variance + levelPressure));
 }
 
 /**
@@ -249,6 +295,7 @@ export function createGameState(config: WordfallConfig): WordfallState {
     score: 0,
     level: 1,
     activeWord: null,
+    activeWords: [],
     usedWords: [],
     wordsCompleted: 0,
     gameOver: false,
@@ -362,7 +409,13 @@ export function spawnFallingWord(
     ...config,
   };
 
-  const currentSpeed = fullConfig.initialSpeed + (state.level - 1) * fullConfig.speedIncreasePerLevel;
+  const lane = pickFallingLane(state, rng);
+  if (!lane) {
+    return null;
+  }
+
+  const baseSpeed = fullConfig.initialSpeed + (state.level - 1) * fullConfig.speedIncreasePerLevel;
+  const currentSpeed = getVariableSpeed(baseSpeed, state.level, rng);
 
   if (state.mode === "exact") {
     // Try up to 10 times to find a word with translation
@@ -392,6 +445,8 @@ export function spawnFallingWord(
       text: word, // English word (what player must type)
       displayText: word, // English word (what is displayed and falls)
       translation: translation, // French translation (for information only)
+      x: lane.x,
+      lane: lane.lane,
       y: 0,
       speed: currentSpeed,
     };
@@ -404,6 +459,8 @@ export function spawnFallingWord(
       id: `word-${Date.now()}-${Math.random()}`,
       text: letter, // Store the letter as text
       displayText: letter,
+      x: lane.x,
+      lane: lane.lane,
       y: 0,
       speed: currentSpeed,
     };
@@ -445,22 +502,21 @@ export function validateExactWord(
 ): { valid: boolean; reason?: string } {
   const trimmed = input.trim();
   
-  // Split by spaces - take first word as English, rest as French
   const parts = trimmed.split(/\s+/).filter(p => p.trim().length > 0);
+  const targetEnglishParts = targetWord.trim().split(/\s+/).filter(p => p.trim().length > 0);
   
-  if (parts.length < 2) {
-    return { valid: false, reason: "Tape le mot anglais puis sa traduction francaise, separes par un espace." };
+  if (parts.length <= targetEnglishParts.length) {
+    return { valid: false, reason: "Tape l'expression anglaise complete puis sa traduction francaise." };
   }
   
-  // First part is English word
-  const englishInput = parts[0];
-  // Rest is French translation (join in case it has spaces)
-  const frenchInput = parts.slice(1).join(' ');
+  const englishInput = parts.slice(0, targetEnglishParts.length).join(' ');
+  const frenchInput = parts.slice(targetEnglishParts.length).join(' ');
   
-  const normalizedEnglish = englishInput.toUpperCase();
+  const normalizedEnglish = englishInput.toUpperCase().replace(/\s+/g, " ").trim();
+  const normalizedTargetEnglish = targetWord.toUpperCase().replace(/\s+/g, " ").trim();
   
   // Check English word
-  if (normalizedEnglish !== targetWord.toUpperCase()) {
+  if (normalizedEnglish !== normalizedTargetEnglish) {
     return { valid: false, reason: "Le mot anglais ne correspond pas" };
   }
   
@@ -549,27 +605,43 @@ export function processWordInput(
     newStreak: number;
   };
 } {
-  if (!state.activeWord || state.gameOver || !state.isRunning) {
+  const activeWords = getActiveWords(state);
+
+  if (activeWords.length === 0 || state.gameOver || !state.isRunning) {
     return { success: false, newState: state, reason: "No active word" };
   }
 
-  let isValid = false;
   let reason: string | undefined;
+  let matchedWord: FallingWord | null = null;
 
-  if (state.mode === "exact") {
-    if (!state.activeWord.translation) {
-      return { success: false, newState: state, reason: "Translation missing" };
+  for (const activeWord of activeWords) {
+    if (state.mode === "exact") {
+      if (!activeWord.translation) {
+        reason = reason || "Translation missing";
+        continue;
+      }
+
+      const validation = validateExactWord(input, activeWord.text, activeWord.translation);
+      if (validation.valid) {
+        matchedWord = activeWord;
+        break;
+      }
+
+      if (!reason || validation.reason !== "Le mot anglais ne correspond pas") {
+        reason = validation.reason;
+      }
+    } else {
+      const validation = validateFreeWord(input, activeWord.displayText, state.usedWords);
+      if (validation.valid) {
+        matchedWord = activeWord;
+        break;
+      }
+
+      reason = reason || validation.reason;
     }
-    const validation = validateExactWord(input, state.activeWord.text, state.activeWord.translation);
-    isValid = validation.valid;
-    reason = validation.reason;
-  } else {
-    const validation = validateFreeWord(input, state.activeWord.displayText, state.usedWords);
-    isValid = validation.valid;
-    reason = validation.reason;
   }
 
-  if (!isValid) {
+  if (!matchedWord) {
     // Reset streak on error
     const newStateWithStreakReset: WordfallState = {
       ...state,
@@ -589,11 +661,11 @@ export function processWordInput(
   const newLevel = Math.floor(newWordsCompleted / DEFAULT_CONFIG.wordsPerLevel) + 1;
   
   // Calculate timing for speed bonus
-  const wordPosition = state.activeWord?.y || 0;
+  const wordPosition = matchedWord.y;
   
   // Base points calculation (reduced)
   const wordLength = state.mode === "exact"
-    ? state.activeWord.text.replace(/\s+/g, "").length
+    ? matchedWord.text.replace(/\s+/g, "").length
     : input.trim().length;
   const basePoints = state.mode === "exact" ? 5 : 8; // Reduced from 10/15
   
@@ -638,10 +710,12 @@ export function processWordInput(
   const newScore = state.score + totalPoints;
   const newHighestStreak = Math.max(state.highestStreak, newStreak);
   const newPerfectCatches = isPerfect ? state.perfectCatches + 1 : state.perfectCatches;
+  const remainingWords = activeWords.filter((word) => word.id !== matchedWord.id);
 
   const newState: WordfallState = {
     ...state,
-    activeWord: null, // Word cleared
+    activeWord: remainingWords[0] ?? null,
+    activeWords: remainingWords,
     usedWords: newUsedWords,
     wordsCompleted: newWordsCompleted,
     level: newLevel,
@@ -674,19 +748,24 @@ export function processWordInput(
 /**
  * Process word reaching bottom (lose a life)
  */
-export function processWordMissed(state: WordfallState): WordfallState {
+export function processWordMissed(state: WordfallState, missedWordId?: string): WordfallState {
   if (state.gameOver) {
     return state;
   }
 
   const newLives = state.lives - 1;
   const gameOver = newLives <= 0;
+  const activeWords = getActiveWords(state);
+  const remainingWords = missedWordId
+    ? activeWords.filter((word) => word.id !== missedWordId)
+    : activeWords.slice(1);
 
   // Reset streak when word is missed
   return {
     ...state,
     lives: newLives,
-    activeWord: null,
+    activeWord: remainingWords[0] ?? null,
+    activeWords: remainingWords,
     gameOver,
     isRunning: !gameOver,
     streak: 0,

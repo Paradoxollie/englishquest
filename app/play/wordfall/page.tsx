@@ -8,6 +8,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type FormEvent,
 } from "react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -15,6 +16,8 @@ import {
   type WordfallMode,
   type WordfallState,
   createGameState,
+  getWordfallMaxActiveWords,
+  getWordfallSpawnDelayMs,
   hasReachedBottom,
   initializeEnglishWords,
   initializeWordLists,
@@ -128,9 +131,27 @@ function formatNumber(value: number): string {
 function getFallingWordTextClass(value: string): string {
   const compactLength = value.replace(/\s+/g, "").length;
 
-  if (compactLength > 12) return "text-3xl md:text-4xl";
-  if (compactLength > 9) return "text-4xl md:text-5xl";
-  return "text-5xl md:text-6xl";
+  if (compactLength > 12) return "text-2xl md:text-3xl";
+  if (compactLength > 9) return "text-3xl md:text-4xl";
+  return "text-4xl md:text-5xl";
+}
+
+function getVisibleFallingWords(state: WordfallState | null) {
+  if (!state) return [];
+  if (state.activeWords?.length > 0) return state.activeWords;
+  return state.activeWord ? [state.activeWord] : [];
+}
+
+function getActiveTop(y: number): number {
+  return 6 + Math.min(1, Math.max(0, y) / 100) * 64;
+}
+
+function getWordCardStyle(x: number): CSSProperties & { "--fall-card-width": string } {
+  return {
+    "--fall-card-width": "min(54vw, 300px)",
+    width: "var(--fall-card-width)",
+    left: `clamp(calc(var(--fall-card-width) / 2 + 10px), ${x}%, calc(100% - var(--fall-card-width) / 2 - 10px))`,
+  };
 }
 
 interface WordfallBootstrap {
@@ -243,6 +264,9 @@ export default function WordfallPage() {
   const [particles, setParticles] = useState<Particle[]>([]);
   const [statusBanner, setStatusBanner] = useState<string | null>(null);
   const [lastScoreIncrease, setLastScoreIncrease] = useState(0);
+  const [isCompactStage, setIsCompactStage] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth < 900 : false
+  );
   const [scoreSubmitted, setScoreSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [submissionResult, setSubmissionResult] = useState<{
@@ -260,12 +284,16 @@ export default function WordfallPage() {
   const scoreSubmissionStartedRef = useRef(false);
 
   const modeCopy = MODE_COPY[selectedMode];
+  const inputPlaceholder =
+    selectedMode === "exact" ? "Mot anglais + traduction" : "Mot anglais valide";
 
   const stageLabel = getStageLabel(gameState, isPaused);
-  const activeWord = gameState?.activeWord ?? null;
-  const activeTop = activeWord ? 6 + Math.min(1, Math.max(0, activeWord.y) / 100) * 64 : 8;
-  const activeProgress = activeWord ? Math.max(0, 100 - activeWord.y) : 100;
-  const activeWordTextClass = activeWord ? getFallingWordTextClass(activeWord.text) : "";
+  const activeWords = getVisibleFallingWords(gameState);
+  const activeCount = activeWords.length;
+  const maxActiveWords = gameState
+    ? Math.min(isCompactStage ? 1 : 3, getWordfallMaxActiveWords(gameState))
+    : 1;
+  const spawnDelayMs = gameState ? getWordfallSpawnDelayMs(gameState) : 260;
 
   const statItems = useMemo(() => {
     if (!gameState) return [];
@@ -311,6 +339,15 @@ export default function WordfallPage() {
       },
     ];
   }, [gameState, lastScoreIncrease]);
+
+  useEffect(() => {
+    const updateStageWidth = () => {
+      setIsCompactStage(window.innerWidth < 900);
+    };
+
+    window.addEventListener("resize", updateStageWidth);
+    return () => window.removeEventListener("resize", updateStageWidth);
+  }, []);
 
   const initializeGame = useCallback((mode: WordfallMode) => {
     setGameState(createGameState({ mode }));
@@ -383,7 +420,13 @@ export default function WordfallPage() {
 
   const spawnNewWord = useCallback(() => {
     setGameState((current) => {
-      if (!current || !current.isRunning || current.gameOver || current.activeWord) {
+      if (!current || !current.isRunning || current.gameOver) {
+        return current;
+      }
+
+      const currentWords = getVisibleFallingWords(current);
+      const currentMaxWords = Math.min(isCompactStage ? 1 : 3, getWordfallMaxActiveWords(current));
+      if (currentWords.length >= currentMaxWords) {
         return current;
       }
 
@@ -392,32 +435,47 @@ export default function WordfallPage() {
         return current;
       }
 
+      const nextWords = [...currentWords, newWord];
+
       return {
         ...current,
-        activeWord: newWord,
-        wordStartTime: Date.now(),
+        activeWord: nextWords[0] ?? null,
+        activeWords: nextWords,
+        wordStartTime: current.wordStartTime ?? Date.now(),
       };
     });
-  }, []);
+  }, [isCompactStage]);
 
   const advanceGame = useCallback(
     (deltaTime: number) => {
       setGameState((current) => {
-        if (!current || !current.isRunning || current.gameOver || !current.activeWord) {
+        const currentWords = getVisibleFallingWords(current);
+
+        if (!current || !current.isRunning || current.gameOver || currentWords.length === 0) {
           return current;
         }
 
-        const updatedWord = updateFallingWord(current.activeWord, deltaTime);
-        if (hasReachedBottom(updatedWord)) {
+        const updatedWords = currentWords.map((word) => updateFallingWord(word, deltaTime));
+        const missedWord = updatedWords.find(hasReachedBottom);
+
+        if (missedWord) {
           flashStage("danger");
           setStatusBanner("Mot manque: une vie perdue.");
           window.setTimeout(() => setStatusBanner(null), 1500);
-          return processWordMissed(current);
+          return processWordMissed(
+            {
+              ...current,
+              activeWord: updatedWords[0] ?? null,
+              activeWords: updatedWords,
+            },
+            missedWord.id
+          );
         }
 
         return {
           ...current,
-          activeWord: updatedWord,
+          activeWord: updatedWords[0] ?? null,
+          activeWords: updatedWords,
         };
       });
     },
@@ -452,11 +510,26 @@ export default function WordfallPage() {
   }, [advanceGame, gameState?.gameOver, gameState?.isRunning, isPaused]);
 
   useEffect(() => {
-    if (gameState?.isRunning && !gameState.activeWord && !gameState.gameOver && !isPaused) {
-      const timer = window.setTimeout(spawnNewWord, 360);
-      return () => window.clearTimeout(timer);
+    if (!gameState?.isRunning || gameState.gameOver || isPaused) {
+      return;
     }
-  }, [gameState?.activeWord, gameState?.gameOver, gameState?.isRunning, isPaused, spawnNewWord]);
+
+    if (activeCount >= maxActiveWords) {
+      return;
+    }
+
+    const delay = activeCount === 0 ? 260 : spawnDelayMs;
+    const timer = window.setTimeout(spawnNewWord, delay);
+    return () => window.clearTimeout(timer);
+  }, [
+    activeCount,
+    gameState?.gameOver,
+    gameState?.isRunning,
+    isPaused,
+    maxActiveWords,
+    spawnDelayMs,
+    spawnNewWord,
+  ]);
 
   const handleSubmitWord = useCallback(
     (event?: FormEvent<HTMLFormElement>) => {
@@ -561,18 +634,30 @@ export default function WordfallPage() {
           score: gameState?.score ?? 0,
           lives: gameState?.lives ?? 0,
           level: gameState?.level ?? 0,
+          maxActiveWords,
           wordsCompleted: gameState?.wordsCompleted ?? 0,
           streak: gameState?.streak ?? 0,
           combo: gameState?.combo ?? 1,
-          activeWord: gameState?.activeWord
+          activeWords: activeWords.map((word) => ({
+            text: word.text,
+            displayText: word.displayText,
+            translation: word.translation ? cleanTranslationLabel(word.translation) : null,
+            lane: word.lane,
+            x: word.x,
+            y: Math.round(word.y),
+            speed: Number(word.speed.toFixed(2)),
+          })),
+          activeWord: activeWords[0]
             ? {
-                text: gameState.activeWord.text,
-                displayText: gameState.activeWord.displayText,
-                translation: gameState.activeWord.translation
-                  ? cleanTranslationLabel(gameState.activeWord.translation)
+                text: activeWords[0].text,
+                displayText: activeWords[0].displayText,
+                translation: activeWords[0].translation
+                  ? cleanTranslationLabel(activeWords[0].translation)
                   : null,
-                y: Math.round(gameState.activeWord.y),
-                speed: gameState.activeWord.speed,
+                lane: activeWords[0].lane,
+                x: activeWords[0].x,
+                y: Math.round(activeWords[0].y),
+                speed: Number(activeWords[0].speed.toFixed(2)),
               }
             : null,
           input: wordInput,
@@ -592,8 +677,10 @@ export default function WordfallPage() {
     };
   }, [
     advanceGame,
+    activeWords,
     errorMessage,
     gameState,
+    maxActiveWords,
     selectedMode,
     stageLabel,
     wordInput,
@@ -790,7 +877,7 @@ export default function WordfallPage() {
                 ))}
               </AnimatePresence>
 
-              {gameState.isRunning && !activeWord && (
+              {gameState.isRunning && activeCount === 0 && (
                 <div className="absolute inset-0 z-10 flex items-center justify-center">
                   <div className="border-4 border-black bg-slate-950/80 px-5 py-4 text-center shadow-[0_4px_0_#000]">
                     <p className="text-sm font-bold uppercase tracking-[0.22em] text-cyan-200">
@@ -804,46 +891,53 @@ export default function WordfallPage() {
               )}
 
               <AnimatePresence>
-                {activeWord && (
+                {activeWords.map((word) => {
+                  const wordTop = getActiveTop(word.y);
+                  const wordProgress = Math.max(0, 100 - word.y);
+                  const wordTextClass = getFallingWordTextClass(word.text);
+
+                  return (
                   <motion.div
-                    key={activeWord.id}
+                    key={word.id}
                     initial={{ opacity: 0, scale: 0.92, top: "2%" }}
-                    animate={{ opacity: 1, scale: 1, top: `${activeTop}%` }}
+                    animate={{ opacity: 1, scale: 1, top: `${wordTop}%` }}
                     exit={{ opacity: 0, scale: 0.86 }}
                     transition={{ duration: 0.08, ease: "linear" }}
-                    className="absolute left-1/2 z-20 w-[min(88vw,500px)] -translate-x-1/2"
+                    className="absolute z-20 -translate-x-1/2"
+                    style={getWordCardStyle(word.x)}
                   >
-                    <div className="border-4 border-black bg-white p-4 text-slate-950 shadow-[0_8px_0_#000] md:p-5">
+                    <div className="border-4 border-black bg-white p-3 text-slate-950 shadow-[0_5px_0_#000] md:p-4">
                       <div className="flex items-center justify-between gap-3">
                         <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-slate-500">
                           {selectedMode === "exact" ? "Mot cible" : "Lettre cible"}
                         </p>
                         <p className="border-2 border-black bg-slate-950 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white">
-                          Vitesse {activeWord.speed.toFixed(1)}
+                          Vitesse {word.speed.toFixed(1)}
                         </p>
                       </div>
-                      <p className={`mt-3 break-words text-center font-black leading-tight tracking-normal text-slate-950 ${activeWordTextClass}`}>
-                        {activeWord.text}
+                      <p className={`mt-2 break-words text-center font-black leading-tight tracking-normal text-slate-950 ${wordTextClass}`}>
+                        {word.text}
                       </p>
-                      {selectedMode === "exact" && activeWord.translation && (
-                        <p className="mt-3 border-t-2 border-slate-200 pt-3 text-center text-sm font-bold uppercase tracking-[0.16em] text-cyan-700 md:text-base">
-                          Traduction: {cleanTranslationLabel(activeWord.translation)}
+                      {selectedMode === "exact" && word.translation && (
+                        <p className="mt-2 border-t-2 border-slate-200 pt-2 text-center text-xs font-bold uppercase tracking-[0.14em] text-cyan-700 md:text-sm">
+                          Traduction: {cleanTranslationLabel(word.translation)}
                         </p>
                       )}
                       {selectedMode === "free" && (
-                        <p className="mt-3 border-t-2 border-slate-200 pt-3 text-center text-sm font-bold uppercase tracking-[0.16em] text-fuchsia-700 md:text-base">
-                          Un mot anglais qui commence par {activeWord.text}
+                        <p className="mt-2 border-t-2 border-slate-200 pt-2 text-center text-xs font-bold uppercase tracking-[0.14em] text-fuchsia-700 md:text-sm">
+                          Un mot anglais qui commence par {word.text}
                         </p>
                       )}
-                      <div className="mt-4 h-3 border-2 border-black bg-red-100">
+                      <div className="mt-3 h-2.5 border-2 border-black bg-red-100">
                         <div
                           className="h-full bg-gradient-to-r from-emerald-500 via-amber-400 to-red-500"
-                          style={{ width: `${activeProgress}%` }}
+                          style={{ width: `${wordProgress}%` }}
                         />
                       </div>
                     </div>
                   </motion.div>
-                )}
+                  );
+                })}
               </AnimatePresence>
 
               <AnimatePresence>
@@ -991,7 +1085,7 @@ export default function WordfallPage() {
                             : event.target.value;
                         setWordInput(value);
                       }}
-                      placeholder={`${modeCopy.prompt} Exemple: ${modeCopy.input}`}
+                      placeholder={inputPlaceholder}
                       disabled={isPaused}
                       autoFocus
                       className="w-full border-4 border-black bg-white px-4 py-4 text-lg font-bold text-slate-950 outline-none transition focus:border-cyan-300 focus:ring-4 focus:ring-cyan-300/30 disabled:opacity-60"

@@ -13,6 +13,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { revalidateCourseMissionBenchmarks } from "@/lib/courses/cache-server";
 import { calculateLevelFromXP } from "@/lib/profile/leveling";
+import type { ShopItem } from "@/types/shop";
 
 /**
  * Calculate rewards for Flash Translation based on performance
@@ -59,6 +60,95 @@ function computeFlashTranslationRewards(params: {
     return { xpEarned: xp, goldEarned: gold };
 }
 
+const FLASH_TRANSLATION_MAX_TIME_MS = 10 * 60 * 1000;
+const FLASH_TRANSLATION_MAX_AVERAGE_MS = 60 * 1000;
+const FLASH_TRANSLATION_MIN_AVERAGE_MS = 120;
+const FLASH_TRANSLATION_REQUIRED_ROUNDS = 10;
+const FLASH_TRANSLATION_WRONG_ANSWER_PENALTY_MS = 5000;
+
+type EquippedItems = {
+    avatar: ShopItem | null;
+    background: ShopItem | null;
+    title: ShopItem | null;
+};
+
+type SupabaseShopJoin = ShopItem | ShopItem[] | null;
+
+type EquippedItemRow = {
+    user_id: string;
+    equipped_avatar: SupabaseShopJoin;
+    equipped_background: SupabaseShopJoin;
+    equipped_title: SupabaseShopJoin;
+};
+
+type FlashUserStats = {
+    bestScore: number;
+    gamesPlayed: number;
+};
+
+function pickJoinedItem(value: SupabaseShopJoin): ShopItem | null {
+    return Array.isArray(value) ? value[0] ?? null : value;
+}
+
+function normalizeFlashTranslationScoreParams(params: {
+    totalTimeMs: number;
+    averageReactionTimeMs: number;
+    wrongAnswers: number;
+    roundsCompleted: number;
+}):
+    | {
+        valid: true;
+        totalTimeMs: number;
+        averageReactionTimeMs: number;
+        wrongAnswers: number;
+        roundsCompleted: number;
+    }
+    | { valid: false; error: string } {
+    if (
+        !Number.isFinite(params.totalTimeMs) ||
+        !Number.isFinite(params.averageReactionTimeMs) ||
+        !Number.isFinite(params.wrongAnswers) ||
+        !Number.isFinite(params.roundsCompleted)
+    ) {
+        return { valid: false, error: "Score Flash Translation invalide" };
+    }
+
+    const totalTimeMs = Math.floor(params.totalTimeMs);
+    const averageReactionTimeMs = Math.floor(params.averageReactionTimeMs);
+    const wrongAnswers = Math.floor(params.wrongAnswers);
+    const roundsCompleted = Math.floor(params.roundsCompleted);
+
+    if (
+        totalTimeMs < 0 ||
+        averageReactionTimeMs < 0 ||
+        wrongAnswers < 0 ||
+        roundsCompleted !== FLASH_TRANSLATION_REQUIRED_ROUNDS ||
+        totalTimeMs > FLASH_TRANSLATION_MAX_TIME_MS ||
+        averageReactionTimeMs < FLASH_TRANSLATION_MIN_AVERAGE_MS ||
+        averageReactionTimeMs > FLASH_TRANSLATION_MAX_AVERAGE_MS ||
+        wrongAnswers > roundsCompleted
+    ) {
+        return { valid: false, error: "Score Flash Translation hors limites" };
+    }
+
+    const minimumExpectedTotal =
+        averageReactionTimeMs * roundsCompleted +
+        wrongAnswers * FLASH_TRANSLATION_WRONG_ANSWER_PENALTY_MS -
+        roundsCompleted;
+
+    if (totalTimeMs < minimumExpectedTotal) {
+        return { valid: false, error: "Score Flash Translation incoherent" };
+    }
+
+    return {
+        valid: true,
+        totalTimeMs,
+        averageReactionTimeMs,
+        wrongAnswers,
+        roundsCompleted,
+    };
+}
+
 /**
  * Submit a Flash Translation game score and update user rewards.
  * 
@@ -102,6 +192,14 @@ export async function submitFlashTranslationScore(params: {
     };
 }> {
     try {
+        const session = normalizeFlashTranslationScoreParams(params);
+        if (!session.valid) {
+            return {
+                success: false,
+                error: session.error,
+            };
+        }
+
         const supabase = await createSupabaseServerClient();
         const adminClient = createSupabaseAdminClient();
 
@@ -143,7 +241,7 @@ export async function submitFlashTranslationScore(params: {
             .maybeSingle();
 
         const currentPersonalBest = personalBest?.score ?? Infinity;
-        const isNewPersonalBest = params.totalTimeMs < currentPersonalBest;
+        const isNewPersonalBest = session.totalTimeMs < currentPersonalBest;
 
         // Check if this is a new global best score (lowest time)
         const { data: globalTopScore } = await adminClient
@@ -155,12 +253,12 @@ export async function submitFlashTranslationScore(params: {
             .maybeSingle();
 
         const currentGlobalBest = globalTopScore?.score ?? Infinity;
-        const isNewGlobalBest = params.totalTimeMs < currentGlobalBest;
+        const isNewGlobalBest = session.totalTimeMs < currentGlobalBest;
 
         // Calculate rewards
         const rewards = computeFlashTranslationRewards({
-            totalTimeMs: params.totalTimeMs,
-            wrongAnswers: params.wrongAnswers,
+            totalTimeMs: session.totalTimeMs,
+            wrongAnswers: session.wrongAnswers,
             isNewGlobalBest,
         });
 
@@ -169,9 +267,9 @@ export async function submitFlashTranslationScore(params: {
             .insert({
                 user_id: user.id,
                 game_id: game.id,
-                score: params.totalTimeMs, // Lower is better
-                max_score: params.roundsCompleted,
-                duration_ms: params.totalTimeMs,
+                score: session.totalTimeMs, // Lower is better
+                max_score: session.roundsCompleted,
+                duration_ms: session.totalTimeMs,
                 difficulty: "medium", // Default difficulty for this game
             });
 
@@ -235,7 +333,7 @@ export async function submitFlashTranslationScore(params: {
             dailyChallenge: dailyChallengeResult,
             isNewPersonalBest,
             isNewGlobalBest,
-            personalBest: isNewPersonalBest ? params.totalTimeMs : currentPersonalBest,
+            personalBest: isNewPersonalBest ? session.totalTimeMs : currentPersonalBest,
         };
     } catch (error) {
         console.error("Error in submitFlashTranslationScore:", error);
@@ -296,14 +394,13 @@ export async function getFlashTranslationTopScores() {
         `)
         .in("user_id", userIds);
 
-    const equippedMap = new Map();
-    if (equippedItems) {
-        for (const item of equippedItems) {
-            const avatar = Array.isArray(item.equipped_avatar) ? item.equipped_avatar[0] : item.equipped_avatar;
-            const background = Array.isArray(item.equipped_background) ? item.equipped_background[0] : item.equipped_background;
-            const title = Array.isArray(item.equipped_title) ? item.equipped_title[0] : item.equipped_title;
-            equippedMap.set(item.user_id, { avatar, background, title });
-        }
+    const equippedMap = new Map<string, EquippedItems>();
+    for (const item of (equippedItems ?? []) as EquippedItemRow[]) {
+        equippedMap.set(item.user_id, {
+            avatar: pickJoinedItem(item.equipped_avatar),
+            background: pickJoinedItem(item.equipped_background),
+            title: pickJoinedItem(item.equipped_title),
+        });
     }
 
     // Group by user and get best score
@@ -385,18 +482,17 @@ export async function getFlashTranslationGameLeaderboard() {
         `)
         .in("user_id", userIds);
 
-    const equippedMap = new Map();
-    if (equippedItems) {
-        for (const item of equippedItems) {
-            const avatar = Array.isArray(item.equipped_avatar) ? item.equipped_avatar[0] : item.equipped_avatar;
-            const background = Array.isArray(item.equipped_background) ? item.equipped_background[0] : item.equipped_background;
-            const title = Array.isArray(item.equipped_title) ? item.equipped_title[0] : item.equipped_title;
-            equippedMap.set(item.user_id, { avatar, background, title });
-        }
+    const equippedMap = new Map<string, EquippedItems>();
+    for (const item of (equippedItems ?? []) as EquippedItemRow[]) {
+        equippedMap.set(item.user_id, {
+            avatar: pickJoinedItem(item.equipped_avatar),
+            background: pickJoinedItem(item.equipped_background),
+            title: pickJoinedItem(item.equipped_title),
+        });
     }
 
     // Group scores by user_id
-    const userStats = new Map();
+    const userStats = new Map<string, FlashUserStats>();
     for (const scoreEntry of scores) {
         const existing = userStats.get(scoreEntry.user_id);
         if (!existing) {
@@ -414,7 +510,7 @@ export async function getFlashTranslationGameLeaderboard() {
 
     // Create leaderboard entries
     return Array.from(userStats.entries())
-        .map(([userId, stats]: [string, any]) => {
+        .map(([userId, stats]) => {
             const equipped = equippedMap.get(userId);
             return {
                 user_id: userId,

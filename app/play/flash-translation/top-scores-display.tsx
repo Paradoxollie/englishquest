@@ -1,24 +1,28 @@
 "use client";
 
-/**
- * Top Scores Display for Flash Translation
- * 
- * Shows the top 3 global scores before the game starts.
- */
-
 import { useEffect, useState } from "react";
-import { TrophyIcon } from "@/components/ui/game-icons";
+import { ClockIcon, TrophyIcon } from "@/components/ui/game-icons";
 import { LeaderboardAvatar } from "@/app/play/speed-verb-challenge/leaderboard-avatar";
 import type { ShopItem } from "@/types/shop";
 
 interface TopScore {
-    user_id: string; // Add user_id
+    user_id: string;
     username: string;
-    score: number; // Time in ms
+    score: number;
     rank: number;
     equipped_avatar?: ShopItem | null;
     equipped_background?: ShopItem | null;
     equipped_title?: ShopItem | null;
+}
+
+function formatSeconds(ms: number): string {
+    return `${(ms / 1000).toFixed(2)}s`;
+}
+
+function getRankTone(rank: number): string {
+    if (rank === 1) return "bg-amber-500 text-slate-950";
+    if (rank === 2) return "bg-slate-300 text-slate-950";
+    return "bg-orange-600 text-white";
 }
 
 export function TopScoresDisplay() {
@@ -26,114 +30,98 @@ export function TopScoresDisplay() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        let cancelled = false;
+
         async function fetchScores() {
             try {
                 const { getFlashTranslationTopScores } = await import("./actions");
                 const scores = await getFlashTranslationTopScores();
-                setTopScores(scores);
+                if (!cancelled) {
+                    setTopScores(scores);
+                }
             } catch (error) {
-                console.error("Failed to fetch top scores:", error);
+                console.error("Failed to fetch Flash Translation top scores:", error);
+                if (!cancelled) {
+                    setTopScores([]);
+                }
             } finally {
-                setLoading(false);
+                if (!cancelled) {
+                    setLoading(false);
+                }
             }
         }
 
         fetchScores();
+
+        return () => {
+            cancelled = true;
+        };
     }, []);
 
-    if (loading) {
-        return (
-            <div className="comic-panel-dark p-4">
-                <p className="text-slate-400 text-outline text-center text-sm">
-                    Chargement des meilleurs scores...
-                </p>
-            </div>
-        );
-    }
-
-    if (topScores.length === 0) {
-        return (
-            <div className="comic-panel-dark p-4">
-                <p className="text-slate-400 text-outline text-center text-sm">
-                    Soyez le premier à établir un record !
-                </p>
-            </div>
-        );
-    }
-
     return (
-        <div className="comic-panel-dark p-4">
-            <h3 className="text-lg font-bold text-white mb-3 text-outline text-center flex items-center justify-center gap-2">
-                <TrophyIcon className="w-5 h-5 text-amber-400" />
-                Top 3 Mondial
-            </h3>
-            <div className="space-y-3">
-                {topScores.map((score) => (
-                    <div
-                        key={score.rank}
-                        className="comic-panel bg-slate-800 border-2 border-black p-2 md:p-3 grid grid-cols-[auto_1fr_auto] items-center gap-2 md:gap-3"
-                    >
-                        {/* Rank */}
-                        <div className="flex items-center justify-center w-8 md:w-10">
+        <section className="border-4 border-black bg-slate-950/90 p-5 shadow-[0_6px_0_#000]">
+            <div className="flex items-center justify-between gap-3">
+                <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
+                        Records
+                    </p>
+                    <h2 className="text-xl font-bold text-white text-outline">Top 3 mondial</h2>
+                </div>
+                <div className="flex h-11 w-11 items-center justify-center border-4 border-black bg-amber-500">
+                    <TrophyIcon className="h-6 w-6 text-white" />
+                </div>
+            </div>
+
+            {loading ? (
+                <p className="mt-5 border-2 border-white/10 bg-black/30 p-4 text-center text-sm font-semibold text-slate-300">
+                    Chargement des records...
+                </p>
+            ) : topScores.length === 0 ? (
+                <p className="mt-5 border-2 border-white/10 bg-black/30 p-4 text-center text-sm font-semibold text-slate-300">
+                    Sois le premier a etablir un record.
+                </p>
+            ) : (
+                <div className="mt-5 space-y-3">
+                    {topScores.map((score) => (
+                        <article
+                            key={`${score.user_id}-${score.rank}`}
+                            className="grid grid-cols-[44px_minmax(0,1fr)_auto] items-center gap-3 border-4 border-black bg-slate-900/86 p-3 shadow-[0_4px_0_#000]"
+                        >
                             <div
-                                className={`comic-panel border-2 border-black w-8 h-8 flex items-center justify-center font-bold text-white text-outline text-xs
-                                ${score.rank === 1 ? "bg-amber-500" : score.rank === 2 ? "bg-slate-500" : "bg-orange-700"}
-                                `}
+                                className={`flex h-9 w-9 items-center justify-center border-2 border-black text-sm font-black ${getRankTone(score.rank)}`}
                             >
                                 {score.rank}
                             </div>
-                        </div>
 
-                        {/* Avatar & Name - Centered */}
-                        <div className="flex justify-center min-w-0">
-                            <div className="flex flex-col items-center gap-1 w-full">
-                                <div className="h-20 md:h-24 flex items-center justify-center">
-                                    {/* Mobile Avatar (MD) */}
-                                    <div className="md:hidden">
-                                        <LeaderboardAvatar
-                                            userId={score.user_id}
-                                            username={score.username}
-                                            equippedAvatar={score.equipped_avatar}
-                                            equippedBackground={score.equipped_background}
-                                            equippedTitle={score.equipped_title}
-                                            size="md"
-                                        />
-                                    </div>
-                                    {/* Desktop Avatar (LG) */}
-                                    <div className="hidden md:block">
-                                        <LeaderboardAvatar
-                                            userId={score.user_id}
-                                            username={score.username}
-                                            equippedAvatar={score.equipped_avatar}
-                                            equippedBackground={score.equipped_background}
-                                            equippedTitle={score.equipped_title}
-                                            size="lg"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="text-center w-full min-w-0 px-1">
-                                    <div className="font-bold text-white text-outline truncate text-sm md:text-base">{score.username}</div>
+                            <div className="flex min-w-0 items-center gap-3">
+                                <LeaderboardAvatar
+                                    userId={score.user_id}
+                                    username={score.username}
+                                    equippedAvatar={score.equipped_avatar}
+                                    equippedBackground={score.equipped_background}
+                                    equippedTitle={score.equipped_title}
+                                    size="sm"
+                                />
+                                <div className="min-w-0">
+                                    <p className="truncate text-sm font-bold text-white text-outline">
+                                        {score.username}
+                                    </p>
                                     {score.equipped_title && (
-                                        <div className="text-[10px] md:text-xs font-semibold text-cyan-400 text-outline truncate">
+                                        <p className="truncate text-[10px] font-bold uppercase tracking-[0.12em] text-cyan-200">
                                             {score.equipped_title.name}
-                                        </div>
+                                        </p>
                                     )}
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Score (Right) */}
-                        <div className="flex items-center justify-end gap-1 md:gap-2">
-                            {score.rank === 1 && (
-                                <TrophyIcon className="w-4 h-4 md:w-5 md:h-5 text-amber-400 flex-shrink-0" />
-                            )}
-                            <div className="text-base md:text-lg font-bold text-cyan-400 text-outline whitespace-nowrap">
-                                {(score.score / 1000).toFixed(2)}s
+                            <div className="flex items-center gap-2 text-cyan-200">
+                                <ClockIcon className="h-4 w-4" />
+                                <p className="text-lg font-black text-outline">{formatSeconds(score.score)}</p>
                             </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        </div>
+                        </article>
+                    ))}
+                </div>
+            )}
+        </section>
     );
 }

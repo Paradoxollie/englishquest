@@ -56,6 +56,10 @@ function defaultRng(): number {
     return Math.random();
 }
 
+function normalizeChoice(value: string): string {
+    return value.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
 /**
  * Shuffle an array using Fisher-Yates algorithm
  */
@@ -77,16 +81,29 @@ function selectDistractors(
     allWords: WordPair[],
     rng: () => number
 ): string[] {
-    const available = [...wordPair.distractors];
+    const correctAnswer = normalizeChoice(wordPair.english);
+    const available: string[] = [];
+
+    for (const distractor of wordPair.distractors) {
+        const normalized = normalizeChoice(distractor);
+        if (normalized && normalized !== correctAnswer && !available.some(item => normalizeChoice(item) === normalized)) {
+            available.push(distractor);
+        }
+    }
 
     // If we need more distractors, take from other words
     // FILTER: Don't pick words that are synonyms or the correct answer
     // For safety, we only pick English words that are NOT the correct answer
     if (available.length < 3) {
         const otherWords = allWords
-            .filter(w => w.english !== wordPair.english)
+            .filter(w => normalizeChoice(w.english) !== correctAnswer)
             .map(w => w.english);
-        available.push(...otherWords);
+        for (const otherWord of otherWords) {
+            const normalized = normalizeChoice(otherWord);
+            if (!available.some(item => normalizeChoice(item) === normalized)) {
+                available.push(otherWord);
+            }
+        }
     }
 
     // Shuffle and take first 3
@@ -202,7 +219,7 @@ export function submitAnswer(
     if (!currentRound || currentRound.startTimeMs === undefined) return state;
 
     const isCorrect = choiceIndex === currentRound.correctIndex;
-    const reactionTimeMs = nowMs - currentRound.startTimeMs;
+    const reactionTimeMs = Math.max(0, nowMs - currentRound.startTimeMs);
     const penaltyMs = isCorrect ? 0 : state.config.wrongAnswerPenaltyMs;
 
     // Update round
