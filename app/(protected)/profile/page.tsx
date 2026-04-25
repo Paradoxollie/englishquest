@@ -1,35 +1,53 @@
-import { redirect } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import type { ComponentType } from "react";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isAdmin } from "@/lib/auth/roles";
 import type { Profile } from "@/types/profile";
-import { MotionCard } from "@/components/ui/motion-card";
-import { XPIcon, GoldIcon, LevelIcon, AvatarIcon, ScrollIcon, GiftIcon, GameIcon } from "@/components/ui/icons";
+import {
+  ArrowRightIcon,
+  AvatarIcon,
+  BookIcon,
+  GameIcon,
+  GiftIcon,
+  GoldIcon,
+  LevelIcon,
+  ScrollIcon,
+  TrophyIcon,
+  XPIcon,
+} from "@/components/ui/icons";
 import { CustomizationDisplay } from "./customization-display";
 import { ShopSection } from "./shop/shop-section";
 import { AvatarDisplay } from "./avatar-display";
 import { TitleDisplay } from "./title-display";
 
-// Force dynamic rendering - this page requires authentication
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
-export const fetchCache = 'force-no-store';
+export const fetchCache = "force-no-store";
 
-/**
- * Calcule l'XP nécessaire pour passer au niveau suivant
- * Formule : XP_required = level * 1000
- */
+type IconComponent = ComponentType<{ className?: string }>;
+
+type BestScoreRow = {
+  score: number;
+  created_at: string;
+  games: { name: string } | Array<{ name: string }> | null;
+};
+
+type CourseProgressRow = {
+  status: string;
+  courses: { course_number: number; title: string } | Array<{ course_number: number; title: string }> | null;
+};
+
 function getXPForNextLevel(level: number): number {
-  return level * 1000;
+  return Math.max(level, 1) * 1000;
 }
 
-/**
- * Calcule le pourcentage de progression vers le prochain niveau
- */
-function getXPProgress(currentXP: number, level: number): { current: number; required: number; percentage: number } {
+function getXPProgress(currentXP: number, level: number) {
   const required = getXPForNextLevel(level);
   const percentage = required > 0 ? Math.min((currentXP / required) * 100, 100) : 0;
+
   return {
     current: currentXP,
     required,
@@ -37,25 +55,42 @@ function getXPProgress(currentXP: number, level: number): { current: number; req
   };
 }
 
+function getRelatedCourse(row: CourseProgressRow) {
+  if (Array.isArray(row.courses)) {
+    return row.courses[0] ?? null;
+  }
+
+  return row.courses;
+}
+
+function getRelatedGameName(row: BestScoreRow) {
+  if (Array.isArray(row.games)) {
+    return row.games[0]?.name ?? "Jeu inconnu";
+  }
+
+  return row.games?.name ?? "Jeu inconnu";
+}
+
 export default async function ProfilePage() {
   const supabase = await createSupabaseServerClient();
   const adminClient = createSupabaseAdminClient();
-  
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
   if (userError) {
     console.error("Error getting user in ProfilePage:", {
       message: userError.message,
       status: userError.status,
     });
   }
-  
+
   if (!user) {
-    console.log("No user found in ProfilePage, redirecting to login");
     redirect("/auth/login");
   }
 
-  // Charger le profil de l'utilisateur actuel
   let { data: profileData, error } = await adminClient
     .from("profiles")
     .select("*")
@@ -69,11 +104,16 @@ export default async function ProfilePage() {
     });
   }
 
-  // Si le profil n'existe pas, le créer
-  if (!profileData && user) {
-    const username = user.user_metadata?.username || user.email?.split("@")[0] || `user_${user.id.slice(0, 8)}`;
-    const cleanUsername = username.toLowerCase().replace(/[^a-z0-9_]/g, '_').substring(0, 50);
-    
+  if (!profileData) {
+    const username =
+      user.user_metadata?.username ||
+      user.email?.split("@")[0] ||
+      `user_${user.id.slice(0, 8)}`;
+    const cleanUsername = username
+      .toLowerCase()
+      .replace(/[^a-z0-9_]/g, "_")
+      .substring(0, 50);
+
     const { data: newProfile, error: createError } = await adminClient
       .from("profiles")
       .insert({
@@ -97,306 +137,392 @@ export default async function ProfilePage() {
 
   if (!profile) {
     return (
-      <section className="space-y-6 text-slate-200">
-        <div>
-          <h2 className="text-2xl font-semibold text-white">Profil</h2>
-          <p className="text-sm text-slate-400">
-            Données de profil introuvables. Veuillez actualiser la page ou contacter le support.
+      <section className="-m-6 bg-[#020617] p-6 text-white md:-m-8 md:p-8">
+        <div className="border-4 border-black bg-slate-950 p-6 shadow-[0_4px_0_#000]">
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-red-300">
+            Profil introuvable
+          </p>
+          <h1 className="mt-2 text-3xl font-bold text-white text-outline">
+            Impossible de charger les donnees du profil.
+          </h1>
+          <p className="mt-3 text-sm font-semibold text-slate-300">
+            Actualise la page ou contacte le support si le probleme continue.
           </p>
         </div>
       </section>
     );
   }
 
-  // Récupérer les meilleurs scores de jeux pour cet utilisateur
-  const { data: bestScores } = await adminClient
-    .from("game_scores")
-    .select(`
-      score,
-      created_at,
-      games (
-        id,
-        name
+  const [{ data: bestScores }, { data: courseProgress }, userIsAdmin] = await Promise.all([
+    adminClient
+      .from("game_scores")
+      .select(
+        `
+          score,
+          created_at,
+          games (
+            id,
+            name
+          )
+        `
       )
-    `)
-    .eq("user_id", user.id)
-    .order("score", { ascending: false })
-    .limit(5);
-
-  // Récupérer le niveau de cours le plus haut atteint
-  const { data: courseProgress } = await adminClient
-    .from("user_course_progress")
-    .select(`
-      status,
-      courses (
-        id,
-        course_number,
-        title
+      .eq("user_id", user.id)
+      .order("score", { ascending: false })
+      .limit(5),
+    adminClient
+      .from("user_course_progress")
+      .select(
+        `
+          status,
+          courses (
+            id,
+            course_number,
+            title
+          )
+        `
       )
-    `)
-    .eq("user_id", user.id)
-    .in("status", ["unlocked", "in_progress", "completed"]);
+      .eq("user_id", user.id)
+      .in("status", ["unlocked", "in_progress", "completed"]),
+    isAdmin(),
+  ]);
 
-  // Trouver le cours avec le numéro le plus élevé
-  let highestCourse: { course_number: number; title: string } | null = null;
-  if (courseProgress && courseProgress.length > 0) {
-    const coursesWithNumbers = courseProgress
-      .map((cp: any) => {
-        const course = cp.courses as { course_number: number; title: string } | null;
-        return course ? { course_number: course.course_number, title: course.title } : null;
-      })
-      .filter((c: any) => c !== null) as { course_number: number; title: string }[];
-    
-    if (coursesWithNumbers.length > 0) {
-      highestCourse = coursesWithNumbers.reduce((max, current) => 
-        current.course_number > max.course_number ? current : max
-      );
-    }
-  }
-
+  const progressRows = (courseProgress ?? []) as CourseProgressRow[];
+  const completedCourses = progressRows.filter((row) => row.status === "completed").length;
+  const coursesWithNumbers = progressRows
+    .map(getRelatedCourse)
+    .filter((course): course is { course_number: number; title: string } => Boolean(course));
+  const highestCourse =
+    coursesWithNumbers.length > 0
+      ? coursesWithNumbers.reduce((max, current) =>
+          current.course_number > max.course_number ? current : max
+        )
+      : null;
+  const bestScoreRows = (bestScores ?? []) as BestScoreRow[];
   const xpProgress = getXPProgress(profile.xp, profile.level);
   const roleLabels: Record<string, string> = {
-    student: "Élève",
+    student: "Eleve",
     teacher: "Professeur",
     admin: "Administrateur",
   };
-
-  // Vérifier si l'utilisateur est admin
-  const userIsAdmin = await isAdmin();
+  const memberSince = new Date(profile.created_at).toLocaleDateString("fr-FR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   return (
-    <div className="space-y-8 md:space-y-12">
-      {/* Header avec infos utilisateur */}
-      <header className="comic-panel-dark flex flex-col gap-3 md:gap-6 p-3 md:p-6 md:flex-row md:items-center md:justify-between mb-4 md:mb-8">
-        <div className="min-w-0 flex-1">
-          <p className="text-xs md:text-sm uppercase tracking-[0.2em] md:tracking-[0.3em] text-cyan-300 font-bold text-outline">EnglishQuest</p>
-          <h1 className="text-xl md:text-3xl font-bold text-white text-outline leading-tight md:leading-normal break-words">
-            Welcome back, <span className="text-cyan-300 text-outline">{profile.username}</span>
-          </h1>
-          <p className="text-xs md:text-sm text-slate-400 text-outline break-words">
-            Role: <span className="font-bold text-amber-300 text-outline">{profile.role}</span>
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 md:gap-4 text-xs md:text-sm flex-shrink-0">
-          <div className="comic-panel border-2 md:border-2 border-black px-3 py-1.5 md:px-4 md:py-2" style={{ background: '#059669' }}>
-            <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>XP</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.xp}</span>
-          </div>
-          <div className="comic-panel border-2 md:border-2 border-black px-3 py-1.5 md:px-4 md:py-2" style={{ background: '#d97706' }}>
-            <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>Gold</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.gold}</span>
-          </div>
-          <div className="comic-panel border-2 md:border-2 border-black px-3 py-1.5 md:px-4 md:py-2" style={{ background: '#0891b2' }}>
-            <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>Level</span> <span className="font-bold text-white" style={{ textShadow: '0 0 3px rgba(0,0,0,0.8), 0 0 3px rgba(0,0,0,0.8), 1px 1px 0 rgba(0,0,0,0.9)' }}>{profile.level}</span>
-          </div>
-        </div>
-      </header>
-      
-          {userIsAdmin && (
-        <div className="mb-8">
-            <Link
-              href="/dashboard"
-            className="comic-button bg-cyan-500 text-white px-6 py-3 font-bold hover:bg-cyan-600 transition-colors w-full sm:w-auto text-center inline-block"
-            >
-              Dashboard Admin
-            </Link>
-        </div>
-      )}
+    <div className="-m-6 overflow-hidden bg-[#020617] text-white md:-m-8">
+      <section className="relative overflow-hidden border-b-4 border-black">
+        <Image
+          src="/page-art/home-hero.png"
+          alt="Illustration comic book English Quest."
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-[#020617]/88 to-[#020617]/25" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-black/42" />
+        <div className="absolute inset-0 comic-dot-pattern-light opacity-20" />
 
-      {/* Player Panel Card */}
-      <MotionCard className="relative">
-        <div className="relative overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/95 via-slate-950/90 to-slate-900/95 p-4 md:p-8 shadow-[0_20px_60px_rgba(0,0,0,0.8)]">
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3" />
-          
-          <div className="relative z-10 space-y-4 md:space-y-6">
-            {/* Player Header */}
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 md:gap-0 border-b border-slate-700/50 pb-3 md:pb-4">
-              <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
-                {/* Avatar */}
-                <AvatarDisplay userId={user.id} username={profile.username} size="md" />
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium uppercase tracking-wider text-slate-400">
-                    {roleLabels[profile.role] || profile.role}
-                  </p>
-                  <p className="mt-1 text-lg md:text-2xl font-bold text-white break-words">{profile.username}</p>
-                  <TitleDisplay userId={user.id} />
-                </div>
-              </div>
-              <div className="flex items-center gap-2 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 px-3 py-1.5 md:px-4 md:py-2 border-2 border-black flex-shrink-0">
-                <LevelIcon className="w-3 h-3 md:w-4 md:h-4 text-white" />
-                <span className="text-xs md:text-sm font-bold text-white">Niveau {profile.level}</span>
+        <div className="relative mx-auto grid min-h-[610px] max-w-[1280px] gap-6 px-4 py-8 md:min-h-[650px] md:px-8 md:py-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-end">
+          <div className="self-end">
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-200 text-outline">
+              Profil joueur
+            </p>
+            <h1 className="mt-4 max-w-4xl text-4xl font-bold leading-[1.02] text-white text-outline md:text-6xl">
+              {profile.username}
+            </h1>
+            <div className="mt-3">
+              <TitleDisplay userId={user.id} />
+            </div>
+            <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-slate-100 text-outline md:text-xl">
+              Ton profil regroupe progression, apparence, recompenses, boutique et meilleurs scores
+              dans un espace plus clair.
+            </p>
+
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link
+                href="/quest"
+                className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700"
+              >
+                <BookIcon className="h-4 w-4" />
+                Continuer l'aventure
+              </Link>
+              <Link
+                href="/play"
+                className="comic-button inline-flex items-center gap-2 bg-amber-600 px-5 py-3 text-sm font-bold text-white hover:bg-amber-700"
+              >
+                <GameIcon className="h-4 w-4" />
+                Lancer un jeu
+              </Link>
+              {userIsAdmin && (
+                <Link
+                  href="/dashboard"
+                  className="comic-button inline-flex items-center gap-2 bg-cyan-600 px-5 py-3 text-sm font-bold text-white hover:bg-cyan-700"
+                >
+                  Dashboard admin
+                </Link>
+              )}
+            </div>
+          </div>
+
+          <aside className="self-end border-4 border-black bg-slate-950/92 p-5 shadow-[0_4px_0_#000] backdrop-blur-sm md:p-6">
+            <div className="flex items-start gap-4">
+              <AvatarDisplay userId={user.id} username={profile.username} size="lg" />
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
+                  {roleLabels[profile.role] || profile.role}
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-white text-outline">
+                  Niveau {profile.level}
+                </h2>
+                <p className="mt-1 text-sm font-semibold text-slate-300">
+                  Membre depuis {memberSince}
+                </p>
               </div>
             </div>
-            
-            {/* XP Progress Bar */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-1.5 font-medium text-slate-400">
-                  <XPIcon className="w-4 h-4 text-emerald-500" />
-                  <span>Points d'expérience</span>
+
+            <div className="mt-6">
+              <div className="flex items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2 font-semibold text-slate-300">
+                  <XPIcon className="h-4 w-4 text-emerald-300" />
+                  <span>Experience</span>
                 </div>
-                <span className="font-semibold text-slate-400">{xpProgress.current.toLocaleString('fr-FR')} / {xpProgress.required.toLocaleString('fr-FR')}</span>
+                <span className="font-bold text-slate-300">
+                  {xpProgress.current.toLocaleString("fr-FR")} / {xpProgress.required.toLocaleString("fr-FR")}
+                </span>
               </div>
-              <div className="relative h-3 overflow-hidden rounded-full bg-slate-900/60">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/20 to-emerald-900/20" />
-                <div 
-                  className="relative h-full rounded-full bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-500 shadow-lg shadow-emerald-950/40"
+              <div className="mt-3 h-3 overflow-hidden rounded-full border border-black bg-slate-900">
+                <div
+                  className="relative h-full rounded-full bg-gradient-to-r from-emerald-700 via-emerald-500 to-emerald-300"
                   style={{ width: `${xpProgress.percentage}%` }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                  <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/25 to-transparent" />
                 </div>
               </div>
             </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-2 md:gap-3">
-              <div className="rounded-xl border border-emerald-950/30 bg-slate-900/30 p-3 md:p-4">
-                <div className="flex items-center gap-1.5 md:gap-2 mb-1.5 md:mb-2">
-                  <XPIcon className="w-3 h-3 md:w-4 md:h-4 text-emerald-500" />
-                  <p className="text-xs font-medium uppercase tracking-wider text-slate-500">XP</p>
-                </div>
-                <p className="text-xl md:text-2xl font-bold text-emerald-400">{profile.xp.toLocaleString('fr-FR')}</p>
-              </div>
-              <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 p-3 md:p-4">
-                <div className="flex items-center gap-1.5 md:gap-2 mb-1.5 md:mb-2">
-                  <GoldIcon className="w-3 h-3 md:w-4 md:h-4 text-amber-400" />
-                  <p className="text-xs font-medium uppercase tracking-wider text-slate-400">Or</p>
-                </div>
-                <p className="text-xl md:text-2xl font-bold text-amber-300">{profile.gold.toLocaleString('fr-FR')}</p>
-              </div>
-            </div>
-          </div>
+          </aside>
         </div>
-      </MotionCard>
+      </section>
 
-      {/* Account Information */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <MotionCard>
-          <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-4 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            
-            <div className="relative z-10">
-              <div className="mb-4 md:mb-6 flex h-10 w-10 md:h-14 md:w-14 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 border-2 border-black shadow-lg">
-                <AvatarIcon className="w-5 h-5 md:w-7 md:h-7 text-white" />
+      <main className="mx-auto max-w-[1280px] px-4 py-10 md:px-8 md:py-12">
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <ProfileMetric label="Niveau" value={profile.level} detail={`${xpProgress.percentage}% vers le suivant`} Icon={LevelIcon} tone="cyan" />
+          <ProfileMetric label="XP" value={profile.xp.toLocaleString("fr-FR")} detail="Experience totale" Icon={XPIcon} tone="emerald" />
+          <ProfileMetric label="Or" value={profile.gold.toLocaleString("fr-FR")} detail="Disponible boutique" Icon={GoldIcon} tone="amber" />
+          <ProfileMetric label="Cours valides" value={completedCourses} detail={highestCourse ? `Max: cours ${highestCourse.course_number}` : "Aucun cours commence"} Icon={ScrollIcon} tone="purple" />
+        </section>
+
+        <section className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+          <div className="border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] md:p-6">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-300 text-outline">
+              Compte
+            </p>
+            <h2 className="mt-2 text-3xl font-bold text-white text-outline">
+              Informations principales
+            </h2>
+            <dl className="mt-6 space-y-4">
+              <InfoRow label="Nom d'utilisateur" value={profile.username} />
+              <InfoRow label="Role" value={roleLabels[profile.role] || profile.role} />
+              <InfoRow label="Email" value={profile.email ?? "Non renseigne"} />
+              <InfoRow label="Membre depuis" value={memberSince} />
+            </dl>
+          </div>
+
+          <div className="border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] md:p-6">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.22em] text-emerald-300 text-outline">
+                  Progression
+                </p>
+                <h2 className="mt-2 text-3xl font-bold text-white text-outline">
+                  Position dans le parcours
+                </h2>
               </div>
-              <h3 className="mb-3 md:mb-4 text-xl md:text-2xl font-bold text-white">Informations du compte</h3>
-              <dl className="space-y-3 md:space-y-4 text-sm">
-                <div>
-                  <dt className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Nom d'utilisateur</dt>
-                  <dd className="text-base md:text-lg font-semibold text-white break-words">{profile.username}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Rôle</dt>
-                  <dd className="text-base md:text-lg font-semibold text-emerald-400">{roleLabels[profile.role] || profile.role}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium uppercase tracking-wider text-slate-400 mb-1">Email</dt>
-                  <dd className="text-base md:text-lg text-slate-300 break-words">{profile.email ?? "Non renseigné"}</dd>
-                </div>
-              </dl>
+              <Link
+                href="/tous-les-cours"
+                className="inline-flex w-fit items-center gap-2 text-sm font-bold text-cyan-300 hover:underline"
+              >
+                Voir les cours
+                <ArrowRightIcon className="h-4 w-4" />
+              </Link>
+            </div>
+
+            <div className="mt-6 grid gap-3 md:grid-cols-2">
+              <div className="border border-white/10 bg-white/5 p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                  Cours le plus haut
+                </p>
+                <p className="mt-2 text-lg font-bold leading-tight text-white text-outline">
+                  {highestCourse
+                    ? `Cours ${highestCourse.course_number}: ${highestCourse.title}`
+                    : "Aucun cours commence"}
+                </p>
+              </div>
+              <div className="border border-white/10 bg-white/5 p-4">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                  Prochain niveau
+                </p>
+                <p className="mt-2 text-lg font-bold text-emerald-300">
+                  Niveau {profile.level + 1}
+                </p>
+                <p className="mt-1 text-xs font-semibold text-slate-300">
+                  {xpProgress.required - xpProgress.current > 0
+                    ? `${(xpProgress.required - xpProgress.current).toLocaleString("fr-FR")} XP restants`
+                    : "Palier atteint"}
+                </p>
+              </div>
             </div>
           </div>
-        </MotionCard>
+        </section>
 
-        <MotionCard>
-          <div className="group relative h-full overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-4 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            
-            <div className="relative z-10">
-              <div className="mb-4 md:mb-6 flex h-10 w-10 md:h-14 md:w-14 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 border-2 border-black shadow-lg">
-                <ScrollIcon className="w-5 h-5 md:w-7 md:h-7 text-white" />
+        <section className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.78fr)]">
+          <div className="border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] md:p-6">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center border-4 border-black bg-cyan-600 shadow-[0_3px_0_#000]">
+                <AvatarIcon className="h-6 w-6 text-white" />
               </div>
-              <h3 className="mb-3 md:mb-4 text-xl md:text-2xl font-bold text-white">Statistiques</h3>
-              <dl className="space-y-3 md:space-y-4 text-sm">
-                <div>
-                  <dt className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Niveau actuel</dt>
-                  <dd className="text-base md:text-lg font-semibold text-emerald-400">Niveau {profile.level}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Progression XP</dt>
-                  <dd className="text-base md:text-lg text-slate-400 break-words">{xpProgress.percentage}% vers le niveau {profile.level + 1}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Cours le plus haut</dt>
-                  <dd className="text-base md:text-lg text-slate-300 break-words">
-                    {highestCourse 
-                      ? `Cours ${highestCourse.course_number}: ${highestCourse.title}`
-                      : "Aucun cours commencé"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium uppercase tracking-wider text-slate-500 mb-1">Membre depuis</dt>
-                  <dd className="text-base md:text-lg text-slate-400 break-words">
-                    {new Date(profile.created_at).toLocaleDateString('fr-FR', { 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    })}
-                  </dd>
-                </div>
-              </dl>
-            </div>
-          </div>
-        </MotionCard>
-      </div>
-
-      {/* Personnalisation */}
-      <MotionCard>
-        <CustomizationDisplay userId={user.id} username={profile.username} />
-      </MotionCard>
-
-      {/* Boutique */}
-      <MotionCard>
-        <div className="comic-panel-dark p-4 md:p-6" style={{ position: "relative", zIndex: 1, pointerEvents: "auto" }}>
-          <div className="flex items-center gap-2 md:gap-3 mb-4 md:mb-6">
-            <div className="comic-panel bg-gradient-to-br from-cyan-500 to-blue-600 border-2 border-black p-1.5 md:p-2">
-              <GiftIcon className="w-5 h-5 md:w-6 md:h-6 text-white" />
-            </div>
-            <h2 className="text-xl md:text-2xl font-bold text-white text-outline">Boutique</h2>
-          </div>
-          <div style={{ position: "relative", zIndex: 2, pointerEvents: "auto" }}>
-            <ShopSection
-              userLevel={profile.level}
-              userGold={profile.gold}
-              userId={user.id}
-            />
-          </div>
-        </div>
-      </MotionCard>
-
-      {/* Meilleurs scores */}
-      {bestScores && bestScores.length > 0 && (
-        <MotionCard>
-          <div className="group relative overflow-hidden rounded-2xl border border-emerald-950/30 bg-gradient-to-br from-slate-950/90 to-slate-900/90 p-4 md:p-8 shadow-[0_12px_40px_rgba(0,0,0,0.7)] transition-all duration-300 hover:border-emerald-900/30 hover:shadow-[0_20px_60px_rgba(6,78,59,0.2)]">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/3 via-transparent to-emerald-900/3 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            
-            <div className="relative z-10">
-              <div className="mb-4 md:mb-6 flex h-10 w-10 md:h-14 md:w-14 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 border-2 border-black shadow-lg">
-                <GameIcon className="w-5 h-5 md:w-7 md:h-7 text-white" />
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-300 text-outline">
+                  Apparence
+                </p>
+                <h2 className="text-3xl font-bold text-white text-outline">
+                  Personnalisation
+                </h2>
               </div>
-              <h3 className="mb-3 md:mb-4 text-xl md:text-2xl font-bold text-white">Meilleurs scores</h3>
+            </div>
+            <CustomizationDisplay userId={user.id} username={profile.username} />
+          </div>
+
+          <div className="border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] md:p-6">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center border-4 border-black bg-purple-600 shadow-[0_3px_0_#000]">
+                <TrophyIcon className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.22em] text-purple-300 text-outline">
+                  Scores
+                </p>
+                <h2 className="text-3xl font-bold text-white text-outline">
+                  Meilleurs jeux
+                </h2>
+              </div>
+            </div>
+
+            {bestScoreRows.length > 0 ? (
               <div className="space-y-3">
-                {bestScores.map((scoreData: any, index: number) => {
-                  const game = scoreData.games as { name: string } | null;
-                  return (
-                    <div key={index} className="flex items-center justify-between rounded-lg border border-slate-800/40 bg-slate-900/30 p-4">
-                      <div>
-                        <p className="font-semibold text-white">{game?.name || "Jeu inconnu"}</p>
-                        <p className="text-xs text-slate-400">
-                          {new Date(scoreData.created_at).toLocaleDateString('fr-FR')}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xl font-bold text-emerald-400">{scoreData.score.toLocaleString('fr-FR')}</p>
-                        <p className="text-xs text-slate-500">points</p>
-                      </div>
+                {bestScoreRows.map((scoreData, index) => (
+                  <div
+                    key={`${scoreData.created_at}-${index}`}
+                    className="flex items-center justify-between gap-4 border border-white/10 bg-white/5 p-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-bold text-white">
+                        {getRelatedGameName(scoreData)}
+                      </p>
+                      <p className="text-xs font-semibold text-slate-400">
+                        {new Date(scoreData.created_at).toLocaleDateString("fr-FR")}
+                      </p>
                     </div>
-                  );
-                })}
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-emerald-300">
+                        {scoreData.score.toLocaleString("fr-FR")}
+                      </p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-500">
+                        pts
+                      </p>
+                    </div>
+                  </div>
+                ))}
               </div>
+            ) : (
+              <div className="border border-white/10 bg-white/5 p-4">
+                <p className="text-sm font-semibold text-slate-300">
+                  Aucun score enregistre pour le moment.
+                </p>
+                <Link
+                  href="/play"
+                  className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-amber-300 hover:underline"
+                >
+                  Lancer un jeu
+                  <ArrowRightIcon className="h-4 w-4" />
+                </Link>
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="mt-8 border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] md:p-6">
+          <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-300 text-outline">
+                Boutique
+              </p>
+              <h2 className="mt-2 text-3xl font-bold text-white text-outline">
+                Debloquer et equiper
+              </h2>
+            </div>
+            <div className="inline-flex w-fit items-center gap-2 border-4 border-black bg-amber-600 px-4 py-2 text-sm font-bold text-white shadow-[0_3px_0_#000]">
+              <GiftIcon className="h-4 w-4" />
+              {profile.gold.toLocaleString("fr-FR")} or
             </div>
           </div>
-        </MotionCard>
-      )}
+          <div className="relative z-10">
+            <ShopSection userLevel={profile.level} userGold={profile.gold} userId={user.id} />
+          </div>
+        </section>
+      </main>
     </div>
   );
 }
 
+function ProfileMetric({
+  label,
+  value,
+  detail,
+  Icon,
+  tone,
+}: {
+  label: string;
+  value: string | number;
+  detail: string;
+  Icon: IconComponent;
+  tone: "cyan" | "emerald" | "amber" | "purple";
+}) {
+  const tones = {
+    cyan: "border-cyan-300/25 bg-cyan-950/28 text-cyan-200 bg-cyan-600",
+    emerald: "border-emerald-300/25 bg-emerald-950/28 text-emerald-200 bg-emerald-600",
+    amber: "border-amber-300/25 bg-amber-950/28 text-amber-200 bg-amber-600",
+    purple: "border-purple-300/25 bg-purple-950/28 text-purple-200 bg-purple-600",
+  };
+  const [borderClass, panelClass, textClass, iconClass] = tones[tone].split(" ");
+
+  return (
+    <div className={`border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] ${borderClass} ${panelClass}`}>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+            {label}
+          </p>
+          <p className={`mt-3 break-words text-3xl font-bold ${textClass}`}>{value}</p>
+          <p className="mt-2 text-sm font-semibold text-slate-300">{detail}</p>
+        </div>
+        <div className={`flex h-12 w-12 shrink-0 items-center justify-center border-4 border-black text-white shadow-[0_3px_0_#000] ${iconClass}`}>
+          <Icon className="h-6 w-6" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border border-white/10 bg-white/5 p-4">
+      <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
+        {label}
+      </dt>
+      <dd className="mt-2 break-words text-base font-bold text-white">{value}</dd>
+    </div>
+  );
+}
