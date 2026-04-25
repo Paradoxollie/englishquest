@@ -59,12 +59,18 @@ let globalDictionary: Record<string, string> | null = null;
 // Complete English words dictionary for free mode validation (all valid English words)
 let englishWordsSet: Set<string> | null = null;
 
+function logWordfallDebug(message: string, ...details: unknown[]): void {
+  if (process.env.NODE_ENV !== "production") {
+    console.info(message, ...details);
+  }
+}
+
 /**
  * Initialize dictionary for translations (call this before using the engine)
  */
 export function initializeDictionary(dictionary: Record<string, string>): void {
   globalDictionary = dictionary;
-  console.log("Wordfall: Initialized dictionary with", Object.keys(dictionary).length, "translations");
+  logWordfallDebug("Wordfall: Initialized dictionary with", Object.keys(dictionary).length, "translations");
 }
 
 /**
@@ -93,6 +99,16 @@ function cleanTranslationForDisplay(translation: string): string {
   cleaned = cleaned.replace(/\s+/g, ' ').trim();
   
   return cleaned;
+}
+
+function normalizeForAnswerComparison(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/['\u2019]/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 /**
@@ -178,7 +194,7 @@ export function initializeWordLists(wordLists: {
   };
   
   // Debug: log word counts
-  console.log("Wordfall: Initialized word lists", {
+  logWordfallDebug("Wordfall: Initialized word lists", {
     totalWords: allWords.size,
     wordsWithTranslations: globalDictionary ? Object.keys(globalDictionary).length : 0,
     allManualWords: allManualWords.length,
@@ -433,7 +449,7 @@ export function validateExactWord(
   const parts = trimmed.split(/\s+/).filter(p => p.trim().length > 0);
   
   if (parts.length < 2) {
-    return { valid: false, reason: "Tapez le mot anglais puis sa traduction française (séparés par un espace)" };
+    return { valid: false, reason: "Tape le mot anglais puis sa traduction francaise, separes par un espace." };
   }
   
   // First part is English word
@@ -442,23 +458,16 @@ export function validateExactWord(
   const frenchInput = parts.slice(1).join(' ');
   
   const normalizedEnglish = englishInput.toUpperCase();
-  const normalizedFrench = frenchInput.toLowerCase().trim();
-  const normalizedTargetTranslation = targetTranslation.toLowerCase().trim();
   
   // Check English word
   if (normalizedEnglish !== targetWord.toUpperCase()) {
     return { valid: false, reason: "Le mot anglais ne correspond pas" };
   }
   
-  // Check French translation (allow for slight variations like accents, case)
-  // Normalize both for comparison (remove extra spaces, normalize accents)
-  const normalizeForComparison = (str: string) => 
-    str.toLowerCase().trim().replace(/\s+/g, ' ');
-  
   // Clean the target translation (remove parentheses, slashes, take first part)
   const cleanedTargetFr = cleanTranslationForDisplay(targetTranslation);
-  const normalizedInputFr = normalizeForComparison(normalizedFrench);
-  const normalizedTargetFr = normalizeForComparison(cleanedTargetFr);
+  const normalizedInputFr = normalizeForAnswerComparison(frenchInput);
+  const normalizedTargetFr = normalizeForAnswerComparison(cleanedTargetFr);
   
   if (normalizedInputFr !== normalizedTargetFr) {
     return { valid: false, reason: `La traduction ne correspond pas. Attendu: "${cleanedTargetFr}"` };
@@ -473,7 +482,7 @@ export function validateExactWord(
  */
 export function initializeEnglishWords(englishWords: string[]): void {
   englishWordsSet = new Set(englishWords.map(w => w.toUpperCase().trim()));
-  console.log(`Wordfall: Initialized English words dictionary with ${englishWordsSet.size} words`);
+  logWordfallDebug(`Wordfall: Initialized English words dictionary with ${englishWordsSet.size} words`);
 }
 
 /**
@@ -506,7 +515,7 @@ export function validateFreeWord(
   }
 
   if (usedWords.includes(normalized)) {
-    return { valid: false, reason: "Mot déjà utilisé" };
+    return { valid: false, reason: "Mot deja utilise" };
   }
 
   // Check if word exists in the complete English words dictionary
@@ -580,13 +589,13 @@ export function processWordInput(
   const newLevel = Math.floor(newWordsCompleted / DEFAULT_CONFIG.wordsPerLevel) + 1;
   
   // Calculate timing for speed bonus
-  const currentTime = Date.now();
-  const wordAge = state.wordStartTime ? currentTime - state.wordStartTime : 0;
   const wordPosition = state.activeWord?.y || 0;
   
   // Base points calculation (reduced)
-  const wordLength = input.trim().length;
-  let basePoints = state.mode === "exact" ? 5 : 8; // Reduced from 10/15
+  const wordLength = state.mode === "exact"
+    ? state.activeWord.text.replace(/\s+/g, "").length
+    : input.trim().length;
+  const basePoints = state.mode === "exact" ? 5 : 8; // Reduced from 10/15
   
   // Length bonus: longer words = more points (reduced)
   const lengthBonus = Math.floor(wordLength * 0.5); // 0.5 points per letter (reduced from 2)

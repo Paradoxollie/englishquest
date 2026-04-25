@@ -59,6 +59,60 @@ function mapModeToDifficulty(mode: "exact" | "free"): Difficulty {
   return mode === "exact" ? "easy" : "hard";
 }
 
+const MAX_WORDFALL_SCORE = 1_000_000;
+const MAX_WORDFALL_WORDS = 20_000;
+const MAX_WORDFALL_DURATION_MS = 2 * 60 * 60 * 1000;
+
+function normalizeWordfallScoreParams(params: {
+  mode: "exact" | "free";
+  score: number;
+  wordsCompleted: number;
+  durationMs: number;
+}):
+  | {
+      valid: true;
+      mode: "exact" | "free";
+      score: number;
+      wordsCompleted: number;
+      durationMs: number;
+    }
+  | { valid: false; error: string } {
+  if (params.mode !== "exact" && params.mode !== "free") {
+    return { valid: false, error: "Mode Wordfall invalide" };
+  }
+
+  if (
+    !Number.isFinite(params.score) ||
+    !Number.isFinite(params.wordsCompleted) ||
+    !Number.isFinite(params.durationMs)
+  ) {
+    return { valid: false, error: "Score Wordfall invalide" };
+  }
+
+  const score = Math.floor(params.score);
+  const wordsCompleted = Math.floor(params.wordsCompleted);
+  const durationMs = Math.floor(params.durationMs);
+
+  if (
+    score < 0 ||
+    wordsCompleted < 0 ||
+    durationMs < 0 ||
+    score > MAX_WORDFALL_SCORE ||
+    wordsCompleted > MAX_WORDFALL_WORDS ||
+    durationMs > MAX_WORDFALL_DURATION_MS
+  ) {
+    return { valid: false, error: "Score Wordfall hors limites" };
+  }
+
+  return {
+    valid: true,
+    mode: params.mode,
+    score,
+    wordsCompleted,
+    durationMs,
+  };
+}
+
 /**
  * Submit a Wordfall game score and update user rewards.
  * 
@@ -111,6 +165,14 @@ export async function submitWordfallScore(params: {
   };
 }> {
   try {
+    const session = normalizeWordfallScoreParams(params);
+    if (!session.valid) {
+      return {
+        success: false,
+        error: session.error,
+      };
+    }
+
     const supabase = await createSupabaseServerClient();
     const adminClient = createSupabaseAdminClient();
 
@@ -142,7 +204,7 @@ export async function submitWordfallScore(params: {
     }
 
     // Map mode to difficulty
-    const difficulty = mapModeToDifficulty(params.mode);
+    const difficulty = mapModeToDifficulty(session.mode);
 
     // Get user's current personal best score for this mode
     const { data: personalBest } = await adminClient
@@ -156,7 +218,7 @@ export async function submitWordfallScore(params: {
       .maybeSingle();
 
     const currentPersonalBest = personalBest?.score ?? 0;
-    const isNewPersonalBest = params.score > currentPersonalBest;
+    const isNewPersonalBest = session.score > currentPersonalBest;
 
     // Check if this is a new global best score for this mode
     const { data: globalTopScore } = await adminClient
@@ -169,13 +231,13 @@ export async function submitWordfallScore(params: {
       .maybeSingle();
 
     const currentGlobalBest = globalTopScore?.score ?? 0;
-    const isNewGlobalBest = params.score > currentGlobalBest;
+    const isNewGlobalBest = session.score > currentGlobalBest;
 
     // Calculate rewards (always calculate, even if not saving)
     const rewards = computeWordfallRewards({
-      mode: params.mode,
-      score: params.score,
-      wordsCompleted: params.wordsCompleted,
+      mode: session.mode,
+      score: session.score,
+      wordsCompleted: session.wordsCompleted,
       isNewGlobalBest,
     });
 
@@ -184,9 +246,9 @@ export async function submitWordfallScore(params: {
       .insert({
         user_id: user.id,
         game_id: game.id,
-        score: params.score,
-        max_score: params.wordsCompleted,
-        duration_ms: params.durationMs,
+        score: session.score,
+        max_score: session.wordsCompleted,
+        duration_ms: session.durationMs,
         difficulty: difficulty,
       });
 
@@ -250,7 +312,7 @@ export async function submitWordfallScore(params: {
       dailyChallenge: dailyChallengeResult,
       isNewPersonalBest,
       isNewGlobalBest,
-      personalBest: isNewPersonalBest ? params.score : currentPersonalBest,
+      personalBest: isNewPersonalBest ? session.score : currentPersonalBest,
     };
   } catch (error) {
     console.error("Error in submitWordfallScore:", error);
@@ -260,7 +322,6 @@ export async function submitWordfallScore(params: {
     };
   }
 }
-
 
 
 

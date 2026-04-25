@@ -1,77 +1,247 @@
 "use client";
 
-/**
- * Wordfall Game Page
- * 
- * A Tetris-style word typing game with two modes:
- * - Exact Word Mode: Type the exact falling word
- * - Free Word Mode: Type any valid word starting with the displayed letter
- * 
- * Professional gaming app style with Marvel/comic book visual effects.
- * 
- * TODO: Future integration points:
- * - When game ends, call a server action to save the game_score to Supabase
- * - Read user profile (xp, gold, level) from Supabase to display in header
- * - Update user XP/gold based on final score
- */
-
-import { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
 import {
-  type WordfallState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import {
   type WordfallMode,
-  type FallingWord,
+  type WordfallState,
   createGameState,
-  spawnFallingWord,
-  updateFallingWord,
   hasReachedBottom,
+  initializeEnglishWords,
+  initializeWordLists,
+  pauseGame,
   processWordInput,
   processWordMissed,
-  startGame,
-  pauseGame,
   resumeGame,
-  initializeWordLists,
-  initializeEnglishWords,
+  spawnFallingWord,
+  startGame,
+  updateFallingWord,
 } from "@/lib/games/wordfall";
 import wordfallWordsData from "@/lib/games/words/wordfall-words.json";
 import englishWordsData from "@/lib/games/words/english-words.json";
 import {
-  LightningIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  FireIcon,
-  StarIcon,
   BookOpenIcon,
+  CheckCircleIcon,
+  ChevronLeftIcon,
+  FireIcon,
+  LightningIcon,
+  StarIcon,
   TrophyIcon,
+  XCircleIcon,
 } from "@/components/ui/game-icons";
 import { useAuth } from "@/components/auth/auth-provider";
-import { WordfallLeaderboard } from "./leaderboard";
 import { submitWordfallScore } from "./actions";
 import { PersonalBestDisplay } from "./personal-best-display";
+import { WordfallLeaderboard } from "./leaderboard";
+
+declare global {
+  interface Window {
+    render_game_to_text?: () => string;
+    advanceTime?: (milliseconds: number) => void;
+  }
+}
+
+type FlashTone = "success" | "danger" | null;
 
 interface Particle {
   id: number;
   x: number;
   y: number;
-  delay: number;
   targetX: number;
   targetY: number;
+  delay: number;
+}
+
+const MODE_COPY: Record<
+  WordfallMode,
+  {
+    title: string;
+    shortTitle: string;
+    kicker: string;
+    summary: string;
+    input: string;
+    prompt: string;
+    accent: string;
+    accentSoft: string;
+    action: string;
+    rules: string[];
+  }
+> = {
+  exact: {
+    title: "Mode vocabulaire exact",
+    shortTitle: "Exact",
+    kicker: "Anglais + traduction",
+    summary:
+      "Lis le bloc qui tombe, tape le mot anglais puis sa traduction francaise avant la zone rouge.",
+    input: "BOOK livre",
+    prompt: "Tape le mot anglais puis sa traduction francaise.",
+    accent: "from-cyan-500 to-blue-600",
+    accentSoft: "border-cyan-300/70 bg-cyan-950/50 text-cyan-100",
+    action: "Saisis le duo complet",
+    rules: [
+      "Le premier mot doit etre le mot anglais affiche.",
+      "La suite doit correspondre a la traduction francaise.",
+      "Les accents et espaces multiples sont toleres.",
+    ],
+  },
+  free: {
+    title: "Mode mot libre",
+    shortTitle: "Libre",
+    kicker: "Reflexes lexicaux",
+    summary:
+      "Une lettre tombe. Trouve un mot anglais valide qui commence par cette lettre.",
+    input: "START",
+    prompt: "Tape un mot anglais commencant par la lettre affichee.",
+    accent: "from-violet-500 to-fuchsia-600",
+    accentSoft: "border-fuchsia-300/70 bg-fuchsia-950/50 text-fuchsia-100",
+    action: "Trouve un mot valide",
+    rules: [
+      "Le mot doit commencer par la lettre du bloc.",
+      "Les mots deja joues dans la manche sont refuses.",
+      "Le dictionnaire anglais complet valide les reponses.",
+    ],
+  },
+};
+
+function cleanTranslationLabel(translation: string): string {
+  return translation
+    .replace(/\([^()]*\)/g, "")
+    .split("/")[0]
+    .split(",")[0]
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function formatNumber(value: number): string {
+  return value.toLocaleString("fr-FR");
+}
+
+function getFallingWordTextClass(value: string): string {
+  const compactLength = value.replace(/\s+/g, "").length;
+
+  if (compactLength > 12) return "text-3xl md:text-4xl";
+  if (compactLength > 9) return "text-4xl md:text-5xl";
+  return "text-5xl md:text-6xl";
+}
+
+interface WordfallBootstrap {
+  loaded: boolean;
+  error: string | null;
+}
+
+let wordfallBootstrap: WordfallBootstrap | null = null;
+
+function ensureWordfallBootstrap(): WordfallBootstrap {
+  if (wordfallBootstrap) {
+    return wordfallBootstrap;
+  }
+
+  try {
+    if (!wordfallWordsData) {
+      wordfallBootstrap = {
+        loaded: true,
+        error: "Impossible de charger la liste Wordfall.",
+      };
+      return wordfallBootstrap;
+    }
+
+    const wordListsToUse = wordfallWordsData.manualWords
+      ? {
+          translations: wordfallWordsData.manualWords.translations,
+          wordsByLength: wordfallWordsData.manualWords.wordsByLength,
+          expressions: wordfallWordsData.manualWords.expressions || [],
+        }
+      : {
+          translations: wordfallWordsData.translations,
+          wordsByLength: wordfallWordsData.wordsByLength,
+          expressions: [],
+        };
+
+    if (!wordListsToUse.translations || !wordListsToUse.wordsByLength) {
+      wordfallBootstrap = {
+        loaded: true,
+        error: "La liste Wordfall est incomplete.",
+      };
+      return wordfallBootstrap;
+    }
+
+    initializeWordLists({
+      translations: wordListsToUse.translations,
+      wordsByLength: wordListsToUse.wordsByLength,
+      expressions: wordListsToUse.expressions,
+    });
+
+    if (englishWordsData?.allWords) {
+      initializeEnglishWords(englishWordsData.allWords);
+    }
+
+    wordfallBootstrap = { loaded: true, error: null };
+    return wordfallBootstrap;
+  } catch (error) {
+    console.error("Wordfall: failed to load word lists", error);
+    wordfallBootstrap = {
+      loaded: true,
+      error: "Impossible de preparer Wordfall. Recharge la page.",
+    };
+    return wordfallBootstrap;
+  }
+}
+
+function getStageLabel(state: WordfallState | null, isPaused: boolean): string {
+  if (!state) return "Chargement";
+  if (state.gameOver) return "Partie terminee";
+  if (isPaused) return "Pause";
+  if (state.isRunning) return "En cours";
+  return "Pret";
+}
+
+function StatTile({
+  label,
+  value,
+  tone,
+  helper,
+}: {
+  label: string;
+  value: string | number;
+  tone: string;
+  helper?: string;
+}) {
+  return (
+    <div className={`border-4 border-black ${tone} p-3 shadow-[0_4px_0_#000]`}>
+      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/75">
+        {label}
+      </p>
+      <p className="mt-2 text-2xl font-bold leading-none text-white text-outline md:text-3xl">
+        {value}
+      </p>
+      {helper && <p className="mt-2 text-xs font-semibold text-white/75">{helper}</p>}
+    </div>
+  );
 }
 
 export default function WordfallPage() {
-  const [gameState, setGameState] = useState<WordfallState | null>(null);
+  const [bootstrap] = useState(ensureWordfallBootstrap);
+  const wordListsLoaded = bootstrap.loaded;
+  const [gameState, setGameState] = useState<WordfallState | null>(() =>
+    createGameState({ mode: "exact" })
+  );
   const [selectedMode, setSelectedMode] = useState<WordfallMode>("exact");
   const [wordInput, setWordInput] = useState("");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [wordListsLoaded, setWordListsLoaded] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [backgroundFlash, setBackgroundFlash] = useState<"green" | "red" | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(bootstrap.error);
+  const [backgroundFlash, setBackgroundFlash] = useState<FlashTone>(null);
   const [showCelebration, setShowCelebration] = useState(false);
   const [particles, setParticles] = useState<Particle[]>([]);
-  const [showStreakNotification, setShowStreakNotification] = useState(false);
-  const [streakNotificationText, setStreakNotificationText] = useState("");
-  const [showPerfectNotification, setShowPerfectNotification] = useState(false);
+  const [statusBanner, setStatusBanner] = useState<string | null>(null);
   const [lastScoreIncrease, setLastScoreIncrease] = useState(0);
   const [scoreSubmitted, setScoreSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
@@ -80,335 +250,182 @@ export default function WordfallPage() {
     isNewGlobalBest?: boolean;
     personalBest?: number;
   } | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+
+  const { user } = useAuth();
+  const inputRef = useRef<HTMLInputElement>(null);
   const gameLoopRef = useRef<number | null>(null);
   const lastUpdateRef = useRef<number>(0);
   const particleIdRef = useRef(0);
-  const previousScoreRef = useRef(0);
-  const previousWordsCompletedRef = useRef(0);
   const gameStartTimeRef = useRef<number | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { user } = useAuth();
+  const scoreSubmissionStartedRef = useRef(false);
 
-  // Detect mobile and keyboard state
-  useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-    };
-    
-    const checkKeyboard = () => {
-      if (typeof window !== 'undefined' && 'visualViewport' in window) {
-        const viewport = window.visualViewport;
-        if (viewport) {
-          // Keyboard is likely open if visual viewport height is significantly less than window height
-          const heightDiff = window.innerHeight - viewport.height;
-          setIsKeyboardOpen(heightDiff > 150); // Threshold for keyboard detection
-        }
-      } else {
-        // Fallback: check if input is focused (less reliable but works on more devices)
-        const activeElement = document.activeElement;
-        const isInputFocused = !!(activeElement && (
-          activeElement.tagName === 'INPUT' || 
-          activeElement.tagName === 'TEXTAREA'
-        ));
-        setIsKeyboardOpen(!!(isMobile && isInputFocused));
-      }
-    };
-    
-    checkMobile();
-    checkKeyboard();
-    
-    window.addEventListener('resize', checkMobile);
-    if (typeof window !== 'undefined' && 'visualViewport' in window && window.visualViewport) {
-      window.visualViewport.addEventListener('resize', checkKeyboard);
-    }
-    
-    // Also check on focus/blur events for input
-    const handleFocus = () => {
-      if (isMobile) {
-        setTimeout(checkKeyboard, 300); // Delay to allow keyboard to appear
-      }
-    };
-    const handleBlur = () => {
-      if (isMobile) {
-        setTimeout(() => setIsKeyboardOpen(false), 300); // Delay to allow keyboard to hide
-      }
-    };
-    
-    document.addEventListener('focusin', handleFocus);
-    document.addEventListener('focusout', handleBlur);
-    
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-      if (typeof window !== 'undefined' && 'visualViewport' in window && window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', checkKeyboard);
-      }
-      document.removeEventListener('focusin', handleFocus);
-      document.removeEventListener('focusout', handleBlur);
-    };
-  }, [isMobile]);
+  const modeCopy = MODE_COPY[selectedMode];
 
-  // Load word lists on mount
-  useEffect(() => {
-    try {
-      // Check if wordfallWordsData exists
-      if (!wordfallWordsData) {
-        console.error("Wordfall words data is missing");
-        setWordListsLoaded(true);
-        return;
-      }
+  const stageLabel = getStageLabel(gameState, isPaused);
+  const activeWord = gameState?.activeWord ?? null;
+  const activeTop = activeWord ? 6 + Math.min(1, Math.max(0, activeWord.y) / 100) * 64 : 8;
+  const activeProgress = activeWord ? Math.max(0, 100 - activeWord.y) : 100;
+  const activeWordTextClass = activeWord ? getFallingWordTextClass(activeWord.text) : "";
 
-      // Initialize word lists - use manual words if available, otherwise use all words
-      const wordListsToUse = wordfallWordsData.manualWords ? {
-        translations: wordfallWordsData.manualWords.translations,
-        wordsByLength: wordfallWordsData.manualWords.wordsByLength,
-        expressions: wordfallWordsData.manualWords.expressions || []
-      } : {
-        translations: wordfallWordsData.translations,
-        wordsByLength: wordfallWordsData.wordsByLength,
-        expressions: []
-      };
-      
-      // Check if the selected word list is valid
-      if (!wordListsToUse || !wordListsToUse.translations || !wordListsToUse.wordsByLength) {
-        console.error("Wordfall words data is invalid - missing translations or wordsByLength");
-        setWordListsLoaded(true);
-        return;
-      }
-      
-      // Debug: log which word list is being used
-      if (wordfallWordsData.manualWords) {
-        console.log("✅ Wordfall: Using MANUAL words only", {
-          total: Object.keys(wordListsToUse.translations || {}).length,
-          byLength: {
-            4: wordListsToUse.wordsByLength?.[4]?.length || 0,
-            5: wordListsToUse.wordsByLength?.[5]?.length || 0,
-            6: wordListsToUse.wordsByLength?.[6]?.length || 0,
-          }
-        });
-      } else {
-        console.log("⚠️ Wordfall: Using ALL words (manual words not found)");
-      }
-      
-      initializeWordLists({
-        translations: wordListsToUse.translations,
-        wordsByLength: wordListsToUse.wordsByLength,
-        expressions: wordListsToUse.expressions // Include expressions if available
-      });
-      
-      // Initialize English words dictionary for free mode validation
-      if (englishWordsData && englishWordsData.allWords) {
-        initializeEnglishWords(englishWordsData.allWords);
-        console.log(`✅ Wordfall: Loaded ${englishWordsData.allWords.length} English words for free mode validation`);
-      } else {
-        console.warn("⚠️ Wordfall: English words dictionary not found, free mode will use limited word list");
-      }
-      
-      setWordListsLoaded(true);
-    } catch (error) {
-      console.error("Failed to load wordfall word lists:", error);
-      // Still set loaded to true to prevent infinite loading
-      setWordListsLoaded(true);
-    }
-  }, []);
+  const statItems = useMemo(() => {
+    if (!gameState) return [];
 
-  // Initialize game
+    return [
+      {
+        label: "Score",
+        value: formatNumber(gameState.score),
+        tone: "bg-slate-950/90",
+        helper: lastScoreIncrease > 0 ? `+${lastScoreIncrease}` : undefined,
+      },
+      {
+        label: "Vies",
+        value: gameState.lives,
+        tone:
+          gameState.lives <= 1
+            ? "bg-red-700/90 animate-comic-flash"
+            : "bg-rose-700/90",
+      },
+      {
+        label: "Niveau",
+        value: gameState.level,
+        tone: "bg-blue-700/90",
+      },
+      {
+        label: "Mots",
+        value: gameState.wordsCompleted,
+        tone: "bg-amber-600/90",
+      },
+      {
+        label: "Serie",
+        value: gameState.streak,
+        tone: "bg-orange-700/90",
+        helper:
+          gameState.highestStreak > gameState.streak
+            ? `Record ${gameState.highestStreak}`
+            : undefined,
+      },
+      {
+        label: "Combo",
+        value: `x${gameState.combo}`,
+        tone: "bg-emerald-700/90",
+      },
+    ];
+  }, [gameState, lastScoreIncrease]);
+
   const initializeGame = useCallback((mode: WordfallMode) => {
-    const newGame = createGameState({ mode });
-    setGameState(newGame);
+    setGameState(createGameState({ mode }));
     setWordInput("");
-    setErrorMessage(null);
+    setErrorMessage(bootstrap.error);
+    setStatusBanner(null);
     setIsPaused(false);
-    previousScoreRef.current = 0;
-    previousWordsCompletedRef.current = 0;
-    lastUpdateRef.current = Date.now();
-  }, []);
-
-  // Start the game
-  const handleStartGame = useCallback(() => {
-    if (!gameState) return;
-    const newState = startGame(gameState);
-    setGameState(newState);
-    setIsPaused(false);
-    previousScoreRef.current = 0;
-    previousWordsCompletedRef.current = 0;
-    lastUpdateRef.current = Date.now();
-    gameStartTimeRef.current = Date.now();
+    setLastScoreIncrease(0);
     setScoreSubmitted(false);
     setSubmissionError(null);
     setSubmissionResult(null);
-  }, [gameState]);
+    scoreSubmissionStartedRef.current = false;
+    gameStartTimeRef.current = null;
+    lastUpdateRef.current = Date.now();
+  }, [bootstrap.error]);
 
-  // Pause/Resume
+  const flashStage = useCallback((tone: Exclude<FlashTone, null>) => {
+    setBackgroundFlash(tone);
+    window.setTimeout(() => setBackgroundFlash(null), 420);
+  }, []);
+
+  const spawnParticles = useCallback(() => {
+    const newParticles = Array.from({ length: 18 }, (_, index) => ({
+      id: particleIdRef.current++,
+      x: 48 + Math.random() * 10,
+      y: 45 + Math.random() * 14,
+      targetX: (Math.random() - 0.5) * 42,
+      targetY: (Math.random() - 0.5) * 42,
+      delay: index * 0.025,
+    }));
+
+    setParticles(newParticles);
+    window.setTimeout(() => setParticles([]), 1200);
+  }, []);
+
+  const handleStartGame = useCallback(() => {
+    setGameState((current) => {
+      if (!current) return current;
+      return startGame(current);
+    });
+    setIsPaused(false);
+    setWordInput("");
+    setErrorMessage(null);
+    setStatusBanner(null);
+    setLastScoreIncrease(0);
+    setScoreSubmitted(false);
+    setSubmissionError(null);
+    setSubmissionResult(null);
+    scoreSubmissionStartedRef.current = false;
+    gameStartTimeRef.current = Date.now();
+    lastUpdateRef.current = Date.now();
+    window.setTimeout(() => inputRef.current?.focus(), 80);
+  }, []);
+
   const handlePauseToggle = useCallback(() => {
-    if (!gameState || gameState.gameOver) return;
-    if (isPaused) {
-      const newState = resumeGame(gameState);
-      setGameState(newState);
-      setIsPaused(false);
-      lastUpdateRef.current = Date.now();
-    } else {
-      const newState = pauseGame(gameState);
-      setGameState(newState);
+    setGameState((current) => {
+      if (!current || current.gameOver) return current;
+
+      if (isPaused) {
+        lastUpdateRef.current = Date.now();
+        setIsPaused(false);
+        return resumeGame(current);
+      }
+
+      if (!current.isRunning) return current;
       setIsPaused(true);
-    }
-  }, [gameState, isPaused]);
+      return pauseGame(current);
+    });
+  }, [isPaused]);
 
-  // Handle word input submission
-  const handleSubmitWord = useCallback((e?: React.FormEvent | React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
-    if (!gameState || !gameState.isRunning || !wordInput.trim()) return;
-
-    // Prevent scroll by maintaining current scroll position
-    const scrollY = window.scrollY;
-
-    const result = processWordInput(gameState, wordInput);
-    
-    if (result.success) {
-      // Calculate score increase and get points breakdown
-      const scoreIncrease = result.newState.score - previousScoreRef.current;
-      previousScoreRef.current = result.newState.score;
-      const pointsBreakdown = result.pointsBreakdown;
-      
-      // Check for streak milestones (5, 10, 20, 50, etc.)
-      const newStreak = result.newState.streak;
-      const milestoneStreaks = [5, 10, 20, 50, 100];
-      if (milestoneStreaks.includes(newStreak)) {
-        setStreakNotificationText(`${newStreak} mots en série! 🔥`);
-        setShowStreakNotification(true);
-        setTimeout(() => setShowStreakNotification(false), 3000);
-      }
-      
-      // Check for perfect catch
-      if (pointsBreakdown?.isPerfect) {
-        setShowPerfectNotification(true);
-        setTimeout(() => setShowPerfectNotification(false), 2000);
-        // Show special celebration for perfect catch
-        setShowCelebration(true);
-        setTimeout(() => setShowCelebration(false), 2000);
-      }
-      
-      // Show combo notification when combo increases
-      if (result.newState.combo > gameState.combo && result.newState.combo > 1) {
-        setStreakNotificationText(`Combo ×${result.newState.combo}! ⚡`);
-        setShowStreakNotification(true);
-        setTimeout(() => setShowStreakNotification(false), 2500);
-      }
-      
-      const wordsCompleted = result.newState.wordsCompleted;
-      previousWordsCompletedRef.current = wordsCompleted;
-
-      // Show celebration and particles
-      setShowCelebration(true);
-      setTimeout(() => setShowCelebration(false), 1500);
-      
-      const newParticles = Array.from({ length: 20 }, (_, i) => ({
-        id: particleIdRef.current++,
-        x: 50 + Math.random() * 20 - 10,
-        y: 50 + Math.random() * 20 - 10,
-        delay: i * 0.03,
-        targetX: (Math.random() - 0.5) * 40,
-        targetY: (Math.random() - 0.5) * 40,
-      }));
-      setParticles(newParticles);
-      setTimeout(() => setParticles([]), 2000);
-
-      // Flash background green for correct answer
-      setBackgroundFlash("green");
-      setTimeout(() => setBackgroundFlash(null), 600);
-
-      // Show score increase
-      if (scoreIncrease > 0) {
-        setLastScoreIncrease(scoreIncrease);
-        setTimeout(() => setLastScoreIncrease(0), 1500);
-      }
-
-      setGameState(result.newState);
-      setWordInput("");
-      setErrorMessage(null);
-      
-      // Keep input focused on mobile to prevent keyboard from closing
-      if (isMobile && inputRef.current) {
-        // Store scroll position before refocus
-        const savedScrollY = scrollY;
-        // Use setTimeout to ensure focus happens after state update
-        setTimeout(() => {
-          if (inputRef.current) {
-            // Refocus without triggering scroll
-            inputRef.current.focus({ preventScroll: true });
-            // Restore scroll position after a short delay to account for keyboard animation
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                window.scrollTo({ top: savedScrollY, behavior: 'instant' });
-              });
-            });
-          }
-        }, 10);
-      } else {
-        // Restore scroll position on desktop
-        requestAnimationFrame(() => {
-          window.scrollTo(0, scrollY);
-        });
-      }
-    } else {
-      setErrorMessage(result.reason || "Invalid word");
-      setTimeout(() => setErrorMessage(null), 2000);
-      
-      // Flash background red for incorrect answer
-      setBackgroundFlash("red");
-      setTimeout(() => setBackgroundFlash(null), 600);
-      
-      // Keep input focused on mobile to prevent keyboard from closing
-      if (isMobile && inputRef.current) {
-        // Store scroll position before refocus
-        const savedScrollY = scrollY;
-        // Use setTimeout to ensure focus happens after state update
-        setTimeout(() => {
-          if (inputRef.current) {
-            // Refocus without triggering scroll
-            inputRef.current.focus({ preventScroll: true });
-            // Restore scroll position after a short delay to account for keyboard animation
-            requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                window.scrollTo({ top: savedScrollY, behavior: 'instant' });
-              });
-            });
-          }
-        }, 10);
-      } else {
-        // Restore scroll position on desktop
-        requestAnimationFrame(() => {
-          window.scrollTo(0, scrollY);
-        });
-      }
-    }
-  }, [gameState, isMobile, wordInput]);
-
-  // Spawn new word when needed
   const spawnNewWord = useCallback(() => {
-    if (!gameState || !gameState.isRunning || gameState.gameOver) return;
-    
-    if (!gameState.activeWord) {
-      const newWord = spawnFallingWord(gameState, { mode: gameState.mode });
-      if (newWord) {
-        setGameState({
-          ...gameState,
-          activeWord: newWord,
-          wordStartTime: Date.now(), // Track when word appeared for speed bonus
-        });
+    setGameState((current) => {
+      if (!current || !current.isRunning || current.gameOver || current.activeWord) {
+        return current;
       }
-    }
-  }, [gameState]);
 
-  // Game loop
+      const newWord = spawnFallingWord(current, { mode: current.mode });
+      if (!newWord) {
+        return current;
+      }
+
+      return {
+        ...current,
+        activeWord: newWord,
+        wordStartTime: Date.now(),
+      };
+    });
+  }, []);
+
+  const advanceGame = useCallback(
+    (deltaTime: number) => {
+      setGameState((current) => {
+        if (!current || !current.isRunning || current.gameOver || !current.activeWord) {
+          return current;
+        }
+
+        const updatedWord = updateFallingWord(current.activeWord, deltaTime);
+        if (hasReachedBottom(updatedWord)) {
+          flashStage("danger");
+          setStatusBanner("Mot manque: une vie perdue.");
+          window.setTimeout(() => setStatusBanner(null), 1500);
+          return processWordMissed(current);
+        }
+
+        return {
+          ...current,
+          activeWord: updatedWord,
+        };
+      });
+    },
+    [flashStage]
+  );
+
   useEffect(() => {
-    if (!gameState || !gameState.isRunning || gameState.gameOver || isPaused) {
+    if (!gameState?.isRunning || gameState.gameOver || isPaused) {
       if (gameLoopRef.current) {
         cancelAnimationFrame(gameLoopRef.current);
         gameLoopRef.current = null;
@@ -420,29 +437,7 @@ export default function WordfallPage() {
       const now = Date.now();
       const deltaTime = now - lastUpdateRef.current;
       lastUpdateRef.current = now;
-
-      setGameState((prevState) => {
-        if (!prevState || !prevState.isRunning || !prevState.activeWord) {
-          return prevState;
-        }
-
-        const updatedWord = updateFallingWord(prevState.activeWord, deltaTime);
-
-        if (hasReachedBottom(updatedWord)) {
-          // Word reached bottom - lose a life
-          const newState = processWordMissed(prevState);
-          // Flash background red when losing a life
-          setBackgroundFlash("red");
-          setTimeout(() => setBackgroundFlash(null), 600);
-          return newState;
-        }
-
-        return {
-          ...prevState,
-          activeWord: updatedWord,
-        };
-      });
-
+      advanceGame(deltaTime);
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
 
@@ -454,71 +449,85 @@ export default function WordfallPage() {
         gameLoopRef.current = null;
       }
     };
-  }, [gameState?.isRunning, gameState?.gameOver, isPaused]);
+  }, [advanceGame, gameState?.gameOver, gameState?.isRunning, isPaused]);
 
-  // Spawn new word when active word is cleared
   useEffect(() => {
-    if (gameState?.isRunning && !gameState.activeWord && !gameState.gameOver) {
-      const timer = setTimeout(() => {
-        spawnNewWord();
-      }, 500); // Small delay before spawning next word
-      return () => clearTimeout(timer);
+    if (gameState?.isRunning && !gameState.activeWord && !gameState.gameOver && !isPaused) {
+      const timer = window.setTimeout(spawnNewWord, 360);
+      return () => window.clearTimeout(timer);
     }
-  }, [gameState?.activeWord, gameState?.isRunning, gameState?.gameOver, spawnNewWord]);
+  }, [gameState?.activeWord, gameState?.gameOver, gameState?.isRunning, isPaused, spawnNewWord]);
 
-  // Keyboard input handler
+  const handleSubmitWord = useCallback(
+    (event?: FormEvent<HTMLFormElement>) => {
+      event?.preventDefault();
+
+      if (!gameState || !gameState.isRunning || isPaused || !wordInput.trim()) return;
+
+      const result = processWordInput(gameState, wordInput);
+
+      if (!result.success) {
+        setGameState(result.newState);
+        setErrorMessage(result.reason || "Reponse incorrecte.");
+        flashStage("danger");
+        window.setTimeout(() => setErrorMessage(null), 1900);
+        return;
+      }
+
+      const scoreIncrease = result.newState.score - gameState.score;
+      const nextStreak = result.newState.streak;
+
+      setGameState(result.newState);
+      setWordInput("");
+      setErrorMessage(null);
+      setLastScoreIncrease(scoreIncrease);
+      setShowCelebration(true);
+      flashStage("success");
+      spawnParticles();
+
+      if (result.pointsBreakdown?.isPerfect) {
+        setStatusBanner("Capture parfaite: bonus vitesse.");
+      } else if (result.newState.combo > gameState.combo) {
+        setStatusBanner(`Combo x${result.newState.combo}`);
+      } else if ([5, 10, 20, 50, 100].includes(nextStreak)) {
+        setStatusBanner(`${nextStreak} reponses justes de suite.`);
+      }
+
+      window.setTimeout(() => setShowCelebration(false), 900);
+      window.setTimeout(() => setLastScoreIncrease(0), 1300);
+      window.setTimeout(() => setStatusBanner(null), 1700);
+      window.setTimeout(() => inputRef.current?.focus(), 80);
+    },
+    [flashStage, gameState, isPaused, spawnParticles, wordInput]
+  );
+
   useEffect(() => {
-    if (!gameState?.isRunning || gameState.gameOver) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        handleSubmitWord();
-      } else if (e.key === "Escape") {
-        e.preventDefault();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
         handlePauseToggle();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [gameState?.isRunning, gameState?.gameOver, handleSubmitWord, handlePauseToggle]);
+  }, [handlePauseToggle]);
 
-  // Initialize game when mode changes or word lists are loaded
   useEffect(() => {
-    if (!wordListsLoaded) return;
-    try {
-    initializeGame(selectedMode);
-    } catch (error) {
-      console.error("Failed to initialize game:", error);
-      setErrorMessage("Failed to initialize game. Please refresh the page.");
-    }
-  }, [selectedMode, wordListsLoaded, initializeGame]);
-
-  // Reset input when mode changes
-  useEffect(() => {
-    setWordInput("");
-    setErrorMessage(null);
-  }, [selectedMode]);
-
-  // Submit score when game ends
-  useEffect(() => {
-    async function handleGameEnd() {
-      if (!gameState?.gameOver || !user || scoreSubmitted) {
+    async function submitScore() {
+      if (!gameState?.gameOver || !user || scoreSubmissionStartedRef.current) {
         return;
       }
 
-      // Calculate game duration
-      const durationMs = gameStartTimeRef.current
-        ? Date.now() - gameStartTimeRef.current
-        : 0;
+      scoreSubmissionStartedRef.current = true;
+      const durationMs = gameStartTimeRef.current ? Date.now() - gameStartTimeRef.current : 0;
 
       try {
         const result = await submitWordfallScore({
           mode: gameState.mode,
           score: gameState.score,
           wordsCompleted: gameState.wordsCompleted,
-          durationMs: durationMs,
+          durationMs,
         });
 
         if (result.success) {
@@ -528,1069 +537,589 @@ export default function WordfallPage() {
             isNewGlobalBest: result.isNewGlobalBest,
             personalBest: result.personalBest,
           });
-        } else {
-          setSubmissionError(result.error || "Erreur lors de la sauvegarde");
+          return;
         }
+
+        setSubmissionError(result.error || "Erreur lors de la sauvegarde du score.");
       } catch (error) {
-        setSubmissionError("Erreur lors de la sauvegarde du score");
-        console.error("Error submitting score:", error);
+        console.error("Wordfall: score submission failed", error);
+        setSubmissionError("Erreur lors de la sauvegarde du score.");
       }
     }
 
-    handleGameEnd();
-  }, [gameState?.gameOver, gameState?.mode, gameState?.score, gameState?.wordsCompleted, user, scoreSubmitted]);
+    submitScore();
+  }, [gameState?.gameOver, gameState?.mode, gameState?.score, gameState?.wordsCompleted, user]);
 
-  if (!wordListsLoaded) {
+  useEffect(() => {
+    window.render_game_to_text = () =>
+      JSON.stringify(
+        {
+          game: "wordfall",
+          mode: selectedMode,
+          loaded: wordListsLoaded,
+          stage: stageLabel,
+          score: gameState?.score ?? 0,
+          lives: gameState?.lives ?? 0,
+          level: gameState?.level ?? 0,
+          wordsCompleted: gameState?.wordsCompleted ?? 0,
+          streak: gameState?.streak ?? 0,
+          combo: gameState?.combo ?? 1,
+          activeWord: gameState?.activeWord
+            ? {
+                text: gameState.activeWord.text,
+                displayText: gameState.activeWord.displayText,
+                translation: gameState.activeWord.translation
+                  ? cleanTranslationLabel(gameState.activeWord.translation)
+                  : null,
+                y: Math.round(gameState.activeWord.y),
+                speed: gameState.activeWord.speed,
+              }
+            : null,
+          input: wordInput,
+          error: errorMessage,
+        },
+        null,
+        2
+      );
+    window.advanceTime = (milliseconds: number) => {
+      const safeMs = Math.max(0, Number(milliseconds) || 0);
+      advanceGame(safeMs);
+    };
+
+    return () => {
+      delete window.render_game_to_text;
+      delete window.advanceTime;
+    };
+  }, [
+    advanceGame,
+    errorMessage,
+    gameState,
+    selectedMode,
+    stageLabel,
+    wordInput,
+    wordListsLoaded,
+  ]);
+
+  if (!wordListsLoaded || !gameState) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 comic-dot-pattern flex items-center justify-center">
-        <div className="comic-panel-dark p-8 text-center">
-          <p className="text-white text-outline text-lg">Loading word lists...</p>
+      <div className="relative left-1/2 flex min-h-screen w-screen -translate-x-1/2 items-center justify-center overflow-hidden bg-[#020617] text-white">
+        <Image
+          src="/game-art/wordfall-key-art.png"
+          alt="Illustration Wordfall"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover opacity-45"
+        />
+        <div className="absolute inset-0 bg-[#020617]/80" />
+        <div className="relative border-4 border-black bg-slate-950/90 p-8 text-center shadow-[0_8px_0_#000]">
+          <BookOpenIcon className="mx-auto h-12 w-12 text-cyan-300" />
+          <p className="mt-4 text-lg font-bold text-white text-outline">
+            Preparation de Wordfall...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 comic-dot-pattern ${
-      isMobile ? "p-2 pb-4" : "p-4 md:p-8"
-    }`}>
-      {/* Streak Notification */}
+    <div className="relative left-1/2 min-h-screen w-screen -translate-x-1/2 overflow-x-hidden bg-[#020617] text-white">
+      <Image
+        src="/game-art/wordfall-key-art.png"
+        alt="Illustration comic book de Wordfall."
+        fill
+        priority
+        sizes="100vw"
+        className="fixed inset-0 object-cover opacity-45"
+      />
+      <div className="fixed inset-0 bg-gradient-to-r from-[#020617] via-[#020617]/88 to-[#020617]/35" />
+      <div className="fixed inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/35 to-black/55" />
+      <div className="fixed inset-0 comic-dot-pattern-light opacity-20" />
+
       <AnimatePresence>
-        {showStreakNotification && (
+        {backgroundFlash && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.5, y: -100 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.5, y: -100 }}
-            transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            className={`fixed left-1/2 transform -translate-x-1/2 z-50 ${
-              isMobile ? "top-16" : "top-20"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: [0, 0.32, 0] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.42 }}
+            className={`fixed inset-0 z-20 pointer-events-none ${
+              backgroundFlash === "success" ? "bg-emerald-400" : "bg-red-500"
             }`}
-          >
-            <div className={`comic-panel bg-gradient-to-br from-amber-500 via-yellow-500 to-orange-500 border-4 border-black shadow-2xl ${
-              isMobile ? "p-3 border-2" : "p-6"
-            }`}>
-              <div className="text-center">
-                <motion.div
-                  animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }}
-                  transition={{ duration: 0.5, repeat: 2 }}
-                  className={isMobile ? "mb-2" : "mb-3"}
-                >
-                  <FireIcon className={`text-white mx-auto ${
-                    isMobile ? "w-8 h-8" : "w-12 h-12"
-                  }`} />
-                </motion.div>
-                <h3 className={`font-bold text-white text-outline ${
-                  isMobile ? "text-base" : "text-2xl"
-                }`}>
-                  {streakNotificationText || `${gameState?.streak || 0} mots en série! 🔥`}
-                </h3>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      
-      {/* Perfect Catch Notification */}
-      <AnimatePresence>
-        {showPerfectNotification && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5, y: -100 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.5, y: -100 }}
-            transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            className={`fixed left-1/2 transform -translate-x-1/2 z-50 ${
-              isMobile ? "top-24" : "top-32"
-            }`}
-          >
-            <div className={`comic-panel bg-gradient-to-br from-emerald-500 via-green-500 to-teal-500 border-4 border-black shadow-2xl ${
-              isMobile ? "p-2 border-2" : "p-4"
-            }`}>
-              <div className="text-center">
-                <motion.div
-                  animate={{ rotate: [0, 360], scale: [1, 1.3, 1] }}
-                  transition={{ duration: 0.6 }}
-                  className={isMobile ? "mb-1" : "mb-2"}
-                >
-                  <StarIcon className={`text-white mx-auto ${
-                    isMobile ? "w-6 h-6" : "w-10 h-10"
-                  }`} />
-                </motion.div>
-                <h3 className={`font-bold text-white text-outline ${
-                  isMobile ? "text-base" : "text-xl"
-                }`}>
-                  PERFECT CATCH! ⭐
-                </h3>
-                {!isMobile && (
-                  <p className="text-sm text-white/90 text-outline mt-1">
-                    +5 points bonus
-                  </p>
-                )}
-              </div>
-            </div>
-          </motion.div>
+            style={{ mixBlendMode: "screen" }}
+          />
         )}
       </AnimatePresence>
 
-      <div className={`max-w-5xl mx-auto ${
-        isMobile ? "space-y-2" : "space-y-6"
-      }`}>
-          {/* Header */}
-        {(!isMobile || !isKeyboardOpen) && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
-            className={`comic-panel-dark ${
-              isMobile ? "p-3" : "p-6"
-            }`}
-            style={{ background: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)" }}
-          >
-            <div className={`flex flex-col md:flex-row md:items-center md:justify-between ${
-              isMobile ? "gap-2" : "gap-4"
-            }`}>
-              <div className={`flex items-center ${
-                isMobile ? "gap-2" : "gap-4"
-              }`}>
-                <motion.div
-                  animate={{ rotate: [0, 5, -5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                  className={`comic-panel bg-gradient-to-br from-cyan-600 to-blue-600 border-2 border-black flex-shrink-0 ${
-                    isMobile ? "p-2" : "p-3"
-                  }`}
-                >
-                  <BookOpenIcon className={isMobile ? "w-5 h-5 text-white" : "w-8 h-8 text-white"} />
-                </motion.div>
-                <div>
-                  <h1 className={`font-bold text-white mb-1 text-outline ${
-                    isMobile ? "text-xl" : "text-3xl md:text-4xl"
-                  }`}>
-                    Wordfall
-                  </h1>
-                  {!isMobile && (
-                    <p className="text-slate-200 text-outline font-semibold">
-                      Tapez les mots avant qu'ils n'atteignent le bas!
-                    </p>
-                  )}
-                </div>
-              </div>
-              {!isMobile && (
-              <Link
-                href="/play"
-                  className="comic-button bg-slate-700 text-white px-4 py-2 font-bold hover:bg-slate-600 text-outline transition-all hover:scale-105"
-              >
-                  ← Retour
-              </Link>
-              )}
-            </div>
-          </motion.div>
-        )}
-
-            {/* Mode Selector */}
-        <AnimatePresence>
-          {!gameState?.isRunning && (!isMobile || !isKeyboardOpen) && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-              className={`comic-panel-dark ${
-                isMobile ? "p-3" : "p-6"
-              }`}
-              style={{ background: "linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%)" }}
+      <div className="relative z-10 mx-auto max-w-[1460px] px-4 py-5 md:px-8 md:py-7 xl:px-10">
+        <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <Link
+              href="/play"
+              className="comic-button inline-flex items-center gap-2 bg-slate-950/90 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
             >
-              <div className={`flex items-start ${
-                isMobile ? "gap-2 mb-3" : "gap-4 mb-6"
-              }`}>
-                <div className={`comic-panel bg-gradient-to-br from-purple-600 to-indigo-600 border-2 border-black flex-shrink-0 ${
-                  isMobile ? "p-2" : "p-3"
-                }`}>
-                  <LightningIcon className={`text-white ${
-                    isMobile ? "w-4 h-4" : "w-6 h-6"
-                  }`} />
-                </div>
-                <div className="flex-1">
-                  <h2 className={`font-bold text-white mb-1 text-outline ${
-                    isMobile ? "text-lg" : "text-2xl"
-                  }`}>Choisissez le mode</h2>
-                  {!isMobile && (
-                    <p className="text-slate-300 text-outline text-sm mb-4">Sélectionnez votre style de jeu</p>
-                  )}
-                  <div className={`grid grid-cols-1 md:grid-cols-2 ${
-                    isMobile ? "gap-2" : "gap-4"
-                  }`}>
-                    <motion.button
-                  onClick={() => setSelectedMode("exact")}
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`comic-button font-bold text-outline text-left transition-all relative overflow-hidden ${
-                        isMobile ? "p-3" : "p-5"
-                      } ${
-                    selectedMode === "exact"
-                          ? "bg-gradient-to-br from-cyan-600 to-blue-600 text-white border-4 border-black shadow-lg"
-                          : "bg-slate-700 text-white hover:bg-slate-600 border-2 border-slate-600"
-                      }`}
-                    >
-                      {selectedMode === "exact" && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 0.1 }}
-                          className="absolute inset-0 bg-white"
-                        />
-                      )}
-                      <div className="relative z-10">
-                        <div className={`flex items-center justify-between ${
-                          isMobile ? "mb-1" : "mb-2"
-                        }`}>
-                          <div className={`flex items-center ${
-                            isMobile ? "gap-1" : "gap-2"
-                          }`}>
-                            <span className={isMobile ? "text-base" : "text-xl"}>Exact Word</span>
-                            {selectedMode === "exact" && (
-                              <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                className={`comic-panel bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black ${
-                                  isMobile ? "p-0.5" : "p-1"
-                                }`}
-                              >
-                                <CheckCircleIcon className={`text-white ${
-                                  isMobile ? "w-3 h-3" : "w-5 h-5"
-                                }`} />
-                              </motion.div>
-                            )}
-                          </div>
-                        </div>
-                        <span className={`block opacity-90 mt-2 leading-relaxed ${
-                          isMobile ? "text-xs" : "text-sm"
-                        }`}>
-                          Tapez le mot exact qui tombe avec sa traduction française
-                        </span>
-                      </div>
-                    </motion.button>
-                    <motion.button
-                  onClick={() => setSelectedMode("free")}
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }}
-                      className={`comic-button font-bold text-outline text-left transition-all relative overflow-hidden ${
-                        isMobile ? "p-3" : "p-5"
-                      } ${
-                    selectedMode === "free"
-                          ? "bg-gradient-to-br from-purple-600 to-indigo-600 text-white border-4 border-black shadow-lg"
-                          : "bg-slate-700 text-white hover:bg-slate-600 border-2 border-slate-600"
-                      }`}
-                    >
-                      {selectedMode === "free" && (
-                        <motion.div
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 0.1 }}
-                          className="absolute inset-0 bg-white"
-                        />
-                      )}
-                      <div className="relative z-10">
-                        <div className={`flex items-center justify-between ${
-                          isMobile ? "mb-1" : "mb-2"
-                        }`}>
-                          <div className={`flex items-center ${
-                            isMobile ? "gap-1" : "gap-2"
-                          }`}>
-                            <span className={isMobile ? "text-base" : "text-xl"}>Free Word</span>
-                            {selectedMode === "free" && (
-                              <motion.div
-                                initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
-                                className={`comic-panel bg-gradient-to-br from-emerald-500 to-green-600 border-2 border-black ${
-                                  isMobile ? "p-0.5" : "p-1"
-                                }`}
-                              >
-                                <CheckCircleIcon className={`text-white ${
-                                  isMobile ? "w-3 h-3" : "w-5 h-5"
-                                }`} />
-                              </motion.div>
-            )}
+              <ChevronLeftIcon className="h-4 w-4" />
+              Retour aux jeux
+            </Link>
+            <Image
+              src="/game-art/logos/wordfall-logo.png"
+              alt="Wordfall"
+              width={520}
+              height={164}
+              priority
+              className="mt-5 h-auto w-full max-w-[360px] md:max-w-[460px]"
+            />
+            <p className="mt-3 max-w-3xl text-base font-semibold leading-relaxed text-slate-100 text-outline md:text-lg">
+              Attrape les mots avant la zone danger. Wordfall melange vitesse,
+              memoire visuelle et vocabulaire utile.
+            </p>
           </div>
-                        </div>
-                        <span className={`block opacity-90 mt-2 leading-relaxed ${
-                          isMobile ? "text-xs" : "text-sm"
-                        }`}>
-                          Tapez n'importe quel mot valide commençant par la lettre
-                        </span>
-                      </div>
-                    </motion.button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-          {/* Game Stats */}
-        <AnimatePresence>
-          {gameState && (!isMobile || !isKeyboardOpen) && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className={`comic-panel-dark ${
-                isMobile ? "p-2" : "p-6"
-              }`}
-            >
-              <div className={`grid gap-2 md:gap-4 ${
-                isMobile && isKeyboardOpen 
-                  ? "grid-cols-3" 
-                  : isMobile 
-                    ? "grid-cols-3" 
-                    : "grid-cols-2 md:grid-cols-4 lg:grid-cols-6"
-              }`}>
-                <motion.div
-                  className={`comic-panel bg-gradient-to-br from-purple-600 to-indigo-600 border-2 border-black text-center relative ${
-                    isMobile ? "p-2" : "p-4"
-                  }`}
-                  whileHover={{ scale: 1.05 }}
-                  style={{ minHeight: isMobile ? "70px" : "100px" }}
-                >
-                  <div className={`text-white/80 mb-1 text-outline font-semibold ${
-                    isMobile ? "text-[10px]" : "text-xs"
-                  }`}>SCORE</div>
-                  <div className={`font-bold text-white text-outline ${
-                    isMobile ? "text-xl" : "text-3xl"
-                  }`}>{gameState.score}</div>
-                  <div style={{ height: "20px", position: "relative" }}>
-                    {lastScoreIncrease > 0 && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10, scale: 0.8 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: -10, scale: 0.8 }}
-                        className="text-sm text-emerald-200 font-bold text-outline absolute inset-x-0"
-                        style={{ top: 0 }}
-                      >
-                        +{lastScoreIncrease}
-                      </motion.div>
-                    )}
-                </div>
-                </motion.div>
-                <motion.div
-                  className={`comic-panel border-2 border-black text-center ${
-                    gameState.lives <= 1
-                      ? "bg-gradient-to-br from-red-600 to-orange-600 animate-comic-flash"
-                      : "bg-gradient-to-br from-pink-600 to-rose-600"
-                  } ${isMobile ? "p-2" : "p-4"}`}
-                  whileHover={{ scale: 1.05 }}
-                  style={{ minHeight: isMobile ? "70px" : "100px" }}
-                >
-                  <div className={`text-white/80 mb-1 text-outline font-semibold ${
-                    isMobile ? "text-[10px]" : "text-xs"
-                  }`}>VIES</div>
-                  <div className={`font-bold text-white text-outline ${
-                    isMobile ? "text-xl" : "text-3xl"
-                  }`}>
-                  {gameState.lives}
-                </div>
-                </motion.div>
-                {(!isMobile || !isKeyboardOpen) && (
-                  <>
-                    <motion.div
-                      className={`comic-panel bg-gradient-to-br from-cyan-600 to-blue-600 border-2 border-black text-center ${
-                        isMobile ? "p-2" : "p-4"
-                      }`}
-                      whileHover={{ scale: 1.05 }}
-                      style={{ minHeight: isMobile ? "70px" : "100px" }}
-                    >
-                      <div className={`text-white/80 mb-1 text-outline font-semibold ${
-                        isMobile ? "text-[10px]" : "text-xs"
-                      }`}>NIVEAU</div>
-                      <div className={`font-bold text-white text-outline ${
-                        isMobile ? "text-xl" : "text-3xl"
-                      }`}>
-                  {gameState.level}
-                </div>
-                    </motion.div>
-                    <motion.div
-                      className={`comic-panel bg-gradient-to-br from-amber-600 to-yellow-600 border-2 border-black text-center ${
-                        isMobile ? "p-2" : "p-4"
-                      }`}
-                      whileHover={{ scale: 1.05 }}
-                      style={{ minHeight: isMobile ? "70px" : "100px" }}
-                    >
-                      <div className={`flex items-center justify-center gap-1 text-white/80 mb-1 text-outline font-semibold ${
-                        isMobile ? "text-[10px]" : "text-xs"
-                      }`}>
-                        <StarIcon className={isMobile ? "w-2 h-2" : "w-3 h-3"} />
-                        MOTS
-              </div>
-                      <div className={`font-bold text-white text-outline ${
-                        isMobile ? "text-xl" : "text-3xl"
-                      }`}>
-                  {gameState.wordsCompleted}
-                </div>
-                    </motion.div>
-                  </>
-                )}
-                
-                {/* Streak Display */}
-                {gameState.streak > 0 && (!isMobile || !isKeyboardOpen) && (
-                  <motion.div
-                    className={`comic-panel bg-gradient-to-br from-orange-600 to-red-600 border-2 border-black text-center ${
-                      isMobile ? "p-2" : "p-4"
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                    animate={gameState.streak >= 5 ? { scale: [1, 1.1, 1] } : {}}
-                    transition={{ duration: 0.5, repeat: gameState.streak >= 5 ? Infinity : 0, repeatDelay: 1 }}
-                    style={{ minHeight: isMobile ? "70px" : "100px" }}
-                  >
-                    <div className={`flex items-center justify-center gap-2 mb-1 ${
-                      isMobile ? "gap-1" : ""
-                    }`}>
-                      <FireIcon className={isMobile ? "w-3 h-3" : "w-4 h-4 text-white"} />
-                      <div className={`text-white/80 text-outline font-semibold ${
-                        isMobile ? "text-[10px]" : "text-xs"
-                      }`}>STREAK</div>
-              </div>
-                    <div className={`font-bold text-white text-outline ${
-                      isMobile ? "text-xl" : "text-3xl"
-                    }`}>{gameState.streak}</div>
-                    {gameState.highestStreak > 0 && gameState.highestStreak !== gameState.streak && !isMobile && (
-                      <div className="text-xs text-white/60 text-outline mt-1">Meilleur: {gameState.highestStreak}</div>
-                    )}
-                  </motion.div>
-                )}
-                
-                {/* Combo Multiplier */}
-                {gameState.combo > 1 && (!isMobile || !isKeyboardOpen) && (
-                  <motion.div
-                    className={`comic-panel bg-gradient-to-br from-yellow-500 to-orange-500 border-2 border-black text-center ${
-                      isMobile ? "p-2" : "p-4"
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                    animate={{ scale: [1, 1.15, 1] }}
-                    transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
-                    style={{ minHeight: isMobile ? "70px" : "100px" }}
-                  >
-                    <div className={`text-white/80 mb-1 text-outline font-semibold ${
-                      isMobile ? "text-[10px]" : "text-xs"
-                    }`}>COMBO</div>
-                    <div className={`font-bold text-white text-outline ${
-                      isMobile ? "text-xl" : "text-3xl"
-                    }`}>×{gameState.combo}</div>
-                    {!isMobile && (
-                      <div className="text-xs text-white/60 text-outline mt-1">Multiplicateur</div>
-                    )}
-                  </motion.div>
-                )}
+          <div className="grid grid-cols-3 gap-2 md:w-[420px]">
+            <div className="border-4 border-black bg-black/65 p-3 shadow-[0_4px_0_#000]">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-300">
+                Etat
+              </p>
+              <p className="mt-2 truncate text-lg font-bold text-white">{stageLabel}</p>
             </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            <div className="border-4 border-black bg-cyan-950/75 p-3 shadow-[0_4px_0_#000]">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-200">
+                Mode
+              </p>
+              <p className="mt-2 truncate text-lg font-bold text-white">
+                {modeCopy.shortTitle}
+              </p>
+            </div>
+            <div className="border-4 border-black bg-amber-950/75 p-3 shadow-[0_4px_0_#000]">
+              <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-200">
+                Niveau
+              </p>
+              <p className="mt-2 truncate text-lg font-bold text-white">
+                {gameState.level}
+              </p>
+            </div>
+          </div>
+        </header>
 
-          {/* Main Game Area */}
-        <AnimatePresence mode="wait">
-          {gameState && (
-            <motion.div
-              key={gameState.isRunning ? "running" : "stopped"}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.3 }}
-              className="comic-panel-dark relative overflow-hidden"
-              style={{
-                height: isMobile ? (isKeyboardOpen ? "250px" : "300px") : "500px",
-                minHeight: isMobile ? (isKeyboardOpen ? "250px" : "300px") : "500px",
-                maxHeight: isMobile ? (isKeyboardOpen ? "250px" : "300px") : "500px",
-                background: "linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(168, 85, 247, 0.15) 50%, rgba(236, 72, 153, 0.15) 100%)",
-                position: "relative",
-                contain: "layout style paint",
-              }}
-            >
-                  {/* Background Flash Effect */}
-                  <AnimatePresence>
-                    {backgroundFlash && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: [0, 0.3, 0.2, 0] }}
-                        exit={{ opacity: 0 }}
-                        transition={{ 
-                          duration: 0.5,
-                          ease: "easeOut"
-                        }}
-                        className={`absolute inset-0 z-0 pointer-events-none rounded-lg ${
-                          backgroundFlash === "green" 
-                            ? "bg-green-400" 
-                            : "bg-red-400"
-                        }`}
-                        style={{
-                          mixBlendMode: "screen",
-                        }}
-                      />
-                    )}
-                  </AnimatePresence>
+        <main className="mt-7 grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
+          <section className="space-y-5">
+            {!gameState.isRunning && !gameState.gameOver && !isPaused && (
+              <div className="grid gap-3 md:grid-cols-2">
+                {(Object.keys(MODE_COPY) as WordfallMode[]).map((mode) => {
+                  const copy = MODE_COPY[mode];
+                  const isActive = selectedMode === mode;
 
-                  {/* Decorative background elements */}
-                  <div className="absolute inset-0 opacity-10 pointer-events-none z-0">
-                    <div className="absolute top-10 left-10 w-32 h-32 bg-cyan-500 rounded-full blur-3xl" />
-                    <div className="absolute bottom-10 right-10 w-40 h-40 bg-purple-500 rounded-full blur-3xl" />
-                    <div className="absolute top-1/2 left-1/2 w-24 h-24 bg-pink-500 rounded-full blur-2xl transform -translate-x-1/2 -translate-y-1/2" />
-                  </div>
-
-                  {/* Celebration Particles */}
-                  <AnimatePresence>
-                    {particles.map((particle) => (
-                      <motion.div
-                        key={particle.id}
-                        initial={{ 
-                          opacity: 0, 
-                          scale: 0,
-                          x: `${particle.x}%`,
-                          y: `${particle.y}%`,
-                        }}
-                        animate={{ 
-                          opacity: [0, 1, 0],
-                          scale: [0, 1, 0],
-                          x: `${particle.x + particle.targetX}%`,
-                          y: `${particle.y + particle.targetY}%`,
-                        }}
-                        transition={{ 
-                          delay: particle.delay,
-                          duration: 0.8,
-                          ease: "easeOut"
-                        }}
-                        className="absolute z-20 pointer-events-none"
-                        style={{
-                          left: "50%",
-                          top: "50%",
-                        }}
-                      >
-                        <div className="w-3 h-3 bg-yellow-400 rounded-full shadow-lg" />
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-
-                  {/* Celebration Overlay */}
-                  <AnimatePresence>
-                    {showCelebration && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.5 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.5 }}
-                        transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                        className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          willChange: "transform, opacity",
-                        }}
-                      >
-                        <motion.div
-                          animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.2, 1] }}
-                          transition={{ duration: 0.5 }}
-                          className="text-6xl"
-                          style={{
-                            willChange: "transform",
-                            transformOrigin: "center center",
-                          }}
-                        >
-                          ✓
-                        </motion.div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                {/* Falling Word */}
-                {gameState?.activeWord && (
-                  <motion.div
-                      initial={{ top: "-60px", scale: 0.8, opacity: 0 }}
-                      animate={{ 
-                        top: `${Math.max(-60, Math.min(isMobile ? (isKeyboardOpen ? 250 : 300) : 500, (gameState.activeWord.y / 100) * (isMobile ? (isKeyboardOpen ? 310 : 360) : 560) - 60))}px`,
-                        scale: 1,
-                        opacity: 1,
+                  return (
+                    <button
+                      key={mode}
+                      type="button"
+                      onClick={() => {
+                        setSelectedMode(mode);
+                        initializeGame(mode);
                       }}
-                    transition={{ duration: 0.1, ease: "linear" }}
-                      className="absolute left-1/2 transform -translate-x-1/2 z-10"
-                    >
-                      <motion.div
-                        animate={{ 
-                          scale: [1, 1.02, 1],
-                          rotate: [0, 1, -1, 0]
-                        }}
-                        transition={{ 
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                        className={`comic-panel bg-gradient-to-br from-cyan-500 via-blue-600 to-purple-600 border-4 border-black shadow-2xl ${
-                          isMobile ? "px-3 py-2 border-2" : "px-6 py-4"
-                        }`}
-                    style={{
-                          boxShadow: "0 8px 0 0 #000, 0 12px 24px rgba(6, 182, 212, 0.4)",
-                        }}
-                      >
-                        <div className={`font-bold text-white text-outline text-center ${
-                          isMobile ? "text-xl" : "text-3xl md:text-5xl"
-                        }`}>
-                          {gameState.activeWord.text || ""}
-                      </div>
-                        {gameState.activeWord.translation && (
-                          <div className={`font-bold text-white text-outline text-center mt-2 ${
-                            isMobile ? "text-xl" : "text-3xl md:text-5xl"
-                          }`}>
-                            {(() => {
-                              // Clean translation for display: remove parentheses, slashes, and take first part
-                              let cleaned = gameState.activeWord.translation || '';
-                              // Remove everything in parentheses
-                              cleaned = cleaned.replace(/\([^()]*\)/g, '');
-                              // Take first part before "/"
-                              if (cleaned.includes('/')) {
-                                cleaned = cleaned.split('/')[0].trim();
-                              }
-                              // Take first part before ","
-                              if (cleaned.includes(',')) {
-                                cleaned = cleaned.split(',')[0].trim();
-                              }
-                              // Clean up spaces
-                              cleaned = cleaned.replace(/\s+/g, ' ').trim();
-                              return cleaned;
-                            })()}
-                    </div>
-                        )}
-                      </motion.div>
-                  </motion.div>
-                )}
-
-                {/* Game Over Overlay */}
-                {gameState?.gameOver && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="absolute inset-0 bg-black/80 flex items-center justify-center z-40"
-                    >
-                      <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                        className="comic-panel-dark p-8 text-center max-w-md"
-                      >
-                        <motion.div
-                          animate={{ rotate: [0, 10, -10, 0] }}
-                          transition={{ duration: 0.5, repeat: 2 }}
-                          className="mb-4"
-                        >
-                          <TrophyIcon className="w-16 h-16 text-yellow-400 mx-auto" />
-                        </motion.div>
-                        <h2 className="text-3xl md:text-4xl font-bold text-white text-outline mb-4">
-                        Game Over!
-                      </h2>
-                        <p className="text-xl md:text-2xl text-slate-200 text-outline mb-2">
-                          Score Final: {gameState.score}
-                      </p>
-                      <p className="text-base md:text-lg text-slate-300 text-outline mb-6">
-                          Mots Complétés: {gameState.wordsCompleted}
-                        </p>
-                        {scoreSubmitted ? (
-                          <div className="space-y-3 mb-6">
-                            <p className="text-sm text-emerald-300 text-outline">
-                              ✅ Score sauvegardé avec succès!
-                            </p>
-                            {submissionResult?.isNewPersonalBest && (
-                              <p className="text-sm text-cyan-300 text-outline">
-                                🎉 Nouveau record personnel!
-                              </p>
-                            )}
-                            {submissionResult?.isNewGlobalBest && (
-                              <p className="text-sm text-yellow-300 text-outline font-bold">
-                                🏆 Nouveau record mondial!
-                              </p>
-                            )}
-                    </div>
-                        ) : submissionError ? (
-                          <p className="text-sm text-red-300 text-outline mb-6">
-                            ⚠️ {submissionError}
-                          </p>
-                        ) : (
-                          <p className="text-sm text-slate-400 text-outline mb-6">
-                            Sauvegarde en cours...
-                          </p>
-                        )}
-                        <motion.button
-                          onClick={() => {
-                            initializeGame(selectedMode);
-                            setScoreSubmitted(false);
-                            setSubmissionError(null);
-                            setSubmissionResult(null);
-                          }}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="comic-button bg-gradient-to-r from-emerald-600 to-green-600 text-white px-8 py-4 text-lg font-bold hover:from-emerald-700 hover:to-green-700 border-4 border-black"
-                        >
-                          Rejouer
-                        </motion.button>
-                      </motion.div>
-                    </motion.div>
-                )}
-
-                {/* Pause Overlay */}
-                {isPaused && !gameState?.gameOver && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="absolute inset-0 bg-black/60 flex items-center justify-center z-40"
-                    >
-                      <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                        className="comic-panel-dark p-8 text-center"
-                      >
-                        <h2 className="text-3xl md:text-4xl font-bold text-white text-outline mb-6">
-                          Pause
-                      </h2>
-                        <motion.button
-                        onClick={handlePauseToggle}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="comic-button bg-gradient-to-r from-cyan-600 to-blue-600 text-white px-8 py-4 text-lg font-bold hover:from-cyan-700 hover:to-blue-700 border-4 border-black"
-                        >
-                          Reprendre
-                        </motion.button>
-                      </motion.div>
-                    </motion.div>
-                )}
-
-                {/* Start Screen */}
-                {gameState && !gameState.isRunning && !gameState.gameOver && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="absolute inset-0 flex items-center justify-center z-30"
-                    >
-                      <motion.div
-                        initial={{ scale: 0.9, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                        className="comic-panel-dark p-8 text-center max-w-md"
-                      >
-                        <motion.div
-                          animate={{ scale: [1, 1.1, 1], rotate: [0, 5, -5, 0] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                          className="mb-6"
-                        >
-                          <BookOpenIcon className="w-16 h-16 text-cyan-400 mx-auto" />
-                        </motion.div>
-                        <h2 className="text-2xl md:text-3xl font-bold text-white text-outline mb-4">
-                        {selectedMode === "exact" ? "Exact Word Mode" : "Free Word Mode"}
-                      </h2>
-                        <p className="text-base md:text-lg text-slate-200 text-outline mb-6">
-                        {selectedMode === "exact"
-                            ? "Tapez le mot anglais puis sa traduction française (ex: BOOK livre)!"
-                            : "Tapez n'importe quel mot valide commençant par la lettre affichée!"}
-                      </p>
-                        <motion.button
-                        onClick={handleStartGame}
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          className="comic-button bg-gradient-to-r from-emerald-600 to-green-600 text-white px-8 py-4 text-lg font-bold hover:from-emerald-700 hover:to-green-700 border-4 border-black animate-comic-glow"
-                        >
-                          <span className="flex items-center gap-2 justify-center">
-                            <LightningIcon className="w-6 h-6" />
-                            Commencer
-                          </span>
-                        </motion.button>
-                      </motion.div>
-                    </motion.div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Used Words Panel (Free Mode) */}
-        <AnimatePresence>
-          {selectedMode === "free" && gameState && gameState.isRunning && !gameState.gameOver && (!isMobile || !isKeyboardOpen) && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className={`comic-panel-dark overflow-hidden ${
-                isMobile ? "p-3" : "p-6"
-              }`}
-              style={{ 
-                maxHeight: isMobile ? "150px" : "300px", 
-                overflowY: "auto",
-                minHeight: gameState.usedWords.length === 0 ? (isMobile ? "80px" : "120px") : (isMobile ? "100px" : "150px")
-              }}
-            >
-              <div className="flex items-center gap-2 mb-4">
-                <StarIcon className="w-5 h-5 text-yellow-400" />
-                <h3 className="text-xl font-bold text-white text-outline">
-                  Mots Utilisés
-                  </h3>
-              </div>
-              {gameState.usedWords.length === 0 ? (
-                    <p className="text-sm md:text-base text-slate-400 text-outline">
-                  Aucun mot utilisé pour le moment
-                    </p>
-                  ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-                  <AnimatePresence>
-                    {gameState.usedWords.slice(-5).map((word, index) => (
-                      <motion.div
-                        key={`${word}-${index}`}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        transition={{ delay: index * 0.03 }}
-                        className="comic-panel bg-gradient-to-br from-slate-700 to-slate-800 border-2 border-black px-3 py-2 text-center"
-                        >
-                          <span className="text-sm md:text-base font-semibold text-white text-outline">
-                            {word}
-                          </span>
-                      </motion.div>
-                      ))}
-                  </AnimatePresence>
-                    </div>
-                  )}
-            </motion.div>
-            )}
-        </AnimatePresence>
-
-          {/* Input Area */}
-        <AnimatePresence>
-          {gameState?.isRunning && !gameState.gameOver && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className={`space-y-4 ${
-                isMobile && isKeyboardOpen ? "sticky bottom-0 z-50 bg-slate-900/95 backdrop-blur-sm pb-2 pt-2" : ""
-              }`}
-            >
-              <form 
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSubmitWord(e);
-                }}
-                className={`flex gap-2 md:gap-4 ${
-                  isMobile ? "flex-col" : "flex-col md:flex-row"
-                }`}
-              >
-                <motion.input
-                  ref={inputRef}
-                  type="text"
-                  value={wordInput}
-                  onChange={(e) => {
-                    // For exact mode, preserve case (needed for French translation)
-                    // For free mode, convert to uppercase
-                    const value = selectedMode === "exact" 
-                      ? e.target.value 
-                      : e.target.value.toUpperCase();
-                    setWordInput(value);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleSubmitWord(e);
-                    }
-                  }}
-                  placeholder={selectedMode === "exact" ? "MOT traduction (ex: BOOK livre)" : "Tapez un mot commençant par la lettre..."}
-                  className={`flex-1 comic-panel-dark border-4 border-black font-bold text-white bg-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 ${
-                    isMobile ? "px-3 py-3 text-base border-2" : "px-6 py-4 text-lg"
-                  }`}
-                  autoFocus
-                  disabled={isPaused}
-                  whileFocus={{ scale: 1.02 }}
-                  onFocus={(e) => {
-                    // On mobile, prevent scroll when keyboard opens
-                    // But allow it only on the first focus, not when we refocus after submit
-                    if (isMobile) {
-                      // Store current scroll position
-                      const currentScrollY = window.scrollY;
-                      // Use requestAnimationFrame to restore scroll after browser adjusts for keyboard
-                      requestAnimationFrame(() => {
-                        // Only restore if scroll changed significantly (keyboard opened)
-                        if (Math.abs(window.scrollY - currentScrollY) > 50) {
-                          window.scrollTo(0, currentScrollY);
-                        }
-                      });
-                    }
-                  }}
-                />
-                <div className={`flex gap-2 md:gap-4 ${
-                  isMobile ? "flex-row" : ""
-                }`}>
-                  <motion.button
-                    type="submit"
-                  disabled={isPaused || !wordInput.trim()}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`comic-button bg-gradient-to-r from-emerald-600 to-green-600 text-white font-bold hover:from-emerald-700 hover:to-green-700 border-4 border-black disabled:opacity-50 disabled:cursor-not-allowed ${
-                      isMobile ? "px-4 py-3 text-base border-2 flex-1" : "px-8 py-4 text-lg"
-                    }`}
-                  >
-                    <span className={`flex items-center gap-2 justify-center ${
-                      isMobile ? "gap-1" : ""
-                    }`}>
-                      <CheckCircleIcon className={isMobile ? "w-4 h-4" : "w-5 h-5"} />
-                      {isMobile ? "OK" : "Valider"}
-                    </span>
-                  </motion.button>
-                  {(!isMobile || !isKeyboardOpen) && (
-                    <motion.button
-                  onClick={handlePauseToggle}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className={`comic-button bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-bold hover:from-amber-700 hover:to-yellow-700 border-4 border-black ${
-                        isMobile ? "px-4 py-3 text-base border-2" : "px-6 py-4 text-lg"
+                      className={`group border-4 border-black p-4 text-left shadow-[0_5px_0_#000] transition-transform hover:-translate-y-1 ${
+                        isActive
+                          ? `bg-gradient-to-br ${copy.accent} text-white`
+                          : "bg-slate-950/86 text-slate-100 hover:bg-slate-900"
                       }`}
                     >
-                      {isPaused ? "Reprendre" : "Pause"}
-                    </motion.button>
-                  )}
+                      <span className="flex items-center justify-between gap-4">
+                        <span>
+                          <span className="block text-[10px] font-bold uppercase tracking-[0.22em] text-white/75">
+                            {copy.kicker}
+                          </span>
+                          <span className="mt-2 block text-xl font-bold text-white text-outline">
+                            {copy.title}
+                          </span>
+                        </span>
+                        {isActive && <CheckCircleIcon className="h-7 w-7 text-white" />}
+                      </span>
+                      <span className="mt-3 block text-sm font-semibold leading-relaxed text-white/85">
+                        {copy.summary}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-              </form>
+            )}
 
-              {/* Error Message */}
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+              {statItems.map((item) => (
+                <StatTile key={item.label} {...item} />
+              ))}
+            </div>
+
+            <section
+              data-testid="wordfall-stage"
+              className="relative min-h-[460px] overflow-hidden border-4 border-black bg-[#06101f]/95 shadow-[0_8px_0_#000] md:min-h-[560px]"
+            >
+              <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(34,211,238,0.08)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:72px_72px]" />
+              <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-cyan-400/16 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-[22%] border-t-4 border-red-500/80 bg-gradient-to-t from-red-950/85 to-red-900/12">
+                <p className="absolute right-4 top-3 text-[10px] font-bold uppercase tracking-[0.3em] text-red-100">
+                  Zone danger
+                </p>
+              </div>
+              <div className="absolute left-4 top-4 border-2 border-white/20 bg-black/45 px-3 py-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-200">
+                {modeCopy.action}
+              </div>
+
               <AnimatePresence>
-                {errorMessage && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="comic-panel bg-gradient-to-br from-red-600 to-orange-600 border-4 border-black p-4 overflow-hidden"
-                    style={{ minHeight: "60px" }}
-                  >
-                    <div className="flex items-center gap-2 justify-center">
-                      <XCircleIcon className="w-5 h-5 text-white" />
-                      <p className="text-base font-bold text-white text-outline text-center">
-                      {errorMessage}
+                {particles.map((particle) => (
+                  <motion.span
+                    key={particle.id}
+                    initial={{
+                      opacity: 0,
+                      scale: 0,
+                      x: `${particle.x}%`,
+                      y: `${particle.y}%`,
+                    }}
+                    animate={{
+                      opacity: [0, 1, 0],
+                      scale: [0, 1, 0],
+                      x: `${particle.x + particle.targetX}%`,
+                      y: `${particle.y + particle.targetY}%`,
+                    }}
+                    transition={{
+                      delay: particle.delay,
+                      duration: 0.75,
+                      ease: "easeOut",
+                    }}
+                    className="absolute z-30 h-3 w-3 rounded-full bg-yellow-300 shadow-[0_0_16px_rgba(250,204,21,0.75)]"
+                  />
+                ))}
+              </AnimatePresence>
+
+              {gameState.isRunning && !activeWord && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center">
+                  <div className="border-4 border-black bg-slate-950/80 px-5 py-4 text-center shadow-[0_4px_0_#000]">
+                    <p className="text-sm font-bold uppercase tracking-[0.22em] text-cyan-200">
+                      Prochain bloc
                     </p>
+                    <p className="mt-2 text-lg font-bold text-white">
+                      Analyse du mot suivant...
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <AnimatePresence>
+                {activeWord && (
+                  <motion.div
+                    key={activeWord.id}
+                    initial={{ opacity: 0, scale: 0.92, top: "2%" }}
+                    animate={{ opacity: 1, scale: 1, top: `${activeTop}%` }}
+                    exit={{ opacity: 0, scale: 0.86 }}
+                    transition={{ duration: 0.08, ease: "linear" }}
+                    className="absolute left-1/2 z-20 w-[min(88vw,500px)] -translate-x-1/2"
+                  >
+                    <div className="border-4 border-black bg-white p-4 text-slate-950 shadow-[0_8px_0_#000] md:p-5">
+                      <div className="flex items-center justify-between gap-3">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-slate-500">
+                          {selectedMode === "exact" ? "Mot cible" : "Lettre cible"}
+                        </p>
+                        <p className="border-2 border-black bg-slate-950 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-white">
+                          Vitesse {activeWord.speed.toFixed(1)}
+                        </p>
+                      </div>
+                      <p className={`mt-3 break-words text-center font-black leading-tight tracking-normal text-slate-950 ${activeWordTextClass}`}>
+                        {activeWord.text}
+                      </p>
+                      {selectedMode === "exact" && activeWord.translation && (
+                        <p className="mt-3 border-t-2 border-slate-200 pt-3 text-center text-sm font-bold uppercase tracking-[0.16em] text-cyan-700 md:text-base">
+                          Traduction: {cleanTranslationLabel(activeWord.translation)}
+                        </p>
+                      )}
+                      {selectedMode === "free" && (
+                        <p className="mt-3 border-t-2 border-slate-200 pt-3 text-center text-sm font-bold uppercase tracking-[0.16em] text-fuchsia-700 md:text-base">
+                          Un mot anglais qui commence par {activeWord.text}
+                        </p>
+                      )}
+                      <div className="mt-4 h-3 border-2 border-black bg-red-100">
+                        <div
+                          className="h-full bg-gradient-to-r from-emerald-500 via-amber-400 to-red-500"
+                          style={{ width: `${activeProgress}%` }}
+                        />
+                      </div>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
-          {/* Instructions */}
-        <AnimatePresence>
-          {!gameState?.isRunning && !gameState?.gameOver && (!isMobile || !isKeyboardOpen) && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              className={`comic-panel-dark ${
-                isMobile ? "p-3" : "p-6"
-              }`}
-              style={{ background: "linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%)" }}
-            >
-              <div className={`flex items-start ${
-                isMobile ? "gap-2" : "gap-4"
-              }`}>
-                <div className={`comic-panel bg-gradient-to-br from-cyan-600 to-blue-600 border-2 border-black flex-shrink-0 ${
-                  isMobile ? "p-2" : "p-3"
-                }`}>
-                  <BookOpenIcon className={`text-white ${
-                    isMobile ? "w-4 h-4" : "w-6 h-6"
-                  }`} />
-                </div>
-                <div className="flex-1">
-                  <h3 className={`font-bold text-white text-outline mb-1 ${
-                    isMobile ? "text-base" : "text-xl"
-                  }`}>
-                    Comment jouer
-              </h3>
-                  {!isMobile && (
-                    <p className="text-slate-300 text-outline text-sm mb-4">
-                      {selectedMode === "exact" ? "Mode Exact" : "Mode Libre"}
-                    </p>
-                  )}
-                  <div className="space-y-2.5 text-slate-200 text-outline">
-                {selectedMode === "exact" ? (
-                  <>
-                        <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
-                          <span className="text-cyan-400 font-bold mt-0.5 text-lg">•</span>
-                          <span className="flex-1">Les mots tombent du haut de l'écran</span>
-                        </div>
-                        <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
-                          <span className="text-cyan-400 font-bold mt-0.5 text-lg">•</span>
-                          <span className="flex-1">Tapez le mot anglais puis sa traduction française</span>
-                        </div>
-                        <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
-                          <span className="text-cyan-400 font-bold mt-0.5 text-lg">•</span>
-                          <span className="flex-1">Format: <strong className="text-cyan-300">MOT traduction</strong> (ex: <span className="text-emerald-300">BOOK livre</span>)</span>
-                        </div>
-                        <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
-                          <span className="text-cyan-400 font-bold mt-0.5 text-lg">•</span>
-                          <span className="flex-1">Vous perdez une vie si un mot atteint le bas</span>
-                        </div>
-                        <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
-                          <span className="text-cyan-400 font-bold mt-0.5 text-lg">•</span>
-                          <span className="flex-1">Le jeu s'accélère très doucement au fur et à mesure</span>
-                        </div>
-                  </>
-                ) : (
-                  <>
-                        <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
-                          <span className="text-cyan-400 font-bold mt-0.5 text-lg">•</span>
-                          <span className="flex-1">Une lettre tombe du haut de l'écran</span>
-                        </div>
-                        <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
-                          <span className="text-cyan-400 font-bold mt-0.5 text-lg">•</span>
-                          <span className="flex-1">Tapez n'importe quel mot anglais valide commençant par cette lettre</span>
-                        </div>
-                        <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
-                          <span className="text-cyan-400 font-bold mt-0.5 text-lg">•</span>
-                          <span className="flex-1">Chaque mot ne peut être utilisé qu'une fois par partie</span>
-                        </div>
-                        <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
-                          <span className="text-cyan-400 font-bold mt-0.5 text-lg">•</span>
-                          <span className="flex-1">Vous perdez une vie si la lettre atteint le bas</span>
-                        </div>
-                        <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
-                          <span className="text-cyan-400 font-bold mt-0.5 text-lg">•</span>
-                          <span className="flex-1">Le jeu s'accélère au fur et à mesure</span>
-                        </div>
-                  </>
+              <AnimatePresence>
+                {showCelebration && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.86 }}
+                    className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center"
+                  >
+                    <div className="border-4 border-black bg-emerald-500 px-6 py-4 text-2xl font-black uppercase tracking-[0.14em] text-white shadow-[0_6px_0_#000] text-outline">
+                      Valide
+                    </div>
+                  </motion.div>
                 )}
-              </div>
-            </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </AnimatePresence>
 
-        {/* Full Leaderboard - Show when game is not running */}
-        <AnimatePresence>
-          {!gameState?.isRunning && !gameState?.gameOver && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <WordfallLeaderboard initialMode={selectedMode} />
-            </motion.div>
-          )}
-        </AnimatePresence>
+              {gameState.gameOver && (
+                <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/78 p-4">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    className="w-full max-w-lg border-4 border-black bg-slate-950 p-6 text-center shadow-[0_8px_0_#000] md:p-8"
+                  >
+                    <TrophyIcon className="mx-auto h-14 w-14 text-amber-300" />
+                    <h2 className="mt-4 text-3xl font-bold text-white text-outline md:text-4xl">
+                      Partie terminee
+                    </h2>
+                    <div className="mt-5 grid grid-cols-2 gap-3">
+                      <div className="border-2 border-white/15 bg-white/8 p-3">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                          Score final
+                        </p>
+                        <p className="mt-2 text-2xl font-bold text-cyan-200">
+                          {formatNumber(gameState.score)}
+                        </p>
+                      </div>
+                      <div className="border-2 border-white/15 bg-white/8 p-3">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
+                          Mots valides
+                        </p>
+                        <p className="mt-2 text-2xl font-bold text-amber-200">
+                          {gameState.wordsCompleted}
+                        </p>
+                      </div>
+                    </div>
 
-        {/* Personal Best Display - Show when game is not running, after leaderboard */}
-        <AnimatePresence>
-          {!gameState?.isRunning && !gameState?.gameOver && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.3 }}
-            >
-              <PersonalBestDisplay 
-                selectedMode={selectedMode} 
-                currentScore={gameState?.gameOver ? gameState.score : undefined}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+                    <div className="mt-5 text-sm font-semibold text-slate-300">
+                      {!user && "Connecte-toi pour sauvegarder ton score."}
+                      {user && scoreSubmitted && (
+                        <span className="text-emerald-300">
+                          Score sauvegarde.
+                          {submissionResult?.isNewPersonalBest && " Nouveau record personnel."}
+                          {submissionResult?.isNewGlobalBest && " Meilleur score global."}
+                        </span>
+                      )}
+                      {user && !scoreSubmitted && !submissionError && "Sauvegarde en cours..."}
+                      {user && submissionError && (
+                        <span className="text-red-300">{submissionError}</span>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => initializeGame(selectedMode)}
+                      className="comic-button mt-6 inline-flex items-center gap-2 bg-emerald-600 px-7 py-3 text-base font-bold text-white hover:bg-emerald-700"
+                    >
+                      <LightningIcon className="h-5 w-5" />
+                      Rejouer
+                    </button>
+                  </motion.div>
+                </div>
+              )}
+
+              {isPaused && !gameState.gameOver && (
+                <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/70 p-4">
+                  <div className="border-4 border-black bg-slate-950 p-7 text-center shadow-[0_8px_0_#000]">
+                    <h2 className="text-3xl font-bold text-white text-outline">Pause</h2>
+                    <p className="mt-3 max-w-sm text-sm font-semibold leading-relaxed text-slate-300">
+                      La chute est arretee. Reprends quand tu es pret.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handlePauseToggle}
+                      className="comic-button mt-6 bg-cyan-600 px-7 py-3 text-base font-bold text-white hover:bg-cyan-700"
+                    >
+                      Reprendre
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {!gameState.isRunning && !gameState.gameOver && !isPaused && (
+                <div className="absolute inset-0 z-30 flex items-center justify-center bg-black/44 p-4">
+                  <motion.div
+                    initial={{ opacity: 0, y: 18, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    className="w-full max-w-xl border-4 border-black bg-slate-950/95 p-6 text-center shadow-[0_8px_0_#000] md:p-8"
+                  >
+                    <div className={`mx-auto flex h-14 w-14 items-center justify-center border-4 border-black bg-gradient-to-br ${modeCopy.accent}`}>
+                      <BookOpenIcon className="h-8 w-8 text-white" />
+                    </div>
+                    <p className="mt-5 text-xs font-bold uppercase tracking-[0.24em] text-cyan-200">
+                      {modeCopy.kicker}
+                    </p>
+                    <h2 className="mt-3 text-3xl font-bold text-white text-outline md:text-4xl">
+                      {modeCopy.title}
+                    </h2>
+                    <p className="mt-4 text-base font-semibold leading-relaxed text-slate-200">
+                      {modeCopy.summary}
+                    </p>
+                    <button
+                      data-testid="wordfall-start"
+                      type="button"
+                      onClick={handleStartGame}
+                      className="comic-button mt-7 inline-flex items-center gap-2 bg-emerald-600 px-8 py-4 text-lg font-bold text-white hover:bg-emerald-700"
+                    >
+                      <LightningIcon className="h-6 w-6" />
+                      Demarrer la manche
+                    </button>
+                  </motion.div>
+                </div>
+              )}
+            </section>
+
+            {gameState.isRunning && !gameState.gameOver && (
+              <form
+                onSubmit={handleSubmitWord}
+                className="border-4 border-black bg-slate-950/92 p-4 shadow-[0_6px_0_#000] md:p-5"
+              >
+                <div className="flex flex-col gap-3 lg:flex-row">
+                  <label className="min-w-0 flex-1">
+                    <span className="mb-2 block text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
+                      Reponse
+                    </span>
+                    <input
+                      ref={inputRef}
+                      data-testid="wordfall-input"
+                      type="text"
+                      value={wordInput}
+                      onChange={(event) => {
+                        const value =
+                          selectedMode === "free"
+                            ? event.target.value.toUpperCase()
+                            : event.target.value;
+                        setWordInput(value);
+                      }}
+                      placeholder={`${modeCopy.prompt} Exemple: ${modeCopy.input}`}
+                      disabled={isPaused}
+                      autoFocus
+                      className="w-full border-4 border-black bg-white px-4 py-4 text-lg font-bold text-slate-950 outline-none transition focus:border-cyan-300 focus:ring-4 focus:ring-cyan-300/30 disabled:opacity-60"
+                    />
+                  </label>
+
+                  <div className="flex gap-3 lg:items-end">
+                    <button
+                      type="submit"
+                      disabled={isPaused || !wordInput.trim()}
+                      className="comic-button inline-flex flex-1 items-center justify-center gap-2 bg-emerald-600 px-6 py-4 text-base font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 lg:flex-none"
+                    >
+                      <CheckCircleIcon className="h-5 w-5" />
+                      Valider
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handlePauseToggle}
+                      className="comic-button inline-flex items-center justify-center bg-amber-600 px-6 py-4 text-base font-bold text-white hover:bg-amber-700"
+                    >
+                      Pause
+                    </button>
+                  </div>
+                </div>
+
+                <AnimatePresence>
+                  {(errorMessage || statusBanner) && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                      className={`mt-4 flex items-center gap-3 border-4 border-black p-3 text-sm font-bold shadow-[0_4px_0_#000] ${
+                        errorMessage
+                          ? "bg-red-700 text-white"
+                          : "bg-emerald-600 text-white"
+                      }`}
+                    >
+                      {errorMessage ? (
+                        <XCircleIcon className="h-5 w-5 flex-shrink-0" />
+                      ) : (
+                        <StarIcon className="h-5 w-5 flex-shrink-0" />
+                      )}
+                      <span>{errorMessage || statusBanner}</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </form>
+            )}
+
+            {selectedMode === "free" && gameState.usedWords.length > 0 && (
+              <div className="border-4 border-black bg-slate-950/86 p-4 shadow-[0_5px_0_#000]">
+                <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
+                  Derniers mots joues
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {gameState.usedWords.slice(-5).map((word) => (
+                    <span
+                      key={word}
+                      className="border-2 border-black bg-slate-800 px-3 py-2 text-sm font-bold text-white"
+                    >
+                      {word}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+
+          <aside className="space-y-5">
+            <section className="border-4 border-black bg-slate-950/90 p-5 shadow-[0_6px_0_#000]">
+              <div className="flex items-center gap-3">
+                <div className={`flex h-11 w-11 items-center justify-center border-4 border-black bg-gradient-to-br ${modeCopy.accent}`}>
+                  <LightningIcon className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
+                    Brief de mission
+                  </p>
+                  <h2 className="text-xl font-bold text-white text-outline">
+                    {modeCopy.shortTitle}
+                  </h2>
+                </div>
+              </div>
+              <p className="mt-4 text-sm font-semibold leading-relaxed text-slate-300">
+                {modeCopy.summary}
+              </p>
+              <div className="mt-5 space-y-3">
+                {modeCopy.rules.map((rule) => (
+                  <div key={rule} className={`border-l-4 px-3 py-2 ${modeCopy.accentSoft}`}>
+                    <p className="text-sm font-semibold leading-relaxed">{rule}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="border-4 border-black bg-slate-950/90 p-5 shadow-[0_6px_0_#000]">
+              <div className="flex items-center gap-3">
+                <FireIcon className="h-6 w-6 text-orange-300" />
+                <h2 className="text-xl font-bold text-white text-outline">Scoring</h2>
+              </div>
+              <div className="mt-4 grid gap-3 text-sm font-semibold text-slate-300">
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <span>Capture haute</span>
+                  <span className="text-emerald-300">bonus</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <span>Series propres</span>
+                  <span className="text-amber-300">combo</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span>Niveaux</span>
+                  <span className="text-cyan-300">vitesse + points</span>
+                </div>
+              </div>
+            </section>
+
+            <PersonalBestDisplay
+              selectedMode={selectedMode}
+              currentScore={gameState.gameOver ? gameState.score : undefined}
+            />
+          </aside>
+        </main>
+
+        {!gameState.isRunning && !gameState.gameOver && (
+          <section className="mt-8">
+            <WordfallLeaderboard initialMode={selectedMode} />
+          </section>
+        )}
       </div>
     </div>
   );

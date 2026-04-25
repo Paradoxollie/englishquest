@@ -1,17 +1,5 @@
 "use client";
 
-/**
- * Wordfall Leaderboard Component
- * 
- * Displays two separate leaderboards (exact mode, free mode) by filtering
- * the game_scores table on the difficulty column.
- * 
- * Each leaderboard shows:
- * - Top players ranked by best score
- * - Username, best score, and number of games played
- * - Grouped by user_id (one entry per user showing their best)
- */
-
 import { useEffect, useState } from "react";
 import type { WordfallMode } from "@/lib/games/wordfall";
 import { TrophyIcon } from "@/components/ui/game-icons";
@@ -19,28 +7,30 @@ import { LeaderboardAvatar } from "../speed-verb-challenge/leaderboard-avatar";
 import { getWordfallLeaderboards, type WordfallLeaderboardData } from "./get-top-scores";
 
 const MODE_LABELS: Record<WordfallMode, string> = {
-  exact: "Mode Exact",
-  free: "Mode Libre",
+  exact: "Mode exact",
+  free: "Mode libre",
 };
 
-const MODE_COLORS: Record<WordfallMode, string> = {
-  exact: "bg-cyan-600",
-  free: "bg-blue-600",
+const MODE_STYLES: Record<WordfallMode, string> = {
+  exact: "bg-cyan-600 text-white",
+  free: "bg-fuchsia-600 text-white",
 };
 
 interface WordfallLeaderboardProps {
   initialMode?: WordfallMode;
 }
 
-type LeaderboardData = WordfallLeaderboardData;
-
 export function WordfallLeaderboard({ initialMode = "exact" }: WordfallLeaderboardProps) {
-  const [leaderboards, setLeaderboards] = useState<LeaderboardData>({
+  const [leaderboards, setLeaderboards] = useState<WordfallLeaderboardData>({
     exact: [],
     free: [],
   });
   const [loading, setLoading] = useState(true);
   const [selectedMode, setSelectedMode] = useState<WordfallMode>(initialMode);
+
+  useEffect(() => {
+    setSelectedMode(initialMode);
+  }, [initialMode]);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,12 +40,11 @@ export function WordfallLeaderboard({ initialMode = "exact" }: WordfallLeaderboa
 
       try {
         const leaderboardData = await getWordfallLeaderboards();
-
         if (!cancelled) {
           setLeaderboards(leaderboardData);
         }
       } catch (error) {
-        console.error("Error fetching Wordfall leaderboards:", error);
+        console.error("Wordfall: leaderboard fetch failed", error);
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -72,8 +61,10 @@ export function WordfallLeaderboard({ initialMode = "exact" }: WordfallLeaderboa
 
   if (loading) {
     return (
-      <div className="comic-panel-dark p-6">
-        <p className="text-slate-300 text-outline text-center">Chargement du classement...</p>
+      <div className="border-4 border-black bg-slate-950/90 p-6 text-center shadow-[0_6px_0_#000]">
+        <p className="text-sm font-bold uppercase tracking-[0.2em] text-slate-300">
+          Chargement du classement
+        </p>
       </div>
     );
   }
@@ -81,105 +72,92 @@ export function WordfallLeaderboard({ initialMode = "exact" }: WordfallLeaderboa
   const currentLeaderboard = leaderboards[selectedMode];
 
   return (
-    <div className="space-y-6">
-      {/* Mode Selection */}
-      <div className="flex gap-2 justify-center">
-        <button
-          onClick={() => setSelectedMode("exact")}
-          className={`comic-button px-6 py-3 font-bold transition-all ${
-            selectedMode === "exact"
-              ? `${MODE_COLORS.exact} text-white`
-              : "bg-slate-700 text-slate-300 hover:bg-slate-600"
-          }`}
-        >
-          Mode Exact
-        </button>
-        <button
-          onClick={() => setSelectedMode("free")}
-          className={`comic-button px-6 py-3 font-bold transition-all ${
-            selectedMode === "free"
-              ? `${MODE_COLORS.free} text-white`
-              : "bg-slate-700 text-slate-300 hover:bg-slate-600"
-          }`}
-        >
-          Mode Libre
-        </button>
+    <div className="border-4 border-black bg-slate-950/90 p-4 shadow-[0_6px_0_#000] md:p-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.24em] text-amber-200">
+            Classement Wordfall
+          </p>
+          <h2 className="mt-2 text-2xl font-bold text-white text-outline md:text-3xl">
+            Les meilleurs chasseurs de mots
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 md:min-w-[270px]">
+          {(Object.keys(MODE_LABELS) as WordfallMode[]).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setSelectedMode(mode)}
+              className={`border-4 border-black px-4 py-3 text-sm font-bold shadow-[0_4px_0_#000] transition-transform hover:-translate-y-0.5 ${
+                selectedMode === mode
+                  ? MODE_STYLES[mode]
+                  : "bg-slate-800 text-slate-200 hover:bg-slate-700"
+              }`}
+            >
+              {MODE_LABELS[mode]}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Leaderboard */}
-      <div className="comic-panel-dark p-6">
-        <h2 className="text-2xl font-bold text-white mb-4 text-outline text-center">
-          🏆 Classement - {MODE_LABELS[selectedMode]}
-        </h2>
-
-        {currentLeaderboard.length === 0 ? (
-          <p className="text-slate-400 text-outline text-center py-8">
-            Aucun score enregistré pour ce mode
+      {currentLeaderboard.length === 0 ? (
+        <div className="mt-5 border-2 border-dashed border-white/20 bg-white/5 p-6 text-center">
+          <p className="text-sm font-semibold text-slate-300">
+            Aucun score enregistre pour ce mode.
           </p>
-        ) : (
-          <div className="space-y-3">
-            {currentLeaderboard.map((entry) => (
-              <div
-                key={entry.user_id}
-                className="comic-panel bg-slate-800 border-2 border-black p-4 grid grid-cols-[50px_1fr_120px_100px] items-center gap-4"
-              >
-                {/* Rank */}
-                <div
-                  className={`comic-panel ${MODE_COLORS[selectedMode]} border-2 border-black w-10 h-10 flex items-center justify-center font-bold text-white text-outline`}
-                >
-                  {entry.rank}
-                </div>
+        </div>
+      ) : (
+        <div className="mt-5 space-y-3">
+          {currentLeaderboard.map((entry) => (
+            <div
+              key={entry.user_id}
+              className="grid gap-3 border-4 border-black bg-slate-900/95 p-3 shadow-[0_4px_0_#000] md:grid-cols-[52px_minmax(0,1fr)_150px_88px] md:items-center md:gap-4"
+            >
+              <div className={`flex h-11 w-11 items-center justify-center border-4 border-black text-lg font-bold text-white ${MODE_STYLES[selectedMode]}`}>
+                {entry.rank}
+              </div>
 
-                {/* Avatar and Username */}
-                <div className="flex items-center gap-3 min-w-0">
-                  <LeaderboardAvatar
-                    userId={entry.user_id}
-                    username={entry.username}
-                    equippedAvatar={entry.equipped_avatar}
-                    equippedBackground={entry.equipped_background}
-                    equippedTitle={entry.equipped_title}
-                    size="md"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <div className="font-bold text-white text-outline truncate">
-                      {entry.username}
-                    </div>
-                    {entry.equipped_title && (
-                      <div className="text-xs font-semibold text-cyan-400 text-outline truncate">
-                        {entry.equipped_title.name}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Score */}
-                <div className="flex items-center justify-end gap-2">
-                  {entry.rank === 1 && (
-                    <TrophyIcon className="w-5 h-5 text-amber-400 flex-shrink-0" />
+              <div className="flex min-w-0 items-center gap-3">
+                <LeaderboardAvatar
+                  userId={entry.user_id}
+                  username={entry.username}
+                  equippedAvatar={entry.equipped_avatar}
+                  equippedBackground={entry.equipped_background}
+                  equippedTitle={entry.equipped_title}
+                  size="md"
+                />
+                <div className="min-w-0">
+                  <p className="truncate text-base font-bold text-white text-outline">
+                    {entry.username}
+                  </p>
+                  {entry.equipped_title && (
+                    <p className="truncate text-xs font-semibold text-cyan-300">
+                      {entry.equipped_title.name}
+                    </p>
                   )}
-                  <div className="text-xl font-bold text-cyan-400 text-outline">
-                    {entry.best_score.toLocaleString()}
-                  </div>
-                </div>
-
-                {/* Games Played */}
-                <div className="text-right">
-                  <div className="text-xs text-slate-400 text-outline mb-1">Parties</div>
-                  <div className="text-sm font-semibold text-white text-outline">
-                    {entry.games_played}
-                  </div>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </div>
+
+              <div className="flex items-center gap-2 md:justify-end">
+                {entry.rank === 1 && <TrophyIcon className="h-5 w-5 text-amber-300" />}
+                <span className="text-xl font-bold text-cyan-200">
+                  {entry.best_score.toLocaleString("fr-FR")}
+                </span>
+              </div>
+
+              <div className="md:text-right">
+                <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
+                  Parties
+                </p>
+                <p className="mt-1 text-sm font-bold text-slate-100">
+                  {entry.games_played}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
-
-
-
-
-
-
