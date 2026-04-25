@@ -84,7 +84,7 @@ export function FlashTranslationLeaderboard() {
                 </div>
             ) : leaderboard.length === 0 ? (
                 <div className="p-8 text-center text-sm font-semibold text-slate-300">
-                    Aucun score enregistre pour le moment.
+                    Aucun score enregistré pour le moment.
                 </div>
             ) : (
                 <div className="mt-4 space-y-3">

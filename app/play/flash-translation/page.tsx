@@ -79,7 +79,8 @@ function StatTile({
     helper?: string;
 }) {
     return (
-        <div className={`border-4 border-black p-3 shadow-[0_4px_0_#000] ${tone}`}>
+        <div className="relative overflow-hidden border-4 border-black bg-slate-950/94 p-3 shadow-[0_4px_0_#000]">
+            <div className={`absolute inset-x-0 top-0 h-1.5 ${tone}`} />
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/75">
                 {label}
             </p>
@@ -117,13 +118,13 @@ export default function FlashTranslationPage() {
     const averageReactionTime = getAverageReactionTime(gameState);
     const isPlaying = gameState.started && gameState.phase !== "ended";
     const stageLabel = gameState.phase === "ended"
-        ? "Termine"
+        ? "Terminé"
         : !gameState.started
-            ? "Pret"
+            ? "Prêt"
             : gameState.phase === "waiting"
                 ? "Signal"
                 : gameState.phase === "answering"
-                    ? "Reponds"
+                    ? "Réponds"
                     : "Feedback";
 
     const statItems = useMemo(
@@ -131,24 +132,24 @@ export default function FlashTranslationPage() {
             {
                 label: "Temps",
                 value: formatSeconds(finalScore),
-                tone: "bg-slate-950/90",
+                tone: "bg-cyan-300",
                 helper: `Moy. ${formatSeconds(averageReactionTime)}`,
             },
             {
                 label: "Tours",
                 value: `${completedRounds}/${gameState.rounds.length}`,
-                tone: "bg-blue-700/90",
+                tone: "bg-blue-400",
             },
             {
                 label: "Erreurs",
                 value: `${gameState.wrongAnswers}`,
-                tone: gameState.wrongAnswers > 0 ? "bg-red-700/90" : "bg-emerald-700/90",
+                tone: gameState.wrongAnswers > 0 ? "bg-red-400" : "bg-emerald-400",
                 helper: "+5s par erreur",
             },
             {
                 label: "Combo",
                 value: `x${Math.max(1, combo)}`,
-                tone: "bg-amber-600/90",
+                tone: "bg-amber-300",
                 helper: bestCombo > 1 ? `Max x${bestCombo}` : undefined,
             },
         ],
@@ -288,10 +289,10 @@ export default function FlashTranslationPage() {
                     setSubmissionState("saved");
                     setSubmissionMessage(
                         result.isNewGlobalBest
-                            ? "Score sauvegarde. Nouveau record global."
+                            ? "Score sauvegardé. Nouveau record global."
                             : result.isNewPersonalBest
-                                ? "Score sauvegarde. Nouveau record personnel."
-                                : "Score sauvegarde."
+                                ? "Score sauvegardé. Nouveau record personnel."
+                                : "Score sauvegardé."
                     );
                     return;
                 }
@@ -399,34 +400,34 @@ export default function FlashTranslationPage() {
                             width={540}
                             height={170}
                             priority
-                            className="mt-5 h-auto w-full max-w-[360px] md:max-w-[470px]"
+                            className="mt-5 h-auto w-full max-w-[220px] md:max-w-[280px] xl:max-w-[320px]"
                         />
-                        <p className="mt-3 max-w-3xl text-base font-semibold leading-relaxed text-slate-100 text-outline md:text-lg">
-                            Traduis vite, garde le combo, evite la penalite. Ici le score est ton temps final: plus il est bas, mieux c'est.
+                        <p className="mt-3 max-w-2xl text-base font-semibold leading-relaxed text-slate-100 text-outline md:text-lg">
+                            Traduis vite, garde le combo, évite la pénalité. Ici le score est ton temps final: plus il est bas, mieux c'est.
                         </p>
                     </div>
 
                     <div className="grid grid-cols-3 gap-2 md:w-[430px]">
-                        <div className="border-4 border-black bg-black/65 p-3 shadow-[0_4px_0_#000]">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-300">Etat</p>
+                        <div className="border-4 border-black bg-slate-950/88 p-3 shadow-[0_4px_0_#000]">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-300">État</p>
                             <p className="mt-2 truncate text-lg font-bold text-white">{stageLabel}</p>
                         </div>
-                        <div className="border-4 border-black bg-amber-950/75 p-3 shadow-[0_4px_0_#000]">
+                        <div className="border-4 border-black bg-slate-950/88 p-3 shadow-[0_4px_0_#000]">
                             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-amber-200">Rounds</p>
                             <p className="mt-2 truncate text-lg font-bold text-white">
                                 {completedRounds}/{gameState.rounds.length}
                             </p>
                         </div>
-                        <div className="border-4 border-black bg-red-950/75 p-3 shadow-[0_4px_0_#000]">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-red-200">Penalite</p>
+                        <div className="border-4 border-black bg-slate-950/88 p-3 shadow-[0_4px_0_#000]">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-red-200">Pénalité</p>
                             <p className="mt-2 truncate text-lg font-bold text-white">+5s</p>
                         </div>
                     </div>
                 </header>
 
                 <main className="mt-7 grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-                    <section className="space-y-5">
-                        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                    <section className="flex flex-col gap-5">
+                        <div className="order-2 grid grid-cols-2 gap-3 md:order-1 md:grid-cols-4">
                             {statItems.map((item) => (
                                 <StatTile key={item.label} {...item} />
                             ))}
@@ -434,18 +435,31 @@ export default function FlashTranslationPage() {
 
                         <section
                             data-testid="flash-stage"
-                            className="relative min-h-[560px] overflow-hidden border-4 border-black bg-[#070b18]/95 shadow-[0_8px_0_#000]"
+                            className="order-1 relative min-h-[560px] overflow-hidden border-4 border-black bg-[#070b18]/95 shadow-[0_8px_0_#000] md:order-2"
                         >
                             <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(251,191,36,0.09)_1px,transparent_1px),linear-gradient(180deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:74px_74px]" />
                             <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-amber-400/18 to-transparent" />
-                            <div className="absolute inset-x-4 top-4 border-2 border-white/20 bg-black/45 px-2 py-2 text-center text-[10px] font-bold uppercase leading-tight tracking-[0.12em] text-slate-200 md:inset-x-auto md:left-4 md:px-3 md:text-xs md:tracking-[0.18em]">
-                                Choisis la traduction anglaise
-                            </div>
-                            <div className="absolute right-4 top-4 hidden border-2 border-amber-300/40 bg-amber-950/60 px-3 py-2 text-xs font-bold uppercase tracking-[0.18em] text-amber-100 md:block">
-                                1-4 au clavier
+
+                            <div className="relative z-20 flex flex-col gap-3 border-b-4 border-black bg-slate-950/90 p-4 md:flex-row md:items-center md:justify-between">
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-amber-200">
+                                        Objectif du round
+                                    </p>
+                                    <h2 className="mt-1 text-xl font-black text-white text-outline md:text-2xl">
+                                        Choisis la bonne traduction anglaise
+                                    </h2>
+                                </div>
+                                <div className="flex flex-wrap gap-2 text-xs font-bold uppercase tracking-[0.16em]">
+                                    <span className="border-2 border-cyan-300/50 bg-cyan-950/60 px-3 py-2 text-cyan-100">
+                                        Touches 1-4
+                                    </span>
+                                    <span className="border-2 border-red-300/50 bg-red-950/60 px-3 py-2 text-red-100">
+                                        Erreur +5s
+                                    </span>
+                                </div>
                             </div>
 
-                            <div className="relative z-10 flex min-h-[560px] flex-col justify-center p-4 pt-20 md:p-8">
+                            <div className="relative z-10 flex min-h-[500px] flex-col justify-center p-4 md:p-8">
                                 <AnimatePresence mode="wait">
                                     {!gameState.started && (
                                         <motion.div
@@ -459,26 +473,26 @@ export default function FlashTranslationPage() {
                                                 <LightningIcon className="h-8 w-8 text-white" />
                                             </div>
                                             <p className="mt-5 text-xs font-bold uppercase tracking-[0.24em] text-amber-200">
-                                                Duel de reflexes
+                                                Duel de réflexes
                                             </p>
                                             <h1 className="mt-3 text-3xl font-bold text-white text-outline md:text-5xl">
                                                 Flash Translation
                                             </h1>
                                             <p className="mt-4 text-base font-semibold leading-relaxed text-slate-200">
-                                                Le mot francais apparait. Attends le signal, puis choisis la meilleure traduction anglaise.
+                                                Le mot français apparaît. Attends le signal, puis choisis la meilleure traduction anglaise.
                                             </p>
                                             <div className="mt-6 grid gap-3 md:grid-cols-3">
                                                 <div className="border-2 border-white/15 bg-white/7 p-3">
                                                     <ClockIcon className="mx-auto h-6 w-6 text-cyan-200" />
-                                                    <p className="mt-2 text-sm font-bold text-white">Temps bas</p>
+                                                    <p className="mt-2 text-sm font-bold text-white">1. Lis le mot</p>
                                                 </div>
                                                 <div className="border-2 border-white/15 bg-white/7 p-3">
                                                     <FireIcon className="mx-auto h-6 w-6 text-amber-300" />
-                                                    <p className="mt-2 text-sm font-bold text-white">Combo propre</p>
+                                                    <p className="mt-2 text-sm font-bold text-white">2. Réponds vite</p>
                                                 </div>
                                                 <div className="border-2 border-white/15 bg-white/7 p-3">
                                                     <XCircleIcon className="mx-auto h-6 w-6 text-red-300" />
-                                                    <p className="mt-2 text-sm font-bold text-white">Erreur = +5s</p>
+                                                    <p className="mt-2 text-sm font-bold text-white">3. Évite +5s</p>
                                                 </div>
                                             </div>
                                             <button
@@ -488,7 +502,7 @@ export default function FlashTranslationPage() {
                                                 className="comic-button mt-7 inline-flex items-center gap-2 bg-emerald-600 px-8 py-4 text-lg font-bold text-white hover:bg-emerald-700"
                                             >
                                                 <LightningIcon className="h-6 w-6" />
-                                                Demarrer la mission
+                                                Démarrer la mission
                                             </button>
                                         </motion.div>
                                     )}
@@ -516,9 +530,9 @@ export default function FlashTranslationPage() {
 
                                             <div className="text-center">
                                                 <p className="text-xs font-bold uppercase tracking-[0.24em] text-amber-200">
-                                                    {gameState.phase === "waiting" ? "Prepare-toi" : "Traduis ce mot"}
+                                                    {gameState.phase === "waiting" ? "Prépare-toi" : "Traduis ce mot"}
                                                 </p>
-                                                <h2 className="mt-3 break-words text-5xl font-black leading-tight text-white text-outline md:text-7xl">
+                                                <h2 className="mt-3 break-words text-4xl font-black leading-tight text-white text-outline md:text-7xl">
                                                     {currentRound.wordPair.french}
                                                 </h2>
                                             </div>
@@ -544,7 +558,7 @@ export default function FlashTranslationPage() {
                                                                 : isSelected
                                                                     ? "bg-red-700 text-white"
                                                                     : "bg-slate-900/70 text-slate-500"
-                                                            : "bg-slate-950/92 text-white hover:-translate-y-1 hover:bg-slate-900";
+                                                            : "bg-white text-slate-950 hover:-translate-y-1 hover:bg-cyan-50";
 
                                                         return (
                                                             <button
@@ -554,10 +568,10 @@ export default function FlashTranslationPage() {
                                                                 disabled={isFeedback}
                                                                 className={`group flex min-h-[92px] items-center justify-between gap-4 border-4 border-black p-4 text-left shadow-[0_5px_0_#000] transition-transform ${buttonTone}`}
                                                             >
-                                                                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center border-2 border-black bg-white text-lg font-black text-slate-950">
+                                                                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center border-2 border-black bg-slate-950 text-lg font-black text-white">
                                                                     {CHOICE_KEYS[index]}
                                                                 </span>
-                                                                <span className="min-w-0 flex-1 text-xl font-bold leading-tight text-outline md:text-2xl">
+                                                                <span className="min-w-0 flex-1 text-xl font-black leading-tight md:text-2xl">
                                                                     {choice.text}
                                                                 </span>
                                                                 {isFeedback && isCorrect && <CheckCircleIcon className="h-7 w-7 flex-shrink-0" />}
@@ -579,7 +593,7 @@ export default function FlashTranslationPage() {
                                         >
                                             <TrophyIcon className="mx-auto h-14 w-14 text-amber-300" />
                                             <h2 className="mt-4 text-3xl font-bold text-white text-outline md:text-4xl">
-                                                Mission terminee
+                                                Mission terminée
                                             </h2>
                                             <div className="mt-6 grid grid-cols-2 gap-3">
                                                 <div className="border-2 border-white/15 bg-white/8 p-3">
@@ -591,7 +605,7 @@ export default function FlashTranslationPage() {
                                                     <p className="mt-2 text-2xl font-bold text-red-200">{gameState.wrongAnswers}</p>
                                                 </div>
                                                 <div className="border-2 border-white/15 bg-white/8 p-3">
-                                                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Reaction moy.</p>
+                                                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Réaction moy.</p>
                                                     <p className="mt-2 text-2xl font-bold text-amber-200">{formatSeconds(averageReactionTime)}</p>
                                                 </div>
                                                 <div className="border-2 border-white/15 bg-white/8 p-3">
@@ -661,12 +675,12 @@ export default function FlashTranslationPage() {
                                     <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-slate-400">
                                         Brief de mission
                                     </p>
-                                    <h2 className="text-xl font-bold text-white text-outline">Precision et vitesse</h2>
+                                    <h2 className="text-xl font-bold text-white text-outline">Précision et vitesse</h2>
                                 </div>
                             </div>
                             <div className="mt-5 space-y-3">
                                 <div className="border-l-4 border-amber-300/70 bg-amber-950/40 px-3 py-2 text-sm font-semibold leading-relaxed text-amber-50">
-                                    Attends le signal avant de repondre.
+                                    Attends le signal avant de répondre.
                                 </div>
                                 <div className="border-l-4 border-cyan-300/70 bg-cyan-950/40 px-3 py-2 text-sm font-semibold leading-relaxed text-cyan-50">
                                     Utilise les touches 1, 2, 3, 4 pour aller plus vite.

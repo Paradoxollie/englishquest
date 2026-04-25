@@ -78,7 +78,7 @@ export function TopScoresDisplay() {
                 </p>
             ) : topScores.length === 0 ? (
                 <p className="mt-5 border-2 border-white/10 bg-black/30 p-4 text-center text-sm font-semibold text-slate-300">
-                    Sois le premier a etablir un record.
+                    Sois le premier à établir un record.
                 </p>
             ) : (
                 <div className="mt-5 space-y-3">
