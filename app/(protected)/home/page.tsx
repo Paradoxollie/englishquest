@@ -1,15 +1,21 @@
+import Image from "next/image";
 import Link from "next/link";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isAdminOrTeacher } from "@/lib/auth/roles";
 import { getUserHomeData } from "./user-data";
 import {
+  ArrowRightIcon,
   BookIcon,
+  CheckIcon,
   FlameIcon,
   GameIcon,
+  GoldIcon,
+  LevelIcon,
   QuestIcon,
   TeacherIcon,
   TrophyIcon,
+  XPIcon,
 } from "@/components/ui/icons";
 import { getGameBySlug } from "@/lib/games/config";
 import { getUserCourseRoadmap } from "@/lib/courses/progress";
@@ -18,6 +24,48 @@ import type { Profile } from "@/types/profile";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
+
+const focusCards = [
+  {
+    label: "Aventure",
+    title: "Continuer la campagne",
+    href: "/quest",
+    Icon: QuestIcon,
+    accent: "#34d399",
+    background: "linear-gradient(135deg, rgba(16, 185, 129, 0.24) 0%, rgba(15, 23, 42, 0.98) 74%)",
+  },
+  {
+    label: "Cours",
+    title: "Reprendre la notion",
+    href: "/tous-les-cours",
+    Icon: BookIcon,
+    accent: "#22d3ee",
+    background: "linear-gradient(135deg, rgba(6, 182, 212, 0.24) 0%, rgba(15, 23, 42, 0.98) 74%)",
+  },
+  {
+    label: "Jeux",
+    title: "S'entrainer vite",
+    href: "/play",
+    Icon: GameIcon,
+    accent: "#facc15",
+    background: "linear-gradient(135deg, rgba(245, 158, 11, 0.24) 0%, rgba(15, 23, 42, 0.98) 74%)",
+  },
+] as const;
+
+function getXPForNextLevel(level: number): number {
+  return Math.max(level, 1) * 1000;
+}
+
+function getXPProgress(currentXP: number, level: number) {
+  const required = getXPForNextLevel(level);
+  const percentage = required > 0 ? Math.min((currentXP / required) * 100, 100) : 0;
+
+  return {
+    current: currentXP,
+    required,
+    percentage: Math.round(percentage),
+  };
+}
 
 export default async function HomePage() {
   const supabase = await createSupabaseServerClient();
@@ -43,30 +91,50 @@ export default async function HomePage() {
     .maybeSingle();
 
   const profile = profileData as Profile | null;
+  const username =
+    profile?.username ??
+    user.user_metadata?.username ??
+    user.email?.split("@")[0] ??
+    "Joueur";
+  const level = profile?.level ?? 1;
+  const xp = profile?.xp ?? 0;
+  const gold = profile?.gold ?? 0;
+  const xpProgress = getXPProgress(xp, level);
   const activeCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
   const recommendedGames = roadmap.recommendedGameSlugs
     .map((slug) => getGameBySlug(slug))
     .filter((game): game is NonNullable<typeof game> => Boolean(game));
   const primaryGame = recommendedGames[0] ?? null;
   const focusGames = recommendedGames.slice(0, 3);
-  const visibleFocusTags = activeCourse?.focusTags.slice(0, 3) ?? [];
+  const visibleFocusTags = activeCourse?.focusTags.slice(0, 4) ?? [];
   const nextCourseHref = activeCourse ? `/cours/${activeCourse.courseId}` : "/tous-les-cours";
   const nextDailyGameSlug =
     userData.requiredGames.find((slug) => !userData.dailyPlayedGames.includes(slug)) ??
     userData.requiredGames[0] ??
     null;
   const nextDailyGame = nextDailyGameSlug ? getGameBySlug(nextDailyGameSlug) : null;
+  const dailyGames = userData.requiredGames
+    .map((slug) => getGameBySlug(slug))
+    .filter((game): game is NonNullable<typeof game> => Boolean(game));
+  const completedPercent =
+    roadmap.totalCourses > 0 ? Math.round((roadmap.completedCount / roadmap.totalCourses) * 100) : 0;
+  const missionInstruction = activeCourse
+    ? `Cours ${activeCourse.courseId}: ${activeCourse.title}`
+    : "Parcours principal termine";
+  const gameInstruction = primaryGame
+    ? `Defi conseille: ${primaryGame.name}`
+    : "Choisis un jeu rapide pour garder le rythme.";
   const missionSteps = activeCourse
     ? [
         {
           label: "Cours",
-          value: `Cours ${activeCourse.courseId}`,
+          value: `Mission ${activeCourse.courseId}`,
           detail: activeCourse.title,
         },
         {
           label: "Quiz",
           value: "80% minimum",
-          detail: "Descends jusqu'au quiz et valide la notion.",
+          detail: "Valide la notion avant de passer au defi.",
         },
         {
           label: "Jeu",
@@ -77,521 +145,462 @@ export default async function HomePage() {
     : [
         {
           label: "Cours",
-          value: "Bibliotheque libre",
-          detail: "Choisis un cours pour repartir.",
+          value: "Catalogue libre",
+          detail: "Reprends une notion precise dans les cours.",
         },
         {
           label: "Quiz",
           value: "Revision",
-          detail: "Refais un quiz pour reprendre le rythme.",
+          detail: "Refais un quiz pour consolider.",
         },
         {
           label: "Jeu",
           value: "Play",
-          detail: "Relance un jeu rapide pour continuer.",
+          detail: "Lance un jeu court pour pratiquer.",
         },
       ];
-  const campaignSummary = activeCourse
-    ? `Cours ${activeCourse.courseId}: ${activeCourse.title}`
-    : "Parcours principal termine";
-  const focusSummary = activeCourse
-    ? `Pour valider: quiz 80% puis score sur ${primaryGame?.name ?? "le jeu demande"}.`
-    : "Choisis un cours libre ou un jeu rapide pour continuer a pratiquer.";
 
   return (
-    <div className="space-y-8 md:space-y-12">
-      {profile && (
-        <header className="comic-panel-dark mb-4 flex flex-col gap-3 p-3 md:mb-8 md:flex-row md:items-center md:justify-between md:gap-6 md:p-6">
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold uppercase tracking-[0.2em] text-cyan-300 text-outline md:text-sm md:tracking-[0.3em]">
-              EnglishQuest
+    <div className="-m-6 overflow-hidden bg-[#020617] text-white md:-m-8">
+      <section className="relative overflow-hidden border-b-4 border-black">
+        <Image
+          src="/page-art/home-hero.png"
+          alt="Illustration comic book de l'academie English Quest."
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#020617] via-[#020617]/88 to-[#020617]/25" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-black/42" />
+        <div className="absolute inset-0 comic-dot-pattern-light opacity-20" />
+
+        <div className="relative mx-auto grid min-h-[610px] max-w-[1280px] gap-6 px-4 py-8 md:min-h-[650px] md:px-8 md:py-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
+          <div className="self-end">
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-200 text-outline">
+              Accueil joueur
             </p>
-            <h1 className="text-xl font-bold leading-tight text-white text-outline md:text-3xl md:leading-normal">
-              Welcome back, <span className="text-cyan-300">{profile.username}</span>
+            <h1 className="mt-4 max-w-4xl text-4xl font-bold leading-[1.02] text-white text-outline md:text-6xl">
+              Bon retour, {username}.
             </h1>
-            <p className="text-xs text-slate-400 text-outline md:text-sm">
-              Role: <span className="font-bold text-amber-300">{profile.role}</span>
+            <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-slate-100 text-outline md:text-xl">
+              Ta page d'accueil met maintenant la mission active, le defi du jour
+              et les raccourcis importants au premier plan.
             </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 text-xs md:gap-4 md:text-sm">
-            <div className="comic-panel border-2 border-black px-2 py-1.5 md:border-4 md:px-4 md:py-2" style={{ background: "#059669" }}>
-              <span className="font-bold text-white">XP</span> <span className="font-bold text-white">{profile.xp}</span>
-            </div>
-            <div className="comic-panel border-2 border-black px-2 py-1.5 md:border-4 md:px-4 md:py-2" style={{ background: "#d97706" }}>
-              <span className="font-bold text-white">Gold</span> <span className="font-bold text-white">{profile.gold}</span>
-            </div>
-            <div className="comic-panel border-2 border-black px-2 py-1.5 md:border-4 md:px-4 md:py-2" style={{ background: "#0891b2" }}>
-              <span className="font-bold text-white">Level</span> <span className="font-bold text-white">{profile.level}</span>
-            </div>
-          </div>
-        </header>
-      )}
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,0.95fr)]">
-        <section
-          className="comic-card-dark overflow-hidden p-6 md:p-7"
-          style={{ background: "linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(6, 182, 212, 0.22) 100%)" }}
-        >
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-              <div className="min-w-0">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-emerald-500 p-3">
-                    <QuestIcon className="h-7 w-7 text-white" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300 text-outline">
-                      Mission du jour
-                    </p>
-                    <h2 className="text-2xl font-bold text-white text-outline md:text-3xl">
-                      Continue la campagne
-                    </h2>
-                  </div>
-                </div>
-                <p className="mt-4 max-w-2xl break-words text-sm font-semibold leading-6 text-slate-100 text-outline md:text-base">
-                  {activeCourse
-                    ? "Un seul objectif: ouvre le cours, valide le quiz, puis reussis le defi jeu pour deverrouiller la suite."
-                    : "Le parcours principal est termine. Repars sur un cours libre ou un jeu cible pour garder le rythme."}
-                </p>
-              </div>
-
+            <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 href="/quest"
-                className="comic-panel inline-flex items-center justify-center border-2 border-black bg-emerald-500 px-4 py-2 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+                className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700"
               >
-                Aller dans Aventure
+                <QuestIcon className="h-4 w-4" />
+                Ouvrir l'aventure
               </Link>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-3">
-              {missionSteps.map((step, index) => (
-                <div
-                  key={step.label}
-                  className="comic-panel min-w-0 border-2 border-black bg-slate-950/75 p-4"
-                >
-                  <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-emerald-300">
-                    Etape {index + 1}
-                  </p>
-                  <p className="mt-2 break-words text-sm font-bold text-white text-outline">
-                    {step.label} · {step.value}
-                  </p>
-                  <p className="mt-2 break-words text-xs font-semibold leading-5 text-slate-300">
-                    {step.detail}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="comic-panel border-2 border-black bg-black/45 p-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Cours valides</p>
-                <p className="mt-2 text-lg font-bold text-white">
-                  {roadmap.completedCount}/{roadmap.totalCourses}
-                </p>
-              </div>
-              <div className="comic-panel border-2 border-black bg-black/45 p-4">
-                <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Progression</p>
-                <p className="mt-2 text-lg font-bold text-white">{roadmap.completionRate}%</p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-3">
               <Link
                 href={nextCourseHref}
-                className="comic-panel inline-flex items-center justify-center border-2 border-black bg-cyan-500 px-4 py-2 text-sm font-bold text-white transition-transform hover:-translate-y-0.5"
+                className="comic-button inline-flex items-center gap-2 bg-cyan-600 px-5 py-3 text-sm font-bold text-white hover:bg-cyan-700"
               >
-                {activeCourse ? "Ouvrir le cours" : "Voir les cours"}
+                <BookIcon className="h-4 w-4" />
+                Continuer le cours
               </Link>
               <Link
-                href={primaryGame ? `/play/${primaryGame.slug}` : "/play"}
-                className="comic-panel inline-flex items-center justify-center border-2 border-black bg-slate-900 px-4 py-2 text-sm font-bold text-cyan-200 transition-transform hover:-translate-y-0.5"
+                href={nextDailyGame ? `/play/${nextDailyGame.slug}` : "/play"}
+                className="comic-button inline-flex items-center gap-2 bg-amber-600 px-5 py-3 text-sm font-bold text-white hover:bg-amber-700"
               >
-                {primaryGame ? `Jouer a ${primaryGame.name}` : "Lancer un jeu"}
+                <GameIcon className="h-4 w-4" />
+                Defi du jour
               </Link>
             </div>
-          </div>
-        </section>
 
-        <section
-          className="comic-card-dark overflow-hidden p-6 md:p-7"
-          style={{ background: "linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(245, 158, 11, 0.16) 100%)" }}
-        >
-          <div className="flex flex-col gap-5">
-            <div className="flex items-center gap-3">
-              <div className="rounded-xl bg-indigo-500 p-3">
-                <BookIcon className="h-7 w-7 text-white" />
+            <div className="mt-8 grid max-w-4xl gap-3 sm:grid-cols-3">
+              <div className="border-l-4 border-cyan-300 bg-black/52 p-4 backdrop-blur-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                  Progression
+                </p>
+                <p className="mt-2 text-2xl font-bold text-white">{completedPercent}%</p>
+                <p className="mt-1 text-xs font-semibold text-slate-300">
+                  {roadmap.completedCount}/{roadmap.totalCourses} cours
+                </p>
+              </div>
+              <div className="border-l-4 border-emerald-300 bg-black/52 p-4 backdrop-blur-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                  Serie
+                </p>
+                <p className="mt-2 text-2xl font-bold text-white">{userData.dailyStreak}</p>
+                <p className="mt-1 text-xs font-semibold text-slate-300">jours actifs</p>
+              </div>
+              <div className="border-l-4 border-amber-300 bg-black/52 p-4 backdrop-blur-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-300">
+                  Niveau
+                </p>
+                <p className="mt-2 text-2xl font-bold text-white">{level}</p>
+                <p className="mt-1 text-xs font-semibold text-slate-300">{gold} or</p>
+              </div>
+            </div>
+          </div>
+
+          <aside className="self-end border-4 border-black bg-slate-950/90 p-5 shadow-[0_4px_0_#000] backdrop-blur-sm md:p-6">
+            <div className="flex items-start gap-3">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center border-4 border-black bg-cyan-600 shadow-[0_3px_0_#000]">
+                <LevelIcon className="h-6 w-6 text-white" />
               </div>
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-300 text-outline">
-                  En ce moment
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-300">
+                  Profil
                 </p>
-                <h2 className="text-2xl font-bold text-white text-outline">Cap actuel</h2>
+                <h2 className="mt-2 text-2xl font-bold leading-tight text-white text-outline">
+                  Niveau {level}
+                </h2>
               </div>
             </div>
 
-            <div className="comic-panel min-w-0 border-2 border-black bg-slate-950/75 p-5">
-              <p className="text-xs uppercase tracking-[0.18em] text-slate-400">Cours actif</p>
-              <p className="mt-2 break-words text-xl font-bold leading-tight text-white text-outline">
-                {campaignSummary}
-              </p>
-              <p className="mt-3 break-words text-sm font-semibold leading-6 text-slate-300 text-outline">
-                {focusSummary}
-              </p>
-
-              {roadmap.currentPalier && (
-                <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <span className="comic-panel border-2 border-black bg-indigo-500/80 px-3 py-1 text-xs font-bold text-white">
-                    {roadmap.currentPalier.title}
-                  </span>
-                  <span className="comic-panel border-2 border-black bg-slate-800 px-3 py-1 text-xs font-bold text-slate-100">
-                    {roadmap.currentPalier.level}
-                  </span>
-                  <span className="comic-panel border-2 border-black bg-slate-800 px-3 py-1 text-xs font-bold text-cyan-300">
-                    {roadmap.currentPalier.completedCount}/{roadmap.currentPalier.totalCourses} valides
-                  </span>
+            <div className="mt-5">
+              <div className="flex items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2 font-semibold text-slate-300">
+                  <XPIcon className="h-4 w-4 text-emerald-300" />
+                  <span>Experience</span>
                 </div>
-              )}
+                <span className="font-bold text-slate-300">
+                  {xpProgress.current.toLocaleString("fr-FR")} / {xpProgress.required.toLocaleString("fr-FR")}
+                </span>
+              </div>
+              <div className="mt-3 h-3 overflow-hidden rounded-full border border-black bg-slate-900">
+                <div
+                  className="relative h-full rounded-full bg-gradient-to-r from-emerald-700 via-emerald-500 to-emerald-300"
+                  style={{ width: `${xpProgress.percentage}%` }}
+                >
+                  <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/25 to-transparent" />
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <div className="border border-white/10 bg-white/5 p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <XPIcon className="h-4 w-4 text-emerald-300" />
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                    XP
+                  </p>
+                </div>
+                <p className="text-2xl font-bold text-emerald-300">{xp.toLocaleString("fr-FR")}</p>
+              </div>
+              <div className="border border-white/10 bg-white/5 p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <GoldIcon className="h-4 w-4 text-amber-300" />
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+                    Or
+                  </p>
+                </div>
+                <p className="text-2xl font-bold text-amber-300">{gold.toLocaleString("fr-FR")}</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-[1280px] px-4 py-10 md:px-8 md:py-14">
+        <section className="grid gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)]">
+          <div className="relative overflow-hidden border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] md:p-6">
+            <div className="absolute inset-0 comic-dot-pattern-light opacity-15" />
+            <div className="relative z-10">
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="min-w-0">
+                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-emerald-300 text-outline">
+                    Mission prioritaire
+                  </p>
+                  <h2 className="mt-2 text-3xl font-bold leading-tight text-white text-outline md:text-4xl">
+                    {missionInstruction}
+                  </h2>
+                  <p className="mt-3 max-w-3xl text-sm font-semibold leading-relaxed text-slate-300 md:text-base">
+                    {activeCourse
+                      ? "Le chemin est simple: cours, quiz, puis jeu cible pour debloquer la suite."
+                      : "Tu peux reprendre librement un cours ou lancer un entrainement rapide."}
+                  </p>
+                </div>
+                <Link
+                  href="/quest"
+                  className="comic-button inline-flex w-fit items-center gap-2 bg-emerald-600 px-4 py-3 text-sm font-bold text-white hover:bg-emerald-700"
+                >
+                  Carte aventure
+                  <ArrowRightIcon className="h-4 w-4" />
+                </Link>
+              </div>
+
+              <div className="mt-6 grid gap-3 md:grid-cols-3">
+                {missionSteps.map((step, index) => (
+                  <div key={step.label} className="border border-white/10 bg-white/5 p-4">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-cyan-300">
+                      Etape {index + 1}
+                    </p>
+                    <p className="mt-2 text-sm font-bold text-white">
+                      {step.label}: {step.value}
+                    </p>
+                    <p className="mt-2 text-xs font-semibold leading-relaxed text-slate-300">
+                      {step.detail}
+                    </p>
+                  </div>
+                ))}
+              </div>
 
               {visibleFocusTags.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="mt-5 flex flex-wrap gap-2">
                   {visibleFocusTags.map((tag) => (
                     <span
                       key={tag}
-                      className="comic-panel border-2 border-black bg-slate-800 px-3 py-1 text-xs font-bold text-slate-100"
+                      className="border border-cyan-300/25 bg-cyan-950/35 px-3 py-1 text-xs font-bold text-cyan-100"
                     >
                       {tag}
                     </span>
                   ))}
                 </div>
               )}
-            </div>
 
-            <div className="min-w-0">
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300 text-outline">
-                    Jeux utiles maintenant
-                  </p>
-                </div>
-                <Link href="/play" className="text-sm font-bold text-amber-300 hover:underline">
-                  Voir tout
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link
+                  href={nextCourseHref}
+                  className="comic-button inline-flex items-center gap-2 bg-cyan-600 px-4 py-3 text-sm font-bold text-white hover:bg-cyan-700"
+                >
+                  <BookIcon className="h-4 w-4" />
+                  Ouvrir le cours
+                </Link>
+                <Link
+                  href={primaryGame ? `/play/${primaryGame.slug}` : "/play"}
+                  className="comic-button inline-flex items-center gap-2 bg-amber-600 px-4 py-3 text-sm font-bold text-white hover:bg-amber-700"
+                >
+                  <GameIcon className="h-4 w-4" />
+                  {primaryGame ? primaryGame.name : "Choisir un jeu"}
                 </Link>
               </div>
-
-              {focusGames.length > 0 ? (
-                <div className="grid gap-3">
-                  {focusGames.map((game) => (
-                    <Link
-                      key={game.slug}
-                      href={`/play/${game.slug}`}
-                      className="comic-panel flex min-w-0 items-center gap-3 border-2 border-black bg-slate-900/75 px-4 py-3 transition-transform hover:-translate-y-0.5"
-                    >
-                      <div className={`comic-panel shrink-0 border-2 border-black ${game.iconBg} p-2`}>
-                        <span className="text-lg">{game.icon}</span>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="break-words text-sm font-bold text-white text-outline">{game.name}</p>
-                        <p className="break-words text-xs text-slate-300">{game.tags.slice(0, 2).join(" / ")}</p>
-                      </div>
-                      <span className="shrink-0 text-sm font-bold text-amber-300">Jouer</span>
-                    </Link>
-                  ))}
-                </div>
-              ) : (
-                <div className="comic-panel border-2 border-black bg-slate-900/75 p-4">
-                  <p className="break-words text-sm font-semibold text-slate-200 text-outline">
-                    Aucun jeu cible pour l'instant. Va dans Play pour choisir ton prochain defi.
-                  </p>
-                </div>
-              )}
             </div>
           </div>
-        </section>
-      </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <div
-          className="comic-card-dark group relative p-8 md:col-span-2 lg:col-span-1"
-          style={{ background: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)" }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          <div className="relative z-10">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="rounded-xl bg-cyan-500 p-3">
-                <FlameIcon className="h-8 w-8 text-white" />
+          <aside className="border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] md:p-6">
+            <div className="flex items-start gap-3">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center border-4 border-black bg-amber-600 shadow-[0_3px_0_#000]">
+                <FlameIcon className="h-6 w-6 text-white" />
               </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-cyan-300 text-outline">
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-amber-300">
                   Defi quotidien
                 </p>
-                <p className="text-2xl font-bold text-white text-outline">
+                <h2 className="mt-2 text-2xl font-bold leading-tight text-white text-outline">
                   {userData.dailyChallengeLabel}
+                </h2>
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-3 gap-2">
+              <div className="border border-white/10 bg-white/5 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                  Jeux
+                </p>
+                <p className="mt-2 text-lg font-bold text-white">
+                  {userData.dailyGoalProgress}/{userData.dailyGoalTarget}
                 </p>
               </div>
-            </div>
-
-            <p className="mb-4 text-slate-300 text-outline">
-              Chaque jour, 3 jeux changent. Termine les 3 pour gagner un petit bonus et nourrir ta serie.
-            </p>
-
-            <div className="mb-4 flex flex-wrap gap-2">
-              <div className="comic-panel border-2 border-black bg-slate-900/80 px-3 py-2 text-xs font-bold text-white">
-                +{userData.dailyBonusXp} XP
+              <div className="border border-white/10 bg-white/5 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                  XP
+                </p>
+                <p className="mt-2 text-lg font-bold text-emerald-300">+{userData.dailyBonusXp}</p>
               </div>
-              <div className="comic-panel border-2 border-black bg-slate-900/80 px-3 py-2 text-xs font-bold text-white">
-                +{userData.dailyBonusGold} or
-              </div>
-              <div className="comic-panel border-2 border-black bg-slate-900/80 px-3 py-2 text-xs font-bold text-cyan-200">
-                {userData.nextRefreshLabel}
+              <div className="border border-white/10 bg-white/5 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">
+                  Or
+                </p>
+                <p className="mt-2 text-lg font-bold text-amber-300">+{userData.dailyBonusGold}</p>
               </div>
             </div>
 
-            <div className="mb-4 space-y-3">
-              {userData.requiredGames.map((slug) => {
-                const game = getGameBySlug(slug);
-                if (!game) {
-                  return null;
-                }
-
-                const isPlayed = userData.dailyPlayedGames.includes(slug);
+            <div className="mt-5 space-y-3">
+              {dailyGames.map((game) => {
+                const isPlayed = userData.dailyPlayedGames.includes(game.slug);
 
                 return (
                   <Link
-                    key={slug}
-                    href={`/play/${slug}`}
-                    className={`comic-panel flex items-center gap-3 border-2 border-black px-4 py-3 transition-transform hover:-translate-y-0.5 ${
-                      isPlayed
-                        ? "bg-emerald-600/45"
-                        : "bg-slate-900/80 hover:border-cyan-400"
-                    }`}
+                    key={game.slug}
+                    href={`/play/${game.slug}`}
+                    className="flex items-center gap-3 border border-white/10 bg-white/5 p-3 transition-colors hover:bg-white/10"
                   >
-                    <div
-                      className={`comic-panel shrink-0 border-2 border-black ${game.iconBg} flex h-12 w-12 items-center justify-center`}
-                    >
-                      <span className="text-xl">{game.icon}</span>
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="break-words text-sm font-bold text-white text-outline">
-                        {game.name}
-                      </p>
-                      <p className="break-words text-xs text-slate-300">
-                        {isPlayed ? "Valide aujourd'hui" : "A faire aujourd'hui"}
-                      </p>
-                    </div>
-                    <span
-                      className={`shrink-0 text-xs font-bold uppercase ${
-                        isPlayed ? "text-emerald-200" : "text-cyan-200"
-                      }`}
-                    >
-                      {isPlayed ? "OK" : "Jouer"}
+                    <span className={`flex h-11 w-11 shrink-0 items-center justify-center border-2 border-black ${game.iconBg}`}>
+                      {game.icon}
                     </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-bold text-white">{game.name}</span>
+                      <span className="block text-xs font-semibold text-slate-300">
+                        {isPlayed ? "Valide aujourd'hui" : "A faire"}
+                      </span>
+                    </span>
+                    {isPlayed ? (
+                      <CheckIcon className="h-5 w-5 shrink-0 text-emerald-300" />
+                    ) : (
+                      <ArrowRightIcon className="h-5 w-5 shrink-0 text-amber-300" />
+                    )}
                   </Link>
                 );
               })}
             </div>
 
-            <div className="comic-panel border-2 border-black bg-slate-950/70 p-4">
-              <p className="text-sm font-bold text-white text-outline">
-                {userData.dailyGoalProgress}/{userData.dailyGoalTarget} jeux valides aujourd'hui
-              </p>
-              <p className="mt-2 text-xs font-semibold text-slate-300">
-                {userData.dailyBonusClaimedToday
-                  ? "Bonus du jour recupere. Reviens demain pour une nouvelle selection."
-                  : userData.dailyGoalReached
-                    ? "Le bonus est pret a tomber des la validation du dernier score."
-                    : "Il reste encore des jeux a terminer pour gagner le bonus du jour."}
-              </p>
-            </div>
+            <p className="mt-4 text-xs font-semibold text-slate-400">{userData.nextRefreshLabel}</p>
+          </aside>
+        </section>
 
-            <Link
-              href={nextDailyGame ? `/play/${nextDailyGame.slug}` : "/play"}
-              className="mt-4 flex items-center gap-2 text-sm text-cyan-300 hover:underline"
-            >
-              <span className="font-semibold">
-                {nextDailyGame ? `Lancer ${nextDailyGame.name} ->` : "Voir les jeux ->"}
-              </span>
+        <section className="mt-8 grid gap-5 md:grid-cols-3">
+          {focusCards.map((card) => {
+            const Icon = card.Icon;
+
+            return (
+              <Link
+                key={card.title}
+                href={card.href}
+                className="group comic-card-dark min-h-[230px] p-5 md:p-6"
+                style={{ background: card.background }}
+              >
+                <div className="relative z-10 flex h-full flex-col">
+                  <div className="flex items-start justify-between gap-4">
+                    <div
+                      className="flex h-12 w-12 shrink-0 items-center justify-center border-4 border-black bg-slate-950 shadow-[0_3px_0_#000]"
+                      style={{ color: card.accent }}
+                    >
+                      <Icon className="h-6 w-6" />
+                    </div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.22em]" style={{ color: card.accent }}>
+                      {card.label}
+                    </p>
+                  </div>
+                  <h2 className="mt-5 text-2xl font-bold leading-tight text-white text-outline">
+                    {card.title}
+                  </h2>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-300">
+                    {card.label === "Aventure"
+                      ? missionInstruction
+                      : card.label === "Cours"
+                        ? activeCourse?.title ?? "Catalogue complet"
+                        : gameInstruction}
+                  </p>
+                  <span className="mt-auto inline-flex items-center gap-2 pt-6 text-sm font-bold" style={{ color: card.accent }}>
+                    Ouvrir
+                    <ArrowRightIcon className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
+        </section>
+
+        <section className="mt-8 grid gap-5 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+          <div className="border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] md:p-6">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-emerald-300 text-outline">
+              Serie
+            </p>
+            <h2 className="mt-2 text-3xl font-bold text-white text-outline">
+              {userData.dailyStreak > 0
+                ? `${userData.dailyStreak} jour${userData.dailyStreak > 1 ? "s" : ""} de suite`
+                : "Demarre ta serie"}
+            </h2>
+            <div className="mt-5 grid grid-cols-7 gap-2">
+              {[1, 2, 3, 4, 5, 6, 7].map((day) => {
+                const isActive = day <= userData.dailyStreak;
+
+                return (
+                  <div
+                    key={day}
+                    className={`flex aspect-square items-center justify-center border-2 border-black text-sm font-black shadow-[0_2px_0_#000] ${
+                      isActive ? "bg-emerald-500 text-white" : "bg-slate-800 text-slate-500"
+                    }`}
+                  >
+                    {isActive ? "OK" : day}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="border-4 border-black bg-gradient-to-r from-cyan-950 via-slate-950 to-emerald-950 p-5 shadow-[0_4px_0_#000] md:p-6">
+            <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-center">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-300 text-outline">
+                  Prochain mouvement
+                </p>
+                <h2 className="mt-2 text-3xl font-bold text-white text-outline">
+                  Avance d'une mission, puis verrouille avec un jeu.
+                </h2>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  href="/quest"
+                  className="comic-button inline-flex items-center gap-2 bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700"
+                >
+                  Aventure
+                </Link>
+                <Link
+                  href="/play"
+                  className="comic-button inline-flex items-center gap-2 bg-slate-900 px-5 py-3 text-sm font-bold text-white hover:bg-slate-800"
+                >
+                  Jeux
+                </Link>
+                {canAccessTeachers && (
+                  <Link
+                    href="/teachers"
+                    className="comic-button inline-flex items-center gap-2 bg-amber-600 px-5 py-3 text-sm font-bold text-white hover:bg-amber-700"
+                  >
+                    <TeacherIcon className="h-4 w-4" />
+                    Professeurs
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-8">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-300 text-outline">
+                Jeux conseilles
+              </p>
+              <h2 className="mt-2 text-3xl font-bold text-white text-outline">
+                Pour la mission active
+              </h2>
+            </div>
+            <Link href="/play" className="text-sm font-bold text-amber-300 hover:underline">
+              Tout voir
             </Link>
           </div>
-        </div>
 
-        <Link
-          href="/quest"
-          className="comic-card-dark group relative flex h-full flex-col p-8"
-          style={{ background: "linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(34, 197, 94, 0.2) 100%)" }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-green-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          <div className="relative z-10 flex flex-grow flex-col">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="rounded-xl bg-emerald-500 p-3">
-                <QuestIcon className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-300 text-outline">
-                  Aventure
-                </p>
-                <p className="text-2xl font-bold text-white text-outline">Continuer l'aventure</p>
-              </div>
-            </div>
-            <p className="mb-4 flex-grow text-balance text-slate-300 text-outline">
-              {activeCourse
-                ? `Continue le cours #${activeCourse.courseId}: ${activeCourse.title}`
-                : "Commence ton premier cours et lance le parcours principal."}
-            </p>
-            <div className="mt-auto flex items-center gap-2 text-sm text-emerald-300">
-              <span className="font-semibold">{activeCourse ? "Continuer ->" : "Commencer ->"}</span>
-            </div>
-          </div>
-        </Link>
-
-        <Link
-          href="/play"
-          className="comic-card-dark group relative flex h-full flex-col p-8"
-          style={{ background: "linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%)" }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          <div className="relative z-10 flex flex-grow flex-col">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="rounded-xl bg-purple-500 p-3">
-                <GameIcon className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-purple-300 text-outline">
-                  Jeux
-                </p>
-                <p className="text-2xl font-bold text-white text-outline">Choisir son jeu</p>
-              </div>
-            </div>
-            <p className="mb-4 flex-grow text-balance text-slate-300 text-outline">
-              Explore tous les jeux disponibles et travaille la notion du moment avec les bons formats.
-            </p>
-            <div className="mt-auto flex items-center gap-2 text-sm text-purple-300">
-              <span className="font-semibold">Explorer -&gt;</span>
-            </div>
-          </div>
-        </Link>
-
-        {canAccessTeachers && (
-          <Link
-            href="/teachers"
-            className="comic-card-dark group relative flex h-full flex-col p-8"
-            style={{ background: "linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(249, 115, 22, 0.2) 100%)" }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-orange-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-            <div className="relative z-10 flex flex-grow flex-col">
-              <div className="mb-4 flex items-center gap-3">
-                <div className="rounded-xl bg-amber-500 p-3">
-                  <TeacherIcon className="h-8 w-8 text-white" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-amber-300 text-outline">
-                    Professeurs
-                  </p>
-                  <p className="text-2xl font-bold text-white text-outline">Le coin des profs</p>
-                </div>
-              </div>
-              <p className="mb-4 flex-grow text-balance text-slate-300 text-outline">
-                Accede aux ressources, activites et outils de suivi pour la classe.
-              </p>
-              <div className="mt-auto flex items-center gap-2 text-sm text-amber-300">
-                <span className="font-semibold">Acceder -&gt;</span>
-              </div>
-            </div>
-          </Link>
-        )}
-
-        <Link
-          href="/leaderboard"
-          className="comic-card-dark group relative flex h-full flex-col p-8"
-          style={{ background: "linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%)" }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-amber-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          <div className="relative z-10 flex flex-grow flex-col">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="rounded-xl bg-yellow-500 p-3">
-                <TrophyIcon className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-yellow-300 text-outline">
-                  Classement
-                </p>
-                <p className="text-2xl font-bold text-white text-outline">Voir le classement</p>
-              </div>
-            </div>
-            <p className="mb-4 flex-grow text-balance text-slate-300 text-outline">
-              Situe ta progression par rapport aux autres joueurs et garde le cap.
-            </p>
-            <div className="mt-auto flex items-center gap-2 text-sm text-yellow-300">
-              <span className="font-semibold">Voir -&gt;</span>
-            </div>
-          </div>
-        </Link>
-
-        <Link
-          href="/tous-les-cours"
-          className="comic-card-dark group relative flex h-full flex-col p-8"
-          style={{ background: "linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)" }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-blue-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-          <div className="relative z-10 flex flex-grow flex-col">
-            <div className="mb-4 flex items-center gap-3">
-              <div className="rounded-xl bg-indigo-500 p-3">
-                <BookIcon className="h-8 w-8 text-white" />
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-indigo-300 text-outline">
-                  Bibliotheque
-                </p>
-                <p className="text-2xl font-bold text-white text-outline">Tous les cours</p>
-              </div>
-            </div>
-            <p className="mb-4 flex-grow text-balance text-slate-300 text-outline">
-              Parcours principal, revision libre et recherche rapide dans tout le catalogue.
-            </p>
-            <div className="mt-auto flex items-center gap-2 text-sm text-indigo-300">
-              <span className="font-semibold">Explorer -&gt;</span>
-            </div>
-          </div>
-        </Link>
-      </div>
-
-      <div
-        className="comic-panel-dark mt-8 p-6"
-        style={{ background: "linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(239, 68, 68, 0.2) 100%)" }}
-      >
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="mb-2 flex items-center gap-2 text-2xl font-bold text-white text-outline">
-              Continue ta serie
-            </h2>
-            <p className="text-slate-300 text-outline">
-              {userData.dailyStreak > 0
-                ? `Tu es sur une serie de ${userData.dailyStreak} jour${userData.dailyStreak > 1 ? "s" : ""}.`
-                : "Commence ta serie quotidienne des aujourd'hui."}
-            </p>
-          </div>
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5, 6, 7].map((day) => {
-              const isActive = day <= userData.dailyStreak;
-
-              return (
-                <div
-                  key={day}
-                  className={`flex h-14 w-14 items-center justify-center rounded-xl border-[3px] border-black text-lg font-bold ${
-                    isActive ? "bg-emerald-500 text-white" : "bg-slate-700 text-slate-400"
-                  }`}
-                  style={{
-                    boxShadow: isActive
-                      ? "0 3px 0 0 black"
-                      : "0 3px 0 0 rgba(0,0,0,0.5), inset 0 2px 4px rgba(0,0,0,0.2)",
-                  }}
+          {focusGames.length > 0 ? (
+            <div className="grid gap-4 md:grid-cols-3">
+              {focusGames.map((game) => (
+                <Link
+                  key={game.slug}
+                  href={`/play/${game.slug}`}
+                  className="border-4 border-black bg-slate-950 p-4 shadow-[0_4px_0_#000] transition-transform hover:-translate-y-0.5"
                 >
-                  {isActive ? "OK" : day}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`flex h-12 w-12 shrink-0 items-center justify-center border-2 border-black ${game.iconBg}`}>
+                      {game.icon}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-base font-bold text-white text-outline">
+                        {game.name}
+                      </span>
+                      <span className="block text-xs font-semibold text-slate-300">
+                        {game.tags.slice(0, 2).join(" / ")}
+                      </span>
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000]">
+              <p className="text-sm font-semibold text-slate-300">
+                Aucun jeu cible pour l'instant. Le catalogue Play reste disponible.
+              </p>
+            </div>
+          )}
+        </section>
+      </main>
     </div>
   );
 }
