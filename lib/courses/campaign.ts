@@ -149,7 +149,8 @@ function resolveStandalonePrimaryGameSlug(
 }
 
 function formatSeconds(milliseconds: number) {
-  return `${(milliseconds / 1000).toFixed(1)} s`;
+  const seconds = milliseconds / 1000;
+  return `${Number.isInteger(seconds) ? seconds : seconds.toFixed(1).replace(".", ",")} s`;
 }
 
 function normalizeTarget(metric: ChallengeDefinition["metric"], value: number) {

@@ -202,7 +202,7 @@ export function HomeView({
           <p className="text-sm text-[var(--muted)]">
             Les trois jeux joués : + {dailyXp} XP et + {daily.goldBonus} or
             {streakBonusPercent > 0 ? ` (série de ${daily.dailyStreak} jours, + ${streakBonusPercent} %)` : ""}.
-            Nouveau tirage {daily.nextRefreshLabel.toLowerCase()}.
+            {daily.nextRefreshLabel}.
           </p>
           {nextDailyGame && !daily.dailyGoalReached ? (
             <div className="eq-home-actions mt-auto">
