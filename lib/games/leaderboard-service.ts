@@ -216,3 +216,52 @@ export async function getGameLeaderboards<TKey extends string>({
 
   return result;
 }
+
+/**
+ * Meilleur score personnel d'un joueur pour chaque tranche d'un jeu.
+ * Null quand le joueur n'a pas encore de score dans cette tranche.
+ */
+export async function getPersonalBests<TKey extends string>({
+  slug,
+  userId,
+  buckets,
+  scoreOrder = "desc",
+}: {
+  slug: string;
+  userId: string;
+  buckets: readonly LeaderboardBucket<TKey>[];
+  scoreOrder?: ScoreOrder;
+}): Promise<Record<TKey, number | null>> {
+  const result = {} as Record<TKey, number | null>;
+  for (const bucket of buckets) {
+    result[bucket.key] = null;
+  }
+
+  const adminClient = createSupabaseAdminClient();
+  const { data: game } = await adminClient.from("games").select("id").eq("slug", slug).maybeSingle();
+  if (!game) {
+    return result;
+  }
+
+  const { data: rows, error } = await adminClient
+    .from("game_scores")
+    .select("score, difficulty")
+    .eq("game_id", game.id)
+    .eq("user_id", userId)
+    .limit(2000);
+
+  if (error || !rows) {
+    return result;
+  }
+
+  for (const bucket of buckets) {
+    const scores = (rows as { score: number; difficulty: string | null }[])
+      .filter((row) => !bucket.difficulty || row.difficulty === bucket.difficulty)
+      .map((row) => row.score);
+    if (scores.length > 0) {
+      result[bucket.key] = scoreOrder === "asc" ? Math.min(...scores) : Math.max(...scores);
+    }
+  }
+
+  return result;
+}

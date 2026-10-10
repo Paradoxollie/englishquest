@@ -10,6 +10,9 @@ type Profile = {
   email: string | null;
 } | null;
 
+const inputClass =
+  "w-full rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--ink)] px-4 py-3 text-[0.95rem] text-[var(--fg)] outline-none placeholder:text-[var(--muted-2)] focus:border-[var(--cyan)]";
+
 type ContactFormProps = {
   user: User | null;
   profile: Profile;
@@ -21,9 +24,9 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="comic-button w-full bg-cyan-500 text-white px-6 py-3 font-bold hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed"
+      className="eq-btn eq-btn-primary eq-btn-lg w-full"
     >
-      {pending ? "Envoi en cours..." : "Envoyer le message"}
+      {pending ? "Envoi…" : "Envoyer le message"}
     </button>
   );
 }
@@ -33,11 +36,11 @@ export function ContactForm({ user, profile }: ContactFormProps) {
   const isAuthenticated = !!user;
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form action={formAction} className="grid gap-4">
       {!isAuthenticated && (
         <>
           <div>
-            <label htmlFor="name" className="block text-sm font-bold text-slate-200 mb-2">
+            <label htmlFor="name" className="mb-1.5 block text-sm font-bold">
               Nom
             </label>
             <input
@@ -45,13 +48,13 @@ export function ContactForm({ user, profile }: ContactFormProps) {
               id="name"
               name="name"
               required
-              className="comic-panel w-full border-2 border-black bg-slate-800 px-4 py-3 font-semibold text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
-              placeholder="Votre nom"
+              className={inputClass}
+              placeholder="Ton nom ou ton pseudo"
             />
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-bold text-slate-200 mb-2">
+            <label htmlFor="email" className="mb-1.5 block text-sm font-bold">
               Email
             </label>
             <input
@@ -59,15 +62,15 @@ export function ContactForm({ user, profile }: ContactFormProps) {
               id="email"
               name="email"
               required
-              className="comic-panel w-full border-2 border-black bg-slate-800 px-4 py-3 font-semibold text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
-              placeholder="votre@email.com"
+              className={inputClass}
+              placeholder="toi@exemple.fr"
             />
           </div>
         </>
       )}
 
       <div>
-        <label htmlFor="subject" className="block text-sm font-bold text-slate-200 mb-2">
+        <label htmlFor="subject" className="mb-1.5 block text-sm font-bold">
           Sujet
         </label>
         <input
@@ -75,13 +78,13 @@ export function ContactForm({ user, profile }: ContactFormProps) {
           id="subject"
           name="subject"
           required
-          className="comic-panel w-full border-2 border-black bg-slate-800 px-4 py-3 font-semibold text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
-          placeholder="Sujet de votre message"
+          className={inputClass}
+          placeholder="Par exemple : mot de passe oublié"
         />
       </div>
 
       <div>
-        <label htmlFor="message" className="block text-sm font-bold text-slate-200 mb-2">
+        <label htmlFor="message" className="mb-1.5 block text-sm font-bold">
           Message
         </label>
         <textarea
@@ -89,19 +92,19 @@ export function ContactForm({ user, profile }: ContactFormProps) {
           name="message"
           required
           rows={6}
-          className="comic-panel w-full border-2 border-black bg-slate-800 px-4 py-3 font-semibold text-white placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none resize-none"
-          placeholder="Votre message..."
+          className={`${inputClass} resize-y`}
+          placeholder="Ton message"
         />
       </div>
 
       {state.error && (
-        <div className="comic-panel border-2 border-black bg-red-500 text-white px-4 py-3 text-sm font-bold">
+        <div role="alert" className="rounded-[var(--radius)] bg-[var(--coral-soft)] px-4 py-3 text-sm font-bold text-[var(--coral)]">
           {state.error}
         </div>
       )}
 
       {state.success && (
-        <div className="comic-panel border-2 border-black bg-green-500 text-white px-4 py-3 text-sm font-bold">
+        <div role="status" className="rounded-[var(--radius)] bg-[var(--mint-soft)] px-4 py-3 text-sm font-bold text-[var(--mint)]">
           {state.success}
         </div>
       )}

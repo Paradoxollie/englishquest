@@ -2,15 +2,15 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { SignupForm } from "@/components/auth/signup-form";
 
 export const metadata = {
-  title: "Sign up | EnglishQuest",
+  title: "Créer un compte",
 };
 
 export default function SignupPage() {
   return (
     <AuthCard
-      title="Cree ton profil"
-      subtitle="Choisis un pseudo, definis ton mot de passe et entre dans l'univers English Quest."
-      footerHint="Tu as deja un compte ?"
+      title="Créer un compte"
+      subtitle="Gratuit. Un pseudo, un mot de passe, et la carte s'ouvre."
+      footerHint="Tu as déjà un compte ?"
       footerLinkLabel="Se connecter"
       footerHref="/auth/login"
     >

@@ -42,7 +42,7 @@ export const games: GameConfig[] = [
     slug: "enigma-scroll",
     name: "Enigma Scroll",
     description:
-      "Devine les mots caches dans des enigmes courtes. Tu progresses en vocabulaire en reliant indices, logique et contexte.",
+      "Devine le mot caché en six essais. Chaque lettre bien placée te rapproche de la solution.",
     difficulty: "easy",
     tags: ["Vocabulaire", "Jeux de mots"],
     icon: "ES",
@@ -54,7 +54,7 @@ export const games: GameConfig[] = [
     slug: "space-lex",
     name: "Lexicon Blaster",
     description:
-      "Pilote ton vaisseau et verrouille les bons mots avant l'impact. Un mode arcade pour automatiser ton vocabulaire.",
+      "Pilote ton vaisseau et tire sur les mots de la bonne famille. Un mode arcade pour le lexique.",
     difficulty: "medium",
     tags: ["Vocabulaire", "Arcade", "Shoot'em up"],
     icon: "LB",
@@ -66,7 +66,7 @@ export const games: GameConfig[] = [
     slug: "speed-verb-challenge",
     name: "Speed Verb Challenge",
     description:
-      "Conjugue les verbes irreguliers anglais sous chrono. Tu travailles la vitesse, la memoire et les automatismes.",
+      "Conjugue les verbes irréguliers sous chrono. Vitesse, mémoire et automatismes.",
     difficulty: "medium",
     tags: ["Grammaire", "Verbes", "Vitesse"],
     icon: "SV",
@@ -78,7 +78,7 @@ export const games: GameConfig[] = [
     slug: "wordfall",
     name: "Wordfall",
     description:
-      "Tape les mots qui tombent avant qu'ils ne touchent le sol. En mode libre, invente autant de mots valides que possible.",
+      "Tape les mots qui tombent avant qu'ils ne touchent le sol. En mode libre, trouve autant de mots valides que possible.",
     difficulty: "easy",
     tags: ["Vocabulaire", "Saisie", "Vitesse"],
     icon: "WF",
@@ -90,21 +90,33 @@ export const games: GameConfig[] = [
     slug: "flash-translation",
     name: "Flash Translation",
     description:
-      "Trouve la bonne traduction le plus vite possible. Un duel de reflexes pour consolider les equivalences utiles.",
+      "Trouve la bonne traduction le plus vite possible. Un duel de réflexes pour le vocabulaire courant.",
     difficulty: "medium",
-    tags: ["Vocabulaire", "Reflexes", "Vitesse"],
+    tags: ["Vocabulaire", "Réflexes", "Vitesse"],
     icon: "FT",
     gradient: "linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(251, 146, 60, 0.2) 100%)",
     iconBg: "bg-gradient-to-br from-red-600 to-orange-600",
     iconColor: "text-red-400",
   },
   {
+    slug: "grammar-rush",
+    name: "Grammar Rush",
+    description:
+      "Les questions des cours, sous chrono. Soixante secondes, quatre propositions, une série à tenir.",
+    difficulty: "medium",
+    tags: ["Grammaire", "Quiz", "Vitesse"],
+    icon: "GR",
+    gradient: "linear-gradient(135deg, rgba(45, 212, 191, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)",
+    iconBg: "bg-gradient-to-br from-teal-500 to-cyan-600",
+    iconColor: "text-teal-400",
+  },
+  {
     slug: "flashback",
     name: "Flashback",
     description:
-      "Memorise les mots, puis repere ceux que tu as deja vus. Un entrainement court pour renforcer la reconnaissance.",
+      "Mémorise les mots, puis repère ceux que tu as déjà vus. Un entraînement court pour la reconnaissance.",
     difficulty: "medium",
-    tags: ["Vocabulaire", "Memoire", "Apprentissage"],
+    tags: ["Vocabulaire", "Mémoire", "Apprentissage"],
     icon: "FB",
     gradient: "linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%)",
     iconBg: "bg-gradient-to-br from-indigo-600 to-purple-600",

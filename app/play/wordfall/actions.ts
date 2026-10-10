@@ -1,4 +1,7 @@
 "use server";
+import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
+import { countPlaysToday } from "@/lib/profile/economy-server";
+import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
 
 /**
  * Server Actions for Wordfall
@@ -11,45 +14,10 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { revalidateCourseMissionBenchmarks } from "@/lib/courses/cache-server";
 import {
   calculateLevelFromXP,
   type Difficulty,
 } from "@/lib/profile/leveling";
-
-/**
- * Calculate rewards for Wordfall based on score and mode
- */
-function computeWordfallRewards(params: {
-  mode: "exact" | "free";
-  score: number;
-  wordsCompleted: number;
-  isNewGlobalBest: boolean;
-}): {
-  xpEarned: number;
-  goldEarned: number;
-} {
-  // Base XP per word completed (Reduced)
-  const baseXPPerWord = params.mode === "exact" ? 2 : 4;
-  let xpEarned = params.wordsCompleted * baseXPPerWord;
-
-  // Score bonus (1 XP per 20 points)
-  xpEarned += Math.floor(params.score / 20);
-
-  // Global best bonus
-  if (params.isNewGlobalBest) {
-    xpEarned += 50;
-  }
-
-  // Gold: SKILL FARM (XP / 15)
-  // 50 words approx 160 XP -> 10 Gold
-  const goldEarned = Math.floor(xpEarned / 15);
-
-  return {
-    xpEarned,
-    goldEarned,
-  };
-}
 
 /**
  * Map Wordfall mode to difficulty string for database
@@ -155,6 +123,7 @@ export async function submitWordfallScore(params: {
   isNewPersonalBest?: boolean;
   isNewGlobalBest?: boolean;
   personalBest?: number;
+  courseCompleted?: AutoCompletedCourse | null;
   dailyChallenge?: {
     dailyPlayedGames: string[];
     requiredGames: string[];
@@ -234,10 +203,12 @@ export async function submitWordfallScore(params: {
     const isNewGlobalBest = session.score > currentGlobalBest;
 
     // Calculate rewards (always calculate, even if not saving)
-    const rewards = computeWordfallRewards({
-      mode: session.mode,
-      score: session.score,
-      wordsCompleted: session.wordsCompleted,
+    const playsToday = await countPlaysToday(adminClient, user.id, game.id);
+    const rewards = computeGameRewards({
+      performance: gamePerformance.wordfall(session.wordsCompleted, session.mode),
+      difficulty,
+      playsToday,
+      isNewPersonalBest,
       isNewGlobalBest,
     });
 
@@ -260,7 +231,6 @@ export async function submitWordfallScore(params: {
       };
     }
 
-    revalidateCourseMissionBenchmarks();
 
     // Update user profile with rewards
     const { data: profile } = await adminClient
@@ -301,6 +271,7 @@ export async function submitWordfallScore(params: {
     // Check and grant Daily Challenge bonus
     const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
     const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "wordfall");
+    const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "wordfall", session.score);
 
     return {
       success: true,
@@ -310,6 +281,7 @@ export async function submitWordfallScore(params: {
         newLevel: newLevel > profile.level ? newLevel : undefined,
       },
       dailyChallenge: dailyChallengeResult,
+      courseCompleted,
       isNewPersonalBest,
       isNewGlobalBest,
       personalBest: isNewPersonalBest ? session.score : currentPersonalBest,

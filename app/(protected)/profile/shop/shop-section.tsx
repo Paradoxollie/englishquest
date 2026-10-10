@@ -148,7 +148,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
       const result = await equipItemAction(itemId, type);
 
       if (result.success) {
-        setSuccess("Item equipe avec succes.");
+        setSuccess("Item équipe avec succès.");
 
         const supabase = createSupabaseBrowserClient();
         const { data: equipped } = await supabase

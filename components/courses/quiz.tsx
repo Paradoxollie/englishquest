@@ -1,16 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useCourseMission } from "@/components/courses/course-mission-provider";
-import {
-  CheckIcon,
-  XIcon,
-  ArrowRightIcon,
-  RefreshIcon,
-  TrophyIcon,
-  QuestIcon,
-} from "@/components/ui/icons";
-import { motion, AnimatePresence } from "framer-motion";
 import { isCourseQuizScorePassing } from "@/lib/courses/mission-state";
 
 export type Question = {
@@ -26,7 +18,9 @@ interface QuizProps {
   questions: Question[];
 }
 
-export function Quiz({ title = "Quiz du cours", questions }: QuizProps) {
+const letters = ["A", "B", "C", "D", "E", "F"];
+
+export function Quiz({ questions }: QuizProps) {
   const mission = useCourseMission();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -36,12 +30,9 @@ export function Quiz({ title = "Quiz du cours", questions }: QuizProps) {
   const [combo, setCombo] = useState(0);
   const [maxCombo, setMaxCombo] = useState(0);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [animationKey, setAnimationKey] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const hasSubmittedResultRef = useRef(false);
-
-  const playSound = () => {
-    // Placeholder for future audio.
-  };
 
   useEffect(() => {
     if (
@@ -56,29 +47,20 @@ export function Quiz({ title = "Quiz du cours", questions }: QuizProps) {
     const observer = new IntersectionObserver(
       (entries) => {
         const isVisible = entries.some(
-          (entry) => entry.isIntersecting && entry.intersectionRatio >= 0.55
+          (entry) => entry.isIntersecting && entry.intersectionRatio >= 0.4
         );
-
         if (!isVisible) {
           return;
         }
-
         observer.disconnect();
         void mission.markReadingCheckpoint();
       },
-      {
-        threshold: [0.55],
-      }
+      { threshold: [0.4] }
     );
 
     observer.observe(node);
-
     return () => observer.disconnect();
-  }, [
-    mission,
-    mission?.isAuthenticated,
-    mission?.missionState?.readingCheckpointReached,
-  ]);
+  }, [mission, mission?.isAuthenticated, mission?.missionState?.readingCheckpointReached]);
 
   useEffect(() => {
     if (!showResult || hasSubmittedResultRef.current) {
@@ -86,51 +68,54 @@ export function Quiz({ title = "Quiz du cours", questions }: QuizProps) {
     }
 
     hasSubmittedResultRef.current = true;
-    const accuracy = Math.round((score / questions.length) * 100);
 
     if (!mission?.isAuthenticated) {
       return;
     }
 
+    if (!mission.isMissionTrackingEnabled) {
+      setSyncMessage("Ce cours n'est pas ta mission en cours : le score n'est pas enregistré.");
+      return;
+    }
+
     void (async () => {
-      const updatedState = await mission.submitQuizResult(score, questions.length);
-
-      if (!updatedState) {
+      const outcome = await mission.submitQuizResult(score, questions.length);
+      if (!outcome) {
+        setSyncMessage("Le score n'a pas pu être enregistré. Réessaie dans un instant.");
         return;
       }
-
+      const updatedState = outcome.missionState;
+      if (outcome.courseCompleted) {
+        const { xp, gold, newLevel } = outcome.courseCompleted;
+        setSyncMessage(
+          `Mission validée : +${xp} XP et +${gold} or${newLevel ? `, niveau ${newLevel} atteint` : ""}. Le cours suivant est ouvert sur la carte.`
+        );
+        return;
+      }
       if (updatedState.readyToComplete) {
-        setSyncMessage("Quiz valide. Le score jeu est deja atteint, tu peux boucler la mission.");
+        setSyncMessage("Quiz validé. Le défi de jeu est déjà atteint : la mission se valide sur la carte.");
         return;
       }
-
       if (updatedState.quizPassed) {
-        setSyncMessage("Quiz valide. Il reste maintenant le defi jeu pour ouvrir la suite.");
+        setSyncMessage("Quiz validé. Il reste le défi de jeu pour terminer la mission.");
         return;
       }
-
-      setSyncMessage(`Quiz sauvegarde: ${accuracy}% pour l'instant. Il faut 80% pour valider.`);
+      setSyncMessage("Score enregistré. Il faut 80 % pour valider : tu peux refaire le quiz.");
     })();
   }, [mission, questions.length, score, showResult]);
 
   const handleOptionClick = (index: number) => {
     if (isAnswered) return;
-
     setSelectedOption(index);
     setIsAnswered(true);
+    setAnimationKey((key) => key + 1);
 
-    const isCorrect = index === questions[currentQuestion].correctAnswer;
-
-    if (isCorrect) {
-      playSound();
-
+    if (index === questions[currentQuestion].correctAnswer) {
       const newCombo = combo + 1;
       setCombo(newCombo);
       if (newCombo > maxCombo) setMaxCombo(newCombo);
-
       setScore((prev) => prev + 1);
     } else {
-      playSound();
       setCombo(0);
     }
   };
@@ -141,258 +126,120 @@ export function Quiz({ title = "Quiz du cours", questions }: QuizProps) {
       setSelectedOption(null);
       setIsAnswered(false);
     } else {
-      playSound();
       setShowResult(true);
     }
   };
 
-  const resetQuiz = () => {
+  const restart = () => {
     setCurrentQuestion(0);
     setSelectedOption(null);
     setIsAnswered(false);
     setScore(0);
+    setShowResult(false);
     setCombo(0);
     setMaxCombo(0);
-    setShowResult(false);
     setSyncMessage(null);
     hasSubmittedResultRef.current = false;
   };
 
+  const question = questions[currentQuestion];
+  const total = questions.length;
+  const progress = Math.round(((currentQuestion + (isAnswered ? 1 : 0)) / total) * 100);
+  const isCorrect = isAnswered && selectedOption === question.correctAnswer;
+
   if (showResult) {
-    const accuracy = Math.round((score / questions.length) * 100);
-    const quizPassed = isCourseQuizScorePassing(score, questions.length);
-    const isAdventureTracking = Boolean(
-      mission?.isAuthenticated && mission?.isMissionTrackingEnabled
-    );
+    const accuracy = Math.round((score / total) * 100);
+    const passed = isCourseQuizScorePassing(score, total);
 
     return (
-      <div
-        ref={containerRef}
-        className="comic-panel-dark relative overflow-hidden border-2 border-slate-700 bg-slate-900 p-8 text-center"
-      >
-        <div className="absolute inset-0 bg-[url('/grid-pattern.svg')] opacity-5" />
-
-        <div className="relative z-10 mb-6 flex justify-center">
-          <div className="relative">
-            <div className="absolute -inset-4 animate-pulse rounded-full bg-yellow-500/20 blur-xl" />
-            <TrophyIcon className="h-20 w-20 text-yellow-400 drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]" />
-          </div>
-        </div>
-
-        <h3 className="mb-2 text-3xl font-bold uppercase tracking-wider text-white text-outline">
-          Quiz termine
-        </h3>
-        <p className="mb-6 text-sm font-bold uppercase tracking-[0.22em] text-cyan-300">
-          {isAdventureTracking
-            ? quizPassed
-              ? "Checkpoint aventure valide"
-              : "Checkpoint aventure en attente"
-            : "Revision libre"}
+      <div ref={containerRef} className="eq-quiz eq-pop" data-testid="quiz-result">
+        <p className="eq-quiz-kicker">{passed ? "Quiz réussi" : "Pas encore"}</p>
+        <p className="eq-quiz-score">
+          {score} <span>/ {total}</span>
         </p>
-
-        <div className="mx-auto mb-8 grid max-w-md gap-4 md:grid-cols-2">
-          <div className="rounded-xl border border-slate-600 bg-slate-800/80 p-4">
-            <p className="mb-1 text-xs font-bold uppercase text-slate-400">Score</p>
-            <p className="text-2xl font-black text-white">
-              {score} <span className="text-lg text-slate-500">/ {questions.length}</span>
-            </p>
-          </div>
-          <div className="rounded-xl border border-slate-600 bg-slate-800/80 p-4">
-            <p className="mb-1 text-xs font-bold uppercase text-slate-400">Precision</p>
-            <p className="text-2xl font-black text-cyan-300">{accuracy}%</p>
-          </div>
-          <div className="rounded-xl border border-slate-600 bg-slate-800/80 p-4 md:col-span-2">
-            <p className="mb-1 text-xs font-bold uppercase text-slate-400">Meilleur combo</p>
-            <p className="text-2xl font-black text-indigo-400">
-              {maxCombo} <span className="text-sm font-normal text-slate-500">reponses d'affilee</span>
-            </p>
-          </div>
+        <p className="eq-quiz-text">
+          {passed
+            ? `${accuracy} %. Tu tiens la notion.`
+            : `${accuracy} %. Il faut 80 % pour valider. Relis la section qui coince, puis recommence.`}
+          {maxCombo >= 5 ? ` Meilleure série : ${maxCombo} bonnes réponses d'affilée.` : ""}
+        </p>
+        {syncMessage ? <p className="eq-quiz-sync">{syncMessage}</p> : null}
+        <div className="eq-quiz-actions">
+          <button type="button" onClick={restart} className="eq-btn eq-btn-ghost">
+            Refaire le quiz
+          </button>
+          {passed ? (
+            <Link href="/quest" className="eq-btn eq-btn-gold">
+              Retour à la carte
+            </Link>
+          ) : null}
         </div>
-
-        <div className="relative z-10 mb-8">
-          {score === questions.length ? (
-            <p className="text-lg font-bold text-emerald-300">Legendaire. Sans-faute absolu.</p>
-          ) : score >= questions.length * 0.8 ? (
-            <p className="text-lg font-bold text-cyan-300">
-              {isAdventureTracking ? "Excellent. Le quiz aventure est valide." : "Excellent. La notion est bien en place."}
-            </p>
-          ) : score >= questions.length * 0.5 ? (
-            <p className="text-lg font-bold text-yellow-300">Bien joue. Il manque encore quelques reponses justes.</p>
-          ) : (
-            <p className="text-lg font-bold text-orange-400">Encore une passe de revision et cela va monter vite.</p>
-          )}
-        </div>
-
-        {mission?.isAuthenticated && mission?.isMissionTrackingEnabled && syncMessage && (
-          <p className="relative z-10 mx-auto mb-6 max-w-xl rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-slate-100">
-            {syncMessage}
-          </p>
-        )}
-
-        {!mission?.isMissionTrackingEnabled && (
-          <p className="relative z-10 mx-auto mb-6 max-w-xl rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-slate-100">
-            Ce quiz sert ici a t'entrainer. Pour valider une etape de campagne, lance d'abord la mission dans `Aventure`.
-          </p>
-        )}
-
-        <button
-          onClick={resetQuiz}
-          className="comic-button inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-8 py-4 text-lg font-bold uppercase tracking-wide text-white shadow-[0_4px_0_rgb(49,46,129)] transition-all hover:translate-y-[2px] hover:bg-indigo-700 hover:shadow-[0_2px_0_rgb(49,46,129)]"
-        >
-          <RefreshIcon className="h-5 w-5" />
-          Refaire le quiz
-        </button>
       </div>
     );
   }
 
-  const question = questions[currentQuestion];
-  const checkpointReached = mission?.missionState?.readingCheckpointReached ?? false;
-  const quizValidated = mission?.missionState?.quizPassed ?? false;
-  const isAdventureTracking = Boolean(
-    mission?.isAuthenticated && mission?.isMissionTrackingEnabled
-  );
-
   return (
-    <div
-      ref={containerRef}
-      className="comic-panel-dark relative flex flex-col overflow-hidden border-2 border-indigo-500/30 bg-slate-900 p-0"
-    >
-      <AnimatePresence>
-        {combo > 1 && (
-          <motion.div
-            key="combo-badge"
-            initial={{ scale: 0, rotate: -10 }}
-            animate={{ scale: 1, rotate: 0 }}
-            exit={{ scale: 0 }}
-            className="absolute top-4 right-4 z-20 rounded-lg border-2 border-white/20 bg-gradient-to-r from-orange-500 to-red-600 px-4 py-2 text-xl font-black italic text-white shadow-lg rotate-3"
-          >
-            {combo} COMBO !
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className="border-b border-slate-700 bg-slate-950/50 p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <h3 className="flex items-center gap-2 text-lg font-bold text-white text-outline">
-            <QuestIcon className="h-5 w-5 text-indigo-400" />
-            <span className="opacity-90">{title}</span>
-          </h3>
-          <span className="text-xs font-bold text-slate-400">
-            {currentQuestion + 1} / {questions.length}
-          </span>
-        </div>
-        <div className="mb-3 flex flex-wrap gap-2">
-          {isAdventureTracking ? (
-            <>
-              <span
-                className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${
-                  checkpointReached
-                    ? "border-cyan-400/30 bg-cyan-500/16 text-cyan-100"
-                    : "border-white/10 bg-slate-900/80 text-slate-300"
-                }`}
-              >
-                {checkpointReached ? "Point atteint" : "Point en approche"}
-              </span>
-              <span
-                className={`rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] ${
-                  quizValidated
-                    ? "border-emerald-400/30 bg-emerald-500/16 text-emerald-100"
-                    : "border-indigo-400/25 bg-indigo-500/14 text-indigo-100"
-                }`}
-              >
-                {quizValidated ? "Quiz valide" : "80% requis"}
-              </span>
-            </>
-          ) : (
-            <span className="rounded-full border border-white/10 bg-slate-900/80 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-300">
-              Mode libre
-            </span>
-          )}
-          {mission?.isSyncing && (
-            <span className="rounded-full border border-white/10 bg-slate-950/80 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-slate-300">
-              Sauvegarde...
-            </span>
-          )}
-        </div>
-        <div className="h-2 w-full overflow-hidden rounded-full bg-slate-800">
-          <motion.div
-            className="h-full bg-gradient-to-r from-indigo-500 to-purple-500"
-            initial={{ width: 0 }}
-            animate={{ width: `${((currentQuestion + 1) / questions.length) * 100}%` }}
-            transition={{ duration: 0.5 }}
-          />
-        </div>
+    <div ref={containerRef} className="eq-quiz" data-testid="quiz">
+      <div className="eq-quiz-head">
+        <span>
+          Question {currentQuestion + 1} sur {total}
+        </span>
+        <span className="eq-quiz-bar" aria-hidden="true">
+          <i style={{ width: `${progress}%` }} />
+        </span>
+        <span>
+          {score} bonne{score > 1 ? "s" : ""}
+        </span>
       </div>
 
-      <div className="relative p-6 md:p-8">
-        <h4 className="mb-8 text-xl font-bold leading-relaxed text-white drop-shadow-md md:text-2xl">
-          {question.question}
-        </h4>
+      <h3 className="eq-quiz-question">{question.question}</h3>
 
-        <div className="grid gap-3">
-          {question.options.map((option, index) => {
-            let buttonStyle =
-              "bg-slate-800 border-b-4 border-slate-700 hover:border-slate-600 hover:bg-slate-750 active:translate-y-1 active:border-b-0";
-            let icon = null;
-
-            if (isAnswered) {
-              if (index === question.correctAnswer) {
-                buttonStyle = "border-b-4 border-emerald-600 bg-emerald-900/60 text-emerald-100";
-                icon = <CheckIcon className="h-6 w-6 text-emerald-400 drop-shadow-md" />;
-              } else if (index === selectedOption) {
-                buttonStyle = "border-b-4 border-red-600 bg-red-900/60 text-red-100";
-                icon = <XIcon className="h-6 w-6 text-red-400 drop-shadow-md" />;
-              } else {
-                buttonStyle = "border-slate-700/50 bg-slate-800/40 text-slate-500 opacity-50";
-              }
-            } else if (selectedOption === index) {
-              buttonStyle = "border-indigo-500 bg-indigo-900/60 text-indigo-100";
-            }
-
-            return (
-              <button
-                key={index}
-                onClick={() => handleOptionClick(index)}
-                disabled={isAnswered}
-                className={`group relative flex w-full items-center justify-between overflow-hidden rounded-xl p-4 text-left text-lg font-medium transition-all duration-100 md:p-5 ${buttonStyle}`}
-              >
-                <span className="relative z-10">{option}</span>
-                {icon}
-              </button>
-            );
-          })}
-        </div>
+      <div className="eq-quiz-options" role="group" aria-label="Réponses">
+        {question.options.map((option, index) => {
+          let state: "idle" | "right" | "wrong" | "missed" = "idle";
+          if (isAnswered) {
+            if (index === question.correctAnswer) state = "right";
+            else if (index === selectedOption) state = "wrong";
+          }
+          const shake = isAnswered && index === selectedOption && !isCorrect;
+          return (
+            <button
+              key={`${question.id}-${index}-${shake ? animationKey : 0}`}
+              type="button"
+              onClick={() => handleOptionClick(index)}
+              disabled={isAnswered}
+              className={`eq-quiz-option ${shake ? "eq-shake" : ""} ${state === "right" && isAnswered && index === selectedOption ? "eq-pop" : ""}`}
+              data-state={state}
+              aria-pressed={selectedOption === index}
+            >
+              <span className="eq-quiz-letter">{letters[index] ?? index + 1}</span>
+              <span>{option}</span>
+            </button>
+          );
+        })}
       </div>
 
-      <AnimatePresence mode="wait">
-        {isAnswered && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="border-t border-slate-700 bg-slate-800/50"
-          >
-            <div className="flex flex-col items-start justify-between gap-6 p-6 md:flex-row md:items-center md:p-8">
-              <div className="flex-1">
-                <p className="border-l-4 border-indigo-500 py-1 pl-4 text-sm italic text-slate-300 md:text-base">
-                  <strong className="mb-1 block text-xs uppercase tracking-wider text-white not-italic opacity-70">
-                    Explication
-                  </strong>
-                  {question.explanation}
-                </p>
-              </div>
-              <button
-                onClick={nextQuestion}
-                className="comic-button inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-8 py-3 font-bold uppercase tracking-wide text-white shadow-[0_4px_0_rgb(5,150,105)] transition-all hover:translate-y-[2px] hover:bg-emerald-700 hover:shadow-[0_2px_0_rgb(5,150,105)] md:w-auto"
-              >
-                <span>{currentQuestion < questions.length - 1 ? "Suite" : "Terminer"}</span>
-                <ArrowRightIcon className="h-5 w-5" />
-              </button>
-            </div>
-          </motion.div>
+      <div className="eq-quiz-feedback" aria-live="polite">
+        {isAnswered ? (
+          <>
+            <p className={`eq-quiz-verdict ${isCorrect ? "is-right" : "is-wrong"}`}>
+              {isCorrect ? "Juste." : "Pas celle-là."}
+              {isCorrect && combo >= 3 ? ` ${combo} d'affilée.` : ""}
+            </p>
+            <p className="eq-quiz-explanation">{question.explanation}</p>
+          </>
+        ) : (
+          <p className="eq-quiz-hint">Choisis une réponse.</p>
         )}
-      </AnimatePresence>
+      </div>
+
+      {isAnswered ? (
+        <div className="eq-quiz-actions">
+          <button type="button" onClick={nextQuestion} className="eq-btn eq-btn-gold">
+            {currentQuestion < total - 1 ? "Question suivante" : "Voir le résultat"}
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

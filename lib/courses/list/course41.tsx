@@ -4,15 +4,15 @@ import { Quiz } from "@/components/courses/quiz";
 export const course41: LessonContent = {
     courseNumber: 41,
     title: "Le Regret (Third Conditional)",
-    objective: "Exprimer un passe different et le resultat qui aurait pu arriver autrement.",
+    objective: "Exprimer un passé différent et le résultat qui aurait pu arriver autrement.",
     sections: [
         {
-            title: "0. La formule du passe imagine",
+            title: "0. La formule du passé imaginé",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Le <strong>third conditional</strong> sert a parler d'un passe qui n'a pas eu lieu. On imagine
-                        une autre realite, puis on montre la consequence qui aurait pu suivre.
+                        Le <strong>third conditional</strong> sert à parler d'un passé qui n'a pas eu lieu. On imagine
+                        une autre réalité, puis on montre la conséquence qui aurait pu suivre.
                     </p>
 
                     <div className="bg-slate-900 p-6 rounded-xl border border-slate-700">
@@ -36,7 +36,7 @@ export const course41: LessonContent = {
                                 <strong className="text-cyan-400">would have caught</strong> the train.
                             </p>
                             <p className="mt-2 text-sm italic text-slate-400">
-                                En vrai: je suis parti trop tard, donc j'ai rate le train.
+                                En vrai: je suis parti trop tard, donc j'ai raté le train.
                             </p>
                         </div>
                     </div>
@@ -48,8 +48,8 @@ export const course41: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        On l'utilise surtout pour trois idees: le regret, l'explication d'un echec, ou une consequence
-                        positive qui aurait ete possible dans un autre scenario.
+                        On l'utilise surtout pour trois idées: le regret, l'explication d'un échec, ou une conséquence
+                        positive qui aurait été possible dans un autre scénario.
                     </p>
 
                     <div className="grid gap-4 md:grid-cols-3 text-sm">
@@ -59,7 +59,7 @@ export const course41: LessonContent = {
                                 If I had studied more, I would have passed.
                             </p>
                             <p className="mt-2 text-xs italic text-slate-500">
-                                Je regrette de ne pas avoir assez travaille.
+                                Je regrette de ne pas avoir assez travaillé.
                             </p>
                         </div>
 
@@ -93,10 +93,10 @@ export const course41: LessonContent = {
                                 <strong className="text-white">would have</strong> = resultat probable
                             </li>
                             <li>
-                                <strong className="text-white">could have</strong> = possibilite ou capacite
+                                <strong className="text-white">could have</strong> = possibilité ou capacité
                             </li>
                             <li>
-                                <strong className="text-white">might have</strong> = resultat seulement possible, moins certain
+                                <strong className="text-white">might have</strong> = résultat seulement possible, moins certain
                             </li>
                         </ul>
                     </div>
@@ -108,8 +108,8 @@ export const course41: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Le piege principal est toujours le meme: on ne met pas <strong>would have</strong> dans la
-                        partie apres <strong>if</strong>.
+                        Le piège principal est toujours le même: on ne met pas <strong>would have</strong> dans la
+                        partie après <strong>if</strong>.
                     </p>
 
                     <div className="grid gap-4 md:grid-cols-2">
@@ -119,7 +119,7 @@ export const course41: LessonContent = {
                                 If I would have known, I would have come.
                             </p>
                             <p className="mt-3 text-sm text-red-200">
-                                Beaucoup de gens le disent a l'oral, mais la forme reste consideree comme incorrecte.
+                                Beaucoup de gens le disent à l'oral, mais la forme reste considérée comme incorrecte.
                             </p>
                         </div>
 
@@ -130,7 +130,7 @@ export const course41: LessonContent = {
                                 <strong className="text-cyan-400">would have come</strong>.
                             </p>
                             <p className="mt-3 text-sm text-emerald-200">
-                                <strong>had known</strong> dans la condition, <strong>would have come</strong> dans le resultat.
+                                <strong>had known</strong> dans la condition, <strong>would have come</strong> dans le résultat.
                             </p>
                         </div>
                     </div>
@@ -140,11 +140,11 @@ export const course41: LessonContent = {
                             A retenir
                         </p>
                         <ul className="space-y-3 text-slate-200">
-                            <li>Le third conditional parle d'un passe impossible a changer.</li>
+                            <li>Le third conditional parle d'un passé impossible à changer.</li>
                             <li>Il est souvent proche de l'idee de <strong>regret</strong>.</li>
                             <li>
-                                Si le resultat continue dans le present, on entre parfois dans un <strong>mixed conditional</strong>,
-                                mais la base reste la meme: un passe different.
+                                Si le résultat continue dans le présent, on entre parfois dans un <strong>mixed conditional</strong>,
+                                mais la base reste la même: un passé différent.
                             </li>
                         </ul>
                     </div>
@@ -161,7 +161,7 @@ export const course41: LessonContent = {
                             question: "If I ___ earlier, I would have caught the train.",
                             options: ["left", "had left"],
                             correctAnswer: 1,
-                            explanation: "Dans la partie apres IF, on utilise le past perfect: had left.",
+                            explanation: "Dans la partie après IF, on utilise le past perfect: had left.",
                         },
                         {
                             id: 2,
@@ -182,7 +182,7 @@ export const course41: LessonContent = {
                             question: "If you had called me, I ___ you.",
                             options: ["could have helped", "had helped"],
                             correctAnswer: 0,
-                            explanation: "Could have helped exprime une aide qui etait possible dans cette realite alternative.",
+                            explanation: "Could have helped exprime une aide qui était possible dans cette réalité alternative.",
                         },
                         {
                             id: 5,
@@ -213,21 +213,21 @@ export const course41: LessonContent = {
                             question: "We might have won if we ___ better.",
                             options: ["had played", "played"],
                             correctAnswer: 0,
-                            explanation: "Avec if, on garde le past perfect pour le passe imagine.",
+                            explanation: "Avec if, on garde le past perfect pour le passé imaginé.",
                         },
                         {
                             id: 9,
                             question: "If Emma had remembered the meeting, she ___ late.",
                             options: ["wouldn't have been", "won't be"],
                             correctAnswer: 0,
-                            explanation: "On parle d'un resultat passe different.",
+                            explanation: "On parle d'un résultat passé différent.",
                         },
                         {
                             id: 10,
-                            question: "Le third conditional sert surtout a parler de ...",
+                            question: "Le third conditional sert surtout à parler de ...",
                             options: ["faits generaux", "situations passees imaginaires"],
                             correctAnswer: 1,
-                            explanation: "Il sert a imaginer un autre passe et un autre resultat.",
+                            explanation: "Il sert à imaginer un autre passé et un autre résultat.",
                         }
                     ]}
                 />

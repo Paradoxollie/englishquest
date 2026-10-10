@@ -102,7 +102,7 @@ export const course34: LessonContent = {
                         </thead>
                         <tbody className="text-slate-200 text-sm">
                             <tr className="bg-slate-900/50 border-b border-slate-700">
-                                <td className="p-3 font-bold text-white">Présent Simple</td>
+                                <td className="p-3 font-bold text-white">Present Simple</td>
                                 <td className="p-3">am/is/are + done</td>
                                 <td className="p-3">It <strong className="text-white">is cleaned</strong>. (Habitude)</td>
                             </tr>

@@ -216,7 +216,7 @@ export const course13: LessonContent = {
               question: "She ___ usually wake up early.",
               options: ["doesn't", "is not used to", "didn't use to", "--"],
               correctAnswer: 0,
-              explanation: "Piège ! 'Usually' est un marqueur de fréquence du PRÉSENT (ou habitude générale). Ici on teste le présent simple : She doesn't usually...",
+              explanation: "Piège ! 'Usually' est un marqueur de fréquence du PRÉSENT (ou habitude générale). Ici on teste le present simple : She doesn't usually...",
             },
             {
               id: 6,

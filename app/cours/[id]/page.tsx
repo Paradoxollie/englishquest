@@ -7,12 +7,14 @@ import {
   createLessonSectionId,
 } from "@/components/courses/lesson-layout";
 import { CourseMissionProvider } from "@/components/courses/course-mission-provider";
-import { CourseExperiencePanel } from "@/components/courses/course-experience-panel";
 import { CourseTableOfContents } from "@/components/courses/course-table-of-contents";
+import { MissionBar } from "@/components/courses/mission-bar";
 import { getCourseById, getPalierForCourse, paliers } from "@/lib/courses/data";
 import { lessons } from "@/lib/courses/lessons";
+import { getCourseMissionPlan } from "@/lib/courses/campaign";
 import { getResolvedCourseMissionPlan } from "@/lib/courses/campaign-server";
 import { getUserCourseMissionState } from "@/lib/courses/mission-state";
+import { getChapterForCourse } from "@/lib/courses/chapters";
 import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -41,21 +43,17 @@ export async function generateMetadata({ params }: CoursePageProps): Promise<Met
   const lesson = lessons[courseId];
 
   if (!course) {
-    return {
-      title: "Cours introuvable",
-    };
+    return { title: "Cours introuvable" };
   }
 
+  const title = lesson?.title ?? course.title;
   const description =
-    lesson?.objective ||
-    `${course.title} - cours d'anglais English Quest${palier ? ` (${palier.level})` : ""}.`;
+    lesson?.objective || `${title}, cours d'anglais English Quest${palier ? ` (${palier.level})` : ""}.`;
 
   return {
-    title: `Cours ${course.id} - ${course.title}`,
+    title: `Cours ${course.id} : ${title}`,
     description,
-    alternates: {
-      canonical: `/cours/${course.id}`,
-    },
+    alternates: { canonical: `/cours/${course.id}` },
   };
 }
 
@@ -74,55 +72,48 @@ export default async function CoursePage({ params }: CoursePageProps) {
     data: { user },
   } = await supabase.auth.getUser();
   const roadmap = user ? await getUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
-  const roadmapEntry =
-    roadmap.entries.find((entry) => entry.courseId === courseId) ?? null;
-  const previousEntry =
-    roadmap.entries.find((entry) => entry.courseId === courseId - 1) ?? null;
-  const nextEntry =
-    roadmap.entries.find((entry) => entry.courseId === courseId + 1) ?? null;
+  const roadmapEntry = roadmap.entries.find((entry) => entry.courseId === courseId) ?? null;
+  const nextEntry = roadmap.entries.find((entry) => entry.courseId === courseId + 1) ?? null;
+  const palier = getPalierForCourse(courseId);
+  const chapter = getChapterForCourse(courseId);
+
   const [missionState, missionPlan] = await Promise.all([
-    user && roadmapEntry
-      ? getUserCourseMissionState(user.id, roadmapEntry)
-      : Promise.resolve(null),
-    roadmapEntry
-      ? getResolvedCourseMissionPlan(roadmapEntry)
-      : Promise.resolve(null),
+    user && roadmapEntry ? getUserCourseMissionState(user.id, roadmapEntry) : Promise.resolve(null),
+    roadmapEntry ? getResolvedCourseMissionPlan(roadmapEntry) : Promise.resolve(null),
   ]);
+
   const sectionAnchors = lesson
     ? lesson.sections.map((section, index) => ({
         id: createLessonSectionId(section.title, index),
         title: section.title,
       }))
     : [];
+
   const isMissionTrackingEnabled = Boolean(
     user && roadmapEntry && (roadmapEntry.status === "in_progress" || roadmapEntry.status === "completed")
+  );
+  const shouldAutoLaunch = Boolean(
+    user &&
+      roadmapEntry &&
+      (roadmapEntry.status === "unlocked" || (roadmapEntry.status === "locked" && courseId === 1))
   );
 
   if (!lesson) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 p-6 comic-dot-pattern">
-        <div className="comic-panel-dark w-full max-w-2xl space-y-6 p-8 text-center">
-          <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full border-2 border-slate-600 bg-slate-800">
-            <span className="text-4xl">?</span>
-          </div>
-          <h1 className="text-3xl font-bold text-white text-outline md:text-4xl">
-            {course ? `${course.title}` : `Cours #${courseId}`} en construction
-          </h1>
-          <p className="text-lg text-slate-300">
-            Ce cours est en cours de redaction par l'equipe pedagogique.
-          </p>
-          <div className="pt-6">
-            <Link
-              href="/tous-les-cours"
-              className="comic-button inline-block bg-emerald-600 px-6 py-3 font-bold text-white hover:bg-emerald-700"
-            >
-              Retour a la liste des cours
-            </Link>
-          </div>
+      <div className="eq-container eq-section">
+        <div className="eq-card mx-auto max-w-xl p-8 text-center">
+          <h1 className="eq-h2">{course.title}</h1>
+          <p className="mt-3 text-[var(--muted)]">Ce cours est en cours d&apos;écriture.</p>
+          <Link href="/tous-les-cours" className="eq-btn eq-btn-ghost mt-6">
+            Retour aux cours
+          </Link>
         </div>
       </div>
     );
   }
+
+  const chapterLabel = `Chapitre ${chapter.id} · ${chapter.name}`;
+  const mission = roadmapEntry ? missionPlan ?? getCourseMissionPlan(roadmapEntry) : null;
 
   return (
     <CourseMissionProvider
@@ -130,23 +121,25 @@ export default async function CoursePage({ params }: CoursePageProps) {
       isAuthenticated={Boolean(user)}
       isMissionTrackingEnabled={isMissionTrackingEnabled}
       initialMissionState={missionState}
+      autoLaunch={shouldAutoLaunch}
     >
       <LessonLayout
         courseNumber={lesson.courseNumber}
         title={lesson.title}
         objective={lesson.objective}
+        levelLabel={palier?.level}
+        typeLabel={roadmapEntry?.typeLabel}
+        topBar={
+          roadmapEntry && mission ? (
+            <MissionBar entry={roadmapEntry} mission={mission} chapterLabel={chapterLabel} nextEntry={nextEntry} />
+          ) : null
+        }
+        aside={
+          sectionAnchors.length > 1 ? (
+            <CourseTableOfContents sections={sectionAnchors} estimatedMinutes={roadmapEntry?.estimatedMinutes} />
+          ) : null
+        }
       >
-        {roadmapEntry && (
-          <CourseExperiencePanel
-            entry={roadmapEntry}
-            mission={missionPlan}
-            previousEntry={previousEntry}
-            nextEntry={nextEntry}
-            missionState={missionState}
-            isAuthenticated={Boolean(user)}
-          />
-        )}
-        {sectionAnchors.length > 1 && <CourseTableOfContents sections={sectionAnchors} />}
         {lesson.sections.map((section, index) => (
           <LessonSection
             key={sectionAnchors[index]?.id ?? index}
@@ -157,6 +150,25 @@ export default async function CoursePage({ params }: CoursePageProps) {
             {section.content}
           </LessonSection>
         ))}
+        <nav className="eq-lesson-nav" aria-label="Cours voisins">
+          {courseId > 1 ? (
+            <Link href={`/cours/${courseId - 1}`} className="eq-btn eq-btn-ghost">
+              Cours {courseId - 1}
+            </Link>
+          ) : (
+            <span />
+          )}
+          <Link href="/tous-les-cours" className="eq-btn eq-btn-ghost">
+            Tous les cours
+          </Link>
+          {nextEntry ? (
+            <Link href={`/cours/${nextEntry.courseId}`} className="eq-btn eq-btn-ghost">
+              Cours {nextEntry.courseId}
+            </Link>
+          ) : (
+            <span />
+          )}
+        </nav>
       </LessonLayout>
     </CourseMissionProvider>
   );

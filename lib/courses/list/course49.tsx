@@ -13,7 +13,7 @@ export const course49: LessonContent = {
                     <p className="text-slate-300">
                         Un <strong>phrasal verb</strong> est souvent un verbe suivi d'une petite particule comme{" "}
                         <strong>up</strong>, <strong>out</strong>, <strong>on</strong>, <strong>off</strong>. Le sens
-                        final peut etre evident... ou completement idiomatique.
+                        final peut être évident... ou complètement idiomatique.
                     </p>
 
                     <div className="grid gap-4 md:grid-cols-3 text-sm">
@@ -55,7 +55,7 @@ export const course49: LessonContent = {
                     </div>
 
                     <p className="text-slate-300">
-                        C'est pour cela qu'il faut memoriser le groupe entier, pas seulement traduire la particule.
+                        C'est pour cela qu'il faut mémoriser le groupe entier, pas seulement traduire la particule.
                         <strong> give up</strong> ne veut pas dire "donner vers le haut".
                     </p>
                 </div>
@@ -66,7 +66,7 @@ export const course49: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Certains phrasal verbs peuvent separer le verbe et la particule. D'autres non. Avec un{" "}
+                        Certains phrasal verbs peuvent séparer le verbe et la particule. D'autres non. Avec un{" "}
                         <strong>pronom</strong>, ce point devient crucial.
                     </p>
 
@@ -76,7 +76,7 @@ export const course49: LessonContent = {
                             <p className="text-white">turn on the light / turn the light on</p>
                             <p className="text-white mt-2">turn it on</p>
                             <p className="mt-2 text-sm text-slate-300">
-                                Avec un pronom, la particule vient apres le pronom.
+                                Avec un pronom, la particule vient après le pronom.
                             </p>
                         </div>
 
@@ -85,7 +85,7 @@ export const course49: LessonContent = {
                             <p className="text-white">look after the children</p>
                             <p className="text-white mt-2">look after them</p>
                             <p className="mt-2 text-sm text-slate-300">
-                                On ne separe pas: <span className="line-through">look them after</span>.
+                                On ne séparé pas: <span className="line-through">look them after</span>.
                             </p>
                         </div>
                     </div>
@@ -118,7 +118,7 @@ export const course49: LessonContent = {
                     </div>
 
                     <p className="text-slate-300">
-                        La bonne methode est de les apprendre en petits groupes, avec une phrase complete et un contexte clair.
+                        La bonne méthode est de les apprendre en petits groupes, avec une phrase complète et un contexte clair.
                     </p>
                 </div>
             )
@@ -140,35 +140,35 @@ export const course49: LessonContent = {
                             question: "Which one means 'abandonner'?",
                             options: ["sit down", "give up"],
                             correctAnswer: 1,
-                            explanation: "Give up est un phrasal verb idiomatique tres frequent.",
+                            explanation: "Give up est un phrasal verb idiomatique très fréquent.",
                         },
                         {
                             id: 3,
                             question: "Choose the correct order with a pronoun.",
                             options: ["turn it on", "turn on it"],
                             correctAnswer: 0,
-                            explanation: "Avec un phrasal verb separable et un pronom, le pronom va au milieu.",
+                            explanation: "Avec un phrasal verb séparable et un pronom, le pronom va au milieu.",
                         },
                         {
                             id: 4,
                             question: "Which one is correct?",
                             options: ["look them after", "look after them"],
                             correctAnswer: 1,
-                            explanation: "Look after est inseparable.",
+                            explanation: "Look after est inséparable.",
                         },
                         {
                             id: 5,
                             question: "Find out means ...",
                             options: ["discover", "sit quietly"],
                             correctAnswer: 0,
-                            explanation: "Find out = decouvrir, apprendre une information.",
+                            explanation: "Find out = découvrir, apprendre une information.",
                         },
                         {
                             id: 6,
                             question: "The best way to learn phrasal verbs is ...",
                             options: ["particle by particle only", "as complete chunks in context"],
                             correctAnswer: 1,
-                            explanation: "Le sens depend du groupe entier et du contexte.",
+                            explanation: "Le sens dépend du groupe entier et du contexte.",
                         },
                         {
                             id: 7,
@@ -189,14 +189,14 @@ export const course49: LessonContent = {
                             question: "Phrasal verbs should often be memorized ...",
                             options: ["with example sentences", "as isolated particles only"],
                             correctAnswer: 0,
-                            explanation: "Les phrases d'exemple aident a fixer sens, registre et ordre des mots.",
+                            explanation: "Les phrases d'exemple aident à fixer sens, registre et ordre des mots.",
                         },
                         {
                             id: 10,
                             question: "Which pair is correct?",
                             options: ["pick up it / pick the phone it up", "pick up the phone / pick the phone up"],
                             correctAnswer: 1,
-                            explanation: "La deuxième paire illustre bien un phrasal verb separable avec un nom.",
+                            explanation: "La deuxième paire illustre bien un phrasal verb séparable avec un nom.",
                         }
                     ]}
                 />

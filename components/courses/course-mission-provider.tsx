@@ -11,6 +11,7 @@ import {
 import { useRouter } from "next/navigation";
 import {
   recordCourseCheckpointAction,
+  startCourseAction,
   submitCourseQuizAction,
 } from "@/app/cours/actions";
 import type { CourseMissionState } from "@/lib/courses/mission-state";
@@ -22,7 +23,12 @@ type CourseMissionContextValue = {
   missionState: CourseMissionState | null;
   isSyncing: boolean;
   markReadingCheckpoint: () => Promise<void>;
-  submitQuizResult: (score: number, total: number) => Promise<CourseMissionState | null>;
+  submitQuizResult: (score: number, total: number) => Promise<QuizSubmissionOutcome | null>;
+};
+
+export type QuizSubmissionOutcome = {
+  missionState: CourseMissionState;
+  courseCompleted: { xp: number; gold: number; newLevel: number | null } | null;
 };
 
 const CourseMissionContext = createContext<CourseMissionContextValue | null>(null);
@@ -32,6 +38,8 @@ type CourseMissionProviderProps = {
   isAuthenticated: boolean;
   isMissionTrackingEnabled: boolean;
   initialMissionState: CourseMissionState | null;
+  /** Lance la mission automatiquement à l'ouverture (cours débloqué, pas encore lancé). */
+  autoLaunch?: boolean;
   children: ReactNode;
 };
 
@@ -40,12 +48,24 @@ export function CourseMissionProvider({
   isAuthenticated,
   isMissionTrackingEnabled,
   initialMissionState,
+  autoLaunch = false,
   children,
 }: CourseMissionProviderProps) {
   const router = useRouter();
   const [missionState, setMissionState] = useState<CourseMissionState | null>(initialMissionState);
   const [isSyncing, setIsSyncing] = useState(false);
   const checkpointPromiseRef = useRef<Promise<void> | null>(null);
+  const autoLaunchRef = useRef(false);
+
+  useEffect(() => {
+    if (!autoLaunch || !isAuthenticated || autoLaunchRef.current) {
+      return;
+    }
+    autoLaunchRef.current = true;
+    const formData = new FormData();
+    formData.set("courseNumber", String(courseNumber));
+    void startCourseAction(formData).then(() => router.refresh());
+  }, [autoLaunch, isAuthenticated, courseNumber, router]);
 
   useEffect(() => {
     setMissionState(initialMissionState);
@@ -96,7 +116,10 @@ export function CourseMissionProvider({
       if (result?.success && result.missionState) {
         setMissionState(result.missionState);
         router.refresh();
-        return result.missionState;
+        return {
+          missionState: result.missionState,
+          courseCompleted: result.courseCompleted ?? null,
+        };
       }
 
       return null;

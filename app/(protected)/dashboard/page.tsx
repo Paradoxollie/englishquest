@@ -97,8 +97,8 @@ export default async function AdminDashboardPage() {
     : 1;
 
   return (
-    <div className="-m-6 overflow-hidden bg-[#020617] text-white md:-m-8">
-      <section className="relative overflow-hidden border-b-4 border-black bg-slate-950">
+    <div>
+      <section className="relative overflow-hidden rounded-[var(--radius-lg)] border border-[var(--line)] bg-[var(--ink-2)]">
         <div className="absolute inset-0 comic-dot-pattern-light opacity-20" />
         <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(6,182,212,0.18),rgba(2,6,23,0.92)_42%,rgba(16,185,129,0.16))]" />
 
@@ -134,7 +134,7 @@ export default async function AdminDashboardPage() {
         </div>
       </section>
 
-      <main className="mx-auto max-w-[1280px] px-4 py-10 md:px-8 md:py-12">
+      <main className="py-8">
         {isUserAdmin && stats ? (
           <>
             <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -221,7 +221,7 @@ export default async function AdminDashboardPage() {
                     })
                   ) : (
                     <p className="border border-white/10 bg-white/5 p-4 text-sm font-semibold text-slate-300">
-                      Aucune statistique de visite disponible pour le moment.
+                      Aucune statistique de visité disponible pour le moment.
                     </p>
                   )}
                 </div>
@@ -300,7 +300,7 @@ export default async function AdminDashboardPage() {
                 Espace professeur
               </p>
               <h2 className="mt-2 text-3xl font-bold text-white text-outline">
-                Acces limite aux outils pedagogiques.
+                Accès limite aux outils pedagogiques.
               </h2>
               <p className="mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-slate-300">
                 Les statistiques globales sont reservees aux administrateurs. Tu peux

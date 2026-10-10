@@ -11,7 +11,7 @@ export const course25: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Pour demander "Depuis combien de temps" ou "Depuis quand", l&apos;anglais n&apos;utilise <strong className="text-red-400">JAMAIS</strong> le présent simple.
+                        Pour demander "Depuis combien de temps" ou "Depuis quand", l&apos;anglais n&apos;utilise <strong className="text-red-400">JAMAIS</strong> le present simple.
                         Il utilise <strong className="text-emerald-400">HOW LONG + PRESENT PERFECT</strong>.
                     </p>
 

@@ -4,15 +4,15 @@ import { Quiz } from "@/components/courses/quiz";
 export const course47: LessonContent = {
     courseNumber: 47,
     title: "Connecteurs logiques avances (Although, Despite...)",
-    objective: "Relier deux idees opposees avec la bonne structure grammaticale et le bon niveau de contraste.",
+    objective: "Relier deux idées opposees avec la bonne structure grammaticale et le bon niveau de contraste.",
     sections: [
         {
             title: "0. Dire l'opposition sans casser la phrase",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Quand deux idees s'opposent, l'anglais ne choisit pas toujours la meme structure. Le vrai point
-                        a maitriser ici, ce n'est pas seulement le sens: c'est la forme qui vient apres le connecteur.
+                        Quand deux idées s'opposent, l'anglais ne choisit pas toujours la même structure. Le vrai point
+                        a maîtriser ici, ce n'est pas seulement le sens: c'est la forme qui vient après le connecteur.
                     </p>
 
                     <div className="grid gap-4 md:grid-cols-2 text-sm">
@@ -35,7 +35,7 @@ export const course47: LessonContent = {
             )
         },
         {
-            title: "1. Clause complete ou groupe nominal",
+            title: "1. Clause complète ou groupe nominal",
             content: (
                 <div className="space-y-6">
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
@@ -57,7 +57,7 @@ export const course47: LessonContent = {
                             Le point a memoriser
                         </p>
                         <p className="text-slate-200">
-                            Apres <strong>although</strong>, il faut un sujet + verbe. Apres <strong>despite</strong> ou{" "}
+                            Apres <strong>although</strong>, il faut un sujet + verbe. Après <strong>despite</strong> ou{" "}
                             <strong>in spite of</strong>, il faut un nom, un pronom ou un verbe en <strong>-ing</strong>.
                         </p>
                     </div>
@@ -69,7 +69,7 @@ export const course47: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        On doit souvent reformuler une phrase pour garder le meme sens tout en changeant de connecteur.
+                        On doit souvent reformuler une phrase pour garder le même sens tout en changeant de connecteur.
                     </p>
 
                     <div className="grid gap-4 md:grid-cols-2">
@@ -90,13 +90,13 @@ export const course47: LessonContent = {
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
                         <ul className="space-y-3 text-slate-200">
                             <li>
-                                <strong>despite the fact that</strong> / <strong>in spite of the fact that</strong> permettent aussi de garder une clause complete.
+                                <strong>despite the fact that</strong> / <strong>in spite of the fact that</strong> permettent aussi de garder une clause complète.
                             </li>
                             <li>
-                                <strong>though</strong> peut apparaitre en fin de phrase a l'oral: <em>Nice place. A bit noisy, though.</em>
+                                <strong>though</strong> peut apparaître en fin de phrase à l'oral: <em>Nice place. A bit noisy, though.</em>
                             </li>
                             <li>
-                                <strong>even though</strong> marque souvent un contraste plus fort que <strong>although</strong>.
+                                <strong>even though</strong> marqué souvent un contraste plus fort que <strong>although</strong>.
                             </li>
                         </ul>
                     </div>
@@ -112,7 +112,7 @@ export const course47: LessonContent = {
                             <h4 className="mb-3 font-bold uppercase text-red-300">Erreur</h4>
                             <p className="text-white line-through">Despite he was tired, he continued.</p>
                             <p className="mt-2 text-sm text-slate-300">
-                                Apres despite, on ne met pas directement une clause complete.
+                                Après despite, on ne met pas directement une clause complète.
                             </p>
                         </div>
                         <div className="rounded-xl border border-emerald-500/50 bg-emerald-950/20 p-5">
@@ -123,8 +123,8 @@ export const course47: LessonContent = {
                     </div>
 
                     <p className="text-slate-300">
-                        Le reflexe utile: si tu vois un verbe conjugue juste apres le connecteur, pense a{" "}
-                        <strong>although</strong>. Si tu vois un nom ou un verbe en <strong>-ing</strong>, pense a{" "}
+                        Le réflexe utile: si tu vois un verbe conjugue juste après le connecteur, pense à{" "}
+                        <strong>although</strong>. Si tu vois un nom ou un verbe en <strong>-ing</strong>, pense à{" "}
                         <strong>despite</strong> ou <strong>in spite of</strong>.
                     </p>
                 </div>
@@ -147,7 +147,7 @@ export const course47: LessonContent = {
                             question: "___ the rain, we went out.",
                             options: ["Although", "Despite"],
                             correctAnswer: 1,
-                            explanation: "Apres despite, on met un nom ou groupe nominal: the rain.",
+                            explanation: "Après despite, on met un nom ou groupe nominal: the rain.",
                         },
                         {
                             id: 3,
@@ -178,7 +178,7 @@ export const course47: LessonContent = {
                             question: "Even though means ...",
                             options: ["exactly the same register as a noun", "a stronger contrast"],
                             correctAnswer: 1,
-                            explanation: "Even though renforce souvent l'idee de contraste.",
+                            explanation: "Even though renforcé souvent l'idee de contraste.",
                         },
                         {
                             id: 7,
@@ -202,14 +202,14 @@ export const course47: LessonContent = {
                                 "Although being ill / Despite she was ill"
                             ],
                             correctAnswer: 0,
-                            explanation: "La premiere paire respecte les deux structures correctes.",
+                            explanation: "La première paire respecté les deux structures correctes.",
                         },
                         {
                             id: 10,
                             question: "After despite, the safest structure is ...",
                             options: ["subject + verb only", "noun, pronoun or -ing"],
                             correctAnswer: 1,
-                            explanation: "C'est la regle de base a memoriser.",
+                            explanation: "C'est la règle de base a mémoriser.",
                         }
                     ]}
                 />

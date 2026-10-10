@@ -11,10 +11,22 @@ export interface UploadResult {
   itemId?: string;
 }
 
+// Upload libre désactivé (2026-10-10) : aucune modération n'existe et le site
+// s'adresse à des mineurs. Les avatars et fonds passent par la boutique,
+// alimentée par l'admin. L'ancienne logique est conservée ci-dessous, inactive.
+const CUSTOM_UPLOADS_ENABLED = false;
+
 export async function uploadCustomImageAction(
   file: File,
   itemType: "avatar" | "background"
 ): Promise<UploadResult> {
+  if (!CUSTOM_UPLOADS_ENABLED) {
+    return {
+      success: false,
+      error: "L'ajout d'images personnalisées est désactivé. Choisis un avatar dans la boutique.",
+    };
+  }
+
   try {
     const supabase = await createSupabaseServerClient();
     const adminClient = createSupabaseAdminClient();

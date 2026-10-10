@@ -46,7 +46,7 @@ export default async function UsersManagementPage() {
     level: profile.level ?? 1,
   })) as Profile[];
 
-  // Récupérer l'ID de l'utilisateur actuel pour éviter qu'il se modifie/supprime lui-même
+  // Récupérer l'ID de l'utilisateur actuel pour éviter qu'il se modifié/supprimé lui-même
   const currentUserId = user.id;
 
   return (

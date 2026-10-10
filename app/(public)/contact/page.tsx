@@ -4,54 +4,53 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { ContactForm } from "./contact-form";
 
 export const metadata: Metadata = {
-  title: "Contactez-nous - English Quest",
+  title: "Contact",
   description:
-    "Une question ? Une suggestion ? Contactez l'équipe d'English Quest. Nous sommes là pour vous aider dans votre apprentissage de l'anglais.",
+    "Une question, un bug, un mot de passe oublié ? Écris à Pierre, le professeur qui fait English Quest.",
 };
 
 export default async function ContactPage() {
-  // Vérifier si l'utilisateur est authentifié (optionnel)
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  // Récupérer le profil si l'utilisateur est connecté
-  let profile = null;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let profile: { username: string; email: string | null } | null = null;
   if (user) {
     const adminClient = createSupabaseAdminClient();
-    profile = await adminClient
+    const { data } = await adminClient
       .from("profiles")
       .select("username, email")
       .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) => data);
+      .maybeSingle();
+    profile = data;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern px-4 py-12">
-      <div className="mx-auto max-w-2xl">
-        <div className="comic-panel-dark p-8 mb-8" style={{ background: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)" }}>
-          <div className="relative z-10">
-            <div className="mb-6 flex items-center gap-4">
-              <div className="comic-panel bg-cyan-600 border-2 border-black p-4">
-                <span className="text-3xl">✉️</span>
-              </div>
-              <h1 className="text-3xl font-bold text-white text-outline md:text-4xl">Contactez-nous</h1>
-            </div>
-            <p className="text-lg text-slate-200 font-semibold text-outline">
-              Une question ? Une suggestion ? N'hésitez pas à nous envoyer un message !
+    <div className="eq-container eq-section">
+      <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+        <section>
+          <h1 className="eq-h1">Contact</h1>
+          <p className="eq-lead mt-4">
+            Une question, un bug, un mot de passe oublié, une idée de jeu : écris-moi, je lis
+            tout.
+          </p>
+          <ul className="mt-6 grid gap-2 text-sm text-[var(--muted)]">
+            <li>Mot de passe oublié : indique ton pseudo, je réinitialise ton accès.</li>
+            <li>Un bug : dis sur quelle page, et avec quel appareil si tu le sais.</li>
+            <li>Professeur ? Dis-moi quelles classes tu as, l&apos;espace profs se construit.</li>
+          </ul>
+          {profile ? (
+            <p className="mt-6 text-sm text-[var(--muted)]">
+              Connecté en tant que <span className="font-bold text-[var(--fg)]">{profile.username}</span>.
+              La réponse arrivera dans tes messages.
             </p>
-            {profile && (
-              <p className="mt-2 text-sm text-slate-300 font-semibold">
-                Connecté en tant que : <span className="text-cyan-300 font-bold">{profile.username}</span>
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="comic-panel-dark p-8">
+          ) : null}
+        </section>
+        <section className="eq-card p-6 md:p-8">
           <ContactForm user={user} profile={profile} />
-        </div>
+        </section>
       </div>
     </div>
   );
 }
-

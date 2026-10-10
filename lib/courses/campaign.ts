@@ -3,14 +3,11 @@ import { lessons } from "@/lib/courses/lessons";
 import { getCourseMetadata, getCourseRewardProfile } from "@/lib/courses/metadata";
 import type { CourseRoadmapEntry } from "@/lib/courses/progress";
 
-export type CourseMissionTargetSource = "default" | "community_median";
-
 export type CourseMissionPlan = {
   objective: string;
   validationLabel: string;
   scoreTarget: number;
   scoreDirection: "higher" | "lower";
-  targetSource: CourseMissionTargetSource;
   gameChallengeLabel: string;
   gameChallengeCompact: string;
   gameChallengeAction: string;
@@ -32,14 +29,52 @@ type CourseMissionGameSelectionInput = Pick<
 type ChallengeDefinition = {
   scoreDirection: "higher" | "lower";
   metric: "points" | "time" | "words";
-  defaultTarget: (entry: Pick<CourseRoadmapEntry, "courseId" | "palierId" | "rewardXp">) => number;
-  defaultLabel: (target: number) => string;
-  averageLabel: (target: number) => string;
-  defaultCompact: (target: number) => string;
-  averageCompact: (target: number) => string;
-  defaultAction: string;
-  averageAction: string;
+  target: number;
+  label: (target: number) => string;
+  compact: (target: number) => string;
+  action: string;
 };
+
+/**
+ * Objectifs de mission fixes, par palier et par position dans le palier.
+ *
+ * Chaque jeu a sa propre échelle de score (voir lib/games/*). Les valeurs
+ * ci-dessous correspondent à une partie "correcte" au palier 1 et à une
+ * partie solide au palier 5. Elles se règlent ici, à un seul endroit.
+ *
+ * - base : objectif du premier cours du palier 1
+ * - perPalier : ajouté à chaque palier
+ * - perCourse : ajouté à chaque cours dans le palier (0 à 9)
+ */
+export const MISSION_TARGETS: Record<
+  string,
+  { base: number; perPalier: number; perCourse: number }
+> = {
+  // Points : difficulté × combo, environ 120 points pour 25 verbes justes.
+  "speed-verb-challenge": { base: 40, perPalier: 25, perCourse: 2.5 },
+  // Points : environ 25 points par mot trouvé.
+  "enigma-scroll": { base: 80, perPalier: 40, perCourse: 4 },
+  // Points : 10 à 15 points par mot attrapé, combos jusqu'à ×3.
+  wordfall: { base: 100, perPalier: 50, perCourse: 5 },
+  // Points : 10 × niveau par mot, bonus de vague.
+  "space-lex": { base: 250, perPalier: 120, perCourse: 12 },
+  // Mots : nombre de bonnes décisions avant 3 erreurs.
+  flashback: { base: 10, perPalier: 4, perCourse: 0.5 },
+  // Temps total (ms) pour 10 manches, le plus bas possible.
+  "flash-translation": { base: 24000, perPalier: -2000, perCourse: -150 },
+  // Points : 10 à 25 par bonne réponse selon la série, environ 15 réponses en une minute.
+  "grammar-rush": { base: 120, perPalier: 40, perCourse: 5 },
+};
+
+function computeFixedTarget(
+  gameSlug: string,
+  entry: Pick<CourseRoadmapEntry, "courseId" | "palierId">
+) {
+  const scale = MISSION_TARGETS[gameSlug] ?? { base: 100, perPalier: 50, perCourse: 5 };
+  const palierIndex = Math.max(0, Math.min(4, entry.palierId - 1));
+  const withinPalierIndex = Math.max(0, (entry.courseId - 1) % 10);
+  return scale.base + palierIndex * scale.perPalier + withinPalierIndex * scale.perCourse;
+}
 
 const recentMissionGameMemory = 2;
 
@@ -113,10 +148,6 @@ function resolveStandalonePrimaryGameSlug(
   return resolveMissionPrimaryGameAssignments(campaignEntries)[entry.courseId] ?? null;
 }
 
-export function getMissionTargetScore(entry: Pick<CourseRoadmapEntry, "palierId" | "rewardXp">) {
-  return 900 + entry.palierId * 250 + entry.rewardXp * 4;
-}
-
 function formatSeconds(milliseconds: number) {
   return `${(milliseconds / 1000).toFixed(1)} s`;
 }
@@ -150,138 +181,106 @@ function normalizeTarget(metric: ChallengeDefinition["metric"], value: number) {
 }
 
 function getChallengeDefinition(
-  entry: Pick<CourseRoadmapEntry, "courseId" | "palierId" | "rewardXp">,
+  entry: Pick<CourseRoadmapEntry, "courseId" | "palierId">,
   gameSlug: string | null
 ): ChallengeDefinition {
-  const withinPalierIndex = (entry.courseId - 1) % 10;
+  const target = computeFixedTarget(gameSlug ?? "default", entry);
 
   switch (gameSlug) {
     case "flash-translation":
       return {
         scoreDirection: "lower",
         metric: "time",
-        defaultTarget: () => 16800 - entry.palierId * 900 - withinPalierIndex * 110,
-        defaultLabel: (target) => `Boucle les 10 manches en ${formatSeconds(target)} ou moins.`,
-        averageLabel: (target) => `Passe sous le temps de reference: ${formatSeconds(target)} ou moins.`,
-        defaultCompact: (target) => `${formatSeconds(target)} max`,
-        averageCompact: (target) => `${formatSeconds(target)} max`,
-        defaultAction: "viser la vitesse",
-        averageAction: "battre la reference",
+        target,
+        label: (value) => `Boucle les 10 manches en ${formatSeconds(value)} ou moins.`,
+        compact: (value) => `${formatSeconds(value)} max`,
+        action: "viser la vitesse",
       };
     case "flashback":
       return {
         scoreDirection: "higher",
         metric: "words",
-        defaultTarget: () => 10 + entry.palierId * 3 + Math.floor(withinPalierIndex / 2),
-        defaultLabel: (target) => `Memorise ${target} mots sans casser ta serie.`,
-        averageLabel: (target) => `Passe le score de reference: ${target} mots.`,
-        defaultCompact: (target) => `${target} mots`,
-        averageCompact: (target) => `${target} mots`,
-        defaultAction: "tenir la memoire",
-        averageAction: "battre la reference",
+        target,
+        label: (value) => `Reconnais ${value} mots sans faire 3 erreurs.`,
+        compact: (value) => `${value} mots`,
+        action: "tenir la mémoire",
       };
     case "space-lex":
       return {
         scoreDirection: "higher",
         metric: "points",
-        defaultTarget: () => 650 + entry.palierId * 240 + withinPalierIndex * 40,
-        defaultLabel: (target) => `Atteins ${target} points dans l'arene lexicale.`,
-        averageLabel: (target) => `Passe le score de reference: ${target} points.`,
-        defaultCompact: (target) => `${target} pts`,
-        averageCompact: (target) => `${target} pts`,
-        defaultAction: "tenir l'arene",
-        averageAction: "battre la reference",
+        target,
+        label: (value) => `Atteins ${value} points dans l'arène.`,
+        compact: (value) => `${value} pts`,
+        action: "tenir l'arène",
       };
     case "enigma-scroll":
       return {
         scoreDirection: "higher",
         metric: "points",
-        defaultTarget: () => 520 + entry.palierId * 180 + withinPalierIndex * 28,
-        defaultLabel: (target) => `Depasse ${target} points dans l'enigme.`,
-        averageLabel: (target) => `Passe le score de reference: ${target} points.`,
-        defaultCompact: (target) => `${target} pts`,
-        averageCompact: (target) => `${target} pts`,
-        defaultAction: "resoudre vite",
-        averageAction: "battre la reference",
+        target,
+        label: (value) => `Dépasse ${value} points en devinant les mots.`,
+        compact: (value) => `${value} pts`,
+        action: "résoudre vite",
       };
     case "wordfall":
       return {
         scoreDirection: "higher",
         metric: "points",
-        defaultTarget: () => 560 + entry.palierId * 160 + withinPalierIndex * 35,
-        defaultLabel: (target) => `Nettoie l'ecran et passe ${target} points.`,
-        averageLabel: (target) => `Passe le score de reference: ${target} points.`,
-        defaultCompact: (target) => `${target} pts`,
-        averageCompact: (target) => `${target} pts`,
-        defaultAction: "tenir la pression",
-        averageAction: "battre la reference",
+        target,
+        label: (value) => `Attrape les mots et passe ${value} points.`,
+        compact: (value) => `${value} pts`,
+        action: "tenir la pression",
+      };
+    case "grammar-rush":
+      return {
+        scoreDirection: "higher",
+        metric: "points",
+        target,
+        label: (value) => `Réponds juste et vite jusqu'à ${value} points.`,
+        compact: (value) => `${value} pts`,
+        action: "tenir la série",
       };
     case "speed-verb-challenge":
       return {
         scoreDirection: "higher",
         metric: "points",
-        defaultTarget: () => 500 + entry.palierId * 140 + withinPalierIndex * 26,
-        defaultLabel: (target) => `Atteins ${target} points en gardant le combo vivant.`,
-        averageLabel: (target) => `Passe le score de reference: ${target} points.`,
-        defaultCompact: (target) => `${target} pts`,
-        averageCompact: (target) => `${target} pts`,
-        defaultAction: "garder le combo",
-        averageAction: "battre la reference",
+        target,
+        label: (value) => `Atteins ${value} points en gardant le combo.`,
+        compact: (value) => `${value} pts`,
+        action: "garder le combo",
       };
     default:
       return {
         scoreDirection: "higher",
         metric: "points",
-        defaultTarget: () => getMissionTargetScore(entry),
-        defaultLabel: (target) => `Passe la barre des ${target} points.`,
-        averageLabel: (target) => `Passe le score de reference: ${target} points.`,
-        defaultCompact: (target) => `${target} pts`,
-        averageCompact: (target) => `${target} pts`,
-        defaultAction: "viser le score",
-        averageAction: "battre la reference",
+        target,
+        label: (value) => `Passe la barre des ${value} points.`,
+        compact: (value) => `${value} pts`,
+        action: "viser le score",
       };
   }
 }
 
 function buildGameChallenge(
-  entry: Pick<CourseRoadmapEntry, "courseId" | "palierId" | "rewardXp">,
-  gameSlug: string | null,
-  options?: {
-    scoreTarget?: number;
-    targetSource?: CourseMissionTargetSource;
-  }
+  entry: Pick<CourseRoadmapEntry, "courseId" | "palierId">,
+  gameSlug: string | null
 ) {
   const definition = getChallengeDefinition(entry, gameSlug);
-  const targetSource = options?.targetSource ?? "default";
-  const baseTarget =
-    typeof options?.scoreTarget === "number"
-      ? options.scoreTarget
-      : definition.defaultTarget(entry);
-  const scoreTarget = normalizeTarget(definition.metric, baseTarget);
+  const scoreTarget = normalizeTarget(definition.metric, definition.target);
 
   return {
     scoreTarget,
     scoreDirection: definition.scoreDirection,
-    gameChallengeLabel:
-      targetSource === "community_median"
-        ? definition.averageLabel(scoreTarget)
-        : definition.defaultLabel(scoreTarget),
-    gameChallengeCompact:
-      targetSource === "community_median"
-        ? definition.averageCompact(scoreTarget)
-        : definition.defaultCompact(scoreTarget),
-    gameChallengeAction:
-      targetSource === "community_median"
-        ? definition.averageAction
-        : definition.defaultAction,
+    gameChallengeLabel: definition.label(scoreTarget),
+    gameChallengeCompact: definition.compact(scoreTarget),
+    gameChallengeAction: definition.action,
   };
 }
 
 export function buildCourseMissionPlan(
   entry: CourseMissionPlanEntryInput,
   options?: {
-    scoreTarget?: number;
-    targetSource?: CourseMissionTargetSource;
     primaryGameSlug?: string | null;
   }
 ): CourseMissionPlan {
@@ -293,14 +292,13 @@ export function buildCourseMissionPlan(
     options?.primaryGameSlug ??
     resolveStandalonePrimaryGameSlug(entry);
   const primaryGame = primaryGameSlug ? getGameBySlug(primaryGameSlug) : null;
-  const challenge = buildGameChallenge(entry, primaryGameSlug, options);
+  const challenge = buildGameChallenge(entry, primaryGameSlug);
 
   return {
     objective: lesson?.objective ?? entry.summary,
-    validationLabel: validationSection?.title ?? "Mission Validation",
+    validationLabel: validationSection?.title ?? "Quiz de validation",
     scoreTarget: challenge.scoreTarget,
     scoreDirection: challenge.scoreDirection,
-    targetSource: options?.targetSource ?? "default",
     gameChallengeLabel: challenge.gameChallengeLabel,
     gameChallengeCompact: challenge.gameChallengeCompact,
     gameChallengeAction: challenge.gameChallengeAction,

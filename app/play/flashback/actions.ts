@@ -1,4 +1,7 @@
 "use server";
+import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
+import { countPlaysToday } from "@/lib/profile/economy-server";
+import { autoCompleteCourseMissionForGame } from "@/lib/courses/mission-auto-complete";
 
 /**
  * Server Actions for Echo Lex
@@ -6,7 +9,6 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { revalidateCourseMissionBenchmarks } from "@/lib/courses/cache-server";
 import { calculateLevelFromXP } from "@/lib/profile/leveling";
 
 const DEFAULT_DIFFICULTY = "medium" as const;
@@ -33,47 +35,6 @@ async function resolveFlashbackGameId(adminClient: any) {
         game = oldGame;
     }
     return game;
-}
-
-function computeEchoLexRewards(params: {
-    score: number;
-    isNewPersonalBest: boolean;
-    isNewGlobalBest: boolean;
-    durationMs: number;
-}): {
-    xpEarned: number;
-    goldEarned: number;
-} {
-    // VERY LOW REWARDS to encourage "hard farming"
-    // Base XP: 1 XP per 2 correct words
-    let xpEarned = Math.floor(params.score / 2);
-
-    // Gold: 1 Gold every 10 correct words
-    let goldEarned = Math.floor(params.score / 10);
-
-    // Speed bonus: 1 Gold for every 2 minutes of play
-    const durationMinutes = params.durationMs / (1000 * 120);
-    goldEarned += Math.floor(durationMinutes);
-
-    // Personal Best Bonus (Small)
-    if (params.isNewPersonalBest) {
-        xpEarned += 5;
-        goldEarned += 1;
-    }
-
-    // Global Best Bonus (Prestige)
-    if (params.isNewGlobalBest) {
-        xpEarned += 20;
-        goldEarned += 5;
-    }
-
-    // Ensure at least 1 XP if they scored anything
-    if (params.score > 0 && xpEarned === 0) xpEarned = 1;
-
-    return {
-        xpEarned,
-        goldEarned,
-    };
 }
 
 /**
@@ -127,11 +88,13 @@ export async function submitEchoLexScore(params: {
         const currentGB = globalTopScore?.score ?? 0;
         const isNewGB = params.score > currentGB;
 
-        const rewards = computeEchoLexRewards({
-            score: params.score,
+        const playsToday = await countPlaysToday(adminClient, user.id, game.id);
+        const rewards = computeGameRewards({
+            performance: gamePerformance.flashback(params.score),
+            difficulty: DEFAULT_DIFFICULTY,
+            playsToday,
             isNewPersonalBest: isNewPB,
             isNewGlobalBest: isNewGB,
-            durationMs: params.durationMs,
         });
 
         await adminClient.from("game_scores").insert({
@@ -142,7 +105,6 @@ export async function submitEchoLexScore(params: {
             difficulty: DEFAULT_DIFFICULTY,
         });
 
-        revalidateCourseMissionBenchmarks();
 
         // Update profile
         const { data: profile } = await adminClient
@@ -166,6 +128,7 @@ export async function submitEchoLexScore(params: {
             // Daily Challenge
             const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
             const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "flashback");
+            const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "flashback", params.score);
 
             return {
                 success: true,
@@ -177,6 +140,7 @@ export async function submitEchoLexScore(params: {
                 isNewPersonalBest: isNewPB,
                 isNewGlobalBest: isNewGB,
                 dailyChallenge: dailyChallengeResult,
+              courseCompleted,
             };
         }
 

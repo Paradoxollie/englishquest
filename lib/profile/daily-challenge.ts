@@ -1,6 +1,7 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { games } from "@/lib/games/config";
 import { calculateLevelFromXP } from "@/lib/profile/leveling";
+import { getDailyStreakMultiplier } from "@/lib/profile/economy";
 
 export const DAILY_CHALLENGE_TIME_ZONE = "Europe/Paris";
 export const DAILY_CHALLENGE_TARGET_COUNT = 3;
@@ -220,7 +221,9 @@ export async function checkAndGrantDailyBonus(
   };
 
   if (bonusGranted) {
-    const nextXP = (profile.xp ?? 0) + DAILY_CHALLENGE_XP_BONUS;
+    // La série de jours augmente le bonus : +10 % par jour, +50 % au maximum.
+    const multiplier = getDailyStreakMultiplier(dailyStreak);
+    const nextXP = (profile.xp ?? 0) + Math.round(DAILY_CHALLENGE_XP_BONUS * multiplier);
     const nextGold = (profile.gold ?? 0) + DAILY_CHALLENGE_GOLD_BONUS;
 
     updates.last_daily_bonus_date = today;

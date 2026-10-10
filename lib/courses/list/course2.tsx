@@ -264,7 +264,7 @@ export const course2: LessonContent = {
               question: "Piège ! Je 'veux' un café.",
               options: ["I am wanting a coffee", "I want a coffee", "I wanting a coffee", "I am want a coffee"],
               correctAnswer: 1,
-              explanation: "'Want' est un verbe de volonté (état). Jamais de ING ! On utilise le présent simple.",
+              explanation: "'Want' est un verbe de volonté (état). Jamais de ING ! On utilise le present simple.",
             },
             {
               id: 6,
@@ -299,7 +299,7 @@ export const course2: LessonContent = {
               question: "Listen! The baby ___.",
               options: ["cries", "is crying", "cry", "are crying"],
               correctAnswer: 1,
-              explanation: "'Listen!' (Écoute !) implique que l'action se passe maintenant.",
+              explanation: "'Listen!' (Écoute !) implique que l'action se passé maintenant.",
             },
           ]}
         />

@@ -1,103 +1,66 @@
 import type { Metadata } from "next";
-import { MotionCard } from "@/components/ui/motion-card";
+import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "À propos de moi - English Quest",
+  title: "À propos",
   description:
-    "Découvrez l'histoire d'English Quest, créé par Pierre Marienne, professeur d'anglais dans le Val-d'Oise. Une approche ludique et pédagogique pour apprendre l'anglais.",
+    "English Quest est fait par Pierre Marienne, professeur d'anglais en collège et lycée. Pourquoi ce site, et comment il est construit.",
 };
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern px-4 py-12">
-      <div className="mx-auto max-w-4xl">
-        {/* Header */}
-        <div className="comic-panel-dark p-8 mb-8" style={{ background: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%)" }}>
-          <div className="relative z-10">
-            <h1 className="text-3xl font-bold text-white text-outline md:text-4xl mb-4">À propos de moi</h1>
-            <div className="h-1 w-24 bg-cyan-500 border-2 border-black"></div>
-          </div>
-        </div>
+    <div className="eq-container eq-section">
+      <div className="mx-auto max-w-3xl">
+        <h1 className="eq-h1">À propos</h1>
+        <p className="eq-lead mt-4 max-w-none">
+          Je m&apos;appelle Pierre Marienne. Je suis professeur d&apos;anglais depuis dix ans,
+          en collège, en lycée et à l&apos;université. English Quest est le site que
+          j&apos;aurais voulu donner à mes élèves depuis longtemps.
+        </p>
 
-        {/* Cards Grid */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <MotionCard>
-            <div className="comic-card-dark p-6 h-full" style={{ background: "linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%)" }}>
-              <div className="relative z-10">
-                <h2 className="text-xl font-bold text-white text-outline mb-4 pb-3 border-b-2 border-cyan-500/30">
-                  Qui je suis
-                </h2>
-                <div className="space-y-3 text-slate-200 leading-relaxed">
-                  <p>
-                    Je m'appelle <span className="font-bold text-white">Pierre Marienne</span>. Professeur d'anglais depuis 10 ans, j'ai enseigné au collège, au lycée et à l'université.
-                  </p>
-                  <p>
-                    Grâce à mon parcours professionnel et personnel, j'ai développé une sensibilité particulière pour les mécaniques de jeu et les univers créatifs. Cette expérience m'a permis d'imaginer une approche pédagogique qui allie apprentissage sérieux et engagement ludique.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </MotionCard>
+        <div className="mt-10 grid gap-8">
+          <section>
+            <h2 className="eq-h2">Pourquoi un jeu</h2>
+            <p className="mt-3 text-[var(--muted)]">
+              Un élève qui joue revient. Un élève qui revient progresse. Les mécaniques de jeu
+              ne remplacent pas le cours, elles donnent une raison d&apos;y retourner : une
+              mission à finir, un score à battre, une carte qui avance.
+            </p>
+          </section>
 
-          <MotionCard>
-            <div className="comic-card-dark p-6 h-full" style={{ background: "linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 182, 212, 0.15) 100%)" }}>
-              <div className="relative z-10">
-                <h2 className="text-xl font-bold text-white text-outline mb-4 pb-3 border-b-2 border-emerald-500/30">
-                  Mon approche
-                </h2>
-                <div className="space-y-3 text-slate-200 leading-relaxed">
-                  <p>
-                    Je crois en un apprentissage qui allie sérieux pédagogique et plaisir de la découverte.
-                  </p>
-                  <p>
-                    Les mécaniques de jeu permettent de rendre l'apprentissage plus motivant et plus engageant pour les élèves.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </MotionCard>
+          <section>
+            <h2 className="eq-h2">Ce qu&apos;il y a dedans</h2>
+            <p className="mt-3 text-[var(--muted)]">
+              Cinquante cours de grammaire, du niveau A1 au niveau C1, chacun avec un quiz de dix
+              questions. Six jeux qui travaillent le vocabulaire, la conjugaison, la traduction,
+              la mémoire et l&apos;orthographe. Une carte de missions qui enchaîne cours, quiz et
+              jeu. Le parcours suit le niveau, pas l&apos;âge : un collégien avancé et un adulte
+              qui reprend y trouvent chacun leur place.
+            </p>
+          </section>
 
-          <MotionCard>
-            <div className="comic-card-dark p-6 h-full" style={{ background: "linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%)" }}>
-              <div className="relative z-10">
-                <h2 className="text-xl font-bold text-white text-outline mb-4 pb-3 border-b-2 border-indigo-500/30">
-                  Le site
-                </h2>
-                <div className="space-y-3 text-slate-200 leading-relaxed">
-                  <p>
-                    English Quest a pour but de proposer un espace clair et accessible pour progresser en anglais.
-                  </p>
-                  <p>
-                    Les contenus sont structurés, régulièrement mis à jour, et fidèles aux programmes officiels.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </MotionCard>
+          <section>
+            <h2 className="eq-h2">Ce que ça coûte</h2>
+            <p className="mt-3 text-[var(--muted)]">
+              Rien. Le site est gratuit, sans publicité dans les cours et les jeux. Les pages
+              d&apos;information peuvent afficher une annonce en bas de page pour couvrir les
+              frais d&apos;hébergement. Aucune donnée n&apos;est vendue.
+            </p>
+          </section>
 
-          <MotionCard>
-            <div className="comic-card-dark p-6 h-full" style={{ background: "linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%)" }}>
-              <div className="relative z-10">
-                <h2 className="text-xl font-bold text-white text-outline mb-4 pb-3 border-b-2 border-purple-500/30">
-                  L'objectif
-                </h2>
-                <div className="space-y-3 text-slate-200 leading-relaxed">
-                  <p>
-                    Proposer un apprentissage sérieux mais agréable, qui donne envie d'avancer.
-                  </p>
-                  <p>
-                    Chaque activité est pensée pour être à la fois pédagogique et stimulante.
-                  </p>
-                  <p>
-                    Le site propose également une section dédiée aux professeurs, avec des ressources clés en main pour la classe.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </MotionCard>
+          <section>
+            <h2 className="eq-h2">Pour les professeurs</h2>
+            <p className="mt-3 text-[var(--muted)]">
+              Un espace dédié est en préparation : codes de classe, suivi des élèves, ressources
+              prêtes à projeter. Si vous enseignez l&apos;anglais et voulez l&apos;essayer en
+              avance, écrivez-moi.
+            </p>
+            <Link href="/contact" className="eq-btn eq-btn-ghost mt-4">
+              Me contacter
+            </Link>
+          </section>
         </div>
       </div>
     </div>
   );
 }
-

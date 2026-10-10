@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
       "react/no-unescaped-entities": "off",
       "react-hooks/error-boundaries": "warn",
       "react-hooks/set-state-in-effect": "warn",
+      // Règles du compilateur React (eslint-config-next 16.4) : à corriger
+      // progressivement, en avertissement pour l'instant.
+      "react-hooks/immutability": "warn",
+      "react-hooks/purity": "warn",
+      "react-hooks/preserve-manual-memoization": "warn",
     },
   },
   {
@@ -27,7 +32,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    "ancienne version/**",
+    "docs/**",
+    "supabase/**",
   ]),
 ]);
 

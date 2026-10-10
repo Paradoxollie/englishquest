@@ -1,10 +1,14 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { games as gameCatalog } from "@/lib/games/config";
 import { GameLeaderboard } from "./components/game-leaderboard";
 
-export const dynamic = 'force-dynamic';
+export const metadata: Metadata = { title: "Classements" };
+
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
-export const fetchCache = 'force-no-store';
+export const fetchCache = "force-no-store";
 
 export default async function LeaderboardPage() {
   const supabase = await createSupabaseServerClient();
@@ -16,36 +20,20 @@ export default async function LeaderboardPage() {
     redirect("/auth/login");
   }
 
-  // Récupérer tous les jeux disponibles
-  const { data: games } = await supabase
-    .from("games")
-    .select("id, slug, name, description")
-    .order("name");
+  const { data: games } = await supabase.from("games").select("id, slug, name, description").order("name");
+  const order = new Map(gameCatalog.map((game, index) => [game.slug, index]));
+  const sorted = (games ?? []).sort((a, b) => (order.get(a.slug) ?? 99) - (order.get(b.slug) ?? 99));
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
-      <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-12">
-        {/* Hero Section */}
-        <div className="comic-panel-dark mb-8 p-6" style={{ background: "linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%)" }}>
-          <div className="flex items-center gap-4 mb-4">
-            <div className="comic-panel bg-gradient-to-br from-yellow-400 to-amber-500 border-2 border-black p-4">
-              <span className="text-4xl">🏆</span>
-            </div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white text-outline">
-                Classements
-              </h1>
-              <p className="text-slate-300 text-outline font-semibold mt-1">
-                Découvre où tu te situes parmi les meilleurs joueurs
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Leaderboard Component */}
-        <GameLeaderboard games={games || []} />
-      </div>
+    <div className="eq-container eq-section">
+      <header className="eq-page-head">
+        <p className="eq-kicker">Classements</p>
+        <h1 className="eq-h1">Les meilleurs scores</h1>
+        <p className="eq-lead">
+          Un classement par jeu et par difficulté. Seul ton meilleur score compte, et il faut une partie pour y figurer.
+        </p>
+      </header>
+      <GameLeaderboard games={sorted} currentUserId={user.id} />
     </div>
   );
 }
-

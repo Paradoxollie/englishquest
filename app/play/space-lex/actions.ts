@@ -1,4 +1,7 @@
 "use server";
+import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
+import { countPlaysToday } from "@/lib/profile/economy-server";
+import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
 
 /**
  * Server Actions for Lexicon Blaster (Space Lex)
@@ -13,51 +16,10 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { revalidateCourseMissionBenchmarks } from "@/lib/courses/cache-server";
 import { calculateLevelFromXP } from "@/lib/profile/leveling";
 
 // Default difficulty for all Lexicon Blaster scores (no difficulty selection in this game)
 const DEFAULT_DIFFICULTY = "medium" as const;
-
-/**
- * Calculate rewards for Lexicon Blaster based on performance
- */
-function computeLexiconBlasterRewards(params: {
-    score: number;
-    wave: number;
-    wordsMastered: number;
-    maxCombo: number;
-    isNewGlobalBest: boolean;
-}): {
-    xpEarned: number;
-    goldEarned: number;
-} {
-    // Base XP from score (1 XP per 40 points)
-    let xpEarned = Math.floor(params.score / 40);
-
-    // Wave bonus (10 XP per wave reached)
-    xpEarned += params.wave * 10;
-
-    // Words mastered bonus (2 XP per word)
-    xpEarned += params.wordsMastered * 2;
-
-    // Combo bonus (1 XP per max combo point)
-    xpEarned += params.maxCombo * 1;
-
-    // Global best bonus
-    if (params.isNewGlobalBest) {
-        xpEarned += 80;
-    }
-
-    // Gold: CHALLENGING FARM (XP / 20)
-    // 350 XP -> 17 Gold (Good reward for a long run)
-    const goldEarned = Math.floor(xpEarned / 20);
-
-    return {
-        xpEarned,
-        goldEarned,
-    };
-}
 
 /**
  * Submit a Lexicon Blaster game score and update user rewards.
@@ -87,6 +49,7 @@ export async function submitLexiconBlasterScore(params: {
     isNewPersonalBest?: boolean;
     isNewGlobalBest?: boolean;
     personalBest?: number;
+    courseCompleted?: AutoCompletedCourse | null;
     dailyChallenge?: {
         dailyPlayedGames: string[];
         requiredGames: string[];
@@ -154,11 +117,12 @@ export async function submitLexiconBlasterScore(params: {
         const isNewGlobalBest = params.score > currentGlobalBest;
 
         // Calculate rewards
-        const rewards = computeLexiconBlasterRewards({
-            score: params.score,
-            wave: params.wave,
-            wordsMastered: params.wordsMastered,
-            maxCombo: params.maxCombo,
+        const playsToday = await countPlaysToday(adminClient, user.id, game.id);
+        const rewards = computeGameRewards({
+            performance: gamePerformance.lexiconBlaster(params.wordsMastered, params.wave),
+            difficulty: DEFAULT_DIFFICULTY,
+            playsToday,
+            isNewPersonalBest,
             isNewGlobalBest,
         });
 
@@ -181,7 +145,6 @@ export async function submitLexiconBlasterScore(params: {
             };
         }
 
-        revalidateCourseMissionBenchmarks();
 
         // Update user profile with rewards
         const { data: profile } = await adminClient
@@ -222,6 +185,7 @@ export async function submitLexiconBlasterScore(params: {
         // Check and grant Daily Challenge bonus
         const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
         const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "space-lex");
+        const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "space-lex", params.score);
 
         return {
             success: true,
@@ -231,6 +195,7 @@ export async function submitLexiconBlasterScore(params: {
                 newLevel: newLevel > profile.level ? newLevel : undefined,
             },
             dailyChallenge: dailyChallengeResult,
+          courseCompleted,
             isNewPersonalBest,
             isNewGlobalBest,
             personalBest: isNewPersonalBest ? params.score : currentPersonalBest,

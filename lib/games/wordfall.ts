@@ -506,7 +506,7 @@ export function validateExactWord(
   const targetEnglishParts = targetWord.trim().split(/\s+/).filter(p => p.trim().length > 0);
   
   if (parts.length <= targetEnglishParts.length) {
-    return { valid: false, reason: "Tape l'expression anglaise complete puis sa traduction francaise." };
+    return { valid: false, reason: "Tape le mot anglais complet puis sa traduction française." };
   }
   
   const englishInput = parts.slice(0, targetEnglishParts.length).join(' ');
@@ -517,7 +517,7 @@ export function validateExactWord(
   
   // Check English word
   if (normalizedEnglish !== normalizedTargetEnglish) {
-    return { valid: false, reason: "Le mot anglais ne correspond pas" };
+    return { valid: false, reason: "Le mot anglais ne correspond pas." };
   }
   
   // Clean the target translation (remove parentheses, slashes, take first part)
@@ -526,7 +526,7 @@ export function validateExactWord(
   const normalizedTargetFr = normalizeForAnswerComparison(cleanedTargetFr);
   
   if (normalizedInputFr !== normalizedTargetFr) {
-    return { valid: false, reason: `La traduction ne correspond pas. Attendu: "${cleanedTargetFr}"` };
+    return { valid: false, reason: `La traduction attendue était « ${cleanedTargetFr} ».` };
   }
   
   return { valid: true };
@@ -534,7 +534,7 @@ export function validateExactWord(
 
 /**
  * Initialize English words dictionary for free mode validation
- * This loads the complete list of valid English words (370k+ words)
+ * Loads the free-mode dictionary (about 9 400 common English words, filtered for a school audience)
  */
 export function initializeEnglishWords(englishWords: string[]): void {
   englishWordsSet = new Set(englishWords.map(w => w.toUpperCase().trim()));
@@ -543,7 +543,7 @@ export function initializeEnglishWords(englishWords: string[]): void {
 
 /**
  * Validate word input for free mode
- * Accepts all valid English words from the complete dictionary (2-20 letters)
+ * Accepts common English words from the filtered free-mode dictionary (3-20 letters)
  */
 export function validateFreeWord(
   input: string,
@@ -553,31 +553,30 @@ export function validateFreeWord(
   const normalized = input.trim().toUpperCase();
   
   // Accept words from 2 to 20 letters
-  if (normalized.length < 2) {
-    return { valid: false, reason: "Mot trop court (minimum 2 lettres)" };
+  if (normalized.length < 3) {
+    return { valid: false, reason: "Mot trop court : trois lettres minimum." };
   }
   
   if (normalized.length > 20) {
-    return { valid: false, reason: "Mot trop long (maximum 20 lettres)" };
+    return { valid: false, reason: "Mot trop long : vingt lettres maximum." };
   }
 
   // Check if word contains only letters (no spaces, no special chars)
   if (!/^[A-Z]+$/.test(normalized)) {
-    return { valid: false, reason: "Le mot ne doit contenir que des lettres" };
+    return { valid: false, reason: "Le mot ne doit contenir que des lettres." };
   }
 
   if (!normalized.startsWith(requiredLetter.toUpperCase())) {
-    return { valid: false, reason: `Le mot doit commencer par "${requiredLetter.toUpperCase()}"` };
+    return { valid: false, reason: `Le mot doit commencer par ${requiredLetter.toUpperCase()}.` };
   }
 
   if (usedWords.includes(normalized)) {
-    return { valid: false, reason: "Mot deja utilise" };
+    return { valid: false, reason: "Mot déjà joué dans cette manche." };
   }
 
-  // Check if word exists in the complete English words dictionary
-  // This uses the full dictionary of 370k+ valid English words
+  // Check the filtered free-mode dictionary (no slurs, no adult vocabulary)
   if (!englishWordsSet || !englishWordsSet.has(normalized)) {
-    return { valid: false, reason: "Ce mot n'existe pas dans le dictionnaire anglais" };
+    return { valid: false, reason: "Ce mot n'est pas dans le dictionnaire anglais." };
   }
 
   return { valid: true };
@@ -627,7 +626,7 @@ export function processWordInput(
         break;
       }
 
-      if (!reason || validation.reason !== "Le mot anglais ne correspond pas") {
+      if (!reason || validation.reason !== "Le mot anglais ne correspond pas.") {
         reason = validation.reason;
       }
     } else {

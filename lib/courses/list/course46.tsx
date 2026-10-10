@@ -4,7 +4,7 @@ import { Quiz } from "@/components/courses/quiz";
 export const course46: LessonContent = {
     courseNumber: 46,
     title: "Faire faire quelque chose (Have something done)",
-    objective: "Utiliser have something done pour parler d'un service, d'une intervention ou d'un evenement subi.",
+    objective: "Utiliser have something done pour parler d'un service, d'une intervention ou d'un événement subi.",
     sections: [
         {
             title: "0. La structure causative",
@@ -28,7 +28,7 @@ export const course46: LessonContent = {
                                 <strong className="text-emerald-400">cut</strong>.
                             </p>
                             <p className="mt-2 text-sm italic text-slate-400">
-                                Je ne me suis pas coupe les cheveux moi-meme: quelqu'un l'a fait.
+                                Je ne me suis pas coupe les cheveux moi-même: quelqu'un l'a fait.
                             </p>
                         </div>
                     </div>
@@ -40,7 +40,7 @@ export const course46: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        C'est la structure typique pour parler d'un service professionnel ou d'une tache confiee a quelqu'un.
+                        C'est la structure typique pour parler d'un service professionnel ou d'une tâche confiee a quelqu'un.
                     </p>
 
                     <div className="grid gap-4 md:grid-cols-3 text-sm">
@@ -72,7 +72,7 @@ export const course46: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        La meme structure peut aussi servir quand quelque chose nous arrive, souvent de facon negative.
+                        La même structure peut aussi servir quand quelque chose nous arrive, souvent de façon négative.
                     </p>
 
                     <div className="grid gap-4 md:grid-cols-2">
@@ -80,14 +80,14 @@ export const course46: LessonContent = {
                             <h4 className="mb-3 font-bold uppercase text-rose-300">Evenement subi</h4>
                             <p className="text-white">He had his wallet stolen.</p>
                             <p className="mt-2 text-sm text-slate-300">
-                                Il ne l'a pas organise: il a subi le vol.
+                                Il ne l'a pas organisé: il a subi le vol.
                             </p>
                         </div>
                         <div className="rounded-xl border border-emerald-500/50 bg-emerald-950/20 p-5">
                             <h4 className="mb-3 font-bold uppercase text-emerald-300">Action commandee</h4>
                             <p className="text-white">He had his suit cleaned.</p>
                             <p className="mt-2 text-sm text-slate-300">
-                                Ici, il a demande un service.
+                                Ici, il a demandé un service.
                             </p>
                         </div>
                     </div>
@@ -101,7 +101,7 @@ export const course46: LessonContent = {
                                 <strong>have something done</strong> = le focus est sur la chose
                             </li>
                             <li>
-                                <strong>have someone do something</strong> = on dit directement qu'on a demande a une personne d'agir
+                                <strong>have someone do something</strong> = on dit directement qu'on a demandé a une personne d'agir
                             </li>
                         </ul>
                         <div className="mt-4 space-y-2 text-sm text-slate-300">
@@ -121,7 +121,7 @@ export const course46: LessonContent = {
                             <h4 className="mb-3 font-bold uppercase text-red-300">Erreur</h4>
                             <p className="text-white line-through">I cut my hair yesterday.</p>
                             <p className="mt-2 text-sm text-slate-300">
-                                Cette phrase veut dire que je l'ai fait moi-meme.
+                                Cette phrase veut dire que je l'ai fait moi-même.
                             </p>
                         </div>
                         <div className="rounded-xl border border-emerald-500/50 bg-emerald-950/20 p-5">
@@ -150,7 +150,7 @@ export const course46: LessonContent = {
                             question: "I need to ___ tomorrow.",
                             options: ["have my car serviced", "service my car by a mechanic"],
                             correctAnswer: 0,
-                            explanation: "Have my car serviced exprime naturellement le service effectue par quelqu'un d'autre.",
+                            explanation: "Have my car serviced exprime naturellement le service effectué par quelqu'un d'autre.",
                         },
                         {
                             id: 2,
@@ -199,7 +199,7 @@ export const course46: LessonContent = {
                             question: "This structure is often used for ...",
                             options: ["general truths only", "services and interventions"],
                             correctAnswer: 1,
-                            explanation: "Have something done est tres frequent pour les services, reparations et rendez-vous.",
+                            explanation: "Have something done est très fréquent pour les services, réparations et rendez-vous.",
                         },
                         {
                             id: 9,

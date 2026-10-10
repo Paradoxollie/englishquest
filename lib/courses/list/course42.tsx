@@ -7,27 +7,27 @@ export const course42: LessonContent = {
     objective: "Choisir entre wish + past simple, wish + past perfect et wish + would sans les confondre avec hope.",
     sections: [
         {
-            title: "0. Le systeme de I wish",
+            title: "0. Le système de I wish",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        <strong>I wish</strong> ne sert pas a parler d'un futur probable. Il sert surtout a exprimer
+                        <strong>I wish</strong> ne sert pas à parler d'un futur probable. Il sert surtout a exprimer
                         un manque, un regret ou une irritation.
                     </p>
 
                     <div className="grid gap-4 md:grid-cols-3 text-sm">
                         <div className="rounded-xl border-l-4 border-cyan-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Regret sur le present</h4>
+                            <h4 className="mb-2 font-bold text-white">Regret sur le présent</h4>
                             <p className="text-slate-300">I wish I knew the answer.</p>
                             <p className="mt-2 text-xs italic text-slate-500">
-                                Je ne connais pas la reponse maintenant.
+                                Je ne connais pas la réponse maintenant.
                             </p>
                         </div>
                         <div className="rounded-xl border-l-4 border-rose-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Regret sur le passe</h4>
+                            <h4 className="mb-2 font-bold text-white">Regret sur le passé</h4>
                             <p className="text-slate-300">I wish I had studied harder.</p>
                             <p className="mt-2 text-xs italic text-slate-500">
-                                Je regrette une action deja terminee.
+                                Je regrette une action déjà terminée.
                             </p>
                         </div>
                         <div className="rounded-xl border-l-4 border-amber-500 bg-slate-800 p-4">
@@ -42,12 +42,12 @@ export const course42: LessonContent = {
             )
         },
         {
-            title: "1. Wish pour le present ou le futur irreel",
+            title: "1. Wish pour le présent ou le futur irréel",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
                         Apres <strong>wish</strong>, on utilise souvent une forme au <strong>past simple</strong> pour
-                        parler d'une situation presente que l'on voudrait differente.
+                        parler d'une situation présente que l'on voudrait différente.
                     </p>
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
@@ -63,7 +63,7 @@ export const course42: LessonContent = {
                             </p>
                         </div>
                         <p className="mt-4 text-sm text-slate-400">
-                            Ici, le passe n'indique pas le passe chronologique. Il marque surtout la distance avec la realite.
+                            Ici, le passé n'indique pas le passé chronologique. Il marqué surtout la distance avec la réalité.
                         </p>
                     </div>
 
@@ -73,18 +73,18 @@ export const course42: LessonContent = {
                         </p>
                         <p className="text-slate-200">
                             Avec <strong>be</strong>, on rencontre souvent <strong>I wish I were</strong>, surtout dans
-                            un registre soigne. <strong>I wish I was</strong> existe aussi dans l'usage courant.
+                            un registre soigné. <strong>I wish I was</strong> existe aussi dans l'usage courant.
                         </p>
                     </div>
                 </div>
             )
         },
         {
-            title: "2. Wish pour le regret sur le passe",
+            title: "2. Wish pour le regret sur le passé",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Quand on regrette une action deja terminee, on utilise <strong>wish + past perfect</strong>.
+                        Quand on regrette une action déjà terminée, on utilise <strong>wish + past perfect</strong>.
                     </p>
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
@@ -117,12 +117,12 @@ export const course42: LessonContent = {
             )
         },
         {
-            title: "3. Wish + would, et la difference avec hope",
+            title: "3. Wish + would, et la différence avec hope",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        <strong>wish + would</strong> sert surtout a montrer une irritation ou un desir de changement.
-                        Pour une attente normale dans le futur, on utilise plutot <strong>hope</strong>.
+                        <strong>wish + would</strong> sert surtout a montrer une irritation ou un désir de changement.
+                        Pour une attente normale dans le futur, on utilise plutôt <strong>hope</strong>.
                     </p>
 
                     <div className="grid gap-4 md:grid-cols-2">
@@ -153,7 +153,7 @@ export const course42: LessonContent = {
                             <strong>wish + past simple</strong>: present irreel
                         </li>
                         <li>
-                            <strong>wish + past perfect</strong>: regret sur le passe
+                            <strong>wish + past perfect</strong>: regret sur le passé
                         </li>
                         <li>
                             <strong>wish + would</strong>: irritation ou changement attendu
@@ -182,21 +182,21 @@ export const course42: LessonContent = {
                             question: "She wishes she ___ so rude yesterday.",
                             options: ["hadn't been", "weren't"],
                             correctAnswer: 0,
-                            explanation: "Regret sur le passe: wish + past perfect.",
+                            explanation: "Regret sur le passé: wish + past perfect.",
                         },
                         {
                             id: 3,
                             question: "I wish you ___ making that noise.",
                             options: ["stopped yesterday", "would stop"],
                             correctAnswer: 1,
-                            explanation: "Wish + would exprime l'agacement et le desir de changement.",
+                            explanation: "Wish + would exprime l'agacement et le désir de changement.",
                         },
                         {
                             id: 4,
                             question: "Choisis la phrase correcte pour demain.",
                             options: ["I hope the train is on time tomorrow.", "I wish the train is on time tomorrow."],
                             correctAnswer: 0,
-                            explanation: "Pour un souhait realiste dans le futur, on utilise hope.",
+                            explanation: "Pour un souhait réaliste dans le futur, on utilise hope.",
                         },
                         {
                             id: 5,
@@ -231,14 +231,14 @@ export const course42: LessonContent = {
                             question: "If only I ___ more careful!",
                             options: ["am", "had been"],
                             correctAnswer: 1,
-                            explanation: "If only suit la meme logique que wish ici: regret sur le passe.",
+                            explanation: "If only suit la même logique que wish ici: regret sur le passé.",
                         },
                         {
                             id: 10,
                             question: "I wish I ___ more free time these days.",
                             options: ["had", "have had"],
                             correctAnswer: 0,
-                            explanation: "Regret sur le present: wish + past simple.",
+                            explanation: "Regret sur le présent: wish + past simple.",
                         }
                     ]}
                 />

@@ -228,7 +228,7 @@ export const course3: LessonContent = {
               question: "I ___ usually wake up early.",
               options: ["don't", "doesn't", "not", "am not"],
               correctAnswer: 0,
-              explanation: "Négation au présent simple avec 'I' ➔ Don't.",
+              explanation: "Négation au present simple avec 'I' ➔ Don't.",
             },
             {
               id: 4,
@@ -242,7 +242,7 @@ export const course3: LessonContent = {
               question: "___ you speak English?",
               options: ["Are", "Do", "Does", "Is"],
               correctAnswer: 1,
-              explanation: "Pour poser une question au présent simple (sauf BE), on utilise l'auxiliaire DO.",
+              explanation: "Pour poser une question au present simple (sauf BE), on utilise l'auxiliaire DO.",
             },
             {
               id: 6,

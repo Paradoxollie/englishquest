@@ -3,16 +3,16 @@ import { Quiz } from "@/components/courses/quiz";
 
 export const course45: LessonContent = {
     courseNumber: 45,
-    title: "Nuances de deduction passee (Must have / Can't have)",
-    objective: "Exprimer des deductions sur un evenement passe avec le bon niveau de certitude.",
+    title: "Nuances de déduction passée (Must have / Can't have)",
+    objective: "Exprimer des déductions sur un événement passé avec le bon niveau de certitude.",
     sections: [
         {
-            title: "0. Deviner le passe avec precision",
+            title: "0. Deviner le passé avec précision",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Ici, on ne raconte pas directement un fait observe. On fait une deduction a partir d'indices.
-                        Le choix du modal montre a quel point on est certain.
+                        Ici, on ne raconte pas directement un fait observe. On fait une déduction à partir d'indices.
+                        Le choix du modal montre à quel point on est certain.
                     </p>
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-6">
@@ -73,14 +73,14 @@ export const course45: LessonContent = {
                         <ul className="space-y-3 text-slate-200">
                             <li><strong>must have</strong> = deduction forte</li>
                             <li><strong>may have / might have</strong> = possibilite</li>
-                            <li><strong>could have</strong> = deduction possible aussi, souvent un peu moins frequent</li>
+                            <li><strong>could have</strong> = déduction possible aussi, souvent un peu moins fréquent</li>
                         </ul>
                     </div>
                 </div>
             )
         },
         {
-            title: "2. Can't have, couldn't have, et ce qu'il ne faut pas melanger",
+            title: "2. Can't have, couldn't have, et ce qu'il ne faut pas mélanger",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
@@ -101,13 +101,13 @@ export const course45: LessonContent = {
                         </p>
                         <ul className="space-y-3 text-slate-200">
                             <li>
-                                <strong>should have</strong> = critique ou conseil retrospectif, pas deduction
+                                <strong>should have</strong> = critique ou conseil rétrospectif, pas déduction
                             </li>
                             <li>
-                                <strong>could have</strong> peut aussi parler d'une possibilite non realisee, selon le contexte
+                                <strong>could have</strong> peut aussi parler d'une possibilité non réalisée, selon le contexte
                             </li>
                             <li>
-                                <strong>mustn't have</strong> n'est pas la forme standard pour la deduction passee negative
+                                <strong>mustn't have</strong> n'est pas la forme standard pour la déduction passée négative
                             </li>
                         </ul>
                     </div>
@@ -119,7 +119,7 @@ export const course45: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        La bonne reponse depend des preuves visibles. Ce n'est pas seulement une question de forme,
+                        La bonne réponse dépend des preuves visibles. Ce n'est pas seulement une question de forme,
                         mais de logique.
                     </p>
 
@@ -141,7 +141,7 @@ export const course45: LessonContent = {
                     <div className="rounded-xl border border-cyan-500/50 bg-cyan-950/20 p-5">
                         <p className="text-slate-200">
                             Exemple: <em>The door was locked and nothing was broken. The thief must have had a key.</em>
-                            On ne sait pas exactement ce qui s'est passe, mais les indices orientent fortement la deduction.
+                            On ne sait pas exactement ce qui s'est passé, mais les indices orientent fortement la déduction.
                         </p>
                     </div>
                 </div>
@@ -157,70 +157,70 @@ export const course45: LessonContent = {
                             question: "The lights are off and nobody is answering. They ___ home.",
                             options: ["must have gone", "can't have gone"],
                             correctAnswer: 0,
-                            explanation: "Les indices rendent le depart tres probable.",
+                            explanation: "Les indices rendent le départ très probable.",
                         },
                         {
                             id: 2,
                             question: "She ___ driven here. Her car keys are still on the table.",
                             options: ["must have", "can't have"],
                             correctAnswer: 1,
-                            explanation: "Les indices contredisent cette hypothese.",
+                            explanation: "Les indices contredisent cette hypothèse.",
                         },
                         {
                             id: 3,
                             question: "He isn't answering. He ___ his phone at home.",
                             options: ["might have left", "can't have left for sure"],
                             correctAnswer: 0,
-                            explanation: "C'est une possibilite, pas une certitude.",
+                            explanation: "C'est une possibilité, pas une certitude.",
                         },
                         {
                             id: 4,
                             question: "The thief ___ had a key. The lock wasn't damaged.",
                             options: ["should have", "must have"],
                             correctAnswer: 1,
-                            explanation: "Must have exprime une deduction forte.",
+                            explanation: "Must have exprime une déduction forte.",
                         },
                         {
                             id: 5,
                             question: "It ___ been Julia I saw. She is abroad this week.",
                             options: ["must have", "couldn't have"],
                             correctAnswer: 1,
-                            explanation: "La situation rend cette hypothese impossible.",
+                            explanation: "La situation rend cette hypothèse impossible.",
                         },
                         {
                             id: 6,
                             question: "Which one expresses criticism, not deduction?",
                             options: ["She should have called.", "She must have called."],
                             correctAnswer: 0,
-                            explanation: "Should have critique une action manquante; ce n'est pas une deduction.",
+                            explanation: "Should have critique une action manquante; ce n'est pas une déduction.",
                         },
                         {
                             id: 7,
                             question: "Police think the suspect ___ the country using a fake passport.",
                             options: ["can't have left", "may have left"],
                             correctAnswer: 1,
-                            explanation: "L'enquete n'apporte qu'une hypothese possible.",
+                            explanation: "L'enquete n'apporte qu'une hypothèse possible.",
                         },
                         {
                             id: 8,
                             question: "We have milk in the fridge. Mo ___ some yesterday.",
                             options: ["must have bought", "couldn't have bought"],
                             correctAnswer: 0,
-                            explanation: "C'est l'explication la plus logique au vu du resultat present.",
+                            explanation: "C'est l'explication la plus logique au vu du résultat présent.",
                         },
                         {
                             id: 9,
                             question: "The train is late, so they ___ arrived yet.",
                             options: ["must have", "can't have"],
                             correctAnswer: 1,
-                            explanation: "Les indices rendent l'arrivee deja accomplie tres improbable.",
+                            explanation: "Les indices rendent l'arrivee déjà accomplie très improbable.",
                         },
                         {
                             id: 10,
                             question: "Which form means 'possible but not certain'?",
                             options: ["must have", "might have"],
                             correctAnswer: 1,
-                            explanation: "Might have exprime une deduction ouverte.",
+                            explanation: "Might have exprime une déduction ouverte.",
                         }
                     ]}
                 />

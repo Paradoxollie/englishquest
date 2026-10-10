@@ -112,7 +112,7 @@ export const course5: LessonContent = {
             </div>
 
             <p className="text-white mb-6 leading-relaxed">
-              Le Bodyguard <strong className="text-amber-400">DO</strong> passe devant et prend tous les coups à la place du verbe. C'est lui qui porte la marque de la 3ème personne (le "S").
+              Le Bodyguard <strong className="text-amber-400">DO</strong> passé devant et prend tous les coups à la place du verbe. C'est lui qui porte la marque de la 3ème personne (le "S").
             </p>
 
             <div className="space-y-4 font-mono text-lg">
@@ -151,7 +151,7 @@ export const course5: LessonContent = {
             <div className="bg-slate-800 p-6 rounded-xl border-l-4 border-amber-500 flex flex-col items-center text-center">
               <span className="text-4xl mb-3">🇺🇸</span>
               <h3 className="text-amber-400 font-bold text-lg uppercase tracking-wider mb-2">L'Option Moderne</h3>
-              <p className="text-slate-400 text-sm mb-4">On traite "Have" comme un verbe normal (faible). Il a besoin du Bodyguard.</p>
+              <p className="text-slate-400 text-sm mb-4">On traité "Have" comme un verbe normal (faible). Il a besoin du Bodyguard.</p>
 
               <div className="bg-slate-900 p-4 rounded-lg w-full">
                 <p className="text-white font-mono text-lg mb-1">
@@ -164,7 +164,7 @@ export const course5: LessonContent = {
             <div className="bg-slate-800 p-6 rounded-xl border-l-4 border-purple-500 flex flex-col items-center text-center">
               <span className="text-4xl mb-3">🇬🇧</span>
               <h3 className="text-purple-400 font-bold text-lg uppercase tracking-wider mb-2">L'Option "Got"</h3>
-              <p className="text-slate-400 text-sm mb-4">Ici, "Have" est un Auxiliaire (Fort). Il passe devant tout seul, mais il traîne "Got" derrière.</p>
+              <p className="text-slate-400 text-sm mb-4">Ici, "Have" est un Auxiliaire (Fort). Il passé devant tout seul, mais il traîne "Got" derrière.</p>
 
               <div className="bg-slate-900 p-4 rounded-lg w-full">
                 <p className="text-white font-mono text-lg mb-1">
@@ -181,7 +181,7 @@ export const course5: LessonContent = {
               <p className="text-red-300 font-bold text-sm uppercase mb-1">Le Piège à éviter absoluement</p>
               <p className="text-slate-300 text-sm">
                 Ne dites jamais <span className="line-through decoration-red-500 decoration-2 text-white">"Have you a car?"</span>. <br />
-                Soit vous utilisez <strong>DO</strong>, soit vous ajoutez <strong>GOT</strong>. Mais "Have" tout seul ne passe pas devant !
+                Soit vous utilisez <strong>DO</strong>, soit vous ajoutez <strong>GOT</strong>. Mais "Have" tout seul ne passé pas devant !
               </p>
             </div>
           </div>

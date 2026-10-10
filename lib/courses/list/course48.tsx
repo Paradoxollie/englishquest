@@ -3,15 +3,15 @@ import { Quiz } from "@/components/courses/quiz";
 
 export const course48: LessonContent = {
     courseNumber: 48,
-    title: "Prepositions et Gerondif (Preposition + -ing)",
-    objective: "Maitriser la regle preposition + -ing, y compris avec les expressions en to qui ne sont pas des infinitifs.",
+    title: "Prépositions et Gérondif (Préposition + -ing)",
+    objective: "Maitriser la règle préposition + -ing, y compris avec les expressions en to qui ne sont pas des infinitifs.",
     sections: [
         {
             title: "0. La regle d'or",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Quand un verbe arrive juste apres une <strong>preposition</strong>, il prend normalement la
+                        Quand un verbe arrive juste après une <strong>preposition</strong>, il prend normalement la
                         forme en <strong>-ing</strong>.
                     </p>
 
@@ -32,12 +32,12 @@ export const course48: LessonContent = {
             )
         },
         {
-            title: "1. Prepositions frequentes et formes courantes",
+            title: "1. Prépositions frequentes et formes courantes",
             content: (
                 <div className="space-y-6">
                     <div className="grid gap-4 md:grid-cols-2 text-sm">
                         <div className="rounded-xl border-l-4 border-emerald-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Apres une preposition classique</h4>
+                            <h4 className="mb-2 font-bold text-white">Après une préposition classique</h4>
                             <ul className="space-y-2 text-slate-300">
                                 <li>before leaving</li>
                                 <li>after reading the article</li>
@@ -57,18 +57,18 @@ export const course48: LessonContent = {
                     </div>
 
                     <p className="text-slate-300">
-                        Le vrai danger n'est pas la preposition en elle-meme, mais l'habitude de vouloir remettre un infinitif apres.
+                        Le vrai danger n'est pas la préposition en elle-même, mais l'habitude de vouloir remettre un infinitif après.
                     </p>
                 </div>
             )
         },
         {
-            title: "2. Le piege du mot TO",
+            title: "2. Le piège du mot TO",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
                         Parfois, <strong>to</strong> n'est pas le marqueur de l'infinitif. C'est simplement une{" "}
-                        <strong>preposition</strong>. Dans ce cas, on garde la regle: <strong>to + -ing</strong>.
+                        <strong>préposition</strong>. Dans ce cas, on garde la règle: <strong>to + -ing</strong>.
                     </p>
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
@@ -101,7 +101,7 @@ export const course48: LessonContent = {
                             <h4 className="mb-3 font-bold uppercase text-amber-300">used to + base verbale</h4>
                             <p className="text-white">I used to live in Lyon.</p>
                             <p className="mt-2 text-sm text-slate-300">
-                                Ancienne habitude ou situation passee.
+                                Ancienne habitude ou situation passée.
                             </p>
                         </div>
                         <div className="rounded-xl border border-cyan-500/50 bg-cyan-950/20 p-5">
@@ -114,8 +114,8 @@ export const course48: LessonContent = {
                     </div>
 
                     <p className="text-slate-300">
-                        Meme forme ecrite, logique differente. Dans le deuxieme cas, <strong>to</strong> est une
-                        preposition, donc la forme en <strong>-ing</strong> est normale.
+                        Même forme écrite, logique différente. Dans le deuxieme cas, <strong>to</strong> est une
+                        préposition, donc la forme en <strong>-ing</strong> est normale.
                     </p>
                 </div>
             )
@@ -130,14 +130,14 @@ export const course48: LessonContent = {
                             question: "Thank you for ___ me.",
                             options: ["helping", "to help"],
                             correctAnswer: 0,
-                            explanation: "Apres la preposition for, on met -ing.",
+                            explanation: "Après la préposition for, on met -ing.",
                         },
                         {
                             id: 2,
                             question: "She is interested in ___ abroad.",
                             options: ["to work", "working"],
                             correctAnswer: 1,
-                            explanation: "In est une preposition: working.",
+                            explanation: "In est une préposition: working.",
                         },
                         {
                             id: 3,
@@ -172,7 +172,7 @@ export const course48: LessonContent = {
                             question: "She insisted on ___ the bill herself.",
                             options: ["pay", "paying"],
                             correctAnswer: 1,
-                            explanation: "On est une preposition: paying.",
+                            explanation: "On est une préposition: paying.",
                         },
                         {
                             id: 8,
@@ -193,7 +193,7 @@ export const course48: LessonContent = {
                             question: "After a preposition, the safest pattern is ...",
                             options: ["to + base verb", "verb-ing"],
                             correctAnswer: 1,
-                            explanation: "C'est la regle centrale du cours.",
+                            explanation: "C'est la règle centrale du cours.",
                         }
                     ]}
                 />

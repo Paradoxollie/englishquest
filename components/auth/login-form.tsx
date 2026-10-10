@@ -1,60 +1,68 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { loginAction } from "@/app/(public)/auth/actions";
 import { authInitialState } from "@/types/auth";
 
+const inputClass =
+  "w-full rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--ink)] px-4 py-3 text-[0.95rem] text-[var(--fg)] outline-none placeholder:text-[var(--muted-2)] focus:border-[var(--cyan)]";
+
 export function LoginForm() {
   const [state, formAction] = useActionState(loginAction, authInitialState);
 
   return (
-    <form action={formAction} className="space-y-5">
-      <label className="block space-y-2">
-        <span className="text-sm font-bold text-slate-300">Username or email</span>
+    <form action={formAction} className="grid gap-4">
+      <label className="grid gap-1.5">
+        <span className="text-sm font-bold">Pseudo ou e-mail</span>
         <input
+          id="login-identifier"
           type="text"
           name="login"
           autoComplete="username"
           required
-          placeholder="ShadowFox or shadow@example.com"
-          className="comic-panel w-full border-2 border-black bg-slate-900/80 px-4 py-3 font-semibold text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+          placeholder="renardgris ou toi@exemple.fr"
+          className={inputClass}
         />
       </label>
 
-      <label className="block space-y-2">
-        <span className="text-sm font-bold text-slate-300">Password</span>
+      <label className="grid gap-1.5">
+        <span className="text-sm font-bold">Mot de passe</span>
         <input
+          id="login-password"
           type="password"
           name="password"
           autoComplete="current-password"
           required
-          placeholder="********"
-          className="comic-panel w-full border-2 border-black bg-slate-900/80 px-4 py-3 font-semibold text-slate-100 placeholder:text-slate-500 focus:border-cyan-400 focus:outline-none"
+          placeholder="Ton mot de passe"
+          className={inputClass}
         />
       </label>
 
       {state.error ? (
-        <p className="rounded-2xl border border-rose-400/20 bg-rose-950/40 px-4 py-3 text-sm font-semibold text-rose-300">
+        <p role="alert" className="rounded-[var(--radius)] bg-[var(--coral-soft)] px-4 py-3 text-sm font-bold text-[var(--coral)]">
           {state.error}
         </p>
       ) : null}
 
-      <SubmitButton label="Se connecter" />
+      <SubmitButton />
+
+      <p className="text-center text-sm">
+        <Link href="/auth/forgot" className="font-bold text-[var(--cyan)]">
+          Mot de passe oublié ?
+        </Link>
+      </p>
     </form>
   );
 }
 
-function SubmitButton({ label }: { label: string }) {
+function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <button
-      type="submit"
-      disabled={pending}
-      className="comic-button w-full bg-cyan-500 px-4 py-3 text-center text-sm font-bold text-slate-950 transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60"
-    >
-      {pending ? "Connexion..." : label}
+    <button type="submit" disabled={pending} className="eq-btn eq-btn-primary eq-btn-lg w-full">
+      {pending ? "Connexion…" : "Se connecter"}
     </button>
   );
 }

@@ -1,6 +1,3 @@
-import { unstable_cache } from "next/cache";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { COURSE_MISSION_BENCHMARKS_TAG } from "@/lib/courses/cache";
 import {
   buildCourseMissionPlan,
   resolveMissionPrimaryGameAssignments,
@@ -8,273 +5,14 @@ import {
   type CourseMissionPlanEntryInput,
 } from "@/lib/courses/campaign";
 
-type GameBenchmark = {
-  medianScore: number | null;
-  lowerQuantileScore: number | null;
-  upperQuantileScore: number | null;
-  sampleSize: number;
-};
-
-function buildSlugKey(slugs: string[]) {
-  return [...new Set(slugs)].sort().join(",");
-}
-
-function computeMedian(values: number[]) {
-  return computeQuantile(values, 0.5);
-}
-
-function computeQuantile(values: number[], quantile: number) {
-  if (values.length === 0) {
-    return null;
-  }
-
-  const sorted = [...values].sort((left, right) => left - right);
-  const position = (sorted.length - 1) * quantile;
-  const baseIndex = Math.floor(position);
-  const rest = position - baseIndex;
-
-  if (sorted[baseIndex + 1] !== undefined) {
-    return sorted[baseIndex] + rest * (sorted[baseIndex + 1] - sorted[baseIndex]);
-  }
-
-  return sorted[baseIndex];
-}
-
-function computeProgressDifficultyRatio(
-  entry: CourseMissionPlanEntryInput,
-  mission: CourseMissionPlan
-) {
-  const overallProgress = Math.max(0, entry.courseId - 1);
-
-  if (mission.scoreDirection === "lower") {
-    return 0.01 + overallProgress * 0.0015;
-  }
-
-  if (mission.primaryGameSlug === "flashback") {
-    return 0.03 + overallProgress * 0.004;
-  }
-
-  if (mission.primaryGameSlug === "speed-verb-challenge") {
-    return 0.08 + overallProgress * 0.008;
-  }
-
-  if (mission.primaryGameSlug === "space-lex") {
-    return 0.07 + overallProgress * 0.008;
-  }
-
-  if (mission.primaryGameSlug === "enigma-scroll") {
-    return 0.075 + overallProgress * 0.009;
-  }
-
-  if (mission.primaryGameSlug === "wordfall") {
-    return 0.05 + overallProgress * 0.006;
-  }
-
-  return 0.05 + overallProgress * 0.006;
-}
-
-function computeAbsoluteDifficultyFloor(
-  baselineScore: number,
-  mission: CourseMissionPlan
-) {
-  if (mission.scoreDirection === "lower") {
-    return Math.max(100, baselineScore * 0.004);
-  }
-
-  if (mission.primaryGameSlug === "flashback") {
-    return 1;
-  }
-
-  if (mission.primaryGameSlug === "speed-verb-challenge") {
-    return Math.max(1, baselineScore * 0.08);
-  }
-
-  if (mission.primaryGameSlug === "space-lex") {
-    return Math.max(5, baselineScore * 0.08);
-  }
-
-  if (mission.primaryGameSlug === "enigma-scroll") {
-    return Math.max(4, baselineScore * 0.08);
-  }
-
-  if (mission.primaryGameSlug === "wordfall") {
-    return Math.max(20, baselineScore * 0.045);
-  }
-
-  return Math.max(3, baselineScore * 0.05);
-}
-
-function computeProgressOffset(
-  entry: CourseMissionPlanEntryInput,
-  baselineScore: number,
-  mission: CourseMissionPlan
-) {
-  const overallProgress = Math.max(0, entry.courseId - 1);
-
-  if (mission.scoreDirection === "lower") {
-    return overallProgress * 20;
-  }
-
-  if (mission.primaryGameSlug === "flashback") {
-    return overallProgress * 0.2;
-  }
-
-  if (mission.primaryGameSlug === "speed-verb-challenge") {
-    return overallProgress * 0.2;
-  }
-
-  if (baselineScore >= 1200) {
-    return overallProgress * 8;
-  }
-
-  if (baselineScore >= 200) {
-    return overallProgress * 3;
-  }
-
-  if (baselineScore >= 40) {
-    return overallProgress * 1;
-  }
-
-  return overallProgress * 0.2;
-}
-
-function applyMissionRamp(
-  entry: CourseMissionPlanEntryInput,
-  baselineScore: number,
-  mission: CourseMissionPlan
-) {
-  const difficultyRatio = computeProgressDifficultyRatio(entry, mission);
-  const absoluteFloor = computeAbsoluteDifficultyFloor(baselineScore, mission);
-  const progressionOffset = computeProgressOffset(entry, baselineScore, mission);
-  const difficultyDelta =
-    Math.max(absoluteFloor, baselineScore * difficultyRatio) + progressionOffset;
-
-  if (mission.scoreDirection === "lower") {
-    return baselineScore - difficultyDelta;
-  }
-
-  return baselineScore + difficultyDelta;
-}
-
-function getBenchmarkDifficultyForSlug(slug: string) {
-  switch (slug) {
-    case "wordfall":
-      return "easy";
-    case "speed-verb-challenge":
-      return "easy";
-    case "enigma-scroll":
-      return "medium";
-    case "flash-translation":
-    case "flashback":
-    case "space-lex":
-      return "medium";
-    default:
-      return null;
-  }
-}
-
-function resolveBenchmarkBaseline(
-  benchmark: GameBenchmark,
-  mission: CourseMissionPlan
-) {
-  if (benchmark.medianScore == null) {
-    return null;
-  }
-
-  const sampleConfidence = Math.min(1, benchmark.sampleSize / 30);
-  const conservativeScore =
-    mission.scoreDirection === "lower"
-      ? benchmark.upperQuantileScore ?? benchmark.medianScore
-      : benchmark.lowerQuantileScore ?? benchmark.medianScore;
-
-  return conservativeScore * (1 - sampleConfidence) + benchmark.medianScore * sampleConfidence;
-}
-
-async function getBenchmarksForSlugKeyUncached(
-  slugKey: string
-): Promise<Record<string, GameBenchmark>> {
-  if (!slugKey) {
-    return {};
-  }
-
-  const slugs = slugKey.split(",").filter(Boolean);
-  if (slugs.length === 0) {
-    return {};
-  }
-
-  try {
-    const adminClient = createSupabaseAdminClient();
-    const { data: games } = await adminClient
-      .from("games")
-      .select("id, slug")
-      .in("slug", slugs);
-
-    if (!games || games.length === 0) {
-      return {};
-    }
-
-    const gameIds = games.map((game) => game.id);
-    const gameIdToSlug = new Map(games.map((game) => [game.id, game.slug]));
-    const { data: scores } = await adminClient
-      .from("game_scores")
-      .select("game_id, score, difficulty")
-      .in("game_id", gameIds);
-
-    const scoreBuckets = new Map<string, number[]>();
-
-    for (const scoreRow of scores ?? []) {
-      if (typeof scoreRow.score !== "number" || !Number.isFinite(scoreRow.score)) {
-        continue;
-      }
-
-      const slug = gameIdToSlug.get(scoreRow.game_id);
-      if (!slug) {
-        continue;
-      }
-
-      const benchmarkDifficulty = getBenchmarkDifficultyForSlug(slug);
-      if (benchmarkDifficulty && scoreRow.difficulty !== benchmarkDifficulty) {
-        continue;
-      }
-
-      const current = scoreBuckets.get(slug) ?? [];
-      current.push(scoreRow.score);
-      scoreBuckets.set(slug, current);
-    }
-
-    const benchmarks: Record<string, GameBenchmark> = {};
-    for (const slug of slugs) {
-      const scoresForGame = scoreBuckets.get(slug) ?? [];
-      benchmarks[slug] = scoresForGame.length > 0
-        ? {
-            medianScore: computeMedian(scoresForGame),
-            lowerQuantileScore: computeQuantile(scoresForGame, 0.35),
-            upperQuantileScore: computeQuantile(scoresForGame, 0.65),
-            sampleSize: scoresForGame.length,
-          }
-        : {
-            medianScore: null,
-            lowerQuantileScore: null,
-            upperQuantileScore: null,
-            sampleSize: 0,
-          };
-    }
-
-    return benchmarks;
-  } catch {
-    return {};
-  }
-}
-
-const getBenchmarksForSlugKey = unstable_cache(
-  async (slugKey: string) => getBenchmarksForSlugKeyUncached(slugKey),
-  ["course-mission-benchmarks"],
-  {
-    revalidate: 300,
-    tags: [COURSE_MISSION_BENCHMARKS_TAG],
-  }
-);
-
+/**
+ * Plans de mission pour une liste de cours.
+ *
+ * Les objectifs sont fixes (voir MISSION_TARGETS dans campaign.ts) : le même
+ * cours demande le même score à tout le monde, ce qui rend la progression
+ * lisible et stable. Le jeu principal de chaque cours est choisi en évitant de
+ * répéter le même jeu deux cours de suite.
+ */
 export async function getResolvedCourseMissionPlans(
   entries: CourseMissionPlanEntryInput[]
 ): Promise<Record<number, CourseMissionPlan>> {
@@ -282,74 +20,20 @@ export async function getResolvedCourseMissionPlans(
     return {};
   }
 
-  const missionGameAssignments = resolveMissionPrimaryGameAssignments(entries);
-  const basePlans = entries.map((entry) => ({
-    courseId: entry.courseId,
-    entry,
-    plan: buildCourseMissionPlan(entry, {
-      primaryGameSlug: missionGameAssignments[entry.courseId] ?? null,
-    }),
-  }));
-  const slugKey = buildSlugKey(
-    basePlans
-      .map((item) => item.plan.primaryGameSlug)
-      .filter((slug): slug is string => Boolean(slug))
-  );
-  const benchmarks = await getBenchmarksForSlugKey(slugKey);
+  const assignments = resolveMissionPrimaryGameAssignments(entries);
 
   return Object.fromEntries(
-    basePlans.map(({ courseId, entry, plan }) => {
-      const benchmark = plan.primaryGameSlug
-        ? benchmarks[plan.primaryGameSlug]
-        : null;
-
-      const baselineScore = benchmark
-        ? resolveBenchmarkBaseline(benchmark, plan)
-        : null;
-
-      if (baselineScore == null) {
-        return [courseId, plan];
-      }
-
-      const rampedTarget = applyMissionRamp(entry, baselineScore, plan);
-
-      return [
-        courseId,
-        buildCourseMissionPlan(entry, {
-          primaryGameSlug: plan.primaryGameSlug,
-          scoreTarget: rampedTarget,
-          targetSource: "community_median",
-        }),
-      ];
-    })
+    entries.map((entry) => [
+      entry.courseId,
+      buildCourseMissionPlan(entry, {
+        primaryGameSlug: assignments[entry.courseId] ?? null,
+      }),
+    ])
   );
 }
 
 export async function getResolvedCourseMissionPlan(
   entry: CourseMissionPlanEntryInput
 ): Promise<CourseMissionPlan> {
-  const plan = buildCourseMissionPlan(entry);
-
-  if (!plan.primaryGameSlug) {
-    return plan;
-  }
-
-  const benchmarks = await getBenchmarksForSlugKey(plan.primaryGameSlug);
-  const benchmark = benchmarks[plan.primaryGameSlug];
-
-  const baselineScore = benchmark
-    ? resolveBenchmarkBaseline(benchmark, plan)
-    : null;
-
-  if (baselineScore == null) {
-    return plan;
-  }
-
-  const rampedTarget = applyMissionRamp(entry, baselineScore, plan);
-
-  return buildCourseMissionPlan(entry, {
-    primaryGameSlug: plan.primaryGameSlug,
-    scoreTarget: rampedTarget,
-    targetSource: "community_median",
-  });
+  return buildCourseMissionPlan(entry);
 }

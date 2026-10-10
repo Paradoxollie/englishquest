@@ -3,16 +3,16 @@ import { Quiz } from "@/components/courses/quiz";
 
 export const course43: LessonContent = {
     courseNumber: 43,
-    title: "Le Futur Anterieur et Continu (Will be doing / have done)",
-    objective: "Distinguer une action en cours dans le futur d'un resultat deja acheve avant un repere futur.",
+    title: "Le Futur Antérieur et Continu (Will be doing / have done)",
+    objective: "Distinguer une action en cours dans le futur d'un résultat déjà achevé avant un repère futur.",
     sections: [
         {
-            title: "0. Deux manieres de regarder le futur",
+            title: "0. Deux manières de regarder le futur",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        A ce niveau, on ne parle plus seulement du futur en bloc. On choisit l'angle exact:
-                        l'action sera-t-elle <strong>en cours</strong> ou deja <strong>terminee</strong> a un moment futur?
+                        À ce niveau, on ne parle plus seulement du futur en bloc. On choisit l'angle exact:
+                        l'action sera-t-elle <strong>en cours</strong> ou déjà <strong>terminee</strong> à un moment futur?
                     </p>
 
                     <div className="grid gap-4 md:grid-cols-2">
@@ -20,7 +20,7 @@ export const course43: LessonContent = {
                             <h4 className="mb-3 font-bold uppercase text-cyan-300">Future continuous</h4>
                             <p className="font-mono text-white">will be + verb-ing</p>
                             <p className="mt-3 text-slate-200">
-                                Action en cours a un moment futur.
+                                Action en cours à un moment futur.
                             </p>
                             <p className="mt-2 text-sm text-slate-400">
                                 This time tomorrow, I will be flying to Rome.
@@ -31,7 +31,7 @@ export const course43: LessonContent = {
                             <h4 className="mb-3 font-bold uppercase text-emerald-300">Future perfect</h4>
                             <p className="font-mono text-white">will have + past participle</p>
                             <p className="mt-3 text-slate-200">
-                                Action terminee avant un repere futur.
+                                Action terminée avant un repère futur.
                             </p>
                             <p className="mt-2 text-sm text-slate-400">
                                 By Friday, I will have finished the report.
@@ -46,8 +46,8 @@ export const course43: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Le <strong>future continuous</strong> sert a imaginer une action qui sera en train de se
-                        derouler a un moment precis dans le futur.
+                        Le <strong>future continuous</strong> sert à imaginer une action qui sera en train de se
+                        dérouler à un moment précis dans le futur.
                     </p>
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
@@ -77,12 +77,12 @@ export const course43: LessonContent = {
             )
         },
         {
-            title: "2. Future perfect : action deja terminee avant un repere futur",
+            title: "2. Future perfect : action déjà terminée avant un repère futur",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Le <strong>future perfect</strong> regarde le futur comme si on etait deja arrive a un point
-                        plus loin. On parle alors d'une action qui sera finie <strong>avant</strong> ce repere.
+                        Le <strong>future perfect</strong> regarde le futur comme si on était déjà arrive à un point
+                        plus loin. On parle alors d'une action qui sera finie <strong>avant</strong> ce repère.
                     </p>
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
@@ -107,7 +107,7 @@ export const course43: LessonContent = {
                         <div className="rounded-xl border-l-4 border-cyan-500 bg-slate-800 p-4">
                             <h4 className="mb-2 font-bold text-white">Idee centrale</h4>
                             <p className="text-slate-300">
-                                On regarde en arriere depuis un point futur.
+                                On regarde en arrière depuis un point futur.
                             </p>
                         </div>
                     </div>
@@ -134,7 +134,7 @@ export const course43: LessonContent = {
                                 By 9 p.m., I <strong>will have written</strong> my essay.
                             </p>
                             <p className="mt-2 text-sm text-slate-300">
-                                A 21h, l'action sera deja terminee.
+                                A 21h, l'action sera déjà terminée.
                             </p>
                         </div>
                     </div>
@@ -147,7 +147,7 @@ export const course43: LessonContent = {
                             Pour insister sur la <strong>duree</strong>, on peut rencontrer le{" "}
                             <strong>future perfect continuous</strong>:
                             <em className="text-white"> By June, I will have been working here for ten years.</em>
-                            Ici, l'idee cle est la longueur de l'activite, pas juste son achevement.
+                            Ici, l'idee clé est la longueur de l'activite, pas juste son achevement.
                         </p>
                     </div>
                 </div>
@@ -163,56 +163,56 @@ export const course43: LessonContent = {
                             question: "This time tomorrow, we ___ over the Alps.",
                             options: ["will have flown", "will be flying"],
                             correctAnswer: 1,
-                            explanation: "On imagine l'action en cours a un moment precis du futur.",
+                            explanation: "On imagine l'action en cours à un moment précis du futur.",
                         },
                         {
                             id: 2,
                             question: "By Friday, I ___ the report.",
                             options: ["will be finishing", "will have finished"],
                             correctAnswer: 1,
-                            explanation: "By Friday indique une action terminee avant ce repere.",
+                            explanation: "By Friday indiqué une action terminée avant ce repère.",
                         },
                         {
                             id: 3,
                             question: "At 8 p.m., she ___ her clients.",
                             options: ["will have met", "will be meeting"],
                             correctAnswer: 1,
-                            explanation: "A 20h, la reunion sera en cours.",
+                            explanation: "A 20h, la réunion sera en cours.",
                         },
                         {
                             id: 4,
                             question: "Do you think they ___ there by midnight?",
                             options: ["will have got", "will be getting"],
                             correctAnswer: 0,
-                            explanation: "On vise un resultat atteint avant minuit.",
+                            explanation: "On vise un résultat atteint avant minuit.",
                         },
                         {
                             id: 5,
                             question: "Don't call at 7. I ___ dinner then.",
                             options: ["will have cooked", "will be cooking"],
                             correctAnswer: 1,
-                            explanation: "Then renvoie a un moment ou l'action sera en cours.",
+                            explanation: "Then renvoie à un moment ou l'action sera en cours.",
                         },
                         {
                             id: 6,
                             question: "By next month, we ___ here for a year.",
                             options: ["will have lived", "will be living only"],
                             correctAnswer: 0,
-                            explanation: "On regarde une periode complete avant un repere futur.",
+                            explanation: "On regarde une période complète avant un repère futur.",
                         },
                         {
                             id: 7,
                             question: "At noon, the team ___ the presentation, so wait until 1 p.m.",
                             options: ["will be giving", "will have given"],
                             correctAnswer: 0,
-                            explanation: "A midi, la presentation sera en train de se derouler.",
+                            explanation: "A midi, la présentation sera en train de se dérouler.",
                         },
                         {
                             id: 8,
                             question: "By the time you arrive, I ___ everything.",
                             options: ["will be preparing", "will have prepared"],
                             correctAnswer: 1,
-                            explanation: "By the time annonce une action achevee avant ton arrivee.",
+                            explanation: "By the time annonce une action achevée avant ton arrivée.",
                         },
                         {
                             id: 9,
@@ -222,14 +222,14 @@ export const course43: LessonContent = {
                                 "By 9 p.m., I will have written my essay.",
                             ],
                             correctAnswer: 1,
-                            explanation: "By + heure future + future perfect = travail deja termine.",
+                            explanation: "By + heure future + future perfect = travail déjà termine.",
                         },
                         {
                             id: 10,
                             question: "By June, she ___ at the company for ten years. Which form stresses duration?",
                             options: ["will have been working", "will be working"],
                             correctAnswer: 0,
-                            explanation: "Le future perfect continuous met l'accent sur la duree.",
+                            explanation: "Le future perfect continuous met l'accent sur la durée.",
                         }
                     ]}
                 />

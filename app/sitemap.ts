@@ -4,7 +4,7 @@ import { games } from "@/lib/games/config";
 import { SITE_URL } from "@/lib/site/config";
 
 const BASE_URL = SITE_URL;
-const LAST_MODIFIED = new Date("2026-03-10T00:00:00.000Z");
+const LAST_MODIFIED = new Date("2026-10-10T00:00:00.000Z");
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages = [
@@ -16,10 +16,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/play",
     "/quest",
     "/tous-les-cours",
+    "/mentions-legales",
+    "/confidentialite",
   ].map((route) => {
     const changeFrequency: "weekly" | "monthly" = route === "" ? "weekly" : "monthly";
     const priority =
-      route === "" ? 1 : route === "/quest" || route === "/tous-les-cours" ? 0.9 : 0.8;
+      route === ""
+        ? 1
+        : route === "/quest" || route === "/tous-les-cours"
+          ? 0.9
+          : route.startsWith("/mentions") || route.startsWith("/confidentialite")
+            ? 0.3
+            : 0.8;
 
     return {
       url: `${BASE_URL}${route}`,
@@ -45,14 +53,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  const extraPages = [
-    {
-      url: `${BASE_URL}/play/enigma-scroll/leaderboard`,
-      lastModified: LAST_MODIFIED,
-      changeFrequency: "weekly" as const,
-      priority: 0.5,
-    },
-  ];
-
-  return [...staticPages, ...coursePages, ...gamePages, ...extraPages];
+  return [...staticPages, ...coursePages, ...gamePages];
 }

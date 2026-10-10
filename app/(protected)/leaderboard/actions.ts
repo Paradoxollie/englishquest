@@ -151,7 +151,7 @@ export async function getGameLeaderboard(gameId: string): Promise<LeaderboardDat
         ? a.best_score - b.best_score // Ascending for time
         : b.best_score - a.best_score // Descending for score
       )
-      .slice(0, 5) // Top 5
+      .slice(0, 10)
       .map((entry, index) => ({
         ...entry,
         rank: index + 1,

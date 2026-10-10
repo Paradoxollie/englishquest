@@ -7,6 +7,25 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { AuthFormState } from "@/types/auth";
 
 
+
+function translateAuthError(message: string): string {
+  const lower = message.toLowerCase();
+  if (lower.includes("invalid login credentials")) return "Pseudo ou mot de passe incorrect.";
+  if (lower.includes("already registered") || lower.includes("already been registered")) {
+    return "Un compte existe déjà avec cette adresse e-mail.";
+  }
+  if (lower.includes("password") && lower.includes("at least")) {
+    return "Le mot de passe doit faire au moins 8 caractères.";
+  }
+  if (lower.includes("rate limit") || lower.includes("too many")) {
+    return "Trop de tentatives. Attends une minute et réessaie.";
+  }
+  if (lower.includes("email not confirmed")) {
+    return "Confirme ton adresse e-mail depuis le message reçu, puis reconnecte-toi.";
+  }
+  return "Quelque chose n'a pas fonctionné. Réessaie dans un instant.";
+}
+
 function normalizeUsername(username: FormDataEntryValue | null): string {
   if (typeof username !== "string") return "";
   // Nettoie le username : lowercase, remplace les caractères invalides par _
@@ -93,7 +112,7 @@ export async function signUpAction(
   const passwordRaw = formData.get("password");
 
   if (!username || !passwordRaw || typeof passwordRaw !== "string") {
-    return { error: "Username and password are required." };
+    return { error: "Il faut un pseudo et un mot de passe." };
   }
 
   // Si l'utilisateur fournit un email valide (contient @), on l'utilise.
@@ -139,7 +158,7 @@ export async function signUpAction(
           });
 
         if (adminError) {
-          return { error: "Unable to create account. Please provide an email address." };
+          return { error: "Impossible de créer le compte. Essaie en ajoutant une adresse e-mail." };
         }
 
         // Crée le profil
@@ -157,7 +176,7 @@ export async function signUpAction(
             // Supprime l'utilisateur créé car le username est déjà pris
             await adminClient.auth.admin.deleteUser(adminData.user.id);
             return { 
-              error: `Username "${normalizedUsername}" is already taken. Please choose a different username.` 
+              error: `Le pseudo « ${normalizedUsername} » est déjà pris. Choisis-en un autre.` 
             };
           }
 
@@ -180,28 +199,28 @@ export async function signUpAction(
             
             if (profileError.code === "23505") {
               return { 
-                error: `Username "${normalizedUsername}" is already taken. Please choose a different username.` 
+                error: `Le pseudo « ${normalizedUsername} » est déjà pris. Choisis-en un autre.` 
               };
             }
             
             return { 
-              error: `Database error saving new user: ${profileError.message}. Please try again.` 
+              error: `Le compte n'a pas pu être enregistré (${profileError.message}). Réessaie dans un instant.` 
             };
           }
         }
 
-        return { success: "Account created. You can now log in." };
+        return { success: "Compte créé. Tu peux te connecter." };
       } catch {
-        return { error: "Unable to create account. Please provide an email address." };
+        return { error: "Impossible de créer le compte. Essaie en ajoutant une adresse e-mail." };
       }
     }
-    return { error: error.message };
+    return { error: translateAuthError(error.message) };
   }
 
   const userId = data.user?.id;
 
   if (!userId) {
-    return { error: "Account created but user ID is missing. Please try logging in." };
+    return { error: "Le compte a été créé mais la session n'a pas pu s'ouvrir. Essaie de te connecter." };
   }
 
   // Crée/maJ le profil lié avec l'email utilisé pour l'authentification (peut être réel ou fantôme)
@@ -227,7 +246,7 @@ export async function signUpAction(
         console.error("Failed to delete user after username conflict:", deleteError);
       }
       return { 
-        error: `Username "${normalizedUsername}" is already taken. Please choose a different username.` 
+        error: `Le pseudo « ${normalizedUsername} » est déjà pris. Choisis-en un autre.` 
       };
     }
 
@@ -264,20 +283,20 @@ export async function signUpAction(
       if (profileError.code === "23505") {
         // Violation de contrainte unique (username déjà pris)
         return { 
-          error: `Username "${normalizedUsername}" is already taken. Please choose a different username.` 
+          error: `Le pseudo « ${normalizedUsername} » est déjà pris. Choisis-en un autre.` 
         };
       }
 
       if (profileError.code === "23503") {
         // Violation de clé étrangère (user n'existe pas dans auth.users)
         return { 
-          error: "Database error: User account not found. Please try again or contact support." 
+          error: "Le compte n'a pas été trouvé. Réessaie, ou écris-nous depuis la page Contact." 
         };
       }
 
       // Autre erreur de base de données
       return { 
-        error: `Database error saving new user: ${profileError.message}. Please try again or contact support.` 
+        error: `Le compte n'a pas pu être enregistré (${profileError.message}). Réessaie, ou écris-nous depuis la page Contact.` 
       };
     }
 
@@ -286,11 +305,11 @@ export async function signUpAction(
     console.error("Unexpected error creating profile:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     return { 
-      error: `Database error saving new user: ${errorMessage}. Please try again or contact support.` 
+      error: `Le compte n'a pas pu être enregistré (${errorMessage}). Réessaie, ou écris-nous depuis la page Contact.` 
     };
   }
 
-  return { success: "Account created. You can now log in." };
+  return { success: "Compte créé. Tu peux te connecter." };
 }
 
 /**
@@ -314,7 +333,7 @@ export async function loginAction(
   const passwordRaw = formData.get("password");
 
   if (!loginValue || !passwordRaw || typeof passwordRaw !== "string") {
-    return { error: "Login and password are required." };
+    return { error: "Il faut un pseudo (ou un e-mail) et un mot de passe." };
   }
 
   let emailToUse = loginValue;
@@ -326,7 +345,7 @@ export async function loginAction(
       if (!foundEmail) {
         return {
           error:
-            "No account found with that username. Please check your username or try logging in with your email.",
+            "Aucun compte avec ce pseudo. Vérifie l'orthographe, ou connecte-toi avec ton e-mail.",
         };
       }
       emailToUse = foundEmail;
@@ -335,14 +354,11 @@ export async function loginAction(
         lookupError instanceof Error ? lookupError.message : "UNKNOWN";
       if (errorMessage.startsWith("PROFILE_LOOKUP_FAILED")) {
         return {
-          error: `Unable to verify account. ${errorMessage.replace(
-            "PROFILE_LOOKUP_FAILED:",
-            ""
-          )}. Please try logging in with your email address instead.`,
+          error: "Impossible de vérifier le compte pour le moment. Essaie avec ton adresse e-mail.",
         };
       }
       return {
-        error: `Unable to verify account. ${errorMessage}. Please try logging in with your email address instead.`,
+        error: "Impossible de vérifier le compte pour le moment. Essaie avec ton adresse e-mail.",
       };
     }
   }
@@ -357,10 +373,10 @@ export async function loginAction(
     // peut-être que le profil n'existe pas et il faut le créer
     if (signInError.message.includes("Invalid login credentials") && !loginValue.includes("@")) {
       return { 
-        error: "Invalid credentials. Make sure you're using the correct username and password." 
+        error: "Pseudo ou mot de passe incorrect." 
       };
     }
-    return { error: signInError.message };
+    return { error: translateAuthError(signInError.message) };
   }
 
   // Vérifier que la session est bien créée et synchroniser les cookies
@@ -369,7 +385,7 @@ export async function loginAction(
   if (sessionError || !session) {
     console.error("Session error after login:", sessionError);
     return { 
-      error: "Login successful but session could not be established. Please try again." 
+      error: "La connexion a réussi mais la session n'a pas pu s'ouvrir. Réessaie." 
     };
   }
 
@@ -418,4 +434,90 @@ export async function logoutAction() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
   redirect("/auth/login");
+}
+
+/* ---------- mot de passe oublié ---------- */
+
+function isGhostEmail(email: string | null | undefined) {
+  return !email || email.endsWith("@noreply.englishquest.local");
+}
+
+/**
+ * Envoie le lien de réinitialisation à l'adresse du compte. La réponse est la
+ * même que le compte existe ou non, pour ne pas révéler les pseudos inscrits.
+ */
+export async function requestPasswordResetAction(
+  _prevState: AuthFormState,
+  formData: FormData
+): Promise<AuthFormState> {
+  const raw = formData.get("login");
+  const login = typeof raw === "string" ? raw.trim() : "";
+  if (!login) {
+    return { error: "Indique ton pseudo ou ton adresse e-mail." };
+  }
+
+  const genericSuccess =
+    "Si un compte avec une adresse e-mail correspond, un message vient de partir. Regarde aussi les indésirables.";
+
+  try {
+    const email = login.includes("@")
+      ? normalizeEmail(login)
+      : await getLoginEmailForUsername(normalizeUsername(login));
+
+    if (isGhostEmail(email)) {
+      return {
+        error:
+          "Ce compte n'a pas d'adresse e-mail (ou n'existe pas). Écris-nous depuis la page Contact avec ton pseudo, on réinitialise le mot de passe à la main.",
+      };
+    }
+
+    const { SITE_URL } = await import("@/lib/site/config");
+    const supabase = await createSupabaseServerClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(email as string, {
+      redirectTo: `${SITE_URL}/auth/callback?next=/auth/reset`,
+    });
+    if (error) {
+      console.error("resetPasswordForEmail", error);
+      if (error.message.toLowerCase().includes("rate limit")) {
+        return { error: "Trop de demandes. Attends quelques minutes et réessaie." };
+      }
+    }
+    return { success: genericSuccess };
+  } catch (error) {
+    console.error("requestPasswordResetAction", error);
+    return { success: genericSuccess };
+  }
+}
+
+/**
+ * Nouveau mot de passe, une fois la session de récupération ouverte par /auth/callback.
+ */
+export async function updatePasswordAction(
+  _prevState: AuthFormState,
+  formData: FormData
+): Promise<AuthFormState> {
+  const password = formData.get("password");
+  const confirm = formData.get("confirm");
+  if (typeof password !== "string" || password.length < 8) {
+    return { error: "Le mot de passe doit faire au moins 8 caractères." };
+  }
+  if (password !== confirm) {
+    return { error: "Les deux mots de passe ne sont pas identiques." };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: "Le lien a expiré. Demande un nouveau lien de réinitialisation." };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) {
+    return { error: translateAuthError(error.message) };
+  }
+
+  revalidatePath("/", "layout");
+  redirect("/profile?motdepasse=ok");
 }

@@ -1,15 +1,19 @@
+import { ART } from "@/lib/art";
 import type { GameConfig } from "./config";
 
 export type GamePresentation = {
   mark: string;
   emblem: "scroll" | "crosshair" | "bolt" | "tiles" | "arrows" | "memory";
-  mode: string;
+  /** Compétence travaillée, en un mot ou deux. */
+  skill: string;
+  /** Ce qu'on fait dans le jeu, en une phrase courte. */
   hook: string;
-  action: string;
+  /** Durée typique d'une partie. */
+  duration: string;
   primary: string;
   secondary: string;
+  /** Visuel 3:2 du jeu, servi depuis public/art/ s'il existe. */
   artworkSrc: string;
-  logoSrc: string;
   imageAlt: string;
 };
 
@@ -17,74 +21,79 @@ const manualPresentations: Record<string, GamePresentation> = {
   "enigma-scroll": {
     mark: "ES",
     emblem: "scroll",
-    mode: "Mystere lexical",
-    hook: "Trouve le mot cache avant la fin de la piste.",
-    action: "Decouvrir / deduire",
-    primary: "#22c55e",
-    secondary: "#86efac",
-    artworkSrc: "/game-art/enigma-scroll-key-art.png",
-    logoSrc: "/game-art/logos/enigma-scroll-logo.png",
-    imageAlt: "Illustration comic book d'un parchemin lumineux pour Enigma Scroll.",
+    skill: "Orthographe",
+    hook: "Devine le mot caché en six essais, lettre par lettre.",
+    duration: "3 min",
+    primary: "#5bd39a",
+    secondary: "#a8ecc9",
+    artworkSrc: "/art/game-enigma-scroll.jpg",
+    imageAlt: "Illustration d'un parchemin pour Enigma Scroll.",
   },
   "space-lex": {
     mark: "LB",
     emblem: "crosshair",
-    mode: "Arcade cosmique",
-    hook: "Verrouille les bons mots avant la collision.",
-    action: "Viser / eliminer",
-    primary: "#8b5cf6",
-    secondary: "#c4b5fd",
-    artworkSrc: "/game-art/space-lex-key-art.png",
-    logoSrc: "/game-art/logos/space-lex-logo.png",
-    imageAlt: "Illustration comic book d'un vaisseau spatial pour Lexicon Blaster.",
+    skill: "Lexique",
+    hook: "Tire sur les mots de la bonne famille, laisse passer les autres.",
+    duration: "5 min",
+    primary: "#f472b6",
+    secondary: "#fbcfe8",
+    artworkSrc: "/art/game-space-lex.jpg",
+    imageAlt: "Illustration d'un vaisseau pour Lexicon Blaster.",
   },
   "speed-verb-challenge": {
     mark: "SV",
     emblem: "bolt",
-    mode: "Sprint grammaire",
-    hook: "Conjugue vite et garde ton combo en vie.",
-    action: "Conjuguer / enchainer",
-    primary: "#f59e0b",
-    secondary: "#fde68a",
-    artworkSrc: "/game-art/speed-verb-challenge-key-art-v2.png",
-    logoSrc: "/game-art/logos/speed-verb-challenge-logo.png",
-    imageAlt: "Illustration comic book d'un sprint de conjugaison pour Speed Verb Challenge.",
+    skill: "Conjugaison",
+    hook: "Les verbes irréguliers sous chrono, en trois formes.",
+    duration: "2 min",
+    primary: "#f2b53a",
+    secondary: "#fde5a8",
+    artworkSrc: "/art/game-speed-verb-challenge.jpg",
+    imageAlt: "Illustration d'un sprint pour Speed Verb Challenge.",
   },
   wordfall: {
     mark: "WF",
     emblem: "tiles",
-    mode: "Pression clavier",
-    hook: "Tape sous tension et nettoie l'ecran avant l'impact.",
-    action: "Taper / survivre",
-    primary: "#06b6d4",
-    secondary: "#67e8f9",
-    artworkSrc: "/game-art/wordfall-key-art.png",
-    logoSrc: "/game-art/logos/wordfall-logo.png",
-    imageAlt: "Illustration comic book de tuiles de mots qui tombent pour Wordfall.",
+    skill: "Vocabulaire",
+    hook: "Tape le mot et sa traduction avant qu'il ne touche le sol.",
+    duration: "4 min",
+    primary: "#3ec6e8",
+    secondary: "#a9e6f5",
+    artworkSrc: "/art/game-wordfall.jpg",
+    imageAlt: "Illustration de mots qui tombent pour Wordfall.",
   },
   "flash-translation": {
     mark: "FT",
     emblem: "arrows",
-    mode: "Duel de reflexe",
-    hook: "Choisis la bonne traduction avant le buzzer.",
-    action: "Traduire / reagir",
-    primary: "#f97316",
-    secondary: "#fdba74",
-    artworkSrc: "/game-art/flash-translation-key-art.png",
-    logoSrc: "/game-art/logos/flash-translation-logo.png",
-    imageAlt: "Illustration comic book d'un duel de traduction pour Flash Translation.",
+    skill: "Réflexes",
+    hook: "La bonne traduction parmi quatre, le plus vite possible.",
+    duration: "2 min",
+    primary: "#ff8a5b",
+    secondary: "#ffc7ad",
+    artworkSrc: "/art/game-flash-translation.jpg",
+    imageAlt: "Illustration d'un duel de traduction pour Flash Translation.",
+  },
+  "grammar-rush": {
+    mark: "GR",
+    emblem: "scroll",
+    skill: "Grammaire",
+    hook: "Les questions des cours, sous chrono.",
+    duration: "1 min",
+    primary: "#2dd4bf",
+    secondary: "#99f6e4",
+    artworkSrc: "/art/game-grammar-rush.jpg",
+    imageAlt: "Illustration pour Grammar Rush.",
   },
   flashback: {
     mark: "FB",
     emblem: "memory",
-    mode: "Memoire tactique",
-    hook: "Repere les mots deja vus et securise la serie.",
-    action: "Memoriser / confirmer",
-    primary: "#7c3aed",
-    secondary: "#c4b5fd",
-    artworkSrc: "/game-art/flashback-key-art.png",
-    logoSrc: "/game-art/logos/flashback-logo.png",
-    imageAlt: "Illustration comic book de cartes memoire pour Flashback.",
+    skill: "Mémoire",
+    hook: "Ce mot, tu l'as déjà vu ou pas ? Décide vite.",
+    duration: "3 min",
+    primary: "#a78bfa",
+    secondary: "#d6c9ff",
+    artworkSrc: "/art/game-flashback.jpg",
+    imageAlt: "Illustration de cartes mémoire pour Flashback.",
   },
 };
 
@@ -114,13 +123,12 @@ export function getGamePresentation(game: Pick<GameConfig, "slug" | "name">): Ga
   return {
     mark: getGameMark(game),
     emblem: "scroll",
-    mode: "Mode express",
-    hook: "Entre dans une session courte et utile pour consolider ton anglais.",
-    action: "Jouer / progresser",
-    primary: "#38bdf8",
-    secondary: "#bae6fd",
-    artworkSrc: "/game-art/englishquest-games-hero.png",
-    logoSrc: "/game-art/logos/englishquest-games-logo.png",
-    imageAlt: "Illustration comic book English Quest.",
+    skill: "Anglais",
+    hook: "Une partie courte pour s'entraîner.",
+    duration: "3 min",
+    primary: "#3ec6e8",
+    secondary: "#a9e6f5",
+    artworkSrc: ART.heroGames,
+    imageAlt: "Illustration English Quest.",
   };
 }

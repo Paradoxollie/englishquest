@@ -1,4 +1,7 @@
 "use server";
+import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
+import { countPlaysToday } from "@/lib/profile/economy-server";
+import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
 
 /**
  * Server Actions for Flash Translation
@@ -11,54 +14,8 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { revalidateCourseMissionBenchmarks } from "@/lib/courses/cache-server";
 import { calculateLevelFromXP } from "@/lib/profile/leveling";
 import type { ShopItem } from "@/types/shop";
-
-/**
- * Calculate rewards for Flash Translation based on performance
- * Lower time = better performance = more rewards
- */
-function computeFlashTranslationRewards(params: {
-    totalTimeMs: number;
-    wrongAnswers: number;
-    isNewGlobalBest: boolean;
-}): {
-    xpEarned: number;
-    goldEarned: number;
-} {
-    // Base rewards: XP only, NO Gold for just playing
-    let xp = 5;
-    let gold = 0;
-
-    // Bonus for perfect score: Gives 2 Gold (Valid farming strategy)
-    if (params.wrongAnswers === 0) {
-        xp += 15;
-        gold += 2;
-    }
-
-    // Bonus for fast time: Gives +1 Gold
-    if (params.totalTimeMs < 10000) {
-        xp += 10;
-        gold += 1;
-    } else if (params.totalTimeMs < 15000) {
-        xp += 5;
-        // No gold for slower times
-    }
-
-    // Penalty for wrong answers
-    xp = Math.max(1, xp - (params.wrongAnswers * 2));
-    // Gold can't go negative, stays at calculation result
-
-    // ONE-TIME Bonus for Global Best
-    // Reward is XP focused (Prestige). Gold is symbolic.
-    if (params.isNewGlobalBest) {
-        xp += 50;
-        gold += 10;
-    }
-
-    return { xpEarned: xp, goldEarned: gold };
-}
 
 const FLASH_TRANSLATION_MAX_TIME_MS = 10 * 60 * 1000;
 const FLASH_TRANSLATION_MAX_AVERAGE_MS = 60 * 1000;
@@ -182,6 +139,7 @@ export async function submitFlashTranslationScore(params: {
     isNewPersonalBest?: boolean;
     isNewGlobalBest?: boolean;
     personalBest?: number;
+    courseCompleted?: AutoCompletedCourse | null;
     dailyChallenge?: {
         dailyPlayedGames: string[];
         requiredGames: string[];
@@ -256,9 +214,15 @@ export async function submitFlashTranslationScore(params: {
         const isNewGlobalBest = session.totalTimeMs < currentGlobalBest;
 
         // Calculate rewards
-        const rewards = computeFlashTranslationRewards({
-            totalTimeMs: session.totalTimeMs,
-            wrongAnswers: session.wrongAnswers,
+        const playsToday = await countPlaysToday(adminClient, user.id, game.id);
+        const rewards = computeGameRewards({
+            performance: gamePerformance.flashTranslation(
+                Math.max(0, session.roundsCompleted - session.wrongAnswers),
+                session.roundsCompleted
+            ),
+            difficulty: "medium",
+            playsToday,
+            isNewPersonalBest,
             isNewGlobalBest,
         });
 
@@ -281,7 +245,6 @@ export async function submitFlashTranslationScore(params: {
             };
         }
 
-        revalidateCourseMissionBenchmarks();
 
         // Update user profile with rewards
         const { data: profile } = await adminClient
@@ -322,6 +285,7 @@ export async function submitFlashTranslationScore(params: {
         // Check and grant Daily Challenge bonus
         const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
         const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "flash-translation");
+        const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "flash-translation", session.totalTimeMs);
 
         return {
             success: true,
@@ -331,6 +295,7 @@ export async function submitFlashTranslationScore(params: {
                 newLevel: newLevel > profile.level ? newLevel : undefined,
             },
             dailyChallenge: dailyChallengeResult,
+          courseCompleted,
             isNewPersonalBest,
             isNewGlobalBest,
             personalBest: isNewPersonalBest ? session.totalTimeMs : currentPersonalBest,

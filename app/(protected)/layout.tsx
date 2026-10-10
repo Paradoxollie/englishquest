@@ -28,8 +28,7 @@ async function ensureProfile(userId: string, email: string | null, usernameSeed:
     return profileData as Profile;
   }
 
-  const baseUsername =
-    usernameSeed || email?.split("@")[0] || `user_${userId.slice(0, 8)}`;
+  const baseUsername = usernameSeed || email?.split("@")[0] || `user_${userId.slice(0, 8)}`;
   const cleanUsername = baseUsername
     .toLowerCase()
     .replace(/[^a-z0-9_]/g, "_")
@@ -67,22 +66,10 @@ export default async function ProtectedLayout({ children }: ProtectedLayoutProps
   }
 
   try {
-    await ensureProfile(
-      user.id,
-      user.email ?? null,
-      (user.user_metadata?.username as string | undefined) ?? null
-    );
+    await ensureProfile(user.id, user.email ?? null, (user.user_metadata?.username as string | undefined) ?? null);
   } catch {
     redirect("/auth/login");
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
-      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-8 px-4 py-8 md:py-12">
-        <main className="flex-1">
-          <div className="comic-panel-dark w-full p-6 md:p-8">{children}</div>
-        </main>
-      </div>
-    </div>
-  );
+  return <>{children}</>;
 }

@@ -1,4 +1,7 @@
 "use server";
+import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
+import { countPlaysToday } from "@/lib/profile/economy-server";
+import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
 
 /**
  * Server Actions for Speed Verb Challenge
@@ -11,9 +14,7 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { revalidateCourseMissionBenchmarks } from "@/lib/courses/cache-server";
 import {
-  computeSpeedVerbRewards,
   calculateLevelFromXP,
   type Difficulty,
 } from "@/lib/profile/leveling";
@@ -65,6 +66,7 @@ export async function submitSpeedVerbScore(params: {
   isNewPersonalBest?: boolean;
   isNewGlobalBest?: boolean;
   personalBest?: number;
+  courseCompleted?: AutoCompletedCourse | null;
   dailyChallenge?: {
     dailyPlayedGames: string[];
     requiredGames: string[];
@@ -144,9 +146,12 @@ export async function submitSpeedVerbScore(params: {
     const isNewGlobalBest = params.score > currentGlobalBest;
 
     // Calculate rewards (always calculate, even if not saving)
-    const rewards = computeSpeedVerbRewards({
+    const playsToday = await countPlaysToday(adminClient, user.id, game.id);
+    const rewards = computeGameRewards({
+      performance: gamePerformance.speedVerb(params.correctCount, difficulty),
       difficulty,
-      correctCount: params.correctCount,
+      playsToday,
+      isNewPersonalBest,
       isNewGlobalBest,
     });
 
@@ -169,7 +174,6 @@ export async function submitSpeedVerbScore(params: {
       };
     }
 
-    revalidateCourseMissionBenchmarks();
 
     // Update user profile with rewards
     const { data: profile } = await adminClient
@@ -210,6 +214,7 @@ export async function submitSpeedVerbScore(params: {
     // Check and grant Daily Challenge bonus
     const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
     const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "speed-verb-challenge");
+    const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "speed-verb-challenge", params.score);
 
     return {
       success: true,
@@ -219,6 +224,7 @@ export async function submitSpeedVerbScore(params: {
         newLevel: newLevel > profile.level ? newLevel : undefined,
       },
       dailyChallenge: dailyChallengeResult,
+      courseCompleted,
       isNewPersonalBest,
       isNewGlobalBest,
       personalBest: isNewPersonalBest ? params.score : currentPersonalBest,

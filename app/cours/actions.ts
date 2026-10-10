@@ -150,11 +150,22 @@ export async function submitCourseQuizAction(params: {
       params.total
     );
 
+    // Si le défi de jeu est déjà atteint (meilleur score existant), le cours se
+    // valide tout de suite : pas d'étape manuelle.
+    let courseCompleted: { xp: number; gold: number; newLevel: number | null } | null = null;
+    if (missionState?.readyToComplete) {
+      const result = await completeCourseAndGrantRewards(userId, params.courseNumber);
+      if (result.rewards.xp > 0 || result.rewards.gold > 0) {
+        courseCompleted = { ...result.rewards, newLevel: result.newLevel };
+      }
+    }
+
     revalidateCourseSurfaces(params.courseNumber);
 
     return {
       success: true,
       missionState,
+      courseCompleted,
     };
   } catch (error) {
     console.error("submitCourseQuizAction failed", error);

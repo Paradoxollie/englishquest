@@ -1,4 +1,7 @@
 "use server";
+import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
+import { countPlaysToday } from "@/lib/profile/economy-server";
+import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
 
 /**
  * Server Actions for Enigma Scroll
@@ -11,12 +14,10 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { revalidateCourseMissionBenchmarks } from "@/lib/courses/cache-server";
 import {
   calculateLevelFromXP,
 } from "@/lib/profile/leveling";
 import {
-  computeEnigmaScrollRewards,
   mapWordLengthToDifficulty,
 } from "@/lib/profile/enigma-scroll-rewards";
 
@@ -46,6 +47,7 @@ export async function submitEnigmaScrollScore(params: {
   isNewPersonalBest?: boolean;
   isNewGlobalBest?: boolean;
   personalBest?: number | null;
+  courseCompleted?: AutoCompletedCourse | null;
   dailyChallenge?: {
     dailyPlayedGames: string[];
     requiredGames: string[];
@@ -116,9 +118,12 @@ export async function submitEnigmaScrollScore(params: {
     const isNewGlobalBest = params.totalScore > currentGlobalBest;
 
     // Calculate rewards
-    const rewards = computeEnigmaScrollRewards({
+    const playsToday = await countPlaysToday(adminClient, user.id, game.id);
+    const rewards = computeGameRewards({
+      performance: gamePerformance.enigmaScroll(params.wordsFound),
       difficulty,
-      wordsFound: params.wordsFound,
+      playsToday,
+      isNewPersonalBest,
       isNewGlobalBest,
     });
 
@@ -141,7 +146,6 @@ export async function submitEnigmaScrollScore(params: {
       };
     }
 
-    revalidateCourseMissionBenchmarks();
 
     // Update user profile with rewards
     const { data: profile } = await adminClient
@@ -182,6 +186,7 @@ export async function submitEnigmaScrollScore(params: {
     // This is done after the game rewards are applied
     const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
     const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "enigma-scroll");
+    const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "enigma-scroll", params.totalScore);
 
     return {
       success: true,
@@ -191,6 +196,7 @@ export async function submitEnigmaScrollScore(params: {
         newLevel: newLevel > profile.level ? newLevel : undefined,
       },
       dailyChallenge: dailyChallengeResult,
+      courseCompleted,
       isNewPersonalBest,
       isNewGlobalBest,
       personalBest: personalBest?.score ?? null,
