@@ -103,7 +103,7 @@ export default async function PublicHomePage({
 
       <section className="eq-container pb-10 md:pb-16">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <h2 className="eq-h2">Six jeux, six façons de s&apos;entraîner</h2>
+          <h2 className="eq-h2">Sept jeux, sept façons de s&apos;entraîner</h2>
           <Link href="/play" className="font-bold text-[var(--cyan)]">
             Tous les jeux
           </Link>

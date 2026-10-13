@@ -1,4 +1,5 @@
 import { defineConfig, globalIgnores } from "eslint/config";
+import * as espree from "espree";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
@@ -6,6 +7,7 @@ const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    files: ["**/*.{js,mjs,jsx,ts,tsx}"],
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
       "prefer-const": "warn",
@@ -20,10 +22,14 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    files: ["scripts/**/*.js"],
+    files: ["scripts/**/*.{js,cjs,mjs}"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
     },
+  },
+  {
+    files: ["scripts/**/*.cjs"],
+    languageOptions: { parser: espree, sourceType: "commonjs" },
   },
   // Override default ignores of eslint-config-next.
   globalIgnores([
@@ -34,6 +40,10 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "docs/**",
     "supabase/**",
+    "ancienne version/**",
+    "output/**",
+    ".playwright-cli/**",
+    ".playwright-mcp/**",
   ]),
 ]);
 

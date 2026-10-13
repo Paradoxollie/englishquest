@@ -1,6 +1,6 @@
 "use server";
 import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
-import { countPlaysToday } from "@/lib/profile/economy-server";
+import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
 import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
 
 /**
@@ -14,10 +14,7 @@ import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/li
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import {
-  calculateLevelFromXP,
-  type Difficulty,
-} from "@/lib/profile/leveling";
+import { type Difficulty } from "@/lib/profile/leveling";
 
 /**
  * Map Wordfall mode to difficulty string for database
@@ -232,41 +229,10 @@ export async function submitWordfallScore(params: {
     }
 
 
-    // Update user profile with rewards
-    const { data: profile } = await adminClient
-      .from("profiles")
-      .select("xp, gold, level")
-      .eq("id", user.id)
-      .single();
-
-    if (!profile) {
-      return {
-        success: false,
-        error: "Profile not found",
-      };
-    }
-
-    const newXP = profile.xp + rewards.xpEarned;
-    const newGold = profile.gold + rewards.goldEarned;
-    const newLevel = calculateLevelFromXP(newXP);
-
-    const { error: updateError } = await adminClient
-      .from("profiles")
-      .update({
-        xp: newXP,
-        gold: newGold,
-        level: newLevel,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", user.id);
-
-    if (updateError) {
-      console.error("Error updating profile:", updateError);
-      return {
-        success: false,
-        error: "Failed to update rewards",
-      };
-    }
+    const updatedProfile = await grantProfileRewards(adminClient, user.id, {
+      xp: rewards.xpEarned,
+      gold: rewards.goldEarned,
+    });
 
     // Check and grant Daily Challenge bonus
     const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
@@ -278,7 +244,7 @@ export async function submitWordfallScore(params: {
       rewards: {
         xpEarned: rewards.xpEarned,
         goldEarned: rewards.goldEarned,
-        newLevel: newLevel > profile.level ? newLevel : undefined,
+        newLevel: updatedProfile.level > updatedProfile.previousLevel ? updatedProfile.level : undefined,
       },
       dailyChallenge: dailyChallengeResult,
       courseCompleted,

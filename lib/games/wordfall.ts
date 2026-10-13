@@ -391,9 +391,20 @@ function getRandomWordForExactMode(
 /**
  * Get a random letter for free mode
  */
-function getRandomLetter(rng: () => number = defaultRng): string {
-  const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  return letters[Math.floor(rng() * letters.length)];
+function getRandomLetter(state: WordfallState, rng: () => number = defaultRng): string | null {
+  if (!englishWordsSet) return null;
+  const used = new Set(state.usedWords);
+  const remainingByLetter: Record<string, number> = {};
+  for (const word of englishWordsSet) {
+    if (/^[A-Z]{3,20}$/.test(word) && !used.has(word)) {
+      remainingByLetter[word[0]] = (remainingByLetter[word[0]] ?? 0) + 1;
+    }
+  }
+  const active = getActiveWords(state);
+  const letters = Object.keys(remainingByLetter).sort().filter(letter =>
+    remainingByLetter[letter] > active.filter(word => word.displayText === letter).length
+  );
+  return letters.length > 0 ? letters[Math.floor(rng() * letters.length)] : null;
 }
 
 /**
@@ -452,7 +463,8 @@ export function spawnFallingWord(
     };
   } else {
     // Free mode: show only the first letter
-    const letter = getRandomLetter(rng);
+    const letter = getRandomLetter(state, rng);
+    if (!letter) return null;
     // We still need a "text" for internal tracking, but it's not shown
     // The actual word will be determined by what the player types
     return {
@@ -651,9 +663,9 @@ export function processWordInput(
   }
 
   // Word is valid - update state
-  // For free mode: keep only the last 5 words (FIFO - First In First Out)
+  // Keep the full round history so a previously played word stays unavailable.
   const newUsedWords = state.mode === "free" 
-    ? [...state.usedWords, input.trim().toUpperCase()].slice(-5) // Keep only last 5 words
+    ? [...state.usedWords, input.trim().toUpperCase()]
     : state.usedWords;
 
   const newWordsCompleted = state.wordsCompleted + 1;

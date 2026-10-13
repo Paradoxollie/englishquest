@@ -74,20 +74,28 @@ export function buildPlacementStep(chapterId: number): PlacementStep | null {
   return { chapter: chapter.id, chapterName: chapter.name, level: chapter.level, questions: picked };
 }
 
-export function gradePlacementStep(answers: Record<string, number>) {
+export function gradePlacementStep(answers: Record<string, number>, chapterId: number) {
+  const invalid = { correct: 0, total: 0, passed: false, valid: false, corrections: [] as { id: string; correctAnswer: number }[] };
+  const chapter = chapters.find((item) => item.id === chapterId);
+  if (!chapter || chapterId > PLACEMENT_LAST_TESTED_CHAPTER || !answers || typeof answers !== "object" || Array.isArray(answers)
+    || Object.keys(answers).length !== PLACEMENT_QUESTIONS_PER_CHAPTER) return invalid;
+  const allowedCourses = new Set(chapter.courseIds);
+  const seenCourses = new Set<number>();
   let correct = 0;
   let total = 0;
   const corrections: { id: string; correctAnswer: number }[] = [];
   for (const [id, answer] of Object.entries(answers)) {
     const question = byId.get(id);
-    if (!question) continue;
+    if (!question || !allowedCourses.has(question.course) || seenCourses.has(question.course)
+      || !Number.isInteger(answer) || answer < 0 || answer >= question.options.length) return invalid;
+    seenCourses.add(question.course);
     total += 1;
     if (question.correctAnswer === answer) {
       correct += 1;
     }
     corrections.push({ id, correctAnswer: question.correctAnswer });
   }
-  return { correct, total, passed: correct >= PLACEMENT_PASS_COUNT, corrections };
+  return { correct, total, passed: correct >= PLACEMENT_PASS_COUNT, valid: true, corrections };
 }
 
 /**

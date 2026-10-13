@@ -365,9 +365,9 @@ function calculateScore(
 ): number {
   const basePoints = config.basePointsPerWin;
   const attemptBonus = Math.max(0, (config.maxAttempts - attemptsUsed) * 2);
-  const timeBonus = Math.min(Math.floor(timeRemaining / 6), 15);
+  const timeBonus = Math.max(0, Math.min(Math.floor(timeRemaining / 6), 15));
   const rawScore = basePoints + attemptBonus + timeBonus;
-  const streakMultiplier = 1 + Math.min(currentStreak - 1, 1.5) * 0.1;
+  const streakMultiplier = 1 + Math.min(currentStreak, 1.5) * 0.1;
   return Math.floor(rawScore * streakMultiplier);
 }
 
@@ -430,8 +430,8 @@ export function createInitialGameState(
     isFinished: false,
     isWin: false,
     totalScore: 0,
-    currentStreak: 1,
-    bestStreak: 1,
+    currentStreak: 0,
+    bestStreak: 0,
     wordsFound: 0,
     config: finalConfig
   };
@@ -538,7 +538,7 @@ export function submitGuess(
     newStreak = state.currentStreak + 1;
     newBestStreak = Math.max(state.bestStreak, newStreak);
   } else if (attemptsUsed >= state.config.maxAttempts) {
-    newStreak = 1;
+    newStreak = 0;
   }
   
   const isGameOver = isWin || (attemptsUsed >= state.config.maxAttempts);

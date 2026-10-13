@@ -31,9 +31,9 @@ export async function submitPlacementStepAction(
     return { error: "Connecte-toi pour passer le test." };
   }
 
-  const graded = gradePlacementStep(answers);
-  if (graded.total === 0) {
-    return { error: "Aucune réponse reçue." };
+  const graded = gradePlacementStep(answers, chapter);
+  if (!graded.valid) {
+    return { error: "Réponds aux six questions de la série du chapitre affiché." };
   }
 
   if (graded.passed && chapter < PLACEMENT_LAST_TESTED_CHAPTER) {

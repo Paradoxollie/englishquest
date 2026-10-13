@@ -1,7 +1,7 @@
 import "server-only";
 import { chapters } from "@/lib/courses/chapters";
 import { getUserCourseRoadmap } from "@/lib/courses/progress";
-import { getChapterExamReward, getLevelFromXP } from "@/lib/profile/economy";
+import { getChapterExamReward } from "@/lib/profile/economy";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import bank from "@/lib/placement/questions.json";
 
@@ -61,19 +61,29 @@ export function buildChapterExam(chapterId: number): ExamQuestion[] {
   return shuffle(picked).map((question) => ({ id: question.id, question: question.question, options: question.options }));
 }
 
-export function gradeChapterExam(answers: Record<string, number>) {
+export function gradeChapterExam(answers: Record<string, number>, chapterId: number) {
+  const invalid = { correct: 0, total: 0, passed: false, valid: false, corrections: [] as { id: string; correctAnswer: number; question: string; answer: string }[] };
+  const chapter = chapters.find((item) => item.id === chapterId);
+  if (!chapter || !answers || typeof answers !== "object" || Array.isArray(answers)
+    || Object.keys(answers).length !== EXAM_QUESTION_COUNT) return invalid;
+  const allowedCourses = new Set(chapter.courseIds);
+  const perCourse = new Map<number, number>();
   let correct = 0;
   let total = 0;
   const corrections: { id: string; correctAnswer: number; question: string; answer: string }[] = [];
   for (const [id, answer] of Object.entries(answers)) {
     const question = byId.get(id);
-    if (!question) continue;
+    if (!question || !allowedCourses.has(question.course) || !Number.isInteger(answer)
+      || answer < 0 || answer >= question.options.length) return invalid;
+    const courseCount = (perCourse.get(question.course) ?? 0) + 1;
+    if (courseCount > 2) return invalid;
+    perCourse.set(question.course, courseCount);
     total += 1;
     const isRight = question.correctAnswer === answer;
     if (isRight) correct += 1;
     else corrections.push({ id, correctAnswer: question.correctAnswer, question: question.question, answer: question.options[question.correctAnswer] });
   }
-  return { correct, total, passed: correct >= EXAM_PASS_COUNT, corrections };
+  return { correct, total, passed: correct >= EXAM_PASS_COUNT, valid: true, corrections };
 }
 
 /** Résultats du joueur pour tous les chapitres. Table absente : liste vide. */
@@ -110,47 +120,18 @@ export async function isChapterCompleted(userId: string, chapterId: number) {
  */
 export async function recordChapterExam(userId: string, chapterId: number, correct: number, total: number) {
   const admin = createSupabaseAdminClient();
-  const passed = correct >= EXAM_PASS_COUNT;
-  const now = new Date().toISOString();
-
-  const { data: existing } = await admin
-    .from("chapter_exams")
-    .select("id, best_correct, attempts, passed_at")
-    .eq("user_id", userId)
-    .eq("chapter", chapterId)
-    .maybeSingle();
-
-  const row = existing as { id: string; best_correct: number; attempts: number; passed_at: string | null } | null;
-  const firstPass = passed && !row?.passed_at;
-
-  const payload = {
-    user_id: userId,
-    chapter: chapterId,
-    best_correct: Math.max(row?.best_correct ?? 0, correct),
-    total,
-    attempts: (row?.attempts ?? 0) + 1,
-    passed_at: row?.passed_at ?? (passed ? now : null),
-    updated_at: now,
-  };
-
-  const { error } = row
-    ? await admin.from("chapter_exams").update(payload).eq("id", row.id)
-    : await admin.from("chapter_exams").insert(payload);
-  if (error) {
-    console.error("recordChapterExam", error);
-    return { rewards: { xp: 0, gold: 0 }, newLevel: null, saved: false, firstPass: false };
+  const unsaved = { rewards: { xp: 0, gold: 0 }, newLevel: null, saved: false, firstPass: false };
+  if (!Number.isInteger(chapterId) || !chapters.some((chapter) => chapter.id === chapterId)
+    || !Number.isInteger(correct) || !Number.isInteger(total)
+    || total !== EXAM_QUESTION_COUNT || correct < 0 || correct > total) return unsaved;
+  const reward = getChapterExamReward(chapterId);
+  const { data, error } = await admin.rpc("record_chapter_exam_and_grant_rewards", {
+    p_user_id: userId, p_chapter: chapterId, p_correct: correct, p_total: total,
+    p_reward_xp: reward.xp, p_reward_gold: reward.gold,
+  });
+  if (error || !data) {
+    console.error("recordChapterExam", error ?? "Missing exam transaction result");
+    return unsaved;
   }
-
-  if (!firstPass) {
-    return { rewards: { xp: 0, gold: 0 }, newLevel: null, saved: true, firstPass: false };
-  }
-
-  const rewards = getChapterExamReward(chapterId);
-  const { data: profile } = await admin.from("profiles").select("xp, gold, level").eq("id", userId).single();
-  const newXP = (profile?.xp ?? 0) + rewards.xp;
-  const newGold = (profile?.gold ?? 0) + rewards.gold;
-  const newLevel = getLevelFromXP(newXP);
-  await admin.from("profiles").update({ xp: newXP, gold: newGold, level: newLevel, updated_at: now }).eq("id", userId);
-
-  return { rewards, newLevel: newLevel > (profile?.level ?? 1) ? newLevel : null, saved: true, firstPass: true };
+  return data as { rewards: { xp: number; gold: number }; newLevel: number | null; saved: boolean; firstPass: boolean };
 }

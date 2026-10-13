@@ -1,5 +1,7 @@
 "use client";
 
+import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createGameState, nextRound, startGame, submitDecision, type GameState } from "@/lib/games/echoLex";
 import { GameEnd, GameHud, GameStart, HudStat, TimeBar, type RewardSummary } from "@/components/play/game-screens";
@@ -20,21 +22,27 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
   const [rounds, setRounds] = useState(0);
   const [rewards, setRewards] = useState<RewardSummary | null>(null);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
+  useRefreshAfterScore(submitStatus);
 
   const startedAtRef = useRef(0);
   const roundStartedAtRef = useRef(0);
   const nextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const submittedRef = useRef(false);
+  const sessionRef = useRef(0);
+  const stateRef = useRef<GameState | null>(null);
 
   useEffect(() => {
     return () => {
       if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
+      sessionRef.current += 1;
     };
   }, []);
 
   const start = useCallback(() => {
     if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
+    sessionRef.current += 1;
     const fresh = startGame(createGameState());
+    stateRef.current = fresh;
     setState(fresh);
     setStarted(true);
     setTimeLeft(ROUND_MS);
@@ -44,19 +52,15 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
     setRewards(null);
     setSubmitStatus("idle");
     submittedRef.current = false;
-    startedAtRef.current = Date.now();
-    roundStartedAtRef.current = Date.now();
+    startedAtRef.current = performance.now();
+    roundStartedAtRef.current = startedAtRef.current;
   }, []);
-
-  const stateRef = useRef<GameState | null>(null);
-  useEffect(() => {
-    stateRef.current = state;
-  }, [state]);
 
   const decide = useCallback((saysSeen: boolean) => {
     const current = stateRef.current;
     if (!current || current.phase !== "playing") return;
-    const result = submitDecision(current, saysSeen);
+    const timedOut = performance.now() - roundStartedAtRef.current >= ROUND_MS;
+    const result = submitDecision(current, timedOut ? false : saysSeen);
     stateRef.current = result;
     setState(result);
     setRounds((count) => count + 1);
@@ -72,9 +76,13 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
     if (result.phase !== "gameOver") {
       if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
       nextTimerRef.current = setTimeout(() => {
-        setState((previous) => (previous ? nextRound(previous) : previous));
+        const current = stateRef.current;
+        if (!current || current.phase !== "result") return;
+        const next = nextRound(current);
+        stateRef.current = next;
+        setState(next);
         setTimeLeft(ROUND_MS);
-        roundStartedAtRef.current = Date.now();
+        roundStartedAtRef.current = performance.now();
       }, RESULT_MS);
     }
   }, []);
@@ -83,7 +91,7 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
   useEffect(() => {
     if (!started || !state || state.phase !== "playing") return;
     const interval = setInterval(() => {
-      const left = ROUND_MS - (Date.now() - roundStartedAtRef.current);
+      const left = ROUND_MS - (performance.now() - roundStartedAtRef.current);
       if (left <= 0) {
         setTimeLeft(0);
         decide(false);
@@ -98,6 +106,7 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
   useEffect(() => {
     if (!started || !state || state.phase !== "playing") return;
     const onKey = (event: KeyboardEvent) => {
+      if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
       if (event.key === "ArrowLeft") {
         event.preventDefault();
         decide(false);
@@ -119,8 +128,10 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
       return;
     }
     setSubmitStatus("saving");
-    submitEchoLexScore({ score: state.score, durationMs: Date.now() - startedAtRef.current })
+    const session = sessionRef.current;
+    submitEchoLexScore({ score: state.score, durationMs: Math.round(performance.now() - startedAtRef.current) })
       .then((result) => {
+        if (session !== sessionRef.current) return;
         if (!result.success) {
           setSubmitStatus("error");
           return;
@@ -142,7 +153,9 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
         });
         setSubmitStatus("saved");
       })
-      .catch(() => setSubmitStatus("error"));
+      .catch(() => {
+        if (session === sessionRef.current) setSubmitStatus("error");
+      });
   }, [state, isLoggedIn]);
 
   if (!started || !state) {

@@ -23,9 +23,9 @@ export interface GameState {
 // Reuse vocabulary from flash translation or generic source
 import { VOCABULARY } from "./flashTranslation";
 
-export function createGameState(): GameState {
+export function createGameState(rng: () => number = Math.random): GameState {
     // Pick a random starting word
-    const startIndex = Math.floor(Math.random() * VOCABULARY.length);
+    const startIndex = Math.floor(rng() * VOCABULARY.length);
     const firstWord = VOCABULARY[startIndex];
 
     return {
@@ -40,20 +40,21 @@ export function createGameState(): GameState {
 }
 
 export function startGame(state: GameState): GameState {
+    if (state.phase !== "idle") return state;
     return {
         ...state,
         phase: "playing",
-        seenWords: [state.currentWord],
+        seenWords: [],
         isNew: true,
     };
 }
 
-export function nextRound(state: GameState): GameState {
-    if (state.phase === "gameOver") return state;
+export function nextRound(state: GameState, rng: () => number = Math.random): GameState {
+    if (state.phase !== "result") return state;
 
     // Decision: Show a "seen" word or a "new" word?
     // 50/50 chance, but only if we HAVE seen words.
-    const shouldShowSeen = state.seenWords.length > 1 && Math.random() > 0.5;
+    const shouldShowSeen = state.seenWords.length > 1 && rng() > 0.5;
 
     let nextWord: WordPair;
     let isNew: boolean;
@@ -62,7 +63,7 @@ export function nextRound(state: GameState): GameState {
         // Pick a random word from seenWords (excluding the current one to avoid immediate repeats if possible)
         const candidates = state.seenWords.filter(w => w.english !== state.currentWord.english);
         const pool = candidates.length > 0 ? candidates : state.seenWords;
-        nextWord = pool[Math.floor(Math.random() * pool.length)];
+        nextWord = pool[Math.floor(rng() * pool.length)];
         isNew = false;
     } else {
         // Pick a new word from VOCABULARY that isn't in seenWords
@@ -73,12 +74,12 @@ export function nextRound(state: GameState): GameState {
         if (candidates.length === 0) {
             // Pool exhausted? Just pick ANY word that isn't the current one
             const fallbackPool = VOCABULARY.filter(v => v.english !== state.currentWord.english);
-            nextWord = fallbackPool[Math.floor(Math.random() * fallbackPool.length)];
+            nextWord = fallbackPool[Math.floor(rng() * fallbackPool.length)];
             // Technically it's "seen" now if it was in seenWords, but if we exhausted candidates, 
             // we should probably check if it's in seenWords.
             isNew = !state.seenWords.some(s => s.english === nextWord.english);
         } else {
-            nextWord = candidates[Math.floor(Math.random() * candidates.length)];
+            nextWord = candidates[Math.floor(rng() * candidates.length)];
             isNew = true;
         }
     }
@@ -93,19 +94,19 @@ export function nextRound(state: GameState): GameState {
 }
 
 export function submitDecision(state: GameState, saysIsSeen: boolean): GameState {
+    if (state.phase !== "playing") return state;
     const isCorrect = saysIsSeen === !state.isNew;
 
     let newScore = state.score;
     let newStrikes = state.strikes;
     let newPhase: GameState["phase"] = "result";
-    let newSeenWords = [...state.seenWords];
+    // A word has been seen even when the player misclassified it.
+    const newSeenWords = state.seenWords.some(word => word.english === state.currentWord.english)
+        ? state.seenWords
+        : [...state.seenWords, state.currentWord];
 
     if (isCorrect) {
         newScore += 1;
-        // Add to seenWords if it was new
-        if (state.isNew) {
-            newSeenWords.push(state.currentWord);
-        }
     } else {
         newStrikes += 1;
         if (newStrikes >= 3) {

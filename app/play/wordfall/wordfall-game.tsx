@@ -1,5 +1,7 @@
 "use client";
 
+import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
+
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import {
   createGameState,
@@ -97,12 +99,14 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
   const [compact, setCompact] = useState(() => (typeof window !== "undefined" ? window.innerWidth < 900 : false));
   const [rewards, setRewards] = useState<RewardSummary | null>(null);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
+  useRefreshAfterScore(submitStatus);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const loopRef = useRef<number | null>(null);
   const lastTickRef = useRef(0);
   const startedAtRef = useRef(0);
   const submittedRef = useRef(false);
+  const sessionRef = useRef(0);
   const messageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const words = visibleWords(state);
@@ -128,6 +132,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
 
   const reset = useCallback(
     (nextMode: WordfallMode) => {
+      sessionRef.current += 1;
       setMode(nextMode);
       setState(createGameState({ mode: nextMode }));
       setInput("");
@@ -142,6 +147,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
 
   const start = useCallback(() => {
     if (!boot.ok) return;
+    sessionRef.current += 1;
     setState((current) => (current ? startGame(current) : current));
     setPaused(false);
     setInput("");
@@ -267,6 +273,29 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
     return () => window.removeEventListener("keydown", onKey);
   }, [togglePause]);
 
+  useEffect(() => {
+    const gameWindow = window as Window & { render_game_to_text?: () => string; advanceTime?: (ms: number) => void };
+    const render = () => JSON.stringify({
+      mode: state?.mode,
+      phase: state?.gameOver ? "ended" : paused ? "paused" : state?.isRunning ? "playing" : "start",
+      coordinates: "0-100; origin top-left, x right, y down",
+      score: state?.score, lives: state?.lives, level: state?.level, streak: state?.streak,
+      words: visibleWords(state).map(word => ({ text: word.text, translation: word.translation, x: word.x, y: word.y })),
+      input,
+    });
+    const step = (ms: number) => {
+      if (!Number.isFinite(ms) || ms < 0) return;
+      spawn();
+      advance(ms);
+    };
+    gameWindow.render_game_to_text = render;
+    gameWindow.advanceTime = step;
+    return () => {
+      if (gameWindow.render_game_to_text === render) delete gameWindow.render_game_to_text;
+      if (gameWindow.advanceTime === step) delete gameWindow.advanceTime;
+    };
+  }, [state, paused, input, spawn, advance]);
+
   /* Enregistrement */
   useEffect(() => {
     if (!state?.gameOver || submittedRef.current) return;
@@ -276,6 +305,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
       return;
     }
     setSubmitStatus("saving");
+    const session = sessionRef.current;
     submitWordfallScore({
       mode: state.mode,
       score: state.score,
@@ -283,6 +313,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
       durationMs: Date.now() - startedAtRef.current,
     })
       .then((result) => {
+        if (session !== sessionRef.current) return;
         if (!result.success) {
           setSubmitStatus("error");
           return;
@@ -304,7 +335,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
         });
         setSubmitStatus("saved");
       })
-      .catch(() => setSubmitStatus("error"));
+      .catch(() => { if (session === sessionRef.current) setSubmitStatus("error"); });
   }, [state?.gameOver, state?.mode, state?.score, state?.wordsCompleted, isLoggedIn]);
 
   if (!state) {

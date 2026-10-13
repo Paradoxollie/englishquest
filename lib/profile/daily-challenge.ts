@@ -94,7 +94,10 @@ function getAvailableDailyGames() {
 }
 
 function getYesterdayDateKey(date: Date, timeZone = DAILY_CHALLENGE_TIME_ZONE) {
-  return formatDateKey(new Date(date.getTime() - 24 * 60 * 60 * 1000), timeZone);
+  const today = formatDateKey(date, timeZone);
+  const calendarDate = new Date(`${today}T12:00:00Z`);
+  calendarDate.setUTCDate(calendarDate.getUTCDate() - 1);
+  return calendarDate.toISOString().slice(0, 10);
 }
 
 function sanitizePlayedGames(playedGames: string[] | null | undefined) {
@@ -147,7 +150,7 @@ export function getDailyChallengeState(
     dailyGoalTarget: requiredGames.length,
     dailyGoalReached: dailyGoalProgress >= requiredGames.length,
     bonusClaimedToday: profile?.last_daily_bonus_date === challengeDate,
-    xpBonus: DAILY_CHALLENGE_XP_BONUS,
+    xpBonus: Math.round(DAILY_CHALLENGE_XP_BONUS * getDailyStreakMultiplier(dailyStreak)),
     goldBonus: DAILY_CHALLENGE_GOLD_BONUS,
     dailyStreak,
   };
@@ -166,98 +169,112 @@ export async function checkAndGrantDailyBonus(
   const today = formatDateKey(now);
   const yesterday = getYesterdayDateKey(now);
 
-  const { data: profile, error } = await adminClient
-    .from("profiles")
-    .select("daily_played_games, last_game_date, last_daily_bonus_date, xp, gold, level, daily_streak")
-    .eq("id", userId)
-    .single();
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const { data: profile, error } = await adminClient
+      .from("profiles")
+      .select("daily_played_games, last_game_date, last_daily_bonus_date, xp, gold, level, daily_streak")
+      .eq("id", userId)
+      .single();
 
-  if (error || !profile) {
-    console.error("Error fetching profile for daily challenge:", error);
-    return {
-      ...getDailyChallengeState(null, now),
-      bonusGranted: false,
-    };
-  }
+    if (error || !profile) {
+      console.error("Error fetching profile for daily challenge:", error);
+      return {
+        ...getDailyChallengeState(null, now),
+        bonusGranted: false,
+      };
+    }
 
-  const dailyPlayedGames =
-    profile.last_game_date === today ? sanitizePlayedGames(profile.daily_played_games) : [];
-  let dailyStreak = profile.daily_streak ?? 0;
+    const dailyPlayedGames =
+      profile.last_game_date === today ? sanitizePlayedGames(profile.daily_played_games) : [];
+    let dailyStreak = profile.daily_streak ?? 0;
 
-  if (profile.last_game_date !== today) {
-    if (profile.last_game_date === yesterday) {
-      dailyStreak += 1;
-    } else {
+    if (profile.last_game_date !== today) {
+      if (profile.last_game_date === yesterday) {
+        dailyStreak += 1;
+      } else {
+        dailyStreak = 1;
+      }
+    } else if (dailyStreak === 0) {
       dailyStreak = 1;
     }
-  } else if (dailyStreak === 0) {
-    dailyStreak = 1;
-  }
 
-  if (!dailyPlayedGames.includes(gameSlug)) {
-    dailyPlayedGames.push(gameSlug);
-  }
+    if (!dailyPlayedGames.includes(gameSlug)) {
+      dailyPlayedGames.push(gameSlug);
+    }
 
-  const requiredGames = getDailyRequiredGames(now);
-  const dailyGoalProgress = requiredGames.filter((slug) =>
-    dailyPlayedGames.includes(slug)
-  ).length;
-  const dailyGoalReached = dailyGoalProgress >= requiredGames.length;
-  const bonusGranted =
-    dailyGoalReached && profile.last_daily_bonus_date !== today;
+    const requiredGames = getDailyRequiredGames(now);
+    const dailyGoalProgress = requiredGames.filter((slug) =>
+      dailyPlayedGames.includes(slug)
+    ).length;
+    const dailyGoalReached = dailyGoalProgress >= requiredGames.length;
+    const bonusGranted =
+      dailyGoalReached && profile.last_daily_bonus_date !== today;
 
-  const updates: {
-    daily_played_games: string[];
-    last_game_date: string;
-    daily_streak: number;
-    last_daily_bonus_date?: string;
-    xp?: number;
-    gold?: number;
-    level?: number;
-  } = {
-    daily_played_games: dailyPlayedGames,
-    last_game_date: today,
-    daily_streak: dailyStreak,
-  };
+    const updates: {
+      daily_played_games: string[];
+      last_game_date: string;
+      daily_streak: number;
+      last_daily_bonus_date?: string;
+      xp?: number;
+      gold?: number;
+      level?: number;
+    } = {
+      daily_played_games: dailyPlayedGames,
+      last_game_date: today,
+      daily_streak: dailyStreak,
+    };
 
-  if (bonusGranted) {
-    // La série de jours augmente le bonus : +10 % par jour, +50 % au maximum.
-    const multiplier = getDailyStreakMultiplier(dailyStreak);
-    const nextXP = (profile.xp ?? 0) + Math.round(DAILY_CHALLENGE_XP_BONUS * multiplier);
-    const nextGold = (profile.gold ?? 0) + DAILY_CHALLENGE_GOLD_BONUS;
+    if (bonusGranted) {
+      // La série de jours augmente le bonus : +10 % par jour, +50 % au maximum.
+      const multiplier = getDailyStreakMultiplier(dailyStreak);
+      const nextXP = (profile.xp ?? 0) + Math.round(DAILY_CHALLENGE_XP_BONUS * multiplier);
+      const nextGold = (profile.gold ?? 0) + DAILY_CHALLENGE_GOLD_BONUS;
 
-    updates.last_daily_bonus_date = today;
-    updates.xp = nextXP;
-    updates.gold = nextGold;
-    updates.level = calculateLevelFromXP(nextXP);
-  }
+      updates.last_daily_bonus_date = today;
+      updates.xp = nextXP;
+      updates.gold = nextGold;
+      updates.level = calculateLevelFromXP(nextXP);
+    }
 
-  const { error: updateError } = await adminClient
-    .from("profiles")
-    .update(updates)
-    .eq("id", userId);
+    let update = adminClient
+      .from("profiles")
+      .update(updates)
+      .eq("id", userId);
+    // L'état du défi et les soldes doivent toujours correspondre à la lecture.
+    // Sinon, une autre partie vient de les modifier : recalculer avec ses données.
+    for (const column of ["last_game_date", "last_daily_bonus_date", "daily_streak", "xp", "gold", "level"] as const) {
+      update = profile[column] == null ? update.is(column, null) : update.eq(column, profile[column]);
+    }
+    update = profile.daily_played_games == null
+      ? update.is("daily_played_games", null)
+      : update.filter("daily_played_games", "eq", `{${profile.daily_played_games.map((slug: string) => JSON.stringify(slug)).join(",")}}`);
+    const { data: updated, error: updateError } = await update.select("id").maybeSingle();
 
-  if (updateError) {
-    console.error("Error updating profile for daily challenge:", updateError);
+    if (updateError) {
+      console.error("Error updating profile for daily challenge:", updateError);
+      return {
+        ...getDailyChallengeState(profile, now),
+        bonusGranted: false,
+      };
+    }
+    if (!updated) continue;
+
     return {
-      ...getDailyChallengeState(profile, now),
-      bonusGranted: false,
+      challengeDate: today,
+      challengeLabel: formatChallengeLabel(now),
+      nextRefreshLabel: "Nouveau tirage demain",
+      dailyPlayedGames,
+      requiredGames,
+      dailyGoalProgress,
+      dailyGoalTarget: requiredGames.length,
+      dailyGoalReached,
+      bonusClaimedToday: bonusGranted || profile.last_daily_bonus_date === today,
+      xpBonus: Math.round(DAILY_CHALLENGE_XP_BONUS * getDailyStreakMultiplier(dailyStreak)),
+      goldBonus: DAILY_CHALLENGE_GOLD_BONUS,
+      dailyStreak,
+      bonusGranted,
     };
   }
-
-  return {
-    challengeDate: today,
-    challengeLabel: formatChallengeLabel(now),
-    nextRefreshLabel: "Nouveau tirage demain",
-    dailyPlayedGames,
-    requiredGames,
-    dailyGoalProgress,
-    dailyGoalTarget: requiredGames.length,
-    dailyGoalReached,
-    bonusClaimedToday: bonusGranted || profile.last_daily_bonus_date === today,
-    xpBonus: DAILY_CHALLENGE_XP_BONUS,
-    goldBonus: DAILY_CHALLENGE_GOLD_BONUS,
-    dailyStreak,
-    bonusGranted,
-  };
+  console.error("Daily challenge changed repeatedly while granting its bonus");
+  return { ...getDailyChallengeState(null, now), bonusGranted: false };
 }

@@ -236,7 +236,7 @@ export const course18: LessonContent = {
             {
               id: 5,
               question: "Orthographe : Heavy (Comparatif)",
-              options: ["Heavyer", "Heavier", "More heavy", "Heavyer"],
+              options: ["Heavyer", "Heavier", "More heavy", "Heaviest"],
               correctAnswer: 1,
               explanation: "Terminaison en Y -> IER. Heavier.",
             },

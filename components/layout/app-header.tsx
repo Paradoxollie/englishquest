@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
 import { logoutAction } from "@/app/(protected)/actions";
-import { guestHeaderState, type HeaderState } from "@/lib/navigation/header-state";
+import { guestHeaderState, type HeaderState } from "@/lib/navigation/header-state-types";
 
 const baseNavLinks = [
   { label: "Accueil", href: "/" },

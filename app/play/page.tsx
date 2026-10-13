@@ -5,7 +5,6 @@ import { ART } from "@/lib/art";
 import { resolveArt } from "@/lib/art-server";
 import { getGamePresentation } from "@/lib/games/presentation";
 import { getCourseMissionPlan } from "@/lib/courses/campaign";
-import { getResolvedCourseMissionPlans } from "@/lib/courses/campaign-server";
 import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
 import { games } from "@/lib/games/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -13,7 +12,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export const metadata = {
   title: "Jeux",
   description:
-    "Six jeux pour s'entraîner en anglais : conjugaison, vocabulaire, traduction, mémoire, orthographe. Parties courtes, scores et classements.",
+    "Sept jeux pour s'entraîner en anglais : conjugaison, grammaire, vocabulaire, traduction, mémoire, orthographe. Parties courtes, scores et classements.",
 };
 
 export default async function PlayPage() {
@@ -29,8 +28,7 @@ export default async function PlayPage() {
   let missionLabel: string | null = null;
 
   if (isLoggedIn && activeCourse) {
-    const plans = await getResolvedCourseMissionPlans([activeCourse]);
-    const plan = plans[activeCourse.courseId] ?? getCourseMissionPlan(activeCourse);
+    const plan = getCourseMissionPlan(activeCourse);
     missionGameSlug = plan.primaryGameSlug;
     missionLabel = plan.gameChallengeCompact;
   }
@@ -52,7 +50,7 @@ export default async function PlayPage() {
           <div className="eq-reveal grid min-h-[380px] content-end gap-4 py-14 md:max-w-[620px] md:py-20">
             <h1 className="eq-h1">Les jeux</h1>
             <p className="eq-lead">
-              Six façons de s&apos;entraîner, en parties de deux à cinq minutes. Chaque jeu
+              Sept façons de s&apos;entraîner, en parties d&apos;une à cinq minutes. Chaque jeu
               travaille une compétence précise. Joue librement, ou vise l&apos;objectif de ta
               mission en cours.
             </p>

@@ -1,6 +1,6 @@
 "use server";
 import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
-import { countPlaysToday } from "@/lib/profile/economy-server";
+import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
 import { autoCompleteCourseMissionForGame } from "@/lib/courses/mission-auto-complete";
 
 /**
@@ -9,7 +9,6 @@ import { autoCompleteCourseMissionForGame } from "@/lib/courses/mission-auto-com
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { calculateLevelFromXP } from "@/lib/profile/leveling";
 
 const DEFAULT_DIFFICULTY = "medium" as const;
 
@@ -17,7 +16,7 @@ const DEFAULT_DIFFICULTY = "medium" as const;
  * Calculate rewards for Echo Lex based on performance
  * Optimized for FARMING as requested.
  */
-async function resolveFlashbackGameId(adminClient: any) {
+async function resolveFlashbackGameId(adminClient: ReturnType<typeof createSupabaseAdminClient>) {
     // Try new slug first
     let { data: game } = await adminClient
         .from("games")
@@ -45,6 +44,9 @@ export async function submitEchoLexScore(params: {
     durationMs: number;
 }) {
     try {
+        if (!Number.isSafeInteger(params.score) || params.score < 0 || !Number.isFinite(params.durationMs) || params.durationMs < 0) {
+            return { success: false, error: "Score Flashback invalide" };
+        }
         const supabase = await createSupabaseServerClient();
         const adminClient = createSupabaseAdminClient();
 
@@ -97,54 +99,40 @@ export async function submitEchoLexScore(params: {
             isNewGlobalBest: isNewGB,
         });
 
-        await adminClient.from("game_scores").insert({
+        const { error: insertError } = await adminClient.from("game_scores").insert({
             user_id: user.id,
             game_id: game.id,
             score: params.score,
             duration_ms: params.durationMs,
             difficulty: DEFAULT_DIFFICULTY,
         });
-
-
-        // Update profile
-        const { data: profile } = await adminClient
-            .from("profiles")
-            .select("xp, gold, level")
-            .eq("id", user.id)
-            .single();
-
-        if (profile) {
-            const newXP = profile.xp + rewards.xpEarned;
-            const newGold = profile.gold + rewards.goldEarned;
-            const newLevel = calculateLevelFromXP(newXP);
-
-            await adminClient.from("profiles").update({
-                xp: newXP,
-                gold: newGold,
-                level: newLevel,
-                updated_at: new Date().toISOString(),
-            }).eq("id", user.id);
-
-            // Daily Challenge
-            const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
-            const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "flashback");
-            const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "flashback", params.score);
-
-            return {
-                success: true,
-                rewards: {
-                    xpEarned: rewards.xpEarned,
-                    goldEarned: rewards.goldEarned,
-                    newLevel: newLevel > profile.level ? newLevel : undefined,
-                },
-                isNewPersonalBest: isNewPB,
-                isNewGlobalBest: isNewGB,
-                dailyChallenge: dailyChallengeResult,
-              courseCompleted,
-            };
+        if (insertError) {
+            console.error("Error inserting Flashback score:", insertError);
+            return { success: false, error: "Failed to save score" };
         }
 
-        return { success: true };
+
+        const granted = await grantProfileRewards(adminClient, user.id, {
+            xp: rewards.xpEarned, gold: rewards.goldEarned,
+        });
+
+        // Daily Challenge
+        const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
+        const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "flashback");
+        const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "flashback", params.score);
+
+        return {
+            success: true,
+            rewards: {
+                xpEarned: rewards.xpEarned,
+                goldEarned: rewards.goldEarned,
+                newLevel: granted.level > granted.previousLevel ? granted.level : undefined,
+            },
+            isNewPersonalBest: isNewPB,
+            isNewGlobalBest: isNewGB,
+            dailyChallenge: dailyChallengeResult,
+            courseCompleted,
+        };
     } catch (error) {
         console.error("Error in submitEchoLexScore:", error);
         return { success: false, error: "An unexpected error occurred" };

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   GRAMMAR_RUSH_TIME_MS,
@@ -31,11 +32,12 @@ export function GrammarRushGame({
   missionTarget: number | null;
   levelLabel: string;
 }) {
+  const router = useRouter();
   const [phase, setPhase] = useState<"start" | "playing" | "ended">("start");
   const [state, setState] = useState<RushState>(() => createRushState(queue));
   const [timeLeft, setTimeLeft] = useState(GRAMMAR_RUSH_TIME_MS);
   const [selected, setSelected] = useState<number | null>(null);
-  const [feedback, setFeedback] = useState<{ right: boolean; text: string } | null>(null);
+  const [feedback, setFeedback] = useState<{ right: boolean; text: string; question: RushQuestion } | null>(null);
   const [rewards, setRewards] = useState<RewardSummary | null>(null);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
 
@@ -43,6 +45,8 @@ export function GrammarRushGame({
   const questionAtRef = useRef(0);
   const nextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const submittedRef = useRef(false);
+  const answerPendingRef = useRef(false);
+  const runRef = useRef(0);
   const stateRef = useRef(state);
   useEffect(() => {
     stateRef.current = state;
@@ -65,6 +69,8 @@ export function GrammarRushGame({
     setRewards(null);
     setSubmitStatus("idle");
     submittedRef.current = false;
+    answerPendingRef.current = false;
+    runRef.current += 1;
     startedAtRef.current = Date.now();
     questionAtRef.current = Date.now();
     setPhase("playing");
@@ -76,6 +82,8 @@ export function GrammarRushGame({
     const interval = setInterval(() => {
       const left = GRAMMAR_RUSH_TIME_MS - (Date.now() - startedAtRef.current);
       if (left <= 0) {
+        if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
+        answerPendingRef.current = true;
         setTimeLeft(0);
         setPhase("ended");
       } else {
@@ -87,7 +95,14 @@ export function GrammarRushGame({
 
   const choose = useCallback(
     (choice: number) => {
-      if (phase !== "playing" || feedback) return;
+      if (phase !== "playing" || answerPendingRef.current) return;
+      if (Date.now() - startedAtRef.current >= GRAMMAR_RUSH_TIME_MS) {
+        answerPendingRef.current = true;
+        if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
+        setTimeLeft(0);
+        setPhase("ended");
+        return;
+      }
       const current = stateRef.current;
       const question = currentRushQuestion(current);
       if (!question) {
@@ -95,19 +110,21 @@ export function GrammarRushGame({
         return;
       }
       const elapsed = Date.now() - questionAtRef.current;
+      answerPendingRef.current = true;
       const result = answerRush(current, choice, elapsed);
       stateRef.current = result.state;
       setState(result.state);
       setSelected(choice);
       setFeedback(
         result.isCorrect
-          ? { right: true, text: `+ ${result.points}${result.speedBonus ? " (rapide)" : ""}` }
-          : { right: false, text: `Non : ${question.options[question.correctAnswer]}` }
+          ? { right: true, text: `+ ${result.points}${result.speedBonus ? " (rapide)" : ""}`, question }
+          : { right: false, text: `Non : ${question.options[question.correctAnswer]}`, question }
       );
       nextTimerRef.current = setTimeout(
         () => {
           setFeedback(null);
           setSelected(null);
+          answerPendingRef.current = false;
           questionAtRef.current = Date.now();
           if (!currentRushQuestion(stateRef.current)) {
             setPhase("ended");
@@ -116,13 +133,14 @@ export function GrammarRushGame({
         result.isCorrect ? FEEDBACK_RIGHT_MS : FEEDBACK_WRONG_MS
       );
     },
-    [phase, feedback]
+    [phase]
   );
 
   /* Touches 1 à 4 */
   useEffect(() => {
     if (phase !== "playing") return;
     const onKey = (event: KeyboardEvent) => {
+      if (event.repeat) return;
       const index = KEYS.indexOf(event.key);
       if (index >= 0) {
         event.preventDefault();
@@ -137,6 +155,7 @@ export function GrammarRushGame({
   useEffect(() => {
     if (phase !== "ended" || submittedRef.current) return;
     submittedRef.current = true;
+    const run = runRef.current;
     const final = stateRef.current;
     if (!isLoggedIn) {
       setSubmitStatus("guest");
@@ -147,9 +166,10 @@ export function GrammarRushGame({
       score: final.score,
       correct: final.correct,
       attempts: final.attempts,
-      durationMs: Date.now() - startedAtRef.current,
+      durationMs: Math.min(GRAMMAR_RUSH_TIME_MS, Date.now() - startedAtRef.current),
     })
       .then((result) => {
+        if (run !== runRef.current) return;
         if (!result.success) {
           setSubmitStatus("error");
           return;
@@ -170,9 +190,12 @@ export function GrammarRushGame({
           dailyChallenge: result.dailyChallenge ?? null,
         });
         setSubmitStatus("saved");
+        router.refresh();
       })
-      .catch(() => setSubmitStatus("error"));
-  }, [phase, isLoggedIn]);
+      .catch(() => {
+        if (run === runRef.current) setSubmitStatus("error");
+      });
+  }, [phase, isLoggedIn, router]);
 
   if (phase === "start") {
     return (
@@ -194,7 +217,7 @@ export function GrammarRushGame({
     const accuracy = state.attempts > 0 ? Math.round((state.correct / state.attempts) * 100) : 0;
     return (
       <GameEnd
-        title="Temps écoulé"
+        title={state.index >= state.queue.length ? "Toutes les questions terminées" : "Temps écoulé"}
         score={state.score}
         scoreLabel="points"
         lines={[
@@ -224,13 +247,13 @@ export function GrammarRushGame({
             </ul>
           </div>
         ) : (
-          <p className="eq-game-end-note">Sans faute. Monte d&apos;un chapitre pour corser les questions.</p>
+          <p className="eq-game-end-note">{state.attempts > 0 ? "Sans faute. Monte d'un chapitre pour corser les questions." : "Essaie de répondre à une question lors de la prochaine partie."}</p>
         )}
       </GameEnd>
     );
   }
 
-  const question = currentRushQuestion(state);
+  const question = feedback?.question ?? currentRushQuestion(state);
   if (!question) return null;
   const timeLow = timeLeft < 10_000;
 

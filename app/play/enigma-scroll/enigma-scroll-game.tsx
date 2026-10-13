@@ -1,5 +1,7 @@
 "use client";
 
+import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   addLetterToCurrentGuess,
@@ -81,11 +83,12 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
   const [lastPoints, setLastPoints] = useState(0);
   const [rewards, setRewards] = useState<RewardSummary | null>(null);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
+  useRefreshAfterScore(submitStatus);
 
   const startedAtRef = useRef(0);
   const wordStartedAtRef = useRef(0);
   const submittedRef = useRef(false);
-  const touchRef = useRef(false);
+  const sessionRef = useRef(0);
 
   useEffect(() => {
     ensureLists();
@@ -93,6 +96,7 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
 
   const start = useCallback(() => {
     ensureLists();
+    sessionRef.current += 1;
     setState(createRandomGameState(length));
     setPhase("playing");
     setTimeLeft(ROUND_SECONDS);
@@ -124,7 +128,7 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
       const left = ROUND_SECONDS - Math.floor((Date.now() - wordStartedAtRef.current) / 1000);
       if (left <= 0) {
         setTimeLeft(0);
-        setState((current) => (current ? { ...current, isFinished: true, isWin: false } : current));
+        setState((current) => (current ? { ...current, isFinished: true, isWin: false, currentStreak: 0 } : current));
         setPhase("ended");
       } else {
         setTimeLeft(left);
@@ -150,6 +154,13 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
 
   const submit = useCallback(() => {
     if (phase !== "playing" || !state || state.isFinished) return;
+    const remaining = Math.max(0, ROUND_SECONDS - Math.floor((Date.now() - wordStartedAtRef.current) / 1000));
+    if (remaining === 0) {
+      setTimeLeft(0);
+      setState({ ...state, isFinished: true, isWin: false, currentStreak: 0 });
+      setPhase("ended");
+      return;
+    }
     const guess = getCurrentGuess(state);
     if (guess.length !== state.config.wordLength) {
       setMessage("Mot incomplet.");
@@ -157,7 +168,7 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
       window.setTimeout(() => setShakeRow(null), 500);
       return;
     }
-    const { state: next, result } = submitGuess(state, guess, timeLeft);
+    const { state: next, result } = submitGuess(state, guess, remaining);
     if (!result.isValid) {
       setMessage(result.errorMessage || "Ce mot n'est pas dans la liste.");
       setShakeRow(state.currentAttemptIndex);
@@ -172,7 +183,7 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
     } else if (result.isGameOver) {
       setPhase("ended");
     }
-  }, [phase, state, timeLeft]);
+  }, [phase, state]);
 
   /* Clavier physique */
   useEffect(() => {
@@ -194,6 +205,31 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
     return () => window.removeEventListener("keydown", onKey);
   }, [phase, submit, backspace, typeLetter]);
 
+  useEffect(() => {
+    const gameWindow = window as Window & { render_game_to_text?: () => string; advanceTime?: (ms: number) => void };
+    const render = () => JSON.stringify({
+      phase, timeLeft, wordLength: state?.config.wordLength ?? length,
+      score: state?.totalScore ?? 0, wordsFound: state?.wordsFound ?? 0, streak: state?.currentStreak ?? 0,
+      rows: state?.rows, currentGuess: state ? getCurrentGuess(state) : "", message,
+    });
+    const step = (ms: number) => {
+      if (phase !== "playing" || !Number.isFinite(ms) || ms < 0) return;
+      wordStartedAtRef.current -= ms;
+      const remaining = Math.max(0, ROUND_SECONDS - Math.floor((Date.now() - wordStartedAtRef.current) / 1000));
+      setTimeLeft(remaining);
+      if (remaining === 0) {
+        setState(current => current ? { ...current, isFinished: true, isWin: false, currentStreak: 0 } : current);
+        setPhase("ended");
+      }
+    };
+    gameWindow.render_game_to_text = render;
+    gameWindow.advanceTime = step;
+    return () => {
+      if (gameWindow.render_game_to_text === render) delete gameWindow.render_game_to_text;
+      if (gameWindow.advanceTime === step) delete gameWindow.advanceTime;
+    };
+  }, [phase, timeLeft, state, length, message]);
+
   /* Enregistrement à la fin de la session */
   useEffect(() => {
     if (phase !== "ended" || !state || submittedRef.current) return;
@@ -203,6 +239,7 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
       return;
     }
     setSubmitStatus("saving");
+    const session = sessionRef.current;
     submitEnigmaScrollScore({
       wordLength: state.config.wordLength as WordLength,
       totalScore: state.totalScore,
@@ -210,6 +247,7 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
       durationMs: Date.now() - startedAtRef.current,
     })
       .then((result) => {
+        if (session !== sessionRef.current) return;
         if (!result.success) {
           setSubmitStatus("error");
           return;
@@ -231,25 +269,8 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
         });
         setSubmitStatus("saved");
       })
-      .catch(() => setSubmitStatus("error"));
+      .catch(() => { if (session === sessionRef.current) setSubmitStatus("error"); });
   }, [phase, state, isLoggedIn]);
-
-  /* Pression tactile puis clic : éviter la double saisie */
-  const press = (action: () => void) => ({
-    onTouchEnd: (event: React.TouchEvent) => {
-      event.preventDefault();
-      touchRef.current = true;
-      action();
-      window.setTimeout(() => {
-        touchRef.current = false;
-      }, 300);
-    },
-    onClick: (event: React.MouseEvent) => {
-      event.preventDefault();
-      if (touchRef.current) return;
-      action();
-    },
-  });
 
   if (phase === "start") {
     return (
@@ -301,7 +322,7 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
         rewards={rewards}
         rewardStatus={submitStatus}
         missionReached={missionTarget != null ? state.totalScore >= missionTarget : null}
-        onReplay={() => setPhase("start")}
+        onReplay={() => { sessionRef.current += 1; setPhase("start"); }}
       />
     );
   }
@@ -373,7 +394,7 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
             {KEY_ROWS.map((row, rowIndex) => (
               <div key={rowIndex} className="eq-keys-row">
                 {rowIndex === 2 ? (
-                  <button type="button" className="eq-key is-wide" {...press(submit)} aria-label="Valider">
+                  <button type="button" className="eq-key is-wide" onClick={submit} aria-label="Valider">
                     OK
                   </button>
                 ) : null}
@@ -382,13 +403,13 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
                     key={letter}
                     type="button"
                     className={`eq-key ${keys[letter] ? `is-${keys[letter]}` : ""}`}
-                    {...press(() => typeLetter(letter))}
+                    onClick={() => typeLetter(letter)}
                   >
                     {letter}
                   </button>
                 ))}
                 {rowIndex === 2 ? (
-                  <button type="button" className="eq-key is-wide" {...press(backspace)} aria-label="Effacer">
+                  <button type="button" className="eq-key is-wide" onClick={backspace} aria-label="Effacer">
                     ⌫
                   </button>
                 ) : null}

@@ -1,5 +1,7 @@
 "use client";
 
+import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
+
 /* Space Lex : shooter lexical. Le moteur est dans lib/games/spaceLexShooter. */
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -7,16 +9,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { submitLexiconBlasterScore } from "./actions";
 import {
   type GameState,
-  type Mission,
-  type EnemyWord,
-  type Bullet,
-  type Explosion,
-  type FeedbackMessage,
-  type PowerUp,
-  type PowerUpType,
   createGameState,
   startGame,
-  pauseGame,
   resumeGame,
   resetGame,
   moveShip,
@@ -28,7 +22,6 @@ import {
   checkCollisions,
   checkEnemiesReachedBottom,
   spawnEnemiesIfNeeded,
-  updateMissionIfNeeded,
   updateLevel,
   updateExplosions,
   updateFeedbackMessages,
@@ -37,8 +30,6 @@ import {
   updatePowerUps,
   collectPowerUp,
   updateActivePowerUps,
-  hasActivePowerUp,
-  getEnemyDimensions,
   activateSuper,
   updateSuperState,
   advanceDialogue,
@@ -420,12 +411,15 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
   const [isMobile, setIsMobile] = useState(false);
   const [keysPressed, setKeysPressed] = useState<Set<string>>(new Set());
   const [scoreResult, setScoreResult] = useState<ScoreResult | null>(null);
+  useRefreshAfterScore(scoreResult ? "saved" : "idle");
   const [isSubmittingScore, setIsSubmittingScore] = useState(false);
   const [scoreError, setScoreError] = useState(false);
   const gameStartTimeRef = useRef<number>(Date.now());
   const scoreSubmittedRef = useRef<boolean>(false);
+  const sessionRef = useRef(0);
   const gameLoopRef = useRef<number | null>(null);
   const lastUpdateRef = useRef<number>(Date.now());
+  const pausedAtRef = useRef<number>(0);
   const gameAreaRef = useRef<HTMLDivElement>(null);
 
   // Load default ship skin (first ship_skin item, or user's equipped skin)
@@ -495,26 +489,36 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
   // Start the game
   const handleStartGame = useCallback(() => {
     if (!gameState) return;
+    sessionRef.current += 1;
     const newState = startGame(gameState);
     setGameState(newState);
     setIsPaused(false);
+    setKeysPressed(new Set());
+    pausedAtRef.current = 0;
     lastUpdateRef.current = Date.now();
     gameStartTimeRef.current = Date.now();
     scoreSubmittedRef.current = false;
     setScoreResult(null);
     setScoreError(false);
+    setIsSubmittingScore(false);
   }, [gameState]);
 
   // Pause/Resume
   const handlePauseToggle = useCallback(() => {
-    if (!gameState || gameState.gameOver) return;
+    if (!gameState?.isRunning || gameState.gameOver) return;
+    setKeysPressed(new Set());
     if (isPaused) {
+      const elapsed = Date.now() - pausedAtRef.current;
+      setGameState(current => current ? resumeGame(current, elapsed) : current);
+      pausedAtRef.current = 0;
       setIsPaused(false);
       lastUpdateRef.current = Date.now();
     } else {
+      pausedAtRef.current = Date.now();
+      setGameState(current => current ? { ...current, shipVelocity: 0 } : current);
       setIsPaused(true);
     }
-  }, [gameState, isPaused]);
+  }, [gameState?.isRunning, gameState?.gameOver, isPaused]);
 
   const triggerShake = useCallback(() => {
     setScreenShake(true);
@@ -524,13 +528,17 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
   // Reset game
   const handleReset = useCallback(() => {
     if (!gameState) return;
+    sessionRef.current += 1;
     const newState = resetGame(gameState);
     setGameState(newState);
     setIsPaused(false);
+    setKeysPressed(new Set());
+    pausedAtRef.current = 0;
     gameStartTimeRef.current = Date.now();
     scoreSubmittedRef.current = false;
     setScoreResult(null);
     setScoreError(false);
+    setIsSubmittingScore(false);
   }, [gameState]);
 
   // Submit score when game ends
@@ -538,6 +546,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
     if (!gameState?.gameOver || scoreSubmittedRef.current || isSubmittingScore || !isLoggedIn) return;
 
     const submitScore = async () => {
+      const session = sessionRef.current;
       setIsSubmittingScore(true);
       scoreSubmittedRef.current = true;
 
@@ -552,6 +561,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
           wordsMissed: gameState.missedWords.length,
           durationMs,
         });
+        if (session !== sessionRef.current) return;
 
         if (result.success && result.rewards) {
           setScoreResult({
@@ -573,10 +583,11 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
           setScoreError(true);
         }
       } catch (error) {
+        if (session !== sessionRef.current) return;
         console.error("Error submitting score:", error);
         setScoreError(true);
       } finally {
-        setIsSubmittingScore(false);
+        if (session === sessionRef.current) setIsSubmittingScore(false);
       }
     };
 
@@ -584,33 +595,41 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
   }, [gameState?.gameOver, gameState?.score, gameState?.waveNumber, gameState?.maxCombo, gameState?.learnedWords.length, gameState?.missedWords.length, isLoggedIn, isSubmittingScore]);
 
   const handleActivateSuper = useCallback(() => {
+    if (isPaused) return;
     setGameState(prev => prev ? activateSuper(prev) : prev);
-  }, []);
+  }, [isPaused]);
 
   const handleAdvanceDialogue = useCallback(() => {
+    if (isPaused) return;
     setGameState(prev => prev ? advanceDialogue(prev) : prev);
-  }, []);
+  }, [isPaused]);
 
   const handleCloseDialogue = useCallback(() => {
+    if (isPaused) return;
     setGameState(prev => prev ? closeDialogue(prev) : prev);
-  }, []);
+  }, [isPaused]);
 
   // Handle keyboard input
   useEffect(() => {
-    if (!gameState?.isRunning || gameState.gameOver || isPaused) return;
+    if (!gameState?.isRunning || gameState.gameOver) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key === "p" || e.key === "P" || e.key === "Escape") {
+        e.preventDefault();
+        if (!e.repeat) handlePauseToggle();
+        return;
+      }
+      if (isPaused) return;
       if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") {
         e.preventDefault();
         setKeysPressed((prev) => new Set(prev).add("left"));
       } else if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") {
         e.preventDefault();
         setKeysPressed((prev) => new Set(prev).add("right"));
-      } else if (e.key === "p" || e.key === "P" || e.key === "Escape") {
-        e.preventDefault();
-        handlePauseToggle();
       } else if (e.key === " ") {
         e.preventDefault();
+        if (e.repeat) return;
         if (gameState.currentDialogue) {
           handleAdvanceDialogue();
         } else {
@@ -637,15 +656,21 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
 
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
+    const clearKeys = () => {
+      setKeysPressed(new Set());
+      setGameState(current => current ? { ...current, shipVelocity: 0 } : current);
+    };
+    window.addEventListener("blur", clearKeys);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", clearKeys);
     };
-  }, [gameState?.isRunning, gameState?.gameOver, isPaused, handlePauseToggle, handleActivateSuper]);
+  }, [gameState?.isRunning, gameState?.gameOver, gameState?.currentDialogue, isPaused, handlePauseToggle, handleActivateSuper, handleAdvanceDialogue]);
 
   // Handle ship movement based on keys
   useEffect(() => {
-    if (!gameState?.isRunning || gameState.gameOver || isPaused) return;
+    if (!gameState?.isRunning || gameState.gameOver || gameState.currentDialogue || isPaused) return;
 
     const interval = setInterval(() => {
       setGameState((prev) => {
@@ -658,33 +683,49 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
     }, 16); // ~60fps
 
     return () => clearInterval(interval);
-  }, [gameState?.isRunning, gameState?.gameOver, isPaused, keysPressed]);
+  }, [gameState?.isRunning, gameState?.gameOver, gameState?.currentDialogue, isPaused, keysPressed]);
 
   // Handle touch input for mobile
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (!gameState?.isRunning || gameState.gameOver || isPaused) return;
+    if (!gameState?.isRunning || gameState.gameOver || gameState.currentDialogue || isPaused) return;
     const touch = e.touches[0];
     if (gameAreaRef.current) {
       const rect = gameAreaRef.current.getBoundingClientRect();
       const x = (touch.clientX - rect.left) / rect.width;
       setGameState((prev) => prev ? setShipTarget(prev, x) : prev);
     }
-  }, [gameState?.isRunning, gameState?.gameOver, isPaused]);
+  }, [gameState?.isRunning, gameState?.gameOver, gameState?.currentDialogue, isPaused]);
+
+  useEffect(() => {
+    const gameWindow = window as Window & { render_game_to_text?: () => string };
+    const render = () => JSON.stringify({
+      phase: gameState?.gameOver ? "ended" : isPaused ? "paused" : gameState?.isRunning ? "playing" : "start",
+      coordinates: "0-1; origin top-left, x right, y down",
+      score: gameState?.score, lives: gameState?.lives, shipX: gameState?.shipX,
+      wave: gameState?.waveNumber, waveStatus: gameState?.waveStatus, progress: gameState?.waveProgress,
+      mission: gameState?.mission?.label,
+      enemies: gameState?.enemies.map(enemy => ({ text: enemy.text, x: enemy.x, y: enemy.y })),
+      bullets: gameState?.bullets.map(bullet => ({ x: bullet.x, y: bullet.y })),
+      boss: gameState?.boss,
+      dialogue: gameState?.currentDialogue?.lines[gameState.dialogueIndex], superBar: gameState?.superBar,
+    });
+    gameWindow.render_game_to_text = render;
+    return () => { if (gameWindow.render_game_to_text === render) delete gameWindow.render_game_to_text; };
+  }, [gameState, isPaused]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!gameState?.isRunning || gameState.gameOver || isPaused) return;
-    e.preventDefault();
+    if (!gameState?.isRunning || gameState.gameOver || gameState.currentDialogue || isPaused) return;
     const touch = e.touches[0];
     if (gameAreaRef.current) {
       const rect = gameAreaRef.current.getBoundingClientRect();
       const x = (touch.clientX - rect.left) / rect.width;
       setGameState((prev) => prev ? setShipTarget(prev, x) : prev);
     }
-  }, [gameState?.isRunning, gameState?.gameOver, isPaused]);
+  }, [gameState?.isRunning, gameState?.gameOver, gameState?.currentDialogue, isPaused]);
 
   // Game loop
   useEffect(() => {
-    if (!gameState || !gameState.isRunning || gameState.gameOver || isPaused) {
+    if (!gameState?.isRunning || gameState.gameOver || isPaused) {
       if (gameLoopRef.current) {
         cancelAnimationFrame(gameLoopRef.current);
         gameLoopRef.current = null;
@@ -694,7 +735,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
 
     const gameLoop = () => {
       const now = Date.now();
-      const deltaTime = now - lastUpdateRef.current;
+      const deltaTime = Math.min(50, now - lastUpdateRef.current);
       lastUpdateRef.current = now;
 
       setGameState((prevState) => {
@@ -781,7 +822,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
         gameLoopRef.current = null;
       }
     };
-  }, [gameState?.isRunning, gameState?.gameOver, isPaused]);
+  }, [gameState?.isRunning, gameState?.gameOver, isPaused, triggerShake]);
 
   if (!gameState) {
     return null;
@@ -890,6 +931,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
           className={`eq-game-arcade eq-space ${comboBurst ? "is-right" : ""}`}
           style={{
             height: isMobile ? "440px" : "600px",
+            touchAction: "none",
           }}
           data-testid="space-stage"
           onTouchStart={handleTouchStart}
@@ -1348,7 +1390,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="absolute inset-0 bg-black/85 z-30 flex items-center justify-center backdrop-blur-sm"
+              className="absolute inset-0 bg-black/85 z-[60] flex items-center justify-center backdrop-blur-sm"
             >
               <div className="eq-space-overlay-card text-center">
                 <p className="eq-kicker">Pause</p>

@@ -37,6 +37,10 @@
     "**/*.mts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "ancienne version",
+    "output",
+    ".playwright-cli",
+    ".playwright-mcp"
   ]
 }

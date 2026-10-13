@@ -86,28 +86,29 @@ export async function getGameLeaderboards<TKey extends string>({
   }
 
   for (const bucket of buckets) {
-    let query = adminClient
-      .from("game_scores")
-      .select("user_id,score,max_score")
-      .eq("game_id", game.id)
-      .order("score", { ascending: scoreOrder === "asc" })
-      .limit(rowLimit);
-
-    if (bucket.difficulty) {
-      query = query.eq("difficulty", bucket.difficulty);
-    }
-
-    const { data: scores, error: scoresError } = await query;
-
-    if (scoresError || !scores || scores.length === 0) {
-      if (scoresError) {
-        console.error(
-          `[leaderboard] Unable to fetch scores for "${slug}" (${bucket.key})`,
-          scoresError
-        );
+    // Une tranche des meilleurs scores peut ne contenir qu'un joueur très actif.
+    // Parcourir toute l'histoire pour ne pas masquer les suivants ni sous-compter
+    // les parties. rowLimit est la taille d'une page, pas un plafond d'historique.
+    const pageSize = Math.max(1, Math.min(1000, Math.floor(rowLimit)));
+    const scores: ScoreRow[] = [];
+    let failed = false;
+    for (let offset = 0; ; offset += pageSize) {
+      let query = adminClient.from("game_scores").select("user_id,score,max_score")
+        .eq("game_id", game.id)
+        .order("score", { ascending: scoreOrder === "asc" })
+        .order("id", { ascending: true })
+        .range(offset, offset + pageSize - 1);
+      if (bucket.difficulty) query = query.eq("difficulty", bucket.difficulty);
+      const { data: page, error } = await query;
+      if (error) {
+        console.error(`[leaderboard] Unable to fetch scores for "${slug}" (${bucket.key})`, error);
+        failed = true;
+        break;
       }
-      continue;
+      scores.push(...((page ?? []) as ScoreRow[]));
+      if (!page || page.length < pageSize) break;
     }
+    if (failed || scores.length === 0) continue;
 
     const userStats = new Map<
       string,
@@ -138,7 +139,13 @@ export async function getGameLeaderboards<TKey extends string>({
       });
     }
 
-    const userIds = Array.from(userStats.keys());
+    const rankedStats = Array.from(userStats.entries())
+      .sort(([leftId, left], [rightId, right]) => {
+        const difference = scoreOrder === "asc" ? left.bestScore - right.bestScore : right.bestScore - left.bestScore;
+        return difference || leftId.localeCompare(rightId);
+      })
+      .slice(0, limit);
+    const userIds = rankedStats.map(([userId]) => userId);
 
     if (userIds.length === 0) {
       continue;
@@ -188,7 +195,7 @@ export async function getGameLeaderboards<TKey extends string>({
       });
     }
 
-    result[bucket.key] = Array.from(userStats.entries())
+    result[bucket.key] = rankedStats
       .map(([userId, stats]) => {
         const equipped = equippedMap.get(userId);
 
@@ -243,24 +250,13 @@ export async function getPersonalBests<TKey extends string>({
     return result;
   }
 
-  const { data: rows, error } = await adminClient
-    .from("game_scores")
-    .select("score, difficulty")
-    .eq("game_id", game.id)
-    .eq("user_id", userId)
-    .limit(2000);
-
-  if (error || !rows) {
-    return result;
-  }
-
   for (const bucket of buckets) {
-    const scores = (rows as { score: number; difficulty: string | null }[])
-      .filter((row) => !bucket.difficulty || row.difficulty === bucket.difficulty)
-      .map((row) => row.score);
-    if (scores.length > 0) {
-      result[bucket.key] = scoreOrder === "asc" ? Math.min(...scores) : Math.max(...scores);
-    }
+    let query = adminClient.from("game_scores").select("score")
+      .eq("game_id", game.id).eq("user_id", userId)
+      .order("score", { ascending: scoreOrder === "asc" }).limit(1);
+    if (bucket.difficulty) query = query.eq("difficulty", bucket.difficulty);
+    const { data: best, error } = await query.maybeSingle();
+    if (!error && best) result[bucket.key] = best.score;
   }
 
   return result;

@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node scripts/tests/run-regressions.cjs",
+    "test:browser": "node scripts/tests/browser-games-audit.cjs",
     "test-supabase": "node test-supabase.js",
     "update-word-lists": "node scripts/update-word-lists.js"
   },

@@ -13,6 +13,22 @@ export const GRAMMAR_RUSH_BASE_POINTS = 10;
 export const GRAMMAR_RUSH_SPEED_BONUS = 5;
 export const GRAMMAR_RUSH_SPEED_LIMIT_MS = 3000;
 export const GRAMMAR_RUSH_MAX_MULTIPLIER = 2;
+export const GRAMMAR_RUSH_MAX_QUESTIONS = 60;
+
+export type RushResult = { score: number; correct: number; attempts: number; durationMs: number };
+
+/** Bornes du moteur ; les valeurs incohérentes ne deviennent pas des records. */
+export function isValidRushResult(result: RushResult): boolean {
+  if (!result || ![result.score, result.correct, result.attempts, result.durationMs]
+    .every((value) => Number.isSafeInteger(value) && value >= 0)) return false;
+  if (result.correct > result.attempts || result.attempts > GRAMMAR_RUSH_MAX_QUESTIONS) return false;
+  if (result.durationMs > GRAMMAR_RUSH_TIME_MS + 1_000 || result.durationMs < Math.max(0, result.attempts - 1) * 500) return false;
+  let maxScore = 0;
+  for (let i = 0; i < result.correct; i += 1) {
+    maxScore += Math.round(GRAMMAR_RUSH_BASE_POINTS * rushMultiplier(i)) + GRAMMAR_RUSH_SPEED_BONUS;
+  }
+  return result.score >= result.correct * GRAMMAR_RUSH_BASE_POINTS && result.score <= maxScore;
+}
 
 export type RushQuestion = {
   id: string;
@@ -48,6 +64,9 @@ export function rushMultiplier(streak: number) {
 export function answerRush(state: RushState, choice: number, elapsedMs: number) {
   const question = currentRushQuestion(state);
   if (!question) {
+    return { state, isCorrect: false, points: 0, speedBonus: 0 };
+  }
+  if (!Number.isInteger(choice) || choice < 0 || choice >= question.options.length || !Number.isFinite(elapsedMs) || elapsedMs < 0) {
     return { state, isCorrect: false, points: 0, speedBonus: 0 };
   }
   const isCorrect = question.correctAnswer === choice;

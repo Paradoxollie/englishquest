@@ -16,7 +16,7 @@ type GameShellProps = {
 };
 
 /**
- * Cadre commun des six jeux : en-tête avec emblème et image, rappel de la
+ * Cadre commun des jeux : en-tête avec emblème et image, rappel de la
  * mission en cours, zone de jeu, colonne latérale. Composant serveur ;
  * le jeu lui-même est un composant client passé en enfant.
  */

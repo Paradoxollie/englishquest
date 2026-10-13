@@ -1,7 +1,7 @@
 # English Quest
 
 Site gratuit d'apprentissage de l'anglais par le jeu, créé par Pierre Marienne, professeur
-d'anglais. Parcours de cours avec quiz, six mini-jeux, progression par XP et or, boutique
+d'anglais. Parcours de cours avec quiz, sept mini-jeux, progression par XP et or, boutique
 d'avatars, classements.
 
 Production : https://englishquest-omega.vercel.app
@@ -34,6 +34,18 @@ npm run lint
 npx tsc --noEmit
 npm run build
 ```
+
+Les contrôles de régression des jeux, des récompenses, des quiz et des niveaux :
+
+```bash
+npm test
+npm run test:browser -- http://127.0.0.1:3000
+```
+
+`npm test` fonctionne hors ligne, sans toucher aux comptes ni envoyer d'e-mail.
+Le contrôle navigateur utilise Playwright installé localement (ou son cache npm),
+avec `PLAYWRIGHT_MODULE` et `PLAYWRIGHT_EXECUTABLE_PATH` si nécessaire. Il joue
+en invité et enregistre ses captures dans `output/playwright/audit-2026-10-13/`.
 
 ## Structure
 

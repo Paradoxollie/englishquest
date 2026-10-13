@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useCourseMission } from "@/components/courses/course-mission-provider";
-import { isCourseQuizScorePassing } from "@/lib/courses/mission-state";
+import { isCourseQuizScorePassing } from "@/lib/courses/quiz-score";
 
 export type Question = {
   id: number;
@@ -33,6 +33,12 @@ export function Quiz({ questions }: QuizProps) {
   const [animationKey, setAnimationKey] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const hasSubmittedResultRef = useRef(false);
+  const roundRef = useRef({ index: 0, answered: false, finished: false });
+  const attemptRef = useRef(0);
+
+  useEffect(() => () => {
+    attemptRef.current += 1;
+  }, []);
 
   useEffect(() => {
     if (
@@ -78,34 +84,46 @@ export function Quiz({ questions }: QuizProps) {
       return;
     }
 
+    const attempt = attemptRef.current;
     void (async () => {
-      const outcome = await mission.submitQuizResult(score, questions.length);
-      if (!outcome) {
-        setSyncMessage("Le score n'a pas pu être enregistré. Réessaie dans un instant.");
-        return;
+      try {
+        const outcome = await mission.submitQuizResult(score, questions.length);
+        if (attempt !== attemptRef.current) return;
+        if (!outcome) {
+          setSyncMessage("Le score n'a pas pu être enregistré. Réessaie dans un instant.");
+          return;
+        }
+        const updatedState = outcome.missionState;
+        if (outcome.courseCompleted) {
+          const { xp, gold, newLevel } = outcome.courseCompleted;
+          setSyncMessage(
+            `Mission validée : +${xp} XP et +${gold} or${newLevel ? `, niveau ${newLevel} atteint` : ""}. Le cours suivant est ouvert sur la carte.`
+          );
+          return;
+        }
+        if (updatedState.readyToComplete) {
+          setSyncMessage("Quiz validé. Le défi de jeu est déjà atteint : la mission se valide sur la carte.");
+          return;
+        }
+        if (updatedState.quizPassed) {
+          setSyncMessage("Quiz validé. Il reste le défi de jeu pour terminer la mission.");
+          return;
+        }
+        setSyncMessage("Score enregistré. Il faut 80 % pour valider : tu peux refaire le quiz.");
+      } catch {
+        if (attempt === attemptRef.current) {
+          setSyncMessage("Le score n'a pas pu être enregistré. Réessaie dans un instant.");
+        }
       }
-      const updatedState = outcome.missionState;
-      if (outcome.courseCompleted) {
-        const { xp, gold, newLevel } = outcome.courseCompleted;
-        setSyncMessage(
-          `Mission validée : +${xp} XP et +${gold} or${newLevel ? `, niveau ${newLevel} atteint` : ""}. Le cours suivant est ouvert sur la carte.`
-        );
-        return;
-      }
-      if (updatedState.readyToComplete) {
-        setSyncMessage("Quiz validé. Le défi de jeu est déjà atteint : la mission se valide sur la carte.");
-        return;
-      }
-      if (updatedState.quizPassed) {
-        setSyncMessage("Quiz validé. Il reste le défi de jeu pour terminer la mission.");
-        return;
-      }
-      setSyncMessage("Score enregistré. Il faut 80 % pour valider : tu peux refaire le quiz.");
     })();
   }, [mission, questions.length, score, showResult]);
 
   const handleOptionClick = (index: number) => {
-    if (isAnswered) return;
+    const current = roundRef.current;
+    const question = questions[currentQuestion];
+    if (current.finished || current.answered || current.index !== currentQuestion || !question) return;
+    if (!Number.isInteger(index) || index < 0 || index >= question.options.length) return;
+    current.answered = true;
     setSelectedOption(index);
     setIsAnswered(true);
     setAnimationKey((key) => key + 1);
@@ -121,16 +139,22 @@ export function Quiz({ questions }: QuizProps) {
   };
 
   const nextQuestion = () => {
+    const current = roundRef.current;
+    if (current.finished || !current.answered || current.index !== currentQuestion) return;
     if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion((prev) => prev + 1);
+      roundRef.current = { index: currentQuestion + 1, answered: false, finished: false };
+      setCurrentQuestion(currentQuestion + 1);
       setSelectedOption(null);
       setIsAnswered(false);
     } else {
+      current.finished = true;
       setShowResult(true);
     }
   };
 
   const restart = () => {
+    attemptRef.current += 1;
+    roundRef.current = { index: 0, answered: false, finished: false };
     setCurrentQuestion(0);
     setSelectedOption(null);
     setIsAnswered(false);
@@ -144,6 +168,9 @@ export function Quiz({ questions }: QuizProps) {
 
   const question = questions[currentQuestion];
   const total = questions.length;
+  if (!question || total === 0) {
+    return <div className="eq-quiz">Ce quiz n&apos;est pas disponible pour le moment.</div>;
+  }
   const progress = Math.round(((currentQuestion + (isAnswered ? 1 : 0)) / total) * 100);
   const isCorrect = isAnswered && selectedOption === question.correctAnswer;
 

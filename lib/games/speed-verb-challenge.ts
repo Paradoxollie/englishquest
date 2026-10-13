@@ -30,6 +30,7 @@ export interface Round {
   currentVerb: Verb;
   required: RequiredFields;
   shownAtMs: number;            // timestamp when the verb was shown (for analytics)
+  answered?: boolean;          // an answer or skip can settle this round only once
 }
 
 export interface GameConfig {
@@ -91,6 +92,19 @@ function includesNormalized(haystack: string[], needle: string | null): boolean 
   if (needle == null) return false;
   const target = needle.trim().toLowerCase();
   return haystack.some(opt => opt.trim().toLowerCase() === target);
+}
+
+function includesTranslation(translations: string[], answer: string | null): boolean {
+  if (!answer) return false;
+  const normalizeFrench = (value: string) => value
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[’‘]/g, "'").replace(/\s+/g, " ").trim().toLowerCase();
+  const target = normalizeFrench(answer);
+  return translations.some((translation) => {
+    // Parentheses in the vocabulary explain the meaning; pupils need not type them.
+    const variants = [translation, translation.replace(/\([^)]*\)/g, ""), translation.replace(/[()]/g, "")];
+    return variants.some((variant) => normalizeFrench(variant) === target);
+  });
 }
 
 function computeCombo(streak: number): number {
@@ -165,7 +179,7 @@ export function submitAnswer(
   answer: AnswerPayload,
   answerTimeMs?: number
 ): { state: GameState; result: SubmitResult } {
-  if (state.ended || !state.currentRound) {
+  if (state.ended || !state.currentRound || state.currentRound.answered) {
     return {
       state,
       result: {
@@ -185,7 +199,7 @@ export function submitAnswer(
   // Validate per required fields
   const psOk = required.pastSimple ? includesNormalized(currentVerb.pastSimple, userPS) : true;
   const ppOk = required.pastParticiple ? includesNormalized(currentVerb.pastParticiple, userPP) : true;
-  const trOk = required.translation ? includesNormalized(currentVerb.translations, userTR) : true;
+  const trOk = required.translation ? includesTranslation(currentVerb.translations, userTR) : true;
 
   const isCorrect = psOk && ppOk && trOk;
 
@@ -249,7 +263,7 @@ export function submitAnswer(
     highestStreak: Math.max(state.highestStreak, newStreak),
     comboMultiplier: newCombo,
     roundsCompleted: isCorrect ? state.roundsCompleted + 1 : state.roundsCompleted,
-    // currentRound remains until caller starts a new one
+    currentRound: { ...state.currentRound, answered: true },
   };
 
   return {
@@ -267,10 +281,13 @@ export function submitAnswer(
 }
 
 export function skipCurrentVerb(state: GameState): GameState {
-  if (state.ended || !state.currentRound) return state;
-  // Minimal rule: skipping does not change score or streak.
-  // If you want a penalty or streak reset, adjust here.
-  return state;
+  if (state.ended || !state.currentRound || state.currentRound.answered) return state;
+  return {
+    ...state,
+    streak: 0,
+    comboMultiplier: 1,
+    currentRound: { ...state.currentRound, answered: true },
+  };
 }
 
 export function tickTimer(state: GameState, deltaMs: number): GameState {
@@ -1198,4 +1215,4 @@ export const VERBS: Verb[] = [
       translations: ["tordre"],
     },
   ];
-  
+

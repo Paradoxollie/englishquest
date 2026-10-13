@@ -30,9 +30,9 @@ export async function submitChapterExamAction(
     return { error: "Valide d'abord les dix missions du chapitre." };
   }
 
-  const graded = gradeChapterExam(answers);
-  if (graded.total === 0) {
-    return { error: "Aucune réponse reçue." };
+  const graded = gradeChapterExam(answers, chapter);
+  if (!graded.valid) {
+    return { error: "Réponds aux quinze questions de l'examen du chapitre affiché." };
   }
   const record = await recordChapterExam(user.id, chapter, graded.correct, graded.total);
   revalidatePath("/quest");

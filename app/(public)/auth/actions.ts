@@ -74,26 +74,28 @@ async function getLoginEmailForUsername(username: string) {
     );
   }
 
-  // Fallback : chercher dans auth.users via l'API Admin
-  const { data: usersData, error: usersError } = await adminClient.auth.admin.listUsers();
-  if (usersError) {
-    throw new Error(`AUTH_LOOKUP_FAILED:${usersError.message}`);
-  }
+  // Le répertoire Admin est paginé : les anciens profils sans email peuvent
+  // correspondre à un compte situé bien après la première page.
+  const perPage = 200;
+  for (let page = 1; ; page += 1) {
+    const { data: usersData, error: usersError } = await adminClient.auth.admin.listUsers({ page, perPage });
+    if (usersError) {
+      throw new Error(`AUTH_LOOKUP_FAILED:${usersError.message}`);
+    }
 
-  const matchedUser = usersData.users.find(
-    (user) =>
-      user.user_metadata?.username?.toLowerCase() === username.toLowerCase()
-  );
-
-  if (matchedUser) {
-    return (
-      matchedUser.user_metadata?.login_email?.toLowerCase() ??
-      matchedUser.email?.toLowerCase() ??
-      null
+    const matchedUser = usersData.users.find((user) =>
+      typeof user.user_metadata?.username === "string" &&
+      user.user_metadata.username.toLowerCase() === username.toLowerCase()
     );
+    if (matchedUser) {
+      return (
+        matchedUser.user_metadata?.login_email?.toLowerCase() ??
+        matchedUser.email?.toLowerCase() ??
+        null
+      );
+    }
+    if (usersData.users.length < perPage) return null;
   }
-
-  return null;
 }
 
 /**

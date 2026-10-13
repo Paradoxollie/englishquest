@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s | English Quest",
   },
   description:
-    "Un parcours d'anglais par niveau, des cours courts avec quiz et six jeux pour s'entraîner. Gratuit, créé par Pierre Marienne, professeur d'anglais.",
+    "Un parcours d'anglais par niveau, des cours courts avec quiz et sept jeux pour s'entraîner. Gratuit, créé par Pierre Marienne, professeur d'anglais.",
   keywords: [
     "apprendre l'anglais",
     "cours d'anglais",
@@ -60,13 +60,13 @@ export const metadata: Metadata = {
     siteName: "English Quest",
     title: "English Quest, apprendre l'anglais en jouant",
     description:
-      "Un parcours d'anglais par niveau, des cours courts avec quiz et six jeux pour s'entraîner. Gratuit.",
+      "Un parcours d'anglais par niveau, des cours courts avec quiz et sept jeux pour s'entraîner. Gratuit.",
   },
   twitter: {
     card: "summary_large_image",
     title: "English Quest, apprendre l'anglais en jouant",
     description:
-      "Un parcours d'anglais par niveau, des cours courts avec quiz et six jeux pour s'entraîner. Gratuit.",
+      "Un parcours d'anglais par niveau, des cours courts avec quiz et sept jeux pour s'entraîner. Gratuit.",
   },
   other: {
     "google-adsense-account": ADSENSE_CLIENT,

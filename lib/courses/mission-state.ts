@@ -2,12 +2,14 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getCourseMissionPlan } from "@/lib/courses/campaign";
 import { getUserCourseChallengeProgress } from "@/lib/courses/mission-progress";
 import { getUserCourseRoadmap, type CourseRoadmapEntry } from "@/lib/courses/progress";
+import { isCourseQuizScorePassing } from "./quiz-score";
+export { isCourseQuizScorePassing };
+export { COURSE_QUIZ_PASS_RATIO } from "./quiz-score";
 
 const COURSE_MISSION_TELEMETRY_MAGIC = 9_000_000;
 const COURSE_MISSION_TELEMETRY_READ_FLAG = 1_000_000;
 const COURSE_MISSION_TELEMETRY_TOTAL_FACTOR = 1_000;
 
-export const COURSE_QUIZ_PASS_RATIO = 0.8;
 
 type DecodedCourseMissionTelemetry = {
   readingCheckpointReached: boolean;
@@ -30,13 +32,6 @@ function clampMissionNumber(value: number) {
   return Math.max(0, Math.min(999, Math.floor(value)));
 }
 
-export function isCourseQuizScorePassing(score: number, total: number) {
-  if (total <= 0) {
-    return false;
-  }
-
-  return score / total >= COURSE_QUIZ_PASS_RATIO;
-}
 
 export function decodeCourseMissionTelemetry(
   value: number | null | undefined

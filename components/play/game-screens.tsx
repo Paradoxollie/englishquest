@@ -187,7 +187,7 @@ export function GameEnd({
             <p className="eq-chip eq-chip-gold-soft">Record personnel</p>
           ) : null}
           {rewards.reduced ? (
-            <p className="eq-game-end-note">Au-delà de cinq parties par jour, les gains sont réduits.</p>
+            <p className="eq-game-end-note">Après cinq parties sur un même jeu dans la journée, les gains sont réduits.</p>
           ) : null}
           {rewards.newLevel ? (
             <p className="eq-game-levelup eq-pop" role="status">

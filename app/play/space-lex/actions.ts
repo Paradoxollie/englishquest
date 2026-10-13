@@ -1,6 +1,6 @@
 "use server";
 import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
-import { countPlaysToday } from "@/lib/profile/economy-server";
+import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
 import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
 
 /**
@@ -16,7 +16,6 @@ import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/li
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { calculateLevelFromXP } from "@/lib/profile/leveling";
 
 // Default difficulty for all Lexicon Blaster scores (no difficulty selection in this game)
 const DEFAULT_DIFFICULTY = "medium" as const;
@@ -60,6 +59,12 @@ export async function submitLexiconBlasterScore(params: {
     };
 }> {
     try {
+        if (![params.score, params.wave, params.maxCombo, params.wordsMastered, params.wordsMissed, params.durationMs]
+            .every(value => Number.isSafeInteger(value) && value >= 0) || params.wave < 1 || params.wave > 1_000 ||
+            params.score > 1_000_000 || params.maxCombo > 20_000 || params.wordsMastered > 20_000 ||
+            params.wordsMissed > 20_000 || params.durationMs > 2 * 60 * 60 * 1000) {
+            return { success: false, error: "Score Space Lex invalide" };
+        }
         const supabase = await createSupabaseServerClient();
         const adminClient = createSupabaseAdminClient();
 
@@ -146,41 +151,10 @@ export async function submitLexiconBlasterScore(params: {
         }
 
 
-        // Update user profile with rewards
-        const { data: profile } = await adminClient
-            .from("profiles")
-            .select("xp, gold, level")
-            .eq("id", user.id)
-            .single();
-
-        if (!profile) {
-            return {
-                success: false,
-                error: "Profile not found",
-            };
-        }
-
-        const newXP = profile.xp + rewards.xpEarned;
-        const newGold = profile.gold + rewards.goldEarned;
-        const newLevel = calculateLevelFromXP(newXP);
-
-        const { error: updateError } = await adminClient
-            .from("profiles")
-            .update({
-                xp: newXP,
-                gold: newGold,
-                level: newLevel,
-                updated_at: new Date().toISOString(),
-            })
-            .eq("id", user.id);
-
-        if (updateError) {
-            console.error("Error updating profile:", updateError);
-            return {
-                success: false,
-                error: "Failed to update rewards",
-            };
-        }
+        const updatedProfile = await grantProfileRewards(adminClient, user.id, {
+            xp: rewards.xpEarned,
+            gold: rewards.goldEarned,
+        });
 
         // Check and grant Daily Challenge bonus
         const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
@@ -192,7 +166,7 @@ export async function submitLexiconBlasterScore(params: {
             rewards: {
                 xpEarned: rewards.xpEarned,
                 goldEarned: rewards.goldEarned,
-                newLevel: newLevel > profile.level ? newLevel : undefined,
+                newLevel: updatedProfile.level > updatedProfile.previousLevel ? updatedProfile.level : undefined,
             },
             dailyChallenge: dailyChallengeResult,
           courseCompleted,

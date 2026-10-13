@@ -11,6 +11,11 @@ maintient actif.
   (`if not exists`, `on conflict`). Les scripts 02 à 05 du 10 octobre 2026 ont été
   appliqués en production ce jour-là ; le 01 (suppression de trois jeux fantômes sans
   score) reste à passer à la main dans l'éditeur SQL.
+- Les quatre migrations du 13 octobre 2026 sont appliquées : lecture des profils
+  sans récursion, validation et récompense atomiques des missions et examens,
+  écritures des soldes et scores réservées au serveur. Les nouveaux comptes sont
+  toujours créés avec le rôle étudiant ; les métadonnées utilisateur ne choisissent
+  pas les droits administrateur.
 - `archive/` : les 39 scripts historiques de 2025-2026, déjà exécutés, à ne pas relancer.
 
 ## Tables utilisées par le code

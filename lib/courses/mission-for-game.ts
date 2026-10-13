@@ -1,4 +1,4 @@
-import { getResolvedCourseMissionPlans } from "@/lib/courses/campaign-server";
+import { getCourseMissionPlan } from "@/lib/courses/campaign";
 import { lessons } from "@/lib/courses/lessons";
 import { getUserCourseMissionState } from "@/lib/courses/mission-state";
 import { getUserCourseRoadmap } from "@/lib/courses/progress";
@@ -33,8 +33,7 @@ export async function getMissionForGame(userId: string | null, gameSlug: string)
       return null;
     }
 
-    const plans = await getResolvedCourseMissionPlans([active]);
-    const plan = plans[active.courseId];
+    const plan = getCourseMissionPlan(active);
     if (!plan || plan.primaryGameSlug !== gameSlug) {
       return null;
     }

@@ -178,10 +178,11 @@ export function createGameState(
  * Start the game
  */
 export function startGame(state: GameState): GameState {
+    if (state.started) return state;
     return {
         ...state,
         started: true,
-        phase: "waiting",
+        phase: state.rounds.length > 0 ? "waiting" : "ended",
     };
 }
 
@@ -189,7 +190,7 @@ export function startGame(state: GameState): GameState {
  * Start showing choices (called after wait time)
  */
 export function startAnswering(state: GameState, nowMs: number): GameState {
-    if (state.phase !== "waiting") return state;
+    if (!state.started || state.phase !== "waiting" || !Number.isFinite(nowMs)) return state;
 
     const currentRound = state.rounds[state.currentRoundIndex];
     if (!currentRound) return state;
@@ -217,6 +218,7 @@ export function submitAnswer(
 
     const currentRound = state.rounds[state.currentRoundIndex];
     if (!currentRound || currentRound.startTimeMs === undefined) return state;
+    if (!Number.isInteger(choiceIndex) || choiceIndex < 0 || choiceIndex >= currentRound.choices.length || !Number.isFinite(nowMs)) return state;
 
     const isCorrect = choiceIndex === currentRound.correctIndex;
     const reactionTimeMs = Math.max(0, nowMs - currentRound.startTimeMs);

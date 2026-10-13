@@ -1,11 +1,14 @@
 "use client";
 
+import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   VERBS,
   createInitialGameState,
   startNewRound,
   submitAnswer,
+  skipCurrentVerb,
   tickTimer,
   type AnswerPayload,
   type Difficulty,
@@ -76,6 +79,7 @@ export function SpeedVerbGame({
   const [roundKey, setRoundKey] = useState(0);
   const [rewards, setRewards] = useState<RewardSummary | null>(null);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
+  useRefreshAfterScore(submitStatus);
 
   const lastTickRef = useRef(0);
   const startedAtRef = useRef(0);
@@ -84,6 +88,9 @@ export function SpeedVerbGame({
   const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const submittedRef = useRef(false);
   const firstInputRef = useRef<HTMLInputElement | null>(null);
+  const stateRef = useRef<GameState | null>(null);
+  const roundLockedRef = useRef(false);
+  const sessionRef = useRef(0);
 
   const clearTimers = useCallback(() => {
     if (advanceTimeoutRef.current) clearTimeout(advanceTimeoutRef.current);
@@ -92,17 +99,42 @@ export function SpeedVerbGame({
     toastTimeoutRef.current = null;
   }, []);
 
-  useEffect(() => clearTimers, [clearTimers]);
+  useEffect(() => () => {
+    clearTimers();
+    sessionRef.current += 1;
+  }, [clearTimers]);
+
+  const updateState = useCallback((next: GameState) => {
+    stateRef.current = next;
+    setState(next);
+    if (next.ended) {
+      clearTimers();
+      setFeedback(null);
+      setPhase("ended");
+    }
+  }, [clearTimers]);
+
+  const tickCurrent = useCallback((now: number) => {
+    const current = stateRef.current;
+    if (!current || current.ended) return current;
+    const delta = now - lastTickRef.current;
+    lastTickRef.current = now;
+    const next = tickTimer(current, delta);
+    updateState(next);
+    return next;
+  }, [updateState]);
 
   const start = useCallback(() => {
     clearTimers();
-    const now = Date.now();
+    sessionRef.current += 1;
+    roundLockedRef.current = false;
+    const now = performance.now();
     const initial = createInitialGameState(VERBS, {
       totalTimeMs: TOTAL_TIME_MS,
       difficulty,
       allowImmediateRepeat: false,
     });
-    setState(startNewRound(initial, now));
+    updateState(startNewRound(initial, now));
     setAnswer(emptyAnswer());
     setFeedback(null);
     setToast(null);
@@ -116,31 +148,16 @@ export function SpeedVerbGame({
     roundStartedAtRef.current = now;
     setRoundKey((key) => key + 1);
     setPhase("playing");
-  }, [clearTimers, difficulty]);
+  }, [clearTimers, difficulty, updateState]);
 
   /* Chronomètre */
   useEffect(() => {
     if (phase !== "playing") return;
     const interval = setInterval(() => {
-      const now = Date.now();
-      const delta = now - lastTickRef.current;
-      lastTickRef.current = now;
-      setState((previous) => {
-        if (!previous || previous.ended) return previous;
-        return tickTimer(previous, delta);
-      });
+      tickCurrent(performance.now());
     }, 100);
     return () => clearInterval(interval);
-  }, [phase]);
-
-  /* Fin de partie quand le temps est écoulé */
-  useEffect(() => {
-    if (phase === "playing" && state?.ended) {
-      clearTimers();
-      setFeedback(null);
-      setPhase("ended");
-    }
-  }, [phase, state?.ended, clearTimers]);
+  }, [phase, tickCurrent]);
 
   /* Focus sur le premier champ à chaque nouveau verbe */
   useEffect(() => {
@@ -151,27 +168,32 @@ export function SpeedVerbGame({
 
   const scheduleNext = useCallback(
     (after: number) => {
+      if (advanceTimeoutRef.current) clearTimeout(advanceTimeoutRef.current);
       advanceTimeoutRef.current = setTimeout(() => {
+        const now = performance.now();
+        const current = tickCurrent(now);
+        if (!current || current.ended) return;
+        roundStartedAtRef.current = now;
+        updateState(startNewRound(current, now));
+        roundLockedRef.current = false;
         setFeedback(null);
         setAnswer(emptyAnswer());
-        setState((previous) => {
-          if (!previous || previous.ended) return previous;
-          const now = Date.now();
-          roundStartedAtRef.current = now;
-          return startNewRound(previous, now);
-        });
         setRoundKey((key) => key + 1);
       }, after);
     },
-    []
+    [tickCurrent, updateState]
   );
 
   const handleSubmit = useCallback(() => {
-    if (!state || !state.currentRound || state.ended || feedback) return;
+    if (roundLockedRef.current) return;
+    const now = performance.now();
+    const current = tickCurrent(now);
+    if (!current || !current.currentRound || current.ended || feedback) return;
+    roundLockedRef.current = true;
 
-    const answerTime = Date.now() - roundStartedAtRef.current;
-    const { state: next, result } = submitAnswer(state, answer, answerTime);
-    const round = state.currentRound;
+    const answerTime = now - roundStartedAtRef.current;
+    const { state: next, result } = submitAnswer(current, answer, answerTime);
+    const round = current.currentRound;
 
     setStats((previous) => ({
       correct: previous.correct + (result.isCorrect ? 1 : 0),
@@ -189,7 +211,7 @@ export function SpeedVerbGame({
         toastTimeoutRef.current = setTimeout(() => setToast(null), 2600);
       }
     } else {
-      setFeedback({ kind: "wrong", message: "Pas tout à fait. Les bonnes réponses :", answers: correctAnswersFor(state) });
+      setFeedback({ kind: "wrong", message: "Pas tout à fait. Les bonnes réponses :", answers: correctAnswersFor(current) });
       setMissed((previous) => [
         ...previous,
         {
@@ -203,16 +225,21 @@ export function SpeedVerbGame({
       ]);
     }
 
-    setState(next);
+    updateState(next);
     if (!next.ended) {
       scheduleNext(result.isCorrect ? FEEDBACK_RIGHT_MS : FEEDBACK_WRONG_MS);
     }
-  }, [state, answer, feedback, scheduleNext]);
+  }, [answer, feedback, scheduleNext, tickCurrent, updateState]);
 
   const handleSkip = useCallback(() => {
-    if (!state || !state.currentRound || state.ended || feedback) return;
-    const round = state.currentRound;
-    setFeedback({ kind: "skipped", message: "Verbe passé. À retenir :", answers: correctAnswersFor(state) });
+    if (roundLockedRef.current) return;
+    const current = tickCurrent(performance.now());
+    if (!current || !current.currentRound || current.ended || feedback) return;
+    roundLockedRef.current = true;
+    const round = current.currentRound;
+    updateState(skipCurrentVerb(current));
+    setStats((previous) => ({ ...previous, attempts: previous.attempts + 1 }));
+    setFeedback({ kind: "skipped", message: "Verbe passé. Série remise à zéro. À retenir :", answers: correctAnswersFor(current) });
     setMissed((previous) => [
       ...previous,
       {
@@ -225,7 +252,7 @@ export function SpeedVerbGame({
       },
     ]);
     scheduleNext(FEEDBACK_WRONG_MS);
-  }, [state, feedback, scheduleNext]);
+  }, [feedback, scheduleNext, tickCurrent, updateState]);
 
   /* Enregistrement du score */
   useEffect(() => {
@@ -238,14 +265,16 @@ export function SpeedVerbGame({
     }
 
     setSubmitStatus("saving");
+    const session = sessionRef.current;
     submitSpeedVerbScore({
       difficulty,
       score: state.score,
       correctCount: stats.correct,
       totalRounds: stats.attempts,
-      durationMs: Date.now() - startedAtRef.current,
+      durationMs: Math.round(performance.now() - startedAtRef.current),
     })
       .then((result) => {
+        if (session !== sessionRef.current) return;
         if (!result.success) {
           setSubmitStatus("error");
           return;
@@ -267,7 +296,9 @@ export function SpeedVerbGame({
         });
         setSubmitStatus("saved");
       })
-      .catch(() => setSubmitStatus("error"));
+      .catch(() => {
+        if (session === sessionRef.current) setSubmitStatus("error");
+      });
   }, [phase, state, isLoggedIn, difficulty, stats.correct, stats.attempts]);
 
   /* ---------- écran de démarrage ---------- */
@@ -280,7 +311,7 @@ export function SpeedVerbGame({
         rules={[
           "Prétérit au niveau facile, participe passé en plus au niveau moyen, traduction française au niveau difficile.",
           "Une série de bonnes réponses rapporte des points bonus et du temps supplémentaire.",
-          "Une erreur remet la série à zéro. Tu peux passer un verbe, il sera listé à la fin pour réviser.",
+          "Une erreur ou un verbe passé remet la série à zéro. Les verbes manqués sont listés à la fin pour réviser.",
           missionTarget ? `Objectif de mission : ${missionTarget} points.` : "Les verbes manqués sont affichés à la fin de la partie.",
         ]}
         onStart={start}
@@ -415,6 +446,10 @@ export function SpeedVerbGame({
                 onChange={(event) => setAnswer((previous) => ({ ...previous, [field.key]: event.target.value }))}
                 onKeyDown={(event) => {
                   if (event.key !== "Enter") return;
+                  if (event.repeat || event.nativeEvent.isComposing) {
+                    event.preventDefault();
+                    return;
+                  }
                   const form = event.currentTarget.form;
                   const inputs = form ? Array.from(form.querySelectorAll<HTMLInputElement>("input")) : [];
                   const nextInput = inputs[index + 1];

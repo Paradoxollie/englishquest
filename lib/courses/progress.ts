@@ -560,62 +560,30 @@ export async function completeCourseAndGrantRewards(userId: string, courseNumber
   const catalog = await getCachedCourseCatalog();
   const progressRows = await ensureUserProgressRows(userId, catalog);
   const targetCourse = catalog.find((entry) => entry.course_number === courseNumber);
-
-  if (!targetCourse) {
-    throw new Error("Course not found");
-  }
-
+  if (!targetCourse) throw new Error("Course not found");
   const progressEntry = progressRows.find((row) => row.course_id === targetCourse.id);
-
-  if (!progressEntry) {
-    throw new Error("Progress entry not found");
+  if (!progressEntry) throw new Error("Progress entry not found");
+  const courseTitle = getCourseById(courseNumber)?.title ?? `Cours ${courseNumber}`;
+  if (progressEntry.status === "completed") {
+    return { courseTitle, rewards: { xp: 0, gold: 0 }, newLevel: null };
   }
-
-  if (progressEntry.status !== "completed") {
-    await updateCourseProgressStatus(userId, courseNumber, "completed");
-
-    const { data: profile, error: profileError } = await adminClient
-      .from("profiles")
-      .select("xp, gold, level")
-      .eq("id", userId)
-      .single();
-
-    if (profileError || !profile) {
-      throw profileError ?? new Error("Profile not found");
-    }
-
-    const currentCourse = getCourseById(courseNumber);
-    const rewards = {
-      xp: targetCourse.reward_xp ?? getCourseRewardProfile(courseNumber).xp,
-      gold: targetCourse.reward_gold ?? getCourseRewardProfile(courseNumber).gold,
-    };
-    const newXP = (profile.xp ?? 0) + rewards.xp;
-    const newGold = (profile.gold ?? 0) + rewards.gold;
-    const newLevel = 1 + Math.floor(newXP / 200);
-
-    await adminClient
-      .from("profiles")
-      .update({
-        xp: newXP,
-        gold: newGold,
-        level: newLevel,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", userId);
-
-    return {
-      courseTitle: currentCourse?.title ?? `Cours ${courseNumber}`,
-      rewards,
-      newLevel,
-    };
-  }
-
+  const rewards = {
+    xp: targetCourse.reward_xp ?? getCourseRewardProfile(courseNumber).xp,
+    gold: targetCourse.reward_gold ?? getCourseRewardProfile(courseNumber).gold,
+  };
+  // Le statut, les gains et le déblocage sont validés ensemble : une panne ne
+  // laisse pas de mission terminée sans récompense, ni de cours ouvert trop tôt.
+  const { data, error } = await adminClient.rpc("complete_course_mission_and_grant_rewards", {
+    p_user_id: userId,
+    p_course_id: targetCourse.id,
+    p_reward_xp: rewards.xp,
+    p_reward_gold: rewards.gold,
+  });
+  if (error) throw error;
+  if (!data || typeof data.granted !== "boolean") throw new Error("Invalid course completion result");
   return {
-    courseTitle: getCourseById(courseNumber)?.title ?? `Cours ${courseNumber}`,
-    rewards: {
-      xp: 0,
-      gold: 0,
-    },
-    newLevel: null,
+    courseTitle,
+    rewards: data.granted ? rewards : { xp: 0, gold: 0 },
+    newLevel: data.granted && data.level > data.previousLevel ? data.level as number : null,
   };
 }

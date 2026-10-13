@@ -11,6 +11,7 @@
 # tests, captures, logs
 /coverage
 /.playwright-cli/
+/.playwright-mcp/
 /output/
 *.log
 npm-debug.log*

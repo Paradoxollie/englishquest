@@ -65,6 +65,7 @@ export interface Bullet {
   id: string;
   x: number; // horizontal position (0-1, normalized)
   y: number; // vertical position (0-1, normalized)
+  previousY?: number; // previous position for collision checks between frames
   speed: number; // vertical speed (units per second)
 }
 
@@ -610,10 +611,13 @@ export function createGameState(): GameState {
 export function generateMission(waveNumber: number = 1): Mission {
   // BOSS Wave every 5 waves
   if (waveNumber % 5 === 0) {
+    const keys = Object.keys(SYNONYMS);
+    const synonymKey = keys[Math.floor(Math.random() * keys.length)];
     return {
       id: generateId(),
       type: "BOSS",
-      label: `DEFEAT SECTOR BOSS`,
+      label: `Defeat the boss: shoot synonyms of ${synonymKey}`,
+      synonymKey,
       targetCount: 15, // Shots needed on boss
     };
   }
@@ -687,6 +691,7 @@ function getTargetWords(mission: Mission): string[] {
     case "CONNECTORS":
       return mission.connectorCategory ? CONNECTORS[mission.connectorCategory] || [] : [];
     case "SYNONYMS":
+    case "BOSS":
       return mission.synonymKey ? SYNONYMS[mission.synonymKey] || [] : [];
     default:
       return [];
@@ -752,6 +757,8 @@ function getOtherCategoryWords(mission: Mission | null): string[] {
 export function spawnEnemy(state: GameState, mission: Mission | null): EnemyWord {
   const targetWords = mission ? getTargetWords(mission) : [];
   const otherCategoryWords = getOtherCategoryWords(mission);
+  const targetWordsSet = new Set(targetWords.map(word => word.toLowerCase()));
+  const neutralDistractors = DISTRACTOR_WORDS.filter(word => !targetWordsSet.has(word.toLowerCase()));
 
   // NOUVEAU RATIO 2.0: 60% mots cibles, 40% distracteurs
   // Suite au feedback utilisateur: "pas assez de bons mots proposés"
@@ -767,12 +774,12 @@ export function spawnEnemy(state: GameState, mission: Mission | null): EnemyWord
     isTarget = true;
   } else {
     // 40% de chance : distracteur
-    const allDistractors = [...DISTRACTOR_WORDS, ...otherCategoryWords];
+    const allDistractors = [...neutralDistractors, ...otherCategoryWords];
     const rand = Math.random();
 
     // Mélange varié de distracteurs
-    if (rand < 0.40 && DISTRACTOR_WORDS.length > 0) {
-      randomWord = DISTRACTOR_WORDS[Math.floor(Math.random() * DISTRACTOR_WORDS.length)];
+    if (rand < 0.40 && neutralDistractors.length > 0) {
+      randomWord = neutralDistractors[Math.floor(Math.random() * neutralDistractors.length)];
     } else if (rand < 0.80 && otherCategoryWords.length > 0) {
       randomWord = otherCategoryWords[Math.floor(Math.random() * otherCategoryWords.length)];
     } else if (allDistractors.length > 0) {
@@ -851,11 +858,10 @@ export function updateEnemies(state: GameState, deltaTime: number): GameState {
   // Maximum change per frame to prevent teleportation (very conservative)
   const MAX_X_CHANGE_PER_FRAME = 0.003; // 0.3% of screen width per frame max
 
-  let newState = { ...state };
+  let newState = { ...state, boss: state.boss ? { ...state.boss } : null };
 
   // BOSS movement if active
   if (newState.boss) {
-    const bossSpeed = 0.002 * normalizedDelta;
     newState.boss.x = 0.5 + Math.sin(time * 0.8) * 0.3; // Oscillate 0.2 to 0.8
   }
 
@@ -1124,6 +1130,7 @@ function generateFeedbackExplanation(word: string, isTarget: boolean, mission: M
       case "CONNECTORS":
         return `✓ "${wordLower}" expresses ${mission.connectorCategory?.toLowerCase()}`;
       case "SYNONYMS":
+      case "BOSS":
         return `✓ "${wordLower}" = synonym of ${mission.synonymKey?.toLowerCase()}`;
       default:
         return `✓ Correct!`;
@@ -1136,6 +1143,7 @@ function generateFeedbackExplanation(word: string, isTarget: boolean, mission: M
       case "CONNECTORS":
         return `✗ "${wordLower}" is NOT a ${mission.connectorCategory?.toLowerCase()} connector`;
       case "SYNONYMS":
+      case "BOSS":
         return `✗ "${wordLower}" ≠ synonym of ${mission.synonymKey?.toLowerCase()}`;
       default:
         return `✗ Wrong word!`;
@@ -1148,15 +1156,19 @@ function generateFeedbackExplanation(word: string, isTarget: boolean, mission: M
  * Uses rectangular hitbox that adapts to word length
  */
 export function checkCollisions(state: GameState, mission: Mission | null): GameState {
+  if (state.gameOver || state.waveStatus !== "playing") return state;
   const BULLET_WIDTH = 0.01; // Width of bullet (1% of screen width)
   const BULLET_HEIGHT = 0.03; // Height of bullet (3% of screen height)
 
-  let newState = { ...state };
+  let newState = { ...state, boss: state.boss ? { ...state.boss } : null };
   const bulletsToRemove = new Set<string>();
   const enemiesToRemove = new Set<string>();
 
   for (const bullet of state.bullets) {
-    for (const enemy of state.enemies) {
+    if (newState.gameOver || newState.waveStatus !== "playing") break;
+    // A rising bullet hits the nearest word on its path first.
+    for (const enemy of [...state.enemies].sort((a, b) => b.y - a.y)) {
+      if (enemiesToRemove.has(enemy.id)) continue;
       // Get dynamic dimensions based on word length
       const enemyDims = getEnemyDimensions(enemy.text);
 
@@ -1168,8 +1180,8 @@ export function checkCollisions(state: GameState, mission: Mission | null): Game
 
       const bulletLeft = bullet.x - BULLET_WIDTH / 2;
       const bulletRight = bullet.x + BULLET_WIDTH / 2;
-      const bulletTop = bullet.y - BULLET_HEIGHT / 2;
-      const bulletBottom = bullet.y + BULLET_HEIGHT / 2;
+      const bulletTop = Math.min(bullet.y, bullet.previousY ?? bullet.y) - BULLET_HEIGHT / 2;
+      const bulletBottom = Math.max(bullet.y, bullet.previousY ?? bullet.y) + BULLET_HEIGHT / 2;
 
       // Check rectangular collision (AABB - Axis Aligned Bounding Box)
       const collision = (
@@ -1301,6 +1313,7 @@ export function checkCollisions(state: GameState, mission: Mission | null): Game
  * Check if enemies reached the bottom
  */
 export function checkEnemiesReachedBottom(state: GameState, mission: Mission | null): GameState {
+  if (state.gameOver || state.waveStatus !== "playing") return state;
   let newState = { ...state };
 
   for (const enemy of state.enemies) {
@@ -1379,8 +1392,9 @@ export function updateBullets(state: GameState, deltaTime: number): GameState {
 
   const bullets = state.bullets.map((bullet) => ({
     ...bullet,
+    previousY: bullet.y,
     y: bullet.y - bullet.speed * normalizedDelta,
-  })).filter((bullet) => bullet.y > -0.1); // remove bullets that are off-screen
+  })).filter((bullet) => bullet.previousY > -0.1); // Keep the last travelled segment for collisions.
 
   return { ...state, bullets };
 }
@@ -1444,15 +1458,7 @@ export function spawnEnemiesIfNeeded(state: GameState, mission: Mission | null):
 
   // Generate a new upcoming enemy if none exists and it's time
   if (!newState.upcomingEnemy && newState.enemies.length < maxEnemiesOnScreen && now - newState.lastEnemySpawnTime >= spawnInterval - PREVIEW_DURATION) {
-    // For BOSS mission, we need to pick a Temporary Mission type to know what words to spawn
-    let bossSubMission: Mission | null = mission;
-    if (mission?.type === "BOSS") {
-      // Pick a random mission type for the words falling during boss fight
-      bossSubMission = generateMission(state.waveNumber + 1); // Use next wave logic for variety
-      if (bossSubMission.type === "BOSS") bossSubMission = generateMission(1); // Avoid recursion
-    }
-
-    const newEnemyData = spawnEnemy(newState, bossSubMission); // Use spawnEnemy to get word and target status
+    const newEnemyData = spawnEnemy(newState, mission);
     newState.upcomingEnemy = {
       ...newEnemyData,
     };
@@ -1689,6 +1695,8 @@ export function startNextWave(state: GameState): GameState {
     waveStatus: isBossWave ? "boss_intro" : "intro",
     waveTransitionTime: Date.now(),
     lastEnemySpawnTime: Date.now(),
+    upcomingEnemy: null,
+    upcomingEnemySpawnTime: 0,
     currentDialogue: getDialogueForWave(nextWaveNumber),
     dialogueIndex: 0,
   };
@@ -1711,7 +1719,7 @@ export function startNextWave(state: GameState): GameState {
  * Activate Super Ability
  */
 export function activateSuper(state: GameState): GameState {
-  if (state.superBar < 100 || state.superActive) return state;
+  if (!state.isRunning || state.gameOver || state.currentDialogue || state.waveStatus !== "playing" || state.superBar < 100 || state.superActive) return state;
 
   return {
     ...state,
@@ -1844,10 +1852,22 @@ export function pauseGame(state: GameState): GameState {
 /**
  * Resume the game
  */
-export function resumeGame(state: GameState): GameState {
+export function resumeGame(state: GameState, pausedDurationMs = 0): GameState {
+  if (state.gameOver) return state;
+  const elapsed = Math.max(0, pausedDurationMs);
+  const shift = (timestamp: number) => timestamp > 0 ? timestamp + elapsed : timestamp;
   return {
     ...state,
     isRunning: true,
+    shipVelocity: 0,
+    waveTransitionTime: shift(state.waveTransitionTime),
+    lastBulletTime: shift(state.lastBulletTime),
+    lastEnemySpawnTime: shift(state.lastEnemySpawnTime),
+    lastPowerUpSpawnTime: shift(state.lastPowerUpSpawnTime),
+    lastMissionChangeTime: shift(state.lastMissionChangeTime),
+    upcomingEnemySpawnTime: shift(state.upcomingEnemySpawnTime),
+    superStartTime: shift(state.superStartTime),
+    activePowerUps: state.activePowerUps.map(powerup => ({ ...powerup, endTime: shift(powerup.endTime) })),
   };
 }
 
@@ -1890,15 +1910,13 @@ export function moveShip(state: GameState, direction: "left" | "right" | "stop")
  * Set ship target position (for touch/mouse input)
  */
 export function setShipTarget(state: GameState, targetX: number): GameState {
-  const SMOOTH_FACTOR = 0.04; // Lower = smoother but slower
   const clampedX = Math.max(0.02, Math.min(0.98, targetX));
-
-  // Smooth interpolation towards target
-  const newX = state.shipX + (clampedX - state.shipX) * SMOOTH_FACTOR;
 
   return {
     ...state,
-    shipX: newX,
+    // Touch events stop when the finger stops; reach its position on this event.
+    shipX: clampedX,
+    shipVelocity: 0,
   };
 }
 

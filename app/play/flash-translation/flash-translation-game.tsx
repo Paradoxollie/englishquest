@@ -1,5 +1,7 @@
 "use client";
 
+import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   VOCABULARY,
@@ -50,11 +52,13 @@ export function FlashTranslationGame({
   const [bestCombo, setBestCombo] = useState(0);
   const [rewards, setRewards] = useState<RewardSummary | null>(null);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
+  useRefreshAfterScore(submitStatus);
 
   const waitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lockRef = useRef(false);
   const submittedRef = useRef(false);
+  const sessionRef = useRef(0);
 
   const clearTimers = useCallback(() => {
     if (waitTimer.current) clearTimeout(waitTimer.current);
@@ -63,7 +67,10 @@ export function FlashTranslationGame({
     feedbackTimer.current = null;
   }, []);
 
-  useEffect(() => clearTimers, [clearTimers]);
+  useEffect(() => () => {
+    clearTimers();
+    sessionRef.current += 1;
+  }, [clearTimers]);
 
   const round = getCurrentRound(state);
   const done = completedRounds(state);
@@ -71,6 +78,7 @@ export function FlashTranslationGame({
 
   const start = useCallback(() => {
     clearTimers();
+    sessionRef.current += 1;
     setState(startGame(createGameState(VOCABULARY, CONFIG)));
     setSelected(null);
     setCombo(0);
@@ -85,7 +93,7 @@ export function FlashTranslationGame({
   useEffect(() => {
     if (!state.started || state.phase !== "waiting" || !round) return;
     waitTimer.current = setTimeout(() => {
-      setState((current) => startAnswering(current, Date.now()));
+      setState((current) => startAnswering(current, performance.now()));
     }, round.waitTimeMs);
     return () => {
       if (waitTimer.current) clearTimeout(waitTimer.current);
@@ -96,7 +104,11 @@ export function FlashTranslationGame({
     (index: number) => {
       if (state.phase !== "answering" || !round || lockRef.current) return;
       lockRef.current = true;
-      const answered = submitAnswer(state, index, Date.now());
+      const answered = submitAnswer(state, index, performance.now());
+      if (answered === state) {
+        lockRef.current = false;
+        return;
+      }
       setState(answered);
       setSelected(index);
       if (index === round.correctIndex) {
@@ -121,6 +133,7 @@ export function FlashTranslationGame({
   useEffect(() => {
     if (state.phase !== "answering") return;
     const onKey = (event: KeyboardEvent) => {
+      if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
       const index = KEYS.indexOf(event.key);
       if (index >= 0) {
         event.preventDefault();
@@ -140,6 +153,7 @@ export function FlashTranslationGame({
       return;
     }
     setSubmitStatus("saving");
+    const session = sessionRef.current;
     submitFlashTranslationScore({
       totalTimeMs: getFinalScore(state),
       averageReactionTimeMs: getAverageReactionTime(state),
@@ -147,6 +161,7 @@ export function FlashTranslationGame({
       roundsCompleted: completedRounds(state),
     })
       .then((result) => {
+        if (session !== sessionRef.current) return;
         if (!result.success) {
           setSubmitStatus("error");
           return;
@@ -168,7 +183,9 @@ export function FlashTranslationGame({
         });
         setSubmitStatus("saved");
       })
-      .catch(() => setSubmitStatus("error"));
+      .catch(() => {
+        if (session === sessionRef.current) setSubmitStatus("error");
+      });
   }, [state, isLoggedIn]);
 
   if (!state.started) {

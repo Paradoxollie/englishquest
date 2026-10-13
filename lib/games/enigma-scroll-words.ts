@@ -101,13 +101,17 @@ export function loadAndFilterWordLists(
 ): WordLists {
   const targetWords: Record<number, string[]> = {};
   const validGuesses: Record<number, string[]> = {};
+  const wordsOfLength = (words: string[], length: number) => Array.from(new Set(
+    filterInappropriateWords(words)
+      .map(word => word.trim().toUpperCase())
+      .filter(word => word.length === length && /^[A-Z]+$/.test(word))
+  ));
 
   // Process target words
   for (const [lengthStr, words] of Object.entries(targetWordsData)) {
     const length = parseInt(lengthStr, 10);
     if (length >= 4 && length <= 6 && Array.isArray(words)) {
-      const filtered = filterInappropriateWords(words);
-      targetWords[length] = filtered.map(w => w.trim().toUpperCase());
+      targetWords[length] = wordsOfLength(words, length);
     }
   }
 
@@ -116,8 +120,7 @@ export function loadAndFilterWordLists(
   for (const [lengthStr, words] of Object.entries(guessesData)) {
     const length = parseInt(lengthStr, 10);
     if (length >= 4 && length <= 6 && Array.isArray(words)) {
-      const filtered = filterInappropriateWords(words);
-      validGuesses[length] = filtered.map(w => w.trim().toUpperCase());
+      validGuesses[length] = wordsOfLength(words, length);
     }
   }
 
@@ -153,6 +156,9 @@ export function validateWordLists(wordLists: WordLists): { valid: boolean; error
     }
 
     if (targets && guesses) {
+      if ([...targets, ...guesses].some(word => word.length !== length || !/^[A-Z]+$/.test(word))) {
+        errors.push(`Invalid words for length ${length}`);
+      }
       // Valid guesses should include all target words
       const missingTargets = targets.filter(t => !guesses.includes(t));
       if (missingTargets.length > 0) {
