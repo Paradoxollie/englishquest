@@ -250,6 +250,7 @@ function loadServer(db, session) {
     "@/lib/courses/chapters": "lib/courses/chapters.ts",
     "@/lib/courses/mission-state": "lib/courses/mission-state.ts",
     "./quiz-score": "lib/courses/quiz-score.ts",
+    "./mission-telemetry": "lib/courses/mission-telemetry.ts",
   };
   function resolve(name) {
     if (name in mocks) return mocks[name];

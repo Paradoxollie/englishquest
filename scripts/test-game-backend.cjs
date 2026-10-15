@@ -444,6 +444,7 @@ async function main() {
     "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(actionFixture.db) },
     "@/lib/games/game-session-server": actionFixture.sessions,
     "@/lib/games/score-plausibility": plausibility,
+    "@/lib/profile/badges-server": { syncBadgesSafely: async () => [] },
   });
   const noSession = await flashbackAction.submitEchoLexScore({ score: 12, durationMs: 30_000 });
   assert.equal(noSession.success, false, "logged-in score without a session");
