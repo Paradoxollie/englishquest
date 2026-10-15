@@ -17,7 +17,7 @@ export const course50: LessonContent = {
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
                         <p className="text-slate-200">
-                            Méthode conseillee: apprendre chaque phrasal verb avec
+                            Méthode conseillée : apprendre chaque phrasal verb avec
                             <strong> un sens central</strong>, <strong>une phrase type</strong> et{" "}
                             <strong>un contraste utile</strong>.
                         </p>
@@ -45,7 +45,7 @@ export const course50: LessonContent = {
                                 <li><strong>pick up</strong> = ramasser / récupérer</li>
                                 <li><strong>drop off</strong> = déposer</li>
                                 <li><strong>run out of</strong> = ne plus avoir</li>
-                                <li><strong>go back</strong> = revenir</li>
+                                <li><strong>go back</strong> = retourner</li>
                             </ul>
                         </div>
                     </div>
@@ -53,7 +53,7 @@ export const course50: LessonContent = {
             )
         },
         {
-            title: "2. Travail, etudes, interaction",
+            title: "2. Travail, études, interaction",
             content: (
                 <div className="space-y-6">
                     <div className="grid gap-4 md:grid-cols-2 text-sm">
@@ -61,7 +61,7 @@ export const course50: LessonContent = {
                             <h4 className="mb-2 font-bold text-white">Communication et information</h4>
                             <ul className="space-y-2 text-slate-300">
                                 <li><strong>find out</strong> = découvrir</li>
-                                <li><strong>check out</strong> = vérifier / jeter un oeil</li>
+                                <li><strong>check out</strong> = vérifier / jeter un œil</li>
                                 <li><strong>fill in</strong> = remplir un document</li>
                                 <li><strong>look into</strong> = examiner</li>
                             </ul>
@@ -90,7 +90,7 @@ export const course50: LessonContent = {
                         <ul className="space-y-3 text-slate-200">
                             <li>Mémorise le sens principal avant les sens secondaires.</li>
                             <li>Apprends si le verbe est séparable ou non.</li>
-                            <li>Associe toujours le phrasal verb a une situation concrète.</li>
+                            <li>Associe toujours le phrasal verb à une situation concrète.</li>
                         </ul>
                     </div>
 
@@ -170,7 +170,7 @@ export const course50: LessonContent = {
                             question: "Which one means 'installer / mettre en place'?",
                             options: ["set up", "go back"],
                             correctAnswer: 0,
-                            explanation: "Set up est fréquent pour du materiel, un système ou un événement.",
+                            explanation: "Set up est fréquent pour du matériel, un système ou un événement.",
                         },
                         {
                             id: 8,
@@ -191,7 +191,7 @@ export const course50: LessonContent = {
                             question: "The best strategy with essential phrasal verbs is ...",
                             options: ["memorize random long lists without examples", "learn a core set deeply in context"],
                             correctAnswer: 1,
-                            explanation: "Un petit noyau solide vaut mieux qu'une longue liste oubliee.",
+                            explanation: "Un petit noyau solide vaut mieux qu'une longue liste oubliée.",
                         }
                     ]}
                 />

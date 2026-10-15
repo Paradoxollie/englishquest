@@ -36,7 +36,7 @@ export const course41: LessonContent = {
                                 <strong className="text-cyan-400">would have caught</strong> the train.
                             </p>
                             <p className="mt-2 text-sm italic text-slate-400">
-                                En vrai: je suis parti trop tard, donc j'ai raté le train.
+                                En réalité : je suis parti trop tard, donc j'ai raté le train.
                             </p>
                         </div>
                     </div>
@@ -48,7 +48,7 @@ export const course41: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        On l'utilise surtout pour trois idées: le regret, l'explication d'un échec, ou une conséquence
+                        On l'utilise surtout pour trois idées : le regret, l'explication d'un échec, ou une conséquence
                         positive qui aurait été possible dans un autre scénario.
                     </p>
 
@@ -74,7 +74,7 @@ export const course41: LessonContent = {
                         </div>
 
                         <div className="rounded-xl border-l-4 border-amber-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Possibilite alternative</h4>
+                            <h4 className="mb-2 font-bold text-white">Possibilité alternative</h4>
                             <p className="text-slate-300">
                                 If you had called me, I could have helped you.
                             </p>
@@ -90,7 +90,7 @@ export const course41: LessonContent = {
                         </p>
                         <ul className="space-y-3 text-slate-200">
                             <li>
-                                <strong className="text-white">would have</strong> = résultat probable
+                                <strong className="text-white">would have</strong> = résultat certain dans ce scénario imaginé
                             </li>
                             <li>
                                 <strong className="text-white">could have</strong> = possibilité ou capacité
@@ -104,11 +104,11 @@ export const course41: LessonContent = {
             )
         },
         {
-            title: "2. Les pièges a éviter",
+            title: "2. Les pièges à éviter",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Le piège principal est toujours le même: on ne met pas <strong>would have</strong> dans la
+                        Le piège principal est toujours le même : on ne met pas <strong>would have</strong> dans la
                         partie après <strong>if</strong>.
                     </p>
 
@@ -137,14 +137,14 @@ export const course41: LessonContent = {
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
                         <p className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-amber-300">
-                            A retenir
+                            À retenir
                         </p>
                         <ul className="space-y-3 text-slate-200">
                             <li>Le third conditional parle d'un passé impossible à changer.</li>
                             <li>Il est souvent proche de l'idée de <strong>regret</strong>.</li>
                             <li>
                                 Si le résultat continue dans le présent, on entre parfois dans un <strong>mixed conditional</strong>,
-                                mais la base reste la même: un passé différent.
+                                mais la base reste la même : un passé différent.
                             </li>
                         </ul>
                     </div>
@@ -161,7 +161,7 @@ export const course41: LessonContent = {
                             question: "If I ___ earlier, I would have caught the train.",
                             options: ["left", "had left"],
                             correctAnswer: 1,
-                            explanation: "Dans la partie après IF, on utilise le past perfect: had left.",
+                            explanation: "Dans la partie après IF, on utilise le past perfect : had left.",
                         },
                         {
                             id: 2,

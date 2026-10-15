@@ -1,0 +1,102 @@
+{
+  "course": 46,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Comment dire « Je me suis fait percer les oreilles » ?",
+      "options": ["I pierced my ears.", "I had my ears pierced.", "I had pierced my ears.", "I made my ears pierced."],
+      "correctAnswer": 1,
+      "explanation": "Quelqu'un d'autre l'a fait : have + objet + participe passé. On n'emploie pas make pour ce faire faire."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "« Hugo had repaired his bike. » Que comprend-on ?",
+      "options": ["Quelqu'un avait réparé le vélo de Hugo.", "Hugo a fait réparer son vélo.", "Hugo avait réparé son vélo lui-même.", "Hugo va faire réparer son vélo."],
+      "correctAnswer": 2,
+      "explanation": "Had + participe passé + objet, c'est le past perfect : Hugo a fait l'action lui-même. Pour faire faire, l'objet se place avant le participe passé."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : We ___ our house painted at the moment, so it's a bit messy.",
+      "options": ["have", "had", "are have", "are having"],
+      "correctAnswer": 3,
+      "explanation": "Le temps se marque sur have. At the moment demande le present continuous : are having."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : I'm going to ___ my nails done for the prom.",
+      "options": ["make", "have", "do", "let"],
+      "correctAnswer": 1,
+      "explanation": "Une esthéticienne va s'en charger : have + objet + participe passé. Ni make ni do ne s'emploient dans cette structure."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : My parents had the plumber ___ the leak.",
+      "options": ["fixed", "to fix", "fix", "fixes"],
+      "correctAnswer": 2,
+      "explanation": "Quand on nomme la personne qui agit : have + personne + base verbale, sans to."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Comment dire « Elle s'est fait voler son vélo devant le lycée » ?",
+      "options": ["She had her bike stolen outside the school.", "She stole her bike outside the school.", "She had stolen her bike outside the school.", "She made her bike stolen outside the school."],
+      "correctAnswer": 0,
+      "explanation": "Pour un événement subi, on utilise aussi have + objet + participe passé : elle n'a rien organisé, elle a subi le vol."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "I'm having my laptop ___ because the screen is broken. (fix)",
+      "answers": ["fixed"],
+      "explanation": "Après have + objet, on met le participe passé : fixed."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "She's going to have her photo ___ by a professional. (take)",
+      "answers": ["taken"],
+      "explanation": "Have + objet + participe passé. Take est irrégulier : son participe passé est taken."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Last week, my brother ___ his car washed. (have)",
+      "answers": ["had"],
+      "explanation": "Le temps se marque sur have. Last week demande le past simple : had."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "Our teacher had us ___ the poem by heart. (learn)",
+      "answers": ["learn"],
+      "explanation": "Have + personne + base verbale : on fait faire l'action à quelqu'un, sans to."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["She had her nose pierced last summer."],
+      "translation": "Elle s'est fait percer le nez l'été dernier.",
+      "explanation": "Have + objet + participe passé : l'objet (her nose) se place entre had et le participe passé."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["We are having our flat painted next week."],
+      "translation": "Nous faisons repeindre notre appartement la semaine prochaine.",
+      "explanation": "Le present continuous sur have exprime un projet organisé. Ensuite viennent l'objet et le participe passé."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["Where did you have your glasses repaired?"],
+      "translation": "Où est-ce que tu as fait réparer tes lunettes ?",
+      "explanation": "Dans la question, did porte le temps et have reste à la base verbale : did you have + objet + participe passé ?"
+    }
+  ]
+}

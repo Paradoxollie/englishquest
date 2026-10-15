@@ -1,0 +1,102 @@
+{
+  "course": 20,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : I stayed at home ___ I was ill.",
+      "options": ["because", "because of", "so", "despite"],
+      "correctAnswer": 0,
+      "explanation": "Because + sujet + verbe pour donner la cause. Because of est suivi d'un nom."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : It was cold, ___ I put on my coat.",
+      "options": ["because of", "so", "despite", "unless"],
+      "correctAnswer": 1,
+      "explanation": "So introduit la conséquence : il faisait froid, donc j'ai mis mon manteau."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : The match was cancelled ___ the storm.",
+      "options": ["because", "although", "because of", "so"],
+      "correctAnswer": 2,
+      "explanation": "The storm est un nom : on utilise because of."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : I love rap. ___, my best friend prefers rock.",
+      "options": ["Because", "However", "So that", "Unless"],
+      "correctAnswer": 1,
+      "explanation": "However (cependant) oppose deux phrases. Il se place en début de phrase, suivi d'une virgule."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : You can't go out ___ you finish your homework.",
+      "options": ["if", "because", "unless", "so"],
+      "correctAnswer": 2,
+      "explanation": "Unless = sauf si : tu ne peux pas sortir, sauf si tu finis tes devoirs."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : Call me ___ you arrive at the station.",
+      "options": ["despite", "because of", "although", "as soon as"],
+      "correctAnswer": 3,
+      "explanation": "As soon as = dès que : l'appel doit se faire juste après l'arrivée."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "She was hungry, ___ she made a sandwich. (donc)",
+      "answers": ["so"],
+      "explanation": "So (donc) introduit la conséquence. C'est le connecteur le plus courant."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "___ it was sunny, we stayed inside to play video games. (bien que)",
+      "answers": ["Although", "Even though", "Though"],
+      "explanation": "Although (bien que) + sujet + verbe pour opposer deux idées. Even though est plus fort."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Take a jacket ___ it gets cold tonight. (au cas où)",
+      "answers": ["in case", "just in case"],
+      "explanation": "In case = au cas où : on prend la veste maintenant, par précaution."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "My dad was cooking ___ I was doing my homework. (pendant que)",
+      "answers": ["while", "as"],
+      "explanation": "While (pendant que) relie deux actions longues qui se déroulent en même temps."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["We stayed at home because of the snow.", "Because of the snow we stayed at home."],
+      "translation": "Nous sommes restés à la maison à cause de la neige.",
+      "explanation": "Because of + nom (the snow) pour exprimer la cause."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["You can play with us as long as you follow the rules.", "As long as you follow the rules you can play with us."],
+      "translation": "Tu peux jouer avec nous à condition de respecter les règles.",
+      "explanation": "As long as (à condition que, tant que) impose une condition. Il est suivi d'un sujet et d'un verbe."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["She went to school although she was ill.", "Although she was ill she went to school."],
+      "translation": "Elle est allée à l'école même si elle était malade.",
+      "explanation": "Although + sujet + verbe pour opposer deux idées."
+    }
+  ]
+}

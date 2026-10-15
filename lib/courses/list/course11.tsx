@@ -62,7 +62,7 @@ export const course11: LessonContent = {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-sm">
             <div className="bg-slate-800 p-3 rounded border-t-4 border-emerald-500">
-              <p className="text-emerald-400 font-bold mb-1">Son /T/ (Sifflant)</p>
+              <p className="text-emerald-400 font-bold mb-1">Son /T/ (Sourd)</p>
               <p className="text-slate-400 text-xs mb-2">Après K, P, S, SH, CH, F</p>
               <p className="text-white">Work<span className="text-emerald-400">ed</span> ➔ "Work-T"</p>
               <p className="text-white">Stop<span className="text-emerald-400">ped</span> ➔ "Stop-T"</p>
@@ -181,13 +181,13 @@ export const course11: LessonContent = {
             {
               id: 2,
               question: "We ___ (go) to the beach last week.",
-              options: ["goed", "gone", "went", "did go"],
+              options: ["goed", "gone", "went", "go"],
               correctAnswer: 2,
               explanation: "GO est irrégulier ➔ WENT.",
             },
             {
               id: 3,
-              question: "___ you ___ (see) the match?",
+              question: "___ you ___ (see) the match last night?",
               options: ["Did / saw", "Did / see", "Do / see", "Have / seen"],
               correctAnswer: 1,
               explanation: "Question au passé ➔ DID + Verbe normal (See). Pas de 'Saw' ici !",
@@ -201,14 +201,14 @@ export const course11: LessonContent = {
             },
             {
               id: 5,
-              question: "She ___ (want) to leave early.",
+              question: "Yesterday, she ___ (want) to leave early.",
               options: ["wanted", "want", "wants", "wantted"],
               correctAnswer: 0,
               explanation: "WANTED. Ici on prononce le 'ID' car WANT finit par T.",
             },
             {
               id: 6,
-              question: "Where ___ (be) you yesterday?",
+              question: "Where ___ yesterday? (you / be)",
               options: ["did you be", "was you", "were you", "are you"],
               correctAnswer: 2,
               explanation: "BE est spécial. Pas de DID. YOU WERE.",
@@ -216,7 +216,7 @@ export const course11: LessonContent = {
             {
               id: 7,
               question: "He ___ (buy) a new car 2 days ago.",
-              options: ["buyed", "bought", "brought", "did buy"],
+              options: ["buyed", "bought", "brought", "buy"],
               correctAnswer: 1,
               explanation: "BUY est irrégulier ➔ BOUGHT (Attention à ne pas confondre avec Bring/Brought).",
             },
@@ -229,14 +229,14 @@ export const course11: LessonContent = {
             },
             {
               id: 9,
-              question: "I ___ (stop) the car.",
+              question: "I ___ (stop) the car five minutes ago.",
               options: ["stoped", "stopped", "stopt", "stop"],
               correctAnswer: 1,
               explanation: "Double consonne après voyelle courte : STOPPED.",
             },
             {
               id: 10,
-              question: "Why ___ (did) you ___ (do) that?",
+              question: "Why ___ you ___ (do) that?",
               options: ["did / /", "did / do", "do / did", "did / done"],
               correctAnswer: 1,
               explanation: "Le premier DID est l'auxiliaire, le deuxième est le verbe d'action 'Faire'.",

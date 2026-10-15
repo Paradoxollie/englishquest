@@ -45,14 +45,14 @@ export const course25: LessonContent = {
                             <span>⛔</span> LA LISTE NOIRE
                         </h4>
                         <p className="text-slate-300 mb-4 text-sm">
-                            Certains verbes expriment un <strong className="text-white">ÉTAT MENTAL</strong> ou une <strong className="text-white">POSSESSION</strong>, pas une action. Ils ne peuvent PPHYSIQUEMENT pas être continus.
+                            Certains verbes expriment un <strong className="text-white">ÉTAT MENTAL</strong> ou une <strong className="text-white">POSSESSION</strong>, pas une action. Ils ne peuvent PHYSIQUEMENT pas être continus.
                             <br /><span className="italic text-slate-400">On ne peut pas être "en train de savoir" ou "en train de connaître". Soit on sait, soit on ne sait pas.</span>
                         </p>
 
                         <div className="space-y-3 bg-black/40 p-4 rounded text-sm">
                             <ul className="text-slate-300 grid grid-cols-2 gap-2 font-mono">
                                 <li>&bull; Know (Connaître)</li>
-                                <li>&bull; Have (Avoir)</li>
+                                <li>&bull; Have (Posséder)</li>
                                 <li>&bull; Like / Love</li>
                                 <li>&bull; Be (Être)</li>
                                 <li>&bull; Believe (Croire)</li>
@@ -93,7 +93,7 @@ export const course25: LessonContent = {
                             </div>
                             <div className="bg-black/30 p-3 rounded">
                                 <p className="text-white font-medium">"I have been living here for 10 years."</p>
-                                <p className="text-xs text-emerald-500">PERFECT ALSO</p>
+                                <p className="text-xs text-emerald-500">PERFECT TOO</p>
                             </div>
                         </div>
                     </div>

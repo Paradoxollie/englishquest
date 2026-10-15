@@ -66,7 +66,7 @@ export const course33: LessonContent = {
                     <p className="text-slate-300">
                         Pour fabriquer le passif, on a besoin de deux ingrédients obligatoires :
                         <br />1. Le verbe <strong>TO BE</strong> (Être)
-                        <br />2. Le verbe principal au <strong>PARTICIPE PASSÉ</strong> (3ème colonne).
+                        <br />2. Le verbe principal au <strong>PARTICIPE PASSÉ</strong> (3e colonne).
                     </p>
 
                     <div className="bg-slate-900 p-6 rounded-xl border border-slate-700 relative overflow-hidden">
@@ -116,8 +116,8 @@ export const course33: LessonContent = {
                     </p>
 
                     <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-yellow-500">
-                        <p className="text-white text-lg">"The telephone was invented <strong className="text-yellow-400">by</strong> Alexander Bell."</p>
-                        <p className="text-xs text-slate-400 mt-1 italic">Le téléphone a été inventé PAR Alexander Bell.</p>
+                        <p className="text-white text-lg">"The telephone was invented <strong className="text-yellow-400">by</strong> Alexander Graham Bell."</p>
+                        <p className="text-xs text-slate-400 mt-1 italic">Le téléphone a été inventé PAR Alexander Graham Bell.</p>
                     </div>
 
                     <p className="text-slate-400 text-sm mt-4">
@@ -168,10 +168,10 @@ export const course33: LessonContent = {
                         },
                         {
                             id: 6,
-                            question: "The butter is ___ from milk.",
+                            question: "Butter is ___ from milk.",
                             options: ["make", "made"],
                             correctAnswer: 1,
-                            explanation: "Passif = TO BE + Participe Passé (3ème colonne). Make ➔ Made.",
+                            explanation: "Passif = TO BE + Participe Passé (3e colonne). Make ➔ Made.",
                         },
                         {
                             id: 7,

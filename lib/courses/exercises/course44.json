@@ -1,0 +1,102 @@
+{
+  "course": 44,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Comment dire « Quand je suis arrivée à la fête, Léo était déjà parti » ?",
+      "options": ["When I arrived at the party, Léo already left.", "When I had arrived at the party, Léo left.", "When I arrived at the party, Léo had already left.", "When I arrived at the party, Léo has already left."],
+      "correctAnswer": 2,
+      "explanation": "L'action la plus ancienne (le départ de Léo) prend le past perfect. Le repère passé (mon arrivée) reste au past simple."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : It was the first time I ___ snow. I was so excited!",
+      "options": ["have ever seen", "had ever seen", "was ever seeing"],
+      "correctAnswer": 1,
+      "explanation": "Après it was the first time, on emploie le past perfect : on fait le bilan jusqu'à ce moment passé."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "« When Emma got home, her brother had cooked dinner. » Que comprend-on ?",
+      "options": ["Son frère a cuisiné après son arrivée.", "Emma et son frère ont cuisiné ensemble.", "Le dîner était déjà prêt quand Emma est rentrée.", "Son frère était en train de cuisiner quand elle est rentrée."],
+      "correctAnswer": 2,
+      "explanation": "Had cooked indique une action terminée avant le repère passé : le dîner était prêt avant l'arrivée d'Emma."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : I was nervous before the interview because I ___ one before.",
+      "options": ["have never done", "was never doing", "never do", "had never done"],
+      "correctAnswer": 3,
+      "explanation": "On fait le bilan jusqu'à un moment passé (l'entretien) : had never + participe passé."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Comment dire « Avais-tu déjà rencontré Sarah avant la fête ? »",
+      "options": ["Had you already met Sarah before the party?", "Did you already met Sarah before the party?", "Have you already met Sarah before the party?", "Had you already meet Sarah before the party?"],
+      "correctAnswer": 0,
+      "explanation": "Question au past perfect : Had + sujet + participe passé. Le participe passé de meet est met."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : Inès was exhausted because she ___ all night for her exam.",
+      "options": ["has revised", "had revised", "revises", "had revise"],
+      "correctAnswer": 1,
+      "explanation": "La cause est antérieure à la fatigue passée : had + participe passé (revised, avec -ed)."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "When the police arrived, the thieves ___. (already / escape)",
+      "answers": ["had already escaped", "'d already escaped"],
+      "explanation": "La fuite a eu lieu avant l'arrivée de la police : had + already + participe passé."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "She didn't recognise him because he ___ a beard. (grow)",
+      "answers": ["had grown", "'d grown"],
+      "explanation": "La barbe a poussé avant le moment où elle l'a vu : past perfect, avec le participe passé irrégulier grown."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "We ___ each other online for two years when we finally met in person. (know)",
+      "answers": ["had known", "'d known"],
+      "explanation": "Une durée qui s'arrête à un moment passé se met au past perfect. Know ne se met pas à la forme en -ing."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "I couldn't answer the question because I ___ the chapter. (not / read)",
+      "answers": ["hadn't read", "had not read"],
+      "explanation": "Cause antérieure au moment passé, à la forme négative : hadn't + participe passé."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["The match had already started when I turned on the TV."],
+      "translation": "Le match avait déjà commencé quand j'ai allumé la télé.",
+      "explanation": "L'action la plus ancienne prend le past perfect (had started), le repère le past simple (turned on)."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["She had never been abroad before that trip."],
+      "translation": "Elle n'était jamais allée à l'étranger avant ce voyage.",
+      "explanation": "Never se place entre had et le participe passé : had never been."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["Had you finished your homework before dinner?"],
+      "translation": "Avais-tu fini tes devoirs avant le dîner ?",
+      "explanation": "Question au past perfect : Had + sujet + participe passé ?"
+    }
+  ]
+}

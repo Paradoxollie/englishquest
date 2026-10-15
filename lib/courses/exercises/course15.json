@@ -1,0 +1,102 @@
+{
+  "course": 15,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["She cans play the guitar.", "She can to play the guitar.", "She can play the guitar.", "She can plays the guitar."],
+      "correctAnswer": 2,
+      "explanation": "Can est un modal : jamais de s, jamais de to. Le verbe qui suit reste à la base verbale."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment dire « Je ne sais pas nager » ?",
+      "options": ["I don't can swim.", "I can't to swim.", "I not can swim.", "I can't swim."],
+      "correctAnswer": 3,
+      "explanation": "Can fait sa négation tout seul : can't ou cannot. Jamais de don't avec un modal."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : At the age of five, Nina ___ already read.",
+      "options": ["could", "can", "managed", "is able to"],
+      "correctAnswer": 0,
+      "explanation": "Capacité générale dans le passé : could + base verbale."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : Speak louder, please. I ___ hear you!",
+      "options": ["am not hearing", "can't", "don't can", "not can"],
+      "correctAnswer": 1,
+      "explanation": "Avec les verbes de perception comme hear ou see, on utilise très souvent can. À la négation : can't."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : The test was very difficult, but Hugo ___ finish it on time.",
+      "options": ["could", "was able to", "can", "is able to"],
+      "correctAnswer": 1,
+      "explanation": "Réussite ponctuelle dans une situation difficile : was able to (ou managed to). Could ne s'emploie pas pour une réussite unique."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : ___ you help me with my homework, please?",
+      "options": ["Do", "Are", "Can", "Does"],
+      "correctAnswer": 2,
+      "explanation": "Pour demander un service : can + sujet + base verbale. Jamais de do avec un modal."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "I hope I'll be ___ to come to your party.",
+      "answers": ["able"],
+      "explanation": "Can n'a pas de futur : on utilise will be able to + base verbale."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Yesterday, my phone was broken, so I ___ (can / not) call you.",
+      "answers": ["couldn't", "could not"],
+      "explanation": "Négation de can au passé : couldn't. À la négation, couldn't convient dans tous les cas."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "The firefighters ___ able to save the cat yesterday.",
+      "answers": ["were"],
+      "explanation": "Réussite ponctuelle au passé : was/were able to. The firefighters = they, donc were."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "When I was six, I ___ (can) already ride a bike.",
+      "answers": ["could"],
+      "explanation": "Capacité générale dans le passé : can devient could, suivi de la base verbale."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["Can you speak Spanish?"],
+      "translation": "Est-ce que tu sais parler espagnol ?",
+      "explanation": "Question avec un modal : can passe devant le sujet, sans do."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["She will be able to drive next year.", "Next year she will be able to drive."],
+      "translation": "Elle pourra conduire l'année prochaine.",
+      "explanation": "Can n'a pas de futur : will be able to + base verbale."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["We managed to find the station."],
+      "translation": "Nous avons réussi à trouver la gare.",
+      "explanation": "Réussite ponctuelle au passé : managed to + base verbale."
+    }
+  ]
+}

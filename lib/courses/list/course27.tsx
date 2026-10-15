@@ -11,7 +11,7 @@ export const course27: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        L&apos;auxiliaire <strong>WILL</strong> s&apos;utilise principalement lorsqu&apos;une décision est prise <strong className="text-white">au moment même où l&apos;on parle</strong>.
+                        L&apos;auxiliaire <strong>WILL</strong> s&apos;utilise notamment lorsqu&apos;une décision est prise <strong className="text-white">au moment même où l&apos;on parle</strong>.
                         Il n&apos;y a aucune préméditation.
                     </p>
 

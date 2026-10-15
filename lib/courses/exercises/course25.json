@@ -1,0 +1,102 @@
+{
+  "course": 25,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Comment dire « Depuis combien de temps tu habites ici ? »",
+      "options": ["How long do you live here?", "How long you have lived here?", "How long have you lived here?", "Since when you live here?"],
+      "correctAnswer": 2,
+      "explanation": "Pour une durée qui continue jusqu'à maintenant : How long + Present Perfect. Dans la question, have passe devant le sujet."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : How long ___ a vegetarian?",
+      "options": ["have you been", "are you", "you have been", "have you been being"],
+      "correctAnswer": 0,
+      "explanation": "Be est un verbe d'état : pas de forme en -ing. How long + have you been."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Quelle question correspond à la réponse « Since I was twelve. » ?",
+      "options": ["When did you start dancing?", "How long have you been dancing?", "How long ago did you start dancing?", "How long do you dance?"],
+      "correctAnswer": 1,
+      "explanation": "Since I was twelve donne le point de départ d'une durée qui continue : la question est How long + Present Perfect."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : How long ___ for the bus?",
+      "options": ["are you waiting", "do you wait", "you have been waiting", "have you been waiting"],
+      "correctAnswer": 3,
+      "explanation": "Action qui dure encore au moment où l'on parle : How long + have you been + V-ing."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Ces deux phrases sont-elles correctes ? « I have lived here for ten years. » et « I have been living here for ten years. »",
+      "options": ["Oui, les deux sont correctes.", "Non, seule la première est correcte.", "Non, seule la deuxième est correcte."],
+      "correctAnswer": 0,
+      "explanation": "Avec live et work, les deux formes sont possibles, sans vraie différence de sens."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Comment dire « Ça fait combien de temps que vous êtes ensemble ? » (à un couple)",
+      "options": ["How long are you together?", "How long have you been together?", "How much time are you together?", "Since when are you together?"],
+      "correctAnswer": 1,
+      "explanation": "Situation qui dure encore : How long + Present Perfect. Be est un verbe d'état, donc have been, sans -ing."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "How long ___ you known your neighbours?",
+      "answers": ["have"],
+      "explanation": "How long + Present Perfect : have se place devant le sujet. Know est un verbe d'état : have known."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "How long has she ___ learning Chinese?",
+      "answers": ["been"],
+      "explanation": "Pour une activité qui continue : How long + has + sujet + been + V-ing."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "I have ___ this laptop for three years. (have)",
+      "answers": ["had"],
+      "explanation": "Have (posséder) est un verbe d'état : pas de forme en -ing. Le participe passé de have est had."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "How long ___ your sister had her driving licence?",
+      "answers": ["has"],
+      "explanation": "Your sister = she : has. Have (posséder) est un verbe d'état, donc has had, sans -ing."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["How long have you known your best friend?"],
+      "translation": "Depuis combien de temps connais-tu ta meilleure amie ?",
+      "explanation": "Know est un verbe d'état : How long + have + sujet + known."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["How long has he been playing the drums?"],
+      "translation": "Depuis combien de temps joue-t-il de la batterie ?",
+      "explanation": "Activité qui continue : How long + has + sujet + been + V-ing."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["How long have they lived in Canada?"],
+      "translation": "Depuis combien de temps habitent-ils au Canada ?",
+      "explanation": "How long + Present Perfect. Avec live, la forme en -ing serait aussi possible."
+    }
+  ]
+}

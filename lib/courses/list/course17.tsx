@@ -13,7 +13,7 @@ export const course17: LessonContent = {
       content: (
         <div className="space-y-6">
           <p className="text-lg text-slate-300">
-            Pour donner un conseil, une opinion ou dire ce qui est "bien" de faire, nous avons un champion : <span className="text-cyan-400 font-bold">SHOULD</span>.
+            Pour donner un conseil, une opinion ou dire ce qu'il est "bien" de faire, nous avons un champion : <span className="text-cyan-400 font-bold">SHOULD</span>.
           </p>
           <div className="bg-slate-900 p-4 rounded-lg border-l-4 border-cyan-500">
             <p className="text-lg font-mono text-cyan-300">"You should stop smoking."</p>
@@ -55,7 +55,7 @@ export const course17: LessonContent = {
               <div className="bg-slate-900 p-3 rounded">
                 <p className="text-cyan-400 font-bold">SHOULD</p>
                 <p className="text-white">"You <span className="underline">should</span> go."</p>
-                <p className="text-xs text-slate-500 text-center mt-2">Le Jeans-Baskets (Passe partout)</p>
+                <p className="text-xs text-slate-500 text-center mt-2">Le Jeans-Baskets (Passe-partout)</p>
               </div>
               <div className="bg-slate-900 p-3 rounded border border-indigo-500/30">
                 <p className="text-indigo-400 font-bold">OUGHT TO</p>

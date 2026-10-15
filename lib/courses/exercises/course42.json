@@ -1,0 +1,102 @@
+{
+  "course": 42,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Comment dire « J'aimerais savoir nager » ?",
+      "options": ["I wish I can swim.", "I wish I could swim.", "I wish I would swim.", "I hope I could swim."],
+      "correctAnswer": 1,
+      "explanation": "Pour une capacité qu'on n'a pas aujourd'hui, can passe au passé après wish : I wish I could."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : I wish I ___ to her party last weekend. It was amazing.",
+      "options": ["went", "would go", "had gone", "have gone"],
+      "correctAnswer": 2,
+      "explanation": "On regrette une action passée (last weekend) : wish + past perfect, donc had gone."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : I ___ you have a great time in London next week!",
+      "options": ["hope", "wish", "would wish"],
+      "correctAnswer": 0,
+      "explanation": "Pour un souhait réaliste sur l'avenir, on utilise hope. Wish ne s'emploie pas avec un présent dans ce sens."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["I wish I would be more patient.", "I wish I am more patient.", "I wish I had be more patient.", "I wish I were more patient."],
+      "correctAnswer": 3,
+      "explanation": "Regret sur le présent : wish + past simple, ici were. On ne dit pas I wish I would : would ne s'emploie pas avec le même sujet que wish."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Ta sœur emprunte toujours tes vêtements sans demander. Que dis-tu ?",
+      "options": ["I wish she stops borrowing my clothes.", "I wish she would stop borrowing my clothes.", "I hope she had stopped borrowing my clothes.", "I wish she has stopped borrowing my clothes."],
+      "correctAnswer": 1,
+      "explanation": "Pour exprimer l'agacement face au comportement de quelqu'un, on utilise wish + would + base verbale."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "« If only I hadn't lost my phone! » Que ressent la personne ?",
+      "options": ["Elle est contente d'avoir perdu son téléphone.", "Elle a peur de perdre son téléphone un jour.", "Elle regrette d'avoir perdu son téléphone.", "Elle pense qu'elle va retrouver son téléphone."],
+      "correctAnswer": 2,
+      "explanation": "If only + past perfect exprime un regret fort sur le passé : elle a perdu son téléphone et elle le regrette."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "I wish I ___ Italian like my cousins. (speak)",
+      "answers": ["spoke", "could speak"],
+      "explanation": "Situation présente qu'on voudrait différente : wish + past simple (spoke) ou could + base verbale."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "I wish I ___ that photo online. Everyone has seen it now. (not / post)",
+      "answers": ["hadn't posted", "had not posted"],
+      "explanation": "Regret sur une action passée : wish + past perfect. À la forme négative, hadn't + participe passé."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "I wish you ___ stop interrupting me all the time! (will)",
+      "answers": ["would", "'d"],
+      "explanation": "Après wish, will devient would pour exprimer l'agacement face au comportement de quelqu'un."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "I wish it ___ summer already. (be)",
+      "answers": ["were", "was"],
+      "explanation": "Situation présente qu'on voudrait différente : wish + past simple. Avec be, were est plus soigné et was plus courant."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["I wish I had listened to my parents."],
+      "translation": "Je regrette de ne pas avoir écouté mes parents.",
+      "explanation": "Regret sur le passé : wish + past perfect, c'est-à-dire had + participe passé."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["She wishes she lived by the sea."],
+      "translation": "Elle aimerait vivre au bord de la mer.",
+      "explanation": "Situation présente qu'elle voudrait différente : wish + past simple. Avec she, wish prend -es."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["I hope you feel better soon."],
+      "translation": "J'espère que tu iras vite mieux.",
+      "explanation": "Pour un souhait réaliste, on utilise hope, souvent suivi d'un présent même pour parler du futur."
+    }
+  ]
+}

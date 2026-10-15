@@ -17,7 +17,7 @@ export const course37: LessonContent = {
                             <span className="text-slate-500 text-sm">Pronom Relatif (Que/Qui)</span>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-white font-bold">Antécédent</span>
+                            <span className="text-white font-bold">Antecedent</span>
                             <span className="text-slate-500 text-sm">Le mot avant (La Cible)</span>
                         </div>
                         <div className="flex flex-col">
@@ -45,7 +45,7 @@ export const course37: LessonContent = {
                         </div>
 
                         <div className="bg-slate-800 p-6 rounded-xl border-l-4 border-emerald-500">
-                            <h4 className="text-emerald-400 font-bold uppercase mb-2">SI C'EST UNE CHOSE / ANIMAL</h4>
+                            <h4 className="text-emerald-400 font-bold uppercase mb-2">SI C'EST UNE CHOSE / UN ANIMAL</h4>
                             <p className="text-3xl font-black text-white mb-2">WHICH</p>
                             <p className="text-slate-400 text-sm">Ex: The car <strong className="text-white">which</strong> is red.</p>
                         </div>
@@ -58,7 +58,7 @@ export const course37: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Le pronom <strong>THAT</strong> est un "Joker". Dans les propositions définies (qui sont essentielles au sens), il peut remplacer à la fois WHO et WHICH.
+                        Le pronom <strong>THAT</strong> est un "Joker". Dans les propositions déterminatives (qui sont essentielles au sens), il peut remplacer à la fois WHO et WHICH.
                     </p>
 
                     <div className="bg-slate-900 p-4 rounded-lg border border-slate-700 space-y-3">

@@ -1,0 +1,102 @@
+{
+  "course": 22,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Comment dire « Je ne suis jamais allée à Londres » ?",
+      "options": ["I have never been to London.", "I haven't never been to London.", "I never went in London.", "I have never gone in London."],
+      "correctAnswer": 0,
+      "explanation": "Expérience de vie : have never been to + lieu. Never porte déjà la négation, donc pas de haven't."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : Have you ever ___ a song in front of the whole class?",
+      "options": ["sang", "sung", "sing", "singed"],
+      "correctAnswer": 1,
+      "explanation": "Après have, il faut le participe passé. Sing est irrégulier : sing, sang, sung."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : Chloé isn't here. She ___ to Ireland for a month.",
+      "options": ["has been", "is been", "has gone", "has went"],
+      "correctAnswer": 2,
+      "explanation": "Chloé est en Irlande en ce moment, elle n'est pas revenue : has gone. Has been voudrait dire qu'elle y est allée et qu'elle est rentrée."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : Have you ever met a famous person? - Yes, I ___ a famous singer last summer.",
+      "options": ["have met", "has met", "meet", "met"],
+      "correctAnswer": 3,
+      "explanation": "Dès qu'on donne un détail précis (last summer), on passe au Past Simple. Meet est irrégulier : met."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : It's the funniest video I ___.",
+      "options": ["never see", "have ever seen", "have never seen"],
+      "correctAnswer": 1,
+      "explanation": "Après un superlatif (the funniest), on utilise le Present Perfect avec ever : I have ever seen."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Comment dire « C'est la première fois que je prends l'avion » ?",
+      "options": ["It's the first time I am on a plane.", "It's the first time I was on a plane.", "It's the first time I have been on a plane."],
+      "correctAnswer": 2,
+      "explanation": "Après It's the first time, on utilise le Present Perfect, même si le français utilise le présent."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "Has your brother ever ___ a car? (drive)",
+      "answers": ["driven"],
+      "explanation": "Après has, il faut le participe passé. Drive est irrégulier : drive, drove, driven."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "I have never ___ sushi. I'd love to try it! (eat)",
+      "answers": ["eaten"],
+      "explanation": "Après have never, on met le participe passé. Eat est irrégulier : eat, ate, eaten."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Welcome back, Lina! Have you ___ to the swimming pool? Your hair is wet.",
+      "answers": ["been"],
+      "explanation": "Lina est rentrée : elle est allée à la piscine et elle est revenue, donc been."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "I've been to Rome. I ___ there with my class two years ago. (go)",
+      "answers": ["went"],
+      "explanation": "Le détail two years ago situe l'action dans un passé terminé : Past Simple. Go est irrégulier : went."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["Have you ever eaten Indian food?"],
+      "translation": "As-tu déjà mangé de la cuisine indienne ?",
+      "explanation": "Pour demander une expérience de vie : Have + sujet + ever + participe passé."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["She has never seen the sea."],
+      "translation": "Elle n'a jamais vu la mer.",
+      "explanation": "Never se place entre has et le participe passé. Le verbe reste à la forme affirmative."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["It's the best book I have ever read."],
+      "translation": "C'est le meilleur livre que j'aie jamais lu.",
+      "explanation": "Après un superlatif (the best), on utilise le Present Perfect avec ever."
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "course": 28,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : Look at Jade's face! She ___ cry.",
+      "options": ["will", "goes to", "is going", "is going to"],
+      "correctAnswer": 3,
+      "explanation": "Tu vois un signe sur son visage : la prédiction repose sur une preuve visible, donc be going to."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : In 2050, I think people ___ live on the Moon.",
+      "options": ["will to", "are", "will", "wills"],
+      "correctAnswer": 2,
+      "explanation": "Prédiction basée sur une opinion (I think), sans preuve visible : will + base verbale."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Quelle prédiction repose sur une preuve visible ?",
+      "options": ["I think she'll win the match.", "Look at the score! They're going to lose.", "One day, robots will do our homework.", "I'm sure you'll love this book."],
+      "correctAnswer": 1,
+      "explanation": "Le score est une preuve qu'on voit maintenant : be going to. Les autres phrases sont des opinions, avec will."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : Oh, you're vegetarian? OK, I ___ cook pasta then.",
+      "options": ["will", "am going to", "am", "going to"],
+      "correctAnswer": 0,
+      "explanation": "Tu viens d'apprendre l'information et tu changes d'avis sur le moment : will."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Tu regardes le ciel et tu dis « It's going to rain. » Qu'est-ce que ça veut dire ?",
+      "options": ["Il pleuvra peut-être un jour, je n'en sais rien.", "Il pleut en ce moment.", "Je vois des nuages noirs : il va pleuvoir bientôt."],
+      "correctAnswer": 2,
+      "explanation": "Be going to annonce une prédiction fondée sur ce que l'on voit maintenant."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Hier, tu as décidé de t'inscrire dans une salle de sport. Aujourd'hui, tu l'annonces à ton ami. Que dis-tu ?",
+      "options": ["I'm going to join a gym.", "I'll join a gym.", "I join a gym."],
+      "correctAnswer": 0,
+      "explanation": "La décision a été prise avant la conversation : be going to."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "Watch out! You ___ fall off your chair! (be going to)",
+      "answers": ["are going to", "'re going to"],
+      "explanation": "Tu vois la scène : prédiction fondée sur une preuve visible. Avec you, be devient are."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "In twenty years, cars ___ need drivers. (will / not)",
+      "answers": ["won't", "will not"],
+      "explanation": "Prédiction sur un futur lointain, sans preuve visible : will. À la forme négative, won't."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "My brother has bought a guitar. He ___ learn to play it. (be going to)",
+      "answers": ["is going to", "'s going to"],
+      "explanation": "L'achat de la guitare prouve que c'est un projet : be going to. Avec he, be devient is."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "What ___ you going to wear to Sarah's party?",
+      "answers": ["are"],
+      "explanation": "Going to se construit avec be. Dans la question, are passe devant le sujet you."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["It's going to snow tonight.", "Tonight it's going to snow."],
+      "translation": "Il va neiger ce soir.",
+      "explanation": "Be going to + base verbale : on l'utilise quand des signes visibles annoncent l'événement."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["She will be famous one day.", "One day she will be famous."],
+      "translation": "Elle sera célèbre un jour.",
+      "explanation": "Prédiction basée sur une conviction personnelle, sans preuve visible : will + base verbale."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["We are going to miss the train."],
+      "translation": "Nous allons rater le train.",
+      "explanation": "Prédiction fondée sur ce que l'on constate (l'heure, la distance) : be going to."
+    }
+  ]
+}

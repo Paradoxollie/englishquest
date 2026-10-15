@@ -1,0 +1,102 @@
+{
+  "course": 27,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Ton amie te dit : « I haven't got a pen! » Tu lui proposes de lui en prêter un. Que dis-tu ?",
+      "options": ["I'm going to lend you one.", "I lend you one.", "I'll lend you one.", "I'm lending you one."],
+      "correctAnswer": 2,
+      "explanation": "Tu proposes ton aide sur le moment : will. Attention, « je vais » ne se traduit pas toujours par going to."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : I ___ forget your birthday this year, I promise!",
+      "options": ["won't", "willn't", "don't will", "am not"],
+      "correctAnswer": 0,
+      "explanation": "Pour une promesse, on utilise will. À la forme négative, will not devient won't."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : Why have you bought two tickets? - Because I ___ take my sister to a concert.",
+      "options": ["will", "am going to", "go to", "am going"],
+      "correctAnswer": 1,
+      "explanation": "Les billets prouvent que le projet existait déjà avant la conversation : be going to."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : I think Léa ___ love this present.",
+      "options": ["will to", "wills", "does", "will"],
+      "correctAnswer": 3,
+      "explanation": "Opinion ou prédiction après I think : will + base verbale, sans to et sans s."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Dans quelle situation utilise-t-on going to ?",
+      "options": ["Tu proposes ton aide à quelqu'un.", "Tu fais une promesse.", "Tu parles d'un projet déjà organisé.", "Tu décides sur le moment."],
+      "correctAnswer": 2,
+      "explanation": "Going to sert à parler d'un projet décidé avant de parler. Pour une offre, une promesse ou une décision sur le moment, on utilise will."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : What ___ you going to do this summer?",
+      "options": ["are", "will", "do", "is"],
+      "correctAnswer": 0,
+      "explanation": "Going to se construit avec be : What are you going to do? On parle d'un projet."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "___ it rain tomorrow, do you think?",
+      "answers": ["Will"],
+      "explanation": "Question sur une prédiction : will passe devant le sujet. Will it rain?"
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "We ___ going to visit our cousins in Spain this summer.",
+      "answers": ["are", "'re"],
+      "explanation": "Projet déjà décidé : be going to. Avec we, be devient are."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Don't worry, I ___ be late, I promise! (will, négatif)",
+      "answers": ["won't", "will not"],
+      "explanation": "Promesse : will. À la forme négative, will not ou won't + base verbale."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "My sister ___ going to study medicine. She has already chosen her university.",
+      "answers": ["is", "'s"],
+      "explanation": "Elle a déjà choisi son université : c'est un projet, donc be going to. Avec she, be devient is."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["I'll carry your bag for you."],
+      "translation": "Je vais te porter ton sac.",
+      "explanation": "Tu proposes ton aide sur le moment : will, souvent contracté en 'll."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["We are going to visit Scotland next summer.", "Next summer we are going to visit Scotland."],
+      "translation": "Nous allons visiter l'Écosse l'été prochain.",
+      "explanation": "Projet déjà décidé : be going to + base verbale."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["I think you will like this song."],
+      "translation": "Je pense que tu vas aimer cette chanson.",
+      "explanation": "Opinion personnelle après I think : will + base verbale."
+    }
+  ]
+}

@@ -11,7 +11,7 @@ export const course24: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Ce temps est comme une caméra qui zoome sur l&apos;action en cours ou vient juste de finir.
+                        Ce temps est comme une caméra qui zoome sur l&apos;action en cours ou qui vient juste de finir.
                     </p>
 
                     <div className="bg-slate-900 p-6 rounded-lg border-l-4 border-indigo-500">

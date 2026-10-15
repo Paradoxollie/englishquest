@@ -1,0 +1,102 @@
+{
+  "course": 32,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : If I ___ more free time, I would learn the guitar.",
+      "options": ["have", "had", "would have", "will have"],
+      "correctAnswer": 1,
+      "explanation": "Situation imaginaire : if + prétérit (had), puis would + base verbale. Jamais would juste après if."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment dire « Si elle habitait plus près, elle viendrait plus souvent » ?",
+      "options": ["If she would live closer, she would come more often.", "If she lived closer, she will come more often.", "If she lives closer, she would come more often.", "If she lived closer, she would come more often."],
+      "correctAnswer": 3,
+      "explanation": "« Habitait » se traduit par le prétérit (lived) et « viendrait » par would come. Would ne se met jamais dans la partie avec if."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : If Sacha ___ so shy, he would make friends more easily.",
+      "options": ["weren't", "isn't", "wouldn't be", "won't be"],
+      "correctAnswer": 0,
+      "explanation": "Dans une condition imaginaire, be devient were à toutes les personnes. À la forme négative : weren't."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : If I lived in the countryside, I ___ see my friends very often.",
+      "options": ["won't", "wouldn't to", "wouldn't", "don't"],
+      "correctAnswer": 2,
+      "explanation": "La condition est imaginaire (lived) : la conséquence négative se fait avec wouldn't + base verbale, sans to."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Quelle question est correcte ?",
+      "options": ["Where would you live if you could choose any city?", "Where you would live if you could choose any city?", "Where will you live if you could choose any city?", "Where would you live if you can choose any city?"],
+      "correctAnswer": 0,
+      "explanation": "Dans la question, would passe devant le sujet. Dans la condition imaginaire, can devient could."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Laquelle de ces phrases décrit une situation imaginaire, contraire à la réalité ?",
+      "options": ["If it rains, we'll stay at home.", "If I had wings, I would fly to school.", "If you call me, I'll answer.", "If she studies, she'll pass."],
+      "correctAnswer": 1,
+      "explanation": "If + prétérit, puis would : c'est le second conditional, pour l'imaginaire. Les autres phrases parlent de situations réelles et possibles."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "If I ___ how to cook, I would make dinner for my friends. (know)",
+      "answers": ["knew"],
+      "explanation": "Condition imaginaire : if + prétérit. Know est irrégulier : knew."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "If my parents gave me more pocket money, I ___ a new phone. (buy)",
+      "answers": ["would buy", "'d buy"],
+      "explanation": "Conséquence imaginaire : would + base verbale. On peut contracter : I'd buy."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "If we ___ in London, we would go to concerts every weekend. (be)",
+      "answers": ["were"],
+      "explanation": "Dans une condition imaginaire, be se met au prétérit : were."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "If I had a car, I ___ the bus every morning. (not / take)",
+      "answers": ["wouldn't take", "would not take"],
+      "explanation": "Conséquence imaginaire à la forme négative : wouldn't (ou would not) + base verbale."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["I would travel more if I had enough money.", "If I had enough money I would travel more."],
+      "translation": "Je voyagerais plus si j'avais assez d'argent.",
+      "explanation": "Would + base verbale pour le résultat imaginaire, if + prétérit pour la condition."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["What would you do if you were invisible?", "If you were invisible what would you do?"],
+      "translation": "Que ferais-tu si tu étais invisible ?",
+      "explanation": "Question : would passe devant le sujet. Avec be, la condition imaginaire se fait avec were."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["She wouldn't be late if she got up earlier.", "If she got up earlier she wouldn't be late."],
+      "translation": "Elle ne serait pas en retard si elle se levait plus tôt.",
+      "explanation": "Wouldn't + base verbale pour la conséquence, prétérit après if : got up."
+    }
+  ]
+}

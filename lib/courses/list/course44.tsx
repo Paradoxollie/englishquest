@@ -12,7 +12,7 @@ export const course44: LessonContent = {
                 <div className="space-y-6">
                     <p className="text-slate-300">
                         Le <strong>past perfect</strong> sert à parler d'un passé encore plus ancien qu'un autre point
-                        de référence déjà passé. C'est le temps du <strong>avant déjà terminé</strong>.
+                        de référence déjà passé. C'est le temps de l'<strong>avant déjà terminé</strong>.
                     </p>
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-6">
@@ -39,7 +39,7 @@ export const course44: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        C'est l'usage central: on combine souvent <strong>past perfect</strong> avec{" "}
+                        C'est l'usage central : on combine souvent <strong>past perfect</strong> avec{" "}
                         <strong>past simple</strong> pour marquer l'ordre des événements.
                     </p>
 
@@ -125,10 +125,10 @@ export const course44: LessonContent = {
                         </p>
                         <div className="space-y-3 text-slate-200">
                             <p>
-                                <strong>When I arrived, they left.</strong>: ordre peu clair ou succession simple.
+                                <strong>When I arrived, they left.</strong> : ils sont partis à mon arrivée (une action suit l'autre).
                             </p>
                             <p>
-                                <strong>When I arrived, they had left.</strong>: ils étaient déjà partis.
+                                <strong>When I arrived, they had left.</strong> : ils étaient déjà partis.
                             </p>
                         </div>
                     </div>
@@ -145,14 +145,14 @@ export const course44: LessonContent = {
                             question: "When we arrived, the concert ___.",
                             options: ["started after us", "had started"],
                             correctAnswer: 1,
-                            explanation: "Le concert avait déjà commence avant notre arrivée.",
+                            explanation: "Le concert avait déjà commencé avant notre arrivée.",
                         },
                         {
                             id: 2,
                             question: "She was upset because she ___ her phone.",
                             options: ["had lost", "lost later"],
                             correctAnswer: 0,
-                            explanation: "La perte du téléphone est antérieure a l'emotion.",
+                            explanation: "La perte du téléphone est antérieure à l'émotion.",
                         },
                         {
                             id: 3,
@@ -166,14 +166,14 @@ export const course44: LessonContent = {
                             question: "Choose the best option: After they ___ dinner, they went for a walk.",
                             options: ["had finished", "finish"],
                             correctAnswer: 0,
-                            explanation: "L'action de finir le repas est antérieure a la promenade.",
+                            explanation: "L'action de finir le repas est antérieure à la promenade.",
                         },
                         {
                             id: 5,
                             question: "The shop ___ by the time we got there.",
                             options: ["closed now", "had closed"],
                             correctAnswer: 1,
-                            explanation: "La fermeture était déjà accomplie a notre arrivée.",
+                            explanation: "La fermeture était déjà accomplie à notre arrivée.",
                         },
                         {
                             id: 6,
@@ -184,7 +184,7 @@ export const course44: LessonContent = {
                         },
                         {
                             id: 7,
-                            question: "Le past perfect sert surtout a montrer ...",
+                            question: "Le past perfect sert surtout à montrer ...",
                             options: ["une habitude présente", "une antériorité dans le passé"],
                             correctAnswer: 1,
                             explanation: "C'est le temps de l'action déjà accomplie avant un autre point passé.",
@@ -194,7 +194,7 @@ export const course44: LessonContent = {
                             question: "By 2001, she ___ to five countries in Europe.",
                             options: ["was being", "had been"],
                             correctAnswer: 1,
-                            explanation: "On parle du temps accumule jusqu'a un point du passé.",
+                            explanation: "On fait le bilan des expériences accumulées jusqu'à un point du passé.",
                         },
                         {
                             id: 9,
@@ -211,7 +211,7 @@ export const course44: LessonContent = {
                             question: "Had she ___ the message before the meeting started?",
                             options: ["seen", "saw"],
                             correctAnswer: 0,
-                            explanation: "Question au past perfect: Had + sujet + past participle.",
+                            explanation: "Question au past perfect : Had + sujet + past participle.",
                         }
                     ]}
                 />

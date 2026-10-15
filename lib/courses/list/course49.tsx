@@ -18,7 +18,7 @@ export const course49: LessonContent = {
 
                     <div className="grid gap-4 md:grid-cols-3 text-sm">
                         <div className="rounded-xl border-l-4 border-emerald-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Sens assez literal</h4>
+                            <h4 className="mb-2 font-bold text-white">Sens assez littéral</h4>
                             <p className="text-slate-300">sit down, come in</p>
                         </div>
                         <div className="rounded-xl border-l-4 border-cyan-500 bg-slate-800 p-4">
@@ -26,7 +26,7 @@ export const course49: LessonContent = {
                             <p className="text-slate-300">give up, find out</p>
                         </div>
                         <div className="rounded-xl border-l-4 border-amber-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">A apprendre en bloc</h4>
+                            <h4 className="mb-2 font-bold text-white">À apprendre en bloc</h4>
                             <p className="text-slate-300">turn down an offer, carry on working</p>
                         </div>
                     </div>
@@ -56,7 +56,7 @@ export const course49: LessonContent = {
 
                     <p className="text-slate-300">
                         C'est pour cela qu'il faut mémoriser le groupe entier, pas seulement traduire la particule.
-                        <strong> give up</strong> ne veut pas dire "donner vers le haut".
+                        <strong> give up</strong> ne veut pas dire « donner vers le haut ».
                     </p>
                 </div>
             )
@@ -85,7 +85,7 @@ export const course49: LessonContent = {
                             <p className="text-white">look after the children</p>
                             <p className="text-white mt-2">look after them</p>
                             <p className="mt-2 text-sm text-slate-300">
-                                On ne séparé pas: <span className="line-through">look them after</span>.
+                                On ne sépare pas : <span className="line-through">look them after</span>.
                             </p>
                         </div>
                     </div>
@@ -175,7 +175,7 @@ export const course49: LessonContent = {
                             question: "Which phrasal verb is most likely separable?",
                             options: ["turn off", "look after"],
                             correctAnswer: 0,
-                            explanation: "Turn off peut se séparer: turn the light off.",
+                            explanation: "Turn off peut se séparer : turn the light off.",
                         },
                         {
                             id: 8,

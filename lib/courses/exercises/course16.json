@@ -1,0 +1,102 @@
+{
+  "course": 16,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : In my school, we ___ wear a uniform. It's the rule.",
+      "options": ["has to", "have to", "must to", "haves to"],
+      "correctAnswer": 1,
+      "explanation": "Règle imposée par l'école : have to. Avec we, pas de s."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : You ___ use your phone during the test. It's forbidden!",
+      "options": ["don't have to", "haven't to", "must", "mustn't"],
+      "correctAnswer": 3,
+      "explanation": "Interdiction : mustn't. Don't have to voudrait dire « ce n'est pas obligatoire »."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Que signifie « You don't have to come » ?",
+      "options": ["Tu n'es pas obligé de venir.", "Tu ne dois pas venir, c'est interdit.", "Tu dois venir.", "Tu ne peux pas venir."],
+      "correctAnswer": 0,
+      "explanation": "Don't have to exprime l'absence d'obligation. Pour une interdiction, on dirait mustn't."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : ___ you have to wear a uniform at your school?",
+      "options": ["Do", "Must", "Have", "Are"],
+      "correctAnswer": 0,
+      "explanation": "Have to se comporte comme un verbe ordinaire : la question se fait avec do."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : Sarah ___ have to work on Saturdays. She's free.",
+      "options": ["don't", "mustn't", "doesn't", "isn't"],
+      "correctAnswer": 2,
+      "explanation": "Absence d'obligation : doesn't have to. Sarah = she, 3e personne, donc doesn't."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : Lucas ran 10 km this morning. He ___ be tired!",
+      "options": ["can't", "must", "mustn't", "has"],
+      "correctAnswer": 1,
+      "explanation": "Déduction logique : on est presque sûr que c'est vrai, donc must be."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "Yesterday, I ___ (have to) clean my room.",
+      "answers": ["had to"],
+      "explanation": "Must n'a pas de passé : on utilise had to + base verbale."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Shh! You ___ (must) talk in the library.",
+      "answers": ["mustn't", "must not"],
+      "explanation": "Interdiction : mustn't + base verbale. Ici, parler est interdit."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Today is Sunday, so we ___ (have to) go to school.",
+      "answers": ["don't have to", "do not have to"],
+      "explanation": "Absence d'obligation : don't have to. On n'est pas obligés d'y aller, ce n'est pas interdit."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "My mum is a nurse. She ___ (have to) work at night.",
+      "answers": ["has to"],
+      "explanation": "Obligation liée au travail, une règle extérieure : have to. Avec she, have devient has."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["You mustn't swim in this lake."],
+      "translation": "Tu ne dois pas nager dans ce lac.",
+      "explanation": "Interdiction : mustn't + base verbale."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["Do we have to bring our books?"],
+      "translation": "Est-ce qu'on doit apporter nos livres ?",
+      "explanation": "Question avec have to : do + sujet + have to + base verbale."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["She had to stay at home yesterday.", "Yesterday she had to stay at home."],
+      "translation": "Elle a dû rester à la maison hier.",
+      "explanation": "Must n'a pas de passé : on utilise had to + base verbale."
+    }
+  ]
+}

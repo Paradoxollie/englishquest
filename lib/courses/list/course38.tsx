@@ -15,7 +15,7 @@ export const course38: LessonContent = {
                         <div className="flex flex-col">
                             <span className="text-white font-bold">Object Pronoun</span>
                             <span className="text-slate-500 text-sm">Pronom Objet (Supprimable)</span>
-                            <span className="text-xs text-slate-600 italic">Ex: The the book (that) I read.</span>
+                            <span className="text-xs text-slate-600 italic">Ex: The book (that) I read.</span>
                         </div>
                         <div className="flex flex-col">
                             <span className="text-white font-bold">Subject Pronoun</span>
@@ -136,7 +136,7 @@ export const course38: LessonContent = {
                             question: "Everything ___ he said was true.",
                             options: ["- (Rien)", "what"],
                             correctAnswer: 0,
-                            explanation: "Après 'Everything', on omet souvent 'that'. Jamais 'what' dans une relative.",
+                            explanation: "Après 'Everything', on omet souvent 'that'. Jamais 'what' après un antécédent.",
                         },
                         {
                             id: 7,

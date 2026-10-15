@@ -122,7 +122,7 @@ export const course28: LessonContent = {
                             </thead>
                             <tbody className="divide-y divide-slate-800">
                                 <tr className="bg-slate-900/50">
-                                    <td className="p-4 text-white font-medium">"Usually, he <span className="text-purple-400">will arrive</span> late."</td>
+                                    <td className="p-4 text-white font-medium">"He <span className="text-purple-400">will arrive</span> late, as usual."</td>
                                     <td className="p-4 text-slate-400">C&apos;est une habitude, une caractéristique typique de lui. (Prédiction basée sur l&apos;expérience).</td>
                                 </tr>
                                 <tr>
@@ -181,7 +181,7 @@ export const course28: LessonContent = {
                             question: "Are you busy tonight? - Yes, I ___ meet my friends.",
                             options: ["will", "am going to"],
                             correctAnswer: 1,
-                            explanation: "Si vous êtes occupé, c'est que vous avez *déjà* un plan. Ce n'est pas décidé à la seconde.",
+                            explanation: "Si vous êtes occupé, c'est que vous avez déjà un plan. Ce n'est pas décidé à la seconde.",
                         },
                         {
                             id: 6,

@@ -1,0 +1,102 @@
+{
+  "course": 13,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : When I was little, I ___ be afraid of the dark.",
+      "options": ["use to", "used to", "am used to", "was use to"],
+      "correctAnswer": 1,
+      "explanation": "État passé qui n'existe plus : used to + base verbale. À l'affirmative, used prend un d."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : Last summer, we ___ to Spain for a week.",
+      "options": ["used to go", "use to go", "went"],
+      "correctAnswer": 2,
+      "explanation": "Un seul voyage, à un moment précis : past simple. Used to est réservé aux habitudes ou aux états qui ont duré."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Que signifie « I used to play the piano » ?",
+      "options": ["Je joue du piano depuis longtemps.", "J'ai l'habitude de jouer du piano.", "Je vais jouer du piano.", "Avant, je jouais du piano, mais plus maintenant."],
+      "correctAnswer": 3,
+      "explanation": "Used to parle d'une habitude passée qui a pris fin. Ce n'est pas une habitude actuelle."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : ___ your sister use to wear glasses?",
+      "options": ["Did", "Was", "Does", "Used"],
+      "correctAnswer": 0,
+      "explanation": "Question avec used to : did + sujet + use to. Did porte le passé, donc use perd son d."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Comment dire « Avant, il ne mangeait jamais de poisson » ?",
+      "options": ["He didn't never use to eat fish.", "He never use to eat fish.", "He never used to eat fish.", "He used to never eating fish."],
+      "correctAnswer": 2,
+      "explanation": "Avec never, il n'y a pas de did : used to garde son d. Jamais de double négation comme didn't never."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : There ___ be a cinema in my town, but it closed.",
+      "options": ["used to", "use to", "was used to", "is used to"],
+      "correctAnswer": 0,
+      "explanation": "There used to be = il y avait autrefois. Le cinéma n'existe plus aujourd'hui."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "I ___ be shy, but now I talk to everybody.",
+      "answers": ["used to"],
+      "explanation": "État passé qui a changé (but now) : used to + base verbale, avec un d à l'affirmative."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "My little brother ___ like school, but now he loves it.",
+      "answers": ["didn't use to", "did not use to", "never used to"],
+      "explanation": "Négation de used to : didn't use to, sans d, car did porte déjà le passé. Never used to est aussi possible."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "What games ___ you use to play when you were little?",
+      "answers": ["did"],
+      "explanation": "Question avec used to : mot interrogatif + did + sujet + use to + base verbale."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "My mum ___ have a motorbike when she was young.",
+      "answers": ["used to"],
+      "explanation": "Situation passée qui n'existe plus : used to + base verbale (have)."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["We used to live in a small flat."],
+      "translation": "Avant, nous habitions dans un petit appartement.",
+      "explanation": "Used to + base verbale pour une situation passée qui n'existe plus."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["Did you use to have a dog?"],
+      "translation": "Est-ce que tu avais un chien avant ?",
+      "explanation": "Question : did + sujet + use to + base verbale. Pas de d, car did porte déjà le passé."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["She didn't use to like football."],
+      "translation": "Avant, elle n'aimait pas le football.",
+      "explanation": "Négation : didn't use to + base verbale. Le d disparaît après didn't."
+    }
+  ]
+}

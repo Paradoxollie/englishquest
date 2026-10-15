@@ -1,0 +1,102 @@
+{
+  "course": 26,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : I ___ my grandparents last weekend.",
+      "options": ["visit", "have visited", "have visit", "visited"],
+      "correctAnswer": 3,
+      "explanation": "Last weekend est terminé : on utilise le Past Simple, même si le français dit « j'ai rendu visite »."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Quel marqueur de temps impose le Past Simple ?",
+      "options": ["already", "yet", "two days ago", "never"],
+      "correctAnswer": 2,
+      "explanation": "Two days ago situe l'action à un moment terminé du passé : Past Simple. Already, yet et never s'utilisent surtout avec le Present Perfect."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : When ___ your first phone?",
+      "options": ["did you get", "have you got", "have you had", "you got"],
+      "correctAnswer": 0,
+      "explanation": "When demande un moment précis du passé : on utilise le Past Simple."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : My grandfather ___ in a factory for 40 years. He retired in 2015.",
+      "options": ["has worked", "worked", "has been working", "works"],
+      "correctAnswer": 1,
+      "explanation": "Il ne travaille plus : la période est terminée, donc Past Simple, même avec for."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Comment dire « Je n'ai pas encore vu son nouveau clip » ?",
+      "options": ["I haven't seen yet her new video.", "I didn't saw her new video yet.", "I haven't seen her new video yet.", "I haven't saw her new video yet."],
+      "correctAnswer": 2,
+      "explanation": "Pas encore se dit haven't + participe passé, avec yet à la fin. See est irrégulier : seen."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : Have you seen Léa today? - Yes, I ___ her at lunch.",
+      "options": ["saw", "have seen", "have saw", "see"],
+      "correctAnswer": 0,
+      "explanation": "La question porte sur aujourd'hui, mais la réponse donne un moment précis et terminé (at lunch) : Past Simple."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "We ___ to Italy in 2022. (go)",
+      "answers": ["went"],
+      "explanation": "In 2022 est une date passée : Past Simple. Go est irrégulier : went."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "I ___ my cousin since the summer. (not / see)",
+      "answers": ["haven't seen", "have not seen", "'ve not seen"],
+      "explanation": "Since relie le passé au présent : Present Perfect. See est irrégulier : seen."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "My mum ___ her phone yesterday, but she has found it now. (lose)",
+      "answers": ["lost"],
+      "explanation": "Yesterday est un moment terminé : Past Simple. Lose est irrégulier : lost."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "How many films ___ you seen this month?",
+      "answers": ["have"],
+      "explanation": "This month n'est pas terminé et seen est un participe passé : Present Perfect, have you seen."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["I have never been to a concert."],
+      "translation": "Je ne suis jamais allé(e) à un concert.",
+      "explanation": "Expérience de vie, sans date : Present Perfect avec never."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["She broke her arm last month.", "Last month she broke her arm."],
+      "translation": "Elle s'est cassé le bras le mois dernier.",
+      "explanation": "Last month est un moment terminé : Past Simple. Break est irrégulier : broke."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["Did you watch the match last night?"],
+      "translation": "Tu as regardé le match hier soir ?",
+      "explanation": "Last night est terminé : Past Simple, même si le français utilise le passé composé. Question avec did + base verbale."
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "course": 17,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : You look tired. You ___ go to bed early tonight.",
+      "options": ["should", "should to", "shoulds", "ought"],
+      "correctAnswer": 0,
+      "explanation": "Pour donner un conseil : should + base verbale, sans to et sans s."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment dire « Tu ne devrais pas manger de bonbons avant le dîner » ?",
+      "options": ["You don't should eat sweets before dinner.", "You shouldn't to eat sweets before dinner.", "You shouldn't eat sweets before dinner.", "You should not eating sweets before dinner."],
+      "correctAnswer": 2,
+      "explanation": "Should fait sa négation tout seul : shouldn't + base verbale. Jamais de don't avec un modal."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : ___ I tell my parents about my bad mark?",
+      "options": ["Does", "Should", "Am", "Shoulds"],
+      "correctAnswer": 1,
+      "explanation": "Pour demander un conseil : should + sujet + base verbale. Should est invariable : jamais de s."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Quel modal garde toujours to devant le verbe ?",
+      "options": ["should", "must", "can", "ought"],
+      "correctAnswer": 3,
+      "explanation": "Ought to est le seul modal qui garde to : you ought to go. Les autres sont suivis directement de la base verbale."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : It's starting to rain. We ___ go home now.",
+      "options": ["had better to", "have better", "had better", "better to"],
+      "correctAnswer": 2,
+      "explanation": "Had better + base verbale, sans to. C'est un avertissement : sinon, on va être trempés."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Comment dire « Tu aurais dû me le dire » ?",
+      "options": ["You should tell me.", "You should have told me.", "You should have tell me.", "You should told me."],
+      "correctAnswer": 1,
+      "explanation": "Reproche sur le passé : should have + participe passé. Le participe passé de tell est told."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "You ___ to listen to your teacher. (synonyme de should)",
+      "answers": ["ought"],
+      "explanation": "Ought to a le même sens que should, mais il garde to devant le verbe."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "It's late. You ___ (should / not) play video games now.",
+      "answers": ["shouldn't", "should not"],
+      "explanation": "Conseil négatif : shouldn't + base verbale. Should fait sa négation sans do."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "We ___ better hurry, or we'll miss the bus.",
+      "answers": ["had", "'d"],
+      "explanation": "Avertissement : had better + base verbale. À l'oral, on dit souvent we'd better."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "I'm so hungry! I ___ (should / eat) breakfast this morning.",
+      "answers": ["should have eaten", "should've eaten"],
+      "explanation": "Regret sur le passé : should have + participe passé. Eat donne eaten."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["You should wear a warm coat."],
+      "translation": "Tu devrais mettre un manteau chaud.",
+      "explanation": "Conseil : should + base verbale. L'adjectif warm se place avant le nom."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["What should I buy for my mum's birthday?"],
+      "translation": "Qu'est-ce que je devrais acheter pour l'anniversaire de ma mère ?",
+      "explanation": "Pour demander un conseil : mot interrogatif + should + sujet + base verbale."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["You'd better not be late again."],
+      "translation": "Tu as intérêt à ne pas être encore en retard.",
+      "explanation": "Avertissement : had better ('d better) + not + base verbale."
+    }
+  ]
+}

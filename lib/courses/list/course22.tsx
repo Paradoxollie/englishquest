@@ -16,7 +16,7 @@ export const course22: LessonContent = {
                     </p>
 
                     <div className="bg-slate-900 p-6 rounded-lg border-l-4 border-purple-500">
-                        <h4 className="text-purple-400 font-bold mb-4 text-lg">LE TEMPS NON-DÉFINI</h4>
+                        <h4 className="text-purple-400 font-bold mb-4 text-lg">LE TEMPS NON DÉFINI</h4>
                         <p className="text-slate-300 mb-4">
                             La période de temps est : <strong className="text-white">"De votre naissance à maintenant"</strong>.
                             Tant que vous êtes vivant, la période n&apos;est pas finie, donc on utilise le Present Perfect.
@@ -184,7 +184,7 @@ export const course22: LessonContent = {
                             question: "Where is Bill? He ___ to the shops.",
                             options: ["has been", "has gone"],
                             correctAnswer: 1,
-                            explanation: "Il n'est pas là (On demande où il est). Il est parti = Has GONE.",
+                            explanation: "Il n'est pas là (on demande où il est). Il est parti = Has GONE.",
                         },
                         {
                             id: 4,
@@ -198,7 +198,7 @@ export const course22: LessonContent = {
                             question: "It is the first time I ___ sushi.",
                             options: ["eat", "have eaten"],
                             correctAnswer: 1,
-                            explanation: "Structure 'It is the first time...' = Present Perfect Obligatoire.",
+                            explanation: "Structure 'It is the first time...' = Present Perfect obligatoire.",
                         },
                         {
                             id: 6,
@@ -216,10 +216,10 @@ export const course22: LessonContent = {
                         },
                         {
                             id: 8,
-                            question: "This comes from a book I ___.",
+                            question: "This is the first time I ___ a book in English.",
                             options: ["read", "have read"],
                             correctAnswer: 1,
-                            explanation: "C'est une expérience (j'ai lu ce livre, peu importe quand).",
+                            explanation: "Après 'This is the first time', on utilise le Present Perfect : c'est un bilan de mon expérience jusqu'à maintenant.",
                         },
                         {
                             id: 9,

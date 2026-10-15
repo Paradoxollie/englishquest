@@ -4,7 +4,7 @@ import { Quiz } from "@/components/courses/quiz";
 export const course48: LessonContent = {
     courseNumber: 48,
     title: "Prépositions et Gérondif (Préposition + -ing)",
-    objective: "Maitriser la règle préposition + -ing, y compris avec les expressions en to qui ne sont pas des infinitifs.",
+    objective: "Maîtriser la règle préposition + -ing, y compris avec les expressions en to qui ne sont pas des infinitifs.",
     sections: [
         {
             title: "0. La règle d'or",
@@ -32,7 +32,7 @@ export const course48: LessonContent = {
             )
         },
         {
-            title: "1. Prépositions frequentes et formes courantes",
+            title: "1. Prépositions fréquentes et formes courantes",
             content: (
                 <div className="space-y-6">
                     <div className="grid gap-4 md:grid-cols-2 text-sm">
@@ -68,7 +68,7 @@ export const course48: LessonContent = {
                 <div className="space-y-6">
                     <p className="text-slate-300">
                         Parfois, <strong>to</strong> n'est pas le marqueur de l'infinitif. C'est simplement une{" "}
-                        <strong>préposition</strong>. Dans ce cas, on garde la règle: <strong>to + -ing</strong>.
+                        <strong>préposition</strong>. Dans ce cas, on garde la règle : <strong>to + -ing</strong>.
                     </p>
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
@@ -137,7 +137,7 @@ export const course48: LessonContent = {
                             question: "She is interested in ___ abroad.",
                             options: ["to work", "working"],
                             correctAnswer: 1,
-                            explanation: "In est une préposition: working.",
+                            explanation: "In est une préposition : working.",
                         },
                         {
                             id: 3,
@@ -172,7 +172,7 @@ export const course48: LessonContent = {
                             question: "She insisted on ___ the bill herself.",
                             options: ["pay", "paying"],
                             correctAnswer: 1,
-                            explanation: "On est une préposition: paying.",
+                            explanation: "On est une préposition : paying.",
                         },
                         {
                             id: 8,

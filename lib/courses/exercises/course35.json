@@ -1,0 +1,102 @@
+{
+  "course": 35,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : Chloé ___ me that she was moving to Lyon.",
+      "options": ["said", "told", "says", "talked"],
+      "correctAnswer": 1,
+      "explanation": "Il y a une personne juste après le verbe (me) : on utilise tell. Say ne s'emploie pas directement avec la personne."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Inès : « I love my new school. » Quelle phrase rapporte correctement ses paroles ?",
+      "options": ["Inès said she loved her new school.", "Inès said I loved my new school.", "Inès said she loved my new school.", "Inès told she loved her new school."],
+      "correctAnswer": 0,
+      "explanation": "On change les pronoms : I devient she et my devient her. Le verbe recule d'un pas : loved."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Mehdi : « I'll help you with your project. » Complète : Mehdi said he ___ me with my project.",
+      "options": ["would helped", "will helped", "would help"],
+      "correctAnswer": 2,
+      "explanation": "Will recule d'un pas et devient would. Après would, le verbe reste à la base verbale : help."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Lisa : « I can't come to your party. » Complète : Lisa said she ___ come to my party.",
+      "options": ["didn't can", "couldn't", "doesn't can", "not could"],
+      "correctAnswer": 1,
+      "explanation": "Can recule d'un pas et devient could. À la forme négative : couldn't, sans did."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Hugo : « I'm revising for my exams. » Quelle phrase rapporte correctement ses paroles ?",
+      "options": ["Hugo said he revising for his exams.", "Hugo said he were revising for his exams.", "Hugo told he was revising for his exams.", "Hugo said he was revising for his exams."],
+      "correctAnswer": 3,
+      "explanation": "Am revising recule d'un pas : was revising. My devient his, car on parle de Hugo."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Léo : « I don't like horror films. » Quelle phrase rapporte correctement ses paroles ?",
+      "options": ["Léo said he doesn't liked horror films.", "Léo said he didn't liked horror films.", "Léo said he didn't like horror films.", "Léo said he not liked horror films."],
+      "correctAnswer": 2,
+      "explanation": "Don't recule d'un pas et devient didn't. Après didn't, le verbe reste à la base verbale : like."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "Last year, Emma said she ___ swim. Now she swims every week! (not / can)",
+      "answers": ["couldn't", "could not"],
+      "explanation": "Au discours indirect, can recule d'un pas et devient could. À la forme négative : couldn't."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "When I called Yanis yesterday, he said he ___ busy. (be)",
+      "answers": ["was"],
+      "explanation": "Au discours indirect, am recule d'un pas et devient was."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Jade ___ us that she was nervous before the exam.",
+      "answers": ["told"],
+      "explanation": "Il y a une personne juste après le verbe (us) : on utilise tell, ici au prétérit, told."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "Last summer, Sara told me she ___ in a café. She doesn't work there anymore. (work)",
+      "answers": ["worked", "was working"],
+      "explanation": "Au discours indirect, le présent recule d'un pas : work devient worked (ou am working devient was working)."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["Lucie told her mum she wasn't hungry."],
+      "translation": "Lucie a dit à sa mère qu'elle n'avait pas faim.",
+      "explanation": "Tell est suivi de la personne (her mum). Lucie a dit « I'm not hungry » : am not recule d'un pas et devient wasn't."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["He said that he would help me."],
+      "translation": "Il a dit qu'il m'aiderait.",
+      "explanation": "Say n'est pas suivi de la personne. Will recule d'un pas et devient would."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["My friends said they couldn't come."],
+      "translation": "Mes amis ont dit qu'ils ne pouvaient pas venir.",
+      "explanation": "Ils ont dit « We can't come » : we devient they et can't recule d'un pas, couldn't."
+    }
+  ]
+}

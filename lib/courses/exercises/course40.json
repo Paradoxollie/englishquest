@@ -1,0 +1,102 @@
+{
+  "course": 40,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : Last year, Yasmine decided ___ a vegetarian.",
+      "options": ["becoming", "to become", "become", "to becoming"],
+      "correctAnswer": 1,
+      "explanation": "Decide est suivi de to + base verbale : decided to become."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment dire « Mes parents veulent que je fasse des études de médecine » ?",
+      "options": ["My parents want that I study medicine.", "My parents want me study medicine.", "My parents want I study medicine.", "My parents want me to study medicine."],
+      "correctAnswer": 3,
+      "explanation": "Pour vouloir que quelqu'un fasse quelque chose : want + personne (me) + to + base verbale. Jamais want that."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : Nathan promised ___ anyone about the surprise party.",
+      "options": ["not to tell", "to not telling", "not telling", "don't tell"],
+      "correctAnswer": 0,
+      "explanation": "Promise est suivi de to + base verbale. À la forme négative, not se place devant to : not to tell."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : The teacher told us ___ our phones in our bags.",
+      "options": ["put", "putting", "to put", "that we put"],
+      "correctAnswer": 2,
+      "explanation": "Tell someone to do something : told + personne (us) + to + base verbale."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : My cousin offered ___ me to the airport.",
+      "options": ["driving", "to drive", "drive", "to driving"],
+      "correctAnswer": 1,
+      "explanation": "Offer est suivi de to + base verbale : offered to drive."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["She agreed to lend me her bike.", "She agreed lending me her bike.", "She agreed me to lend her bike.", "She agreed lend me her bike."],
+      "correctAnswer": 0,
+      "explanation": "Agree est suivi de to + base verbale : agreed to lend. On ne place pas de personne entre agree et to."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "My sister is planning ___ a year in Australia. (spend)",
+      "answers": ["to spend", "on spending"],
+      "explanation": "Plan est suivi de to + base verbale : planning to spend. Plan on + -ing existe aussi."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "My mum wants me ___ my room before dinner. (tidy)",
+      "answers": ["to tidy", "to tidy up"],
+      "explanation": "Want + personne + to + base verbale : wants me to tidy."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "He decided ___ social media for a month. (not / use)",
+      "answers": ["not to use"],
+      "explanation": "Decide est suivi de to + base verbale. À la forme négative, not se place devant to : not to use."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "The coach told the players ___ more water. (drink)",
+      "answers": ["to drink"],
+      "explanation": "Tell + personne + to + base verbale : told the players to drink."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["I want you to listen to me."],
+      "translation": "Je veux que tu m'écoutes.",
+      "explanation": "Want + personne (you) + to + base verbale. On ne dit jamais want that you."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["She has decided to learn Korean."],
+      "translation": "Elle a décidé d'apprendre le coréen.",
+      "explanation": "Decide est suivi de to + base verbale : decided to learn."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["They promised to call us back."],
+      "translation": "Ils ont promis de nous rappeler.",
+      "explanation": "Promise est suivi de to + base verbale. Le pronom us se place entre call et back."
+    }
+  ]
+}

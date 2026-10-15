@@ -11,8 +11,8 @@ export const course43: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        À ce niveau, on ne parle plus seulement du futur en bloc. On choisit l'angle exact:
-                        l'action sera-t-elle <strong>en cours</strong> ou déjà <strong>terminée</strong> à un moment futur?
+                        À ce niveau, on ne parle plus seulement du futur en bloc. On choisit l'angle exact :
+                        l'action sera-t-elle <strong>en cours</strong> ou déjà <strong>terminée</strong> à un moment futur ?
                     </p>
 
                     <div className="grid gap-4 md:grid-cols-2">
@@ -69,7 +69,7 @@ export const course43: LessonContent = {
                             Usage fin
                         </p>
                         <p className="text-slate-200">
-                            On l'utilise aussi pour des suppositions polies ou neutres sur le programme de quelqu'un:
+                            On l'utilise aussi pour des suppositions polies ou neutres sur le programme de quelqu'un :
                             <em className="text-white"> Will you be using the car tonight?</em>
                         </p>
                     </div>
@@ -81,7 +81,7 @@ export const course43: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Le <strong>future perfect</strong> regarde le futur comme si on était déjà arrive à un point
+                        Le <strong>future perfect</strong> regarde le futur comme si on était déjà arrivé à un point
                         plus loin. On parle alors d'une action qui sera finie <strong>avant</strong> ce repère.
                     </p>
 
@@ -101,7 +101,7 @@ export const course43: LessonContent = {
 
                     <div className="grid gap-4 md:grid-cols-2 text-sm">
                         <div className="rounded-xl border-l-4 border-emerald-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Marqueurs frequents</h4>
+                            <h4 className="mb-2 font-bold text-white">Marqueurs fréquents</h4>
                             <p className="text-slate-300">by, by then, by the time, before, by next week</p>
                         </div>
                         <div className="rounded-xl border-l-4 border-cyan-500 bg-slate-800 p-4">
@@ -125,7 +125,7 @@ export const course43: LessonContent = {
                                 At 9 p.m., I <strong>will be writing</strong> my essay.
                             </p>
                             <p className="mt-2 text-sm text-slate-300">
-                                A 21h, l'action sera en train de se faire.
+                                À 21 h, l'action sera en train de se faire.
                             </p>
                         </div>
                         <div className="rounded-xl border border-emerald-500/50 bg-emerald-950/20 p-5">
@@ -134,7 +134,7 @@ export const course43: LessonContent = {
                                 By 9 p.m., I <strong>will have written</strong> my essay.
                             </p>
                             <p className="mt-2 text-sm text-slate-300">
-                                A 21h, l'action sera déjà terminée.
+                                À 21 h, l'action sera déjà terminée.
                             </p>
                         </div>
                     </div>
@@ -145,7 +145,7 @@ export const course43: LessonContent = {
                         </p>
                         <p className="text-slate-200">
                             Pour insister sur la <strong>durée</strong>, on peut rencontrer le{" "}
-                            <strong>future perfect continuous</strong>:
+                            <strong>future perfect continuous</strong> :
                             <em className="text-white"> By June, I will have been working here for ten years.</em>
                             Ici, l'idée clé est la longueur de l'activité, pas juste son achèvement.
                         </p>
@@ -170,14 +170,14 @@ export const course43: LessonContent = {
                             question: "By Friday, I ___ the report.",
                             options: ["will be finishing", "will have finished"],
                             correctAnswer: 1,
-                            explanation: "By Friday indiqué une action terminée avant ce repère.",
+                            explanation: "By Friday indique une action terminée avant ce repère.",
                         },
                         {
                             id: 3,
                             question: "At 8 p.m., she ___ her clients.",
                             options: ["will have met", "will be meeting"],
                             correctAnswer: 1,
-                            explanation: "A 20h, la réunion sera en cours.",
+                            explanation: "À 20 h, la réunion sera en cours.",
                         },
                         {
                             id: 4,
@@ -191,7 +191,7 @@ export const course43: LessonContent = {
                             question: "Don't call at 7. I ___ dinner then.",
                             options: ["will have cooked", "will be cooking"],
                             correctAnswer: 1,
-                            explanation: "Then renvoie à un moment ou l'action sera en cours.",
+                            explanation: "Then renvoie à un moment où l'action sera en cours.",
                         },
                         {
                             id: 6,
@@ -205,7 +205,7 @@ export const course43: LessonContent = {
                             question: "At noon, the team ___ the presentation, so wait until 1 p.m.",
                             options: ["will be giving", "will have given"],
                             correctAnswer: 0,
-                            explanation: "A midi, la présentation sera en train de se dérouler.",
+                            explanation: "À midi, la présentation sera en train de se dérouler.",
                         },
                         {
                             id: 8,

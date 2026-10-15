@@ -1,0 +1,102 @@
+{
+  "course": 24,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : Clara ___ for hours. Her eyes are tired.",
+      "options": ["has been reading", "has being reading", "have been reading", "is been reading"],
+      "correctAnswer": 0,
+      "explanation": "Present Perfect Continuous : has been + V-ing. Avec Clara (she), on utilise has."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment dire « Ça fait une heure que j'attends » ?",
+      "options": ["I wait for an hour.", "I am waiting since an hour.", "I have been waiting for an hour.", "I have been waiting since an hour."],
+      "correctAnswer": 2,
+      "explanation": "Action commencée dans le passé qui dure encore : have been + V-ing. Une heure est une durée : for."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : I ___ three chapters of my book today.",
+      "options": ["have been reading", "have read", "has read", "have been read"],
+      "correctAnswer": 1,
+      "explanation": "Avec une quantité précise (three chapters), on utilise le Present Perfect simple : have read."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Quelle phrase insiste sur l'activité, sans dire si elle est terminée ?",
+      "options": ["I have been painting the kitchen.", "I have painted the kitchen.", "I painted the kitchen."],
+      "correctAnswer": 0,
+      "explanation": "Have been + V-ing met l'accent sur l'activité elle-même. Have painted insiste sur le résultat : la cuisine est finie."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : My brother has been ___ video games since lunch.",
+      "options": ["play", "played", "plays", "playing"],
+      "correctAnswer": 3,
+      "explanation": "Après have been ou has been, le verbe prend toujours la forme en -ing."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : Your eyes are red. ___ you been crying?",
+      "options": ["Did", "Have", "Are", "Has"],
+      "correctAnswer": 1,
+      "explanation": "Les yeux rouges sont la trace d'une activité récente : have been + V-ing. Dans la question, have passe devant le sujet."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "Your face is red. Have you been ___? (run)",
+      "answers": ["running"],
+      "explanation": "Après have been, on met le verbe en -ing. Run double son n : running."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "My sister ___ been learning Japanese since September.",
+      "answers": ["has", "'s"],
+      "explanation": "My sister = she : has been + V-ing."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "We have ___ waiting for this bus for twenty minutes!",
+      "answers": ["been"],
+      "explanation": "Present Perfect Continuous : have + been + V-ing. N'oublie jamais been."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "Lucas has ___ four cups of coffee today. (drink)",
+      "answers": ["drunk"],
+      "explanation": "Avec une quantité précise (four cups), on utilise le Present Perfect simple. Drink est irrégulier : drink, drank, drunk."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["What have you been doing all day?"],
+      "translation": "Qu'est-ce que tu as fait toute la journée ?",
+      "explanation": "Question sur une activité qui a duré : What + have + sujet + been + V-ing."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["She has been learning the guitar since June.", "Since June she has been learning the guitar."],
+      "translation": "Elle apprend la guitare depuis juin.",
+      "explanation": "Activité commencée en juin qui continue encore : has been + V-ing, avec since + point de départ."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["I have watched three episodes of this series."],
+      "translation": "J'ai regardé trois épisodes de cette série.",
+      "explanation": "Avec une quantité précise (three episodes), on utilise le Present Perfect simple, pas la forme en -ing."
+    }
+  ]
+}

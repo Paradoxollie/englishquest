@@ -1,0 +1,102 @@
+{
+  "course": 29,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Comment dire « Il est peut-être en retard » ?",
+      "options": ["He maybe late.", "He may is late.", "He may be late.", "He mays be late."],
+      "correctAnswer": 2,
+      "explanation": "May est un modal : may + base verbale (be). Maybe, en un mot, est un adverbe et ne remplace pas le verbe."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : ___ she's at the library. Her bag isn't here.",
+      "options": ["May be", "Maybe", "Might", "May"],
+      "correctAnswer": 1,
+      "explanation": "La phrase a déjà un sujet et un verbe (she's) : il faut l'adverbe maybe, en un mot."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : I ___ go to the party, but I'm not sure yet.",
+      "options": ["might", "mights", "might to", "will"],
+      "correctAnswer": 0,
+      "explanation": "Il y a un doute : might + base verbale, sans to et sans s."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Tu veux quitter la salle de classe. Tu le demandes très poliment à ta professeure. Que dis-tu ?",
+      "options": ["Do I may leave the room, please?", "May I leave the room, please?", "I may leave the room, please?", "Maybe I leave the room, please?"],
+      "correctAnswer": 1,
+      "explanation": "Pour demander une permission très poliment : May I + base verbale ? May se place devant le sujet."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : She ___ come tonight. She's very busy.",
+      "options": ["doesn't might", "might not to", "might not"],
+      "correctAnswer": 2,
+      "explanation": "Négation d'un modal : might not + base verbale. Jamais de doesn't avec un modal."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Quelle phrase exprime une interdiction formelle ?",
+      "options": ["You may not use your phone here.", "You might not use your phone here.", "Maybe you don't use your phone here."],
+      "correctAnswer": 0,
+      "explanation": "You may not exprime une interdiction formelle, l'inverse de la permission. Might not exprime seulement une possibilité."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "___ we'll go to the beach on Sunday. It depends on the weather.",
+      "answers": ["Maybe", "Perhaps"],
+      "explanation": "Maybe est un adverbe : il se place en début de phrase, devant le sujet et le verbe."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Take a jacket. It ___ be warm this evening. (peut-être pas)",
+      "answers": ["may not", "might not", "mightn't"],
+      "explanation": "Possibilité négative : may not ou might not + base verbale."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Your keys ___ in your coat pocket. Have you checked? (être peut-être)",
+      "answers": ["may be", "might be", "could be"],
+      "explanation": "Il manque le verbe : may be ou might be, en deux mots, c'est-à-dire modal + be."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "You ___ leave now. The test is over. (permission)",
+      "answers": ["may", "can"],
+      "explanation": "Pour donner une permission : may (formel) ou can + base verbale."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["May I borrow your pen?"],
+      "translation": "Puis-je emprunter votre stylo ?",
+      "explanation": "Demande de permission polie : May + sujet + base verbale."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["Maybe your phone is in the car."],
+      "translation": "Ton téléphone est peut-être dans la voiture.",
+      "explanation": "Maybe se place en début de phrase. Le verbe de la phrase reste is."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["She might not come to the party."],
+      "translation": "Elle ne viendra peut-être pas à la fête.",
+      "explanation": "Possibilité négative : might not + base verbale."
+    }
+  ]
+}

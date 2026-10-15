@@ -51,7 +51,7 @@ export const course40: LessonContent = {
                             <p className="text-slate-300">✅ He promised <strong>to help</strong>.</p>
                         </div>
                         <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-blue-500">
-                            <h4 className="font-bold text-white mb-2">OFFER (Proposer d'aider)</h4>
+                            <h4 className="font-bold text-white mb-2">OFFER (Proposer de faire)</h4>
                             <p className="text-slate-300">✅ She offered <strong>to carry</strong> my bag.</p>
                         </div>
                     </div>

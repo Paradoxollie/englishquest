@@ -132,7 +132,7 @@ export const course29: LessonContent = {
                             question: "___ he likes football.",
                             options: ["May be", "Maybe"],
                             correctAnswer: 1,
-                            explanation: "C'est en début de phrase et suivi d'un sujet+verbe ('he likes'). C'est l'adverbe.",
+                            explanation: "C'est en début de phrase et suivi d'un sujet + verbe ('he likes'). C'est l'adverbe.",
                         },
                         {
                             id: 2,

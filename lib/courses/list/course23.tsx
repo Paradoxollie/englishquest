@@ -7,7 +7,7 @@ export const course23: LessonContent = {
     objective: "Exprimer une durée avec une précision chirurgicale.",
     sections: [
         {
-            title: "1. La Metaphore Visuelle",
+            title: "1. La Métaphore Visuelle",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">

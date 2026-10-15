@@ -11,7 +11,7 @@ export const course45: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Ici, on ne raconte pas directement un fait observe. On fait une déduction à partir d'indices.
+                        Ici, on ne raconte pas directement un fait observé. On fait une déduction à partir d'indices.
                         Le choix du modal montre à quel point on est certain.
                     </p>
 
@@ -61,7 +61,7 @@ export const course45: LessonContent = {
                                 She <strong>might have missed</strong> the bus.
                             </p>
                             <p className="mt-2 text-xs italic text-slate-500">
-                                C'est possible, mais je ne suis pas sur.
+                                C'est possible, mais je ne suis pas sûr.
                             </p>
                         </div>
                     </div>
@@ -129,7 +129,7 @@ export const course45: LessonContent = {
                             <p className="text-slate-300">must have</p>
                         </div>
                         <div className="rounded-xl border border-slate-700 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Hypothese ouverte</h4>
+                            <h4 className="mb-2 font-bold text-white">Hypothèse ouverte</h4>
                             <p className="text-slate-300">may / might / could have</p>
                         </div>
                         <div className="rounded-xl border border-slate-700 bg-slate-800 p-4">
@@ -140,7 +140,7 @@ export const course45: LessonContent = {
 
                     <div className="rounded-xl border border-cyan-500/50 bg-cyan-950/20 p-5">
                         <p className="text-slate-200">
-                            Exemple: <em>The door was locked and nothing was broken. The thief must have had a key.</em>
+                            Exemple : <em>The door was locked and nothing was broken. The thief must have had a key.</em>
                             On ne sait pas exactement ce qui s'est passé, mais les indices orientent fortement la déduction.
                         </p>
                     </div>
@@ -189,10 +189,10 @@ export const course45: LessonContent = {
                         },
                         {
                             id: 6,
-                            question: "Which one expresses criticism, not déduction?",
+                            question: "Which one expresses criticism, not deduction?",
                             options: ["She should have called.", "She must have called."],
                             correctAnswer: 0,
-                            explanation: "Should have critique une action manquante; ce n'est pas une déduction.",
+                            explanation: "Should have critique une action manquante ; ce n'est pas une déduction.",
                         },
                         {
                             id: 7,

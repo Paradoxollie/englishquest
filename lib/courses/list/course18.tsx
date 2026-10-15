@@ -13,7 +13,7 @@ export const course18: LessonContent = {
       content: (
         <div className="space-y-6">
           <p className="text-lg text-slate-300">
-            Pour comparer des éléments ou définir un extrême, l'anglais utilise trois degrés :
+            Pour comparer des éléments ou définir un extrême, l'anglais utilise quatre structures :
           </p>
           <ul className="list-disc ml-6 space-y-2 text-slate-300">
             <li>Le Comparatif de <span className="text-emerald-400 font-bold">Supériorité</span> (+) : <em>Plus ... que</em></li>
@@ -33,7 +33,7 @@ export const course18: LessonContent = {
           </p>
 
           <div className="bg-slate-900 p-4 rounded-lg border-l-4 border-emerald-500">
-            <h4 className="text-emerald-400 font-bold mb-2">A. Adjectifs Courts (1 syllabe)</h4>
+            <h4 className="text-emerald-400 font-bold mb-2">A. Adjectifs Courts (1 syllabe, ou 2 syllabes en -Y)</h4>
             <p className="text-slate-200 mb-3">
               Pour ces adjectifs, on ajoute simplement <span className="font-bold text-white">-ER</span> à la fin du mot.
             </p>
@@ -50,7 +50,7 @@ export const course18: LessonContent = {
           </div>
 
           <div className="bg-slate-900 p-4 rounded-lg border-l-4 border-blue-500">
-            <h4 className="text-blue-400 font-bold mb-2">B. Adjectifs Longs (2 syllabes ou plus)</h4>
+            <h4 className="text-blue-400 font-bold mb-2">B. Adjectifs Longs (2 syllabes ou plus, sauf en -Y)</h4>
             <p className="text-slate-200 mb-3">
               L'adjectif est trop long pour être modifié. On ajoute <span className="font-bold text-white">MORE</span> devant l'adjectif.
             </p>
@@ -217,7 +217,7 @@ export const course18: LessonContent = {
               question: "Comparatif de Supériorité : Interesting",
               options: ["Interestingler", "More interesting", "Most interesting", "So interesting"],
               correctAnswer: 1,
-              explanation: "Adjectif long (4 syllabes) -> MORE intellingent.",
+              explanation: "Adjectif long (plusieurs syllabes) -> MORE interesting.",
             },
             {
               id: 3,
@@ -243,7 +243,7 @@ export const course18: LessonContent = {
             {
               id: 6,
               question: "Infériorité : He is ___ intelligent as his brother.",
-              options: ["not", "not as", "not so", "less"],
+              options: ["not", "not as", "so", "less"],
               correctAnswer: 1,
               explanation: "Structure 'Not as ... as'.",
             },
@@ -263,7 +263,7 @@ export const course18: LessonContent = {
             },
             {
               id: 9,
-              question: "Equality : She is as ___ as me.",
+              question: "Égalité : She is as ___ as me.",
               options: ["smart", "smarter", "smartest", "more smart"],
               correctAnswer: 0,
               explanation: "Comparatif d'égalité : L'adjectif reste invariable. As SMART as.",

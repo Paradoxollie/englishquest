@@ -49,7 +49,7 @@ export const course34: LessonContent = {
 
                         <div className="text-center">
                             <p className="text-2xl text-white font-bold mb-2">IS <span className="text-blue-400">BEING</span> DONE</p>
-                            <p className="text-slate-400 italic">Example : The car is being repaired.</p>
+                            <p className="text-slate-400 italic">Exemple : The car is being repaired.</p>
                             <p className="text-xs text-slate-500 mt-1">(La voiture est en train d'être réparée.)</p>
                         </div>
 
@@ -81,7 +81,7 @@ export const course34: LessonContent = {
 
                         <div className="text-center">
                             <p className="text-2xl text-white font-bold mb-2">HAS <span className="text-emerald-400">BEEN</span> DONE</p>
-                            <p className="text-slate-400 italic">Example : The room has been painted.</p>
+                            <p className="text-slate-400 italic">Exemple : The room has been painted.</p>
                             <p className="text-xs text-slate-500 mt-1">(La chambre a été peinte. Regarde, elle est bleue !)</p>
                         </div>
                     </div>
@@ -107,8 +107,8 @@ export const course34: LessonContent = {
                                 <td className="p-3">It <strong className="text-white">is cleaned</strong>. (Habitude)</td>
                             </tr>
                             <tr className="bg-slate-900/80 border-b border-slate-700">
-                                <td className="p-3 font-bold text-blue-300">Présent Continu</td>
-                                <td className="p-3">is/are <strong className="text-blue-400">being</strong> + done</td>
+                                <td className="p-3 font-bold text-blue-300">Present Continuous</td>
+                                <td className="p-3">am/is/are <strong className="text-blue-400">being</strong> + done</td>
                                 <td className="p-3">It <strong className="text-blue-400">is being cleaned</strong>. (Maintenant)</td>
                             </tr>
                             <tr className="bg-slate-900/50 border-b border-slate-700">
@@ -117,7 +117,7 @@ export const course34: LessonContent = {
                                 <td className="p-3">It <strong className="text-emerald-400">has been cleaned</strong>. (Fini)</td>
                             </tr>
                             <tr className="bg-slate-900/80">
-                                <td className="p-3 font-bold text-purple-300">Passé Simple</td>
+                                <td className="p-3 font-bold text-purple-300">Past Simple</td>
                                 <td className="p-3">was/were + done</td>
                                 <td className="p-3">It <strong className="text-purple-400">was cleaned</strong>. (Hier)</td>
                             </tr>
@@ -136,7 +136,7 @@ export const course34: LessonContent = {
                             question: "Look! The bridge is ___ repaired.",
                             options: ["being", "been"],
                             correctAnswer: 0,
-                            explanation: "Look! (Regarde!) ➔ Action en cours maintenant ➔ BEING.",
+                            explanation: "Look! (Regarde !) ➔ Action en cours maintenant ➔ BEING.",
                         },
                         {
                             id: 2,
@@ -150,7 +150,7 @@ export const course34: LessonContent = {
                             question: "My car ___ stolen yesterday.",
                             options: ["has been", "was"],
                             correctAnswer: 1,
-                            explanation: "Yesterday ➔ Passé simple (WAS), pas Perfect.",
+                            explanation: "Yesterday ➔ Past Simple (WAS), pas Present Perfect.",
                         },
                         {
                             id: 4,
@@ -164,7 +164,7 @@ export const course34: LessonContent = {
                             question: "My keys have ___ stolen.",
                             options: ["been", "being"],
                             correctAnswer: 0,
-                            explanation: "Je les ai perdues (résultat). Have + BEEN.",
+                            explanation: "On me les a volées : on voit le résultat maintenant. Have + BEEN.",
                         },
                         {
                             id: 6,
@@ -185,7 +185,7 @@ export const course34: LessonContent = {
                             question: "The shirt has been ___.",
                             options: ["wash", "washed"],
                             correctAnswer: 1,
-                            explanation: "Toujours le Participe Passé (3ème colonne) au passif.",
+                            explanation: "Toujours le Participe Passé (3e colonne) au passif.",
                         },
                         {
                             id: 9,

@@ -32,7 +32,7 @@ export const course21: LessonContent = {
                         </div>
                         <div className="mt-4 pt-4 border-t border-slate-700">
                             <p className="text-slate-400 text-xs italic">
-                                * Rappel : Le participe passé des verbes réguliers est en <strong className="text-white">-ED</strong> (finished, played). Pour les irréguliers, c&apos;est la 3ème colonne (See &rarr; Saw &rarr; <strong className="text-white">Seen</strong>).
+                                * Rappel : le participe passé des verbes réguliers est en <strong className="text-white">-ED</strong> (finished, played). Pour les irréguliers, c&apos;est la 3e colonne (See &rarr; Saw &rarr; <strong className="text-white">Seen</strong>).
                             </p>
                         </div>
                     </div>
@@ -62,7 +62,7 @@ export const course21: LessonContent = {
                         <div className="bg-slate-900 p-4 rounded border-l-4 border-slate-600 opacity-75">
                             <p className="text-slate-400 text-xs mb-1">Situation B : Raconter une histoire (Past Simple).</p>
                             <h4 className="text-white font-medium text-lg">"I <strong className="text-slate-400">lost</strong> my keys yesterday."</h4>
-                            <p className="text-slate-400 text-sm mt-1">➔ C&apos;est du passé. Peut-être que je les ai retrouvées depuis. On s&apos;en fiche du résultat présent.</p>
+                            <p className="text-slate-400 text-sm mt-1">➔ C&apos;est du passé. Peut-être que je les ai retrouvées depuis. On se fiche du résultat présent.</p>
                         </div>
                     </div>
 
@@ -91,7 +91,7 @@ export const course21: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Ces trois adverbes modulent le résultat. Leur place dans la phrase est <strong className="text-white">Stricte</strong>.
+                        Ces trois adverbes modulent le résultat. Leur place dans la phrase est <strong className="text-white">stricte</strong>.
                     </p>
 
                     <div className="space-y-4">

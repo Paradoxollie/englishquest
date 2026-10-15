@@ -1,0 +1,102 @@
+{
+  "course": 33,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : This song ___ by a 16-year-old girl.",
+      "options": ["wrote", "was written", "is writing", "was wrote"],
+      "correctAnswer": 1,
+      "explanation": "Passif au passé : was + participe passé. Write, wrote, written : c'est la 3e colonne qu'il faut."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : Millions of photos ___ on Instagram every day.",
+      "options": ["post", "is posted", "are posted", "are post"],
+      "correctAnswer": 2,
+      "explanation": "Every day : on utilise le présent. Photos est pluriel, donc are + participe passé (posted)."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Comment dire « Le film a été tourné en Écosse l'année dernière » ?",
+      "options": ["The film was shot in Scotland last year.", "The film is shot in Scotland last year.", "The film were shot in Scotland last year.", "The film was shoot in Scotland last year."],
+      "correctAnswer": 0,
+      "explanation": "Last year indique le passé : was + participe passé (shot). Ici, « a été » se traduit par was."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : These trainers ___ in Vietnam.",
+      "options": ["is made", "make", "are make", "are made"],
+      "correctAnswer": 3,
+      "explanation": "Trainers est pluriel : are + participe passé (made). Les baskets ne fabriquent rien, elles sont fabriquées."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Mets à la voix passive : « Somebody broke the window during the match. »",
+      "options": ["The window was broke during the match.", "The window is broken during the match.", "The window was broken during the match.", "The window were broken during the match."],
+      "correctAnswer": 2,
+      "explanation": "Broke est au prétérit : le passif se fait avec was + participe passé. Break, broke, broken."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Comment demander « Quand cette photo a-t-elle été prise ? »",
+      "options": ["When this photo was taken?", "When was this photo taken?", "When did this photo taken?", "When was this photo took?"],
+      "correctAnswer": 1,
+      "explanation": "Au passif, la question se forme avec be : was passe devant le sujet. Take, took, taken."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "The tickets for the concert ___ in less than an hour last Saturday. (sell)",
+      "answers": ["were sold"],
+      "explanation": "Last Saturday : passé. Tickets est pluriel, donc were + participe passé (sold)."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Every year, millions of plastic bottles ___ into the sea. (throw)",
+      "answers": ["are thrown"],
+      "explanation": "Every year : présent. Sujet pluriel, donc are + participe passé. Throw, threw, thrown."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Yesterday's match ___ because of the storm. (cancel)",
+      "answers": ["was cancelled", "was canceled"],
+      "explanation": "Yesterday : passé. Sujet singulier, donc was + participe passé."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "Where ___ these photos taken last summer? (be)",
+      "answers": ["were"],
+      "explanation": "Question au passif passé : be passe devant le sujet. These photos est pluriel, donc were."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["Her lost dog was found by a neighbour."],
+      "translation": "Son chien perdu a été retrouvé par un voisin.",
+      "explanation": "Passif au passé : was + participe passé (found). By introduit celui qui a fait l'action."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["These clothes are made from recycled plastic."],
+      "translation": "Ces vêtements sont fabriqués à partir de plastique recyclé.",
+      "explanation": "Passif au présent avec un sujet pluriel : are + made. Made from = fabriqué à partir de."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["The film was directed by a young woman."],
+      "translation": "Le film a été réalisé par une jeune femme.",
+      "explanation": "Action terminée : was + participe passé. By + la personne qui a réalisé l'action."
+    }
+  ]
+}

@@ -146,10 +146,10 @@ export const course26: LessonContent = {
                         },
                         {
                             id: 5,
-                            question: "She ___ here for 10 years.",
+                            question: "She ___ here for 10 years now.",
                             options: ["lived", "has lived"],
                             correctAnswer: 1,
-                            explanation: "Le contexte (For) et le fait qu'elle y soit encore (implicite sans date de fin) appellent le Present Perfect.",
+                            explanation: "For + now : elle habite toujours ici, la période n'est pas terminée. Present Perfect.",
                         },
                         {
                             id: 6,

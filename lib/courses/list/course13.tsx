@@ -21,7 +21,7 @@ export const course13: LessonContent = {
               Il ne sert pas juste à dire ce que vous faisiez avant. Il sert à dire ce que vous <strong className="text-white">NE FAITES PLUS</strong> aujourd'hui.
               <br /><br />
               C'est une rupture nette.
-              <span className="block mt-2 italic text-slate-400">"I used to smoke" implicite nécessairement : "I don't smoke anymore".</span>
+              <span className="block mt-2 italic text-slate-400">"I used to smoke" implique nécessairement : "I don't smoke anymore".</span>
             </p>
           </div>
 
@@ -108,7 +108,7 @@ export const course13: LessonContent = {
             <div className="bg-slate-800 p-4 rounded border border-slate-600">
               <h4 className="text-slate-200 font-bold mb-2 text-sm">🛑 "Any More" vs "No Longer"</h4>
               <p className="text-slate-400 text-sm">
-                Pour insist sur la rupture en fin de phrase :
+                Pour insister sur la rupture :
                 <ul className="list-disc pl-4 mt-1 space-y-1">
                   <li>"I don't smoke <strong>any more</strong>." (Courant)</li>
                   <li>"I <strong>no longer</strong> smoke." (Plus formel/écrit)</li>
@@ -199,7 +199,7 @@ export const course13: LessonContent = {
             },
             {
               id: 3,
-              question: "Before internet, people ___ (write) letters.",
+              question: "Before the internet, people ___ (write) letters.",
               options: ["were writing", "used to write", "are writing", "use to write"],
               correctAnswer: 1,
               explanation: "Habitude d'une époque révolue. 'Were writing' décrirait un moment précis, pas une généralité sur l'époque.",
@@ -214,16 +214,16 @@ export const course13: LessonContent = {
             {
               id: 5,
               question: "She ___ usually wake up early.",
-              options: ["doesn't", "is not used to", "didn't use to", "--"],
+              options: ["doesn't", "is not used to", "didn't use to", "Ø"],
               correctAnswer: 0,
-              explanation: "Piège ! 'Usually' est un marqueur de fréquence du PRÉSENT (ou habitude générale). Ici on teste le present simple : She doesn't usually...",
+              explanation: "Piège ! Aucun repère ne renvoie au passé : c'est une habitude actuelle, donc le present simple. She doesn't usually wake up early.",
             },
             {
               id: 6,
-              question: "I ___ live in London.",
+              question: "I ___ live in London, but now I live in Paris.",
               options: ["used to", "was living", "am used to", "use to"],
               correctAnswer: 0,
-              explanation: "Sans contexte précis de temps, 'Used to' est le meilleur choix pour dire 'J'habitais là-bas avant'.",
+              explanation: "Situation passée qui n'existe plus (but now...) : 'Used to' est le bon choix pour dire 'J'habitais là-bas avant'.",
             },
             {
               id: 7,
@@ -237,7 +237,7 @@ export const course13: LessonContent = {
               question: "Je n'ai pas l'habitude de conduire (C'est nouveau pour moi).",
               options: ["I didn't use to drive", "I am not used to driving", "I don't use to drive", "I not usually drive"],
               correctAnswer: 1,
-              explanation: "C'est le piège 'BE USED TO'. Ici on parle de familiarité/difficulté, pas du passé simple.",
+              explanation: "C'est le piège 'BE USED TO'. Ici on parle de familiarité/difficulté, pas d'une habitude passée.",
             },
             {
               id: 9,
@@ -248,8 +248,8 @@ export const course13: LessonContent = {
             },
             {
               id: 10,
-              question: "I went to Disney World once. I ___ love it.",
-              options: ["used to", "loved", "was loving", "did use to"],
+              question: "I went to Disney World once. I ___ (love) it.",
+              options: ["used to love", "loved", "was loving", "did use to love"],
               correctAnswer: 1,
               explanation: "Une seule fois (Once) ? Alors 'Used to' est interdit. On utilise le Past Simple : I loved it.",
             },

@@ -31,7 +31,7 @@ export const course15: LessonContent = {
             </div>
             <div className="bg-slate-900 per-4 rounded border-l-4 border-red-500 p-3">
               <p className="text-red-400 font-bold text-sm mb-1">Règle #2 : Jamais de "S"</p>
-              <p className="text-slate-400 text-xs">Ils sont invariables, même à la 3ème personne.</p>
+              <p className="text-slate-400 text-xs">Ils sont invariables, même à la 3e personne.</p>
               <p className="text-white font-mono text-xs mt-1">"He can<span className="line-through text-red-500">s</span> go" ➔ "He can go"</p>
             </div>
             <div className="bg-slate-900 per-4 rounded border-l-4 border-red-500 p-3">
@@ -207,7 +207,7 @@ export const course15: LessonContent = {
 
           <div className="p-4 bg-slate-800 rounded text-sm text-slate-300 mt-2">
             <span className="text-xl mr-2">💡</span>
-            <strong>Astuce :</strong> Si vous pouvez remplacer par <strong className="text-white">"Managed to"</strong> (Gérer/Réussir), alors utilisez <strong className="text-emerald-400">Was/Were able to</strong> (ou Managed to). N'utilisez PAS Could.
+            <strong>Astuce :</strong> Si vous pouvez remplacer par <strong className="text-white">"Managed to"</strong> (Réussir à), alors utilisez <strong className="text-emerald-400">Was/Were able to</strong> (ou Managed to). N'utilisez PAS Could.
           </div>
 
           <div className="p-4 bg-slate-900 rounded text-sm text-slate-400 mt-2">
@@ -241,7 +241,7 @@ export const course15: LessonContent = {
             {
               id: 3,
               question: "I hope I ___ come to your party tomorrow.",
-              options: ["will can", "will be able to", "can", "could"],
+              options: ["will can", "will be able to", "will able to", "could"],
               correctAnswer: 1,
               explanation: "Futur. CAN n'a pas de futur. Il faut utiliser le Joker ➔ WILL BE ABLE TO.",
             },

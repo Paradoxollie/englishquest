@@ -37,8 +37,8 @@ export const course39: LessonContent = {
                         </div>
                         <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-emerald-500">
                             <h4 className="font-bold text-white mb-2">STOP / FINISH (Arrêter/Finir)</h4>
-                            <p className="text-slate-300">✅ He stopped <strong>smoking</strong>.</p>
-                            <p className="text-red-400/60 line-through text-xs">❌ He stopped to smoke.</p>
+                            <p className="text-slate-300">✅ She finished <strong>eating</strong>.</p>
+                            <p className="text-red-400/60 line-through text-xs">❌ She finished to eat.</p>
                         </div>
                         <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-emerald-500">
                             <h4 className="font-bold text-white mb-2">MIND (Se soucier / Ça dérange)</h4>
@@ -139,7 +139,7 @@ export const course39: LessonContent = {
                         },
                         {
                             id: 8,
-                            question: "Keep ___ !",
+                            question: "Keep ___!",
                             options: ["smiling", "to smile"],
                             correctAnswer: 0,
                             explanation: "KEEP (dans le sens continuer) + ING.",

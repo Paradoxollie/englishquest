@@ -11,7 +11,7 @@ export const course42: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        <strong>I wish</strong> ne sert pas à parler d'un futur probable. Il sert surtout a exprimer
+                        <strong>I wish</strong> ne sert pas à parler d'un futur probable. Il sert surtout à exprimer
                         un manque, un regret ou une irritation.
                     </p>
 
@@ -63,7 +63,7 @@ export const course42: LessonContent = {
                             </p>
                         </div>
                         <p className="mt-4 text-sm text-slate-400">
-                            Ici, le passé n'indique pas le passé chronologique. Il marqué surtout la distance avec la réalité.
+                            Ici, le passé n'indique pas le passé chronologique. Il marque surtout la distance avec la réalité.
                         </p>
                     </div>
 
@@ -110,7 +110,7 @@ export const course42: LessonContent = {
                         </p>
                         <p className="text-slate-200">
                             <strong>If only</strong> fonctionne presque comme <strong>I wish</strong>, mais avec plus
-                            d'intensité: <em>If only I had listened to you.</em>
+                            d'intensité : <em>If only I had listened to you.</em>
                         </p>
                     </div>
                 </div>
@@ -121,7 +121,7 @@ export const course42: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        <strong>wish + would</strong> sert surtout a montrer une irritation ou un désir de changement.
+                        <strong>wish + would</strong> sert surtout à montrer une irritation ou un désir de changement.
                         Pour une attente normale dans le futur, on utilise plutôt <strong>hope</strong>.
                     </p>
 
@@ -136,7 +136,7 @@ export const course42: LessonContent = {
                         </div>
 
                         <div className="rounded-xl border border-red-500/50 bg-red-950/20 p-5">
-                            <h4 className="mb-3 font-bold uppercase text-red-300">A éviter</h4>
+                            <h4 className="mb-3 font-bold uppercase text-red-300">À éviter</h4>
                             <ul className="space-y-2 text-slate-200">
                                 <li className="line-through">I wish the weather is nice tomorrow.</li>
                                 <li className="line-through">I wish they didn't miss the train.</li>
@@ -146,20 +146,20 @@ export const course42: LessonContent = {
                     </div>
 
                     <p className="text-slate-300">
-                        En pratique:
+                        En pratique :
                     </p>
                     <ul className="space-y-3 text-slate-200">
                         <li>
-                            <strong>wish + past simple</strong>: present irréel
+                            <strong>wish + past simple</strong> : présent irréel
                         </li>
                         <li>
-                            <strong>wish + past perfect</strong>: regret sur le passé
+                            <strong>wish + past perfect</strong> : regret sur le passé
                         </li>
                         <li>
-                            <strong>wish + would</strong>: irritation ou changement attendu
+                            <strong>wish + would</strong> : irritation ou changement attendu
                         </li>
                         <li>
-                            <strong>hope</strong>: souhait réaliste
+                            <strong>hope</strong> : souhait réaliste
                         </li>
                     </ul>
                 </div>
@@ -172,7 +172,7 @@ export const course42: LessonContent = {
                     questions={[
                         {
                             id: 1,
-                            question: "I wish I ___ the answer.",
+                            question: "I wish I ___ the answer right now.",
                             options: ["had known", "knew"],
                             correctAnswer: 1,
                             explanation: "Regret sur le présent : wish + past simple.",
@@ -182,7 +182,7 @@ export const course42: LessonContent = {
                             question: "She wishes she ___ so rude yesterday.",
                             options: ["hadn't been", "weren't"],
                             correctAnswer: 0,
-                            explanation: "Regret sur le passé: wish + past perfect.",
+                            explanation: "Regret sur le passé : wish + past perfect.",
                         },
                         {
                             id: 3,
@@ -203,21 +203,21 @@ export const course42: LessonContent = {
                             question: "We wish we ___ closer to our family.",
                             options: ["had lived yesterday", "lived"],
                             correctAnswer: 1,
-                            explanation: "Situation présente irréelle: wish + past simple.",
+                            explanation: "Situation présente irréelle : wish + past simple.",
                         },
                         {
                             id: 6,
                             question: "I wish I ___ that email before sending it.",
                             options: ["read", "had read"],
                             correctAnswer: 1,
-                            explanation: "Action passée regrettee: had read.",
+                            explanation: "Action passée regrettée : had read.",
                         },
                         {
                             id: 7,
                             question: "He wishes his neighbours ___ more considerate.",
                             options: ["had been yesterday", "were"],
                             correctAnswer: 1,
-                            explanation: "On parle d'une situation actuelle: were.",
+                            explanation: "On parle d'une situation actuelle : were.",
                         },
                         {
                             id: 8,
@@ -231,14 +231,14 @@ export const course42: LessonContent = {
                             question: "If only I ___ more careful!",
                             options: ["am", "had been"],
                             correctAnswer: 1,
-                            explanation: "If only suit la même logique que wish ici: regret sur le passé.",
+                            explanation: "If only suit la même logique que wish ici : regret sur le passé.",
                         },
                         {
                             id: 10,
                             question: "I wish I ___ more free time these days.",
                             options: ["had", "have had"],
                             correctAnswer: 0,
-                            explanation: "Regret sur le présent: wish + past simple.",
+                            explanation: "Regret sur le présent : wish + past simple.",
                         }
                     ]}
                 />
