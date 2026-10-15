@@ -1,5 +1,6 @@
 "use server";
 
+import { getSafeNextPath } from "@/lib/navigation/safe-next";
 import { applyPlacement } from "@/lib/placement/placement";
 import { readPlacementToken } from "@/lib/placement/placement-token";
 
@@ -316,17 +317,26 @@ export async function signUpAction(
   }
 
   // Test de niveau passé avant l'inscription : résultat signé, appliqué maintenant.
+  let success = "Compte créé. Tu peux te connecter.";
   const placementChapter = readPlacementToken(formData.get("placement"));
   if (placementChapter && placementChapter > 1) {
     try {
       await applyPlacement(userId, placementChapter);
-      return { success: `Compte créé. Ta carte commence au chapitre ${placementChapter}, comme l'a montré ton test.` };
+      success = `Compte créé. Ta carte commence au chapitre ${placementChapter}, comme l'a montré ton test.`;
     } catch (error) {
       console.error("Placement after signup failed:", error);
     }
   }
 
-  return { success: "Compte créé. Tu peux te connecter." };
+  // Retour prévu (lien de classe /rejoindre?code=...) : si la session est déjà
+  // ouverte, on y va directement ; sinon le formulaire propose de se connecter.
+  const next = getSafeNextPath(formData.get("next"));
+  if (next && data.session) {
+    revalidatePath("/", "layout");
+    redirect(next);
+  }
+
+  return { success };
 }
 
 /**
@@ -440,8 +450,8 @@ export async function loginAction(
   revalidatePath("/", "layout");
   revalidatePath("/profile", "layout");
   
-  // Redirige vers la home protégée
-  redirect("/");
+  // Redirige vers la page demandée avant la connexion (lien de classe), sinon l'accueil.
+  redirect(getSafeNextPath(formData.get("next")) ?? "/");
 }
 
 /**

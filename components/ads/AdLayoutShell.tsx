@@ -70,6 +70,7 @@ export function AdLayoutShell({
             <Link href="/tous-les-cours">Cours</Link>
             <Link href="/play">Jeux</Link>
             <Link href="/quest">Aventure</Link>
+            <Link href="/profs">Pour les profs</Link>
             <Link href="/about">À propos</Link>
             <Link href="/contact">Contact</Link>
             <Link href="/mentions-legales">Mentions légales</Link>

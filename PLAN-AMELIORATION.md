@@ -84,11 +84,11 @@ Qui : C = Claude, P = Pierre. Taille : S petit, M moyen, L grand.
 
 | # | Tâche | Qui | Taille | État |
 |---|---|---|---|---|
-| 3.1 | Codes de classe (6 caractères, sans e-mail) | C | M | à faire |
-| 3.2 | Tableau de suivi par classe (activité, missions, notions ratées) | C | M | à faire |
-| 3.3 | Devoirs : mission assignée avec date limite | C | S | à faire |
+| 3.1 | Codes de classe (6 caractères, sans e-mail) | C | M | fait 15/10 (code), migration `2026-10-16_30_classes.sql` à appliquer : `/teachers`, code projeté, `/rejoindre?code=`, carte Classe du profil, 5 classes par élève, 10 codes erronés par heure |
+| 3.2 | Tableau de suivi par classe (activité, missions, notions ratées) | C | M | fait 15/10 (code) : tableau triable (missions, mission en cours, dernière activité, XP, moyenne aux quiz) et « notions qui coincent » |
+| 3.3 | Devoirs : mission assignée avec date limite | C | S | fait 15/10 (code) : statut par élève (fait, en retard, à faire), carte Devoirs en haut de l'accueil ; la mission donnée s'ouvre sur la carte des élèves |
 | 3.4 | Mode projection hors ligne (site installable, jeux en équipe au tableau) | C | L | à faire |
-| 3.5 | Page publique « Pour les profs » | C | S | à faire |
+| 3.5 | Page publique « Pour les profs » | C | S | fait 15/10 : `/profs`, pied de page, plan du site, page À propos |
 | 3.6 | Trois semaines d'essai avec les classes ; mesure : élèves qui reviennent chaque semaine | P | L | à faire |
 
 ### Phase 4 : identité visuelle (en parallèle)
@@ -128,3 +128,4 @@ Emplacements d'images (dans `public/art/`, JPG) : `hero-home.jpg` 2400×1350 suj
 - 2026-10-15 (soir) : vérifié en production après déploiement : 13 scénarios de jeu passent ; parcours réel complet avec un compte de test (test de niveau sans compte placé au chapitre 2, inscription, carte ouverte au chapitre 2, quiz du cours 11 à 10/10, mission validée +100 XP +8 or), puis compte supprimé par le profil ; base vérifiée : 26 comptes, aucune ligne orpheline.
 - 2026-10-16 : récompenses (phase 2.1, 2.2, 2.4, 2.5 et étoiles du 1.2). Code seulement, rien appliqué en base : migrations `2026-10-16_10` à `13` à passer dans l'ordre. Sans elles, le site tourne, mais ligue, badges et étoiles d'entraînement restent vides. Test ajouté : `scripts/tests/rewards-regression.cjs`.
 - 2026-10-16 : jeux par niveau (A1 à C1) et anti-triche de base. Vocabulaire classé et complété (Flash Translation 279 mots, Wordfall 965, Enigma 1 231 mots cibles traduits), choix du niveau pour les invités, Flashback centré sur le sens, consignes de Lexicon Blaster en français aux niveaux 1 et 2, mode concentration sur téléphone, sessions de partie et contrôle de plausibilité des scores (migration `2026-10-16_20_game_sessions.sql` à appliquer avant le déploiement : sans elle, les scores des joueurs connectés sont refusés).
+- 2026-10-15 (nuit) : espace classe sur une branche, pas encore déployé ni appliqué en base. Tables `classes`, `class_members`, `class_assignments`, `class_join_attempts` (migration `2026-10-16_30_classes.sql`, lecture seule côté navigateur, écritures par actions serveur). Pages `/teachers` (classes, code projeté `/teachers/classe/[id]/code`), `/teachers/classe/[id]` (élèves, devoirs, notions qui coincent, réglages), `/rejoindre?code=` (inscription ou connexion puis retour), `/profs`. Carte Classe du profil, carte Devoirs de l'accueil (composants dans `components/classes/`, une ligne chacun). Choix : une mission donnée en devoir s'ouvre sur la carte des élèves de la classe, sinon ils ne pourraient pas la valider. La migration restreint aussi la règle « Teachers can view their students' progress » aux élèves de leurs classes. Page Confidentialité mise à jour (classes). Test ajouté : `classes-regression.cjs` (règles pures et vraies actions sur base factice).

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HomeClassCard } from "@/components/classes/home-class-card";
 import { GameCard } from "@/components/play/game-card";
 import { BadgeMedal } from "@/components/rewards/badge-medal";
 import { MissionStarsLegend } from "@/components/rewards/mission-stars";
@@ -140,6 +141,7 @@ export function HomeView({
 
       {welcomeGold ? <WelcomeGoldNotice userId={userId} gold={welcomeGold} /> : null}
 
+      <HomeClassCard />
       <div className="eq-home-grid">
         {suggestPlacement ? (
           <section className="eq-card eq-home-placement" aria-labelledby="home-placement">

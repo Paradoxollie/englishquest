@@ -51,12 +51,12 @@ export default function AboutPage() {
           <section>
             <h2 className="eq-h2">Pour les professeurs</h2>
             <p className="mt-3 text-[var(--muted)]">
-              Un espace dédié est en préparation : codes de classe, suivi des élèves, ressources
-              prêtes à projeter. Si vous enseignez l&apos;anglais et voulez l&apos;essayer en
-              avance, écrivez-moi.
+              Un espace classe est ouvert : une classe avec un code à projeter, le suivi des
+              missions de chaque élève, des devoirs avec date limite. Gratuit. Tout est expliqué
+              sur la page dédiée.
             </p>
-            <Link href="/contact" className="eq-btn eq-btn-ghost mt-4">
-              Me contacter
+            <Link href="/profs" className="eq-btn eq-btn-ghost mt-4">
+              Pour les profs
             </Link>
           </section>
         </div>

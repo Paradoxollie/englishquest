@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { logoutAction } from "@/app/(protected)/actions";
 import { BadgesSection } from "@/components/rewards/badges-section";
 import { RewardOnMount } from "@/components/rewards/reward-on-mount";
+import { ClassJoinCard } from "@/components/classes/class-join-card";
 import { isAdmin } from "@/lib/auth/roles";
 import { lessons } from "@/lib/courses/lessons";
 import { loadBadgesWithSync } from "@/lib/profile/badges-server";
@@ -212,6 +213,7 @@ export default async function ProfilePage({
       <BadgesSection earned={badges.all} stats={badges.stats} />
       {badges.newlyEarned.length > 0 ? <RewardOnMount detail={{ badges: badges.newlyEarned }} /> : null}
 
+      <ClassJoinCard userId={user.id} />
       <section className="eq-profile-section" aria-labelledby="profile-look">
         <div className="eq-home-section-head">
           <div>

@@ -12,6 +12,8 @@ const USER_TABLES = [
   "user_items",
   "user_equipped_items",
   "chapter_exams",
+  "class_members",
+  "class_join_attempts",
   "contact_messages",
   "site_visits",
 ] as const;
@@ -56,6 +58,12 @@ export async function deleteOwnAccountAction(
     if (error && !["42P01", "42703"].includes(error.code)) {
       console.error(`deleteOwnAccount ${table}`, error);
     }
+  }
+
+  // Classes créées par un professeur : leurs inscriptions et devoirs partent avec elles.
+  const { error: classesError } = await admin.from("classes").delete().eq("teacher_id", user.id);
+  if (classesError && classesError.code !== "42P01") {
+    console.error("deleteOwnAccount classes", classesError);
   }
 
   const { error: profileError } = await admin.from("profiles").delete().eq("id", user.id);
