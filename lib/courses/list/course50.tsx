@@ -12,7 +12,7 @@ export const course50: LessonContent = {
                 <div className="space-y-6">
                     <p className="text-slate-300">
                         Le but ici n'est pas de mémoriser une liste infinie. Il faut d'abord verrouiller un noyau
-                        fréquent, très utile à l'oral comme à l'ecrit courant.
+                        fréquent, très utile à l'oral comme à l'écrit courant.
                     </p>
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
@@ -43,7 +43,7 @@ export const course50: LessonContent = {
                             <h4 className="mb-2 font-bold text-white">Objets et déplacements</h4>
                             <ul className="space-y-2 text-slate-300">
                                 <li><strong>pick up</strong> = ramasser / récupérer</li>
-                                <li><strong>drop off</strong> = deposer</li>
+                                <li><strong>drop off</strong> = déposer</li>
                                 <li><strong>run out of</strong> = ne plus avoir</li>
                                 <li><strong>go back</strong> = revenir</li>
                             </ul>
@@ -80,12 +80,12 @@ export const course50: LessonContent = {
             )
         },
         {
-            title: "3. Les bons reflexes pour les reutiliser",
+            title: "3. Les bons réflexes pour les réutiliser",
             content: (
                 <div className="space-y-6">
                     <div className="rounded-xl border border-amber-500/50 bg-amber-950/20 p-5">
                         <p className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-amber-300">
-                            Trois reflexes utiles
+                            Trois réflexes utiles
                         </p>
                         <ul className="space-y-3 text-slate-200">
                             <li>Mémorise le sens principal avant les sens secondaires.</li>
@@ -177,7 +177,7 @@ export const course50: LessonContent = {
                             question: "Pick up can mean ...",
                             options: ["refuse an invitation", "collect or lift"],
                             correctAnswer: 1,
-                            explanation: "Pick up est très polyvalent, mais l'idee de prendre ou récupérer reste centrale.",
+                            explanation: "Pick up est très polyvalent, mais l'idée de prendre ou récupérer reste centrale.",
                         },
                         {
                             id: 9,

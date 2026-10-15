@@ -65,7 +65,7 @@ export const course34: LessonContent = {
             )
         },
         {
-            title: "2. Ça a ETE fait (Been)",
+            title: "2. Ça a ÉTÉ fait (Been)",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">

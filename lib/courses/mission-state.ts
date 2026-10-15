@@ -91,7 +91,8 @@ function buildCourseMissionState(
     quizPassed,
     bestGameScore: gameChallenge.bestScore,
     gameChallengeReached: gameChallenge.reached,
-    readyToComplete: quizPassed && gameChallenge.reached,
+    // Le quiz à 80 % valide la mission ; le jeu est un entraînement, il ne bloque plus.
+    readyToComplete: quizPassed,
   };
 }
 
@@ -114,7 +115,7 @@ function buildFallbackCourseMissionState(entry: CourseRoadmapEntry): CourseMissi
     quizPassed,
     bestGameScore: null,
     gameChallengeReached: !mission.primaryGameSlug,
-    readyToComplete: quizPassed && !mission.primaryGameSlug,
+    readyToComplete: quizPassed,
   };
 }
 

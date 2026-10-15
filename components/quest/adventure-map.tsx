@@ -244,9 +244,7 @@ export function AdventureMap({ chapters, mission, player, isLoggedIn }: Adventur
                         <li className={mission.quizDone ? "is-done" : mission.readingDone ? "is-now" : ""}>
                           {mission.quizLabel}
                         </li>
-                        <li className={mission.gameDone ? "is-done" : mission.quizDone ? "is-now" : ""}>
-                          {mission.gameLabel}
-                        </li>
+                        <li>{mission.gameLabel}</li>
                       </ol>
                       <p className="eq-map-card-note">{mission.note}</p>
                       <div className="eq-map-card-actions">
@@ -266,7 +264,7 @@ export function AdventureMap({ chapters, mission, player, isLoggedIn }: Adventur
                         {selected.status === "completed"
                           ? selected.placed
                             ? "Acquise au test de niveau. Le cours reste lisible si tu veux vérifier un point."
-                            : "Mission validée. Tu peux relire le cours ou rejouer le défi quand tu veux."
+                            : "Mission validée. Tu peux relire le cours ou t'entraîner encore sur la notion."
                           : isLoggedIn
                             ? "Le cours se lit librement. Il deviendra ta mission quand les précédentes seront validées."
                             : "Le cours se lit librement. Avec un compte, il devient une mission qui fait avancer ton pion."}
@@ -276,8 +274,8 @@ export function AdventureMap({ chapters, mission, player, isLoggedIn }: Adventur
                           {selected.status === "completed" ? "Relire le cours" : "Lire le cours"}
                         </Link>
                         {selected.gameSlug ? (
-                          <Link href={`/play/${selected.gameSlug}`} className="eq-btn eq-btn-ghost">
-                            Jouer à {selected.gameName}
+                          <Link href={`/play/${selected.gameSlug}?cours=${selected.courseId}`} className="eq-btn eq-btn-ghost">
+                            S&apos;entraîner sur la notion
                           </Link>
                         ) : null}
                       </div>

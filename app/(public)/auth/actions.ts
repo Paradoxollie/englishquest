@@ -1,5 +1,8 @@
 "use server";
 
+import { applyPlacement } from "@/lib/placement/placement";
+import { readPlacementToken } from "@/lib/placement/placement-token";
+
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -309,6 +312,17 @@ export async function signUpAction(
     return { 
       error: `Le compte n'a pas pu être enregistré (${errorMessage}). Réessaie, ou écris-nous depuis la page Contact.` 
     };
+  }
+
+  // Test de niveau passé avant l'inscription : résultat signé, appliqué maintenant.
+  const placementChapter = readPlacementToken(formData.get("placement"));
+  if (placementChapter && placementChapter > 1) {
+    try {
+      await applyPlacement(userId, placementChapter);
+      return { success: `Compte créé. Ta carte commence au chapitre ${placementChapter}, comme l'a montré ton test.` };
+    } catch (error) {
+      console.error("Placement after signup failed:", error);
+    }
   }
 
   return { success: "Compte créé. Tu peux te connecter." };

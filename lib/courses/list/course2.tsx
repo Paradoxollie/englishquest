@@ -299,7 +299,7 @@ export const course2: LessonContent = {
               question: "Listen! The baby ___.",
               options: ["cries", "is crying", "cry", "are crying"],
               correctAnswer: 1,
-              explanation: "'Listen!' (Écoute !) implique que l'action se passé maintenant.",
+              explanation: "'Listen!' (Écoute !) implique que l'action se passe maintenant.",
             },
           ]}
         />

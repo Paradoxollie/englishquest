@@ -86,7 +86,7 @@ export async function purchaseShopItemAction(
     if (existingItem) {
       return {
         success: false,
-        error: "Vous possedez deja cet item",
+        error: "Tu possèdes déjà cet objet",
       };
     }
 
@@ -186,7 +186,7 @@ export async function purchaseShopItemAction(
         success: false,
         error:
           insertItemError.code === "23505"
-            ? "Vous possedez deja cet item."
+            ? "Tu possèdes déjà cet objet."
             : "Erreur lors de l'achat de l'item",
       };
     }

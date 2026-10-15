@@ -330,16 +330,28 @@ async function main() {
   delete repeatedCourseAnswers["6-q0"];
   assert.equal(placement.gradePlacementStep(repeatedCourseAnswers, 1).valid, false, "placement needs six different courses");
   const serverAuth = { createSupabaseServerClient: async () => ({ auth: { getUser: async () => ({ data: { user: { id: "user" } } }) } }) };
-  const placementAction = loadTs("app/(protected)/test-de-niveau/actions.ts", {
+  const placementMocks = (auth) => ({
     "next/cache": { revalidatePath: () => {} },
-    "@/lib/supabase/server": serverAuth,
+    "@/lib/supabase/server": auth,
+    "@/lib/courses/chapters": { chapters: chapterDefinitions },
+    "@/lib/placement/placement-token": { createPlacementToken: (chapter) => `signed-${chapter}` },
     "@/lib/placement/placement": { ...placement, applyPlacement: async () => { placementWrites += 1; return {}; } },
   });
+  const placementAction = loadTs("app/(public)/test-de-niveau/actions.ts", placementMocks(serverAuth));
   assert("error" in await placementAction.submitPlacementStepAction(2, placementAnswers));
   assert("error" in await placementAction.submitPlacementStepAction(1, Object.fromEntries(Object.entries(placementAnswers).slice(0, 4))));
   assert.equal(placementWrites, 0, "invalid placement submissions must never advance the curriculum");
   const placementPass = await placementAction.submitPlacementStepAction(1, placementAnswers);
   assert.equal(placementPass.next.chapter, 2);
+  // Visiteur sans compte : résultat signé, aucune écriture avant l'inscription.
+  const guestAuth = { createSupabaseServerClient: async () => ({ auth: { getUser: async () => ({ data: { user: null } }) } }) };
+  const guestPlacement = loadTs("app/(public)/test-de-niveau/actions.ts", placementMocks(guestAuth));
+  const writesBeforeGuest = placementWrites;
+  const failedAnswers = Object.fromEntries(Object.keys(placementAnswers).map((id) => [id, 1]));
+  const guestDone = await guestPlacement.submitPlacementStepAction(1, failedAnswers);
+  assert.equal(guestDone.placed.chapterId, 1);
+  assert.equal(guestDone.guestToken, "signed-1");
+  assert.equal(placementWrites, writesBeforeGuest, "a guest placement never writes to the database");
   const examAction = loadTs("app/(protected)/examen/[chapter]/actions.ts", {
     "next/cache": { revalidatePath: () => {} },
     "@/lib/supabase/server": serverAuth,

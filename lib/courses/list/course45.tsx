@@ -71,8 +71,8 @@ export const course45: LessonContent = {
                             Nuances utiles
                         </p>
                         <ul className="space-y-3 text-slate-200">
-                            <li><strong>must have</strong> = deduction forte</li>
-                            <li><strong>may have / might have</strong> = possibilite</li>
+                            <li><strong>must have</strong> = déduction forte</li>
+                            <li><strong>may have / might have</strong> = possibilité</li>
                             <li><strong>could have</strong> = déduction possible aussi, souvent un peu moins fréquent</li>
                         </ul>
                     </div>
@@ -189,7 +189,7 @@ export const course45: LessonContent = {
                         },
                         {
                             id: 6,
-                            question: "Which one expresses criticism, not deduction?",
+                            question: "Which one expresses criticism, not déduction?",
                             options: ["She should have called.", "She must have called."],
                             correctAnswer: 0,
                             explanation: "Should have critique une action manquante; ce n'est pas une déduction.",
@@ -199,7 +199,7 @@ export const course45: LessonContent = {
                             question: "Police think the suspect ___ the country using a fake passport.",
                             options: ["can't have left", "may have left"],
                             correctAnswer: 1,
-                            explanation: "L'enquete n'apporte qu'une hypothèse possible.",
+                            explanation: "L'enquête n'apporte qu'une hypothèse possible.",
                         },
                         {
                             id: 8,
@@ -213,7 +213,7 @@ export const course45: LessonContent = {
                             question: "The train is late, so they ___ arrived yet.",
                             options: ["must have", "can't have"],
                             correctAnswer: 1,
-                            explanation: "Les indices rendent l'arrivee déjà accomplie très improbable.",
+                            explanation: "Les indices rendent l'arrivée déjà accomplie très improbable.",
                         },
                         {
                             id: 10,

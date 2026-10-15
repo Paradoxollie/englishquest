@@ -1788,7 +1788,7 @@ export function getDialogueForWave(waveNumber: number): Dialogue | null {
     return {
       id: "wave_1",
       lines: [
-        { speaker: "COMMANDER", text: "Welcome to the Sector 7, Recruit. We have a lexical breach!" },
+        { speaker: "COMMANDER", text: "Welcome to Sector 7, Recruit. We have a lexical breach!" },
         { speaker: "COMMANDER", text: "Your mission is simple: shoot the words that match your mission profile." },
         { speaker: "AI GUIDE", text: "I will assist you. Use the Super EMP [SPACE] once the bar is full." },
       ]

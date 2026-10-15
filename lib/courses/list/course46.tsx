@@ -68,7 +68,7 @@ export const course46: LessonContent = {
             )
         },
         {
-            title: "2. Evenement subi et contraste utile",
+            title: "2. Événement subi et contraste utile",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
@@ -77,7 +77,7 @@ export const course46: LessonContent = {
 
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="rounded-xl border border-rose-500/50 bg-rose-950/20 p-5">
-                            <h4 className="mb-3 font-bold uppercase text-rose-300">Evenement subi</h4>
+                            <h4 className="mb-3 font-bold uppercase text-rose-300">Événement subi</h4>
                             <p className="text-white">He had his wallet stolen.</p>
                             <p className="mt-2 text-sm text-slate-300">
                                 Il ne l'a pas organisé: il a subi le vol.
@@ -164,14 +164,14 @@ export const course46: LessonContent = {
                             question: "He had his wallet ___ on the train.",
                             options: ["stolen", "steal"],
                             correctAnswer: 0,
-                            explanation: "Stolen est le past participle. Ici, on parle d'un evenement subi.",
+                            explanation: "Stolen est le past participle. Ici, on parle d'un événement subi.",
                         },
                         {
                             id: 4,
                             question: "Which sentence means a professional did the work?",
                             options: ["I cut my hair.", "I had my hair cut."],
                             correctAnswer: 1,
-                            explanation: "I had my hair cut montre qu'une autre personne s'en est chargee.",
+                            explanation: "I had my hair cut montre qu'une autre personne s'en est chargée.",
                         },
                         {
                             id: 5,
@@ -185,14 +185,14 @@ export const course46: LessonContent = {
                             question: "I had the mechanic ___ the brakes.",
                             options: ["checked", "check"],
                             correctAnswer: 1,
-                            explanation: "Have someone do something prend la base verbale apres la personne.",
+                            explanation: "Have someone do something prend la base verbale après la personne.",
                         },
                         {
                             id: 7,
                             question: "They had their passports ___ before the trip.",
                             options: ["renewed", "renew"],
                             correctAnswer: 0,
-                            explanation: "On parle d'un service realise avant le voyage.",
+                            explanation: "On parle d'un service réalisé avant le voyage.",
                         },
                         {
                             id: 8,
@@ -206,7 +206,7 @@ export const course46: LessonContent = {
                             question: "She had her bag ___ while she was shopping.",
                             options: ["taken", "take"],
                             correctAnswer: 0,
-                            explanation: "Taken exprime un evenement subi pendant qu'elle faisait ses courses.",
+                            explanation: "Taken exprime un événement subi pendant qu'elle faisait ses courses.",
                         },
                         {
                             id: 10,

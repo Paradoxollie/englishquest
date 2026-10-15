@@ -15,6 +15,7 @@ import {
   submitCourseQuizAction,
 } from "@/app/cours/actions";
 import type { CourseMissionState } from "@/lib/courses/mission-state";
+import type { CourseQuizAnswer } from "@/lib/courses/quiz-grading";
 
 type CourseMissionContextValue = {
   courseNumber: number;
@@ -23,7 +24,7 @@ type CourseMissionContextValue = {
   missionState: CourseMissionState | null;
   isSyncing: boolean;
   markReadingCheckpoint: () => Promise<void>;
-  submitQuizResult: (score: number, total: number) => Promise<QuizSubmissionOutcome | null>;
+  submitQuizResult: (answers: CourseQuizAnswer[]) => Promise<QuizSubmissionOutcome | null>;
 };
 
 export type QuizSubmissionOutcome = {
@@ -99,7 +100,7 @@ export function CourseMissionProvider({
     return pending;
   }
 
-  async function submitQuizResult(score: number, total: number) {
+  async function submitQuizResult(answers: CourseQuizAnswer[]) {
     if (!isAuthenticated || !isMissionTrackingEnabled) {
       return null;
     }
@@ -109,8 +110,7 @@ export function CourseMissionProvider({
     try {
       const result = await submitCourseQuizAction({
         courseNumber,
-        score,
-        total,
+        answers,
       });
 
       if (result?.success && result.missionState) {

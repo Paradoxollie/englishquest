@@ -8,6 +8,8 @@ import {
   gradePlacementStep,
   type PlacementStep,
 } from "@/lib/placement/placement";
+import { chapters } from "@/lib/courses/chapters";
+import { createPlacementToken } from "@/lib/placement/placement-token";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type PlacementStepResult = {
@@ -17,6 +19,8 @@ export type PlacementStepResult = {
   corrections: { id: string; correctAnswer: number }[];
   next: PlacementStep | null;
   placed: { chapterId: number; chapterName: string; level: string; firstCourseId: number } | null;
+  /** Sans compte : résultat signé, à présenter à l'inscription. */
+  guestToken?: string | null;
 };
 
 export async function submitPlacementStepAction(
@@ -27,10 +31,6 @@ export async function submitPlacementStepAction(
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) {
-    return { error: "Connecte-toi pour passer le test." };
-  }
-
   const graded = gradePlacementStep(answers, chapter);
   if (!graded.valid) {
     return { error: "Réponds aux six questions de la série du chapitre affiché." };
@@ -41,6 +41,16 @@ export async function submitPlacementStepAction(
   }
 
   const placedChapter = graded.passed ? chapter + 1 : chapter;
+  if (!user) {
+    // Sans compte, rien n'est enregistré : le résultat signé attend l'inscription.
+    const target = chapters.find((item) => item.id === placedChapter) ?? chapters[0];
+    return {
+      ...graded,
+      next: null,
+      placed: { chapterId: target.id, chapterName: target.name, level: target.level, firstCourseId: target.courseIds[0] },
+      guestToken: createPlacementToken(target.id),
+    };
+  }
   const placed = await applyPlacement(user.id, placedChapter);
   revalidatePath("/quest");
   revalidatePath("/home");

@@ -20,8 +20,38 @@ interface QuizProps {
 
 const letters = ["A", "B", "C", "D", "E", "F"];
 
+/** Ordre d'affichage : questions dans le désordre, réponses mélangées dans chaque question. */
+type DeckEntry = { questionIndex: number; optionOrder: number[] };
+
+function shuffled<T>(items: T[]): T[] {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function orderedDeck(questions: Question[]): DeckEntry[] {
+  return questions.map((question, questionIndex) => ({
+    questionIndex,
+    optionOrder: question.options.map((_, index) => index),
+  }));
+}
+
+function shuffledDeck(questions: Question[]): DeckEntry[] {
+  return shuffled(orderedDeck(questions)).map((entry) => ({
+    ...entry,
+    optionOrder: shuffled(entry.optionOrder),
+  }));
+}
+
 export function Quiz({ questions }: QuizProps) {
   const mission = useCourseMission();
+  // Ordre fixe au rendu serveur, mélangé une fois monté dans le navigateur (pas d'écart d'hydratation).
+  const [deck, setDeck] = useState<DeckEntry[]>(() => orderedDeck(questions));
+  const shuffledRef = useRef(false);
+  const answersRef = useRef<{ id: number; choice: number }[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
@@ -39,6 +69,12 @@ export function Quiz({ questions }: QuizProps) {
   useEffect(() => () => {
     attemptRef.current += 1;
   }, []);
+
+  useEffect(() => {
+    if (shuffledRef.current) return;
+    shuffledRef.current = true;
+    setDeck(shuffledDeck(questions));
+  }, [questions]);
 
   useEffect(() => {
     if (
@@ -87,7 +123,7 @@ export function Quiz({ questions }: QuizProps) {
     const attempt = attemptRef.current;
     void (async () => {
       try {
-        const outcome = await mission.submitQuizResult(score, questions.length);
+        const outcome = await mission.submitQuizResult([...answersRef.current]);
         if (attempt !== attemptRef.current) return;
         if (!outcome) {
           setSyncMessage("Le score n'a pas pu être enregistré. Réessaie dans un instant.");
@@ -101,12 +137,8 @@ export function Quiz({ questions }: QuizProps) {
           );
           return;
         }
-        if (updatedState.readyToComplete) {
-          setSyncMessage("Quiz validé. Le défi de jeu est déjà atteint : la mission se valide sur la carte.");
-          return;
-        }
         if (updatedState.quizPassed) {
-          setSyncMessage("Quiz validé. Il reste le défi de jeu pour terminer la mission.");
+          setSyncMessage("Quiz validé : la mission est réussie. Le défi de jeu reste ouvert pour gagner une étoile de plus.");
           return;
         }
         setSyncMessage("Score enregistré. Il faut 80 % pour valider : tu peux refaire le quiz.");
@@ -116,19 +148,25 @@ export function Quiz({ questions }: QuizProps) {
         }
       }
     })();
-  }, [mission, questions.length, score, showResult]);
+  }, [mission, showResult]);
 
   const handleOptionClick = (index: number) => {
     const current = roundRef.current;
-    const question = questions[currentQuestion];
-    if (current.finished || current.answered || current.index !== currentQuestion || !question) return;
+    const entry = deck[currentQuestion];
+    const question = entry ? questions[entry.questionIndex] : undefined;
+    if (current.finished || current.answered || current.index !== currentQuestion || !question || !entry) return;
     if (!Number.isInteger(index) || index < 0 || index >= question.options.length) return;
     current.answered = true;
     setSelectedOption(index);
     setIsAnswered(true);
     setAnimationKey((key) => key + 1);
+    const originalChoice = entry.optionOrder[index] ?? index;
+    answersRef.current = [
+      ...answersRef.current.filter((answer) => answer.id !== question.id),
+      { id: question.id, choice: originalChoice },
+    ];
 
-    if (index === questions[currentQuestion].correctAnswer) {
+    if (originalChoice === question.correctAnswer) {
       const newCombo = combo + 1;
       setCombo(newCombo);
       if (newCombo > maxCombo) setMaxCombo(newCombo);
@@ -154,6 +192,8 @@ export function Quiz({ questions }: QuizProps) {
 
   const restart = () => {
     attemptRef.current += 1;
+    answersRef.current = [];
+    setDeck(shuffledDeck(questions));
     roundRef.current = { index: 0, answered: false, finished: false };
     setCurrentQuestion(0);
     setSelectedOption(null);
@@ -166,13 +206,16 @@ export function Quiz({ questions }: QuizProps) {
     hasSubmittedResultRef.current = false;
   };
 
-  const question = questions[currentQuestion];
+  const entry = deck[currentQuestion];
+  const question = entry ? questions[entry.questionIndex] : undefined;
   const total = questions.length;
-  if (!question || total === 0) {
+  if (!question || !entry || total === 0) {
     return <div className="eq-quiz">Ce quiz n&apos;est pas disponible pour le moment.</div>;
   }
   const progress = Math.round(((currentQuestion + (isAnswered ? 1 : 0)) / total) * 100);
-  const isCorrect = isAnswered && selectedOption === question.correctAnswer;
+  const displayedOptions = entry.optionOrder.map((original) => question.options[original]);
+  const displayedCorrect = entry.optionOrder.indexOf(question.correctAnswer);
+  const isCorrect = isAnswered && selectedOption === displayedCorrect;
 
   if (showResult) {
     const accuracy = Math.round((score / total) * 100);
@@ -222,10 +265,10 @@ export function Quiz({ questions }: QuizProps) {
       <h3 className="eq-quiz-question">{question.question}</h3>
 
       <div className="eq-quiz-options" role="group" aria-label="Réponses">
-        {question.options.map((option, index) => {
+        {displayedOptions.map((option, index) => {
           let state: "idle" | "right" | "wrong" | "missed" = "idle";
           if (isAnswered) {
-            if (index === question.correctAnswer) state = "right";
+            if (index === displayedCorrect) state = "right";
             else if (index === selectedOption) state = "wrong";
           }
           const shake = isAnswered && index === selectedOption && !isCorrect;

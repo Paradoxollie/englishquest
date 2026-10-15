@@ -209,7 +209,7 @@ export const course17: LessonContent = {
               question: "It's time we ___ home. It's late.",
               options: ["go", "went", "have gone", "will go"],
               correctAnswer: 1,
-              explanation: "Règle de l'Urgence (It's time + Sujet + PRETERIT MODAL). It's time we WENT.",
+              explanation: "Règle de l'Urgence (It's time + Sujet + PRÉTÉRIT MODAL). It's time we WENT.",
             },
             {
               id: 6,

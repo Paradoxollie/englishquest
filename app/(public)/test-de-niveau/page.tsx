@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getUserCourseRoadmap } from "@/lib/courses/progress";
 import { buildPlacementStep, getPlacementStatus } from "@/lib/placement/placement";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -8,7 +7,7 @@ import { PlacementTest } from "./placement-test";
 
 export const metadata: Metadata = {
   title: "Test de niveau",
-  description: "Six questions par chapitre pour trouver ton point de départ sur la carte d'aventure.",
+  description: "Teste ton niveau d'anglais en quelques minutes, gratuitement et sans compte : six questions par chapitre, de A1 à C1.",
 };
 
 export const dynamic = "force-dynamic";
@@ -18,13 +17,34 @@ export default async function PlacementPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const firstStep = buildPlacementStep(1);
+
   if (!user) {
-    redirect("/auth/login");
+    return (
+      <div className="eq-container eq-section">
+        <div className="mx-auto max-w-3xl">
+          <p className="eq-kicker">Gratuit, sans compte</p>
+          <h1 className="eq-h1">Quel est ton niveau d&apos;anglais ?</h1>
+          <p className="eq-lead mt-4 max-w-none">
+            Six questions par chapitre, tirées des cours. Quatre bonnes réponses et le chapitre est acquis : on passe
+            au suivant. Au premier chapitre qui résiste, tu t&apos;arrêtes et c&apos;est là que tu commences. Entre
+            deux et huit minutes.
+          </p>
+          <p className="mt-3 text-sm text-[var(--muted)]">
+            Sans compte, ton résultat est gardé sur cet appareil et appliqué à ta carte quand tu crées ton compte.
+          </p>
+          {firstStep ? (
+            <div className="mt-8">
+              <PlacementTest firstStep={firstStep} guest />
+            </div>
+          ) : null}
+        </div>
+      </div>
+    );
   }
 
   const [status, roadmap] = await Promise.all([getPlacementStatus(user.id), getUserCourseRoadmap(user.id)]);
   const alreadyStarted = roadmap.completedCount > 0 || status.taken;
-  const firstStep = buildPlacementStep(1);
 
   return (
     <div className="eq-container eq-section">

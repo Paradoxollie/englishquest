@@ -17,9 +17,12 @@ const DEFAULT_AD_SETTINGS: AdRouteSettings = {
   sidebar: false,
 };
 
+// Publicité coupée par défaut (octobre 2026) : trop peu de visiteurs pour rapporter, et pas de
+// bandeau de consentement sur le site. Pour la rallumer, mettre NEXT_PUBLIC_ADSENSE_ENABLED=true
+// dans les variables Vercel. La balise de compte et ads.txt restent en place.
 const ADSENSE_ENABLED =
   process.env.NODE_ENV === "production" &&
-  process.env.NEXT_PUBLIC_ADSENSE_ENABLED !== "false";
+  process.env.NEXT_PUBLIC_ADSENSE_ENABLED === "true";
 
 const EXACT_ROUTE_SETTINGS: Record<string, AdRouteSettings> = {
   "/": {

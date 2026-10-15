@@ -102,7 +102,7 @@ export function computeGameRewards(input: GameRewardInput): GameRewardResult {
   };
 }
 
-/** Récompense d'un cours validé (quiz à 80 % puis défi de jeu), par palier. */
+/** Récompense d'un cours validé (quiz à 80 %), par palier. */
 export function getCourseCompletionReward(palierId: number) {
   const palier = clamp(Math.round(palierId), 1, 5);
   return {

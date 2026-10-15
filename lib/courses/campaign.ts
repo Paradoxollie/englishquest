@@ -1,4 +1,5 @@
 import { getGameBySlug } from "@/lib/games/config";
+import { MISSION_GAME_SLUG } from "@/lib/courses/practice";
 import { lessons } from "@/lib/courses/lessons";
 import { getCourseMetadata, getCourseRewardProfile } from "@/lib/courses/metadata";
 import type { CourseRoadmapEntry } from "@/lib/courses/progress";
@@ -123,7 +124,9 @@ export function resolveMissionPrimaryGameAssignments(
   const assignments: Record<number, string | null> = {};
 
   for (const entry of sortedEntries) {
-    const selectedGameSlug = pickMissionGameSlug(entry.recommendedGameSlugs, recentGameSlugs);
+    const selectedGameSlug = getGameBySlug(MISSION_GAME_SLUG)
+      ? MISSION_GAME_SLUG
+      : pickMissionGameSlug(entry.recommendedGameSlugs, recentGameSlugs);
     assignments[entry.courseId] = selectedGameSlug;
 
     if (selectedGameSlug) {
@@ -238,9 +241,9 @@ function getChallengeDefinition(
         scoreDirection: "higher",
         metric: "points",
         target,
-        label: (value) => `Réponds juste et vite jusqu'à ${value} points.`,
-        compact: (value) => `${value} pts`,
-        action: "tenir la série",
+        label: () => "Entraîne-toi sur la notion : une question sur trois vient de ce cours.",
+        compact: () => "entraînement ciblé",
+        action: "ancrer la notion",
       };
     case "speed-verb-challenge":
       return {

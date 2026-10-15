@@ -37,7 +37,7 @@ const metadataRules: MetadataRule[] = [
   },
   {
     test: /(present|pr[ée]sent|routine|action en direct|do vs i am doing)/i,
-    summary: "Mieux décrire ce qui se passé maintenant et ce qui revient souvent.",
+    summary: "Mieux décrire ce qui se passe maintenant et ce qui revient souvent.",
     learningGoals: [
       "Distinguer action en cours et habitude",
       "Stabiliser les auxiliaires du présent",
@@ -149,7 +149,7 @@ const metadataRules: MetadataRule[] = [
 
 const courseSummaries: Record<number, string> = {
   1: "Am, is, are, have got, has got : les deux verbes qu'on utilise dans presque chaque phrase, et le piège de l'âge et de la faim.",
-  2: "Be + verbe en -ing pour dire ce qui se passé en ce moment : I'm reading, she's sleeping.",
+  2: "Be + verbe en -ing pour dire ce qui se passe en ce moment : I'm reading, she's sleeping.",
   3: "Le present simple pour les habitudes et les vérités, avec le fameux -s de la troisième personne.",
   4: "Choisir entre I do et I am doing : ce qui est habituel contre ce qui est en train de se passer.",
   5: "Poser une question avec do, does, am, is, are, et dans le bon ordre.",
@@ -224,7 +224,7 @@ export function getCourseMetadata(courseId: number): CourseMetadata {
       levelLabel: paliers[0]?.level ?? "A1",
       type: "grammar",
       typeLabel: "Grammaire",
-      estimatedMinutes: 12,
+      estimatedMinutes: 8,
       summary: "Renforcer un point clé du parcours.",
       learningGoals: [
         "Clarifier le point de langue",
@@ -276,7 +276,8 @@ export function getCourseMetadata(courseId: number): CourseMetadata {
     levelLabel: palier.level,
     type: course.type,
     typeLabel: course.type === "grammar" ? "Grammaire" : "Méthodologie",
-    estimatedMinutes: 12 + (palier.id - 1) * 3 + (courseId % 2 === 0 ? 2 : 0),
+    // Lecture (200 à 600 mots) plus quiz de dix questions : 7 minutes au niveau A1, un peu plus ensuite.
+    estimatedMinutes: 7 + (palier.id - 1),
     summary,
     learningGoals: matchedRule?.learningGoals ?? defaultGoals,
     focusTags,

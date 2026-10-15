@@ -24,7 +24,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export const metadata: Metadata = {
   title: "Aventure",
   description:
-    "La carte d'aventure English Quest : 50 missions en 5 chapitres, du niveau débutant au niveau avancé. Un cours, un quiz, un défi de jeu, puis la suite.",
+    "La carte d'aventure English Quest : 50 missions en 5 chapitres, du niveau débutant au niveau avancé. Un cours, un quiz pour valider, un jeu pour s'entraîner, puis la suite.",
 };
 
 export const dynamic = "force-dynamic";

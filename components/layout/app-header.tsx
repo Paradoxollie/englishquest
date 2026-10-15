@@ -12,7 +12,6 @@ const baseNavLinks = [
   { label: "Aventure", href: "/quest" },
   { label: "Cours", href: "/tous-les-cours" },
   { label: "Jeux", href: "/play" },
-  { label: "Profs", href: "/teachers" },
 ];
 
 function isActivePath(pathname: string, href: string) {
@@ -85,6 +84,8 @@ export function AppHeader() {
 
   const navLinks = [
     ...baseNavLinks,
+    // L'espace profs est encore en construction : visible seulement des comptes prof et admin.
+    ...(headerState.canAccessTeachers ? [{ label: "Profs", href: "/teachers" }] : []),
     ...(headerState.canAccessDashboard ? [{ label: "Dashboard", href: "/dashboard" }] : []),
   ];
 

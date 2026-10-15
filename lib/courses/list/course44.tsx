@@ -12,7 +12,7 @@ export const course44: LessonContent = {
                 <div className="space-y-6">
                     <p className="text-slate-300">
                         Le <strong>past perfect</strong> sert à parler d'un passé encore plus ancien qu'un autre point
-                        de référence déjà passé. C'est le temps du <strong>avant déjà termine</strong>.
+                        de référence déjà passé. C'est le temps du <strong>avant déjà terminé</strong>.
                     </p>
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-6">
@@ -45,13 +45,13 @@ export const course44: LessonContent = {
 
                     <div className="grid gap-4 md:grid-cols-2 text-sm">
                         <div className="rounded-xl border-l-4 border-purple-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Evenement ancien</h4>
+                            <h4 className="mb-2 font-bold text-white">Événement ancien</h4>
                             <p className="text-slate-300">
                                 She <strong>had left</strong> before I called.
                             </p>
                         </div>
                         <div className="rounded-xl border-l-4 border-cyan-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Repere passe</h4>
+                            <h4 className="mb-2 font-bold text-white">Repère passé</h4>
                             <p className="text-slate-300">
                                 I <strong>called</strong> at 8 p.m.
                             </p>
@@ -69,7 +69,7 @@ export const course44: LessonContent = {
             )
         },
         {
-            title: "2. Marqueurs utiles et emplois frequents",
+            title: "2. Marqueurs utiles et emplois fréquents",
             content: (
                 <div className="space-y-6">
                     <div className="grid gap-4 md:grid-cols-3 text-sm">

@@ -4357,3 +4357,44 @@ h4 {
     transform: translateX(-50%) scale(1.05);
   }
 }
+
+/* Écouter une phrase sélectionnée dans un cours (synthèse vocale du navigateur) */
+.eq-speak-hint {
+  margin-top: 10px;
+  font-size: 0.88rem;
+  color: var(--paper-muted);
+}
+
+.eq-speak-button {
+  position: fixed;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100vw - 32px);
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--fg);
+  font: 700 0.95rem/1.2 var(--font-body);
+  box-shadow: 0 10px 30px -10px rgba(14, 21, 38, 0.55);
+  cursor: pointer;
+}
+
+.eq-speak-button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.eq-speak-preview {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: 400;
+  color: var(--muted);
+  min-width: 0;
+}

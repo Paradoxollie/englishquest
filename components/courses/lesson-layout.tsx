@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { SpeakSelection } from "@/components/courses/speak-selection";
 
 export type CalloutType = "remember" | "warning" | "tip";
 
@@ -134,6 +135,7 @@ export function LessonLayout({
             {sub ? <span className="eq-lesson-subtitle">{sub}</span> : null}
           </h1>
           {objective ? <p className="eq-lesson-objective">{objective}</p> : null}
+          <SpeakSelection />
           <div className="eq-lesson-body">{children}</div>
         </article>
       </div>

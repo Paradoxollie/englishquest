@@ -48,6 +48,7 @@ export function ContactForm({ user, profile }: ContactFormProps) {
               id="name"
               name="name"
               required
+              maxLength={80}
               className={inputClass}
               placeholder="Ton nom ou ton pseudo"
             />
@@ -62,6 +63,7 @@ export function ContactForm({ user, profile }: ContactFormProps) {
               id="email"
               name="email"
               required
+              maxLength={160}
               className={inputClass}
               placeholder="toi@exemple.fr"
             />
@@ -78,6 +80,7 @@ export function ContactForm({ user, profile }: ContactFormProps) {
           id="subject"
           name="subject"
           required
+          maxLength={120}
           className={inputClass}
           placeholder="Par exemple : mot de passe oublié"
         />
@@ -91,10 +94,16 @@ export function ContactForm({ user, profile }: ContactFormProps) {
           id="message"
           name="message"
           required
+          maxLength={3000}
           rows={6}
           className={`${inputClass} resize-y`}
           placeholder="Ton message"
         />
+      </div>
+
+      <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+        <label htmlFor="website">Ne pas remplir</label>
+        <input type="text" id="website" name="website" tabIndex={-1} autoComplete="off" />
       </div>
 
       {state.error && (

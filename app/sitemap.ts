@@ -16,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/play",
     "/quest",
     "/tous-les-cours",
+    "/test-de-niveau",
     "/mentions-legales",
     "/confidentialite",
   ].map((route) => {

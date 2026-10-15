@@ -119,7 +119,7 @@ export const course15: LessonContent = {
 
           <div className="bg-emerald-900/20 p-4 rounded-lg border border-emerald-500/30 mt-2">
             <p className="text-emerald-300 font-bold flex items-center gap-2 text-sm">
-              <span className="text-xl">👂</span> Le "Reflexe Sensoriel"
+              <span className="text-xl">👂</span> Le "Réflexe sensoriel"
             </p>
             <p className="text-slate-300 text-sm mt-1">
               En français, on dit "Je t'entends". En anglais, on dit presque toujours "Je <strong>peux</strong> t'entendre".

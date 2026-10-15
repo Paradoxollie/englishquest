@@ -4,7 +4,7 @@ import { Quiz } from "@/components/courses/quiz";
 export const course27: LessonContent = {
     courseNumber: 27,
     title: "Le Futur : Décision vs Plan",
-    objective: "Maîtriser l&apos;usage du FUTUR SPONTANÉ (Will).",
+    objective: "Maîtriser l'usage du FUTUR SPONTANÉ (Will).",
     sections: [
         {
             title: "1. La Décision Spontanée",

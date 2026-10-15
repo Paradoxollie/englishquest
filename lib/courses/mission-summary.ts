@@ -1,4 +1,5 @@
 import type { CourseMissionPlan } from "@/lib/courses/campaign";
+import { getCoursePracticeHref } from "@/lib/courses/practice";
 import type { CourseMissionState } from "@/lib/courses/mission-state";
 import type { CourseRoadmapEntry } from "@/lib/courses/progress";
 
@@ -24,9 +25,7 @@ export function buildMissionSummary(params: {
   isLoggedIn: boolean;
 }): MissionSummary {
   const { entry, plan, state, isLoggedIn } = params;
-  const gameLabel = plan.primaryGameName
-    ? `${plan.primaryGameName}, ${plan.gameChallengeCompact}`
-    : "Pas de défi de jeu";
+  const gameLabel = plan.primaryGameName ? `Bonus : ${plan.primaryGameName} sur la notion` : "Bonus : entraînement";
 
   if (!isLoggedIn) {
     return {
@@ -35,7 +34,7 @@ export function buildMissionSummary(params: {
       quizLabel: "Quiz à 80 %",
       gameDone: false,
       gameLabel,
-      note: "Tu peux lire tous les cours sans compte. Avec un compte, chaque mission validée fait avancer ton pion et rapporte de l'expérience.",
+      note: "Tu peux lire tous les cours sans compte. Avec un compte, chaque quiz réussi valide la mission, fait avancer ton pion et rapporte de l'expérience.",
       cta: { href: `/cours/${entry.courseId}`, label: `Lire le cours ${entry.courseId}`, tone: "gold" },
       secondary: null,
     };
@@ -43,13 +42,14 @@ export function buildMissionSummary(params: {
 
   const readingDone = state?.readingCheckpointReached ?? false;
   const quizDone = state?.quizPassed ?? false;
-  const gameDone = state?.gameChallengeReached ?? !plan.primaryGameSlug;
+  // Étape facultative : elle ne bloque jamais la mission.
+  const gameDone = false;
   const quizLabel =
     state?.quizScore != null && state.quizTotal
       ? `Quiz ${state.quizScore} / ${state.quizTotal}`
       : "Quiz à 80 %";
 
-  let note = "Ouvre le cours, lis-le, puis réussis le quiz à 80 % avant le défi de jeu.";
+  let note = "Lis le cours, puis réussis le quiz à 80 % : la mission est validée et la suivante s'ouvre.";
   let cta: MissionSummary["cta"] = {
     href: `/cours/${entry.courseId}`,
     label: entry.status === "unlocked" ? "Commencer la mission" : "Continuer le cours",
@@ -57,13 +57,15 @@ export function buildMissionSummary(params: {
   };
   let secondary: MissionSummary["secondary"] = null;
 
-  if (quizDone && !gameDone && plan.primaryGameSlug) {
-    note = `Quiz réussi. Il reste le défi : ${gameLabel}.`;
-    cta = { href: `/play/${plan.primaryGameSlug}`, label: `Jouer à ${plan.primaryGameName}`, tone: "gold" };
-    secondary = { href: `/cours/${entry.courseId}`, label: "Relire le cours" };
-  } else if (readingDone && !quizDone) {
-    note = "Cours lu. Direction le quiz : 80 % pour débloquer le défi de jeu.";
+  if (quizDone) {
+    note = "Quiz réussi : la mission est validée.";
+    cta = { href: "/quest", label: "Voir la carte", tone: "gold" };
+  } else if (readingDone) {
+    note = "Cours lu. Direction le quiz : 80 % pour valider la mission.";
     cta = { href: `/cours/${entry.courseId}#quiz`, label: "Faire le quiz", tone: "gold" };
+  }
+  if (plan.primaryGameSlug) {
+    secondary = { href: getCoursePracticeHref(entry.courseId), label: "S'entraîner sur la notion" };
   }
 
   return { readingDone, quizDone, quizLabel, gameDone, gameLabel, note, cta, secondary };

@@ -46,7 +46,7 @@ export const course42: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Apres <strong>wish</strong>, on utilise souvent une forme au <strong>past simple</strong> pour
+                        Après <strong>wish</strong>, on utilise souvent une forme au <strong>past simple</strong> pour
                         parler d'une situation présente que l'on voudrait différente.
                     </p>
 
@@ -110,7 +110,7 @@ export const course42: LessonContent = {
                         </p>
                         <p className="text-slate-200">
                             <strong>If only</strong> fonctionne presque comme <strong>I wish</strong>, mais avec plus
-                            d'intensite: <em>If only I had listened to you.</em>
+                            d'intensité: <em>If only I had listened to you.</em>
                         </p>
                     </div>
                 </div>
@@ -136,7 +136,7 @@ export const course42: LessonContent = {
                         </div>
 
                         <div className="rounded-xl border border-red-500/50 bg-red-950/20 p-5">
-                            <h4 className="mb-3 font-bold uppercase text-red-300">A eviter</h4>
+                            <h4 className="mb-3 font-bold uppercase text-red-300">A éviter</h4>
                             <ul className="space-y-2 text-slate-200">
                                 <li className="line-through">I wish the weather is nice tomorrow.</li>
                                 <li className="line-through">I wish they didn't miss the train.</li>
@@ -150,7 +150,7 @@ export const course42: LessonContent = {
                     </p>
                     <ul className="space-y-3 text-slate-200">
                         <li>
-                            <strong>wish + past simple</strong>: present irreel
+                            <strong>wish + past simple</strong>: present irréel
                         </li>
                         <li>
                             <strong>wish + past perfect</strong>: regret sur le passé
@@ -159,7 +159,7 @@ export const course42: LessonContent = {
                             <strong>wish + would</strong>: irritation ou changement attendu
                         </li>
                         <li>
-                            <strong>hope</strong>: souhait realiste
+                            <strong>hope</strong>: souhait réaliste
                         </li>
                     </ul>
                 </div>
@@ -175,7 +175,7 @@ export const course42: LessonContent = {
                             question: "I wish I ___ the answer.",
                             options: ["had known", "knew"],
                             correctAnswer: 1,
-                            explanation: "Regret sur le present: wish + past simple.",
+                            explanation: "Regret sur le présent : wish + past simple.",
                         },
                         {
                             id: 2,
@@ -203,14 +203,14 @@ export const course42: LessonContent = {
                             question: "We wish we ___ closer to our family.",
                             options: ["had lived yesterday", "lived"],
                             correctAnswer: 1,
-                            explanation: "Situation presente irreelle: wish + past simple.",
+                            explanation: "Situation présente irréelle: wish + past simple.",
                         },
                         {
                             id: 6,
                             question: "I wish I ___ that email before sending it.",
                             options: ["read", "had read"],
                             correctAnswer: 1,
-                            explanation: "Action passee regrettee: had read.",
+                            explanation: "Action passée regrettee: had read.",
                         },
                         {
                             id: 7,

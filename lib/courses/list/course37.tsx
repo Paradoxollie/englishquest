@@ -17,7 +17,7 @@ export const course37: LessonContent = {
                             <span className="text-slate-500 text-sm">Pronom Relatif (Que/Qui)</span>
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-white font-bold">Antecedent</span>
+                            <span className="text-white font-bold">Antécédent</span>
                             <span className="text-slate-500 text-sm">Le mot avant (La Cible)</span>
                         </div>
                         <div className="flex flex-col">

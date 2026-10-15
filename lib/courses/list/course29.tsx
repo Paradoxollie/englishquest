@@ -42,7 +42,7 @@ export const course29: LessonContent = {
                                 <div className="flex-1 bg-slate-800 p-4 rounded-lg transition-transform hover:scale-[1.02]">
                                     <h5 className="text-indigo-400 font-bold text-sm uppercase">MIGHT</h5>
                                     <p className="text-white italic">"It might rain."</p>
-                                    <p className="text-xs text-slate-400">C&apos;est une possibilité lointaine, hypothetique. "Ça se pourrait..."</p>
+                                    <p className="text-xs text-slate-400">C&apos;est une possibilité lointaine, hypothétique. "Ça se pourrait..."</p>
                                 </div>
                             </div>
                         </div>

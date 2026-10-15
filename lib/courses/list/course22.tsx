@@ -170,21 +170,21 @@ export const course22: LessonContent = {
                             question: "___ you ever been to Australia?",
                             options: ["Did", "Have"],
                             correctAnswer: 1,
-                            explanation: "Question sur l&apos;expérience de vie (Ever) = Present Perfect.",
+                            explanation: "Question sur l'expérience de vie (Ever) = Present Perfect.",
                         },
                         {
                             id: 2,
                             question: "I ___ golf in my life.",
-                            options: ["didn&apos;t play", "have never played"],
+                            options: ["didn't play", "have never played"],
                             correctAnswer: 1,
-                            explanation: "Expérience de vie négative jusqu&apos;à maintenant = Have never played.",
+                            explanation: "Expérience de vie négative jusqu'à maintenant = Have never played.",
                         },
                         {
                             id: 3,
                             question: "Where is Bill? He ___ to the shops.",
                             options: ["has been", "has gone"],
                             correctAnswer: 1,
-                            explanation: "Il n&apos;est pas là (On demande où il est). Il est parti = Has GONE.",
+                            explanation: "Il n'est pas là (On demande où il est). Il est parti = Has GONE.",
                         },
                         {
                             id: 4,
@@ -219,7 +219,7 @@ export const course22: LessonContent = {
                             question: "This comes from a book I ___.",
                             options: ["read", "have read"],
                             correctAnswer: 1,
-                            explanation: "C&apos;est une expérience (j&apos;ai lu ce livre, peu importe quand).",
+                            explanation: "C'est une expérience (j'ai lu ce livre, peu importe quand).",
                         },
                         {
                             id: 9,
@@ -230,10 +230,10 @@ export const course22: LessonContent = {
                         },
                         {
                             id: 10,
-                            question: "I haven&apos;t seen that movie.",
+                            question: "I haven't seen that movie.",
                             options: ["Correct", "Wrong"],
                             correctAnswer: 0,
-                            explanation: "Phrase correcte. Bilan présent : je ne l&apos;ai pas vu.",
+                            explanation: "Phrase correcte. Bilan présent : je ne l'ai pas vu.",
                         },
                     ]}
                 />

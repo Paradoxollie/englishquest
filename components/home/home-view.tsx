@@ -130,7 +130,7 @@ export function HomeView({
               <ol className="eq-map-steps">
                 <li className={mission.readingDone ? "is-done" : "is-now"}>Lire le cours</li>
                 <li className={mission.quizDone ? "is-done" : mission.readingDone ? "is-now" : ""}>{mission.quizLabel}</li>
-                <li className={mission.gameDone ? "is-done" : mission.quizDone ? "is-now" : ""}>{mission.gameLabel}</li>
+                <li>{mission.gameLabel}</li>
               </ol>
               <div className="eq-home-actions">
                 <Link href={mission.cta.href} className={`eq-btn eq-btn-${mission.cta.tone}`}>

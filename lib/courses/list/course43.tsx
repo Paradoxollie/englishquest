@@ -12,7 +12,7 @@ export const course43: LessonContent = {
                 <div className="space-y-6">
                     <p className="text-slate-300">
                         À ce niveau, on ne parle plus seulement du futur en bloc. On choisit l'angle exact:
-                        l'action sera-t-elle <strong>en cours</strong> ou déjà <strong>terminee</strong> à un moment futur?
+                        l'action sera-t-elle <strong>en cours</strong> ou déjà <strong>terminée</strong> à un moment futur?
                     </p>
 
                     <div className="grid gap-4 md:grid-cols-2">
@@ -105,7 +105,7 @@ export const course43: LessonContent = {
                             <p className="text-slate-300">by, by then, by the time, before, by next week</p>
                         </div>
                         <div className="rounded-xl border-l-4 border-cyan-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Idee centrale</h4>
+                            <h4 className="mb-2 font-bold text-white">Idée centrale</h4>
                             <p className="text-slate-300">
                                 On regarde en arrière depuis un point futur.
                             </p>
@@ -129,7 +129,7 @@ export const course43: LessonContent = {
                             </p>
                         </div>
                         <div className="rounded-xl border border-emerald-500/50 bg-emerald-950/20 p-5">
-                            <h4 className="mb-3 font-bold uppercase text-emerald-300">Action terminee</h4>
+                            <h4 className="mb-3 font-bold uppercase text-emerald-300">Action terminée</h4>
                             <p className="text-white">
                                 By 9 p.m., I <strong>will have written</strong> my essay.
                             </p>
@@ -144,10 +144,10 @@ export const course43: LessonContent = {
                             Extension utile
                         </p>
                         <p className="text-slate-200">
-                            Pour insister sur la <strong>duree</strong>, on peut rencontrer le{" "}
+                            Pour insister sur la <strong>durée</strong>, on peut rencontrer le{" "}
                             <strong>future perfect continuous</strong>:
                             <em className="text-white"> By June, I will have been working here for ten years.</em>
-                            Ici, l'idee clé est la longueur de l'activite, pas juste son achevement.
+                            Ici, l'idée clé est la longueur de l'activité, pas juste son achèvement.
                         </p>
                     </div>
                 </div>
@@ -222,7 +222,7 @@ export const course43: LessonContent = {
                                 "By 9 p.m., I will have written my essay.",
                             ],
                             correctAnswer: 1,
-                            explanation: "By + heure future + future perfect = travail déjà termine.",
+                            explanation: "By + heure future + future perfect = travail déjà terminé.",
                         },
                         {
                             id: 10,

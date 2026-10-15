@@ -53,27 +53,11 @@ export function GameShell({ game, mission, isLoggedIn, aside, children }: GameSh
             <div className="eq-game-mission" role="status">
               <span className="eq-chip eq-chip-gold">Mission {mission.courseId}</span>
               <span className="eq-game-mission-text">
-                {mission.alreadyReached ? (
-                  <>
-                    Défi déjà atteint pour <b>{mission.courseTitle}</b>. Rejoue pour le plaisir ou retourne sur la carte.
-                  </>
-                ) : mission.quizPassed ? (
-                  <>
-                    Objectif : <b>{mission.challengeCompact}</b> pour valider <b>{mission.courseTitle}</b> et gagner
-                    + {mission.rewardXp} XP, + {mission.rewardGold} or.
-                  </>
-                ) : (
-                  <>
-                    Ce jeu est le défi de <b>{mission.courseTitle}</b>. Réussis d&apos;abord le quiz du cours à 80 %, puis
-                    vise <b>{mission.challengeCompact}</b> ici.
-                  </>
-                )}
+                Une question sur trois porte sur <b>{mission.courseTitle}</b>. C&apos;est le quiz du cours, à 80 %,
+                qui valide la mission et rapporte + {mission.rewardXp} XP, + {mission.rewardGold} or.
               </span>
-              <Link
-                href={mission.quizPassed ? "/quest" : `/cours/${mission.courseId}`}
-                className="eq-btn eq-btn-ghost eq-btn-sm"
-              >
-                {mission.quizPassed ? "Voir la carte" : "Ouvrir le cours"}
+              <Link href={`/cours/${mission.courseId}`} className="eq-btn eq-btn-ghost eq-btn-sm">
+                Ouvrir le cours
               </Link>
             </div>
           ) : !isLoggedIn ? (
@@ -88,7 +72,7 @@ export function GameShell({ game, mission, isLoggedIn, aside, children }: GameSh
       </header>
 
       <div className={`eq-container eq-game-grid ${aside ? "" : "eq-game-grid-solo"}`}>
-        <main className="eq-game-main">{children}</main>
+        <div className="eq-game-main">{children}</div>
         {aside ? <aside className="eq-game-aside">{aside}</aside> : null}
       </div>
     </div>

@@ -17,7 +17,7 @@ export const course41: LessonContent = {
 
                     <div className="bg-slate-900 p-6 rounded-xl border border-slate-700">
                         <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-rose-300 mb-4">
-                            La formule cle
+                            La formule clé
                         </p>
                         <div className="grid gap-3 md:grid-cols-2 text-center font-mono text-white">
                             <div className="rounded-lg bg-slate-800 p-4 text-emerald-300">
@@ -26,7 +26,7 @@ export const course41: LessonContent = {
                             </div>
                             <div className="rounded-lg bg-slate-800 p-4 text-cyan-300">
                                 would / could / might have + past participle
-                                <div className="mt-2 text-xs text-slate-400">resultat imagine</div>
+                                <div className="mt-2 text-xs text-slate-400">résultat imaginé</div>
                             </div>
                         </div>
 
@@ -79,7 +79,7 @@ export const course41: LessonContent = {
                                 If you had called me, I could have helped you.
                             </p>
                             <p className="mt-2 text-xs italic text-slate-500">
-                                <strong>could have</strong> = capacite possible.
+                                <strong>could have</strong> = capacité possible.
                             </p>
                         </div>
                     </div>
@@ -90,7 +90,7 @@ export const course41: LessonContent = {
                         </p>
                         <ul className="space-y-3 text-slate-200">
                             <li>
-                                <strong className="text-white">would have</strong> = resultat probable
+                                <strong className="text-white">would have</strong> = résultat probable
                             </li>
                             <li>
                                 <strong className="text-white">could have</strong> = possibilité ou capacité
@@ -104,7 +104,7 @@ export const course41: LessonContent = {
             )
         },
         {
-            title: "2. Les pieges a eviter",
+            title: "2. Les pièges a éviter",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
@@ -141,7 +141,7 @@ export const course41: LessonContent = {
                         </p>
                         <ul className="space-y-3 text-slate-200">
                             <li>Le third conditional parle d'un passé impossible à changer.</li>
-                            <li>Il est souvent proche de l'idee de <strong>regret</strong>.</li>
+                            <li>Il est souvent proche de l'idée de <strong>regret</strong>.</li>
                             <li>
                                 Si le résultat continue dans le présent, on entre parfois dans un <strong>mixed conditional</strong>,
                                 mais la base reste la même: un passé différent.
@@ -175,7 +175,7 @@ export const course41: LessonContent = {
                             question: "If we had known about the traffic, we ___ another road.",
                             options: ["would have taken", "took"],
                             correctAnswer: 0,
-                            explanation: "Le resultat imagine se construit avec would have + past participle.",
+                            explanation: "Le résultat imaginé se construit avec would have + past participle.",
                         },
                         {
                             id: 4,
@@ -189,7 +189,7 @@ export const course41: LessonContent = {
                             question: "They ___ on time if they had left earlier.",
                             options: ["would arrive", "would have arrived"],
                             correctAnswer: 1,
-                            explanation: "Le third conditional parle d'un resultat passe: would have arrived.",
+                            explanation: "Le third conditional parle d'un résultat passé : would have arrived.",
                         },
                         {
                             id: 6,
@@ -206,7 +206,7 @@ export const course41: LessonContent = {
                             question: "If he had worn a coat, he ___ cold.",
                             options: ["wouldn't have been", "hadn't been"],
                             correctAnswer: 0,
-                            explanation: "Le resultat imagine se forme avec would not have been.",
+                            explanation: "Le résultat imaginé se forme avec would not have been.",
                         },
                         {
                             id: 8,
@@ -225,7 +225,7 @@ export const course41: LessonContent = {
                         {
                             id: 10,
                             question: "Le third conditional sert surtout à parler de ...",
-                            options: ["faits generaux", "situations passees imaginaires"],
+                            options: ["faits généraux", "situations passées imaginaires"],
                             correctAnswer: 1,
                             explanation: "Il sert à imaginer un autre passé et un autre résultat.",
                         }

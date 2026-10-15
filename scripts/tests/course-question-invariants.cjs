@@ -58,7 +58,13 @@ function checkQuestion(question, context) {
   assert.ok(question.options.every((option) => typeof option === "string" && option.trim()), `${context}: nonempty options`);
   assert.equal(new Set(question.options.map((option) => option.trim().toLowerCase())).size, question.options.length, `${context}: distinct options`);
   assert.ok(Number.isInteger(question.correctAnswer) && question.correctAnswer >= 0 && question.correctAnswer < question.options.length, `${context}: valid correct index`);
+  for (const text of [question.question, question.explanation ?? "", ...question.options]) {
+    assert.ok(!HTML_ENTITY.test(text), `${context}: HTML entity shown as raw text in "${text}"`);
+  }
 }
+// Les chaînes JavaScript n'interprètent pas &apos; : l'élève verrait « Don&apos;t ».
+const HTML_ENTITY = /&(?:[a-z]+|#\d+);/i;
+const STRING_PROPERTY_WITH_ENTITY = /^\s*(?:objective|title|question|explanation|options)\s*:.*&(?:[a-z]+|#\d+);/im;
 
 const { chapters, getChapterForCourse } = loadSource(path.join(root, "lib/courses/chapters.ts"));
 const { paliers } = loadSource(path.join(root, "lib/courses/data.ts"));
@@ -76,6 +82,7 @@ let nativeCount = 0;
 for (const course of courseIds) {
   const quiz = nativeQuiz(course);
   assert.ok(new RegExp(`courseNumber:\\s*${course}\\b`).test(quiz.source), `Course ${course}: declared lesson number matches path`);
+  assert.ok(!STRING_PROPERTY_WITH_ENTITY.test(quiz.source), `Course ${course}: no HTML entity inside a string property`);
   assert.ok(new RegExp(`import \\{ course${course} \\} from "\\./list/course${course}"`).test(lessonIndex), `Course ${course}: imported by lesson index`);
   assert.ok(new RegExp(`\\b${course}: course${course}\\b`).test(lessonIndex), `Course ${course}: registered in lesson index`);
   assert.equal(quiz.questions.length, 10, `Course ${course}: complete ten-question quiz`);
@@ -95,6 +102,32 @@ for (const course of courseIds) {
 }
 assert.equal(bank.length, nativeCount, "Question bank has no orphaned entries");
 for (const question of bank) checkQuestion(question, `Bank ${question.id}`);
+
+const { gradeCourseQuiz } = loadSource(path.join(root, "lib/courses/quiz-grading.ts"));
+for (const course of [1, 27, 50]) {
+  const own = bank.filter((question) => question.course === course);
+  const perfect = own.map((question) => ({ id: Number(question.id.split("-")[1]), choice: question.correctAnswer }));
+  assert.deepEqual(gradeCourseQuiz(course, perfect), { score: own.length, total: own.length }, `Course ${course}: perfect copy`);
+  const oneWrong = perfect.map((answer, index) => index === 0 ? { ...answer, choice: (answer.choice + 1) % own[0].options.length } : answer);
+  assert.deepEqual(gradeCourseQuiz(course, oneWrong), { score: own.length - 1, total: own.length });
+  assert.equal(gradeCourseQuiz(course, perfect.slice(1)), null, "Incomplete copy refused");
+  assert.equal(gradeCourseQuiz(course, [...perfect.slice(1), perfect[1]]), null, "Duplicate answer refused");
+  assert.equal(gradeCourseQuiz(course, perfect.map((answer) => ({ ...answer, choice: 9 }))), null, "Missing choice refused");
+  assert.equal(gradeCourseQuiz(course, { score: 10, total: 10 }), null, "Client score refused");
+}
+console.log("PASS Course quizzes are graded on the server from the answers only.");
+
+process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "test-only-key";
+const { createPlacementToken, readPlacementToken } = loadSource(path.join(root, "lib/placement/placement-token.ts"));
+const now = Date.UTC(2026, 9, 15);
+const token = createPlacementToken(3, now);
+assert.equal(readPlacementToken(token, now + 1000), 3, "Signed guest placement is accepted");
+assert.equal(readPlacementToken(token.replace(/^3\./, "5."), now), null, "Edited chapter is refused");
+assert.equal(readPlacementToken(`${token}x`, now), null, "Edited signature is refused");
+assert.equal(readPlacementToken(token, now + 15 * 24 * 3600 * 1000), null, "Old result expires");
+assert.equal(readPlacementToken(createPlacementToken(9, now), now), null, "Unknown chapter is refused");
+assert.equal(readPlacementToken(undefined, now), null);
+console.log("PASS Guest placement results are signed, tamper-proof and expire.");
 
 let queueScenarios = 0;
 for (const chapter of chapters) {

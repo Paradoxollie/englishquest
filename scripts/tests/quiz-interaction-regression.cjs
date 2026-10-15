@@ -130,5 +130,23 @@ async function test(name, run) { await run(); cases += 1; console.log(`PASS ${na
     await Promise.resolve(); await Promise.resolve();
     assert.match(content(find(h.render(), (node) => node.props?.className === "eq-quiz-sync")), /pas pu être enregistré/);
   });
+  await test("Shuffled quizzes send every answer once, as the original choice index", async () => {
+    let sent = null;
+    const mission = { isAuthenticated: true, isMissionTrackingEnabled: true, submitQuizResult: async (answers) => { sent = answers; return null; } };
+    const h = harness(questions, mission);
+    h.render();
+    for (const effect of h.effects()) effect(); // mélange au montage
+    for (let i = 0; i < questions.length; i += 1) {
+      option(h.render(), i === 1 ? 1 : 0)();
+      button(h.render(), i < questions.length - 1 ? "Question suivante" : "Voir le résultat")();
+    }
+    const result = h.render();
+    assert.equal(content(find(result, (node) => node.props?.className === "eq-quiz-score")), "2 / 3");
+    for (const effect of h.effects()) effect();
+    await Promise.resolve();
+    assert.equal(sent.length, 3);
+    assert.deepEqual([...sent.map((answer) => answer.id)].sort(), [1, 2, 3]);
+    assert.equal(sent.filter((answer) => answer.choice === 0).length, 2, "Right is option 0 in the source data");
+  });
   console.log(`\n${cases} Quiz interaction regression cases passed.`);
 })().catch((error) => { console.error(error); process.exitCode = 1; });

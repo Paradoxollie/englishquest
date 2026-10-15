@@ -8,6 +8,7 @@ import {
   getUserCourseRoadmap,
   launchCourseMission,
 } from "@/lib/courses/progress";
+import { gradeCourseQuiz, type CourseQuizAnswer } from "@/lib/courses/quiz-grading";
 import {
   getUserCourseMissionState,
   recordCourseReadingCheckpoint,
@@ -128,30 +129,29 @@ export async function recordCourseCheckpointAction(courseNumber: number) {
 
 export async function submitCourseQuizAction(params: {
   courseNumber: number;
-  score: number;
-  total: number;
+  answers: CourseQuizAnswer[];
 }) {
   try {
     const userId = await getAuthenticatedUserId();
 
-    if (
-      !userId ||
-      !Number.isFinite(params.courseNumber) ||
-      !Number.isFinite(params.score) ||
-      !Number.isFinite(params.total)
-    ) {
+    if (!userId || !Number.isFinite(params.courseNumber)) {
+      return { success: false };
+    }
+
+    // La note est recalculée ici à partir des réponses : le navigateur ne fixe plus son score.
+    const graded = gradeCourseQuiz(params.courseNumber, params.answers);
+    if (!graded) {
       return { success: false };
     }
 
     const missionState = await submitCourseQuizResult(
       userId,
       params.courseNumber,
-      params.score,
-      params.total
+      graded.score,
+      graded.total
     );
 
-    // Si le défi de jeu est déjà atteint (meilleur score existant), le cours se
-    // valide tout de suite : pas d'étape manuelle.
+    // Quiz réussi : la mission se valide tout de suite. Le défi de jeu est un bonus.
     let courseCompleted: { xp: number; gold: number; newLevel: number | null } | null = null;
     if (missionState?.readyToComplete) {
       const result = await completeCourseAndGrantRewards(userId, params.courseNumber);

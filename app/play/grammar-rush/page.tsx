@@ -4,6 +4,7 @@ import { GameShell } from "@/components/play/game-shell";
 import { chapters, getChapterForCourse } from "@/lib/courses/chapters";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
 import { getUserCourseRoadmap } from "@/lib/courses/progress";
+import { lessons } from "@/lib/courses/lessons";
 import { getGameBySlug } from "@/lib/games/config";
 import { buildRushQueue } from "@/lib/games/grammar-rush-server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -19,7 +20,12 @@ export const dynamic = "force-dynamic";
 const SLUG = "grammar-rush";
 const GUEST_MAX_CHAPTER = 2;
 
-export default async function GrammarRushPage() {
+export default async function GrammarRushPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ cours?: string }>;
+}) {
+  const params = await searchParams;
   const game = getGameBySlug(SLUG);
   if (!game) {
     return null;
@@ -34,13 +40,29 @@ export default async function GrammarRushPage() {
 
   // Niveau des questions : jusqu'au chapitre en cours (au moins le 1er), tout pour un invité limité au 2e.
   let maxChapter = GUEST_MAX_CHAPTER;
+  let focusCourseId = mission?.courseId ?? null;
+  const requestedCourse = Number(params.cours);
+  const wantsCourse = Number.isInteger(requestedCourse) && Boolean(lessons[requestedCourse]);
   if (userId) {
     const roadmap = await getUserCourseRoadmap(userId);
     const current = roadmap.currentCourse ?? roadmap.recommendedCourse;
     maxChapter = current ? getChapterForCourse(current.courseId).id : chapters.length;
+    // Entraînement ciblé (?cours=N) : seulement sur un cours déjà ouvert pour ce joueur.
+    const requested = wantsCourse ? roadmap.entries.find((entry) => entry.courseId === requestedCourse) : null;
+    if (requested && requested.status !== "locked") {
+      focusCourseId = requestedCourse;
+      maxChapter = Math.max(maxChapter, getChapterForCourse(requestedCourse).id);
+    }
+  } else if (wantsCourse) {
+    // Les cours sont publics : un invité peut s'entraîner sur celui qu'il vient de lire.
+    focusCourseId = requestedCourse;
+    maxChapter = Math.max(maxChapter, getChapterForCourse(requestedCourse).id);
   }
-  const queue = buildRushQueue({ maxChapter, focusCourseId: mission?.courseId ?? null });
-  const levelLabel = `chapitres 1 à ${maxChapter}`;
+  const queue = buildRushQueue({ maxChapter, focusCourseId });
+  const focusTitle = focusCourseId ? lessons[focusCourseId]?.title ?? null : null;
+  const levelLabel = focusTitle
+    ? `chapitres 1 à ${maxChapter}, une question sur trois sur « ${focusTitle} »`
+    : `chapitres 1 à ${maxChapter}`;
 
   return (
     <GameShell

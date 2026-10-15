@@ -4,7 +4,7 @@ import { Quiz } from "@/components/courses/quiz";
 export const course26: LessonContent = {
     courseNumber: 26,
     title: "Comparaison : Past Simple vs Present Perfect",
-    objective: "Distinguer l&apos;action révolue du bilan présent.",
+    objective: "Distinguer l'action révolue du bilan présent.",
     sections: [
         {
             title: "1. La Distinction Fondamentale",

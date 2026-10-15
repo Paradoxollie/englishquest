@@ -15,6 +15,17 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Les préchargements de liens ne sont pas des visites.
+  const purpose = `${request.headers.get("purpose") ?? ""} ${request.headers.get("sec-purpose") ?? ""}`;
+  if (request.headers.get("next-router-prefetch") || /prefetch/i.test(purpose)) {
+    return NextResponse.next();
+  }
+
+  // Le site lancé en local ne compte pas dans les visites de production.
+  if (["localhost", "127.0.0.1", "::1"].includes(request.nextUrl.hostname)) {
+    return NextResponse.next();
+  }
+
   const baseUrl = request.nextUrl.origin;
 
   fetch(`${baseUrl}/api/track-visit`, {
