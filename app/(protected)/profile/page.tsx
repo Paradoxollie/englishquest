@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logoutAction } from "@/app/(protected)/actions";
+import { ClassJoinCard } from "@/components/classes/class-join-card";
 import { isAdmin } from "@/lib/auth/roles";
 import { lessons } from "@/lib/courses/lessons";
 import { getLevelProgress } from "@/lib/profile/economy";
@@ -204,6 +205,7 @@ export default async function ProfilePage({
         </section>
       </div>
 
+      <ClassJoinCard userId={user.id} />
       <section className="eq-profile-section" aria-labelledby="profile-look">
         <div className="eq-home-section-head">
           <div>

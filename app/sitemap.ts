@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/quest",
     "/tous-les-cours",
     "/test-de-niveau",
+    "/profs",
     "/mentions-legales",
     "/confidentialite",
   ].map((route) => {

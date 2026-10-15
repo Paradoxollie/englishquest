@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HomeClassCard } from "@/components/classes/home-class-card";
 import { GameCard } from "@/components/play/game-card";
 import type { Chapter } from "@/lib/courses/chapters";
 import type { MissionSummary } from "@/lib/courses/mission-summary";
@@ -98,6 +99,7 @@ export function HomeView({
         </dl>
       </header>
 
+      <HomeClassCard />
       <div className="eq-home-grid">
         {suggestPlacement ? (
           <section className="eq-card eq-home-placement" aria-labelledby="home-placement">

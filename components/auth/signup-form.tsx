@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useEffect, useState } from "react";
 import { PLACEMENT_TOKEN_STORAGE_KEY } from "@/lib/placement/placement-storage";
 import { useFormStatus } from "react-dom";
@@ -9,7 +10,7 @@ import { authInitialState } from "@/types/auth";
 const inputClass =
   "w-full rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--ink)] px-4 py-3 text-[0.95rem] text-[var(--fg)] outline-none placeholder:text-[var(--muted-2)] focus:border-[var(--cyan)]";
 
-export function SignupForm() {
+export function SignupForm({ next = null }: { next?: string | null }) {
   const [state, formAction] = useActionState(signUpAction, authInitialState);
   // Résultat du test de niveau passé sans compte, à appliquer à la nouvelle carte.
   const [placementToken, setPlacementToken] = useState("");
@@ -37,6 +38,7 @@ export function SignupForm() {
   return (
     <form action={formAction} className="grid gap-4">
       <input type="hidden" name="placement" value={placementToken} />
+      {next ? <input type="hidden" name="next" value={next} /> : null}
       {placementToken ? (
         <p className="rounded-[var(--radius)] bg-[var(--cyan-soft)] px-4 py-3 text-sm">
           Ton résultat au test de niveau sera appliqué à ta carte dès la création du compte.
@@ -99,6 +101,14 @@ export function SignupForm() {
       ) : state.success ? (
         <p role="status" className="rounded-[var(--radius)] bg-[var(--mint-soft)] px-4 py-3 text-sm font-bold text-[var(--mint)]">
           {state.success}
+          {next ? (
+            <>
+              {" "}
+              <Link href={`/auth/login?next=${encodeURIComponent(next)}`} className="underline">
+                Se connecter et continuer
+              </Link>
+            </>
+          ) : null}
         </p>
       ) : null}
 
