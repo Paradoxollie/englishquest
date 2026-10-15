@@ -8,6 +8,7 @@ for (const script of [
   'scripts/tests/round-games-regression.cjs',
   'scripts/tests/quiz-interaction-regression.cjs',
   'scripts/tests/course-question-invariants.cjs',
+  'scripts/tests/exercise-invariants.cjs',
   'scripts/tests/auth-pagination-regression.cjs',
 ]) {
   const result = spawnSync(process.execPath, [script], { cwd: root, stdio: 'inherit' });

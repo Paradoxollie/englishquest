@@ -18,7 +18,7 @@ export const course9: LessonContent = {
           <div className="bg-slate-900/40 p-4 rounded-lg border-l-4 border-amber-500">
             <h4 className="text-amber-400 font-bold uppercase mb-2">1. À quoi ça sert ?</h4>
             <p className="text-slate-200 text-lg mb-4">
-              En anglais, on ne peut pas parler d'une quantité non-précisée sans mettre un petit mot devant le nom.
+              En anglais, on ne peut pas parler d'une quantité non précisée sans mettre un petit mot devant le nom.
               <br />
               Si vous dites "I eat apple", on dirait un robot. Si vous dites "I eat apples", vous parlez des pommes en général (toutes les pommes du monde).
               <br /><br />
@@ -81,7 +81,7 @@ export const course9: LessonContent = {
               <span className="text-2xl">❓</span> Contexte : Inconnu (Any)
             </h4>
             <p className="text-slate-300 mb-2 text-sm">
-              Je ne sais pas si il y en a. Je demande "n'importe quelle quantité".
+              Je ne sais pas s'il y en a. Je demande "n'importe quelle quantité".
             </p>
             <p className="font-mono text-white bg-slate-900 p-2 rounded text-center">
               "Do you have <span className="text-blue-400 font-bold">ANY</span> ideas?"
@@ -233,7 +233,7 @@ export const course9: LessonContent = {
 
           <div className="bg-indigo-900/20 p-4 rounded-lg border border-indigo-500/30 text-center">
             <p className="text-indigo-300 text-sm">
-              <strong>L'Astuce de Secours :</strong> Si vous voulez vraiment compter (ex: "J'ai deux conseils"), utilisez une unité de mesure :
+              <strong>L'Astuce de Secours :</strong> Si vous voulez vraiment compter (ex. : "J'ai deux conseils"), utilisez une unité de mesure :
               <br />
               <span className="font-mono text-white mt-1 block">"I have two <span className="text-amber-400 font-bold">pieces of</span> advice."</span>
             </p>
@@ -270,7 +270,7 @@ export const course9: LessonContent = {
             },
             {
               id: 4,
-              question: "Can I have ___ water please?",
+              question: "Can I have ___ water, please?",
               options: ["any", "some", "much", "no"],
               correctAnswer: 1,
               explanation: "Exception de Politesse (Demande de service) ➔ SOME.",

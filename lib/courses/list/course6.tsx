@@ -30,7 +30,7 @@ export const course6: LessonContent = {
             </div>
             <p className="text-slate-400 text-sm mt-4 text-center max-w-md">
               Sans Auxiliaire, impossible de construire une phrase négative correcte. <br />
-              <span className="text-red-500/80 italic text-xs">(Ex: "I live not" n'existe pas)</span>
+              <span className="text-red-500/80 italic text-xs">(Ex. : "I live not" n'existe pas)</span>
             </p>
           </div>
         </div>
@@ -111,7 +111,7 @@ export const course6: LessonContent = {
 
             {/* DOES + NOT */}
             <div className="flex flex-col gap-2">
-              <p className="text-slate-400 text-xs uppercase font-bold">3ème personne (She, He, It)</p>
+              <p className="text-slate-400 text-xs uppercase font-bold">3e personne (She, He, It)</p>
               <div className="flex items-center gap-2 font-mono text-lg bg-slate-900 p-3 rounded border-l-4 border-amber-500">
                 <span className="text-amber-400">DOES</span>
                 <span className="text-slate-600">+</span>
@@ -128,7 +128,7 @@ export const course6: LessonContent = {
             <div>
               <p className="text-indigo-300 font-bold text-sm uppercase mb-1">Point de vigilance</p>
               <p className="text-slate-300 text-sm">
-                L'auxiliaire <strong>DOES</strong> capture déjà la marque de la 3ème personne ("S"). <br />
+                L'auxiliaire <strong>DOES</strong> capture déjà la marque de la 3e personne ("S"). <br />
                 Le verbe lexical reste donc à sa forme de base (Infinitif sans To).
                 <br /><span className="text-red-400 line-through text-xs mt-1 block">She doesn't plays</span> (Incorrect)
               </p>
@@ -143,7 +143,7 @@ export const course6: LessonContent = {
         <div className="space-y-6">
           <div className="relative bg-slate-900/60 rounded-xl p-6 border-l-4 border-purple-500 shadow-2xl backdrop-blur-sm">
             <p className="text-lg text-slate-100 leading-relaxed font-medium text-balance">
-              Pour exprimer l'absence de quelque chose (ex: <span className="italic">"Il n'a pas de lunettes"</span>), nous retrouvons la logique des deux écoles (comme pour les questions).
+              Pour exprimer l'absence de quelque chose (ex. : <span className="italic">"Il n'a pas de lunettes"</span>), nous retrouvons la logique des deux écoles (comme pour les questions).
             </p>
           </div>
 
@@ -171,7 +171,7 @@ export const course6: LessonContent = {
                   He <span className="text-purple-400 font-bold">hasn't</span> got glasses.
                 </p>
               </div>
-              <p className="text-slate-500 text-xs">Plus Formel / British 🇬🇧</p>
+              <p className="text-slate-500 text-xs">Plus courant à l'oral / British 🇬🇧</p>
             </div>
           </div>
 
@@ -209,7 +209,7 @@ export const course6: LessonContent = {
             <div className="bg-emerald-900/20 p-4 rounded-xl border border-emerald-500/50">
               <p className="text-emerald-400 font-bold uppercase text-xs mb-2">Structure Correcte</p>
               <p className="text-white font-mono text-lg">She <span className="text-white font-black underline decoration-emerald-500">never</span> smoke<span className="text-emerald-400 font-black">s</span>.</p>
-              <p className="text-emerald-300 text-xs mt-1">Le verbe garde sa conjugaison normale (3ème pers).</p>
+              <p className="text-emerald-300 text-xs mt-1">Le verbe garde sa conjugaison normale (3e pers.).</p>
             </div>
           </div>
         </div>
@@ -305,7 +305,7 @@ export const course6: LessonContent = {
               question: "He ___ play tennis anymore.",
               options: ["doesn't", "don't", "isn't", "not"],
               correctAnswer: 0,
-              explanation: "Sujet 'He' (3ème pers) + Verbe 'play'. ➔ Bodyguard DOESN'T.",
+              explanation: "Sujet 'He' (3e pers.) + Verbe 'play'. ➔ Bodyguard DOESN'T.",
             },
             {
               id: 4,
@@ -340,7 +340,7 @@ export const course6: LessonContent = {
               question: "It ___ matter.",
               options: ["don't", "isn't", "not", "doesn't"],
               correctAnswer: 3,
-              explanation: "Expression classique. It (3ème pers) + matter (verbe importer / compter). ➔ It DOESN'T matter.",
+              explanation: "Expression classique. It (3e pers.) + matter (verbe importer / compter). ➔ It DOESN'T matter.",
             },
             {
               id: 9,

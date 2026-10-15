@@ -27,7 +27,7 @@ export const course3: LessonContent = {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div className="bg-cyan-950/30 p-3 rounded-lg border border-cyan-500/30 relative overflow-hidden opacity-50">
                   <p className="text-cyan-200 text-sm mb-1">Sens 1 : L'action actuelle</p>
-                  <p className="text-white font-medium">"Je mange (la)."</p>
+                  <p className="text-white font-medium">"Je mange (là)."</p>
                   <p className="text-cyan-400 text-xs mt-1 font-mono">I am eating (Non)</p>
                 </div>
                 <div className="bg-emerald-900/30 p-3 rounded-lg border border-emerald-500/30 relative overflow-hidden shadow-[0_0_15px_rgba(16,185,129,0.3)]">
@@ -54,7 +54,7 @@ export const course3: LessonContent = {
             {[
               { type: "Affirmation (+)", formula: "I work", sub: "Simple et efficace", color: "emerald" },
               { type: "Négation (-)", formula: "I don't work", sub: "Besoin de l'assistant DO", color: "red" },
-              { type: "Question (?)", formula: "Do I work ?", sub: "L'assistant DO passe devant", color: "cyan" }
+              { type: "Question (?)", formula: "Do I work?", sub: "L'assistant DO passe devant", color: "cyan" }
             ].map((item, idx) => (
               <div key={idx} className={`h-full bg-slate-800/60 border border-${item.color}-500/30 rounded-xl p-6 hover:border-${item.color}-500 transition-all duration-300 group shadow-lg flex flex-col items-center text-center`}>
                 <div className={`text-${item.color}-400 text-xs font-bold uppercase tracking-widest mb-3 border-b border-${item.color}-500/30 pb-1 w-full`}>{item.type}</div>
@@ -69,7 +69,7 @@ export const course3: LessonContent = {
       ),
     },
     {
-      title: "2. La Règle d'Or : Danger à la 3ème Personne",
+      title: "2. La Règle d'Or : Danger à la 3e Personne",
       content: (
         <div className="space-y-6">
           <div className="bg-gradient-to-br from-amber-950/80 to-slate-900 border-l-4 border-amber-500 rounded-r-xl shadow-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 relative overflow-visible group">
@@ -148,7 +148,7 @@ export const course3: LessonContent = {
       content: (
         <div className="space-y-6">
           <p className="text-slate-200 text-lg leading-relaxed text-balance">
-            Ce temps est le meilleur ami des adverbes de fréquence. Ils indiquent la répétion.
+            Ce temps est le meilleur ami des adverbes de fréquence. Ils indiquent la répétition.
           </p>
 
           <div className="bg-slate-900/50 rounded-xl p-6 border border-slate-800">
@@ -274,10 +274,10 @@ export const course3: LessonContent = {
             },
             {
               id: 10,
-              question: "The sun ___ in the West.",
+              question: "The sun ___ in the west.",
               options: ["don't rise", "doesn't rises", "doesn't rise", "isn't rising"],
               correctAnswer: 2,
-              explanation: "Vérité générale (négative ici, le soleil ne se lève pas à l'Ouest). The Sun = It ➔ Doesn't + Base verbale (Rise).",
+              explanation: "Vérité générale (négative ici, le soleil ne se lève pas à l'ouest). The sun = It ➔ Doesn't + Base verbale (Rise).",
             },
           ]}
         />

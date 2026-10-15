@@ -1,0 +1,102 @@
+{
+  "course": 4,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : Don't call Léa now. She ___ for her test.",
+      "options": ["studies", "is studying", "study", "studying"],
+      "correctAnswer": 1,
+      "explanation": "Now montre que l'action est en cours : present continuous. Léa = she, donc is studying."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : Tom ___ football every Saturday.",
+      "options": ["is playing", "playing", "plays", "play"],
+      "correctAnswer": 2,
+      "explanation": "Every Saturday indique une habitude : present simple. Tom = he, donc le verbe prend un -s."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : I ___ help with my homework.",
+      "options": ["need", "am needing", "needing", "needs"],
+      "correctAnswer": 0,
+      "explanation": "Need (avoir besoin) est un verbe d'état : pas de -ing, même si c'est vrai en ce moment."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Quelle phrase décrit une situation temporaire ?",
+      "options": ["My aunt lives in Lyon.", "I go to bed at ten.", "Cats love fish.", "My cousin is staying with us this week."],
+      "correctAnswer": 3,
+      "explanation": "This week montre une situation provisoire : present continuous. Les autres phrases parlent de faits stables ou d'habitudes."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Ton amie est occupée. Comment lui demander ce qu'elle fait en ce moment ?",
+      "options": ["What do you do?", "What are you doing?", "What you are doing?", "What does you do?"],
+      "correctAnswer": 1,
+      "explanation": "On parle de ce moment précis : present continuous, avec are devant le sujet. What do you do? demande plutôt ce que la personne fait dans la vie."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : My dad never ___ the dishes.",
+      "options": ["washes", "is washing", "wash", "washing"],
+      "correctAnswer": 0,
+      "explanation": "Never est un adverbe de fréquence : il annonce une habitude, donc present simple. Wash se termine par sh, donc washes."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "Look! It ___ outside. Take your umbrella. (rain)",
+      "answers": ["is raining", "'s raining"],
+      "explanation": "Look! montre que ça se passe maintenant : present continuous, it + is + raining."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Leo ___ the piano every evening. (play)",
+      "answers": ["plays"],
+      "explanation": "Every evening indique une habitude : present simple. À la 3e personne, le verbe prend un -s."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "My little brother ___ a new bike for his birthday. (want)",
+      "answers": ["wants"],
+      "explanation": "Want (vouloir) est un verbe d'état : jamais de -ing. My little brother = he, donc wants."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "Where is Mum? She ___ in the garden. (work)",
+      "answers": ["is working", "'s working"],
+      "explanation": "On demande où est maman en ce moment : son action est en cours, donc present continuous."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["My sister is wearing my new jacket!"],
+      "translation": "Ma sœur porte ma nouvelle veste !",
+      "explanation": "Elle la porte en ce moment : present continuous, même si le français dit simplement « porte »."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["Does Chloé play tennis on Saturdays?"],
+      "translation": "Est-ce que Chloé joue au tennis le samedi ?",
+      "explanation": "On Saturdays indique une habitude : present simple. Question à la 3e personne : Does + sujet + base verbale."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["My dad doesn't like spiders."],
+      "translation": "Mon père n'aime pas les araignées.",
+      "explanation": "Like est un verbe d'état : present simple, jamais de -ing. À la 3e personne, la négation est doesn't."
+    }
+  ]
+}

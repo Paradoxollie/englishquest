@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 export const course10: LessonContent = {
   courseNumber: 10,
   title: "Les Articles (A / An / The / Ø)",
-  description: "La précision absolue : Un, Le, ou Rien.",
+  description: "La précision absolue : Un, Le ou Rien.",
   icon: "🔬",
   difficulty: "Difficile",
   objective: "Maîtriser enfin 'The' vs 'Rien' (Zero Article).",

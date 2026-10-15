@@ -122,7 +122,7 @@ export const course2: LessonContent = {
             {[
               { type: "Affirmation (+)", formula: "I am working", color: "cyan" },
               { type: "Négation (-)", formula: "I am NOT working", color: "red" },
-              { type: "Question (?)", formula: "Am I working ?", color: "emerald" }
+              { type: "Question (?)", formula: "Am I working?", color: "emerald" }
             ].map((item, idx) => (
               <div key={idx} className={`h-full bg-slate-800/60 border border-${item.color}-500/30 rounded-xl p-6 hover:border-${item.color}-500 transition-all duration-300 group shadow-lg flex flex-col items-center text-center`}>
                 <div className={`text-${item.color}-400 text-xs font-bold uppercase tracking-widest mb-3 border-b border-${item.color}-500/30 pb-1 w-full`}>{item.type}</div>
@@ -161,7 +161,7 @@ export const course2: LessonContent = {
               <div className="flex items-center gap-3 mb-3">
                 <span className="bg-purple-500/20 text-purple-400 font-bold px-2 py-1 rounded text-sm">Le "CVC" (Double)</span>
               </div>
-              <p className="text-slate-400 text-sm mb-3">Verbe court (1 syllabe) fini par <span className="text-white">Consonne-Voyelle-Consonne</span> ? On double la finale !</p>
+              <p className="text-slate-400 text-sm mb-3">Verbe court (1 syllabe) terminé par <span className="text-white">Consonne-Voyelle-Consonne</span> ? On double la finale !</p>
               <div className="mt-auto bg-slate-900/50 p-3 rounded-lg space-y-2 font-mono text-sm">
                 <div className="flex justify-between"><span className="text-slate-500">Run</span> <span className="text-purple-100">Run<span className="text-purple-400 font-bold underline decoration-2">n</span>ing</span></div>
                 <div className="flex justify-between"><span className="text-slate-500">Swim</span> <span className="text-purple-100">Swim<span className="text-purple-400 font-bold underline decoration-2">m</span>ing</span></div>
@@ -173,7 +173,7 @@ export const course2: LessonContent = {
               <div className="flex items-center gap-3 mb-3">
                 <span className="bg-cyan-500/20 text-cyan-400 font-bold px-2 py-1 rounded text-sm">Le "IE" Magique</span>
               </div>
-              <p className="text-slate-400 text-sm mb-3">Les verbes finis en "-ie" changent radicalement en "-y".</p>
+              <p className="text-slate-400 text-sm mb-3">Les verbes terminés en "-ie" changent radicalement en "-y".</p>
               <div className="mt-auto bg-slate-900/50 p-3 rounded-lg space-y-2 font-mono text-sm">
                 <div className="flex justify-between"><span className="text-slate-500">Die</span> <span className="text-cyan-100">D<span className="text-cyan-400 font-bold">y</span>ing</span></div>
                 <div className="flex justify-between"><span className="text-slate-500">Lie</span> <span className="text-cyan-100">L<span className="text-cyan-400 font-bold">y</span>ing</span></div>
@@ -198,7 +198,7 @@ export const course2: LessonContent = {
             <div className="flex-1">
               <h4 className="font-bold text-white text-2xl mb-3 tracking-tight">Interdit aux Sentiments 🚫</h4>
               <p className="text-slate-300 text-lg leading-relaxed mb-6 text-balance">
-                En anglais, on ne met <strong className="text-red-400 uppercase">JAMAIS</strong> de "-ing" aux verbes qui décrivent ce que vous ressentez, pensez, ou possédez. Ce sont des états, pas des actions actives.
+                En anglais, on ne met <strong className="text-red-400 uppercase">JAMAIS</strong> de "-ing" aux verbes qui décrivent ce que vous ressentez, pensez ou possédez. Ce sont des états, pas des actions actives.
               </p>
 
               <div className="grid md:grid-cols-2 gap-4">
@@ -243,7 +243,7 @@ export const course2: LessonContent = {
               question: "Complétez : She ___ (watch) TV.",
               options: ["is watching", "are watching", "watches", "is watch"],
               correctAnswer: 0,
-              explanation: "She (3ème pers.) + is + watching.",
+              explanation: "She (3e pers.) + is + watching.",
             },
             {
               id: 3,
