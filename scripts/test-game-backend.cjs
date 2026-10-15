@@ -352,14 +352,17 @@ async function main() {
   assert.equal(guestDone.placed.chapterId, 1);
   assert.equal(guestDone.guestToken, "signed-1");
   assert.equal(placementWrites, writesBeforeGuest, "a guest placement never writes to the database");
+  let badgeSyncs = 0;
   const examAction = loadTs("app/(protected)/examen/[chapter]/actions.ts", {
     "next/cache": { revalidatePath: () => {} },
     "@/lib/supabase/server": serverAuth,
     "@/lib/exams/exams": { ...scoped.exams, isChapterCompleted: async () => true },
+    "@/lib/profile/badges-server": { syncBadgesSafely: async () => { badgeSyncs += 1; return []; } },
   });
   assert("error" in await examAction.submitChapterExamAction(2, fullExamAnswers));
   assert("error" in await examAction.submitChapterExamAction(1, Object.fromEntries(Object.entries(fullExamAnswers).slice(0, 12))));
   assert.equal(scoped.db.chapter_exams.length, 0, "invalid exam submissions must not save or grant rewards");
+  assert.equal(badgeSyncs, 0, "invalid exam submissions must not sync badges");
   console.log("PASS: Grammar Rush bounds and scoring; Paris day boundaries in 3 host timezones; concurrent rewards; daily bonus deduplication; complete leaderboards and personal bests.");
   console.log("PASS: Concurrent course completion once; course + game rewards; blocked course; course reward failure restores claim.");
   console.log("PASS: Exam transaction calls; simultaneous first passes once; exam + game rewards; invalid result rejected; failed transaction retains no pass or reward.");

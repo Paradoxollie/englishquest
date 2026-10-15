@@ -16,6 +16,8 @@ import {
   type CourseRoadmapEntry,
 } from "@/lib/courses/progress";
 import { getPlacementStatus, isPlacementSkip } from "@/lib/placement/placement";
+import { getUserCoursePractice } from "@/lib/courses/practice-server";
+import { getMissionStars, STARS_PER_MISSION, sumStars } from "@/lib/courses/stars";
 import { getChapterExamReward, getLevelProgress } from "@/lib/profile/economy";
 import { EXAM_QUESTION_COUNT, examStatus, getUserChapterExams } from "@/lib/exams/exams";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -94,7 +96,7 @@ export default async function QuestPage() {
   const currentCourse = roadmap.currentCourse ?? roadmap.recommendedCourse ?? roadmap.entries[0] ?? null;
   const fallbackName = user?.user_metadata?.username ?? (user?.email ? user.email.split("@")[0] : undefined);
 
-  const [missionPlans, player, missionState, placement, examRecords] = await Promise.all([
+  const [missionPlans, player, missionState, placement, examRecords, practice] = await Promise.all([
     getResolvedCourseMissionPlans(roadmap.entries),
     user ? getPlayerSummary(user.id, fallbackName) : Promise.resolve(null),
     user && currentCourse && currentCourse.status !== "locked"
@@ -102,7 +104,12 @@ export default async function QuestPage() {
       : Promise.resolve(null),
     user ? getPlacementStatus(user.id) : Promise.resolve({ taken: false, chapter: null }),
     user ? getUserChapterExams(user.id) : Promise.resolve([]),
+    user ? getUserCoursePractice(user.id) : Promise.resolve(new Map<number, number>()),
   ]);
+  const starsByCourse = new Map(
+    roadmap.entries.map((entry) => [entry.courseId, getMissionStars(entry, practice.get(entry.courseId))])
+  );
+  const totalStars = sumStars([...starsByCourse.values()]);
 
   const entriesById = new Map(roadmap.entries.map((entry) => [entry.courseId, entry]));
   const mapChapters: MapChapter[] = chapters.map((chapter) => {
@@ -118,6 +125,8 @@ export default async function QuestPage() {
           shortName: getCourseShortName(title),
           status: entry.status,
           placed: isPlacementSkip(entry.missionTelemetry),
+          stars: user ? starsByCourse.get(entry.courseId) ?? null : null,
+          practiceBest: practice.get(entry.courseId) ?? 0,
           isCurrent: currentCourse?.courseId === entry.courseId,
           estimatedMinutes: entry.estimatedMinutes,
           rewardXp: entry.rewardXp,
@@ -252,6 +261,14 @@ export default async function QuestPage() {
         <span><i className="eq-legend-dot is-completed" /> Validée</span>
         <span><i className="eq-legend-dot is-current" /> En cours</span>
         <span><i className="eq-legend-dot is-locked" /> À venir, lisible quand même</span>
+        {user ? (
+          <span className="eq-quest-legend-stars">
+            <b>
+              Étoiles : {totalStars} / {roadmap.entries.length * STARS_PER_MISSION}
+            </b>{" "}
+            Une pour la mission validée, une pour le quiz à 10 sur 10, une pour 5 bonnes réponses ciblées dans Grammar Rush.
+          </span>
+        ) : null}
       </div>
 
       <div className="eq-container eq-quest-map-wrap">

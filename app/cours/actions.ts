@@ -14,6 +14,7 @@ import {
   recordCourseReadingCheckpoint,
   submitCourseQuizResult,
 } from "@/lib/courses/mission-state";
+import { syncBadgesSafely } from "@/lib/profile/badges-server";
 
 async function getAuthenticatedUserId() {
   const supabase = await createSupabaseServerClient();
@@ -159,6 +160,8 @@ export async function submitCourseQuizAction(params: {
         courseCompleted = { ...result.rewards, newLevel: result.newLevel };
       }
     }
+    // Après la validation : mission, chapitre, niveau ou quiz parfait peuvent débloquer un badge.
+    const newBadges = await syncBadgesSafely(userId);
 
     revalidateCourseSurfaces(params.courseNumber);
 
@@ -166,6 +169,7 @@ export async function submitCourseQuizAction(params: {
       success: true,
       missionState,
       courseCompleted,
+      newBadges,
     };
   } catch (error) {
     console.error("submitCourseQuizAction failed", error);

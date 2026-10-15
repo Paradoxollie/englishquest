@@ -3,8 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { MissionStarsLegend, MissionStarsRow } from "@/components/rewards/mission-stars";
 import type { MissionSummary } from "@/lib/courses/mission-summary";
 import type { CourseStatus } from "@/lib/courses/progress";
+import { describeMissionStars, PRACTICE_STAR_TARGET, type MissionStars } from "@/lib/courses/stars";
 
 export type MapNode = {
   courseId: number;
@@ -13,6 +15,10 @@ export type MapNode = {
   status: CourseStatus;
   /** Validé par le test de niveau, pas joué. */
   placed?: boolean;
+  /** Étoiles du joueur connecté (null pour un invité). */
+  stars?: MissionStars | null;
+  /** Meilleur entraînement ciblé sur ce cours (bonnes réponses dans une partie). */
+  practiceBest?: number;
   isCurrent: boolean;
   estimatedMinutes: number;
   rewardXp: number;
@@ -163,10 +169,14 @@ export function AdventureMap({ chapters, mission, player, isLoggedIn }: Adventur
               {chapter.nodes.map((node, index) => {
                 const { x, y } = points[index];
                 const isSelected = selected?.courseId === node.courseId;
+                // Étoiles visibles dès qu'une est gagnée, ou sur une mission validée en jouant.
+                const showStars = Boolean(
+                  node.stars && (node.stars.count > 0 || (node.status === "completed" && !node.placed))
+                );
                 return (
                   <div
                     key={node.courseId}
-                    className="eq-node-slot"
+                    className={`eq-node-slot${showStars ? " has-stars" : ""}`}
                     style={{ left: `${x}%`, top: y }}
                     id={node.isCurrent ? "mission-courante" : undefined}
                   >
@@ -175,7 +185,9 @@ export function AdventureMap({ chapters, mission, player, isLoggedIn }: Adventur
                       className={`eq-node is-${node.status} ${node.isCurrent ? "is-current" : ""}`}
                       onClick={() => setSelectedId(node.courseId)}
                       aria-pressed={isSelected}
-                      aria-label={`Mission ${node.courseId}, ${node.title}, ${statusLabel(node)}`}
+                      aria-label={`Mission ${node.courseId}, ${node.title}, ${statusLabel(node)}${
+                        showStars && node.stars ? `, ${describeMissionStars(node.stars)}` : ""
+                      }`}
                     >
                       {node.isCurrent && player ? (
                         <span className="eq-node-player" aria-hidden="true">
@@ -188,6 +200,11 @@ export function AdventureMap({ chapters, mission, player, isLoggedIn }: Adventur
                         </span>
                       ) : null}
                       <span className="eq-node-face">{node.status === "completed" ? "✓" : node.courseId}</span>
+                      {showStars && node.stars ? (
+                        <span className="eq-node-stars" aria-hidden="true">
+                          <MissionStarsRow stars={node.stars} />
+                        </span>
+                      ) : null}
                     </button>
                     <span className="eq-node-label">{node.shortName}</span>
                   </div>
@@ -224,6 +241,13 @@ export function AdventureMap({ chapters, mission, player, isLoggedIn }: Adventur
                     Mission {selected.courseId} · {statusLabel(selected)}
                   </p>
                   <p className="eq-map-card-title">{selected.title}</p>
+                  {selected.stars && !selected.placed ? (
+                    <MissionStarsLegend
+                      stars={selected.stars}
+                      practiceBest={selected.practiceBest ?? 0}
+                      practiceTarget={PRACTICE_STAR_TARGET}
+                    />
+                  ) : null}
                   <div className="eq-map-card-chips">
                     <span className="eq-chip eq-chip-muted">{selected.estimatedMinutes} min</span>
                     <span className="eq-chip eq-chip-gold-soft">

@@ -2,6 +2,7 @@
 import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
 import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
 import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
+import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 
 /**
  * Server Actions for Wordfall
@@ -121,6 +122,7 @@ export async function submitWordfallScore(params: {
   isNewGlobalBest?: boolean;
   personalBest?: number;
   courseCompleted?: AutoCompletedCourse | null;
+  newBadges?: NewBadge[];
   dailyChallenge?: {
     dailyPlayedGames: string[];
     requiredGames: string[];
@@ -238,6 +240,7 @@ export async function submitWordfallScore(params: {
     const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
     const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "wordfall");
     const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "wordfall", session.score);
+    const newBadges = await syncBadgesSafely(user.id);
 
     return {
       success: true,
@@ -248,6 +251,7 @@ export async function submitWordfallScore(params: {
       },
       dailyChallenge: dailyChallengeResult,
       courseCompleted,
+      newBadges,
       isNewPersonalBest,
       isNewGlobalBest,
       personalBest: isNewPersonalBest ? session.score : currentPersonalBest,

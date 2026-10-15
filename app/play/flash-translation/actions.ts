@@ -2,6 +2,7 @@
 import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
 import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
 import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
+import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 
 /**
  * Server Actions for Flash Translation
@@ -139,6 +140,7 @@ export async function submitFlashTranslationScore(params: {
     isNewGlobalBest?: boolean;
     personalBest?: number;
     courseCompleted?: AutoCompletedCourse | null;
+    newBadges?: NewBadge[];
     dailyChallenge?: {
         dailyPlayedGames: string[];
         requiredGames: string[];
@@ -253,6 +255,7 @@ export async function submitFlashTranslationScore(params: {
         const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
         const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "flash-translation");
         const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "flash-translation", session.totalTimeMs);
+        const newBadges = await syncBadgesSafely(user.id);
 
         return {
             success: true,
@@ -262,7 +265,8 @@ export async function submitFlashTranslationScore(params: {
                 newLevel: granted.level > granted.previousLevel ? granted.level : undefined,
             },
             dailyChallenge: dailyChallengeResult,
-          courseCompleted,
+            courseCompleted,
+            newBadges,
             isNewPersonalBest,
             isNewGlobalBest,
             personalBest: isNewPersonalBest ? session.totalTimeMs : currentPersonalBest,

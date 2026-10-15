@@ -10,6 +10,7 @@ for (const script of [
   'scripts/tests/course-question-invariants.cjs',
   'scripts/tests/exercise-invariants.cjs',
   'scripts/tests/auth-pagination-regression.cjs',
+  'scripts/tests/rewards-regression.cjs',
 ]) {
   const result = spawnSync(process.execPath, [script], { cwd: root, stdio: 'inherit' });
   if (result.error) throw result.error;

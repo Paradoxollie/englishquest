@@ -6,12 +6,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   GRAMMAR_RUSH_TIME_MS,
   answerRush,
+  countFocusCorrect,
   createRushState,
   currentRushQuestion,
   rushMultiplier,
   type RushQuestion,
   type RushState,
 } from "@/lib/games/grammar-rush";
+import { PRACTICE_STAR_TARGET } from "@/lib/courses/stars";
 import { GameEnd, GameHud, GameStart, HudStat, TimeBar, type RewardSummary } from "@/components/play/game-screens";
 import { submitGrammarRushScore } from "./actions";
 
@@ -26,11 +28,14 @@ export function GrammarRushGame({
   isLoggedIn,
   missionTarget,
   levelLabel,
+  focusCourseId = null,
 }: {
   queue: RushQuestion[];
   isLoggedIn: boolean;
   missionTarget: number | null;
   levelLabel: string;
+  /** Cours ciblé : ses bonnes réponses comptent pour l'étoile d'entraînement. */
+  focusCourseId?: number | null;
 }) {
   const router = useRouter();
   const [phase, setPhase] = useState<"start" | "playing" | "ended">("start");
@@ -167,6 +172,8 @@ export function GrammarRushGame({
       correct: final.correct,
       attempts: final.attempts,
       durationMs: Math.min(GRAMMAR_RUSH_TIME_MS, Date.now() - startedAtRef.current),
+      focusCourseId,
+      focusCorrect: countFocusCorrect(final, focusCourseId),
     })
       .then((result) => {
         if (run !== runRef.current) return;
@@ -185,9 +192,12 @@ export function GrammarRushGame({
                 courseNumber: result.courseCompleted.courseNumber,
                 courseTitle: result.courseCompleted.courseTitle,
                 rewards: result.courseCompleted.rewards,
+                newLevel: result.courseCompleted.newLevel,
               }
             : null,
           dailyChallenge: result.dailyChallenge ?? null,
+          newBadges: result.newBadges ?? [],
+          practice: result.practice ?? null,
         });
         setSubmitStatus("saved");
         router.refresh();
@@ -195,7 +205,7 @@ export function GrammarRushGame({
       .catch(() => {
         if (run === runRef.current) setSubmitStatus("error");
       });
-  }, [phase, isLoggedIn, router]);
+  }, [phase, isLoggedIn, router, focusCourseId]);
 
   if (phase === "start") {
     return (
@@ -207,6 +217,9 @@ export function GrammarRushGame({
           "Une erreur ne retire rien mais remet la série à zéro, et la bonne réponse s'affiche.",
           "Au clavier : touches 1 à 4.",
           missionTarget ? `Objectif de mission : ${missionTarget} points.` : "À la fin, chaque question ratée renvoie vers son cours.",
+          ...(focusCourseId && isLoggedIn
+            ? [`Étoile d'entraînement : ${PRACTICE_STAR_TARGET} bonnes réponses sur les questions du cours ${focusCourseId} dans une même partie.`]
+            : []),
         ]}
         onStart={start}
       />

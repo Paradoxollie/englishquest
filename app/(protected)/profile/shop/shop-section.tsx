@@ -105,7 +105,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
     const result = await purchaseShopItemAction(item.id);
 
     if (result.success) {
-      setSuccess(`${item.name} achete avec succes.`);
+      setSuccess(`${item.name} est à toi. Équipe-le quand tu veux.`);
 
       const supabase = createSupabaseBrowserClient();
       const { data: owned } = await supabase
@@ -148,7 +148,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
       const result = await equipItemAction(itemId, type);
 
       if (result.success) {
-        setSuccess("Item équipe avec succès.");
+        setSuccess(itemId ? "Objet équipé." : "Objet retiré.");
 
         const supabase = createSupabaseBrowserClient();
         const { data: equipped } = await supabase
@@ -231,7 +231,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
                   : "bg-slate-700 text-white hover:bg-slate-600"
               }`}
             >
-              {type === "avatar" ? "Avatars" : type === "title" ? "Titres" : "Backgrounds"}
+              {type === "avatar" ? "Avatars" : type === "title" ? "Titres" : "Fonds"}
             </button>
           ))}
         </div>
@@ -263,6 +263,12 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
               }`}
             >
               <div className="space-y-3">
+                {item.item_type === "title" && !item.image_url ? (
+                  // Titre en texte : une plaque avec le titre tel qu'il s'affiche sous le pseudo.
+                  <div className="eq-shop-title-plate" aria-hidden="true">
+                    <span>{item.name}</span>
+                  </div>
+                ) : (
                 <div
                   className="flex items-center justify-center overflow-hidden rounded-lg border-2 border-black bg-slate-900"
                   style={{ aspectRatio: "2/3", width: "100%" }}
@@ -281,6 +287,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
                     </div>
                   )}
                 </div>
+                )}
 
                 <div>
                   <h3 className="text-lg font-bold text-white text-outline">{item.name}</h3>
@@ -322,7 +329,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
                         touchAction: "manipulation",
                       }}
                     >
-                      {isEquipped ? "Desequiper" : "Equiper"}
+                      {isEquipped ? "Retirer" : "Équiper"}
                     </button>
                   ) : (
                     <button
