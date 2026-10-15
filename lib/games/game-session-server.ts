@@ -41,8 +41,9 @@ function isMissingTable(error: unknown) {
 
 async function sessionsTableMissing() {
   if (tableCheck && Date.now() - tableCheck.at < ONE_MINUTE_MS) return tableCheck.missing;
-  const probe = await createSupabaseAdminClient().from("game_sessions").select("id", { head: true }).limit(1);
-  const missing = isMissingTable(probe.error);
+  // Requête GET (pas HEAD) : une table absente renvoie alors un code d'erreur lisible.
+  const probe = await createSupabaseAdminClient().from("game_sessions").select("id").limit(1);
+  const missing = isMissingTable(probe.error) || (Boolean(probe.error) && probe.status === 404);
   if (missing) console.warn("game_sessions absente : sessions de partie désactivées (migration 2026-10-16_20 à appliquer)");
   tableCheck = { missing, at: Date.now() };
   return missing;
