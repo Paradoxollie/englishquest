@@ -10,6 +10,8 @@ import { syncBadgesSafely } from "@/lib/profile/badges-server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { consumeGameSession } from "@/lib/games/game-session-server";
+import { checkFlashback } from "@/lib/games/score-plausibility";
 
 const DEFAULT_DIFFICULTY = "medium" as const;
 
@@ -43,10 +45,14 @@ async function resolveFlashbackGameId(adminClient: ReturnType<typeof createSupab
 export async function submitEchoLexScore(params: {
     score: number;
     durationMs: number;
+    sessionId?: string | null;
 }) {
     try {
-        if (!Number.isSafeInteger(params.score) || params.score < 0 || !Number.isFinite(params.durationMs) || params.durationMs < 0) {
+        if (!Number.isSafeInteger(params.score) || params.score < 0 || !Number.isSafeInteger(params.durationMs) || params.durationMs < 0 || params.durationMs > 2 * 60 * 60 * 1000) {
             return { success: false, error: "Score Flashback invalide" };
+        }
+        if (!checkFlashback(params).ok) {
+            return { success: false, error: "Score Flashback invraisemblable" };
         }
         const supabase = await createSupabaseServerClient();
         const adminClient = createSupabaseAdminClient();
@@ -58,6 +64,16 @@ export async function submitEchoLexScore(params: {
 
         if (userError || !user) {
             return { success: false, error: "User not authenticated" };
+        }
+
+        const gameSession = await consumeGameSession({
+            sessionId: params.sessionId,
+            userId: user.id,
+            slug: "flashback",
+            claimedDurationMs: params.durationMs,
+        });
+        if (!gameSession.ok) {
+            return { success: false, error: gameSession.error };
         }
 
         // Get the Echo Lex game ID

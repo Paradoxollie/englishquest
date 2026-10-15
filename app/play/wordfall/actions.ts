@@ -16,6 +16,8 @@ import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { type Difficulty } from "@/lib/profile/leveling";
+import { consumeGameSession } from "@/lib/games/game-session-server";
+import { checkWordfall } from "@/lib/games/score-plausibility";
 
 /**
  * Map Wordfall mode to difficulty string for database
@@ -110,6 +112,7 @@ export async function submitWordfallScore(params: {
   score: number;
   wordsCompleted: number;
   durationMs: number;
+  sessionId?: string | null;
 }): Promise<{
   success: boolean;
   error?: string;
@@ -140,6 +143,9 @@ export async function submitWordfallScore(params: {
         error: session.error,
       };
     }
+    if (!checkWordfall(session).ok) {
+      return { success: false, error: "Score Wordfall invraisemblable" };
+    }
 
     const supabase = await createSupabaseServerClient();
     const adminClient = createSupabaseAdminClient();
@@ -155,6 +161,16 @@ export async function submitWordfallScore(params: {
         success: false,
         error: "User not authenticated",
       };
+    }
+
+    const gameSession = await consumeGameSession({
+      sessionId: params.sessionId,
+      userId: user.id,
+      slug: "wordfall",
+      claimedDurationMs: session.durationMs,
+    });
+    if (!gameSession.ok) {
+      return { success: false, error: gameSession.error };
     }
 
     // Get the Wordfall game ID

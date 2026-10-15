@@ -34,10 +34,15 @@ import {
   updateSuperState,
   advanceDialogue,
   closeDialogue,
+  isBeginnerLevel,
 } from "@/lib/games/spaceLexShooter";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
 import { GameEnd, GameHud, GameStart, HudStat, type RewardSummary } from "@/components/play/game-screens";
+import { LevelPicker } from "@/components/play/level-picker";
+import { useGameFocusMode } from "@/components/play/use-game-focus-mode";
+import { useGameSession } from "@/components/play/use-game-session";
+import { DEFAULT_GAME_LEVEL, type GameLevel } from "@/lib/games/levels";
 
 
 // Professional Pixel Art Ship Component based on provided image
@@ -401,7 +406,16 @@ function SpaceShip({ x, isRunning, skinImageUrl }: { x: number; isRunning: boole
 // Types for score submission results
 type ScoreResult = RewardSummary;
 
-export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolean; missionTarget: number | null }) {
+export function SpaceLexGame({
+  isLoggedIn,
+  missionTarget,
+  suggestedLevel,
+}: {
+  isLoggedIn: boolean;
+  missionTarget: number | null;
+  suggestedLevel: GameLevel | null;
+}) {
+  const [level, setLevel] = useState<GameLevel>(suggestedLevel ?? DEFAULT_GAME_LEVEL);
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [shipSkinImageUrl, setShipSkinImageUrl] = useState<string | null>(null);
   const [isPaused, setIsPaused] = useState(false);
@@ -421,6 +435,8 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
   const lastUpdateRef = useRef<number>(Date.now());
   const pausedAtRef = useRef<number>(0);
   const gameAreaRef = useRef<HTMLDivElement>(null);
+  const gameSession = useGameSession("space-lex", isLoggedIn);
+  useGameFocusMode(Boolean(gameState?.isRunning && !gameState.gameOver && !isPaused));
 
   // Load default ship skin (first ship_skin item, or user's equipped skin)
   useEffect(() => {
@@ -482,15 +498,16 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
 
   // Initialize game
   useEffect(() => {
-    const newState = createGameState();
+    const newState = createGameState(suggestedLevel ?? DEFAULT_GAME_LEVEL);
     setGameState(newState);
-  }, []);
+  }, [suggestedLevel]);
 
   // Start the game
   const handleStartGame = useCallback(() => {
     if (!gameState) return;
     sessionRef.current += 1;
-    const newState = startGame(gameState);
+    gameSession.begin();
+    const newState = startGame(createGameState(level));
     setGameState(newState);
     setIsPaused(false);
     setKeysPressed(new Set());
@@ -501,7 +518,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
     setScoreResult(null);
     setScoreError(false);
     setIsSubmittingScore(false);
-  }, [gameState]);
+  }, [gameState, gameSession, level]);
 
   // Pause/Resume
   const handlePauseToggle = useCallback(() => {
@@ -529,6 +546,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
   const handleReset = useCallback(() => {
     if (!gameState) return;
     sessionRef.current += 1;
+    gameSession.cancel();
     const newState = resetGame(gameState);
     setGameState(newState);
     setIsPaused(false);
@@ -539,7 +557,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
     setScoreResult(null);
     setScoreError(false);
     setIsSubmittingScore(false);
-  }, [gameState]);
+  }, [gameState, gameSession]);
 
   // Submit score when game ends
   useEffect(() => {
@@ -550,17 +568,17 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
       setIsSubmittingScore(true);
       scoreSubmittedRef.current = true;
 
-      const durationMs = Date.now() - gameStartTimeRef.current;
+      const final = {
+        score: gameState.score,
+        wave: gameState.waveNumber,
+        maxCombo: gameState.maxCombo,
+        wordsMastered: gameState.learnedWords.length,
+        wordsMissed: gameState.missedWords.length,
+      };
 
       try {
-        const result = await submitLexiconBlasterScore({
-          score: gameState.score,
-          wave: gameState.waveNumber,
-          maxCombo: gameState.maxCombo,
-          wordsMastered: gameState.learnedWords.length,
-          wordsMissed: gameState.missedWords.length,
-          durationMs,
-        });
+        const { sessionId, durationMs } = await gameSession.finish(Date.now() - gameStartTimeRef.current);
+        const result = await submitLexiconBlasterScore({ ...final, durationMs, sessionId });
         if (session !== sessionRef.current) return;
 
         if (result.success && result.rewards) {
@@ -594,7 +612,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
     };
 
     submitScore();
-  }, [gameState?.gameOver, gameState?.score, gameState?.waveNumber, gameState?.maxCombo, gameState?.learnedWords.length, gameState?.missedWords.length, isLoggedIn, isSubmittingScore]);
+  }, [gameState?.gameOver, gameState?.score, gameState?.waveNumber, gameState?.maxCombo, gameState?.learnedWords.length, gameState?.missedWords.length, isLoggedIn, isSubmittingScore, gameSession]);
 
   const handleActivateSuper = useCallback(() => {
     if (isPaused) return;
@@ -836,16 +854,28 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
     return (
       <GameStart
         title="Paré au décollage ?"
-        intro="Des mots arrivent du fond de l'espace. La mission en haut de l'écran dit lesquels viser : famille de mots, connecteurs, synonymes. Tire sur les bons, laisse passer les autres."
+        intro="Des mots arrivent du fond de l'espace. La mission en haut de l'écran dit lesquels viser : les mots d'un thème, des synonymes ou des connecteurs. Tire sur les bons, laisse passer les autres."
         rules={[
           "Tirer sur un mot hors mission ou laisser passer un bon mot coûte une vie.",
           "Les mots touchés remplissent la barre EMP : à 100 %, espace déclenche une onde qui nettoie l'écran.",
           "Ordinateur : flèches ou A/D pour bouger, tir automatique. Mobile : glisse le doigt.",
           missionTarget ? `Objectif de mission : ${missionTarget} points.` : "Les vagues s'enchaînent, avec un boss régulièrement.",
+          isBeginnerLevel(level)
+            ? "Niveaux Débutant et Élémentaire : consignes en français, mots courants, pas de connecteurs."
+            : "À partir du niveau Intermédiaire : consignes en anglais et connecteurs logiques.",
         ]}
         onStart={handleStartGame}
         startLabel="Décoller"
-      />
+      >
+        <LevelPicker
+          value={level}
+          onChange={(next) => {
+            setLevel(next);
+            setGameState(createGameState(next));
+          }}
+          suggested={suggestedLevel}
+        />
+      </GameStart>
     );
   }
 
@@ -895,7 +925,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
 
   return (
     <div className="eq-game-play">
-      <GameHud>
+      <GameHud onQuit={handleReset}>
         <HudStat label="Score" value={gameState.score} tone="gold" />
         <HudStat label="Vies" value={"●".repeat(Math.max(0, gameState.lives))} tone={gameState.lives <= 1 ? "coral" : "mint"} />
         <HudStat label="Vague" value={gameState.waveNumber} tone="cyan" hint={`niveau ${gameState.level}`} />
@@ -930,11 +960,8 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
             y: [0, 5, -5, 5, -5, 0],
           } : { x: 0, y: 0 }}
           transition={{ duration: 0.3 }}
-          className={`eq-game-arcade eq-space ${comboBurst ? "is-right" : ""}`}
-          style={{
-            height: isMobile ? "440px" : "600px",
-            touchAction: "none",
-          }}
+          className={`eq-game-arcade eq-space eq-space-stage ${comboBurst ? "is-right" : ""}`}
+          style={{ touchAction: "none" }}
           data-testid="space-stage"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -1223,30 +1250,37 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
               >
                 <div className="eq-space-overlay-card is-cyan">
                   <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-16 h-16 bg-slate-800 border border-slate-700 rounded-md flex items-center justify-center text-2xl">
-                      {gameState.currentDialogue.lines[gameState.dialogueIndex].speaker === "COMMANDER" ? "👨‍✈️" : "🤖"}
+                    <div className="eq-space-speaker" aria-hidden="true">
+                      {gameState.currentDialogue.lines[gameState.dialogueIndex].speaker === "COMMANDER" ? "CDT" : "IA"}
                     </div>
                     <div className="flex-1">
                       <div className="text-cyan-400 font-black text-xs md:text-sm tracking-widest mb-1 italic">
                         {gameState.currentDialogue.lines[gameState.dialogueIndex].speaker}
                       </div>
-                      <div className="text-white text-sm md:text-base font-bold leading-tight min-h-[3em]">
+                      <div className="text-white text-sm md:text-base font-bold leading-tight min-h-[3em]" lang="en">
                         {gameState.currentDialogue.lines[gameState.dialogueIndex].text}
                       </div>
+                      {gameState.currentDialogue.lines[gameState.dialogueIndex].subtitle ? (
+                        <p className="eq-space-subtitle" lang="fr">
+                          {gameState.currentDialogue.lines[gameState.dialogueIndex].subtitle}
+                        </p>
+                      ) : null}
                     </div>
                   </div>
                   <div className="mt-3 flex justify-end gap-3">
                     <button
+                      type="button"
                       onClick={handleCloseDialogue}
-                      className="text-[10px] font-black text-slate-500 hover:text-white transition-colors"
+                      className="text-xs font-black text-slate-400 hover:text-white transition-colors"
                     >
-                      SKIP
+                      Passer
                     </button>
                     <button
+                      type="button"
                       onClick={handleAdvanceDialogue}
                       className="px-4 py-1 bg-cyan-600 hover:bg-cyan-500 border border-cyan-400 text-white font-black text-xs md:text-sm shadow-[2px_2px_0_#083344] active:translate-y-0.5 active:shadow-none"
                     >
-                      {gameState.dialogueIndex < (gameState.currentDialogue.lines.length - 1) ? "NEXT >" : "CONTINUE"}
+                      {gameState.dialogueIndex < (gameState.currentDialogue.lines.length - 1) ? "Suite" : "C'est parti"}
                     </button>
                   </div>
                 </div>
@@ -1317,7 +1351,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-[10px] md:text-xs font-black text-white text-outline-sm uppercase tracking-wider">
-                  {gameState.waveProgress} / {gameState.waveTarget} TARGETS ACQUIRED
+                  {gameState.waveProgress} / {gameState.waveTarget} cibles
                 </span>
               </div>
             </div>

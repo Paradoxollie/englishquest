@@ -4859,6 +4859,128 @@ h4 {
 }
 
 .eq-welcome-coin {
+
+   Jeux : niveaux, traductions, Quitter et mode concentration (16/10/2026)
+   ------------------------------------------------------------------ */
+
+/* Choix du niveau de vocabulaire sur l'écran de départ */
+
+.eq-level-picker {
+  display: grid;
+  gap: 8px;
+}
+
+.eq-level-picker-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.eq-level-picker-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  gap: 6px;
+}
+
+.eq-level-chip {
+  display: grid;
+  gap: 1px;
+  justify-items: start;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--ink);
+  color: var(--fg);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.eq-level-chip b {
+  font-family: var(--font-display);
+  font-size: 0.92rem;
+  line-height: 1.15;
+}
+
+.eq-level-chip span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.eq-level-chip[aria-checked="true"] {
+  border-color: var(--gold);
+  background: var(--gold-soft);
+}
+
+.eq-level-chip:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+.eq-level-picker-note {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* Traductions : Enigma Scroll et Flashback */
+
+.eq-enigma-meaning {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-top: 4px;
+}
+
+.eq-enigma-meaning b {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  letter-spacing: 0.04em;
+}
+
+.eq-enigma-meaning span {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.eq-enigma-reveal {
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line-strong);
+  background: var(--ink);
+}
+
+.eq-game-prompt-meaning {
+  margin-top: 8px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.eq-game-review-scroll {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Lexicon Blaster : zone de jeu, interlocuteur, sous-titres */
+
+.eq-space-stage {
+  height: 440px;
+}
+
+@media (min-width: 768px) {
+  .eq-space-stage {
+    height: 600px;
+  }
+}
+
+.eq-space-speaker {
+  flex-shrink: 0;
   display: grid;
   place-items: center;
   width: 48px;
@@ -5110,4 +5232,202 @@ h4 {
 
 .eq-levelup .eq-btn {
   width: 100%;
+
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--ink-3);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: var(--cyan);
+}
+
+.eq-space-subtitle {
+  margin: 6px 0 0;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+/* Bouton Quitter du HUD : visible seulement en mode concentration */
+
+.eq-game-quit {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line-strong);
+  background: var(--ink-3);
+  color: var(--fg);
+  font: 700 0.78rem/1 var(--font-body);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.eq-game-quit:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+/*
+ * Mode concentration (téléphone, partie en cours) : classe posée sur <body>
+ * par useGameFocusMode. La zone de jeu occupe la partie visible de l'écran
+ * (--eq-vv-height et --eq-vv-top suivent window.visualViewport), au-dessus
+ * du clavier du téléphone quand il est ouvert.
+ */
+@media (max-width: 767px) {
+  body.eq-game-focus {
+    overflow: hidden;
+  }
+
+  body.eq-game-focus .eq-header,
+  body.eq-game-focus .eq-footer,
+  body.eq-game-focus .eq-game-head,
+  body.eq-game-focus .eq-game-aside {
+    display: none;
+  }
+
+  body.eq-game-focus .eq-game-main {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: var(--eq-vv-top, 0px);
+    height: var(--eq-vv-height, 100dvh);
+    z-index: 45;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom, 0px));
+    background: var(--ink);
+  }
+
+  body.eq-game-focus .eq-game-play {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-height: 100%;
+  }
+
+  body.eq-game-focus .eq-game-hud {
+    display: flex;
+    align-items: stretch;
+    gap: 4px;
+  }
+
+  body.eq-game-focus .eq-game-stat {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 4px 6px;
+    gap: 0;
+    border-radius: var(--radius-sm);
+  }
+
+  body.eq-game-focus .eq-game-stat small {
+    font-size: 0.58rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  body.eq-game-focus .eq-game-stat b {
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  body.eq-game-focus .eq-game-stat span {
+    display: none;
+  }
+
+  body.eq-game-focus .eq-game-quit {
+    display: inline-flex;
+  }
+
+  body.eq-game-focus .eq-game-timebar {
+    margin-top: 0;
+    height: 6px;
+  }
+
+  body.eq-game-focus .eq-game-stage {
+    margin-top: 0;
+    padding: 12px;
+    min-height: 0;
+  }
+
+  body.eq-game-focus .eq-game-prompt {
+    font-size: clamp(1.8rem, 9vw, 2.4rem);
+  }
+
+  body.eq-game-focus .eq-game-choices {
+    margin-top: 12px;
+    gap: 8px;
+  }
+
+  body.eq-game-focus .eq-game-feedback {
+    margin-top: 8px;
+  }
+
+  /* Wordfall : la chute prend la place libre, le champ reste visible */
+  body.eq-game-focus .eq-fall {
+    flex: 1 1 auto;
+    min-height: 180px;
+  }
+
+  body.eq-game-focus .eq-fall-form {
+    gap: 6px;
+  }
+
+  body.eq-game-focus .eq-fall-form .eq-game-field span {
+    display: none;
+  }
+
+  body.eq-game-focus .eq-fall-used {
+    display: none;
+  }
+
+  /* Enigma Scroll : grille et clavier tiennent ensemble à l'écran */
+  body.eq-game-focus .eq-enigma-stage {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  body.eq-game-focus .eq-grid {
+    gap: 4px;
+    margin: 0;
+  }
+
+  body.eq-game-focus .eq-grid-row {
+    gap: 4px;
+    max-width: min(100%, calc(var(--cols, 5) * 48px));
+  }
+
+  body.eq-game-focus .eq-keys {
+    margin-top: 10px;
+    gap: 5px;
+  }
+
+  body.eq-game-focus .eq-key {
+    height: 44px;
+  }
+
+  /* Lexicon Blaster */
+  body.eq-game-focus .eq-space-mission {
+    padding: 6px 10px;
+    font-size: 0.88rem;
+  }
+
+  body.eq-game-focus .eq-space-stage {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 300px;
+  }
+
+  body.eq-game-focus .eq-game-play > .eq-game-actions {
+    margin-top: 0;
+  }
 }

@@ -15,6 +15,8 @@ import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { consumeGameSession } from "@/lib/games/game-session-server";
+import { checkFlashTranslation } from "@/lib/games/score-plausibility";
 import type { ShopItem } from "@/types/shop";
 
 const FLASH_TRANSLATION_MAX_TIME_MS = 10 * 60 * 1000;
@@ -22,6 +24,7 @@ const FLASH_TRANSLATION_MAX_AVERAGE_MS = 60 * 1000;
 const FLASH_TRANSLATION_MIN_AVERAGE_MS = 120;
 const FLASH_TRANSLATION_REQUIRED_ROUNDS = 10;
 const FLASH_TRANSLATION_WRONG_ANSWER_PENALTY_MS = 5000;
+const FLASH_TRANSLATION_MAX_DURATION_MS = 2 * 60 * 60 * 1000;
 
 type EquippedItems = {
     avatar: ShopItem | null;
@@ -52,6 +55,7 @@ function normalizeFlashTranslationScoreParams(params: {
     averageReactionTimeMs: number;
     wrongAnswers: number;
     roundsCompleted: number;
+    durationMs: number;
 }):
     | {
         valid: true;
@@ -59,13 +63,15 @@ function normalizeFlashTranslationScoreParams(params: {
         averageReactionTimeMs: number;
         wrongAnswers: number;
         roundsCompleted: number;
+        durationMs: number;
     }
     | { valid: false; error: string } {
     if (
         !Number.isFinite(params.totalTimeMs) ||
         !Number.isFinite(params.averageReactionTimeMs) ||
         !Number.isFinite(params.wrongAnswers) ||
-        !Number.isFinite(params.roundsCompleted)
+        !Number.isFinite(params.roundsCompleted) ||
+        !Number.isFinite(params.durationMs)
     ) {
         return { valid: false, error: "Score Flash Translation invalide" };
     }
@@ -74,11 +80,14 @@ function normalizeFlashTranslationScoreParams(params: {
     const averageReactionTimeMs = Math.floor(params.averageReactionTimeMs);
     const wrongAnswers = Math.floor(params.wrongAnswers);
     const roundsCompleted = Math.floor(params.roundsCompleted);
+    const durationMs = Math.floor(params.durationMs);
 
     if (
         totalTimeMs < 0 ||
         averageReactionTimeMs < 0 ||
         wrongAnswers < 0 ||
+        durationMs < 0 ||
+        durationMs > FLASH_TRANSLATION_MAX_DURATION_MS ||
         roundsCompleted !== FLASH_TRANSLATION_REQUIRED_ROUNDS ||
         totalTimeMs > FLASH_TRANSLATION_MAX_TIME_MS ||
         averageReactionTimeMs < FLASH_TRANSLATION_MIN_AVERAGE_MS ||
@@ -103,6 +112,7 @@ function normalizeFlashTranslationScoreParams(params: {
         averageReactionTimeMs,
         wrongAnswers,
         roundsCompleted,
+        durationMs,
     };
 }
 
@@ -121,6 +131,8 @@ function normalizeFlashTranslationScoreParams(params: {
  * @param params.averageReactionTimeMs - Average reaction time per round
  * @param params.wrongAnswers - Number of wrong answers
  * @param params.roundsCompleted - Total rounds completed (should be 10)
+ * @param params.durationMs - Wall-clock duration of the game, bounded by the server session
+ * @param params.sessionId - Game session started by startGameSession (required)
  * @returns Result with success status and rewards earned
  */
 export async function submitFlashTranslationScore(params: {
@@ -128,6 +140,8 @@ export async function submitFlashTranslationScore(params: {
     averageReactionTimeMs: number;
     wrongAnswers: number;
     roundsCompleted: number;
+    durationMs: number;
+    sessionId?: string | null;
 }): Promise<{
     success: boolean;
     error?: string;
@@ -158,6 +172,9 @@ export async function submitFlashTranslationScore(params: {
                 error: session.error,
             };
         }
+        if (!checkFlashTranslation(session).ok) {
+            return { success: false, error: "Score Flash Translation invraisemblable" };
+        }
 
         const supabase = await createSupabaseServerClient();
         const adminClient = createSupabaseAdminClient();
@@ -173,6 +190,16 @@ export async function submitFlashTranslationScore(params: {
                 success: false,
                 error: "User not authenticated",
             };
+        }
+
+        const gameSession = await consumeGameSession({
+            sessionId: params.sessionId,
+            userId: user.id,
+            slug: "flash-translation",
+            claimedDurationMs: session.durationMs,
+        });
+        if (!gameSession.ok) {
+            return { success: false, error: gameSession.error };
         }
 
         // Get the Flash Translation game ID

@@ -1,20 +1,31 @@
 /**
  * Space Lex Shooter - Core Game Logic
- * 
+ *
  * A vertical space shooter where players shoot word enemies based on lexical missions.
  * Pure, deterministic game logic.
+ *
+ * Niveaux de vocabulaire (lib/games/levels.ts) : aux niveaux 1 et 2, les
+ * missions portent sur des thèmes et des synonymes simples, sans connecteurs,
+ * avec des consignes en français et des dialogues sous-titrés. À partir du
+ * niveau 3, toutes les missions, consignes en anglais.
  */
+
+import type { GameLevel } from "./levels";
 
 export type MissionType = "WORD_FAMILY" | "CONNECTORS" | "SYNONYMS" | "BOSS";
 
 export interface Mission {
   id: string;
   type: MissionType;
-  label: string; // e.g. "Shoot words related to TRAVEL"
+  label: string; // e.g. "Shoot words related to: TRAVEL" or "Tire sur les mots du thème TRAVEL (le voyage)"
   theme?: string;
   connectorCategory?: string;
   synonymKey?: string;
   targetCount: number; // Number of words to shoot to finish wave
+  /** Langue des consignes : français aux niveaux 1 et 2. */
+  lang?: "fr" | "en";
+  /** Mission simplifiée (niveaux 1 et 2) : seuls les mots les plus courants sont des cibles. */
+  easy?: boolean;
 }
 
 export type WaveStatus = "intro" | "playing" | "cleared" | "failed" | "boss_intro";
@@ -32,6 +43,8 @@ export interface Boss {
 export interface DialogueLine {
   speaker: string;
   text: string;
+  /** Sous-titre en français (niveaux 1 et 2). */
+  subtitle?: string;
   avatar?: string;
 }
 
@@ -97,6 +110,8 @@ export interface GameState {
   lives: number;
   score: number; // local only
   level: number;
+  /** Niveau du vocabulaire du joueur (1 = A1 ... 5 = C1). */
+  vocabLevel: GameLevel;
 
   // Wave System
   waveNumber: number;
@@ -157,7 +172,15 @@ export interface FeedbackMessage {
   maxLife: number;
 }
 
-// Word banks for missions
+/** Niveau par défaut du moteur (consignes en anglais, toutes les missions). */
+export const DEFAULT_VOCAB_LEVEL: GameLevel = 3;
+
+/** Niveaux qui reçoivent les consignes en français et les missions simplifiées. */
+export function isBeginnerLevel(level: GameLevel): boolean {
+  return level <= 2;
+}
+
+// Word banks for missions (lexical fields: words that belong to a theme)
 export const WORD_FAMILIES: Record<string, string[]> = {
   // Thèmes classiques utiles pour les rédactions
   TRAVEL: [
@@ -229,7 +252,7 @@ export const WORD_FAMILIES: Record<string, string[]> = {
     "street", "avenue", "square", "neighbourhood", "district",
     "traffic", "rush hour", "crowd", "noise", "pollution",
     "building", "skyscraper", "block", "shop", "mall",
-    "market", "bus", "tram", "subway", "station",
+    "market", "bus", "tram", "underground", "station",
     "pedestrian", "crossing", "park", "bench", "streetlight"
   ],
   FUTURE_JOBS: [
@@ -237,7 +260,7 @@ export const WORD_FAMILIES: Record<string, string[]> = {
     "salary", "income", "wage", "internship", "training",
     "qualification", "skills", "experience", "interview", "promotion",
     "colleague", "manager", "boss", "company", "remote work",
-    "resignation", "unemployment", "contract", "fulltime", "parttime"
+    "resignation", "unemployment", "contract", "full-time", "part-time"
   ],
 
   // Spécial pour ton jeu de vaisseau
@@ -282,10 +305,10 @@ export const WORD_FAMILIES: Record<string, string[]> = {
     "boil", "fry", "roast", "bake", "grill",
     "steam", "chop", "slice", "mix", "stir",
     "whisk", "pour", "ingredient", "seasoning", "flavour",
-    "tasty", "delicious", "savory", "utensil", "pan"
+    "tasty", "delicious", "savoury", "utensil", "pan"
   ],
   CLOTHES: [
-    "shirt", "tshirt", "jeans", "trousers", "shorts",
+    "shirt", "t-shirt", "jeans", "trousers", "shorts",
     "skirt", "dress", "coat", "jacket", "sweater",
     "jumper", "hoodie", "shoes", "boots", "trainers",
     "sneakers", "socks", "hat", "cap", "scarf",
@@ -322,19 +345,94 @@ export const WORD_FAMILIES: Record<string, string[]> = {
     "hot", "cold", "warm", "cool", "dry",
     "wet", "sunny", "rainy", "cloudy", "windy"
   ],
-  COLORS: [
+  COLOURS: [
     "red", "blue", "green", "yellow", "black",
     "white", "grey", "orange", "purple", "pink",
     "brown", "gold", "silver", "violet", "indigo",
-    "colorful", "bright", "dark", "pale", "light"
+    "colourful", "bright", "dark", "pale", "light"
   ]
+};
+
+/**
+ * Thèmes voisins : leurs mots ne servent jamais de distracteurs les uns pour
+ * les autres (« bus » n'est pas un mauvais mot dans une mission TRAVEL).
+ */
+const RELATED_THEMES: string[][] = [
+  ["NATURE", "WEATHER", "ENVIRONMENT_ISSUES", "ANIMALS", "SPACE_MISSION"],
+  ["FOOD", "COOKING", "HOUSE & HOME", "ANIMALS", "HEALTH & MEDICINE"],
+  ["TRAVEL", "CITY_LIFE", "SPACE_MISSION", "NATURE"],
+  ["TECHNOLOGY", "SOCIAL_MEDIA", "SPACE_MISSION"],
+  ["EDUCATION", "FUTURE_JOBS", "ART & CULTURE"],
+  ["FUTURE_JOBS", "BUSINESS & ECONOMY", "HEALTH & MEDICINE", "CRIME & JUSTICE", "SPORTS", "SPACE_MISSION"],
+  ["SPORTS", "HEALTH & MEDICINE", "BODY PARTS"],
+  ["HOUSE & HOME", "CITY_LIFE", "FAMILY"],
+  ["CRIME & JUSTICE", "DIPLOMACY", "BUSINESS & ECONOMY"],
+  ["FEELINGS", "HEALTH & MEDICINE", "WEATHER", "COLOURS"],
+  ["COLOURS", "ART & CULTURE", "WEATHER"],
+  ["BUSINESS & ECONOMY", "CITY_LIFE"],
+  ["ENVIRONMENT_ISSUES", "CITY_LIFE"],
+];
+
+/**
+ * Thèmes faits de noms concrets : seuls distracteurs « de thème » pour les
+ * missions de synonymes (un adjectif d'un autre thème pourrait être un
+ * synonyme non listé).
+ */
+const NOUN_THEMES = [
+  "TRAVEL", "SPORTS", "TECHNOLOGY", "EDUCATION", "CITY_LIFE", "SPACE_MISSION",
+  "CLOTHES", "HOUSE & HOME", "FAMILY", "BODY PARTS", "ANIMALS",
+];
+
+/** Thèmes proposés aux niveaux 1 et 2, avec leurs mots les plus courants. */
+export const EASY_WORD_FAMILIES: Record<string, string[]> = {
+  FOOD: ["menu", "kitchen", "sweet", "salty", "snack", "dessert", "meal", "breakfast", "lunch", "dinner", "restaurant", "cafe"],
+  ANIMALS: ["cat", "dog", "bird", "fish", "rabbit", "hamster", "mouse", "horse", "cow", "pig", "sheep", "chicken", "duck", "lion", "tiger", "elephant", "monkey", "bear", "snake", "spider"],
+  COLOURS: ["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink", "brown"],
+  CLOTHES: ["shirt", "t-shirt", "jeans", "trousers", "shorts", "skirt", "dress", "coat", "jacket", "jumper", "shoes", "boots", "socks", "hat", "cap", "scarf", "gloves"],
+  FAMILY: ["mother", "father", "mum", "dad", "parents", "brother", "sister", "grandmother", "grandfather", "uncle", "aunt", "cousin", "son", "daughter", "child"],
+  "BODY PARTS": ["head", "face", "eye", "nose", "mouth", "ear", "hair", "neck", "arm", "hand", "finger", "leg", "knee", "foot", "back"],
+  "HOUSE & HOME": ["house", "home", "flat", "garden", "kitchen", "bathroom", "bedroom", "living room", "garage", "sofa", "chair", "table", "bed", "window", "door", "roof", "wall", "floor", "lamp", "mirror"],
+  WEATHER: ["sun", "rain", "cloud", "wind", "snow", "storm", "fog", "hot", "cold", "warm", "sunny", "rainy", "cloudy", "windy"],
+  SPORTS: ["stadium", "field", "player", "team", "coach", "training", "competition", "victory", "score", "exercise"],
+  EDUCATION: ["school", "classroom", "lesson", "teacher", "student", "pupil", "homework", "mark", "subject", "timetable", "library", "book", "pen", "pencil", "paper", "notebook"],
+  TRAVEL: ["airplane", "airport", "station", "hotel", "passport", "suitcase", "backpack", "trip", "travel", "tourist", "ticket"],
+  NATURE: ["forest", "jungle", "mountain", "river", "lake", "ocean", "sea", "desert", "island", "beach"],
+};
+
+/** Noms des thèmes : affichage anglais et traduction française. */
+export const THEME_LABELS: Record<string, { en: string; fr: string }> = {
+  TRAVEL: { en: "TRAVEL", fr: "le voyage" },
+  FOOD: { en: "FOOD", fr: "la nourriture" },
+  SPORTS: { en: "SPORTS", fr: "le sport" },
+  NATURE: { en: "NATURE", fr: "la nature" },
+  TECHNOLOGY: { en: "TECHNOLOGY", fr: "la technologie" },
+  EDUCATION: { en: "EDUCATION", fr: "l'école" },
+  ENVIRONMENT_ISSUES: { en: "THE ENVIRONMENT", fr: "l'environnement" },
+  SOCIAL_MEDIA: { en: "SOCIAL MEDIA", fr: "les réseaux sociaux" },
+  FEELINGS: { en: "FEELINGS", fr: "les sentiments" },
+  CITY_LIFE: { en: "CITY LIFE", fr: "la vie en ville" },
+  FUTURE_JOBS: { en: "WORK AND JOBS", fr: "le travail" },
+  SPACE_MISSION: { en: "SPACE", fr: "l'espace" },
+  DIPLOMACY: { en: "DIPLOMACY", fr: "la diplomatie" },
+  "HEALTH & MEDICINE": { en: "HEALTH & MEDICINE", fr: "la santé" },
+  "ART & CULTURE": { en: "ART & CULTURE", fr: "l'art et la culture" },
+  "BUSINESS & ECONOMY": { en: "BUSINESS & ECONOMY", fr: "l'économie" },
+  "CRIME & JUSTICE": { en: "CRIME & JUSTICE", fr: "la justice" },
+  COOKING: { en: "COOKING", fr: "la cuisine" },
+  CLOTHES: { en: "CLOTHES", fr: "les vêtements" },
+  "HOUSE & HOME": { en: "HOUSE & HOME", fr: "la maison" },
+  FAMILY: { en: "FAMILY", fr: "la famille" },
+  "BODY PARTS": { en: "BODY PARTS", fr: "le corps" },
+  ANIMALS: { en: "ANIMALS", fr: "les animaux" },
+  WEATHER: { en: "WEATHER", fr: "la météo" },
+  COLOURS: { en: "COLOURS", fr: "les couleurs" },
 };
 
 export const CONNECTORS: Record<string, string[]> = {
   CONTRAST: [
     "however", "nevertheless", "nonetheless", "still", "yet",
     "even so", "on the other hand", "on the contrary", "instead", "in contrast",
-    "by contrast", "in comparison", "although", "though", "even though",
+    "by contrast", "although", "though", "even though",
     "whereas", "while", "despite", "in spite of", "regardless of",
     "even if", "all the same", "at the same time", "anyway", "in any case"
   ],
@@ -343,19 +441,19 @@ export const CONNECTORS: Record<string, string[]> = {
     "additionally", "furthermore", "moreover", "besides", "what is more",
     "on top of that", "not only that", "plus", "similarly", "likewise",
     "equally", "in the same way", "another point is", "a further point is", "above all",
-    "indeed", "more than that", "apart from that", "as a matter of fact", "in fact"
+    "more than that", "apart from that"
   ],
   CAUSE: [
     "because", "since", "as", "given that", "considering that",
     "seeing that", "for", "because of", "due to", "owing to",
     "thanks to", "as a result of", "on account of", "out of", "in view of",
-    "in response to", "in reaction to", "in light of", "based on", "resulting from"
+    "in light of", "resulting from"
   ],
   RESULT: [
     "so", "therefore", "thus", "hence", "consequently",
     "accordingly", "as a result", "as a consequence", "for this reason", "for that reason",
-    "that is why", "in that case", "in consequence", "the result is that", "the consequence is that",
-    "as a result of this", "because of this", "from then on", "thereby", "overall"
+    "that is why", "in consequence", "the result is that", "the consequence is that",
+    "as a result of this", "because of this", "thereby"
   ],
   TIME: [
     "before", "after", "later", "earlier", "meanwhile",
@@ -368,18 +466,16 @@ export const CONNECTORS: Record<string, string[]> = {
     "for example", "for instance", "such as", "like", "including",
     "in particular", "especially", "particularly", "namely", "to illustrate",
     "as an illustration", "as shown by", "as in", "as seen in", "one example is",
-    "a good example is", "for one thing", "to give an example", "for instance, when", "for example, when"
+    "a good example is", "to give an example"
   ],
   PURPOSE: [
     "so that", "in order to", "so as to", "with the aim of", "with the purpose of",
-    "with the intention of", "in order not to", "so as not to", "so that we can", "so that they can",
-    "so that it can", "to", "to make sure that", "so that no one", "in order for us to"
+    "with the intention of", "in order not to", "so as not to", "in order that", "to make sure that"
   ],
   CONCLUSION: [
     "to sum up", "in conclusion", "overall", "all in all", "in short",
     "to conclude", "in summary", "in brief", "on the whole", "ultimately",
-    "at the end of the day", "to put it simply", "to put it differently", "in other words", "finally",
-    "in the end", "as a conclusion", "to finish", "last but not least", "all things considered"
+    "at the end of the day", "finally", "in the end", "all things considered"
   ],
   CONDITION: [
     "if", "unless", "as long as", "so long as", "provided that",
@@ -387,167 +483,198 @@ export const CONNECTORS: Record<string, string[]> = {
     "whether or not", "assuming that", "supposing that", "only if", "except if"
   ],
   COMPARISON: [
-    "similarly", "likewise", "in the same way", "just like", "as if",
-    "as though", "compared to", "in comparison with", "by contrast", "on the contrary",
-    "rather than", "instead of", "as…as", "more than", "less than"
+    "similarly", "likewise", "in the same way", "just like", "like",
+    "as if", "as though", "compared to", "compared with", "in comparison with",
+    "unlike", "more than", "less than"
   ]
 };
 
+/** Noms français des catégories de connecteurs. */
+export const CONNECTOR_LABELS: Record<string, string> = {
+  CONTRAST: "d'opposition",
+  ADDITION: "d'addition",
+  CAUSE: "de cause",
+  RESULT: "de conséquence",
+  TIME: "de temps",
+  EXAMPLE: "d'exemple",
+  PURPOSE: "de but",
+  CONCLUSION: "de conclusion",
+  CONDITION: "de condition",
+  COMPARISON: "de comparaison",
+};
+
+/** Synonymes stricts : chaque mot peut remplacer le mot clé dans une phrase courante. */
 export const SYNONYMS: Record<string, string[]> = {
   IMPORTANT: [
     "important", "significant", "crucial", "essential", "vital",
-    "key", "major", "critical", "fundamental", "indispensable",
-    "notable", "influential", "decisive", "meaningful", "central",
-    "core", "principal", "primary", "relevant", "necessary"
+    "key", "major", "fundamental", "critical", "central",
+    "main", "primary"
   ],
   BEAUTIFUL: [
     "beautiful", "gorgeous", "stunning", "attractive", "lovely",
-    "elegant", "charming", "exquisite", "magnificent", "splendid",
-    "graceful", "radiant", "appealing", "pretty", "picturesque",
-    "dazzling", "striking", "impressive", "glamorous", "breathtaking"
+    "pretty", "elegant", "charming", "exquisite", "magnificent",
+    "splendid", "graceful", "breathtaking", "handsome", "good-looking"
   ],
   BIG: [
     "big", "large", "huge", "enormous", "massive",
-    "gigantic", "immense", "vast", "tremendous", "considerable",
-    "substantial", "powerful", "mighty", "colossal", "sizeable",
-    "extensive", "widespread", "expanded", "heavy", "major"
+    "gigantic", "immense", "vast", "giant", "colossal",
+    "tremendous", "sizeable"
   ],
   SMALL: [
-    "small", "tiny", "little", "miniature", "petite",
-    "compact", "minuscule", "slight", "modest", "limited",
-    "narrow", "minimal", "reduced", "restricted", "minor",
-    "delicate", "fine", "subtle", "light", "short"
+    "small", "tiny", "little", "miniature", "compact",
+    "minuscule", "mini", "petite"
   ],
   HAPPY: [
     "happy", "joyful", "cheerful", "delighted", "pleased",
-    "content", "overjoyed", "thrilled", "satisfied", "enthusiastic",
-    "optimistic", "glad", "radiant", "lively", "hopeful",
-    "excited", "grateful", "relieved", "positive", "lighthearted"
+    "content", "overjoyed", "thrilled", "glad", "merry",
+    "jolly", "ecstatic", "elated"
   ],
   SAD: [
-    "sad", "unhappy", "depressed", "melancholy", "gloomy",
-    "sorrowful", "downcast", "miserable", "heartbroken", "upset",
-    "discouraged", "disheartened", "hopeless", "tragic", "regretful",
-    "tearful", "blue", "lonely", "bitter", "devastated"
+    "sad", "unhappy", "miserable", "gloomy", "downcast",
+    "sorrowful", "melancholy", "heartbroken", "upset", "blue",
+    "low", "down", "glum"
   ],
   FAST: [
     "fast", "quick", "rapid", "swift", "speedy",
-    "brisk", "accelerated", "immediate", "instant", "energetic",
-    "lively", "dynamic", "rushed", "urgent", "express",
-    "efficient", "prompt", "nimble", "agile", "active"
+    "brisk", "hasty", "prompt"
   ],
   SMART: [
-    "smart", "intelligent", "clever", "brilliant", "wise",
-    "bright", "sharp", "astute", "genius", "rational",
-    "logical", "insightful", "knowledgeable", "thoughtful", "quickwitted",
-    "perceptive", "aware", "sensible", "shrewd", "inventive"
+    "smart", "intelligent", "clever", "brilliant", "bright",
+    "sharp", "wise", "astute", "shrewd", "quick-witted",
+    "gifted", "brainy"
   ],
   GOOD: [
-    "good", "positive", "beneficial", "helpful", "valuable",
-    "advantageous", "constructive", "effective", "efficient", "reliable",
-    "favorable", "decent", "honest", "kind", "supportive",
-    "satisfying", "pleasant", "excellent", "great", "admirable"
+    "good", "great", "excellent", "fine", "nice",
+    "wonderful", "fantastic", "superb", "outstanding", "decent",
+    "terrific"
   ],
   BAD: [
-    "bad", "negative", "harmful", "damaging", "dangerous",
-    "risky", "unfair", "unacceptable", "problematic", "poor",
-    "weak", "faulty", "useless", "disappointing", "unpleasant",
-    "severe", "serious", "inappropriate", "regrettable", "tragic"
+    "bad", "awful", "terrible", "horrible", "dreadful",
+    "poor", "nasty", "lousy", "unpleasant", "appalling",
+    "atrocious"
   ],
   INTERESTING: [
-    "interesting", "fascinating", "captivating", "engaging", "appealing",
-    "intriguing", "stimulating", "exciting", "original", "unusual",
-    "remarkable", "striking", "impressive", "entertaining", "absorbing",
-    "compelling", "curious", "noteworthy", "surprising", "inspiring"
+    "interesting", "fascinating", "captivating", "engaging", "intriguing",
+    "absorbing", "gripping", "riveting", "compelling", "thought-provoking"
   ],
   DIFFICULT: [
     "difficult", "hard", "challenging", "demanding", "tough",
-    "complex", "complicated", "tricky", "exhausting", "tiring",
-    "confusing", "intense", "severe", "painful", "frustrating",
-    "overwhelming", "strenuous", "arduous", "strict", "heavy"
+    "tricky", "complicated", "complex", "arduous", "strenuous",
+    "taxing"
   ],
   EASY: [
-    "easy", "simple", "straightforward", "effortless", "comfortable",
-    "manageable", "convenient", "accessible", "clear", "obvious",
-    "smooth", "natural", "relaxed", "undemanding", "painless",
-    "quick", "basic", "intuitive", "plain", "uncomplicated"
+    "easy", "simple", "straightforward", "effortless", "uncomplicated",
+    "painless", "undemanding"
   ],
   DANGEROUS: [
-    "dangerous", "risky", "hazardous", "unsafe", "threatening",
-    "harmful", "deadly", "perilous", "toxic", "violent",
-    "unstable", "critical", "explosive", "severe", "alarming",
-    "fragile", "vulnerable", "fatal", "destructive", "unsafe"
+    "dangerous", "risky", "hazardous", "unsafe", "perilous",
+    "threatening", "treacherous", "precarious"
   ],
   USEFUL: [
-    "useful", "helpful", "practical", "convenient", "beneficial",
-    "effective", "valuable", "relevant", "efficient", "productive",
-    "profitable", "functional", "supportive", "informative", "constructive",
-    "insightful", "meaningful", "applicable", "versatile", "powerful"
+    "useful", "helpful", "practical", "handy", "valuable",
+    "beneficial", "convenient"
   ],
   BORING: [
-    "boring", "dull", "uninteresting", "repetitive", "monotonous",
-    "tiresome", "predictable", "lifeless", "uninspiring", "flat",
-    "slow", "tedious", "ordinary", "unexciting", "colorless",
-    "dragging", "pointless", "endless", "stale", "weak"
+    "boring", "dull", "tedious", "monotonous", "uninteresting",
+    "tiresome", "dreary", "uninspiring", "unexciting", "humdrum"
   ],
   BRAVE: [
     "brave", "courageous", "fearless", "bold", "daring",
-    "valiant", "heroic", "adventurous", "gallant", "intrepid"
+    "valiant", "heroic", "intrepid", "gallant"
   ],
   STRANGE: [
     "strange", "odd", "peculiar", "weird", "unusual",
-    "curious", "bizarre", "extraordinary", "mysterious", "abnormal"
+    "bizarre", "curious"
   ],
   FAMOUS: [
-    "famous", "renowned", "well-known", "celebrated", "notable",
-    "distinguished", "eminent", "legendary", "prominent", "popular"
+    "famous", "renowned", "well-known", "celebrated", "legendary",
+    "eminent", "prominent", "distinguished", "illustrious"
   ],
   POWERFUL: [
-    "powerful", "strong", "influential", "dominant", "potent",
-    "mighty", "vigorous", "authoritative", "commanding", "supreme"
+    "powerful", "strong", "mighty", "potent", "forceful",
+    "formidable"
   ],
   CHEAP: [
-    "cheap", "affordable", "inexpensive", "low-cost", "budget",
-    "economical", "reasonable", "bargain", "discounted", "modest"
+    "cheap", "affordable", "inexpensive", "low-cost", "economical",
+    "budget", "cut-price"
   ],
   EXPENSIVE: [
-    "expensive", "costly", "pricey", "premium", "extravagant",
-    "valuable", "luxurious", "exclusive", "high-end", "pricey"
+    "expensive", "costly", "pricey", "overpriced", "high-priced"
   ]
+};
+
+/** Synonymes proposés aux niveaux 1 et 2 : les plus courants seulement. */
+export const EASY_SYNONYMS: Record<string, string[]> = {
+  BIG: ["big", "large", "huge", "giant", "enormous"],
+  SMALL: ["small", "little", "tiny", "mini"],
+  HAPPY: ["happy", "glad", "cheerful", "pleased"],
+  SAD: ["sad", "unhappy", "upset"],
+  GOOD: ["good", "great", "nice", "fine", "excellent", "fantastic"],
+  BAD: ["bad", "awful", "terrible", "horrible"],
+  FAST: ["fast", "quick", "rapid"],
+  DIFFICULT: ["difficult", "hard", "tough", "complicated"],
+  EASY: ["easy", "simple"],
+  BEAUTIFUL: ["beautiful", "pretty", "lovely", "gorgeous"],
+  STRANGE: ["strange", "weird", "odd"],
+};
+
+/** Contraires : leurs mots servent de distracteurs dans les missions de synonymes. */
+const SYNONYM_OPPOSITES: Record<string, string> = {
+  BIG: "SMALL", SMALL: "BIG", HAPPY: "SAD", SAD: "HAPPY", GOOD: "BAD", BAD: "GOOD",
+  EASY: "DIFFICULT", DIFFICULT: "EASY", CHEAP: "EXPENSIVE", EXPENSIVE: "CHEAP",
+  INTERESTING: "BORING", BORING: "INTERESTING",
+};
+
+/** Traduction française des mots clés de synonymes. */
+export const SYNONYM_LABELS: Record<string, string> = {
+  IMPORTANT: "important", BEAUTIFUL: "beau", BIG: "grand", SMALL: "petit", HAPPY: "heureux", SAD: "triste",
+  FAST: "rapide", SMART: "intelligent", GOOD: "bon", BAD: "mauvais", INTERESTING: "intéressant",
+  DIFFICULT: "difficile", EASY: "facile", DANGEROUS: "dangereux", USEFUL: "utile", BORING: "ennuyeux",
+  BRAVE: "courageux", STRANGE: "étrange", FAMOUS: "célèbre", POWERFUL: "puissant", CHEAP: "bon marché",
+  EXPENSIVE: "cher",
 };
 
 
 // Words that are NOT targets (distractors)
-// -> très simples, concrets, pour ne pas parasiter l’apprentissage
-export const DISTRACTOR_WORDS: string[] = [
-  // Salutations & petits mots
+// -> très simples, concrets, pour ne pas parasiter l'apprentissage
+const NEUTRAL_GREETINGS = [
   "hello", "hi", "hey", "goodbye", "bye",
   "please", "thanks", "thank you", "sorry", "ok",
-  "yes", "no", "maybe", "really", "wow",
-
-  // Objets neutres (bureautique, divers)
+  "yes", "no", "wow",
+];
+const NEUTRAL_OBJECTS = [
   "bag", "box", "key", "card", "map",
   "photo", "camera", "phone", "watch", "clock",
   "ring", "gift", "toy", "ball", "game",
-
-  // Verbes d'action basiques (neutres)
+];
+const NEUTRAL_VERBS = [
   "do", "make", "go", "come", "take",
   "put", "get", "have", "be", "say",
-  "speak", "talk", "see", "look", "watch",
+  "speak", "talk", "see", "look",
   "listen", "eat", "drink", "sleep", "play",
   "walk", "run", "sit", "stand", "wait",
   "start", "stop", "finish", "try", "use",
-
-  // Adverbes & prépositions communs
+];
+/** Adverbes : jamais distracteurs d'une mission de connecteurs (plusieurs en sont presque). */
+const NEUTRAL_ADVERBS = [
   "now", "then", "here", "there", "always",
   "never", "often", "sometimes", "usually", "again",
   "very", "too", "quite", "enough", "just",
   "only", "also", "even", "still", "already",
-
-  // Mots abstraits simples
+  "maybe", "really",
+];
+const NEUTRAL_NOUNS = [
   "thing", "idea", "way", "part", "side",
   "place", "time", "day", "week", "year",
-  "name", "number", "group", "problem", "fact"
+  "name", "number", "group", "problem", "fact",
+];
+
+export const DISTRACTOR_WORDS: string[] = [
+  ...NEUTRAL_GREETINGS,
+  ...NEUTRAL_OBJECTS,
+  ...NEUTRAL_VERBS,
+  ...NEUTRAL_ADVERBS,
+  ...NEUTRAL_NOUNS,
 ];
 
 
@@ -559,7 +686,7 @@ function generateId(): string {
 /**
  * Create initial game state
  */
-export function createGameState(): GameState {
+export function createGameState(vocabLevel: GameLevel = DEFAULT_VOCAB_LEVEL): GameState {
   const now = Date.now();
   return {
     mission: null,
@@ -574,6 +701,7 @@ export function createGameState(): GameState {
     lives: 3,
     score: 0,
     level: 1,
+    vocabLevel,
 
     // Wave System initial state
     waveNumber: 1,
@@ -605,86 +733,75 @@ export function createGameState(): GameState {
   };
 }
 
-/**
- * Generate a random mission
- */
-export function generateMission(waveNumber: number = 1): Mission {
-  // BOSS Wave every 5 waves
-  if (waveNumber % 5 === 0) {
-    const keys = Object.keys(SYNONYMS);
-    const synonymKey = keys[Math.floor(Math.random() * keys.length)];
-    return {
-      id: generateId(),
-      type: "BOSS",
-      label: `Defeat the boss: shoot synonyms of ${synonymKey}`,
-      synonymKey,
-      targetCount: 15, // Shots needed on boss
-    };
+function pick<T>(items: T[]): T {
+  return items[Math.floor(Math.random() * items.length)];
+}
+
+function themeLabel(theme: string, lang: "fr" | "en"): string {
+  const label = THEME_LABELS[theme] ?? { en: theme, fr: theme.toLowerCase() };
+  return lang === "fr" ? `Tire sur les mots du thème ${label.en} (${label.fr})` : `Shoot words related to: ${label.en}`;
+}
+
+function synonymLabel(key: string, lang: "fr" | "en", boss: boolean): string {
+  if (lang === "fr") {
+    const fr = SYNONYM_LABELS[key];
+    const text = `Tire sur les synonymes de ${key}${fr ? ` (${fr})` : ""}`;
+    return boss ? `Boss : ${text.charAt(0).toLowerCase()}${text.slice(1)}` : text;
   }
+  return boss ? `Defeat the boss: shoot synonyms of ${key}` : `Shoot synonyms of: ${key}`;
+}
 
-  const missionTypes: MissionType[] = ["WORD_FAMILY", "CONNECTORS", "SYNONYMS"];
-  const type = missionTypes[Math.floor(Math.random() * missionTypes.length)];
-
-  let mission: Mission | null = null;
-  // Waves get slightly longer as we progress
-  const targetCount = 10 + (waveNumber - 1) * 5;
-
-  switch (type) {
-    case "WORD_FAMILY": {
-      const themes = Object.keys(WORD_FAMILIES);
-      const theme = themes[Math.floor(Math.random() * themes.length)];
-      mission = {
-        id: generateId(),
-        type: "WORD_FAMILY",
-        label: `Shoot words related to: ${theme}`,
-        theme,
-        targetCount,
-      };
-      break;
-    }
-    case "CONNECTORS": {
-      const categories = Object.keys(CONNECTORS);
-      const category = categories[Math.floor(Math.random() * categories.length)];
-      mission = {
-        id: generateId(),
-        type: "CONNECTORS",
-        label: `Shoot ${category} connectors`,
-        connectorCategory: category,
-        targetCount,
-      };
-      break;
-    }
-    case "SYNONYMS": {
-      const keys = Object.keys(SYNONYMS);
-      const key = keys[Math.floor(Math.random() * keys.length)];
-      mission = {
-        id: generateId(),
-        type: "SYNONYMS",
-        label: `Shoot synonyms of: ${key}`,
-        synonymKey: key,
-        targetCount,
-      };
-      break;
-    }
-  }
-
-  // Fallback if mission is somehow not assigned
-  if (!mission) {
-    mission = {
-      id: generateId(),
-      type: "WORD_FAMILY",
-      label: "Shoot words",
-      targetCount: 10
-    };
-  }
-
-  return mission;
+function connectorLabel(category: string, lang: "fr" | "en"): string {
+  return lang === "fr"
+    ? `Tire sur les connecteurs ${CONNECTOR_LABELS[category] ?? category.toLowerCase()} (${category})`
+    : `Shoot ${category} connectors`;
 }
 
 /**
- * Get target words for a mission
+ * Generate a random mission for a wave, adapted to the player's vocabulary level
  */
-function getTargetWords(mission: Mission): string[] {
+export function generateMission(waveNumber: number = 1, vocabLevel: GameLevel = DEFAULT_VOCAB_LEVEL): Mission {
+  const easy = isBeginnerLevel(vocabLevel);
+  const lang: "fr" | "en" = easy ? "fr" : "en";
+  const synonymKeys = Object.keys(easy ? EASY_SYNONYMS : SYNONYMS);
+
+  // BOSS Wave every 5 waves
+  if (waveNumber % 5 === 0) {
+    const synonymKey = pick(synonymKeys);
+    return {
+      id: generateId(),
+      type: "BOSS",
+      label: synonymLabel(synonymKey, lang, true),
+      synonymKey,
+      targetCount: 15, // Shots needed on boss
+      lang,
+      easy,
+    };
+  }
+
+  // Pas de connecteurs aux niveaux 1 et 2 : ce sont des notions de collège et de lycée.
+  const missionTypes: MissionType[] = easy ? ["WORD_FAMILY", "SYNONYMS"] : ["WORD_FAMILY", "CONNECTORS", "SYNONYMS"];
+  const type = pick(missionTypes);
+
+  // Waves get slightly longer as we progress
+  const targetCount = 10 + (waveNumber - 1) * 5;
+
+  if (type === "CONNECTORS") {
+    const category = pick(Object.keys(CONNECTORS));
+    return { id: generateId(), type, label: connectorLabel(category, lang), connectorCategory: category, targetCount, lang, easy };
+  }
+  if (type === "SYNONYMS") {
+    const key = pick(synonymKeys);
+    return { id: generateId(), type, label: synonymLabel(key, lang, false), synonymKey: key, targetCount, lang, easy };
+  }
+  const theme = pick(Object.keys(easy ? EASY_WORD_FAMILIES : WORD_FAMILIES));
+  return { id: generateId(), type: "WORD_FAMILY", label: themeLabel(theme, lang), theme, targetCount, lang, easy };
+}
+
+/**
+ * Every word of the mission's category (the full list, even in easy mode)
+ */
+function getCategoryWords(mission: Mission): string[] {
   switch (mission.type) {
     case "WORD_FAMILY":
       return mission.theme ? WORD_FAMILIES[mission.theme] || [] : [];
@@ -699,6 +816,21 @@ function getTargetWords(mission: Mission): string[] {
 }
 
 /**
+ * Get target words for a mission (the most common ones only in easy mode)
+ */
+function getTargetWords(mission: Mission): string[] {
+  if (mission.easy) {
+    if (mission.type === "WORD_FAMILY" && mission.theme && EASY_WORD_FAMILIES[mission.theme]) {
+      return EASY_WORD_FAMILIES[mission.theme];
+    }
+    if ((mission.type === "SYNONYMS" || mission.type === "BOSS") && mission.synonymKey && EASY_SYNONYMS[mission.synonymKey]) {
+      return EASY_SYNONYMS[mission.synonymKey];
+    }
+  }
+  return getCategoryWords(mission);
+}
+
+/**
  * Check if a word is a target for the current mission
  */
 export function isTargetWord(word: string, mission: Mission | null): boolean {
@@ -707,48 +839,59 @@ export function isTargetWord(word: string, mission: Mission | null): boolean {
   return targetWords.includes(word.toLowerCase());
 }
 
+function relatedThemes(theme: string | undefined): Set<string> {
+  const related = new Set<string>(theme ? [theme] : []);
+  for (const group of RELATED_THEMES) {
+    if (theme && group.includes(theme)) group.forEach((item) => related.add(item));
+  }
+  return related;
+}
+
 /**
- * Get words from other categories as distractors (excluding current mission targets)
+ * Distractors for a mission: words that can never be right for it.
+ * - Theme mission: words of unrelated themes.
+ * - Synonym mission: the opposite set and concrete nouns.
+ * - Connector mission: nouns and adjectives (never another connector).
+ * Words of the mission's own full category are always excluded, so a rare
+ * synonym never appears as a "wrong" word in easy mode.
  */
-function getOtherCategoryWords(mission: Mission | null): string[] {
-  const otherWords: string[] = [];
-  const targetWords = mission ? getTargetWords(mission) : [];
-  const targetWordsSet = new Set(targetWords.map(w => w.toLowerCase()));
+function getDistractorWords(mission: Mission | null): { neutral: string[]; thematic: string[] } {
+  const excluded = new Set((mission ? getCategoryWords(mission) : []).map((word) => word.toLowerCase()));
+  const keep = (word: string) => !excluded.has(word.toLowerCase());
+  const themeWords = (themes: string[]) => themes.flatMap((theme) => {
+    const words = mission?.easy && EASY_WORD_FAMILIES[theme] ? EASY_WORD_FAMILIES[theme] : WORD_FAMILIES[theme] ?? [];
+    return words;
+  });
 
-  // Collect words from WORD_FAMILIES (excluding current mission theme)
-  if (!mission || mission.type !== "WORD_FAMILY") {
-    Object.values(WORD_FAMILIES).forEach(words => {
-      words.forEach(word => {
-        if (!targetWordsSet.has(word.toLowerCase())) {
-          otherWords.push(word);
-        }
-      });
-    });
+  if (!mission) {
+    return { neutral: DISTRACTOR_WORDS, thematic: Object.values(WORD_FAMILIES).flat() };
   }
 
-  // Collect words from CONNECTORS (excluding current mission category)
-  if (!mission || mission.type !== "CONNECTORS") {
-    Object.values(CONNECTORS).forEach(words => {
-      words.forEach(word => {
-        if (!targetWordsSet.has(word.toLowerCase())) {
-          otherWords.push(word);
-        }
-      });
-    });
+  if (mission.type === "WORD_FAMILY") {
+    const related = relatedThemes(mission.theme);
+    const pool = mission.easy ? Object.keys(EASY_WORD_FAMILIES) : Object.keys(WORD_FAMILIES);
+    return {
+      neutral: [...NEUTRAL_GREETINGS, ...NEUTRAL_OBJECTS, ...NEUTRAL_VERBS, ...NEUTRAL_NOUNS].filter(keep),
+      thematic: themeWords(pool.filter((theme) => !related.has(theme))).filter(keep),
+    };
   }
 
-  // Collect words from SYNONYMS (excluding current mission key)
-  if (!mission || mission.type !== "SYNONYMS") {
-    Object.values(SYNONYMS).forEach(words => {
-      words.forEach(word => {
-        if (!targetWordsSet.has(word.toLowerCase())) {
-          otherWords.push(word);
-        }
-      });
-    });
+  if (mission.type === "CONNECTORS") {
+    return {
+      neutral: [...NEUTRAL_GREETINGS, ...NEUTRAL_OBJECTS, ...NEUTRAL_VERBS, ...NEUTRAL_NOUNS].filter(keep),
+      thematic: [...themeWords(NOUN_THEMES), ...Object.values(SYNONYMS).flat()].filter(keep),
+    };
   }
 
-  return otherWords;
+  // SYNONYMS and BOSS
+  const opposite = mission.synonymKey ? SYNONYM_OPPOSITES[mission.synonymKey] : undefined;
+  const oppositeWords = opposite
+    ? mission.easy && EASY_SYNONYMS[opposite] ? EASY_SYNONYMS[opposite] : SYNONYMS[opposite] ?? []
+    : [];
+  return {
+    neutral: [...NEUTRAL_GREETINGS, ...NEUTRAL_OBJECTS, ...NEUTRAL_VERBS, ...NEUTRAL_NOUNS].filter(keep),
+    thematic: [...oppositeWords, ...oppositeWords, ...themeWords(NOUN_THEMES)].filter(keep),
+  };
 }
 
 /**
@@ -756,49 +899,25 @@ function getOtherCategoryWords(mission: Mission | null): string[] {
  */
 export function spawnEnemy(state: GameState, mission: Mission | null): EnemyWord {
   const targetWords = mission ? getTargetWords(mission) : [];
-  const otherCategoryWords = getOtherCategoryWords(mission);
-  const targetWordsSet = new Set(targetWords.map(word => word.toLowerCase()));
-  const neutralDistractors = DISTRACTOR_WORDS.filter(word => !targetWordsSet.has(word.toLowerCase()));
+  const { neutral, thematic } = getDistractorWords(mission);
 
-  // NOUVEAU RATIO 2.0: 60% mots cibles, 40% distracteurs
-  // Suite au feedback utilisateur: "pas assez de bons mots proposés"
+  // 60 % de mots cibles, 40 % de distracteurs
   const TARGET_PROBABILITY = 0.60;
 
   let randomWord: string = "EMPTY";
   let isTarget: boolean = false;
 
-  // 60% de chance d'avoir un mot cible (si disponible)
   if (targetWords.length > 0 && Math.random() < TARGET_PROBABILITY) {
-    // 60% de chance : choisir un mot cible
-    randomWord = targetWords[Math.floor(Math.random() * targetWords.length)];
+    randomWord = pick(targetWords);
     isTarget = true;
-  } else {
-    // 40% de chance : distracteur
-    const allDistractors = [...neutralDistractors, ...otherCategoryWords];
-    const rand = Math.random();
-
-    // Mélange varié de distracteurs
-    if (rand < 0.40 && neutralDistractors.length > 0) {
-      randomWord = neutralDistractors[Math.floor(Math.random() * neutralDistractors.length)];
-    } else if (rand < 0.80 && otherCategoryWords.length > 0) {
-      randomWord = otherCategoryWords[Math.floor(Math.random() * otherCategoryWords.length)];
-    } else if (allDistractors.length > 0) {
-      randomWord = allDistractors[Math.floor(Math.random() * allDistractors.length)];
-    } else {
-      // Fallback ultime : si pas de distracteurs, on prend un mot cible quand même
-      if (targetWords.length > 0) {
-        randomWord = targetWords[Math.floor(Math.random() * targetWords.length)];
-        isTarget = true;
-      } else {
-        randomWord = "EMPTY"; // Should technically never happen heavily populated lists
-        isTarget = false;
-      }
-    }
-
-    // Si on a pas déjà défini isTarget (cas normal du distracteur)
-    if (randomWord !== "EMPTY" && isTarget === undefined) { // Check if isTarget was not set in the fallback
-      isTarget = false;
-    }
+  } else if (neutral.length > 0 || thematic.length > 0) {
+    // Mélange varié : 40 % de mots neutres, 60 % de mots d'autres thèmes
+    const useNeutral = thematic.length === 0 || (neutral.length > 0 && Math.random() < 0.4);
+    randomWord = pick(useNeutral ? neutral : thematic);
+    isTarget = false;
+  } else if (targetWords.length > 0) {
+    randomWord = pick(targetWords);
+    isTarget = true;
   }
 
   const baseX = Math.random() * 0.8 + 0.1; // random base x position (10% to 90% of screen)
@@ -1116,17 +1235,37 @@ export function getEnemyDimensions(text: string): { width: number; height: numbe
 }
 /**
  * Generate explanation for why a word is correct or incorrect
+ * (in French for the beginner levels, in English otherwise)
  */
 function generateFeedbackExplanation(word: string, isTarget: boolean, mission: Mission | null): string {
   if (!mission) return "";
 
   const wordLower = word.toLowerCase();
+  const theme = mission.theme ? THEME_LABELS[mission.theme]?.en ?? mission.theme : "";
+
+  if (mission.lang === "fr") {
+    switch (mission.type) {
+      case "WORD_FAMILY":
+        return isTarget ? `✓ « ${wordLower} » : thème ${theme}` : `✗ « ${wordLower} » n'est pas dans le thème ${theme}`;
+      case "CONNECTORS": {
+        const category = CONNECTOR_LABELS[mission.connectorCategory ?? ""] ?? "";
+        return isTarget ? `✓ « ${wordLower} » : connecteur ${category}` : `✗ « ${wordLower} » n'est pas un connecteur ${category}`;
+      }
+      case "SYNONYMS":
+      case "BOSS":
+        return isTarget
+          ? `✓ « ${wordLower} » = ${mission.synonymKey?.toLowerCase()}`
+          : `✗ « ${wordLower} » n'est pas un synonyme de ${mission.synonymKey?.toLowerCase()}`;
+      default:
+        return isTarget ? "✓ Bien vu" : "✗ Mauvais mot";
+    }
+  }
 
   if (isTarget) {
     // Correct hit - explain why
     switch (mission.type) {
       case "WORD_FAMILY":
-        return `✓ "${wordLower}" is related to ${mission.theme}`;
+        return `✓ "${wordLower}" is related to ${theme}`;
       case "CONNECTORS":
         return `✓ "${wordLower}" expresses ${mission.connectorCategory?.toLowerCase()}`;
       case "SYNONYMS":
@@ -1139,12 +1278,12 @@ function generateFeedbackExplanation(word: string, isTarget: boolean, mission: M
     // Wrong hit - explain why it's wrong
     switch (mission.type) {
       case "WORD_FAMILY":
-        return `✗ "${wordLower}" is NOT related to ${mission.theme}`;
+        return `✗ "${wordLower}" is NOT related to ${theme}`;
       case "CONNECTORS":
         return `✗ "${wordLower}" is NOT a ${mission.connectorCategory?.toLowerCase()} connector`;
       case "SYNONYMS":
       case "BOSS":
-        return `✗ "${wordLower}" ≠ synonym of ${mission.synonymKey?.toLowerCase()}`;
+        return `✗ "${wordLower}" is NOT a synonym of ${mission.synonymKey?.toLowerCase()}`;
       default:
         return `✗ Wrong word!`;
     }
@@ -1478,7 +1617,7 @@ export function updateMissionIfNeeded(state: GameState): GameState {
   if (now - state.lastMissionChangeTime >= MISSION_DURATION) {
     return {
       ...state,
-      mission: generateMission(),
+      mission: generateMission(state.waveNumber, state.vocabLevel),
       lastMissionChangeTime: now,
       missionDuration: 0,
     };
@@ -1680,7 +1819,7 @@ export function updateWaveLifecycle(state: GameState): GameState {
  */
 export function startNextWave(state: GameState): GameState {
   const nextWaveNumber = state.waveNumber + 1;
-  const nextMission = generateMission(nextWaveNumber);
+  const nextMission = generateMission(nextWaveNumber, state.vocabLevel);
   const isBossWave = nextWaveNumber % 5 === 0;
 
   const nextState: GameState = {
@@ -1697,7 +1836,7 @@ export function startNextWave(state: GameState): GameState {
     lastEnemySpawnTime: Date.now(),
     upcomingEnemy: null,
     upcomingEnemySpawnTime: 0,
-    currentDialogue: getDialogueForWave(nextWaveNumber),
+    currentDialogue: getDialogueForWave(nextWaveNumber, state.vocabLevel),
     dialogueIndex: 0,
   };
 
@@ -1759,7 +1898,7 @@ export function updateSuperState(state: GameState): GameState {
  */
 export function startGame(state: GameState): GameState {
   const now = Date.now();
-  const firstMission = generateMission(1);
+  const firstMission = generateMission(1, state.vocabLevel);
   return {
     ...state,
     isRunning: true,
@@ -1775,34 +1914,49 @@ export function startGame(state: GameState): GameState {
     lastBulletTime: 0,
     upcomingEnemy: null,
     upcomingEnemySpawnTime: 0,
-    currentDialogue: getDialogueForWave(1),
+    currentDialogue: getDialogueForWave(1, state.vocabLevel),
     dialogueIndex: 0,
   };
 }
 
 /**
- * Get dialogue for a specific wave
+ * Get dialogue for a specific wave.
+ * Beginner levels: simple English with a French subtitle line.
  */
-export function getDialogueForWave(waveNumber: number): Dialogue | null {
+export function getDialogueForWave(waveNumber: number, vocabLevel: GameLevel = DEFAULT_VOCAB_LEVEL): Dialogue | null {
+  const beginner = isBeginnerLevel(vocabLevel);
+
   if (waveNumber === 1) {
     return {
       id: "wave_1",
-      lines: [
-        { speaker: "COMMANDER", text: "Welcome to Sector 7, Recruit. We have a lexical breach!" },
-        { speaker: "COMMANDER", text: "Your mission is simple: shoot the words that match your mission profile." },
-        { speaker: "AI GUIDE", text: "I will assist you. Use the Super EMP [SPACE] once the bar is full." },
-      ]
+      lines: beginner
+        ? [
+            { speaker: "COMMANDER", text: "Hello, pilot! Words are coming. Get ready!", subtitle: "Bonjour, pilote ! Des mots arrivent. Prépare-toi !" },
+            { speaker: "COMMANDER", text: "Read the mission. Shoot the right words only.", subtitle: "Lis la mission. Tire seulement sur les bons mots." },
+            { speaker: "AI GUIDE", text: "When the EMP bar is full, press SPACE or tap the button.", subtitle: "Quand la barre EMP est pleine, appuie sur Espace ou touche le bouton." },
+          ]
+        : [
+            { speaker: "COMMANDER", text: "Welcome to Sector 7, Recruit. We have a lexical breach!" },
+            { speaker: "COMMANDER", text: "Your mission is simple: shoot the words that match your mission profile." },
+            { speaker: "AI GUIDE", text: "I will assist you. Use the Super EMP [SPACE] once the bar is full." },
+          ]
     };
   }
 
   if (waveNumber === 5) {
     return {
       id: "wave_5_boss",
-      lines: [
-        { speaker: "AI GUIDE", text: "WARNING: High power lexical entity detected ahead." },
-        { speaker: "COMMANDER", text: "That's the Centurion X-1! Don't let its distractors confuse you." },
-        { speaker: "COMMANDER", text: "Focus fire on the core by shooting the required synonyms!" },
-      ]
+      lines: beginner
+        ? [
+            { speaker: "AI GUIDE", text: "Warning! A big boss is coming.", subtitle: "Attention ! Un gros boss arrive." },
+            { speaker: "COMMANDER", text: "Shoot the synonyms to hit the boss.", subtitle: "Tire sur les synonymes pour toucher le boss." },
+            { speaker: "COMMANDER", text: "Do not shoot the other words!", subtitle: "Ne tire pas sur les autres mots !" },
+          ]
+        : [
+            { speaker: "AI GUIDE", text: "WARNING: High power lexical entity detected ahead." },
+            { speaker: "COMMANDER", text: "That's the Centurion X-1! Don't let its distractors confuse you." },
+            { speaker: "COMMANDER", text: "Focus fire on the core by shooting the required synonyms!" },
+          ]
     };
   }
 
@@ -1875,7 +2029,7 @@ export function resumeGame(state: GameState, pausedDurationMs = 0): GameState {
  * Reset the game
  */
 export function resetGame(state: GameState): GameState {
-  return createGameState();
+  return createGameState(state.vocabLevel);
 }
 
 /**

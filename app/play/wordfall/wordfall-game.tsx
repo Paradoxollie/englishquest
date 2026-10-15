@@ -22,6 +22,10 @@ import {
 } from "@/lib/games/wordfall";
 import wordfallWordsData from "@/lib/games/words/wordfall-words.json";
 import { GameEnd, GameHud, GameStart, HudStat, type RewardSummary } from "@/components/play/game-screens";
+import { LevelPicker } from "@/components/play/level-picker";
+import { useGameFocusMode } from "@/components/play/use-game-focus-mode";
+import { useGameSession } from "@/components/play/use-game-session";
+import { DEFAULT_GAME_LEVEL, getGameLevelLabel, type GameLevel } from "@/lib/games/levels";
 import { submitWordfallScore } from "./actions";
 
 type SubmitStatus = "idle" | "saving" | "saved" | "error" | "guest";
@@ -32,7 +36,7 @@ const MODES: Record<
 > = {
   exact: {
     label: "Vocabulaire",
-    detail: "Le mot anglais et sa traduction tombent. Tape les deux.",
+    detail: "Le mot anglais et sa traduction tombent, à ton niveau. Tape les deux.",
     placeholder: "book livre",
     hint: "Tape le mot anglais puis sa traduction française.",
     rules: [
@@ -76,6 +80,7 @@ function bootstrap() {
       translations: manual.translations,
       wordsByLength: manual.wordsByLength,
       expressions: manual.expressions || [],
+      levels: manual.levels,
     });
     if (Array.isArray(wordfallWordsData.freeModeWords)) {
       initializeEnglishWords(wordfallWordsData.freeModeWords);
@@ -88,10 +93,21 @@ function bootstrap() {
   return bootstrapped;
 }
 
-export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolean; missionTarget: number | null }) {
+export function WordfallGame({
+  isLoggedIn,
+  missionTarget,
+  suggestedLevel,
+}: {
+  isLoggedIn: boolean;
+  missionTarget: number | null;
+  suggestedLevel: GameLevel | null;
+}) {
   const [boot] = useState(bootstrap);
   const [mode, setMode] = useState<WordfallMode>("exact");
-  const [state, setState] = useState<WordfallState | null>(() => createGameState({ mode: "exact" }));
+  const [level, setLevel] = useState<GameLevel>(suggestedLevel ?? DEFAULT_GAME_LEVEL);
+  const [state, setState] = useState<WordfallState | null>(() =>
+    createGameState({ mode: "exact", vocabLevel: suggestedLevel ?? DEFAULT_GAME_LEVEL })
+  );
   const [input, setInput] = useState("");
   const [paused, setPaused] = useState(false);
   const [message, setMessage] = useState<{ tone: "ok" | "bad"; text: string } | null>(boot.error ? { tone: "bad", text: boot.error } : null);
@@ -108,8 +124,11 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
   const submittedRef = useRef(false);
   const sessionRef = useRef(0);
   const messageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const gameSession = useGameSession("wordfall", isLoggedIn);
 
   const words = visibleWords(state);
+  const playing = Boolean(state?.isRunning && !state.gameOver && !paused);
+  useGameFocusMode(playing);
   const maxWords = state ? Math.min(compact ? 1 : 3, getWordfallMaxActiveWords(state)) : 1;
   const spawnDelay = state ? getWordfallSpawnDelayMs(state) : 260;
 
@@ -133,8 +152,9 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
   const reset = useCallback(
     (nextMode: WordfallMode) => {
       sessionRef.current += 1;
+      gameSession.cancel();
       setMode(nextMode);
-      setState(createGameState({ mode: nextMode }));
+      setState(createGameState({ mode: nextMode, vocabLevel: nextMode === "exact" ? level : null }));
       setInput("");
       setPaused(false);
       setMessage(boot.error ? { tone: "bad", text: boot.error } : null);
@@ -142,13 +162,14 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
       setSubmitStatus("idle");
       submittedRef.current = false;
     },
-    [boot.error]
+    [boot.error, gameSession, level]
   );
 
   const start = useCallback(() => {
     if (!boot.ok) return;
     sessionRef.current += 1;
-    setState((current) => (current ? startGame(current) : current));
+    gameSession.begin();
+    setState(startGame(createGameState({ mode, vocabLevel: mode === "exact" ? level : null })));
     setPaused(false);
     setInput("");
     setMessage(null);
@@ -158,7 +179,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
     startedAtRef.current = Date.now();
     lastTickRef.current = Date.now();
     window.setTimeout(() => inputRef.current?.focus(), 80);
-  }, [boot.ok]);
+  }, [boot.ok, gameSession, mode, level]);
 
   const togglePause = useCallback(() => {
     setState((current) => {
@@ -306,12 +327,10 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
     }
     setSubmitStatus("saving");
     const session = sessionRef.current;
-    submitWordfallScore({
-      mode: state.mode,
-      score: state.score,
-      wordsCompleted: state.wordsCompleted,
-      durationMs: Date.now() - startedAtRef.current,
-    })
+    const final = { mode: state.mode, score: state.score, wordsCompleted: state.wordsCompleted };
+    gameSession
+      .finish(Date.now() - startedAtRef.current)
+      .then(({ sessionId, durationMs }) => submitWordfallScore({ ...final, durationMs, sessionId }))
       .then((result) => {
         if (session !== sessionRef.current) return;
         if (!result.success) {
@@ -338,7 +357,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
         setSubmitStatus("saved");
       })
       .catch(() => { if (session === sessionRef.current) setSubmitStatus("error"); });
-  }, [state?.gameOver, state?.mode, state?.score, state?.wordsCompleted, isLoggedIn]);
+  }, [state?.gameOver, state?.mode, state?.score, state?.wordsCompleted, isLoggedIn, gameSession]);
 
   if (!state) {
     return null;
@@ -376,6 +395,16 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
             </button>
           ))}
         </div>
+        {mode === "exact" ? (
+          <LevelPicker
+            value={level}
+            onChange={(next) => {
+              setLevel(next);
+              setState(createGameState({ mode: "exact", vocabLevel: next }));
+            }}
+            suggested={suggestedLevel}
+          />
+        ) : null}
         {boot.error ? <p className="eq-game-end-note is-error">{boot.error}</p> : null}
       </GameStart>
     );
@@ -393,7 +422,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
           `${state.wordsCompleted} mot${state.wordsCompleted > 1 ? "s" : ""} attrapé${state.wordsCompleted > 1 ? "s" : ""}`,
           `Niveau ${state.level} atteint`,
           `Meilleure série : ${state.highestStreak}`,
-          `Mode ${copy.label.toLowerCase()}`,
+          mode === "exact" ? `Mode vocabulaire : ${getGameLevelLabel(level)}` : "Mode mot libre",
         ]}
         rewards={rewards}
         rewardStatus={submitStatus}
@@ -407,7 +436,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
 
   return (
     <div className="eq-game-play">
-      <GameHud>
+      <GameHud onQuit={() => reset(mode)}>
         <HudStat label="Score" value={state.score.toLocaleString("fr-FR")} tone="gold" />
         <HudStat label="Vies" value={"●".repeat(Math.max(0, state.lives))} tone={state.lives <= 1 ? "coral" : "mint"} />
         <HudStat label="Niveau" value={state.level} tone="cyan" />
@@ -461,6 +490,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
             ref={inputRef}
             data-testid="wordfall-input"
             type="text"
+            enterKeyHint="send"
             autoComplete="off"
             autoCapitalize="none"
             spellCheck={false}

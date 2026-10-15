@@ -16,6 +16,8 @@ import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Difficulty } from "@/lib/profile/leveling";
+import { consumeGameSession } from "@/lib/games/game-session-server";
+import { checkSpeedVerb } from "@/lib/games/score-plausibility";
 
 /**
  * Submit a Speed Verb Challenge game score and update user rewards.
@@ -53,6 +55,7 @@ export async function submitSpeedVerbScore(params: {
   correctCount: number; // Number of correct answers (for rewards)
   totalRounds: number;
   durationMs: number;
+  sessionId?: string | null;
 }): Promise<{
   success: boolean;
   error?: string;
@@ -81,9 +84,12 @@ export async function submitSpeedVerbScore(params: {
       !Number.isSafeInteger(params.score) || params.score < 0 ||
       !Number.isSafeInteger(params.correctCount) || params.correctCount < 0 ||
       !Number.isSafeInteger(params.totalRounds) || params.totalRounds < params.correctCount ||
-      !Number.isFinite(params.durationMs) || params.durationMs < 0
+      !Number.isSafeInteger(params.durationMs) || params.durationMs < 0 || params.durationMs > 2 * 60 * 60 * 1000
     ) {
       return { success: false, error: "Score Speed Verb Challenge invalide" };
+    }
+    if (!checkSpeedVerb(params).ok) {
+      return { success: false, error: "Score Speed Verb Challenge invraisemblable" };
     }
     const supabase = await createSupabaseServerClient();
     const adminClient = createSupabaseAdminClient();
@@ -99,6 +105,16 @@ export async function submitSpeedVerbScore(params: {
         success: false,
         error: "User not authenticated",
       };
+    }
+
+    const gameSession = await consumeGameSession({
+      sessionId: params.sessionId,
+      userId: user.id,
+      slug: "speed-verb-challenge",
+      claimedDurationMs: params.durationMs,
+    });
+    if (!gameSession.ok) {
+      return { success: false, error: gameSession.error };
     }
 
     // Get the Speed Verb Challenge game ID

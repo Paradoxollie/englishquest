@@ -17,6 +17,10 @@ import {
   type GameState,
 } from "@/lib/games/flashTranslation";
 import { GameEnd, GameHud, GameStart, HudStat, TimeBar, type RewardSummary } from "@/components/play/game-screens";
+import { LevelPicker } from "@/components/play/level-picker";
+import { useGameFocusMode } from "@/components/play/use-game-focus-mode";
+import { useGameSession } from "@/components/play/use-game-session";
+import { DEFAULT_GAME_LEVEL, getGameLevelLabel, type GameLevel } from "@/lib/games/levels";
 import { submitFlashTranslationScore } from "./actions";
 
 const CONFIG: GameConfig = {
@@ -42,11 +46,15 @@ function completedRounds(state: GameState) {
 export function FlashTranslationGame({
   isLoggedIn,
   missionTarget,
+  suggestedLevel,
 }: {
   isLoggedIn: boolean;
   missionTarget: number | null;
+  /** Niveau du chapitre en cours (joueur connecté), sinon null. */
+  suggestedLevel: GameLevel | null;
 }) {
-  const [state, setState] = useState<GameState>(() => createGameState(VOCABULARY, CONFIG));
+  const [level, setLevel] = useState<GameLevel>(suggestedLevel ?? DEFAULT_GAME_LEVEL);
+  const [state, setState] = useState<GameState>(() => createGameState(VOCABULARY, { ...CONFIG, level: suggestedLevel ?? DEFAULT_GAME_LEVEL }));
   const [selected, setSelected] = useState<number | null>(null);
   const [combo, setCombo] = useState(0);
   const [bestCombo, setBestCombo] = useState(0);
@@ -59,6 +67,8 @@ export function FlashTranslationGame({
   const lockRef = useRef(false);
   const submittedRef = useRef(false);
   const sessionRef = useRef(0);
+  const startedAtRef = useRef(0);
+  const gameSession = useGameSession("flash-translation", isLoggedIn);
 
   const clearTimers = useCallback(() => {
     if (waitTimer.current) clearTimeout(waitTimer.current);
@@ -75,11 +85,14 @@ export function FlashTranslationGame({
   const round = getCurrentRound(state);
   const done = completedRounds(state);
   const playing = state.started && state.phase !== "ended";
+  useGameFocusMode(playing);
 
   const start = useCallback(() => {
     clearTimers();
     sessionRef.current += 1;
-    setState(startGame(createGameState(VOCABULARY, CONFIG)));
+    gameSession.begin();
+    startedAtRef.current = performance.now();
+    setState(startGame(createGameState(VOCABULARY, { ...CONFIG, level })));
     setSelected(null);
     setCombo(0);
     setBestCombo(0);
@@ -87,7 +100,18 @@ export function FlashTranslationGame({
     setSubmitStatus("idle");
     lockRef.current = false;
     submittedRef.current = false;
-  }, [clearTimers]);
+  }, [clearTimers, gameSession, level]);
+
+  /* Abandon : retour à l'écran de départ, rien n'est enregistré. */
+  const quit = useCallback(() => {
+    clearTimers();
+    sessionRef.current += 1;
+    gameSession.cancel();
+    setState(createGameState(VOCABULARY, { ...CONFIG, level }));
+    setSelected(null);
+    setCombo(0);
+    lockRef.current = false;
+  }, [clearTimers, gameSession, level]);
 
   /* Délai avant l'apparition des choix */
   useEffect(() => {
@@ -154,12 +178,18 @@ export function FlashTranslationGame({
     }
     setSubmitStatus("saving");
     const session = sessionRef.current;
-    submitFlashTranslationScore({
-      totalTimeMs: getFinalScore(state),
-      averageReactionTimeMs: getAverageReactionTime(state),
-      wrongAnswers: state.wrongAnswers,
-      roundsCompleted: completedRounds(state),
-    })
+    gameSession
+      .finish(performance.now() - startedAtRef.current)
+      .then(({ sessionId, durationMs }) =>
+        submitFlashTranslationScore({
+          totalTimeMs: getFinalScore(state),
+          averageReactionTimeMs: getAverageReactionTime(state),
+          wrongAnswers: state.wrongAnswers,
+          roundsCompleted: completedRounds(state),
+          durationMs,
+          sessionId,
+        })
+      )
       .then((result) => {
         if (session !== sessionRef.current) return;
         if (!result.success) {
@@ -188,7 +218,7 @@ export function FlashTranslationGame({
       .catch(() => {
         if (session === sessionRef.current) setSubmitStatus("error");
       });
-  }, [state, isLoggedIn]);
+  }, [state, isLoggedIn, gameSession]);
 
   if (!state.started) {
     return (
@@ -202,7 +232,9 @@ export function FlashTranslationGame({
           missionTarget ? `Objectif de mission : finir en moins de ${seconds(missionTarget)}.` : "Garde la série pour un temps parfait.",
         ]}
         onStart={start}
-      />
+      >
+        <LevelPicker value={level} onChange={setLevel} suggested={suggestedLevel} />
+      </GameStart>
     );
   }
 
@@ -217,6 +249,7 @@ export function FlashTranslationGame({
           `Réaction moyenne : ${seconds(getAverageReactionTime(state))}`,
           `${state.wrongAnswers} erreur${state.wrongAnswers > 1 ? "s" : ""} (${state.wrongAnswers * 5} s de pénalité)`,
           `Meilleure série : ${bestCombo}`,
+          `Niveau ${getGameLevelLabel(level)}`,
         ]}
         rewards={rewards}
         rewardStatus={submitStatus}
@@ -252,7 +285,7 @@ export function FlashTranslationGame({
 
   return (
     <div className="eq-game-play">
-      <GameHud>
+      <GameHud onQuit={quit}>
         <HudStat label="Temps" value={seconds(getFinalScore(state))} tone="cyan" />
         <HudStat label="Mot" value={`${state.currentRoundIndex + 1} / ${state.rounds.length}`} />
         <HudStat label="Erreurs" value={state.wrongAnswers} tone={state.wrongAnswers > 0 ? "coral" : "mint"} hint="+ 5 s chacune" />

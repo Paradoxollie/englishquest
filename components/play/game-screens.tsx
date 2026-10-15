@@ -72,8 +72,21 @@ function RewardCounters({ xp, gold }: { xp: number; gold: number }) {
   );
 }
 
-export function GameHud({ children }: { children: ReactNode }) {
-  return <div className="eq-game-hud">{children}</div>;
+/**
+ * Barre de statistiques. `onQuit` ajoute un bouton « Quitter », visible
+ * seulement en mode concentration sur téléphone (voir useGameFocusMode).
+ */
+export function GameHud({ children, onQuit }: { children: ReactNode; onQuit?: () => void }) {
+  return (
+    <div className="eq-game-hud">
+      {children}
+      {onQuit ? (
+        <button type="button" className="eq-game-quit" onClick={onQuit} data-testid="game-quit">
+          Quitter
+        </button>
+      ) : null}
+    </div>
+  );
 }
 
 export function HudStat({
@@ -111,6 +124,7 @@ export function GameStart({
   children,
   onStart,
   startLabel = "Lancer la partie",
+  startDisabled = false,
 }: {
   title: string;
   intro: string;
@@ -118,6 +132,8 @@ export function GameStart({
   children?: ReactNode;
   onStart: () => void;
   startLabel?: string;
+  /** Bouton inactif, par exemple pendant le chargement d'un dictionnaire. */
+  startDisabled?: boolean;
 }) {
   return (
     <div className="eq-game-start eq-pop">
@@ -141,6 +157,8 @@ export function GameStart({
         }}
         className="eq-btn eq-btn-gold eq-btn-lg"
         data-testid="game-start"
+        disabled={startDisabled}
+        aria-busy={startDisabled || undefined}
       >
         {startLabel}
       </button>

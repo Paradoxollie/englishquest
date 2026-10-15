@@ -18,6 +18,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
   mapWordLengthToDifficulty,
 } from "@/lib/profile/enigma-scroll-rewards";
+import { consumeGameSession } from "@/lib/games/game-session-server";
+import { checkEnigmaScroll } from "@/lib/games/score-plausibility";
 
 /**
  * Submit an Enigma Scroll game score and update user rewards.
@@ -34,6 +36,7 @@ export async function submitEnigmaScrollScore(params: {
   totalScore: number;
   wordsFound: number;
   durationMs: number;
+  sessionId?: string | null;
 }): Promise<{
   success: boolean;
   error?: string;
@@ -62,6 +65,9 @@ export async function submitEnigmaScrollScore(params: {
       params.totalScore > 1_000_000 || params.wordsFound > 20_000 || params.durationMs > 2 * 60 * 60 * 1000) {
       return { success: false, error: "Score Enigma Scroll invalide" };
     }
+    if (!checkEnigmaScroll(params).ok) {
+      return { success: false, error: "Score Enigma Scroll invraisemblable" };
+    }
     const supabase = await createSupabaseServerClient();
     const adminClient = createSupabaseAdminClient();
 
@@ -76,6 +82,16 @@ export async function submitEnigmaScrollScore(params: {
         success: false,
         error: "User not authenticated",
       };
+    }
+
+    const gameSession = await consumeGameSession({
+      sessionId: params.sessionId,
+      userId: user.id,
+      slug: "enigma-scroll",
+      claimedDurationMs: params.durationMs,
+    });
+    if (!gameSession.ok) {
+      return { success: false, error: gameSession.error };
     }
 
     // Get the Enigma Scroll game ID
