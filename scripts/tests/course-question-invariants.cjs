@@ -23,7 +23,7 @@ function loadSource(filename) {
     if (name === "server-only") return {};
     if (name.startsWith("@/") || name.startsWith("./")) {
       const base = name.startsWith("@/") ? path.join(root, name.slice(2)) : path.resolve(path.dirname(filename), name);
-      const resolved = [base, `${base}.ts`, `${base}.tsx`].find((candidate) => fs.existsSync(candidate));
+      const resolved = [base, `${base}.ts`, `${base}.tsx`, path.join(base, "index.ts")].find((candidate) => fs.existsSync(candidate) && fs.statSync(candidate).isFile());
       return loadSource(resolved);
     }
     return originalRequire(name);
@@ -115,7 +115,43 @@ for (const course of [1, 27, 50]) {
   assert.equal(gradeCourseQuiz(course, perfect.map((answer) => ({ ...answer, choice: 9 }))), null, "Missing choice refused");
   assert.equal(gradeCourseQuiz(course, { score: 10, total: 10 }), null, "Client score refused");
 }
-console.log("PASS Course quizzes are graded on the server from the answers only.");
+// Séries mêlant QCM, phrases à compléter et phrases à remettre dans l'ordre.
+const check = loadSource(path.join(root, "lib/courses/exercise-check.ts"));
+const extras1 = JSON.parse(fs.readFileSync(path.join(root, "lib/courses/exercises/course1.json"), "utf8")).items;
+const gap = extras1.find((item) => item.type === "gap");
+const order = extras1.find((item) => item.type === "order");
+const mixed = [
+  ...bank.filter((q) => q.course === 1 && /^1-\d+$/.test(q.id)).slice(0, 8).map((q) => ({ id: q.id.split("-")[1], choice: q.correctAnswer })),
+  { id: gap.id, text: `  ${gap.answers[0].toUpperCase()} ` },
+  { id: order.id, text: order.answers[0].replace(/[.?!]$/, "").toLowerCase() },
+];
+assert.deepEqual(gradeCourseQuiz(1, mixed), { score: 10, total: 10 }, "Typed answers ignore case, spaces and final punctuation");
+assert.deepEqual(gradeCourseQuiz(1, mixed.map((a) => a.id === gap.id ? { ...a, text: "zzz" } : a)), { score: 9, total: 10 });
+assert.equal(gradeCourseQuiz(1, mixed.map((a) => a.id === gap.id ? { id: a.id, choice: 0 } : a)), null, "A gap needs text");
+assert.equal(gradeCourseQuiz(1, mixed.map((a) => a.id === order.id ? { ...a, text: "x".repeat(201) } : a)), null, "Text length is bounded");
+assert.equal(gradeCourseQuiz(1, [...mixed.slice(0, 9), { id: "x99", choice: 0 }]), null, "Unknown exercise refused");
+assert.equal(check.normalizeAnswer(" Isn’t  it? "), "isn't it");
+assert.equal(check.displayToken("She", 0), "she");
+assert.equal(check.displayToken("Tom", 0), "Tom");
+assert.equal(check.displayToken("I", 0), "I");
+let seed = 7;
+const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+for (let course = 1; course <= 50; course += 1) {
+  const pool = [
+    ...bank.filter((q) => q.course === course && /^\d+-\d+$/.test(q.id)).map((q) => ({ id: q.id.split("-")[1], type: "mcq", question: q.question, options: q.options, correctAnswer: q.correctAnswer, explanation: "" })),
+    ...JSON.parse(fs.readFileSync(path.join(root, `lib/courses/exercises/course${course}.json`), "utf8")).items,
+  ];
+  for (let draw = 0; draw < 4; draw += 1) {
+    const series = check.drawQuizSeries(pool, rnd);
+    assert.equal(series.length, 10, `Course ${course}: ten exercises`);
+    assert.equal(new Set(series.map((item) => item.id)).size, 10, `Course ${course}: no repeat`);
+    assert.equal(series.filter((item) => item.type === "gap").length, 2);
+    assert.equal(series.filter((item) => item.type === "order").length, 2);
+    const answers = series.map((item) => item.type === "mcq" ? { id: item.id, choice: item.correctAnswer } : { id: item.id, text: item.answers[0] });
+    assert.deepEqual(gradeCourseQuiz(course, answers), { score: 10, total: 10 }, `Course ${course}: perfect mixed series`);
+  }
+}
+console.log("PASS Course quizzes are graded on the server from the answers only, mixed series of 50 courses included.");
 
 process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "test-only-key";
 const { createPlacementToken, readPlacementToken } = loadSource(path.join(root, "lib/placement/placement-token.ts"));

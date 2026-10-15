@@ -22,6 +22,32 @@ import {
 const ONE_MINUTE_MS = 60_000;
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 
+/**
+ * Tant que la migration 2026-10-16_20 n'est pas appliquée, la table manque :
+ * les scores restent acceptés (contrôle de vraisemblance seulement) au lieu
+ * d'être tous refusés. Le résultat est gardé une minute.
+ */
+let tableCheck: { missing: boolean; at: number } | null = null;
+
+function isMissingTable(error: unknown) {
+  const value = error as { code?: string; message?: string } | null;
+  return Boolean(
+    value &&
+      (value.code === "42P01" ||
+        value.code === "PGRST205" ||
+        /does not exist|could not find the table/i.test(value.message ?? ""))
+  );
+}
+
+async function sessionsTableMissing() {
+  if (tableCheck && Date.now() - tableCheck.at < ONE_MINUTE_MS) return tableCheck.missing;
+  const probe = await createSupabaseAdminClient().from("game_sessions").select("id", { head: true }).limit(1);
+  const missing = isMissingTable(probe.error);
+  if (missing) console.warn("game_sessions absente : sessions de partie désactivées (migration 2026-10-16_20 à appliquer)");
+  tableCheck = { missing, at: Date.now() };
+  return missing;
+}
+
 export type StartGameSessionResult = { ok: true; sessionId: string } | { ok: false; error: string };
 
 /** Démarre une partie pour le joueur connecté et renvoie l'identifiant de session. */
@@ -95,7 +121,9 @@ export async function consumeGameSession(params: {
     error: sessionRejectionMessage(reason),
   });
 
-  if (params.sessionId == null || params.sessionId === "") return reject("missing");
+  if (params.sessionId == null || params.sessionId === "") {
+    return (await sessionsTableMissing()) ? { ok: true } : reject("missing");
+  }
   if (!isSessionId(params.sessionId) || !params.userId || !isGameSessionSlug(params.slug)) return reject("invalid");
   const sessionId = params.sessionId;
 
@@ -105,7 +133,10 @@ export async function consumeGameSession(params: {
     .select("id, user_id, game_slug, started_at, used_at")
     .eq("id", sessionId)
     .maybeSingle();
-  if (found.error) throw found.error;
+  if (found.error) {
+    if (isMissingTable(found.error)) return { ok: true };
+    throw found.error;
+  }
 
   const nowMs = Date.now();
   const check = checkGameSession((found.data as GameSessionRow | null) ?? null, {

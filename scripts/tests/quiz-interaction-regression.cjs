@@ -8,6 +8,11 @@ const filename = path.resolve(__dirname, "../../components/courses/quiz.tsx");
 const compiled = ts.transpileModule(fs.readFileSync(filename, "utf8"), {
   compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
 }).outputText;
+const exerciseCheck = (() => {
+  const file = path.resolve(__dirname, "../../lib/courses/exercise-check.ts");
+  const out = ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
+  const m = new Module(file, module); m._compile(out, file); return m.exports;
+})();
 const questions = [1, 2, 3].map((id) => ({ id, question: `Question ${id}`, options: ["Right", "Wrong"], correctAnswer: 0, explanation: "Explanation" }));
 
 function harness(items = questions, mission = null) {
@@ -35,6 +40,7 @@ function harness(items = questions, mission = null) {
     if (name === "next/link") return { __esModule: true, default: "a" };
     if (name === "@/components/courses/course-mission-provider") return { useCourseMission: () => mission };
     if (name === "@/lib/courses/quiz-score") return { isCourseQuizScorePassing: (score, total) => total > 0 && score / total >= 0.8 };
+    if (name === "@/lib/courses/exercise-check") return exerciseCheck;
     throw new Error(`Unexpected import ${name}`);
   };
   mod._compile(compiled, filename);
@@ -145,8 +151,47 @@ async function test(name, run) { await run(); cases += 1; console.log(`PASS ${na
     for (const effect of h.effects()) effect();
     await Promise.resolve();
     assert.equal(sent.length, 3);
-    assert.deepEqual([...sent.map((answer) => answer.id)].sort(), [1, 2, 3]);
+    assert.deepEqual([...sent.map((answer) => answer.id)].sort(), ["1", "2", "3"]);
     assert.equal(sent.filter((answer) => answer.choice === 0).length, 2, "Right is option 0 in the source data");
+  });
+  await test("Typed gap answers and rebuilt sentences are checked and sent as text", async () => {
+    let sent = null;
+    const extraExercises = [
+      { id: "x7", type: "gap", prompt: "She ___ happy.", answers: ["is", "'s"], explanation: "Be." },
+      { id: "x11", type: "order", answers: ["She is very happy today."], translation: "Elle est très contente aujourd'hui.", explanation: "Ordre." },
+    ];
+    const mission = { isAuthenticated: true, isMissionTrackingEnabled: true, extraExercises, submitQuizResult: async (answers) => { sent = answers; return null; } };
+    const h = harness(questions.slice(0, 1), mission);
+    h.render();
+    for (const effect of h.effects()) effect();
+    for (let i = 0; i < 3; i += 1) {
+      const tree = h.render();
+      const gapForm = find(tree, (node) => node.type === "form" && node.props?.className === "eq-quiz-gap");
+      const tokens = find(tree, (node) => node.props?.className === "eq-quiz-tokens");
+      if (gapForm) {
+        const input = find(tree, (node) => node.type === "input" && node.props?.className === "eq-quiz-input");
+        input.props.onChange({ target: { value: " IS " } });
+        find(h.render(), (node) => node.type === "form").props.onSubmit({ preventDefault() {} });
+      } else if (tokens) {
+        for (const word of ["she", "is", "very", "happy", "today"]) {
+          const t = h.render();
+          const list = find(t, (node) => node.props?.className === "eq-quiz-tokens");
+          const chips = (Array.isArray(list.props.children) ? list.props.children : [list.props.children]).flat(Infinity).filter(Boolean);
+          chips.find((chip) => content(chip) === word).props.onClick();
+        }
+        button(h.render(), "Valider")();
+      } else {
+        option(tree)();
+      }
+      const after = h.render();
+      assert.match(content(find(after, (node) => node.props?.className === "eq-quiz-feedback")), /Juste/);
+      button(after, i < 2 ? "Question suivante" : "Voir le résultat")();
+    }
+    assert.equal(content(find(h.render(), (node) => node.props?.className === "eq-quiz-score")), "3 / 3");
+    for (const effect of h.effects()) effect();
+    await Promise.resolve();
+    assert.deepEqual(sent.find((a) => a.id === "x7"), { id: "x7", text: " IS " });
+    assert.deepEqual(sent.find((a) => a.id === "x11"), { id: "x11", text: "She is very happy today." });
   });
   console.log(`\n${cases} Quiz interaction regression cases passed.`);
 })().catch((error) => { console.error(error); process.exitCode = 1; });

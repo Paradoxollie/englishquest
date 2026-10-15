@@ -1,0 +1,106 @@
+// Fichier généré : la liste des exercices supplémentaires de chaque cours.
+// Importer ce module seulement côté serveur (ou par cours, via la page).
+import type { CourseExercises } from "../exercise-check";
+import course1 from "./course1.json";
+import course2 from "./course2.json";
+import course3 from "./course3.json";
+import course4 from "./course4.json";
+import course5 from "./course5.json";
+import course6 from "./course6.json";
+import course7 from "./course7.json";
+import course8 from "./course8.json";
+import course9 from "./course9.json";
+import course10 from "./course10.json";
+import course11 from "./course11.json";
+import course12 from "./course12.json";
+import course13 from "./course13.json";
+import course14 from "./course14.json";
+import course15 from "./course15.json";
+import course16 from "./course16.json";
+import course17 from "./course17.json";
+import course18 from "./course18.json";
+import course19 from "./course19.json";
+import course20 from "./course20.json";
+import course21 from "./course21.json";
+import course22 from "./course22.json";
+import course23 from "./course23.json";
+import course24 from "./course24.json";
+import course25 from "./course25.json";
+import course26 from "./course26.json";
+import course27 from "./course27.json";
+import course28 from "./course28.json";
+import course29 from "./course29.json";
+import course30 from "./course30.json";
+import course31 from "./course31.json";
+import course32 from "./course32.json";
+import course33 from "./course33.json";
+import course34 from "./course34.json";
+import course35 from "./course35.json";
+import course36 from "./course36.json";
+import course37 from "./course37.json";
+import course38 from "./course38.json";
+import course39 from "./course39.json";
+import course40 from "./course40.json";
+import course41 from "./course41.json";
+import course42 from "./course42.json";
+import course43 from "./course43.json";
+import course44 from "./course44.json";
+import course45 from "./course45.json";
+import course46 from "./course46.json";
+import course47 from "./course47.json";
+import course48 from "./course48.json";
+import course49 from "./course49.json";
+import course50 from "./course50.json";
+
+export const courseExercises: Record<number, CourseExercises> = {
+  1: course1 as CourseExercises,
+  2: course2 as CourseExercises,
+  3: course3 as CourseExercises,
+  4: course4 as CourseExercises,
+  5: course5 as CourseExercises,
+  6: course6 as CourseExercises,
+  7: course7 as CourseExercises,
+  8: course8 as CourseExercises,
+  9: course9 as CourseExercises,
+  10: course10 as CourseExercises,
+  11: course11 as CourseExercises,
+  12: course12 as CourseExercises,
+  13: course13 as CourseExercises,
+  14: course14 as CourseExercises,
+  15: course15 as CourseExercises,
+  16: course16 as CourseExercises,
+  17: course17 as CourseExercises,
+  18: course18 as CourseExercises,
+  19: course19 as CourseExercises,
+  20: course20 as CourseExercises,
+  21: course21 as CourseExercises,
+  22: course22 as CourseExercises,
+  23: course23 as CourseExercises,
+  24: course24 as CourseExercises,
+  25: course25 as CourseExercises,
+  26: course26 as CourseExercises,
+  27: course27 as CourseExercises,
+  28: course28 as CourseExercises,
+  29: course29 as CourseExercises,
+  30: course30 as CourseExercises,
+  31: course31 as CourseExercises,
+  32: course32 as CourseExercises,
+  33: course33 as CourseExercises,
+  34: course34 as CourseExercises,
+  35: course35 as CourseExercises,
+  36: course36 as CourseExercises,
+  37: course37 as CourseExercises,
+  38: course38 as CourseExercises,
+  39: course39 as CourseExercises,
+  40: course40 as CourseExercises,
+  41: course41 as CourseExercises,
+  42: course42 as CourseExercises,
+  43: course43 as CourseExercises,
+  44: course44 as CourseExercises,
+  45: course45 as CourseExercises,
+  46: course46 as CourseExercises,
+  47: course47 as CourseExercises,
+  48: course48 as CourseExercises,
+  49: course49 as CourseExercises,
+  50: course50 as CourseExercises,
+};

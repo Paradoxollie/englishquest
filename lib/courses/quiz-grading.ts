@@ -1,21 +1,22 @@
 import "server-only";
-import bank from "@/lib/placement/questions.json";
+import { QUIZ_SIZE, isExerciseAnswerCorrect, type ExerciseAnswer } from "./exercise-check";
+import { getCourseQuizPool } from "./exercises-server";
 
 /**
  * Correction du quiz de cours côté serveur.
  *
- * Le navigateur envoie, pour chaque question, l'indice de la réponse choisie
- * dans la liste d'origine (avant mélange). Le serveur recalcule la note à
- * partir de la banque de questions, synchronisée avec les cours par
- * scripts/tests/course-question-invariants.cjs. Une copie incomplète, une
- * question d'un autre cours ou un choix inexistant est refusé.
+ * Le navigateur tire une série de dix exercices dans la banque du cours (les
+ * dix questions d'origine et les exercices supplémentaires) et envoie, pour
+ * chacun, l'indice d'origine choisi (QCM) ou le texte saisi (phrase à
+ * compléter, phrase à remettre dans l'ordre). Le serveur recalcule la note.
+ * Une série incomplète, un exercice d'un autre cours, un doublon ou un choix
+ * inexistant est refusé.
  */
 
-export type CourseQuizAnswer = { id: number; choice: number };
+/** Ancien format (identifiant numérique) accepté : pages encore ouvertes avant la mise à jour. */
+export type CourseQuizAnswer = { id: string | number; choice?: number; text?: string };
 
-type BankQuestion = { id: string; course: number; question: string; options: string[]; correctAnswer: number };
-
-const questions = bank as BankQuestion[];
+const MAX_TEXT_LENGTH = 200;
 
 export function gradeCourseQuiz(
   courseNumber: number,
@@ -25,27 +26,35 @@ export function gradeCourseQuiz(
     return null;
   }
 
-  const courseQuestions = questions.filter((question) => question.course === courseNumber);
-  if (courseQuestions.length === 0 || answers.length !== courseQuestions.length) {
+  const pool = getCourseQuizPool(courseNumber);
+  const expected = Math.min(QUIZ_SIZE, pool.length);
+  if (pool.length === 0 || answers.length !== expected) {
     return null;
   }
 
-  const byLocalId = new Map(
-    courseQuestions.map((question) => [Number(question.id.split("-")[1]), question])
-  );
-  const seen = new Set<number>();
+  const byId = new Map(pool.map((item) => [item.id, item]));
+  const seen = new Set<string>();
   let score = 0;
 
   for (const raw of answers) {
     if (!raw || typeof raw !== "object") return null;
-    const { id, choice } = raw as Partial<CourseQuizAnswer>;
-    if (!Number.isInteger(id) || !Number.isInteger(choice)) return null;
-    const question = byLocalId.get(id as number);
-    if (!question || seen.has(id as number)) return null;
-    if ((choice as number) < 0 || (choice as number) >= question.options.length) return null;
-    seen.add(id as number);
-    if (choice === question.correctAnswer) score += 1;
+    const { id, choice, text } = raw as Partial<CourseQuizAnswer>;
+    if (typeof id !== "string" && !Number.isInteger(id)) return null;
+    const key = String(id);
+    const item = byId.get(key);
+    if (!item || seen.has(key)) return null;
+    seen.add(key);
+
+    const answer: ExerciseAnswer = { id: key };
+    if (item.type === "mcq") {
+      if (!Number.isInteger(choice) || (choice as number) < 0 || (choice as number) >= item.options.length) return null;
+      answer.choice = choice as number;
+    } else {
+      if (typeof text !== "string" || text.length > MAX_TEXT_LENGTH) return null;
+      answer.text = text;
+    }
+    if (isExerciseAnswerCorrect(item, answer)) score += 1;
   }
 
-  return { score, total: courseQuestions.length };
+  return { score, total: expected };
 }

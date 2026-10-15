@@ -17,6 +17,7 @@ import { getUserCourseMissionState } from "@/lib/courses/mission-state";
 import { getChapterForCourse } from "@/lib/courses/chapters";
 import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
 import { getUserCoursePractice } from "@/lib/courses/practice-server";
+import { getCourseExtraExercises } from "@/lib/courses/exercises-server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 interface CoursePageProps {
@@ -124,6 +125,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
       isMissionTrackingEnabled={isMissionTrackingEnabled}
       initialMissionState={missionState}
       autoLaunch={shouldAutoLaunch}
+      extraExercises={getCourseExtraExercises(courseId)}
     >
       <LessonLayout
         courseNumber={lesson.courseNumber}

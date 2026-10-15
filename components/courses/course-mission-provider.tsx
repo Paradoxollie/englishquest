@@ -16,6 +16,7 @@ import {
 } from "@/app/cours/actions";
 import type { CourseMissionState } from "@/lib/courses/mission-state";
 import type { CourseQuizAnswer } from "@/lib/courses/quiz-grading";
+import type { ExerciseItem } from "@/lib/courses/exercise-check";
 import { dispatchReward } from "@/lib/profile/reward-events";
 
 function isPerfectQuiz(state: CourseMissionState | null | undefined) {
@@ -30,6 +31,8 @@ type CourseMissionContextValue = {
   isSyncing: boolean;
   markReadingCheckpoint: () => Promise<void>;
   submitQuizResult: (answers: CourseQuizAnswer[]) => Promise<QuizSubmissionOutcome | null>;
+  /** Exercices supplémentaires du cours, mêlés aux questions du quiz. */
+  extraExercises: ExerciseItem[];
 };
 
 export type QuizSubmissionOutcome = {
@@ -46,6 +49,7 @@ type CourseMissionProviderProps = {
   initialMissionState: CourseMissionState | null;
   /** Lance la mission automatiquement à l'ouverture (cours débloqué, pas encore lancé). */
   autoLaunch?: boolean;
+  extraExercises?: ExerciseItem[];
   children: ReactNode;
 };
 
@@ -55,6 +59,7 @@ export function CourseMissionProvider({
   isMissionTrackingEnabled,
   initialMissionState,
   autoLaunch = false,
+  extraExercises = [],
   children,
 }: CourseMissionProviderProps) {
   const router = useRouter();
@@ -157,6 +162,7 @@ export function CourseMissionProvider({
         isSyncing,
         markReadingCheckpoint,
         submitQuizResult,
+        extraExercises,
       }}
     >
       {children}
