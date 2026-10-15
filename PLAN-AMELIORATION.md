@@ -66,7 +66,7 @@ Qui : C = Claude, P = Pierre. Taille : S petit, M moyen, L grand.
 | 1.4 | Quiz corrigé côté serveur | C | S | fait 15/10 (`lib/courses/quiz-grading.ts`) |
 | 1.5 | Exercices de production : phrase à compléter, mots à remettre en ordre, erreur à repérer | C | M | à faire |
 | 1.6 | Bouton écouter sur chaque exemple (synthèse vocale du navigateur, en-GB) | C | S | fait 15/10 : sélectionner une phrase fait apparaître « Écouter » |
-| 1.7 | Niveau A1 à C1 pour chaque mot des jeux (proposition Claude, correction Pierre) ; jeux filtrés par niveau | P + C | M | à faire |
+| 1.7 | Niveau A1 à C1 pour chaque mot des jeux (proposition Claude, correction Pierre) ; jeux filtrés par niveau | P + C | M | fait 16/10 côté Claude (Flash Translation, Flashback, Wordfall, Enigma, Lexicon Blaster) ; relecture des niveaux par Pierre à faire |
 | 1.8 | Test de niveau sans compte, résultat et parties invité rattachés à l'inscription | C | M | en partie 15/10 : test ouvert sans compte, résultat signé appliqué à l'inscription, bouton principal de l'accueil ; parties invité à faire |
 
 ### Phase 2 : donner envie de revenir (1 à 2 semaines)
@@ -78,7 +78,7 @@ Qui : C = Claude, P = Pierre. Taille : S petit, M moyen, L grand.
 | 2.3 | Examen de chapitre mis en scène comme un boss, coffre et décor débloqués | C | M | à faire |
 | 2.4 | Ligue de la semaine (remise à zéro le lundi, par classe ensuite) | C | M | à faire |
 | 2.5 | Animations de récompense (framer-motion déjà installé) | C | M | à faire |
-| 2.6 | Anti-triche : session de partie côté serveur, contrôle score/durée, réponses vérifiées pour Grammar Rush et Flash Translation | C | M | à faire |
+| 2.6 | Anti-triche : session de partie côté serveur, contrôle score/durée, réponses vérifiées pour Grammar Rush et Flash Translation | C | M | en partie 16/10 : sessions et plausibilité des sept jeux (migration `2026-10-16_20` à appliquer) ; réponses vérifiées à faire |
 
 ### Phase 3 : espace prof et mode classe (2 à 3 semaines)
 
@@ -98,7 +98,7 @@ Qui : C = Claude, P = Pierre. Taille : S petit, M moyen, L grand.
 | 4.1 | Cours transformés en données + 6 à 8 composants communs, un seul style | C | L | à faire |
 | 4.2 | Trace écrite par cours | C | S | à faire |
 | 4.3 | Carte d'aventure : chapitre en cours en grand, autres repliés | C | M | à faire |
-| 4.4 | Mode jeu plein écran sur téléphone | C | M | à faire |
+| 4.4 | Mode jeu plein écran sur téléphone | C | M | fait 16/10 : mode concentration des sept jeux, bouton Quitter |
 | 4.5 | Générer les 14 visuels + 13 objets de boutique en une série (consignes écrites par Claude) | P | M | à faire |
 
 Emplacements d'images (dans `public/art/`, JPG) : `hero-home.jpg` 2400×1350 sujet à droite ; `hero-games.jpg` 2400×1000 ; `act-1.jpg` à `act-5.jpg` 1200×1600, le haut compte ; `game-<jeu>.jpg` ×7 en 1500×1000 (enigma-scroll, space-lex, speed-verb-challenge, wordfall, flash-translation, grammar-rush, flashback) ; avatars boutique 512×512.
@@ -108,9 +108,9 @@ Emplacements d'images (dans `public/art/`, JPG) : `hero-home.jpg` 2400×1350 suj
 | # | Tâche | Qui | Taille | État |
 |---|---|---|---|---|
 | 5.1 | Moteur « mécanique × paquet de contenu » (une dizaine de mécaniques) | C | L | à faire |
-| 5.2 | Enigma Scroll : 600 mots par niveau, traduction finale, validation chargée à la demande | C | M | à faire |
-| 5.3 | Flashback repensé (« déjà vu, et ça veut dire quoi ? ») | C | M | à faire |
-| 5.4 | Lexicon Blaster : consignes en français pour A1-A2 | C | S | à faire |
+| 5.2 | Enigma Scroll : 600 mots par niveau, traduction finale, validation chargée à la demande | C | M | en partie 16/10 : 1 231 mots cibles traduits (388, 391 et 452 pour 4, 5 et 6 lettres), traduction en fin de mot, dictionnaire chargé à la demande |
+| 5.3 | Flashback repensé (« déjà vu, et ça veut dire quoi ? ») | C | M | en partie 16/10 : mots du niveau, traduction affichée, « Mots rencontrés » en fin de partie |
+| 5.4 | Lexicon Blaster : consignes en français pour A1-A2 | C | S | fait 16/10 : consignes et sous-titres en français, missions simplifiées, données corrigées |
 
 ### Phase 6 : audience (quand les classes l'utilisent)
 
@@ -126,3 +126,4 @@ Emplacements d'images (dans `public/art/`, JPG) : `hero-home.jpg` 2400×1350 suj
 - 2026-10-15 : bilan complet (code, tests, site en ligne, Supabase). Rien modifié sur le site ni dans la base. Environ 330 visites de test ajoutées au compteur ce jour-là (HeadlessChrome).
 - 2026-10-15 (soir) : phase 0 (code) et cœur de la phase 1 faits et poussés. Détail : entités et accents corrigés (banque de questions resynchronisée), classements réservés aux connectés, pub coupée par défaut, menu Profs réservé aux profs, contact protégé, compteur de visites filtré, mission validée par le quiz, quiz mélangé et corrigé par le serveur, Grammar Rush ciblé (`?cours=N`), bouton Écouter, test de niveau sans compte, durées de cours réalistes, un seul repère `main` par page de jeu. Tests ajoutés : entités HTML, correction serveur du quiz, mélange du quiz, jeton du test de niveau, test de niveau invité sans écriture.
 - 2026-10-15 (soir) : vérifié en production après déploiement : 13 scénarios de jeu passent ; parcours réel complet avec un compte de test (test de niveau sans compte placé au chapitre 2, inscription, carte ouverte au chapitre 2, quiz du cours 11 à 10/10, mission validée +100 XP +8 or), puis compte supprimé par le profil ; base vérifiée : 26 comptes, aucune ligne orpheline.
+- 2026-10-16 : jeux par niveau (A1 à C1) et anti-triche de base. Vocabulaire classé et complété (Flash Translation 279 mots, Wordfall 965, Enigma 1 231 mots cibles traduits), choix du niveau pour les invités, Flashback centré sur le sens, consignes de Lexicon Blaster en français aux niveaux 1 et 2, mode concentration sur téléphone, sessions de partie et contrôle de plausibilité des scores (migration `2026-10-16_20_game_sessions.sql` à appliquer avant le déploiement : sans elle, les scores des joueurs connectés sont refusés).

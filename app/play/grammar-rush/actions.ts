@@ -7,6 +7,8 @@ import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
 import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { consumeGameSession } from "@/lib/games/game-session-server";
+import { checkGrammarRush } from "@/lib/games/score-plausibility";
 
 const SLUG = "grammar-rush";
 const DIFFICULTY = "medium" as const;
@@ -16,6 +18,7 @@ export async function submitGrammarRushScore(params: {
   correct: number;
   attempts: number;
   durationMs: number;
+  sessionId?: string | null;
 }): Promise<{
   success: boolean;
   error?: string;
@@ -32,7 +35,7 @@ export async function submitGrammarRushScore(params: {
     dailyGoalReached: boolean;
   };
 }> {
-  if (!isValidRushResult(params)) return { success: false, error: "Les résultats de cette partie sont incohérents." };
+  if (!isValidRushResult(params) || !checkGrammarRush(params).ok) return { success: false, error: "Les résultats de cette partie sont incohérents." };
   const { score, correct, attempts, durationMs } = params;
 
   try {
@@ -42,6 +45,10 @@ export async function submitGrammarRushScore(params: {
     } = await supabase.auth.getUser();
     if (!user) {
       return { success: false, error: "Connecte-toi pour enregistrer ton score." };
+    }
+    const gameSession = await consumeGameSession({ sessionId: params.sessionId, userId: user.id, slug: SLUG, claimedDurationMs: durationMs });
+    if (!gameSession.ok) {
+      return { success: false, error: gameSession.error };
     }
 
     const admin = createSupabaseAdminClient();

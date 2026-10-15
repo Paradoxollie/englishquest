@@ -1,5 +1,6 @@
 // Focused regression checks without writes to a real Supabase project.
 const assert = require("node:assert/strict");
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const ts = require("typescript");
@@ -17,8 +18,13 @@ function loadTs(relativePath, imports = {}) {
 
 class Query {
   constructor(db, table) { this.db = db; this.table = table; this.filters = []; this.orders = []; }
-  select() { return this; }
+  select(columns, options) { if (options?.count) this.countOptions = options; return this; }
   eq(key, value) { this.filters.push((row) => row[key] === value); return this; }
+  gte(key, value) { this.filters.push((row) => row[key] >= value); return this; }
+  lte(key, value) { this.filters.push((row) => row[key] <= value); return this; }
+  lt(key, value) { this.filters.push((row) => row[key] < value); return this; }
+  insert(rows) { this.inserted = Array.isArray(rows) ? rows : [rows]; return this; }
+  delete() { this.deleting = true; return this; }
   is(key, value) { this.filters.push((row) => row[key] == value); return this; }
   in(key, values) { this.filters.push((row) => values.includes(row[key])); return this; }
   filter(key, operator, value) {
@@ -35,7 +41,19 @@ class Query {
     await new Promise((resolve) => setImmediate(resolve));
     const failure = await this.db.failQuery?.(this);
     if (failure) return { data: null, error: failure };
+    this.db[this.table] ??= [];
+    if (this.inserted) {
+      const created = this.inserted.map((row) => ({ id: crypto.randomUUID(), ...row }));
+      this.db[this.table].push(...created);
+      const copies = created.map((row) => structuredClone(row));
+      return { data: single ? copies[0] : copies, error: null };
+    }
     let rows = this.db[this.table].filter((row) => this.filters.every((filter) => filter(row)));
+    if (this.deleting) {
+      this.db[this.table] = this.db[this.table].filter((row) => !rows.includes(row));
+      return { data: null, error: null };
+    }
+    if (this.countOptions) return { data: this.countOptions.head ? null : rows.map((row) => structuredClone(row)), count: rows.length, error: null };
     rows.sort((a, b) => {
       for (const { key, ascending } of this.orders) {
         const difference = typeof a[key] === "number" ? a[key] - b[key] : String(a[key]).localeCompare(String(b[key]));
@@ -360,6 +378,95 @@ async function main() {
   assert("error" in await examAction.submitChapterExamAction(2, fullExamAnswers));
   assert("error" in await examAction.submitChapterExamAction(1, Object.fromEntries(Object.entries(fullExamAnswers).slice(0, 12))));
   assert.equal(scoped.db.chapter_exams.length, 0, "invalid exam submissions must not save or grant rewards");
+  // ---------- Sessions de partie (anti-triche) ----------
+  const sessionRules = loadTs("lib/games/game-session-rules.ts");
+  const plausibility = loadTs("lib/games/score-plausibility.ts", { "./grammar-rush": rush });
+  const authAs = (userId) => ({ createSupabaseServerClient: async () => ({ auth: { getUser: async () => ({ data: { user: userId ? { id: userId } : null } }) } }) });
+  function sessionFixture(userId = "user") {
+    const db = { game_sessions: [], games: [{ id: "game-flashback", slug: "flashback" }], game_scores: [] };
+    const sessions = loadTs("lib/games/game-session-server.ts", {
+      "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(db) },
+      "@/lib/supabase/server": authAs(userId),
+      "@/lib/games/game-session-rules": sessionRules,
+    });
+    return { db, sessions };
+  }
+  const minutesAgo = (minutes) => new Date(Date.now() - minutes * 60_000).toISOString();
+
+  const guestSessions = sessionFixture(null);
+  assert.equal((await guestSessions.sessions.startGameSession("wordfall")).ok, false, "guests get no session");
+  assert.equal(guestSessions.db.game_sessions.length, 0);
+  const { db: sessionDb, sessions } = sessionFixture();
+  assert.equal((await sessions.startGameSession("tetris")).ok, false, "unknown game");
+  sessionDb.game_sessions.push({ id: crypto.randomUUID(), user_id: "user", game_slug: "wordfall", started_at: new Date(Date.now() - 2 * 86_400_000).toISOString(), used_at: null });
+  const started = await sessions.startGameSession("wordfall");
+  assert.equal(started.ok, true);
+  assert.ok(sessionRules.isSessionId(started.sessionId));
+  assert.equal(sessionDb.game_sessions.length, 1, "sessions older than a day are cleaned up");
+  const consume = (sessionId, extra = {}) => sessions.consumeGameSession({ sessionId, userId: "user", slug: "wordfall", claimedDurationMs: 0, ...extra });
+  assert.deepEqual(await consume(started.sessionId), { ok: true });
+  assert.equal((await consume(started.sessionId)).reason, "used", "a session counts once");
+  assert.equal((await consume(null)).reason, "missing");
+  assert.equal((await consume(crypto.randomUUID())).reason, "unknown");
+  const raced = await sessions.startGameSession("wordfall");
+  const race = await Promise.all([consume(raced.sessionId), consume(raced.sessionId), consume(raced.sessionId)]);
+  assert.equal(race.filter((result) => result.ok).length, 1, "simultaneous submissions consume once");
+  const foreign = { id: crypto.randomUUID(), user_id: "other", game_slug: "wordfall", started_at: minutesAgo(5), used_at: null };
+  const wrongGame = { id: crypto.randomUUID(), user_id: "user", game_slug: "flashback", started_at: minutesAgo(5), used_at: null };
+  const young = { id: crypto.randomUUID(), user_id: "user", game_slug: "wordfall", started_at: minutesAgo(0.5), used_at: null };
+  const old = { id: crypto.randomUUID(), user_id: "user", game_slug: "wordfall", started_at: minutesAgo(121), used_at: null };
+  sessionDb.game_sessions.push(foreign, wrongGame, young, old);
+  assert.equal((await consume(foreign.id)).reason, "foreign");
+  assert.equal((await consume(wrongGame.id)).reason, "wrong_game");
+  assert.equal((await consume(young.id, { claimedDurationMs: 60_000 })).reason, "too_fast", "30 s of play cannot claim 60 s");
+  assert.equal(young.used_at, null, "a rejected session stays unused");
+  assert.deepEqual(await consume(young.id, { claimedDurationMs: 32_000 }), { ok: true }, "3 s of clock tolerance");
+  assert.equal((await consume(old.id)).reason, "expired");
+  const limited = sessionFixture("busy");
+  for (let index = 0; index < 30; index += 1) assert.equal((await limited.sessions.startGameSession("flashback")).ok, true);
+  const refused = await limited.sessions.startGameSession("flashback");
+  assert.equal(refused.ok, false, "31st start within a minute");
+  assert.match(refused.error, /Trop de parties/);
+  limited.db.game_sessions.forEach((row) => { row.started_at = minutesAgo(2); });
+  assert.equal((await limited.sessions.startGameSession("flashback")).ok, true, "the limit is per minute");
+
+  // Une action de score exige une session valide (exemple : Flashback).
+  const actionFixture = sessionFixture();
+  const flashbackAction = loadTs("app/play/flashback/actions.ts", {
+    "@/lib/profile/economy": economy,
+    "@/lib/profile/economy-server": { countPlaysToday: async () => 0, grantProfileRewards: async () => ({ level: 1, previousLevel: 1 }) },
+    "@/lib/courses/mission-auto-complete": { autoCompleteCourseMissionForGame: async () => null },
+    "@/lib/profile/daily-challenge": { checkAndGrantDailyBonus: async () => ({ dailyPlayedGames: [], requiredGames: [], bonusGranted: false, xpBonus: 0, goldBonus: 0, dailyGoalReached: false }) },
+    "@/lib/supabase/server": authAs("user"),
+    "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(actionFixture.db) },
+    "@/lib/games/game-session-server": actionFixture.sessions,
+    "@/lib/games/score-plausibility": plausibility,
+  });
+  const noSession = await flashbackAction.submitEchoLexScore({ score: 12, durationMs: 30_000 });
+  assert.equal(noSession.success, false, "logged-in score without a session");
+  assert.match(noSession.error, /Partie introuvable/);
+  const played = { id: crypto.randomUUID(), user_id: "user", game_slug: "flashback", started_at: minutesAgo(0.6), used_at: null };
+  actionFixture.db.game_sessions.push(played);
+  const implausible = await flashbackAction.submitEchoLexScore({ score: 900, durationMs: 30_000, sessionId: played.id });
+  assert.equal(implausible.success, false, "900 answers in 30 s");
+  assert.equal(played.used_at, null, "an implausible score does not burn the session");
+  const saved = await flashbackAction.submitEchoLexScore({ score: 12, durationMs: 30_000, sessionId: played.id });
+  assert.equal(saved.success, true, saved.error);
+  assert.equal(actionFixture.db.game_scores.length, 1);
+  const replayed = await flashbackAction.submitEchoLexScore({ score: 12, durationMs: 30_000, sessionId: played.id });
+  assert.equal(replayed.success, false, "the same game cannot be submitted twice");
+  assert.equal(actionFixture.db.game_scores.length, 1);
+  const tooLong = { id: crypto.randomUUID(), user_id: "user", game_slug: "flashback", started_at: minutesAgo(0.2), used_at: null };
+  actionFixture.db.game_sessions.push(tooLong);
+  assert.equal((await flashbackAction.submitEchoLexScore({ score: 12, durationMs: 30_000, sessionId: tooLong.id })).success, false, "claimed duration longer than the session");
+
+  for (const slug of sessionRules.GAME_SESSION_SLUGS) {
+    const source = fs.readFileSync(path.resolve(__dirname, "..", "app/play", slug, "actions.ts"), "utf8");
+    assert.match(source, /consumeGameSession\(/, `${slug} submit action must consume a game session`);
+    assert.match(source, /score-plausibility/, `${slug} submit action must check plausibility`);
+  }
+
+  console.log("PASS: Game sessions (guest, unknown game, cleanup, single use, race, foreign, wrong game, too fast, expired, 30 per minute) and score actions requiring a valid session.");
   console.log("PASS: Grammar Rush bounds and scoring; Paris day boundaries in 3 host timezones; concurrent rewards; daily bonus deduplication; complete leaderboards and personal bests.");
   console.log("PASS: Concurrent course completion once; course + game rewards; blocked course; course reward failure restores claim.");
   console.log("PASS: Exam transaction calls; simultaneous first passes once; exam + game rewards; invalid result rejected; failed transaction retains no pass or reward.");

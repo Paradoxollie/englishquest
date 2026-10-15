@@ -43,6 +43,8 @@ const stubs = {
   "@/lib/profile/daily-challenge": { checkAndGrantDailyBonus: async () => ({ dailyPlayedGames: [], requiredGames: [], bonusGranted: false, xpBonus: 0, goldBonus: 0, dailyGoalReached: false }) },
   "next/cache": { revalidatePath: () => {} },
   "server-only": {},
+  // Sessions de partie : vérifiées hors ligne par scripts/test-game-backend.cjs.
+  "@/lib/games/game-session-server": { consumeGameSession: async () => ({ ok: true }) },
 };
 function loadSource(filename) {
   if (cache.has(filename)) return cache.get(filename).exports;
@@ -72,8 +74,8 @@ const scenarios = [
   { slug: "enigma-scroll", action: "submitEnigmaScrollScore", params: { wordLength: 5, totalScore: 40, wordsFound: 1, durationMs: 30_000 }, score: 40, maxScore: 1, durationMs: 30_000, difficulty: "medium" },
   { slug: "space-lex", action: "submitLexiconBlasterScore", params: { score: 20, wave: 1, maxCombo: 2, wordsMastered: 2, wordsMissed: 0, durationMs: 30_000 }, score: 20, maxScore: 1, durationMs: 30_000, difficulty: "medium" },
   { slug: "flashback", action: "submitEchoLexScore", params: { score: 3, durationMs: 30_000 }, score: 3, durationMs: 30_000, difficulty: "medium" },
-  { slug: "flash-translation", action: "submitFlashTranslationScore", params: { totalTimeMs: 30_000, averageReactionTimeMs: 3_000, wrongAnswers: 0, roundsCompleted: 10 }, score: 30_000, maxScore: 10, durationMs: 30_000, difficulty: "medium" },
-  { slug: "speed-verb-challenge", action: "submitSpeedVerbScore", params: { difficulty: 1, score: 20, correctCount: 2, totalRounds: 2, durationMs: 30_000 }, score: 20, maxScore: 2, durationMs: 30_000, difficulty: "easy" },
+  { slug: "flash-translation", action: "submitFlashTranslationScore", params: { totalTimeMs: 30_000, averageReactionTimeMs: 3_000, wrongAnswers: 0, roundsCompleted: 10, durationMs: 40_000 }, score: 30_000, maxScore: 10, durationMs: 30_000, difficulty: "medium" },
+  { slug: "speed-verb-challenge", action: "submitSpeedVerbScore", params: { difficulty: 1, score: 4, correctCount: 2, totalRounds: 2, durationMs: 30_000 }, score: 4, maxScore: 2, durationMs: 30_000, difficulty: "easy" },
   { slug: "grammar-rush", action: "submitGrammarRushScore", params: { score: 31, correct: 2, attempts: 2, durationMs: 60_000 }, score: 31, maxScore: 2, durationMs: 60_000, difficulty: "medium" },
 ];
 

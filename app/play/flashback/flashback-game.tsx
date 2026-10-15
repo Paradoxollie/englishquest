@@ -3,8 +3,19 @@
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { createGameState, nextRound, startGame, submitDecision, type GameState } from "@/lib/games/echoLex";
+import {
+  createGameState,
+  flashbackWordsForLevel,
+  nextRound,
+  startGame,
+  submitDecision,
+  type GameState,
+} from "@/lib/games/echoLex";
 import { GameEnd, GameHud, GameStart, HudStat, TimeBar, type RewardSummary } from "@/components/play/game-screens";
+import { LevelPicker } from "@/components/play/level-picker";
+import { useGameFocusMode } from "@/components/play/use-game-focus-mode";
+import { useGameSession } from "@/components/play/use-game-session";
+import { DEFAULT_GAME_LEVEL, getGameLevelLabel, type GameLevel } from "@/lib/games/levels";
 import { submitEchoLexScore } from "./actions";
 
 const ROUND_MS = 5000;
@@ -13,13 +24,23 @@ const MAX_STRIKES = 3;
 
 type SubmitStatus = "idle" | "saving" | "saved" | "error" | "guest";
 
-export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolean; missionTarget: number | null }) {
+export function FlashbackGame({
+  isLoggedIn,
+  missionTarget,
+  suggestedLevel,
+}: {
+  isLoggedIn: boolean;
+  missionTarget: number | null;
+  suggestedLevel: GameLevel | null;
+}) {
+  const [level, setLevel] = useState<GameLevel>(suggestedLevel ?? DEFAULT_GAME_LEVEL);
   const [state, setState] = useState<GameState | null>(null);
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(ROUND_MS);
   const [combo, setCombo] = useState(0);
   const [bestCombo, setBestCombo] = useState(0);
   const [rounds, setRounds] = useState(0);
+  const [missed, setMissed] = useState<string[]>([]);
   const [rewards, setRewards] = useState<RewardSummary | null>(null);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
   useRefreshAfterScore(submitStatus);
@@ -30,6 +51,10 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
   const submittedRef = useRef(false);
   const sessionRef = useRef(0);
   const stateRef = useRef<GameState | null>(null);
+  const gameSession = useGameSession("flashback", isLoggedIn);
+
+  const playing = started && state !== null && state.phase !== "gameOver";
+  useGameFocusMode(playing);
 
   useEffect(() => {
     return () => {
@@ -41,7 +66,8 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
   const start = useCallback(() => {
     if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
     sessionRef.current += 1;
-    const fresh = startGame(createGameState());
+    gameSession.begin();
+    const fresh = startGame(createGameState(Math.random, flashbackWordsForLevel(level), level));
     stateRef.current = fresh;
     setState(fresh);
     setStarted(true);
@@ -49,12 +75,23 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
     setCombo(0);
     setBestCombo(0);
     setRounds(0);
+    setMissed([]);
     setRewards(null);
     setSubmitStatus("idle");
     submittedRef.current = false;
     startedAtRef.current = performance.now();
     roundStartedAtRef.current = startedAtRef.current;
-  }, []);
+  }, [gameSession, level]);
+
+  /* Abandon : retour à l'écran de départ, rien n'est enregistré. */
+  const quit = useCallback(() => {
+    if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
+    sessionRef.current += 1;
+    gameSession.cancel();
+    stateRef.current = null;
+    setState(null);
+    setStarted(false);
+  }, [gameSession]);
 
   const decide = useCallback((saysSeen: boolean) => {
     const current = stateRef.current;
@@ -72,6 +109,7 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
       });
     } else {
       setCombo(0);
+      setMissed((list) => (list.includes(current.currentWord.english) ? list : [...list, current.currentWord.english]));
     }
     if (result.phase !== "gameOver") {
       if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
@@ -129,7 +167,9 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
     }
     setSubmitStatus("saving");
     const session = sessionRef.current;
-    submitEchoLexScore({ score: state.score, durationMs: Math.round(performance.now() - startedAtRef.current) })
+    gameSession
+      .finish(performance.now() - startedAtRef.current)
+      .then(({ sessionId, durationMs }) => submitEchoLexScore({ score: state.score, durationMs, sessionId }))
       .then((result) => {
         if (session !== sessionRef.current) return;
         if (!result.success) {
@@ -156,21 +196,23 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
       .catch(() => {
         if (session === sessionRef.current) setSubmitStatus("error");
       });
-  }, [state, isLoggedIn]);
+  }, [state, isLoggedIn, gameSession]);
 
   if (!started || !state) {
     return (
       <GameStart
-        title="Mémoire de travail"
-        intro="Des mots anglais défilent avec leur traduction. Pour chacun, dis s'il est nouveau ou si tu l'as déjà vu dans la partie. Simple au début, redoutable au bout de trente mots."
+        title="Mémoire et vocabulaire"
+        intro="Des mots anglais défilent avec leur traduction. Pour chacun, dis s'il est nouveau ou si tu l'as déjà vu dans la partie. Lis bien le sens : à la fin, tu retrouves tous les mots rencontrés."
         rules={[
           "5 secondes par mot. Sans réponse, le mot compte comme « nouveau ».",
           "Trois erreurs et la partie s'arrête. Le score est le nombre de bonnes réponses.",
           "Au clavier : flèche gauche pour nouveau, flèche droite pour déjà vu.",
-          missionTarget ? `Objectif de mission : ${missionTarget} bonnes réponses.` : "Lis la traduction à chaque fois, c'est du vocabulaire qui rentre.",
+          missionTarget ? `Objectif de mission : ${missionTarget} bonnes réponses.` : "Les mots viennent de ton niveau, avec quelques révisions du niveau précédent.",
         ]}
         onStart={start}
-      />
+      >
+        <LevelPicker value={level} onChange={setLevel} suggested={suggestedLevel} />
+      </GameStart>
     );
   }
 
@@ -180,22 +222,25 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
         title="Trois erreurs"
         score={state.score}
         scoreLabel="mots reconnus"
-        lines={[`${rounds} mots vus`, `Meilleure série : ${bestCombo}`]}
+        lines={[`${rounds} réponses`, `Meilleure série : ${bestCombo}`, `Niveau ${getGameLevelLabel(level)}`]}
         rewards={rewards}
         rewardStatus={submitStatus}
         missionReached={missionTarget != null ? state.score >= missionTarget : null}
         onReplay={start}
       >
         <div>
-          <p className="eq-kicker">Vocabulaire de la partie</p>
-          <ul className="eq-game-review">
-            {state.seenWords.slice(0, 24).map((word) => (
-              <li key={word.english}>
+          <p className="eq-kicker">Mots rencontrés ({state.seenWords.length})</p>
+          <ul className="eq-game-review eq-game-review-scroll" data-testid="flashback-words">
+            {state.seenWords.map((word) => (
+              <li key={word.english} className={missed.includes(word.english) ? "is-hard" : ""}>
                 <b>{word.english}</b>
                 <span>{word.french}</span>
               </li>
             ))}
           </ul>
+          {missed.length > 0 ? (
+            <p className="eq-game-end-note">Les mots marqués d&apos;un trait rouge t&apos;ont piégé : relis-les avant de rejouer.</p>
+          ) : null}
         </div>
       </GameEnd>
     );
@@ -207,7 +252,7 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
 
   return (
     <div className="eq-game-play">
-      <GameHud>
+      <GameHud onQuit={quit}>
         <HudStat label="Score" value={state.score} tone="gold" />
         <HudStat label="Série" value={combo} tone="mint" />
         <HudStat
@@ -220,11 +265,13 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
       <TimeBar percent={(timeLeft / ROUND_MS) * 100} low={timeLow} />
 
       <div className={`eq-game-stage ${tone}`} data-testid="game-stage">
-        <p className="eq-game-prompt-kicker">Ce mot, tu l&apos;as déjà vu dans cette partie ?</p>
-        <p className="eq-game-prompt" data-testid="game-prompt">
+        <p className="eq-game-prompt-kicker">{"Ce mot, tu l'as déjà vu dans cette partie\u00a0?"}</p>
+        <p className="eq-game-prompt" data-testid="game-prompt" lang="en">
           {state.currentWord.english}
         </p>
-        <p className="eq-game-prompt-sub">{state.currentWord.french}</p>
+        <p className="eq-game-prompt-sub eq-game-prompt-meaning" lang="fr">
+          {state.currentWord.french}
+        </p>
 
         <div className="eq-game-choices eq-game-choices-duo">
           <button
@@ -251,7 +298,11 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
 
         {showingResult ? (
           <p className={`eq-game-feedback ${state.lastDecisionCorrect ? "is-right" : "is-wrong"}`} role="status">
-            {state.lastDecisionCorrect ? "Exact." : state.isNew ? "Raté : ce mot était nouveau." : "Raté : tu l'avais déjà vu."}
+            {state.lastDecisionCorrect
+              ? `Exact. ${state.currentWord.english} : ${state.currentWord.french}.`
+              : state.isNew
+                ? "Raté : ce mot était nouveau."
+                : "Raté : tu l'avais déjà vu."}
           </p>
         ) : null}
       </div>

@@ -16,6 +16,8 @@ import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/li
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { consumeGameSession } from "@/lib/games/game-session-server";
+import { checkLexiconBlaster } from "@/lib/games/score-plausibility";
 
 // Default difficulty for all Lexicon Blaster scores (no difficulty selection in this game)
 const DEFAULT_DIFFICULTY = "medium" as const;
@@ -37,6 +39,7 @@ export async function submitLexiconBlasterScore(params: {
     wordsMastered: number;
     wordsMissed: number;
     durationMs: number;
+    sessionId?: string | null;
 }): Promise<{
     success: boolean;
     error?: string;
@@ -65,6 +68,9 @@ export async function submitLexiconBlasterScore(params: {
             params.wordsMissed > 20_000 || params.durationMs > 2 * 60 * 60 * 1000) {
             return { success: false, error: "Score Space Lex invalide" };
         }
+        if (!checkLexiconBlaster(params).ok) {
+            return { success: false, error: "Score Space Lex invraisemblable" };
+        }
         const supabase = await createSupabaseServerClient();
         const adminClient = createSupabaseAdminClient();
 
@@ -79,6 +85,16 @@ export async function submitLexiconBlasterScore(params: {
                 success: false,
                 error: "User not authenticated",
             };
+        }
+
+        const gameSession = await consumeGameSession({
+            sessionId: params.sessionId,
+            userId: user.id,
+            slug: "space-lex",
+            claimedDurationMs: params.durationMs,
+        });
+        if (!gameSession.ok) {
+            return { success: false, error: gameSession.error };
         }
 
         // Get the Lexicon Blaster game ID

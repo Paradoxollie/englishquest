@@ -6,6 +6,7 @@ for (const script of [
   'scripts/test-game-backend.cjs',
   'scripts/tests/falling-games-regression.cjs',
   'scripts/tests/round-games-regression.cjs',
+  'scripts/tests/score-plausibility-regression.cjs',
   'scripts/tests/quiz-interaction-regression.cjs',
   'scripts/tests/course-question-invariants.cjs',
   'scripts/tests/exercise-invariants.cjs',

@@ -16,6 +16,8 @@ import {
   type RequiredFields,
 } from "@/lib/games/speed-verb-challenge";
 import { GameEnd, GameHud, GameStart, HudStat, TimeBar, type RewardSummary } from "@/components/play/game-screens";
+import { useGameFocusMode } from "@/components/play/use-game-focus-mode";
+import { useGameSession } from "@/components/play/use-game-session";
 import { submitSpeedVerbScore } from "./actions";
 
 const TOTAL_TIME_MS = 90_000;
@@ -91,6 +93,8 @@ export function SpeedVerbGame({
   const stateRef = useRef<GameState | null>(null);
   const roundLockedRef = useRef(false);
   const sessionRef = useRef(0);
+  const gameSession = useGameSession("speed-verb-challenge", isLoggedIn);
+  useGameFocusMode(phase === "playing");
 
   const clearTimers = useCallback(() => {
     if (advanceTimeoutRef.current) clearTimeout(advanceTimeoutRef.current);
@@ -127,6 +131,7 @@ export function SpeedVerbGame({
   const start = useCallback(() => {
     clearTimers();
     sessionRef.current += 1;
+    gameSession.begin();
     roundLockedRef.current = false;
     const now = performance.now();
     const initial = createInitialGameState(VERBS, {
@@ -148,7 +153,18 @@ export function SpeedVerbGame({
     roundStartedAtRef.current = now;
     setRoundKey((key) => key + 1);
     setPhase("playing");
-  }, [clearTimers, difficulty, updateState]);
+  }, [clearTimers, difficulty, updateState, gameSession]);
+
+  /* Abandon : retour à l'écran de départ, rien n'est enregistré. */
+  const quit = useCallback(() => {
+    clearTimers();
+    sessionRef.current += 1;
+    gameSession.cancel();
+    roundLockedRef.current = false;
+    setFeedback(null);
+    setToast(null);
+    setPhase("start");
+  }, [clearTimers, gameSession]);
 
   /* Chronomètre */
   useEffect(() => {
@@ -266,13 +282,10 @@ export function SpeedVerbGame({
 
     setSubmitStatus("saving");
     const session = sessionRef.current;
-    submitSpeedVerbScore({
-      difficulty,
-      score: state.score,
-      correctCount: stats.correct,
-      totalRounds: stats.attempts,
-      durationMs: Math.round(performance.now() - startedAtRef.current),
-    })
+    const final = { difficulty, score: state.score, correctCount: stats.correct, totalRounds: stats.attempts };
+    gameSession
+      .finish(performance.now() - startedAtRef.current)
+      .then(({ sessionId, durationMs }) => submitSpeedVerbScore({ ...final, durationMs, sessionId }))
       .then((result) => {
         if (session !== sessionRef.current) return;
         if (!result.success) {
@@ -299,7 +312,7 @@ export function SpeedVerbGame({
       .catch(() => {
         if (session === sessionRef.current) setSubmitStatus("error");
       });
-  }, [phase, state, isLoggedIn, difficulty, stats.correct, stats.attempts]);
+  }, [phase, state, isLoggedIn, difficulty, stats.correct, stats.attempts, gameSession]);
 
   /* ---------- écran de démarrage ---------- */
 
@@ -399,7 +412,7 @@ export function SpeedVerbGame({
 
   return (
     <div className="eq-game-play">
-      <GameHud>
+      <GameHud onQuit={quit}>
         <HudStat label="Score" value={state.score} tone="gold" />
         <HudStat label="Temps" value={`${secondsLeft} s`} tone={timeLow ? "coral" : "cyan"} />
         <HudStat label="Série" value={state.streak} tone="mint" hint={`x${state.comboMultiplier.toFixed(1)}`} />

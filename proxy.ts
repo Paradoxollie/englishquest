@@ -10,7 +10,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/favicon.ico") ||
     pathname === "/ads.txt" ||
     pathname === "/robots.txt" ||
-    pathname.match(/\.(ico|png|jpg|jpeg|svg|gif|webp|css|js|woff|woff2|ttf|eot|txt)$/i)
+    pathname.match(/\.(ico|png|jpg|jpeg|svg|gif|webp|css|js|json|woff|woff2|ttf|eot|txt)$/i)
   ) {
     return NextResponse.next();
   }

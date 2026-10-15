@@ -13,6 +13,8 @@ import {
   type RushState,
 } from "@/lib/games/grammar-rush";
 import { GameEnd, GameHud, GameStart, HudStat, TimeBar, type RewardSummary } from "@/components/play/game-screens";
+import { useGameFocusMode } from "@/components/play/use-game-focus-mode";
+import { useGameSession } from "@/components/play/use-game-session";
 import { submitGrammarRushScore } from "./actions";
 
 const KEYS = ["1", "2", "3", "4"];
@@ -48,6 +50,8 @@ export function GrammarRushGame({
   const answerPendingRef = useRef(false);
   const runRef = useRef(0);
   const stateRef = useRef(state);
+  const gameSession = useGameSession("grammar-rush", isLoggedIn);
+  useGameFocusMode(phase === "playing");
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
@@ -71,10 +75,22 @@ export function GrammarRushGame({
     submittedRef.current = false;
     answerPendingRef.current = false;
     runRef.current += 1;
+    gameSession.begin();
     startedAtRef.current = Date.now();
     questionAtRef.current = Date.now();
     setPhase("playing");
-  }, [queue]);
+  }, [queue, gameSession]);
+
+  /* Abandon : retour à l'écran de départ, rien n'est enregistré. */
+  const quit = useCallback(() => {
+    if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
+    runRef.current += 1;
+    gameSession.cancel();
+    answerPendingRef.current = false;
+    setFeedback(null);
+    setSelected(null);
+    setPhase("start");
+  }, [gameSession]);
 
   /* Chronomètre */
   useEffect(() => {
@@ -162,12 +178,17 @@ export function GrammarRushGame({
       return;
     }
     setSubmitStatus("saving");
-    submitGrammarRushScore({
-      score: final.score,
-      correct: final.correct,
-      attempts: final.attempts,
-      durationMs: Math.min(GRAMMAR_RUSH_TIME_MS, Date.now() - startedAtRef.current),
-    })
+    gameSession
+      .finish(Math.min(GRAMMAR_RUSH_TIME_MS, Date.now() - startedAtRef.current))
+      .then(({ sessionId, durationMs }) =>
+        submitGrammarRushScore({
+          score: final.score,
+          correct: final.correct,
+          attempts: final.attempts,
+          durationMs,
+          sessionId,
+        })
+      )
       .then((result) => {
         if (run !== runRef.current) return;
         if (!result.success) {
@@ -195,7 +216,7 @@ export function GrammarRushGame({
       .catch(() => {
         if (run === runRef.current) setSubmitStatus("error");
       });
-  }, [phase, isLoggedIn, router]);
+  }, [phase, isLoggedIn, router, gameSession]);
 
   if (phase === "start") {
     return (
@@ -259,7 +280,7 @@ export function GrammarRushGame({
 
   return (
     <div className="eq-game-play">
-      <GameHud>
+      <GameHud onQuit={quit}>
         <HudStat label="Score" value={state.score} tone="gold" />
         <HudStat label="Temps" value={`${Math.ceil(timeLeft / 1000)} s`} tone={timeLow ? "coral" : "cyan"} />
         <HudStat label="Série" value={state.streak} tone="mint" hint={`x${rushMultiplier(state.streak).toFixed(1)}`} />

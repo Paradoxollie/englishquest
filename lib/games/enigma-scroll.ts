@@ -66,183 +66,38 @@ export type WordLists = {
 };
 
 // ============================================================================
-// DEFAULT WORD LISTS (fallback - will be replaced by loaded lists)
+// WORD LISTS (injected from outside)
 // ============================================================================
 
-/**
- * TARGET WORDS: Words that can be selected as the secret word to guess
- * These are common, well-known English words (similar to Wordle's answer list)
+/*
+ * The target words (with translations and levels) live in
+ * lib/games/enigma-scroll-targets.ts; the valid guesses are loaded on demand
+ * from public/data/enigma-guesses-<length>.json. Nothing is bundled here.
  */
-const TARGET_WORDS_4: string[] = [
-  "ABLE", "ACHE", "ACID", "AGED", "AIDE", "AIMS", "AIRS", "ALSO", "AMID", "ANTS", "ARCH", "AREA", "ARMS", "ARMY", "ARTS", "ATOM",
-  "AWAY", "BABY", "BACK", "BAGS", "BALL", "BAND", "BANK", "BARE", "BARK", "BARN", "BASE", "BATH", "BEAR", "BEAT", "BEEN", "BEER",
-  "BELL", "BELT", "BEST", "BIKE", "BILL", "BIND", "BIRD", "BITE", "BLOW", "BLUE", "BOAT", "BODY", "BONE", "BOOK", "BOOT", "BORN",
-  "BOTH", "BOWL", "BOYS", "BULK", "BURN", "BUSY", "BYTE", "CAFE", "CAGE", "CAKE", "CALL", "CALM", "CAME", "CAMP", "CARD", "CARE",
-  "CARS", "CASE", "CASH", "CAST", "CATS", "CAVE", "CELL", "CHAT", "CHIP", "CITY", "CLAD", "CLAY", "CLIP", "CLUB", "COAL", "COAT",
-  "CODE", "COIN", "COLD", "COME", "COOK", "COOL", "COPY", "CORD", "CORN", "COST", "COZY", "CREW", "CROP", "CROW", "CUBE", "CURE",
-  "CUTE", "CUTS", "CYAN", "DARK", "DATA", "DATE", "DAWN", "DAYS", "DEAD", "DEAL", "DEAR", "DEBT", "DECK", "DEEP", "DEER", "DEMO",
-  "DESK", "DIAL", "DICE", "DIED", "DIET", "DIME", "DIRT", "DISH", "DOCK", "DOES", "DOGS", "DONE", "DOOR", "DOTS", "DOWN", "DRAW",
-  "DREW", "DROP", "DRUG", "DRUM", "DUCK", "DUDE", "DULL", "DUMP", "DUST", "DUTY", "EACH", "EARL", "EARN", "EARS", "EAST", "EASY",
-  "EATS", "ECHO", "EDGE", "EDIT", "EGGS", "ELSE", "EMIT", "ENDS", "EPIC", "EVEN", "EVER", "EVIL", "EXAM", "EXIT", "EYES", "FACE",
-  "FACT", "FAIL", "FAIR", "FALL", "FAME", "FANS", "FARM", "FAST", "FATE", "FEAR", "FEED", "FEEL", "FEET", "FELL", "FELT", "FILE",
-  "FILM", "FIND", "FINE", "FIRE", "FIRM", "FISH", "FIST", "FITS", "FIVE", "FLAG", "FLAT", "FLED", "FLIP", "FLOW", "FOLK", "FOOD",
-  "FOOL", "FOOT", "FORD", "FORK", "FORM", "FORT", "FOUR", "FREE", "FROM", "FUEL", "FULL", "FUND", "FURY", "GAME", "GANG", "GAPS",
-  "GATE", "GAVE", "GEAR", "GEMS", "GETS", "GIFT", "GIRL", "GIVE", "GLAD", "GOAL", "GOAT", "GOES", "GOLD", "GOLF", "GONE", "GOOD",
-  "GRAB", "GREW", "GREY", "GRID", "GRIN", "GROW", "GUYS", "HACK", "HAIR", "HALF", "HALL", "HAND", "HANG", "HARD", "HARM", "HATE",
-  "HAVE", "HEAD", "HEAL", "HEAR", "HEAT", "HEEL", "HELD", "HELL", "HELP", "HERB", "HERE", "HERO", "HIDE", "HIGH", "HILL", "HINT",
-  "HIRE", "HITS", "HOLD", "HOLE", "HOLY", "HOME", "HOOD", "HOOK", "HOPE", "HORN", "HOST", "HOUR", "HUGE", "HUNG", "HUNT", "HURT",
-  "ICON", "IDEA", "INCH", "INFO", "IRON", "ITEM", "JAIL", "JAZZ", "JOBS", "JOIN", "JOKE", "JUMP", "JUNE", "JURY", "JUST", "KEEN",
-  "KEEP", "KEPT", "KEYS", "KICK", "KIDS", "KILL", "KIND", "KING", "KISS", "KITE", "KNEE", "KNEW", "KNOW", "LABS", "LACK", "LADY",
-  "LAID", "LAKE", "LAMP", "LAND", "LANE", "LAST", "LATE", "LAWN", "LAWS", "LAZY", "LEAD", "LEAF", "LEAN", "LEAP", "LEFT", "LEGS",
-  "LENS", "LESS", "LIED", "LIES", "LIFE", "LIFT", "LIKE", "LINE", "LINK", "LIST", "LIVE", "LOAD", "LOAN", "LOCK", "LOGO", "LONG",
-  "LOOK", "LOOP", "LORD", "LOSE", "LOSS", "LOST", "LOTS", "LOUD", "LOVE", "LUCK", "LUNG", "MADE", "MAIL", "MAIN", "MAKE", "MALE",
-  "MALL", "MANY", "MAPS", "MARK", "MARS", "MASK", "MASS", "MATH", "MEAL", "MEAN", "MEAT", "MEET", "MELT", "MEMO", "MENU", "MESS",
-  "MICE", "MILE", "MILK", "MIND", "MINE", "MINT", "MISS", "MODE", "MOLD", "MOOD", "MOON", "MORE", "MOST", "MOVE", "MUCH", "MUST",
-  "NAME", "NAVY", "NEAR", "NECK", "NEED", "NEWS", "NEXT", "NICE", "NINE", "NODE", "NONE", "NOON", "NOTE", "NUTS", "OBEY", "ODDS",
-  "OILS", "OKAY", "ONCE", "ONLY", "ONTO", "OPEN", "ORAL", "OVAL", "OVEN", "OVER", "PACK", "PAGE", "PAID", "PAIN", "PAIR", "PALM",
-  "PARK", "PART", "PASS", "PAST", "PATH", "PAWS", "PAYS", "PEAK", "PICK", "PILE", "PILL", "PINK", "PIPE", "PLAN", "PLAY", "PLOT",
-  "PLUG", "PLUS", "POEM", "POET", "POLE", "POLL", "POOL", "POOR", "PORT", "POST", "POUR", "PRAY", "PREP", "PREY", "PULL", "PUMP",
-  "PURE", "PUSH", "QUIT", "RACE", "RAIN", "RANG", "RANK", "RARE", "RATE", "RATS", "RAYS", "READ", "REAL", "REAR", "RELY", "RENT",
-  "REST", "RICH", "RIDE", "RING", "RISE", "RISK", "ROAD", "ROCK", "ROLE", "ROLL", "ROOF", "ROOM", "ROOT", "ROPE", "ROSE", "ROWS",
-  "RUDE", "RULE", "RUNS", "RUSH", "RUST", "SAFE", "SAID", "SAIL", "SAKE", "SALE", "SALT", "SAME", "SAND", "SAVE", "SAYS", "SCAN",
-  "SEAL", "SEAT", "SEED", "SEEK", "SEEM", "SEEN", "SELF", "SELL", "SEND", "SENT", "SETS", "SHIP", "SHOE", "SHOP", "SHOT", "SHOW",
-  "SHUT", "SICK", "SIDE", "SIGN", "SILK", "SING", "SINK", "SITE", "SIZE", "SKIN", "SKIP", "SLIP", "SLOW", "SNAP", "SNOW", "SOAP",
-  "SOFT", "SOIL", "SOLD", "SOLE", "SOME", "SONG", "SOON", "SORT", "SOUL", "SOUP", "SOUR", "SPIN", "SPOT", "STAR", "STAY", "STEM",
-  "STEP", "STOP", "SUCH", "SUIT", "SUNG", "SURE", "SWIM", "TAIL", "TAKE", "TALE", "TALK", "TALL", "TANK", "TAPE", "TASK", "TEAM",
-  "TEAR", "TECH", "TELL", "TENT", "TEST", "TEXT", "THAN", "THAT", "THEM", "THEN", "THEY", "THIN", "THIS", "THUS", "TIDE", "TIED",
-  "TIES", "TIME", "TINY", "TIPS", "TIRE", "TOLD", "TONE", "TOOK", "TOOL", "TOPS", "TORN", "TOUR", "TOWN", "TREE", "TRIP", "TRUE",
-  "TUBE", "TUNE", "TURN", "TWIN", "TYPE", "UNIT", "UPON", "USED", "USER", "USES", "VARY", "VAST", "VERY", "VIEW", "WAIT", "WAKE",
-  "WALK", "WALL", "WANT", "WARM", "WARN", "WASH", "WAVE", "WAYS", "WEAK", "WEAR", "WEEK", "WELL", "WENT", "WERE", "WEST", "WHAT",
-  "WHEN", "WILD", "WILL", "WIND", "WINE", "WING", "WIRE", "WISE", "WISH", "WITH", "WOOD", "WOOL", "WORD", "WORK", "WORN", "YARD",
-  "YEAR", "YOUR", "ZERO", "ZONE"
-];
-
-const TARGET_WORDS_5: string[] = [
-  "ABOUT", "ABOVE", "ABUSE", "ACTOR", "ACUTE", "ADMIT", "ADOPT", "ADULT", "AFTER", "AGAIN", "AGENT", "AGREE", "AHEAD", "ALARM", "ALBUM",
-  "ALERT", "ALIEN", "ALIGN", "ALIKE", "ALIVE", "ALLOW", "ALONE", "ALONG", "ALTER", "AMONG", "ANGER", "ANGLE", "ANGRY", "APART", "APPLE",
-  "APPLY", "ARENA", "ARGUE", "ARISE", "ARRAY", "ASIDE", "ASSET", "AUDIO", "AUDIT", "AVOID", "AWAKE", "AWARD", "AWARE", "BADLY", "BAKER",
-  "BASES", "BASIC", "BATCH", "BEACH", "BEGAN", "BEGIN", "BEING", "BELOW", "BENCH", "BILLY", "BIRTH", "BLACK", "BLAME", "BLANK", "BLAST",
-  "BLIND", "BLOCK", "BLOOD", "BLOOM", "BOARD", "BOAST", "BOBBY", "BOOST", "BOOTH", "BOUND", "BRAIN", "BRAND", "BRASS", "BRAVE", "BREAD",
-  "BREAK", "BREED", "BRIEF", "BRING", "BROAD", "BROKE", "BROWN", "BUILD", "BUILT", "BURST", "BUYER", "CABLE", "CACHE", "CANDY", "CARGO",
-  "CARRY", "CARVE", "CATCH", "CAUSE", "CHAIN", "CHAIR", "CHAOS", "CHARM", "CHART", "CHASE", "CHEAP", "CHECK", "CHEST", "CHIEF", "CHILD",
-  "CHINA", "CHOSE", "CIVIL", "CLAIM", "CLASS", "CLEAN", "CLEAR", "CLICK", "CLIMB", "CLOCK", "CLOSE", "CLOUD", "CLOWN", "CLUBS", "COACH",
-  "COAST", "COULD", "COUNT", "COURT", "COVER", "CRAFT", "CRASH", "CRAZY", "CREAM", "CRIME", "CRISP", "CROSS", "CROWD", "CROWN", "CRUDE",
-  "CURVE", "CYCLE", "DAILY", "DANCE", "DATED", "DEALT", "DEATH", "DEBUT", "DELAY", "DENSE", "DEPOT", "DEPTH", "DOING", "DOUBT", "DOZEN",
-  "DRAFT", "DRAMA", "DRANK", "DRAWN", "DREAM", "DRESS", "DRILL", "DRINK", "DRIVE", "DROVE", "DYING", "EAGER", "EARLY", "EARTH", "EIGHT",
-  "ELDER", "EMPTY", "ENEMY", "ENJOY", "ENTER", "ENTRY", "EQUAL", "ERROR", "EVENT", "EVERY", "EXACT", "EXIST", "EXTRA", "FAITH", "FALSE",
-  "FAULT", "FIBER", "FIELD", "FIFTH", "FIFTY", "FIGHT", "FINAL", "FIRST", "FIXED", "FLASH", "FLEET", "FLOOR", "FLUID", "FOCUS", "FORCE",
-  "FORTH", "FORTY", "FORUM", "FOUND", "FRAME", "FRANK", "FRAUD", "FRESH", "FRONT", "FRUIT", "FULLY", "FUNNY", "GIANT", "GIVEN", "GLASS",
-  "GLOBE", "GLORY", "GOING", "GRACE", "GRADE", "GRAND", "GRANT", "GRASS", "GRAVE", "GREAT", "GREEN", "GROSS", "GROUP", "GROWN", "GUARD",
-  "GUESS", "GUEST", "GUIDE", "HAPPY", "HARRY", "HEART", "HEAVY", "HENRY", "HORSE", "HOTEL", "HOUSE", "HUMAN", "IDEAL", "IMAGE", "INDEX",
-  "INNER", "INPUT", "ISSUE", "JAPAN", "JIMMY", "JOINT", "JONES", "JUDGE", "KNIFE", "KNOCK", "KNOWN", "LABEL", "LARGE", "LASER", "LATER",
-  "LAUGH", "LAYER", "LEARN", "LEASE", "LEAST", "LEAVE", "LEGAL", "LEVEL", "LEWIS", "LIGHT", "LIMIT", "LINKS", "LIVES", "LOCAL", "LOOSE",
-  "LOWER", "LUCKY", "LUNCH", "LYING", "MAGIC", "MAJOR", "MAKER", "MARCH", "MARIA", "MATCH", "MAYBE", "MAYOR", "MEANT", "MEDIA", "METAL",
-  "MIGHT", "MINOR", "MINUS", "MIXED", "MODEL", "MONEY", "MONTH", "MORAL", "MOTOR", "MOUNT", "MOUSE", "MOUTH", "MOVED", "MOVIE", "MUSIC",
-  "NEEDS", "NEVER", "NEWLY", "NIGHT", "NOISE", "NORTH", "NOTED", "NOVEL", "NURSE", "OCCUR", "OCEAN", "OFFER", "OFTEN", "ORDER", "OTHER",
-  "OUGHT", "PAINT", "PANEL", "PAPER", "PARTY", "PEACE", "PETER", "PHASE", "PHONE", "PHOTO", "PIANO", "PICKED", "PIECE", "PILOT", "PITCH",
-  "PLACE", "PLAIN", "PLANE", "PLANT", "PLATE", "POINT", "POUND", "POWER", "PRESS", "PRICE", "PRIDE", "PRIME", "PRINT", "PRIOR", "PRIZE",
-  "PROOF", "PROUD", "PROVE", "QUEEN", "QUICK", "QUIET", "QUITE", "QUOTE", "RADIO", "RAISE", "RANGE", "RAPID", "RATIO", "REACH", "READY",
-  "REALM", "REBEL", "REFER", "RELAX", "RELAY", "REPLY", "RIDER", "RIDGE", "RIGHT", "RIGID", "RISKY", "RIVER", "ROBOT", "ROGER", "ROMAN",
-  "ROUGH", "ROUND", "ROUTE", "ROYAL", "RURAL", "SAFER", "SALLY", "SCALE", "SCENE", "SCOPE", "SCORE", "SENSE", "SERVE", "SETUP", "SEVEN",
-  "SHALL", "SHAPE", "SHARE", "SHARP", "SHEET", "SHELF", "SHELL", "SHIFT", "SHINE", "SHIRT", "SHOCK", "SHOOT", "SHORT", "SHOWN", "SIDES",
-  "SIGHT", "SILLY", "SIMON", "SINCE", "SIXTH", "SIXTY", "SIZED", "SKILL", "SLEEP", "SLIDE", "SMALL", "SMART", "SMILE", "SMITH", "SMOKE",
-  "SNAKE", "SNEAK", "SOLID", "SOLVE", "SORRY", "SORTS", "SOUND", "SOUTH", "SPACE", "SPARE", "SPEAK", "SPEED", "SPEND", "SPENT", "SPLIT",
-  "SPOKE", "SPORT", "SQUAD", "STAFF", "STAGE", "STAKE", "STAND", "START", "STATE", "STEAM", "STEEL", "STEEP", "STEER", "STICK", "STILL",
-  "STOCK", "STONE", "STOOD", "STORE", "STORM", "STORY", "STRIP", "STUCK", "STUDY", "STUFF", "STYLE", "SUGAR", "SUITE", "SUPER", "SWEET",
-  "SWIFT", "SWING", "SWISS", "TABLE", "TAKEN", "TASTE", "TAXES", "TEACH", "TEAMS", "TEETH", "TERRY", "TEXAS", "THANK", "THEFT", "THEIR",
-  "THEME", "THERE", "THESE", "THICK", "THING", "THINK", "THIRD", "THOSE", "THREE", "THREW", "THROW", "THUMB", "TIGER", "TIGHT", "TIMES",
-  "TIRED", "TITLE", "TODAY", "TOKEN", "TOOLS", "TOPIC", "TOTAL", "TOUCH", "TOUGH", "TOWER", "TRACK", "TRADE", "TRAIL", "TRAIN", "TRAIT",
-  "TREAT", "TREND", "TRIAL", "TRIBE", "TRICK", "TRIED", "TRIES", "TRUCK", "TRULY", "TRUNK", "TRUST", "TRUTH", "TRYING", "TUMOR", "TUNED",
-  "TURNS", "TWICE", "TWINS", "TYPED", "ULTRA", "UNCLE", "UNDER", "UNDUE", "UNION", "UNITY", "UNTIL", "UPPER", "UPSET", "URBAN", "USAGE",
-  "USERS", "USING", "USUAL", "VALID", "VALUE", "VIDEO", "VIRUS", "VISIT", "VITAL", "VOCAL", "VOICE", "WASTE", "WATCH", "WATER", "WAVES",
-  "WEIRD", "WHEEL", "WHERE", "WHICH", "WHILE", "WHITE", "WHOLE", "WHOSE", "WILDE", "WINDS", "WINES", "WINGS", "WIRED", "WIVES",
-  "WOMAN", "WOMEN", "WORDS", "WORKS", "WORLD", "WORRY", "WORSE", "WORST", "WORTH", "WOULD", "WRITE", "WRONG", "WROTE", "YARDS", "YEAH",
-  "YEARS", "YOUNG", "YOURS", "YOUTH"
-];
-
-const TARGET_WORDS_6: string[] = [
-  "ACCEPT", "ACCESS", "ACCORD", "ACROSS", "ACTION", "ACTIVE", "ACTUAL", "ADVICE", "AFFORD", "AFRAID", "AFRICA", "AGENDA", "AGREED", "ALEXEI",
-  "ALMOST", "AMOUNT", "ANCHOR", "ANDREW", "ANIMAL", "ANNUAL", "ANSWER", "ANYONE", "ANYWAY", "APPEAL", "APPEAR", "AROUND", "ARREST", "ARRIVE",
-  "ARTIST", "ASPECT", "ASSIST", "ASSUME", "ATTACH", "ATTACK", "ATTEND", "AUTHOR", "AUTUMN", "AVENUE", "BACKED", "BACKUP", "BATTLE", "BEAUTY",
-  "BECOME", "BEHALF", "BELIEF", "BELONG", "BERLIN", "BETTER", "BEYOND", "BINARY", "BISHOP", "BOUGHT", "BRANCH", "BREATH", "BRIDGE", "BRIEF",
-  "BRIGHT", "BRING", "BROKEN", "BUDGET", "BUTTON", "BUYING", "CAMERA", "CAMPUS", "CANCER", "CANNOT", "CARBON", "CAREER", "CASTLE",
-  "CASUAL", "CENTRE", "CHANCE", "CHANGE", "CHARGE", "CHOICE", "CHOOSE", "CHOSEN", "CHURCH", "CIRCLE", "CLIENT", "CLOSED", "CLOSER", "COFFEE",
-  "COLUMN", "COMBAT", "COMEDY", "COMING", "COMMIT", "COMMON", "COMPLY", "COPPER", "CORNER", "COTTON", "COUPLE", "COURSE", "COVERS", "CREATE",
-  "CREDIT", "CRISIS", "CUSTOM", "DAMAGE", "DANGER", "DEALER", "DEBATE", "DEBRIS", "DECADE", "DECIDE", "DEFEAT", "DEFEND", "DEFINE", "DEGREE",
-  "DEMAND", "DEPEND", "DEPLOY", "DEPUTY", "DERIVE", "DESIGN", "DESIRE", "DETAIL", "DETECT", "DEVICE", "DIALOG", "DIFFER", "DINING", "DIRECT",
-  "DOLLAR", "DOMAIN", "DOUBLE", "DRIVEN", "DRIVER", "DURING", "EASILY", "EATING", "EDITOR", "EFFECT", "EFFORT", "EIGHTH", "EITHER", "ELEVEN",
-  "EMERGE", "EMPIRE", "EMPLOY", "ENABLE", "ENERGY", "ENGINE", "ENOUGH", "ENSURE", "ENTIRE", "ENTITY", "EQUITY", "ESCAPE", "ESTATE",
-  "ETHNIC", "EUROPE", "EVENTS", "EVERY", "EXCEPT", "EXCUSE", "EXPAND", "EXPECT", "EXPERT", "EXPORT", "EXTEND", "EXTENT", "FABRIC", "FACIAL",
-  "FAIRLY", "FALLEN", "FAMILY", "FAMOUS", "FATHER", "FELLOW", "FEMALE", "FINGER", "FINISH", "FISCAL", "FLIGHT", "FOLLOW", "FOOTER", "FOREST",
-  "FORGET", "FORMAT", "FORMER", "FOURTH", "FRIDAY", "FRIEND", "FROZEN", "FUTURE", "GADGET", "GARAGE", "GARDEN", "GATHER", "GENDER", "GENTLE",
-  "GERMAN", "GLOBAL", "GOLDEN", "GOTTEN", "GROUND", "GROWTH", "GUITAR", "HANDLE", "HAPPEN", "HARDLY", "HEALTH", "HEAVEN", "HEIGHT", "HIDDEN",
-  "HOLDER", "HONEST", "HOPING", "HORROR", "IMPACT", "IMPORT", "INCOME", "INDEED", "INFANT", "INFORM", "INJURY", "INSECT", "INSERT", "INSIDE",
-  "INTENT", "INVEST", "ISLAND", "ITSELF", "JOINED", "JUNGLE", "JUNIOR", "KILLED", "KILLER", "KNIGHT", "LADIES", "LATEST", "LATTER", "LAUNCH",
-  "LAWYER", "LEADER", "LEAGUE", "LEAVES", "LENGTH", "LESSON", "LETTER", "LIGHTS", "LIKELY", "LINEAR", "LIQUID", "LISTEN", "LITTLE", "LIVING",
-  "LOCATE", "LOCKED", "LONDON", "LOVELY", "LOVERS", "LOVING", "LUXURY", "MADRID", "MAKING", "MANAGE", "MANNER", "MARBLE", "MARGIN", "MARINE",
-  "MARKET", "MASTER", "MATRIX", "MATTER", "MATURE", "MEADOW", "MEMBER", "MEMORY", "MENTAL", "MERGER", "METHOD", "MIDDLE", "MILLER", "MINING",
-  "MINUTE", "MIRROR", "MOBILE", "MODERN", "MODIFY", "MODULE", "MOMENT", "MONDAY", "MOTHER", "MOTION", "MOVING", "MURDER", "MUSCLE", "MUSEUM",
-  "MUTUAL", "NATION", "NATIVE", "NATURE", "NEARBY", "NEARLY", "NEEDLE", "NEPHEW", "NEURAL", "NEWEST", "NICELY", "NIGHTS", "NOBODY", "NORMAL",
-  "NOTICE", "NOTION", "NUMBER", "NURSES", "OBJECT", "OBTAIN", "OFFICE", "ONLINE", "OPTION", "ORANGE", "ORIGIN", "OUTPUT", "OXFORD", "PACKED",
-  "PALACE", "PARADE", "PARENT", "PARTLY", "PATENT", "PATROL", "PAYOFF", "PEOPLE", "PERIOD", "PERMIT", "PERSON", "PHRASE", "PICKUP", "PICNIC",
-  "PILLOW", "PLACED", "PLANET", "PLAYER", "PLEASE", "PLENTY", "POCKET", "POETRY", "POLICE", "POLICY", "POLISH", "PORTAL", "POSTER", "POTATO",
-  "POWDER", "PRAISE", "PRAYER", "PREFER", "PRETTY", "PRIEST", "PRINCE", "PRISON", "PROFIT", "PROPER", "PROVEN", "PUBLIC", "PURPLE", "PURSUE",
-  "PUZZLE", "RABBIT", "RACIAL", "RADIUS", "RANDOM", "RARELY", "RATHER", "RATING", "READER", "REALLY", "REASON", "REBEL", "RECALL", "RECENT",
-  "RECORD", "REDUCE", "REFORM", "REFUSE", "REGION", "RELATE", "RELIEF", "REMAIN", "REMOTE", "REMOVE", "REPAIR", "REPEAT", "REPLY", "REPORT",
-  "RESCUE", "RESIST", "RESORT", "RESULT", "RETAIL", "RETIRE", "RETURN", "REVEAL", "REVIEW", "REVOLT", "REWARD", "RIDING", "RISING", "ROBUST",
-  "ROCKET", "ROTATE", "ROUTER", "RUBBER", "RULING", "RUNNER", "SAFETY", "SALARY", "SAMPLE", "SAVING", "SAYING", "SCHEME", "SCHOOL", "SCREEN",
-  "SCRIPT", "SEARCH", "SEASON", "SECOND", "SECRET", "SECTOR", "SECURE", "SELECT", "SENIOR", "SERIAL", "SERIES", "SERVER", "SETTLE", "SEVERE",
-  "SHADOW", "SHAPED", "SHARED", "SHIELD", "SHIFT", "SHOULD", "SHOWED", "SHOWER", "SHRIMP", "SIGNAL", "SIMPLE", "SINGLE", "SISTER", "SKETCH",
-  "SLIGHT", "SMOOTH", "SOCCER", "SOCIAL", "SOCKET", "SODIUM", "SOONER", "SOURCE", "SOVIET", "SPEAKS", "SPIRIT", "SPLIT", "SPREAD", "SPRING",
-  "SQUARE", "STABLE", "STANCE", "STATUE", "STATUS", "STAYED", "STEADY", "STOLEN", "STRAIN", "STRAND", "STREAM", "STREET", "STRESS", "STRICT",
-  "STRIKE", "STRING", "STROKE", "STRONG", "STRUCK", "STUDIO", "SUBMIT", "SUDDEN", "SUFFER", "SUMMIT", "SUNDAY", "SUNSET", "SUPPLY", "SURELY",
-  "SURVEY", "SWITCH", "SYMBOL", "SYNTAX", "SYSTEM", "TACKLE", "TAKING", "TALENT", "TARGET", "TAUGHT", "TEMPLE", "TENDER", "TENNIS", "THEORY",
-  "THIRTY", "THREAD", "THREAT", "THROWN", "THRUST", "TICKET", "TIMBER", "TISSUE", "TOGGLE", "TOMATO", "TONGUE", "TOPICS", "TOWARD", "TRADER",
-  "TRAVEL", "TREATY", "TRYING", "TUNNEL", "TWELVE", "TWENTY", "UNABLE", "UNFAIR", "UNIQUE", "UNITED", "UNLESS", "UNLIKE", "UPDATE", "UPLOAD",
-  "UPWARD", "URGENT", "USEFUL", "VALLEY", "VENDOR", "VERSUS", "VICTIM", "VIEWER", "VIRGIN", "VIRTUE", "VISION", "VISUAL", "VOLUME", "WALKER",
-  "WALLET", "WANDER", "WEAPON", "WEEKLY", "WEIGHT", "WINDOW", "WINTER", "WITHIN", "WIZARD", "WONDER", "WOODEN", "WORKER", "WORTHY", "WRITER",
-  "YELLOW", "YOGURT"
-];
-
-/**
- * VALID GUESSES: Words that can be used as guesses (larger list)
- * For now, same as TARGET_WORDS. In the future, this can be expanded
- * to include more words (like Wordle's ~13,000 valid guesses vs ~2,300 targets)
- */
-// Default fallback lists (small, for testing/fallback)
-const DEFAULT_TARGET_WORDS: Record<number, string[]> = {
-  4: TARGET_WORDS_4,
-  5: TARGET_WORDS_5,
-  6: TARGET_WORDS_6
-};
-
-const DEFAULT_VALID_GUESSES: Record<number, string[]> = {
-  4: TARGET_WORDS_4,
-  5: TARGET_WORDS_5,
-  6: TARGET_WORDS_6
-};
-
-// Global word lists (injected from outside)
-let globalWordLists: WordLists | null = null;
+let globalWordLists: WordLists = { targetWords: {}, validGuesses: {} };
+let guessSets: Record<number, Set<string>> = {};
+let targetSets: Record<number, Set<string>> = {};
 
 /**
  * Initialize word lists (call this before using the engine)
  */
 export function initializeWordLists(wordLists: WordLists): void {
   globalWordLists = wordLists;
+  guessSets = {};
+  targetSets = {};
+  for (const [length, words] of Object.entries(wordLists.validGuesses)) {
+    guessSets[Number(length)] = new Set(words);
+  }
+  for (const [length, words] of Object.entries(wordLists.targetWords)) {
+    targetSets[Number(length)] = new Set(words);
+  }
 }
 
 /**
- * Get current word lists (fallback to defaults if not initialized)
+ * Get current word lists
  */
 function getWordLists(): WordLists {
-  if (globalWordLists) {
-    return globalWordLists;
-  }
-  return {
-    targetWords: DEFAULT_TARGET_WORDS,
-    validGuesses: DEFAULT_VALID_GUESSES
-  };
+  return globalWordLists;
 }
 
 // ============================================================================
@@ -264,9 +119,7 @@ function isValidWord(word: string, wordLength: number): boolean {
     return false;
   }
   
-  const wordLists = getWordLists();
-  const validGuesses = wordLists.validGuesses[wordLength];
-  return validGuesses ? validGuesses.includes(normalized) : false;
+  return guessSets[wordLength]?.has(normalized) ?? false;
 }
 
 function isTargetWord(word: string, wordLength: number): boolean {
@@ -280,9 +133,7 @@ function isTargetWord(word: string, wordLength: number): boolean {
     return false;
   }
   
-  const wordLists = getWordLists();
-  const targetWords = wordLists.targetWords[wordLength];
-  return targetWords ? targetWords.includes(normalized) : false;
+  return targetSets[wordLength]?.has(normalized) ?? false;
 }
 
 function getRandomWord(wordLength: number, excludeWords: Set<string> = new Set()): string {

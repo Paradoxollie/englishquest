@@ -1,5 +1,6 @@
 /**
- * Script to automatically download and update word lists from free sources
+ * Script to automatically download and update the Enigma Scroll guess lists
+ * (public/data/enigma-guesses-4.json, -5, -6) from free sources.
  * 
  * Sources used (all public domain / open source):
  * - SCOWL (Spell Checker Oriented Word Lists) - Public domain
@@ -15,7 +16,8 @@ const https = require('https');
 const http = require('http');
 
 const WORDS_DIR = path.join(__dirname, '../lib/games/words');
-const OUTPUT_FILE = path.join(WORDS_DIR, 'enigma-scroll-words.json');
+const OUTPUT_DIR = path.join(__dirname, '../public/data');
+const TARGETS_FILE = path.join(__dirname, '../lib/games/enigma-scroll-targets.ts');
 const INAPPROPRIATE_WORDS_FILE = path.join(WORDS_DIR, 'inappropriate-words.txt');
 
 /**
@@ -164,48 +166,16 @@ async function downloadAndMergeWords() {
 }
 
 /**
- * Generate common words subset for targetWords (more curated)
- * Uses the google-10000 list as base for target words
+ * Mots cibles : liste relue à la main dans lib/games/enigma-scroll-targets.ts
+ * (mot, traduction, niveau). Le script la lit pour garantir que chaque mot
+ * cible reste une proposition acceptée.
  */
-async function generateTargetWords() {
-  const inappropriateWords = await loadInappropriateWords();
-  const targetWords = {
-    4: [],
-    5: [],
-    6: []
-  };
-  
-  // Use the google-10000 list for target words (common words)
-  const commonWordsSource = WORD_LIST_SOURCES.find(s => s.name === 'google-10000');
-  if (commonWordsSource) {
-    try {
-      console.log('Generating target words from common words list...');
-      const text = await downloadText(commonWordsSource.url);
-      const words = processWords(text, inappropriateWords);
-      
-      for (const word of words) {
-        if (word.length >= 4 && word.length <= 6) {
-          targetWords[word.length].push(word);
-        }
-      }
-      
-      // Sort and remove duplicates
-      for (const length of [4, 5, 6]) {
-        targetWords[length] = Array.from(new Set(targetWords[length])).sort();
-      }
-      
-      console.log(`  ✓ Generated target words: ${targetWords[4].length} (4), ${targetWords[5].length} (5), ${targetWords[6].length} (6)`);
-    } catch (error) {
-      console.error('Failed to generate target words:', error.message);
-    }
+async function readTargetWords() {
+  const source = await fs.readFile(TARGETS_FILE, 'utf-8');
+  const targetWords = { 4: [], 5: [], 6: [] };
+  for (const match of source.matchAll(/\["([A-Z]{4,6})",/g)) {
+    targetWords[match[1].length].push(match[1]);
   }
-  
-  // If we don't have enough 4-letter target words, use a subset from valid guesses
-  // We'll generate valid guesses first and then use common ones for targets
-  if (targetWords[4].length < 100) {
-    console.log('  ⚠ Not enough 4-letter target words, will use common words from all sources');
-  }
-  
   return targetWords;
 }
 
@@ -213,77 +183,30 @@ async function generateTargetWords() {
  * Main function
  */
 async function main() {
-  console.log('🔄 Updating word lists from free sources...\n');
-  
+  console.log('Updating Enigma Scroll guess lists from free sources...\n');
+
   try {
-    // Ensure words directory exists
-    await fs.mkdir(WORDS_DIR, { recursive: true });
-    
-    // Generate valid guesses first (all words from all sources)
+    await fs.mkdir(OUTPUT_DIR, { recursive: true });
+
+    // All words from all sources, filtered for a school audience
     const validGuesses = await downloadAndMergeWords();
-    
-    // Generate target words (common words)
-    let targetWords = await generateTargetWords();
-    
-    // If we don't have enough 4-letter target words, use common words from valid guesses
-    if (targetWords[4].length < 100) {
-      console.log('\nSupplementing 4-letter target words from common sources...');
-      // Take first 500 common 4-letter words from valid guesses as targets
-      targetWords[4] = validGuesses[4].slice(0, 500);
-      console.log(`  ✓ Added ${targetWords[4].length} common 4-letter words as targets`);
-    }
-    
-    // Ensure all target words are in valid guesses
+    const targetWords = await readTargetWords();
+
+    // Every target word must remain a valid guess
     for (const length of [4, 5, 6]) {
-      const targetSet = new Set(targetWords[length]);
       const validSet = new Set(validGuesses[length]);
-      
-      // Add missing target words to valid guesses
-      for (const word of targetSet) {
-        validSet.add(word);
-      }
-      
+      for (const word of targetWords[length]) validSet.add(word);
       validGuesses[length] = Array.from(validSet).sort();
+      // One small file per length, loaded on demand by the game (public/data)
+      await fs.writeFile(path.join(OUTPUT_DIR, `enigma-guesses-${length}.json`), JSON.stringify(validGuesses[length]), 'utf-8');
     }
-    
-    // Create output structure
-    const output = {
-      targetWords,
-      validGuesses,
-      _metadata: {
-        lastUpdated: new Date().toISOString(),
-        sources: WORD_LIST_SOURCES.map(s => s.name),
-        counts: {
-          targetWords: {
-            4: targetWords[4].length,
-            5: targetWords[5].length,
-            6: targetWords[6].length
-          },
-          validGuesses: {
-            4: validGuesses[4].length,
-            5: validGuesses[5].length,
-            6: validGuesses[6].length
-          }
-        }
-      }
-    };
-    
-    // Write to file
-    await fs.writeFile(
-      OUTPUT_FILE,
-      JSON.stringify(output, null, 2),
-      'utf-8'
-    );
-    
-    console.log('\n✅ Word lists updated successfully!');
-    console.log(`\n📊 Summary:`);
+
+    console.log('\nWord lists updated.');
     console.log(`   Target words: ${targetWords[4].length} (4), ${targetWords[5].length} (5), ${targetWords[6].length} (6)`);
     console.log(`   Valid guesses: ${validGuesses[4].length} (4), ${validGuesses[5].length} (5), ${validGuesses[6].length} (6)`);
-    console.log(`\n📁 Output: ${OUTPUT_FILE}`);
-    console.log(`\n💡 To update again, run: node scripts/update-word-lists.js`);
-    
+    console.log(`   Output: ${OUTPUT_DIR}/enigma-guesses-<length>.json`);
   } catch (error) {
-    console.error('\n❌ Error updating word lists:', error);
+    console.error('\nError updating word lists:', error);
     process.exit(1);
   }
 }
