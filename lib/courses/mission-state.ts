@@ -3,19 +3,16 @@ import { getCourseMissionPlan } from "@/lib/courses/campaign";
 import { getUserCourseChallengeProgress } from "@/lib/courses/mission-progress";
 import { getUserCourseRoadmap, type CourseRoadmapEntry } from "@/lib/courses/progress";
 import { isCourseQuizScorePassing } from "./quiz-score";
+import {
+  clampMissionNumber,
+  decodeCourseMissionTelemetry,
+  encodeCourseMissionTelemetry,
+  type DecodedCourseMissionTelemetry,
+} from "./mission-telemetry";
 export { isCourseQuizScorePassing };
 export { COURSE_QUIZ_PASS_RATIO } from "./quiz-score";
-
-const COURSE_MISSION_TELEMETRY_MAGIC = 9_000_000;
-const COURSE_MISSION_TELEMETRY_READ_FLAG = 1_000_000;
-const COURSE_MISSION_TELEMETRY_TOTAL_FACTOR = 1_000;
-
-
-type DecodedCourseMissionTelemetry = {
-  readingCheckpointReached: boolean;
-  quizScore: number;
-  quizTotal: number;
-};
+// Le codage de best_score vit dans un module pur, partagé avec les étoiles et les badges.
+export { decodeCourseMissionTelemetry, encodeCourseMissionTelemetry };
 
 export type CourseMissionState = {
   readingCheckpointReached: boolean;
@@ -27,47 +24,6 @@ export type CourseMissionState = {
   gameChallengeReached: boolean;
   readyToComplete: boolean;
 };
-
-function clampMissionNumber(value: number) {
-  return Math.max(0, Math.min(999, Math.floor(value)));
-}
-
-
-export function decodeCourseMissionTelemetry(
-  value: number | null | undefined
-): DecodedCourseMissionTelemetry {
-  if (typeof value !== "number" || value < COURSE_MISSION_TELEMETRY_MAGIC) {
-    return {
-      readingCheckpointReached: false,
-      quizScore: 0,
-      quizTotal: 0,
-    };
-  }
-
-  const payload = value - COURSE_MISSION_TELEMETRY_MAGIC;
-  const readingCheckpointReached =
-    Math.floor(payload / COURSE_MISSION_TELEMETRY_READ_FLAG) > 0;
-  const quizPayload = payload % COURSE_MISSION_TELEMETRY_READ_FLAG;
-  const quizTotal = Math.floor(quizPayload / COURSE_MISSION_TELEMETRY_TOTAL_FACTOR);
-  const quizScore = quizPayload % COURSE_MISSION_TELEMETRY_TOTAL_FACTOR;
-
-  return {
-    readingCheckpointReached,
-    quizScore,
-    quizTotal,
-  };
-}
-
-export function encodeCourseMissionTelemetry(
-  telemetry: DecodedCourseMissionTelemetry
-) {
-  return (
-    COURSE_MISSION_TELEMETRY_MAGIC +
-    (telemetry.readingCheckpointReached ? COURSE_MISSION_TELEMETRY_READ_FLAG : 0) +
-    clampMissionNumber(telemetry.quizTotal) * COURSE_MISSION_TELEMETRY_TOTAL_FACTOR +
-    clampMissionNumber(telemetry.quizScore)
-  );
-}
 
 function buildCourseMissionState(
   telemetry: DecodedCourseMissionTelemetry,

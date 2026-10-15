@@ -1,6 +1,8 @@
 "use server";
 
 import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
+import { recordGrammarRushPractice, type PracticeResult } from "@/lib/courses/practice-server";
+import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 import { checkAndGrantDailyBonus } from "@/lib/profile/daily-challenge";
 import { isValidRushResult } from "@/lib/games/grammar-rush";
 import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
@@ -16,6 +18,9 @@ export async function submitGrammarRushScore(params: {
   correct: number;
   attempts: number;
   durationMs: number;
+  /** Cours ciblé (?cours=N) et bonnes réponses sur ses questions pendant la partie. */
+  focusCourseId?: number | null;
+  focusCorrect?: number;
 }): Promise<{
   success: boolean;
   error?: string;
@@ -23,6 +28,8 @@ export async function submitGrammarRushScore(params: {
   isNewPersonalBest?: boolean;
   isNewGlobalBest?: boolean;
   courseCompleted?: AutoCompletedCourse | null;
+  practice?: PracticeResult | null;
+  newBadges?: NewBadge[];
   dailyChallenge?: {
     dailyPlayedGames: string[];
     requiredGames: string[];
@@ -87,6 +94,17 @@ export async function submitGrammarRushScore(params: {
     const balances = await grantProfileRewards(admin, user.id, { xp: rewards.xpEarned, gold: rewards.goldEarned });
     const dailyChallenge = await checkAndGrantDailyBonus(user.id, SLUG);
     const courseCompleted = await autoCompleteCourseMissionForGame(user.id, SLUG, score);
+    // Étoile d'entraînement : seulement quand la partie était ouverte sur un cours.
+    const practice =
+      params.focusCourseId != null
+        ? await recordGrammarRushPractice(user.id, {
+            focusCourseId: params.focusCourseId,
+            focusCorrect: params.focusCorrect ?? 0,
+            correct,
+            attempts,
+          })
+        : null;
+    const newBadges = await syncBadgesSafely(user.id);
 
     return {
       success: true,
@@ -95,6 +113,8 @@ export async function submitGrammarRushScore(params: {
       isNewGlobalBest,
       dailyChallenge,
       courseCompleted,
+      practice,
+      newBadges,
     };
   } catch (error) {
     console.error("submitGrammarRushScore", error);

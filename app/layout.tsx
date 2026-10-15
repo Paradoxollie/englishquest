@@ -4,6 +4,7 @@ import "./globals.css";
 import { AdLayoutShell } from "@/components/ads/AdLayoutShell";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { AppHeader } from "@/components/layout/app-header";
+import { RewardCelebrations } from "@/components/rewards/reward-celebrations";
 import { ADSENSE_CLIENT } from "@/lib/ads/config";
 import { SITE_URL } from "@/lib/site/config";
 
@@ -83,6 +84,7 @@ export default function RootLayout({
       <body className="min-h-screen antialiased" suppressHydrationWarning>
         <AuthProvider>
           <AdLayoutShell header={<AppHeader />}>{children}</AdLayoutShell>
+          <RewardCelebrations />
         </AuthProvider>
       </body>
     </html>

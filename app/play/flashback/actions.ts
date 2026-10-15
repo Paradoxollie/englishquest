@@ -2,6 +2,7 @@
 import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
 import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
 import { autoCompleteCourseMissionForGame } from "@/lib/courses/mission-auto-complete";
+import { syncBadgesSafely } from "@/lib/profile/badges-server";
 
 /**
  * Server Actions for Echo Lex
@@ -120,6 +121,7 @@ export async function submitEchoLexScore(params: {
         const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
         const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "flashback");
         const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "flashback", params.score);
+        const newBadges = await syncBadgesSafely(user.id);
 
         return {
             success: true,
@@ -132,6 +134,7 @@ export async function submitEchoLexScore(params: {
             isNewGlobalBest: isNewGB,
             dailyChallenge: dailyChallengeResult,
             courseCompleted,
+            newBadges,
         };
     } catch (error) {
         console.error("Error in submitEchoLexScore:", error);

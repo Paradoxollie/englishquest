@@ -41,6 +41,8 @@ const stubs = {
   "@/lib/supabase/admin": { createSupabaseAdminClient: () => admin },
   "@/lib/courses/mission-auto-complete": { autoCompleteCourseMissionForGame: async () => null },
   "@/lib/profile/daily-challenge": { checkAndGrantDailyBonus: async () => ({ dailyPlayedGames: [], requiredGames: [], bonusGranted: false, xpBonus: 0, goldBonus: 0, dailyGoalReached: false }) },
+  "@/lib/profile/badges-server": { syncBadgesSafely: async () => [] },
+  "@/lib/courses/practice-server": { recordGrammarRushPractice: async () => null },
   "next/cache": { revalidatePath: () => {} },
   "server-only": {},
 };

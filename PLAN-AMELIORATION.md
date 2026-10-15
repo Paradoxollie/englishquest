@@ -61,7 +61,7 @@ Qui : C = Claude, P = Pierre. Taille : S petit, M moyen, L grand.
 | # | Tâche | Qui | Taille | État |
 |---|---|---|---|---|
 | 1.1 | Mission = Grammar Rush centré sur le cours ; autres jeux en entraînement libre | C | M | fait 15/10 : `?cours=N` sur Grammar Rush, bouton « S'entraîner sur la notion » |
-| 1.2 | Quiz ≥ 80 % valide la mission ; le jeu donne 1 à 3 étoiles, jamais bloquant | C | M | en partie 15/10 : le quiz valide, le jeu ne bloque plus ; étoiles à faire (phase 2, table dédiée) |
+| 1.2 | Quiz ≥ 80 % valide la mission ; le jeu donne 1 à 3 étoiles, jamais bloquant | C | M | fait 16/10 (code) : 1 étoile mission validée, 1 quiz à 10/10, 1 pour 5 bonnes réponses ciblées dans Grammar Rush (`?cours=N`) ; carte, barre de cours, accueil ; migration 13 à appliquer |
 | 1.3 | Banque de 20 à 30 questions par cours (brouillons Claude, validation Pierre), tirage de 10, réponses mélangées | P + C | L | en partie 15/10 : questions et réponses mélangées ; banque élargie à faire |
 | 1.4 | Quiz corrigé côté serveur | C | S | fait 15/10 (`lib/courses/quiz-grading.ts`) |
 | 1.5 | Exercices de production : phrase à compléter, mots à remettre en ordre, erreur à repérer | C | M | à faire |
@@ -73,11 +73,11 @@ Qui : C = Claude, P = Pierre. Taille : S petit, M moyen, L grand.
 
 | # | Tâche | Qui | Taille | État |
 |---|---|---|---|---|
-| 2.1 | Coffre de bienvenue + 4 ou 5 objets entre 10 et 30 or | C | S | à faire |
-| 2.2 | 25 badges, visibles sur le profil et les classements | C | M | à faire |
-| 2.3 | Examen de chapitre mis en scène comme un boss, coffre et décor débloqués | C | M | à faire |
-| 2.4 | Ligue de la semaine (remise à zéro le lundi, par classe ensuite) | C | M | à faire |
-| 2.5 | Animations de récompense (framer-motion déjà installé) | C | M | à faire |
+| 2.1 | Coffre de bienvenue + 4 ou 5 objets entre 10 et 30 or | C | S | fait 16/10 (code) : 30 or à l'inscription (`WELCOME_GOLD`), avis sur l'accueil, 4 titres de 10 à 60 or, 5 objets rendus accessibles plus tôt ; migration 12 à appliquer |
+| 2.2 | 25 badges, visibles sur le profil et les classements | C | M | fait 16/10 (code) : 28 badges (`lib/profile/badges.ts`), profil et accueil ; pas encore dans les classements ; migration 11 à appliquer |
+| 2.3 | Examen de chapitre mis en scène comme un boss, coffre et décor débloqués | C | M | à faire (badge « Boss vaincu » seulement) |
+| 2.4 | Ligue de la semaine (remise à zéro le lundi, par classe ensuite) | C | M | fait 16/10 (code) : historique `xp_events`, ligue sur Classements, carte « Ta semaine » ; par classe à faire ; migration 10 à appliquer |
+| 2.5 | Animations de récompense (framer-motion déjà installé) | C | M | fait 16/10 : notifications de gain, badges, étoiles, fenêtre de niveau (événement `eq:reward`) |
 | 2.6 | Anti-triche : session de partie côté serveur, contrôle score/durée, réponses vérifiées pour Grammar Rush et Flash Translation | C | M | à faire |
 
 ### Phase 3 : espace prof et mode classe (2 à 3 semaines)
@@ -126,3 +126,4 @@ Emplacements d'images (dans `public/art/`, JPG) : `hero-home.jpg` 2400×1350 suj
 - 2026-10-15 : bilan complet (code, tests, site en ligne, Supabase). Rien modifié sur le site ni dans la base. Environ 330 visites de test ajoutées au compteur ce jour-là (HeadlessChrome).
 - 2026-10-15 (soir) : phase 0 (code) et cœur de la phase 1 faits et poussés. Détail : entités et accents corrigés (banque de questions resynchronisée), classements réservés aux connectés, pub coupée par défaut, menu Profs réservé aux profs, contact protégé, compteur de visites filtré, mission validée par le quiz, quiz mélangé et corrigé par le serveur, Grammar Rush ciblé (`?cours=N`), bouton Écouter, test de niveau sans compte, durées de cours réalistes, un seul repère `main` par page de jeu. Tests ajoutés : entités HTML, correction serveur du quiz, mélange du quiz, jeton du test de niveau, test de niveau invité sans écriture.
 - 2026-10-15 (soir) : vérifié en production après déploiement : 13 scénarios de jeu passent ; parcours réel complet avec un compte de test (test de niveau sans compte placé au chapitre 2, inscription, carte ouverte au chapitre 2, quiz du cours 11 à 10/10, mission validée +100 XP +8 or), puis compte supprimé par le profil ; base vérifiée : 26 comptes, aucune ligne orpheline.
+- 2026-10-16 : récompenses (phase 2.1, 2.2, 2.4, 2.5 et étoiles du 1.2). Code seulement, rien appliqué en base : migrations `2026-10-16_10` à `13` à passer dans l'ordre. Sans elles, le site tourne, mais ligue, badges et étoiles d'entraînement restent vides. Test ajouté : `scripts/tests/rewards-regression.cjs`.

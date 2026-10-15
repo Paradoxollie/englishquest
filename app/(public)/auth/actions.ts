@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { WELCOME_GOLD } from "@/lib/profile/economy";
 import type { AuthFormState } from "@/types/auth";
 
 
@@ -193,7 +194,7 @@ export async function signUpAction(
               email: effectiveEmail, // Utilise l'email effectif (réel ou fantôme)
               role: "student",
               xp: 0,
-              gold: 0,
+              gold: WELCOME_GOLD,
               level: 1,
             });
 
@@ -266,7 +267,7 @@ export async function signUpAction(
           email: effectiveEmail, // Utilise l'email effectif (réel ou fantôme)
           role: "student",
           xp: 0,
-          gold: 0,
+          gold: WELCOME_GOLD,
           level: 1,
         },
         {
@@ -425,7 +426,7 @@ export async function loginAction(
           email: emailToUse,
           role: "student",
           xp: 0,
-          gold: 0,
+          gold: WELCOME_GOLD,
           level: 1,
         });
       }

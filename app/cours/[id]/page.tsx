@@ -16,6 +16,7 @@ import { getResolvedCourseMissionPlan } from "@/lib/courses/campaign-server";
 import { getUserCourseMissionState } from "@/lib/courses/mission-state";
 import { getChapterForCourse } from "@/lib/courses/chapters";
 import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
+import { getUserCoursePractice } from "@/lib/courses/practice-server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 interface CoursePageProps {
@@ -77,9 +78,10 @@ export default async function CoursePage({ params }: CoursePageProps) {
   const palier = getPalierForCourse(courseId);
   const chapter = getChapterForCourse(courseId);
 
-  const [missionState, missionPlan] = await Promise.all([
+  const [missionState, missionPlan, practice] = await Promise.all([
     user && roadmapEntry ? getUserCourseMissionState(user.id, roadmapEntry) : Promise.resolve(null),
     roadmapEntry ? getResolvedCourseMissionPlan(roadmapEntry) : Promise.resolve(null),
+    user ? getUserCoursePractice(user.id) : Promise.resolve(new Map<number, number>()),
   ]);
 
   const sectionAnchors = lesson
@@ -131,7 +133,13 @@ export default async function CoursePage({ params }: CoursePageProps) {
         typeLabel={roadmapEntry?.typeLabel}
         topBar={
           roadmapEntry && mission ? (
-            <MissionBar entry={roadmapEntry} mission={mission} chapterLabel={chapterLabel} nextEntry={nextEntry} />
+            <MissionBar
+              entry={roadmapEntry}
+              mission={mission}
+              chapterLabel={chapterLabel}
+              nextEntry={nextEntry}
+              practiceBest={practice.get(courseId) ?? 0}
+            />
           ) : null
         }
         aside={

@@ -1,17 +1,24 @@
 import Link from "next/link";
 import { GameCard } from "@/components/play/game-card";
+import { BadgeMedal } from "@/components/rewards/badge-medal";
+import { MissionStarsLegend } from "@/components/rewards/mission-stars";
+import { WelcomeGoldNotice } from "@/components/rewards/welcome-gold-notice";
 import type { Chapter } from "@/lib/courses/chapters";
 import type { MissionSummary } from "@/lib/courses/mission-summary";
 import type { CourseRoadmapEntry } from "@/lib/courses/progress";
+import { PRACTICE_STAR_TARGET, type MissionStars } from "@/lib/courses/stars";
 import type { GameConfig } from "@/lib/games/config";
+import { getBadgeDefinition, type BadgeTier } from "@/lib/profile/badges";
 import type { DailyChallengeState } from "@/lib/profile/daily-challenge";
 import type { getLevelProgress } from "@/lib/profile/economy";
+import { formatRank } from "@/lib/profile/league";
 
 type LevelProgress = ReturnType<typeof getLevelProgress>;
 
 type HomeViewProps = {
   greetingLabel: string;
   username: string;
+  userId: string;
   xp: number;
   gold: number;
   level: LevelProgress;
@@ -30,11 +37,22 @@ type HomeViewProps = {
   canAccessTeachers: boolean;
   /** Nouveau joueur sans mission validée et sans test de niveau. */
   suggestPlacement?: boolean;
+  /** Or de bienvenue à signaler (nouveau compte), sinon null. */
+  welcomeGold?: number | null;
+  latestBadges?: Array<{ key: string; name: string; tier: BadgeTier }>;
+  badgeCount?: number;
+  /** Ligue de la semaine ; null si elle n'est pas disponible. */
+  week?: { rank: number | null; xp: number; totalPlayers: number; resetLabel: string } | null;
+  missionStars?: MissionStars | null;
+  missionPracticeBest?: number;
+  totalStars?: number;
+  maxStars?: number;
 };
 
 export function HomeView({
   greetingLabel,
   username,
+  userId,
   xp,
   gold,
   level,
@@ -52,6 +70,14 @@ export function HomeView({
   nextDailyGame,
   canAccessTeachers,
   suggestPlacement = false,
+  welcomeGold = null,
+  latestBadges = [],
+  badgeCount = 0,
+  week = null,
+  missionStars = null,
+  missionPracticeBest = 0,
+  totalStars = 0,
+  maxStars = 0,
 }: HomeViewProps) {
   const completionPercent = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
   const streakBonusPercent = Math.round((streakMultiplier - 1) * 100);
@@ -66,9 +92,23 @@ export function HomeView({
             style={{ ["--p" as string]: level.percent }}
             aria-label={`Niveau ${level.level}, ${level.percent} % vers le niveau ${level.level + 1}`}
           />
-          <div>
+          <div className="min-w-0">
             <p className="eq-kicker">{greetingLabel}</p>
-            <h1 className="eq-h1">{username}</h1>
+            <div className="eq-home-name">
+              <h1 className="eq-h1">{username}</h1>
+              {latestBadges.length > 0 ? (
+                <ul className="eq-home-badges" aria-label={`Derniers badges, ${badgeCount} au total`}>
+                  {latestBadges.map((badge) => (
+                    <li key={badge.key}>
+                      <Link href="/profile#badges" className="eq-badge-pill" title={getBadgeDefinition(badge.key)?.description}>
+                        <BadgeMedal tier={badge.tier} category={getBadgeDefinition(badge.key)?.category ?? "mission"} size={22} />
+                        <span>{badge.name}</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
             <p className="eq-home-level">
               Niveau {level.level} · {level.xpToNext} XP avant le niveau {level.level + 1}
             </p>
@@ -97,6 +137,8 @@ export function HomeView({
           </div>
         </dl>
       </header>
+
+      {welcomeGold ? <WelcomeGoldNotice userId={userId} gold={welcomeGold} /> : null}
 
       <div className="eq-home-grid">
         {suggestPlacement ? (
@@ -132,6 +174,16 @@ export function HomeView({
                 <li className={mission.quizDone ? "is-done" : mission.readingDone ? "is-now" : ""}>{mission.quizLabel}</li>
                 <li>{mission.gameLabel}</li>
               </ol>
+              {missionStars ? (
+                <div className="eq-home-stars">
+                  <p className="eq-kicker">Étoiles de la mission</p>
+                  <MissionStarsLegend
+                    stars={missionStars}
+                    practiceBest={missionPracticeBest}
+                    practiceTarget={PRACTICE_STAR_TARGET}
+                  />
+                </div>
+              ) : null}
               <div className="eq-home-actions">
                 <Link href={mission.cta.href} className={`eq-btn eq-btn-${mission.cta.tone}`}>
                   {mission.cta.label}
@@ -171,7 +223,9 @@ export function HomeView({
           <div className="mt-4">
             <div className="flex items-center justify-between text-xs font-bold text-[var(--muted)]">
               <span>Progression sur la carte</span>
-              <span>{completionPercent} %</span>
+              <span>
+                {completionPercent} %{maxStars > 0 ? ` · ${totalStars} / ${maxStars} étoiles` : ""}
+              </span>
             </div>
             <div className="eq-bar eq-bar-mint mt-1.5" aria-hidden="true">
               <i style={{ width: `${completionPercent}%` }} />
@@ -179,39 +233,67 @@ export function HomeView({
           </div>
         </section>
 
-        <section className="eq-card eq-home-daily flex flex-col" aria-labelledby="home-daily">
-          <p className="eq-kicker">Défi du jour · {daily.challengeLabel}</p>
-          <h2 id="home-daily" className="eq-h3">
-            {daily.dailyGoalReached
-              ? daily.bonusClaimedToday
-                ? "Défi réussi, bonus reçu"
-                : "Défi réussi"
-              : `${daily.dailyGoalProgress} jeu${daily.dailyGoalProgress > 1 ? "x" : ""} sur ${daily.dailyGoalTarget}`}
-          </h2>
-          <ul className="eq-home-daily-list">
-            {dailyGames.map((game) => {
-              const done = daily.dailyPlayedGames.includes(game.slug);
-              return (
-                <li key={game.slug} className={done ? "is-done" : ""}>
-                  <Link href={`/play/${game.slug}`}>{game.name}</Link>
-                  <span>{done ? "Joué" : "À jouer"}</span>
-                </li>
-              );
-            })}
-          </ul>
-          <p className="text-sm text-[var(--muted)]">
-            Les trois jeux joués : + {dailyXp} XP et + {daily.goldBonus} or
-            {streakBonusPercent > 0 ? ` (série de ${daily.dailyStreak} jours, + ${streakBonusPercent} %)` : ""}.{" "}
-            {daily.nextRefreshLabel}.
-          </p>
-          {nextDailyGame && !daily.dailyGoalReached ? (
-            <div className="eq-home-actions mt-auto">
-              <Link href={`/play/${nextDailyGame.slug}`} className="eq-btn eq-btn-primary">
-                Jouer à {nextDailyGame.name}
+        <div className="eq-home-side">
+          <section className="eq-card eq-home-daily flex flex-col" aria-labelledby="home-daily">
+            <p className="eq-kicker">Défi du jour · {daily.challengeLabel}</p>
+            <h2 id="home-daily" className="eq-h3">
+              {daily.dailyGoalReached
+                ? daily.bonusClaimedToday
+                  ? "Défi réussi, bonus reçu"
+                  : "Défi réussi"
+                : `${daily.dailyGoalProgress} jeu${daily.dailyGoalProgress > 1 ? "x" : ""} sur ${daily.dailyGoalTarget}`}
+            </h2>
+            <ul className="eq-home-daily-list">
+              {dailyGames.map((game) => {
+                const done = daily.dailyPlayedGames.includes(game.slug);
+                return (
+                  <li key={game.slug} className={done ? "is-done" : ""}>
+                    <Link href={`/play/${game.slug}`}>{game.name}</Link>
+                    <span>{done ? "Joué" : "À jouer"}</span>
+                  </li>
+                );
+              })}
+            </ul>
+            <p className="text-sm text-[var(--muted)]">
+              Les trois jeux joués : + {dailyXp} XP et + {daily.goldBonus} or
+              {streakBonusPercent > 0 ? ` (série de ${daily.dailyStreak} jours, + ${streakBonusPercent} %)` : ""}.{" "}
+              {daily.nextRefreshLabel}.
+            </p>
+            {nextDailyGame && !daily.dailyGoalReached ? (
+              <div className="eq-home-actions mt-auto">
+                <Link href={`/play/${nextDailyGame.slug}`} className="eq-btn eq-btn-primary">
+                  Jouer à {nextDailyGame.name}
+                </Link>
+              </div>
+            ) : null}
+          </section>
+
+          {week ? (
+            <section className="eq-card eq-home-week" aria-labelledby="home-week">
+              <p className="eq-kicker">Ligue de la semaine</p>
+              <h2 id="home-week" className="eq-h3">
+                Ta semaine
+              </h2>
+              {week.rank ? (
+                <p className="eq-home-week-rank">
+                  <b>{formatRank(week.rank)}</b>
+                  <span>
+                    place sur {week.totalPlayers}
+                    <br />+ {week.xp.toLocaleString("fr-FR")} XP depuis lundi
+                  </span>
+                </p>
+              ) : (
+                <p className="text-sm text-[var(--muted)]">
+                  Pas encore classé cette semaine. Une partie ou une mission suffit pour entrer dans la ligue.
+                </p>
+              )}
+              <p className="text-xs font-bold text-[var(--muted)]">Remise à zéro lundi, {week.resetLabel}.</p>
+              <Link href="/leaderboard#ligue" className="eq-btn eq-btn-ghost eq-btn-sm w-fit">
+                Voir la ligue
               </Link>
-            </div>
+            </section>
           ) : null}
-        </section>
+        </div>
       </div>
 
       {otherGames.length > 0 ? (

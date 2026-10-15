@@ -16,6 +16,11 @@ import {
 } from "@/app/cours/actions";
 import type { CourseMissionState } from "@/lib/courses/mission-state";
 import type { CourseQuizAnswer } from "@/lib/courses/quiz-grading";
+import { dispatchReward } from "@/lib/profile/reward-events";
+
+function isPerfectQuiz(state: CourseMissionState | null | undefined) {
+  return Boolean(state && state.quizTotal && state.quizScore != null && state.quizScore >= state.quizTotal);
+}
 
 type CourseMissionContextValue = {
   courseNumber: number;
@@ -114,6 +119,20 @@ export function CourseMissionProvider({
       });
 
       if (result?.success && result.missionState) {
+        const newBadges = result.newBadges ?? [];
+        // Étoile du quiz parfait : 10 sur 10 pour la première fois sur ce cours.
+        const perfectStar = isPerfectQuiz(result.missionState) && !isPerfectQuiz(missionState) ? 1 : 0;
+        // Mission validée, badge ou étoile gagnés au passage : célébration globale.
+        if (result.courseCompleted || newBadges.length > 0 || perfectStar > 0) {
+          dispatchReward({
+            xp: result.courseCompleted?.xp ?? 0,
+            gold: result.courseCompleted?.gold ?? 0,
+            newLevel: result.courseCompleted?.newLevel ?? null,
+            badges: newBadges,
+            stars: (result.courseCompleted ? 1 : 0) + perfectStar,
+            label: result.courseCompleted ? `Mission ${courseNumber} validée` : undefined,
+          });
+        }
         setMissionState(result.missionState);
         router.refresh();
         return {

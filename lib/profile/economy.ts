@@ -17,6 +17,12 @@ import type { Difficulty } from "@/lib/profile/leveling";
 
 export const XP_PER_LEVEL = 200;
 
+/**
+ * Or offert à la création du compte : de quoi acheter un premier titre ou un
+ * fond dès la première séance (boutique à partir de 10 or, niveau 1).
+ */
+export const WELCOME_GOLD = 30;
+
 /** Parties rémunérées à plein tarif par jour et par jeu. */
 export const FULL_REWARD_PLAYS_PER_DAY = 5;
 /** Au-delà, les XP sont divisés par quatre et l'or tombe à zéro. */

@@ -575,9 +575,11 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
                   courseNumber: result.courseCompleted.courseNumber,
                   courseTitle: result.courseCompleted.courseTitle,
                   rewards: result.courseCompleted.rewards,
+                  newLevel: result.courseCompleted.newLevel,
                 }
               : null,
             dailyChallenge: result.dailyChallenge ?? null,
+            newBadges: result.newBadges ?? [],
           });
         } else {
           setScoreError(true);

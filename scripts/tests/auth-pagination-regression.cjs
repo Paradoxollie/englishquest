@@ -40,6 +40,7 @@ function harness({ users = [], profileEmail = null, pageError = null } = {}) {
     if (name === "@/lib/supabase/server") return { createSupabaseServerClient: async () => client };
     if (name === "@/lib/supabase/admin") return { createSupabaseAdminClient: () => admin };
     if (name === "@/lib/site/config") return { SITE_URL: "https://example.invalid" };
+    if (name === "@/lib/profile/economy") return { WELCOME_GOLD: 30 };
     // Le test de niveau sans compte n'intervient qu'à l'inscription, hors du périmètre de ce test.
     if (name === "@/lib/placement/placement") return { applyPlacement: async () => { throw new Error("Unexpected placement"); } };
     if (name === "@/lib/placement/placement-token") return { readPlacementToken: () => null };

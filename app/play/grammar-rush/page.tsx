@@ -76,6 +76,7 @@ export default async function GrammarRushPage({
         isLoggedIn={Boolean(user)}
         missionTarget={mission && mission.quizPassed && !mission.alreadyReached ? mission.scoreTarget : null}
         levelLabel={levelLabel}
+        focusCourseId={focusCourseId}
       />
     </GameShell>
   );

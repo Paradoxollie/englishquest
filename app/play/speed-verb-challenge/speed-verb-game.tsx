@@ -290,9 +290,11 @@ export function SpeedVerbGame({
                 courseNumber: result.courseCompleted.courseNumber,
                 courseTitle: result.courseCompleted.courseTitle,
                 rewards: result.courseCompleted.rewards,
+                newLevel: result.courseCompleted.newLevel,
               }
             : null,
           dailyChallenge: result.dailyChallenge ?? null,
+          newBadges: result.newBadges ?? [],
         });
         setSubmitStatus("saved");
       })

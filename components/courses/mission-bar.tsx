@@ -2,15 +2,20 @@
 
 import Link from "next/link";
 import { useCourseMission } from "@/components/courses/course-mission-provider";
+import { MissionStarsRow } from "@/components/rewards/mission-stars";
 import type { CourseMissionPlan } from "@/lib/courses/campaign";
+import { isCoursePlacementSkip } from "@/lib/courses/mission-telemetry";
 import { getCoursePracticeHref } from "@/lib/courses/practice";
 import type { CourseRoadmapEntry } from "@/lib/courses/progress";
+import { computeMissionStars, getMissionStars } from "@/lib/courses/stars";
 
 type MissionBarProps = {
   entry: CourseRoadmapEntry;
   mission: CourseMissionPlan;
   chapterLabel: string;
   nextEntry: CourseRoadmapEntry | null;
+  /** Meilleur entraînement ciblé sur ce cours (bonnes réponses dans une partie de Grammar Rush). */
+  practiceBest?: number;
 };
 
 type StepState = "todo" | "now" | "done";
@@ -26,12 +31,22 @@ function Step({ label, state }: { label: string; state: StepState }) {
   );
 }
 
-export function MissionBar({ entry, mission, chapterLabel, nextEntry }: MissionBarProps) {
+export function MissionBar({ entry, mission, chapterLabel, nextEntry, practiceBest = 0 }: MissionBarProps) {
   const context = useCourseMission();
   const isAuthenticated = context?.isAuthenticated ?? false;
   const tracking = context?.isMissionTrackingEnabled ?? false;
   const state = context?.missionState ?? null;
   const completed = entry.status === "completed";
+  // Étoiles : le meilleur quiz vient de l'état en direct (mis à jour après le quiz).
+  const stars = state?.quizTotal
+    ? computeMissionStars({
+        completed: completed || state.quizPassed,
+        placementSkip: isCoursePlacementSkip(entry.missionTelemetry),
+        quizScore: state.quizScore,
+        quizTotal: state.quizTotal,
+        practiceBest,
+      })
+    : getMissionStars(entry, practiceBest);
 
   const readingDone = completed || Boolean(state?.readingCheckpointReached);
   const quizDone = completed || Boolean(state?.quizPassed);
@@ -72,6 +87,7 @@ export function MissionBar({ entry, mission, chapterLabel, nextEntry }: MissionB
             <Step label="Lire" state={readingState} />
             <Step label={quizLabel} state={quizState} />
           </ol>
+          {isAuthenticated ? <MissionStarsRow stars={stars} className="eq-mission-stars" /> : null}
           <p className="eq-mission-reward">
             {completed ? "Récompense reçue" : `+ ${entry.rewardXp} XP, + ${entry.rewardGold} or à la validation`}
           </p>
