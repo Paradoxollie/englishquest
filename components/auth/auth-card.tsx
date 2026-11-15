@@ -19,7 +19,7 @@ export function AuthCard({
 }: AuthCardProps) {
   return (
     <div className="eq-card w-full max-w-lg p-6 md:p-8">
-      <h2 className="eq-h2">{title}</h2>
+      <h1 className="eq-h2">{title}</h1>
       <p className="mt-2 text-[var(--muted)]">{subtitle}</p>
 
       <div className="mt-6">{children}</div>

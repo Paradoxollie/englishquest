@@ -17,7 +17,15 @@ import {
   type GameState,
 } from "@/lib/games/flashTranslation";
 import { playSoundEffect } from "@/lib/games/audio";
-import { GameEnd, GameHud, GameStart, HudStat, SpeakButton, TimeBar, type RewardSummary } from "@/components/play/game-screens";
+import {
+  GameEnd,
+  GameHud,
+  GameStart,
+  HudStat,
+  SpeakButton,
+  TimeBar,
+  type RewardSummary,
+} from "@/components/play/game-screens";
 import { LevelPicker } from "@/components/play/level-picker";
 import { useGameFocusMode } from "@/components/play/use-game-focus-mode";
 import { useGameSession } from "@/components/play/use-game-session";
@@ -44,6 +52,11 @@ function completedRounds(state: GameState) {
   return state.rounds.filter((round) => round.reactionTimeMs !== undefined).length;
 }
 
+/** Etat initial déterministe pour le rendu serveur (aucun Math.random au SSR). */
+function createIdlePlaceholderState(level: GameLevel): GameState {
+  return createGameState(VOCABULARY, { ...CONFIG, level, rng: () => 0 });
+}
+
 export function FlashTranslationGame({
   isLoggedIn,
   missionTarget,
@@ -51,25 +64,38 @@ export function FlashTranslationGame({
 }: {
   isLoggedIn: boolean;
   missionTarget: number | null;
-  /** Niveau du chapitre en cours (joueur connecté), sinon null. */
   suggestedLevel: GameLevel | null;
 }) {
   const [level, setLevel] = useState<GameLevel>(suggestedLevel ?? DEFAULT_GAME_LEVEL);
-  const [state, setState] = useState<GameState>(() => createGameState(VOCABULARY, { ...CONFIG, level: suggestedLevel ?? DEFAULT_GAME_LEVEL }));
+  const [state, setState] = useState<GameState>(() =>
+    createIdlePlaceholderState(suggestedLevel ?? DEFAULT_GAME_LEVEL)
+  );
+  const [paused, setPaused] = useState(false);
+  const [liveAnswerMs, setLiveAnswerMs] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [combo, setCombo] = useState(0);
   const [bestCombo, setBestCombo] = useState(0);
   const [rewards, setRewards] = useState<RewardSummary | null>(null);
+  const [rewardError, setRewardError] = useState<string | null>(null);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
   useRefreshAfterScore(submitStatus);
 
   const waitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lockRef = useRef(false);
+  const pausedRef = useRef(false);
+  const comboRef = useRef(0);
+  const answerStartedAtRef = useRef(0);
+  const pausedAnswerElapsedRef = useRef(0);
   const submittedRef = useRef(false);
   const sessionRef = useRef(0);
   const startedAtRef = useRef(0);
+  const stateRef = useRef<GameState>(state);
   const gameSession = useGameSession("flash-translation", isLoggedIn);
+
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
 
   const clearTimers = useCallback(() => {
     if (waitTimer.current) clearTimeout(waitTimer.current);
@@ -78,10 +104,13 @@ export function FlashTranslationGame({
     feedbackTimer.current = null;
   }, []);
 
-  useEffect(() => () => {
-    clearTimers();
-    sessionRef.current += 1;
-  }, [clearTimers]);
+  useEffect(
+    () => () => {
+      clearTimers();
+      sessionRef.current += 1;
+    },
+    [clearTimers]
+  );
 
   const round = getCurrentRound(state);
   const done = completedRounds(state);
@@ -93,11 +122,19 @@ export function FlashTranslationGame({
     sessionRef.current += 1;
     gameSession.begin();
     startedAtRef.current = performance.now();
-    setState(startGame(createGameState(VOCABULARY, { ...CONFIG, level })));
+    const fresh = startGame(createGameState(VOCABULARY, { ...CONFIG, level }));
+    stateRef.current = fresh;
+    setState(fresh);
+    setPaused(false);
+    pausedRef.current = false;
+    setLiveAnswerMs(0);
+    pausedAnswerElapsedRef.current = 0;
     setSelected(null);
+    comboRef.current = 0;
     setCombo(0);
     setBestCombo(0);
     setRewards(null);
+    setRewardError(null);
     setSubmitStatus("idle");
     lockRef.current = false;
     submittedRef.current = false;
@@ -108,46 +145,108 @@ export function FlashTranslationGame({
     clearTimers();
     sessionRef.current += 1;
     gameSession.cancel();
-    setState(createGameState(VOCABULARY, { ...CONFIG, level }));
+    const idle = createIdlePlaceholderState(level);
+    stateRef.current = idle;
+    setState(idle);
+    setPaused(false);
+    pausedRef.current = false;
+    setLiveAnswerMs(0);
     setSelected(null);
+    comboRef.current = 0;
     setCombo(0);
     lockRef.current = false;
   }, [clearTimers, gameSession, level]);
 
+  const togglePause = useCallback(() => {
+    const current = stateRef.current;
+    if (!current.started || current.phase === "ended") return;
+    if (pausedRef.current) {
+      pausedRef.current = false;
+      setPaused(false);
+      if (current.phase === "answering") {
+        answerStartedAtRef.current = performance.now() - pausedAnswerElapsedRef.current;
+      } else if (current.phase === "waiting" && round) {
+        waitTimer.current = setTimeout(() => {
+          if (pausedRef.current) return;
+          const now = performance.now();
+          answerStartedAtRef.current = now;
+          setLiveAnswerMs(0);
+          setState((prev) => startAnswering(prev, now));
+        }, 700);
+      } else if (current.phase === "feedback") {
+        feedbackTimer.current = setTimeout(() => {
+          if (pausedRef.current) return;
+          setState((prev) => nextRound(prev));
+          setSelected(null);
+          setLiveAnswerMs(0);
+          lockRef.current = false;
+        }, 500);
+      }
+    } else {
+      clearTimers();
+      if (current.phase === "answering") {
+        const elapsed = Math.max(0, performance.now() - answerStartedAtRef.current);
+        pausedAnswerElapsedRef.current = elapsed;
+        setLiveAnswerMs(elapsed);
+      }
+      pausedRef.current = true;
+      setPaused(true);
+    }
+  }, [clearTimers, round]);
+
   /* Délai avant l'apparition des choix */
   useEffect(() => {
-    if (!state.started || state.phase !== "waiting" || !round) return;
+    if (!state.started || state.phase !== "waiting" || !round || paused) return;
     waitTimer.current = setTimeout(() => {
-      setState((current) => startAnswering(current, performance.now()));
+      if (pausedRef.current) return;
+      const now = performance.now();
+      answerStartedAtRef.current = now;
+      pausedAnswerElapsedRef.current = 0;
+      setLiveAnswerMs(0);
+      setState((current) => startAnswering(current, now));
     }, round.waitTimeMs);
     return () => {
       if (waitTimer.current) clearTimeout(waitTimer.current);
     };
-  }, [state.started, state.phase, round]);
+  }, [state.started, state.phase, round, paused]);
+
+  /* Chronomètre visible en direct pendant la phase de réponse */
+  useEffect(() => {
+    if (!state.started || state.phase !== "answering" || paused) return;
+    const interval = setInterval(() => {
+      setLiveAnswerMs(Math.max(0, performance.now() - answerStartedAtRef.current));
+    }, 60);
+    return () => clearInterval(interval);
+  }, [state.started, state.phase, paused]);
 
   const choose = useCallback(
     (index: number) => {
-      if (state.phase !== "answering" || !round || lockRef.current) return;
+      if (state.phase !== "answering" || !round || lockRef.current || pausedRef.current) return;
       lockRef.current = true;
-      const answered = submitAnswer(state, index, performance.now());
+      const now = answerStartedAtRef.current + Math.max(0, performance.now() - answerStartedAtRef.current);
+      const answered = submitAnswer(state, index, now);
       if (answered === state) {
         lockRef.current = false;
         return;
       }
       setState(answered);
       setSelected(index);
+      setLiveAnswerMs(0);
+
       if (index === round.correctIndex) {
-        setCombo((current) => {
-          const next = current + 1;
-          setBestCombo((best) => Math.max(best, next));
-          playSoundEffect(next >= 3 ? "combo" : "correct");
-          return next;
-        });
+        const nextCombo = comboRef.current + 1;
+        comboRef.current = nextCombo;
+        setCombo(nextCombo);
+        setBestCombo((best) => Math.max(best, nextCombo));
+        playSoundEffect(nextCombo >= 3 ? "combo" : "correct");
       } else {
-        playSoundEffect("wrong");
+        comboRef.current = 0;
         setCombo(0);
+        playSoundEffect("wrong");
       }
+
       feedbackTimer.current = setTimeout(() => {
+        if (pausedRef.current) return;
         setState(nextRound(answered));
         setSelected(null);
         lockRef.current = false;
@@ -156,11 +255,17 @@ export function FlashTranslationGame({
     [state, round]
   );
 
-  /* Raccourcis clavier 1 à 4 */
+  /* Raccourcis clavier 1 à 4 + Échap (Pause) */
   useEffect(() => {
-    if (state.phase !== "answering") return;
+    if (!state.started || state.phase === "ended") return;
     const onKey = (event: KeyboardEvent) => {
       if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
+      if (event.key === "Escape") {
+        event.preventDefault();
+        togglePause();
+        return;
+      }
+      if (pausedRef.current || state.phase !== "answering") return;
       const index = KEYS.indexOf(event.key);
       if (index >= 0) {
         event.preventDefault();
@@ -169,18 +274,19 @@ export function FlashTranslationGame({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [state.phase, choose]);
+  }, [state.started, state.phase, choose, togglePause]);
 
   /* Enregistrement */
   useEffect(() => {
     if (state.phase !== "ended" || submittedRef.current) return;
     submittedRef.current = true;
-    playSoundEffect("victory");
+    playSoundEffect(state.wrongAnswers < state.rounds.length ? "victory" : "wrong");
     if (!isLoggedIn) {
       setSubmitStatus("guest");
       return;
     }
     setSubmitStatus("saving");
+    setRewardError(null);
     const session = sessionRef.current;
     gameSession
       .finish(performance.now() - startedAtRef.current)
@@ -197,6 +303,7 @@ export function FlashTranslationGame({
       .then((result) => {
         if (session !== sessionRef.current) return;
         if (!result.success) {
+          setRewardError(result.error ?? null);
           setSubmitStatus("error");
           return;
         }
@@ -204,6 +311,7 @@ export function FlashTranslationGame({
           xpEarned: result.rewards?.xpEarned ?? 0,
           goldEarned: result.rewards?.goldEarned ?? 0,
           newLevel: result.rewards?.newLevel ?? null,
+          reduced: result.rewards?.reduced,
           isNewPersonalBest: result.isNewPersonalBest,
           isNewGlobalBest: result.isNewGlobalBest,
           courseCompleted: result.courseCompleted
@@ -227,13 +335,15 @@ export function FlashTranslationGame({
   if (!state.started) {
     return (
       <GameStart
-        title="Réflexes et vocabulaire"
-        intro="Un mot français s'affiche, quatre traductions apparaissent après un court délai. Touche la bonne le plus vite possible : ici, le score est ton temps total, et plus il est bas, mieux c'est."
+        title="Flash Translation"
+        intro="Un mot français s'affiche, puis quatre traductions surgissent après un court délai. Touche la bonne le plus vite possible : ici, le temps le plus bas l'emporte."
         rules={[
           "10 mots, 4 propositions à chaque fois. Les touches 1 à 4 fonctionnent au clavier.",
-          "Chaque erreur ajoute 5 secondes à ton temps.",
-          "Attends le signal : les choix apparaissent après un délai variable.",
-          missionTarget ? `Objectif de mission : finir en moins de ${seconds(missionTarget)}.` : "Garde la série pour un temps parfait.",
+          "Chaque erreur ajoute 5 secondes de pénalité à ton temps total.",
+          "Attends le signal : cliquer trop tôt est impossible tant que les choix sont cachés.",
+          missionTarget
+            ? `Objectif de mission : finir en moins de ${seconds(missionTarget)}.`
+            : "Garde la série pour un chrono parfait.",
         ]}
         onStart={start}
       >
@@ -257,27 +367,37 @@ export function FlashTranslationGame({
         ]}
         rewards={rewards}
         rewardStatus={submitStatus}
+        rewardError={rewardError}
         missionReached={missionTarget != null ? total <= missionTarget : null}
         onReplay={start}
       >
         {state.wrongAnswers > 0 ? (
           <div>
-            <p className="eq-kicker">À revoir</p>
-            <ul className="eq-game-review">
-              {state.rounds
-                .filter((entry) => entry.isCorrect === false)
-                .map((entry) => (
-                  <li key={entry.wordPair.french} className="is-hard">
-                    <div>
-                      <b>{entry.wordPair.french}</b>
-                      <span> · {entry.wordPair.english}</span>
-                    </div>
-                    <SpeakButton text={entry.wordPair.english} label="Audio" />
-                  </li>
-                ))}
-            </ul>
+            <p className="eq-kicker">À revoir ({state.wrongAnswers})</p>
+            <div className="eq-game-review-scroll">
+              <ul className="eq-game-review">
+                {state.rounds
+                  .filter((entry) => entry.isCorrect === false)
+                  .map((entry, idx) => (
+                    <li key={`${entry.wordPair.french}-${idx}`} className="is-hard">
+                      <div>
+                        <b>{entry.wordPair.french}</b>
+                        <span> · {entry.wordPair.english}</span>
+                      </div>
+                      <SpeakButton text={entry.wordPair.english} label="Audio" />
+                    </li>
+                  ))}
+              </ul>
+            </div>
           </div>
-        ) : null}
+        ) : (
+          <p className="eq-game-end-note">Zéro faute ! Super temps de réaction.</p>
+        )}
+        <div>
+          <button type="button" className="eq-btn eq-btn-ghost" onClick={quit}>
+            Changer de niveau
+          </button>
+        </div>
       </GameEnd>
     );
   }
@@ -289,19 +409,40 @@ export function FlashTranslationGame({
   const progress = (done / state.rounds.length) * 100;
   const feedback = state.phase === "feedback";
   const stageTone = feedback ? (selected === round.correctIndex ? "is-right" : "is-wrong") : "";
+  const displayedTotalMs = getFinalScore(state) + (state.phase === "answering" ? liveAnswerMs : 0);
 
   return (
     <div className="eq-game-play">
       <GameHud onQuit={quit}>
-        <HudStat label="Temps" value={seconds(getFinalScore(state))} tone="cyan" />
-        <HudStat label="Mot" value={`${state.currentRoundIndex + 1} / ${state.rounds.length}`} />
-        <HudStat label="Erreurs" value={state.wrongAnswers} tone={state.wrongAnswers > 0 ? "coral" : "mint"} hint="+ 5 s chacune" />
+        <HudStat label="Temps" value={seconds(displayedTotalMs)} tone="cyan" />
+        <HudStat
+          label="Mot"
+          value={`${state.currentRoundIndex + 1} / ${state.rounds.length}`}
+        />
+        <HudStat
+          label="Erreurs"
+          value={state.wrongAnswers}
+          tone={state.wrongAnswers > 0 ? "coral" : "mint"}
+          hint="+ 5 s chacune"
+        />
         <HudStat label="Série" value={combo} tone="gold" />
       </GameHud>
       <TimeBar percent={progress} />
 
-      <div className={`eq-game-stage ${stageTone}`} data-testid="game-stage">
-        <p className="eq-game-prompt-kicker">{state.phase === "waiting" ? "Prépare-toi" : "Traduis en anglais"}</p>
+      <div className={`eq-game-stage eq-card-stage ${stageTone}`} data-testid="game-stage">
+        <div className="eq-card-top">
+          <p className="eq-game-prompt-kicker">
+            {state.phase === "waiting" ? "Prépare-toi..." : "Traduis en anglais"}
+          </p>
+          <button
+            type="button"
+            className="eq-btn eq-btn-ghost eq-enigma-mini-btn"
+            onClick={togglePause}
+          >
+            {paused ? "Reprendre" : "Pause (Échap)"}
+          </button>
+        </div>
+
         <p className="eq-game-prompt" data-testid="game-prompt">
           {round.wordPair.french}
         </p>
@@ -326,7 +467,7 @@ export function FlashTranslationGame({
                   type="button"
                   className={`eq-game-choice ${tone}`}
                   onClick={() => choose(index)}
-                  disabled={feedback}
+                  disabled={feedback || paused}
                   data-testid="game-choice"
                 >
                   <kbd>{KEYS[index]}</kbd>
@@ -337,14 +478,38 @@ export function FlashTranslationGame({
           </div>
         )}
 
-        {feedback && selected !== null ? (
-          <div className={`eq-game-feedback flex flex-wrap items-center justify-between gap-2 ${selected === round.correctIndex ? "is-right" : "is-wrong"}`} role="status">
-            <span>
-              {selected === round.correctIndex
-                ? `Juste, en ${seconds(round.reactionTimeMs ?? 0)}.`
-                : `Non : ${round.wordPair.english}. + 5 secondes.`}
-            </span>
-            <SpeakButton text={round.wordPair.english} label="Prononcer" />
+        <div className="eq-card-feedback-slot">
+          {feedback && selected !== null ? (
+            <div
+              className={`eq-game-feedback flex flex-wrap items-center justify-between gap-2 ${
+                selected === round.correctIndex ? "is-right" : "is-wrong"
+              }`}
+              role="status"
+            >
+              <span>
+                {selected === round.correctIndex
+                  ? `Juste, en ${seconds(round.reactionTimeMs ?? 0)}.`
+                  : `Non : ${round.wordPair.english}. + 5 secondes.`}
+              </span>
+              <SpeakButton text={round.wordPair.english} label="Prononcer" />
+            </div>
+          ) : null}
+        </div>
+
+        {paused ? (
+          <div className="eq-space-overlay">
+            <div className="eq-space-overlay-card">
+              <p className="eq-kicker">Pause</p>
+              <p className="eq-space-overlay-sub">Chrono en pause · reprends quand tu es prêt.</p>
+              <div className="eq-space-overlay-actions">
+                <button type="button" className="eq-btn eq-btn-gold" onClick={togglePause}>
+                  Reprendre
+                </button>
+                <button type="button" className="eq-btn eq-btn-ghost" onClick={quit}>
+                  Changer de niveau
+                </button>
+              </div>
+            </div>
           </div>
         ) : null}
       </div>

@@ -63,6 +63,7 @@ export async function submitSpeedVerbScore(params: {
     xpEarned: number;
     goldEarned: number;
     newLevel?: number;
+    reduced?: boolean;
   };
   isNewPersonalBest?: boolean;
   isNewGlobalBest?: boolean;
@@ -215,6 +216,7 @@ export async function submitSpeedVerbScore(params: {
         xpEarned: rewards.xpEarned,
         goldEarned: rewards.goldEarned,
         newLevel: granted.level > granted.previousLevel ? granted.level : undefined,
+        reduced: rewards.reduced,
       },
       dailyChallenge: dailyChallengeResult,
       courseCompleted,

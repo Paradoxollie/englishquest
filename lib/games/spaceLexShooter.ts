@@ -563,7 +563,7 @@ export const SYNONYMS: Record<string, string[]> = {
     "taxing"
   ],
   EASY: [
-    "easy", "simple", "straightforward", "effortless", "uncomplicated",
+    "easy", "simple", "clear", "basic", "accessible", "straightforward", "effortless", "uncomplicated",
     "painless", "undemanding"
   ],
   DANGEROUS: [
@@ -613,7 +613,7 @@ export const EASY_SYNONYMS: Record<string, string[]> = {
   BAD: ["bad", "awful", "terrible", "horrible"],
   FAST: ["fast", "quick", "rapid"],
   DIFFICULT: ["difficult", "hard", "tough", "complicated"],
-  EASY: ["easy", "simple"],
+  EASY: ["easy", "simple", "clear", "basic"],
   BEAUTIFUL: ["beautiful", "pretty", "lovely", "gorgeous"],
   STRANGE: ["strange", "weird", "odd"],
 };
@@ -877,9 +877,12 @@ function getDistractorWords(mission: Mission | null): { neutral: string[]; thema
   }
 
   if (mission.type === "CONNECTORS") {
+    const otherConnectors = Object.entries(CONNECTORS)
+      .filter(([category]) => category !== mission.connectorCategory)
+      .flatMap(([, list]) => list);
     return {
       neutral: [...NEUTRAL_GREETINGS, ...NEUTRAL_OBJECTS, ...NEUTRAL_VERBS, ...NEUTRAL_NOUNS].filter(keep),
-      thematic: [...themeWords(NOUN_THEMES), ...Object.values(SYNONYMS).flat()].filter(keep),
+      thematic: [...otherConnectors, ...themeWords(NOUN_THEMES)].filter(keep),
     };
   }
 
@@ -1207,28 +1210,12 @@ function resolveEnemyCollisions(enemies: EnemyWord[], minX: number, maxX: number
  * Dimensions are calculated to match the actual rendered size
  */
 export function getEnemyDimensions(text: string): { width: number; height: number } {
-  // Base dimensions (normalized 0-1)
-  // These must match the actual rendered size including padding and border
-  // Actual rendering:
-  // - Base padding: 8px left + 8px right = 16px total
-  // - Border: 3px left + 3px right = 6px total
-  // - Character padding: 1.5px per character beyond 4 chars
-  // - Text width varies by character count
-  // - Base padding: 8px top + 8px bottom = 16px total
-  // - Border: 3px top + 3px bottom = 6px total
-  // Assuming average screen width of 400px and height of 600px for normalization:
-  // Base width: ~(16 + 6 + text_width) / 400 = ~0.055 + text_width/400
-  // Base height: ~(16 + 6 + text_height) / 600 = ~0.037 + text_height/600
-  // We'll use larger values to ensure the hitbox covers the entire bubble
-  const BASE_WIDTH = 0.10; // Increased to ensure full coverage
-  const BASE_HEIGHT = 0.08; // Increased to ensure full coverage
-  const CHAR_WIDTH = 0.018; // Increased per character width to match actual padding
+  const BASE_WIDTH = 0.082;
+  const BASE_HEIGHT = 0.068;
+  const CHAR_WIDTH = 0.013;
 
-  // Calculate width based on text length
   const textLength = text.length;
-  // For short words (1-4 chars), use base width
-  // For longer words, add width per character
-  const width = BASE_WIDTH + Math.max(0, (textLength - 4) * CHAR_WIDTH);
+  const width = Math.min(0.26, BASE_WIDTH + Math.max(0, textLength - 4) * CHAR_WIDTH);
   const height = BASE_HEIGHT;
 
   return { width, height };
@@ -1241,12 +1228,13 @@ function generateFeedbackExplanation(word: string, isTarget: boolean, mission: M
   if (!mission) return "";
 
   const wordLower = word.toLowerCase();
-  const theme = mission.theme ? THEME_LABELS[mission.theme]?.en ?? mission.theme : "";
+  const themeEn = mission.theme ? THEME_LABELS[mission.theme]?.en ?? mission.theme : "";
+  const themeFr = mission.theme ? THEME_LABELS[mission.theme]?.fr ?? themeEn : "";
 
   if (mission.lang === "fr") {
     switch (mission.type) {
       case "WORD_FAMILY":
-        return isTarget ? `✓ « ${wordLower} » : thème ${theme}` : `✗ « ${wordLower} » n'est pas dans le thème ${theme}`;
+        return isTarget ? `✓ « ${wordLower} » : ${themeFr}` : `✗ « ${wordLower} » n'est pas dans ${themeFr}`;
       case "CONNECTORS": {
         const category = CONNECTOR_LABELS[mission.connectorCategory ?? ""] ?? "";
         return isTarget ? `✓ « ${wordLower} » : connecteur ${category}` : `✗ « ${wordLower} » n'est pas un connecteur ${category}`;
@@ -1265,7 +1253,7 @@ function generateFeedbackExplanation(word: string, isTarget: boolean, mission: M
     // Correct hit - explain why
     switch (mission.type) {
       case "WORD_FAMILY":
-        return `✓ "${wordLower}" is related to ${theme}`;
+        return `✓ "${wordLower}" is related to ${themeEn}`;
       case "CONNECTORS":
         return `✓ "${wordLower}" expresses ${mission.connectorCategory?.toLowerCase()}`;
       case "SYNONYMS":
@@ -1278,7 +1266,7 @@ function generateFeedbackExplanation(word: string, isTarget: boolean, mission: M
     // Wrong hit - explain why it's wrong
     switch (mission.type) {
       case "WORD_FAMILY":
-        return `✗ "${wordLower}" is NOT related to ${theme}`;
+        return `✗ "${wordLower}" is NOT related to ${themeEn}`;
       case "CONNECTORS":
         return `✗ "${wordLower}" is NOT a ${mission.connectorCategory?.toLowerCase()} connector`;
       case "SYNONYMS":
@@ -1388,7 +1376,10 @@ export function checkCollisions(state: GameState, mission: Mission | null): Game
             }
           }
 
-          if (newState.waveProgress >= newState.waveTarget) {
+          if (
+            newState.waveStatus === "playing" &&
+            newState.waveProgress >= newState.waveTarget
+          ) {
             newState.waveStatus = "cleared";
             newState.waveTransitionTime = Date.now();
             // Score bonus for finishing wave based on wave number
@@ -1491,11 +1482,11 @@ export function checkEnemiesReachedBottom(state: GameState, mission: Mission | n
 /**
  * Fire a bullet
  */
-export function fireBullet(state: GameState): GameState {
+export function fireBullet(state: GameState, cooldownMs: number = 450): GameState {
   if (state.waveStatus !== "playing") return state; // Only fire if playing
 
   const now = Date.now();
-  const bulletInterval = 450; // fire every 450ms (slower, more controlled)
+  const bulletInterval = cooldownMs;
 
   if (now - state.lastBulletTime < bulletInterval) {
     return state; // too soon to fire
@@ -1503,13 +1494,13 @@ export function fireBullet(state: GameState): GameState {
 
   // Ship is 80px wide, centered with translateX(-50%)
   // Bullets should fire from the exact center position (shipX)
-  // The ship visual offset is handled in the SpaceShip component
   const bulletX = state.shipX;
 
   const newBullet: Bullet = {
     id: generateId(),
     x: bulletX,
-    y: 0.92, // start near bottom (ship position)
+    y: 0.9, // start cleanly at the ship nose
+    previousY: 0.9,
     speed: 0.12, // slightly slower bullet speed for better visibility
   };
 
@@ -1633,7 +1624,7 @@ export function updateMissionIfNeeded(state: GameState): GameState {
  * Update level based on score
  */
 export function updateLevel(state: GameState): GameState {
-  const newLevel = Math.floor(state.score / 100) + 1;
+  const newLevel = Math.floor(state.score / 180) + 1;
   if (newLevel > state.level) {
     return { ...state, level: newLevel };
   }
@@ -1646,10 +1637,11 @@ export function updateLevel(state: GameState): GameState {
  * Update explosion animations
  */
 export function updateExplosions(state: GameState, deltaTime: number): GameState {
+  const frameStep = Math.max(0.25, Math.min(3, deltaTime / 16.67));
   const explosions = state.explosions
     .map((explosion) => ({
       ...explosion,
-      life: explosion.life + 1,
+      life: explosion.life + frameStep,
     }))
     .filter((explosion) => explosion.life < explosion.maxLife);
 
@@ -1660,11 +1652,12 @@ export function updateExplosions(state: GameState, deltaTime: number): GameState
  * Update feedback message animations
  */
 export function updateFeedbackMessages(state: GameState, deltaTime: number): GameState {
+  const frameStep = Math.max(0.25, Math.min(3, deltaTime / 16.67));
   const feedbackMessages = state.feedbackMessages
     .map((msg) => ({
       ...msg,
-      life: msg.life + 1,
-      y: msg.y - 0.002, // Float upward slowly
+      life: msg.life + frameStep,
+      y: msg.y - 0.002 * frameStep, // Float upward slowly
     }))
     .filter((msg) => msg.life < msg.maxLife);
 
@@ -1797,7 +1790,7 @@ export function hasActivePowerUp(state: GameState, type: PowerUpType): boolean {
  */
 export function updateWaveLifecycle(state: GameState): GameState {
   const now = Date.now();
-  const TRANSITION_DURATION = 3000; // 3 seconds for intro/cleared screens
+  const TRANSITION_DURATION = 1800; // Crisp wave transition without dead air
 
   if (state.waveStatus === "intro" || state.waveStatus === "boss_intro") {
     if (now - state.waveTransitionTime > TRANSITION_DURATION) {
@@ -1933,12 +1926,12 @@ export function getDialogueForWave(waveNumber: number, vocabLevel: GameLevel = D
         ? [
             { speaker: "COMMANDER", text: "Hello, pilot! Words are coming. Get ready!", subtitle: "Bonjour, pilote ! Des mots arrivent. Prépare-toi !" },
             { speaker: "COMMANDER", text: "Read the mission. Shoot the right words only.", subtitle: "Lis la mission. Tire seulement sur les bons mots." },
-            { speaker: "AI GUIDE", text: "When the EMP bar is full, press SPACE or tap the button.", subtitle: "Quand la barre EMP est pleine, appuie sur Espace ou touche le bouton." },
+            { speaker: "AI GUIDE", text: "When the EMP bar is full, press E or tap the EMP button.", subtitle: "Quand la barre EMP est pleine, appuie sur E ou clique sur EMP." },
           ]
         : [
             { speaker: "COMMANDER", text: "Welcome to Sector 7, Recruit. We have a lexical breach!" },
             { speaker: "COMMANDER", text: "Your mission is simple: shoot the words that match your mission profile." },
-            { speaker: "AI GUIDE", text: "I will assist you. Use the Super EMP [SPACE] once the bar is full." },
+            { speaker: "AI GUIDE", text: "I will assist you. Press E or tap EMP once the bar reaches 100%." },
           ]
     };
   }
@@ -1984,12 +1977,15 @@ export function advanceDialogue(state: GameState): GameState {
  * Close current dialogue
  */
 export function closeDialogue(state: GameState): GameState {
+  const now = Date.now();
   const isIntro = state.waveStatus === "intro" || state.waveStatus === "boss_intro";
   return {
     ...state,
     currentDialogue: null,
     dialogueIndex: 0,
-    waveTransitionTime: isIntro ? Date.now() : state.waveTransitionTime
+    waveStatus: isIntro ? "playing" : state.waveStatus,
+    waveTransitionTime: isIntro ? now : state.waveTransitionTime,
+    lastEnemySpawnTime: isIntro ? now - 2500 : state.lastEnemySpawnTime,
   };
 }
 
@@ -2036,8 +2032,8 @@ export function resetGame(state: GameState): GameState {
  * Move ship left or right
  */
 export function moveShip(state: GameState, direction: "left" | "right" | "stop"): GameState {
-  const ACCELERATION = 0.005;
-  const MAX_VELOCITY = 0.005;
+  const ACCELERATION = 0.0045;
+  const MAX_VELOCITY = 0.015;
   const FRICTION = 0.985;
 
   let newVelocity = state.shipVelocity;

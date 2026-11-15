@@ -739,6 +739,11 @@ body {
 .eq-game-head,
 .eq-game-stage,
 .eq-game-arcade,
+.eq-game-hud-wrap,
+.eq-fall-dock,
+.eq-space-mission-strip,
+.eq-space-controls,
+.eq-speed-status-slot,
 .eq-showcase-dark {
   --ink: #0e1320;
   --ink-2: #161d2f;

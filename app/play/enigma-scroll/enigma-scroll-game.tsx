@@ -5,36 +5,60 @@ import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score"
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   addLetterToCurrentGuess,
-  createRandomGameState,
+  createInitialGameState,
+  DEFAULT_CONFIGS,
   getCurrentGuess,
   initializeWordLists,
   removeLetterFromCurrentGuess,
-  resetForNewRandomWord,
+  resetForNewWord,
   submitGuess,
   type GameState,
   type LetterStatus,
 } from "@/lib/games/enigma-scroll";
-import { ENIGMA_TARGETS, enigmaTargetsForLevel, getEnigmaTranslation } from "@/lib/games/enigma-scroll-targets";
+import {
+  ENIGMA_TARGETS,
+  enigmaTargetsForLevel,
+  getEnigmaTranslation,
+  pickEnigmaTargetWord,
+} from "@/lib/games/enigma-scroll-targets";
 import { filterInappropriateWords, loadAndFilterWordLists } from "@/lib/games/enigma-scroll-words";
 import { playSoundEffect } from "@/lib/games/audio";
 import { DEFAULT_GAME_LEVEL, getGameLevelLabel, type GameLevel } from "@/lib/games/levels";
-import { GameEnd, GameHud, GameStart, HudStat, SpeakButton, TimeBar, type RewardSummary } from "@/components/play/game-screens";
+import {
+  GameEnd,
+  GameHud,
+  GameStart,
+  HudStat,
+  SpeakButton,
+  TimeBar,
+  type RewardSummary,
+} from "@/components/play/game-screens";
 import { LevelPicker } from "@/components/play/level-picker";
 import { useGameFocusMode } from "@/components/play/use-game-focus-mode";
 import { useGameSession } from "@/components/play/use-game-session";
 import { submitEnigmaScrollScore } from "./actions";
 
 type WordLength = 4 | 5 | 6;
+type KeyboardLayout = "azerty" | "qwerty";
 type SubmitStatus = "idle" | "saving" | "saved" | "error" | "guest";
 type Dictionary = "loading" | "ready" | "fallback";
 
 const ROUND_SECONDS = 90;
 const DICTIONARY_TIMEOUT_MS = 10_000;
-const KEY_ROWS = [
-  ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
-  ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
-  ["Z", "X", "C", "V", "B", "N", "M"],
-];
+const LAYOUT_STORAGE_KEY = "eq:enigmaKeyboardLayout";
+
+const KEY_LAYOUTS: Record<KeyboardLayout, string[][]> = {
+  azerty: [
+    ["A", "Z", "E", "R", "T", "Y", "U", "I", "O", "P"],
+    ["Q", "S", "D", "F", "G", "H", "J", "K", "L", "M"],
+    ["W", "X", "C", "V", "B", "N"],
+  ],
+  qwerty: [
+    ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+    ["A", "S", "D", "F", "G", "H", "J", "K", "L"],
+    ["Z", "X", "C", "V", "B", "N", "M"],
+  ],
+};
 
 const LENGTHS: { value: WordLength; label: string; detail: string }[] = [
   { value: 4, label: "4 lettres", detail: "5 essais, 10 points par mot" },
@@ -78,9 +102,7 @@ function loadGuesses(length: WordLength): Promise<string[] | null> {
 }
 
 /**
- * Prépare le moteur pour une partie : mots cibles du niveau choisi, et
- * propositions acceptées. Si le dictionnaire n'a pas pu être chargé, tout mot
- * de la liste des cibles (tous niveaux) reste une proposition valable.
+ * Prépare le moteur pour une partie : mots cibles du niveau choisi et propositions acceptées.
  */
 function prepareWordLists(length: WordLength, level: GameLevel) {
   const targets = enigmaTargetsForLevel(length, level).map((target) => target.word);
@@ -125,25 +147,60 @@ export function EnigmaScrollGame({
 }) {
   const [length, setLength] = useState<WordLength>(5);
   const [level, setLevel] = useState<GameLevel>(suggestedLevel ?? DEFAULT_GAME_LEVEL);
+  const [keyboardLayout, setKeyboardLayout] = useState<KeyboardLayout>("azerty");
   const [dictionary, setDictionary] = useState<Dictionary>("loading");
   const [state, setState] = useState<GameState | null>(null);
   const [phase, setPhase] = useState<"start" | "playing" | "won" | "ended">("start");
+  const [paused, setPaused] = useState(false);
+  const [hintShown, setHintShown] = useState(false);
   const [timeLeft, setTimeLeft] = useState(ROUND_SECONDS);
   const [message, setMessage] = useState<string | null>(null);
   const [shakeRow, setShakeRow] = useState<number | null>(null);
   const [lastPoints, setLastPoints] = useState(0);
   const [found, setFound] = useState<string[]>([]);
   const [rewards, setRewards] = useState<RewardSummary | null>(null);
+  const [rewardError, setRewardError] = useState<string | null>(null);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
   useRefreshAfterScore(submitStatus);
 
   const startedAtRef = useRef(0);
   const wordStartedAtRef = useRef(0);
+  const pausedAtRef = useRef(0);
   const submittedRef = useRef(false);
   const sessionRef = useRef(0);
+  const shakeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const gameSession = useGameSession("enigma-scroll", isLoggedIn);
 
   useGameFocusMode(phase === "playing" || phase === "won");
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem(LAYOUT_STORAGE_KEY);
+      if (saved === "azerty" || saved === "qwerty") {
+        setKeyboardLayout(saved);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (shakeTimerRef.current) clearTimeout(shakeTimerRef.current);
+    };
+  }, []);
+
+  const toggleKeyboardLayout = useCallback(() => {
+    setKeyboardLayout((current) => {
+      const next: KeyboardLayout = current === "azerty" ? "qwerty" : "azerty";
+      try {
+        window.localStorage.setItem(LAYOUT_STORAGE_KEY, next);
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  }, []);
 
   /* Dictionnaire de la longueur choisie, chargé à la demande */
   useEffect(() => {
@@ -165,13 +222,18 @@ export function EnigmaScrollGame({
     prepareWordLists(length, level);
     sessionRef.current += 1;
     gameSession.begin();
-    setState(createRandomGameState(length));
+    const firstWord = pickEnigmaTargetWord(length, level);
+    setState(createInitialGameState(firstWord));
     setPhase("playing");
+    setPaused(false);
+    pausedAtRef.current = 0;
+    setHintShown(false);
     setTimeLeft(ROUND_SECONDS);
     setMessage(null);
     setLastPoints(0);
     setFound([]);
     setRewards(null);
+    setRewardError(null);
     setSubmitStatus("idle");
     submittedRef.current = false;
     startedAtRef.current = Date.now();
@@ -182,58 +244,92 @@ export function EnigmaScrollGame({
   const quit = useCallback(() => {
     sessionRef.current += 1;
     gameSession.cancel();
+    setPaused(false);
+    pausedAtRef.current = 0;
     setMessage(null);
     setPhase("start");
   }, [gameSession]);
 
+  const togglePause = useCallback(() => {
+    if (phase !== "playing") return;
+    if (paused) {
+      const elapsed = pausedAtRef.current > 0 ? Date.now() - pausedAtRef.current : 0;
+      wordStartedAtRef.current += elapsed;
+      pausedAtRef.current = 0;
+      setPaused(false);
+    } else {
+      pausedAtRef.current = Date.now();
+      setPaused(true);
+    }
+  }, [paused, phase]);
+
   const nextWord = useCallback(() => {
     setState((current) => {
       if (!current) return current;
-      return resetForNewRandomWord(current, new Set([current.targetWord, ...found]));
+      const excluded = new Set([current.targetWord, ...found]);
+      const nextTarget = pickEnigmaTargetWord(
+        current.config.wordLength as WordLength,
+        level,
+        excluded
+      );
+      return resetForNewWord(current, nextTarget);
     });
     setPhase("playing");
+    setPaused(false);
+    pausedAtRef.current = 0;
+    setHintShown(false);
     setTimeLeft(ROUND_SECONDS);
     setMessage(null);
     setLastPoints(0);
     wordStartedAtRef.current = Date.now();
-  }, [found]);
+  }, [found, level]);
 
   /* Chronomètre par mot */
   useEffect(() => {
-    if (phase !== "playing") return;
+    if (phase !== "playing" || paused) return;
     const interval = setInterval(() => {
       const left = ROUND_SECONDS - Math.floor((Date.now() - wordStartedAtRef.current) / 1000);
       if (left <= 0) {
         setTimeLeft(0);
-        setState((current) => (current ? { ...current, isFinished: true, isWin: false, currentStreak: 0 } : current));
+        playSoundEffect("wrong");
+        setState((current) =>
+          current ? { ...current, isFinished: true, isWin: false, currentStreak: 0 } : current
+        );
         setPhase("ended");
       } else {
         setTimeLeft(left);
       }
     }, 250);
     return () => clearInterval(interval);
-  }, [phase]);
+  }, [phase, paused]);
+
+  const triggerShake = useCallback((rowIdx: number) => {
+    setShakeRow(rowIdx);
+    if (shakeTimerRef.current) clearTimeout(shakeTimerRef.current);
+    shakeTimerRef.current = setTimeout(() => setShakeRow(null), 500);
+  }, []);
 
   const typeLetter = useCallback(
     (letter: string) => {
-      if (phase !== "playing") return;
+      if (phase !== "playing" || paused) return;
       setState((current) => (current ? addLetterToCurrentGuess(current, letter) : current));
       setMessage(null);
     },
-    [phase]
+    [paused, phase]
   );
 
   const backspace = useCallback(() => {
-    if (phase !== "playing") return;
+    if (phase !== "playing" || paused) return;
     setState((current) => (current ? removeLetterFromCurrentGuess(current) : current));
     setMessage(null);
-  }, [phase]);
+  }, [paused, phase]);
 
   const submit = useCallback(() => {
-    if (phase !== "playing" || !state || state.isFinished) return;
+    if (phase !== "playing" || paused || !state || state.isFinished) return;
     const remaining = Math.max(0, ROUND_SECONDS - Math.floor((Date.now() - wordStartedAtRef.current) / 1000));
     if (remaining === 0) {
       setTimeLeft(0);
+      playSoundEffect("wrong");
       setState({ ...state, isFinished: true, isWin: false, currentStreak: 0 });
       setPhase("ended");
       return;
@@ -242,16 +338,14 @@ export function EnigmaScrollGame({
     if (guess.length !== state.config.wordLength) {
       playSoundEffect("wrong");
       setMessage("Mot incomplet.");
-      setShakeRow(state.currentAttemptIndex);
-      window.setTimeout(() => setShakeRow(null), 500);
+      triggerShake(state.currentAttemptIndex);
       return;
     }
     const { state: next, result } = submitGuess(state, guess, remaining);
     if (!result.isValid) {
       playSoundEffect("wrong");
       setMessage(result.errorMessage || "Ce mot n'est pas dans le dictionnaire.");
-      setShakeRow(state.currentAttemptIndex);
-      window.setTimeout(() => setShakeRow(null), 500);
+      triggerShake(state.currentAttemptIndex);
       return;
     }
     setState(next);
@@ -267,13 +361,26 @@ export function EnigmaScrollGame({
     } else {
       playSoundEffect("tick");
     }
-  }, [phase, state]);
+  }, [paused, phase, state, triggerShake]);
 
   /* Clavier physique */
   useEffect(() => {
-    if (phase !== "playing") return;
+    if (phase !== "playing" && phase !== "won") return;
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (event.key === "Escape" && phase === "playing") {
+        event.preventDefault();
+        togglePause();
+        return;
+      }
+      if (phase === "won") {
+        if (event.key === "Enter" && !event.repeat) {
+          event.preventDefault();
+          nextWord();
+        }
+        return;
+      }
+      if (paused) return;
       if (event.key === "Enter") {
         event.preventDefault();
         submit();
@@ -287,22 +394,40 @@ export function EnigmaScrollGame({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, submit, backspace, typeLetter]);
+  }, [phase, paused, togglePause, nextWord, submit, backspace, typeLetter]);
 
   useEffect(() => {
-    const gameWindow = window as Window & { render_game_to_text?: () => string; advanceTime?: (ms: number) => void };
-    const render = () => JSON.stringify({
-      phase, timeLeft, wordLength: state?.config.wordLength ?? length, level, dictionary,
-      score: state?.totalScore ?? 0, wordsFound: state?.wordsFound ?? 0, streak: state?.currentStreak ?? 0,
-      rows: state?.rows, currentGuess: state ? getCurrentGuess(state) : "", message,
-    });
+    const gameWindow = window as Window & {
+      render_game_to_text?: () => string;
+      advanceTime?: (ms: number) => void;
+    };
+    const render = () =>
+      JSON.stringify({
+        phase,
+        paused,
+        timeLeft,
+        wordLength: state?.config.wordLength ?? length,
+        level,
+        dictionary,
+        score: state?.totalScore ?? 0,
+        wordsFound: state?.wordsFound ?? 0,
+        streak: state?.currentStreak ?? 0,
+        rows: state?.rows,
+        currentGuess: state ? getCurrentGuess(state) : "",
+        message,
+      });
     const step = (ms: number) => {
-      if (phase !== "playing" || !Number.isFinite(ms) || ms < 0) return;
+      if (phase !== "playing" || paused || !Number.isFinite(ms) || ms < 0) return;
       wordStartedAtRef.current -= ms;
-      const remaining = Math.max(0, ROUND_SECONDS - Math.floor((Date.now() - wordStartedAtRef.current) / 1000));
+      const remaining = Math.max(
+        0,
+        ROUND_SECONDS - Math.floor((Date.now() - wordStartedAtRef.current) / 1000)
+      );
       setTimeLeft(remaining);
       if (remaining === 0) {
-        setState(current => current ? { ...current, isFinished: true, isWin: false, currentStreak: 0 } : current);
+        setState((current) =>
+          current ? { ...current, isFinished: true, isWin: false, currentStreak: 0 } : current
+        );
         setPhase("ended");
       }
     };
@@ -312,7 +437,7 @@ export function EnigmaScrollGame({
       if (gameWindow.render_game_to_text === render) delete gameWindow.render_game_to_text;
       if (gameWindow.advanceTime === step) delete gameWindow.advanceTime;
     };
-  }, [phase, timeLeft, state, length, level, dictionary, message]);
+  }, [phase, paused, timeLeft, state, length, level, dictionary, message]);
 
   /* Enregistrement à la fin de la session */
   useEffect(() => {
@@ -323,6 +448,7 @@ export function EnigmaScrollGame({
       return;
     }
     setSubmitStatus("saving");
+    setRewardError(null);
     const session = sessionRef.current;
     const final = {
       wordLength: state.config.wordLength as WordLength,
@@ -331,10 +457,13 @@ export function EnigmaScrollGame({
     };
     gameSession
       .finish(Date.now() - startedAtRef.current)
-      .then(({ sessionId, durationMs }) => submitEnigmaScrollScore({ ...final, durationMs, sessionId }))
+      .then(({ sessionId, durationMs }) =>
+        submitEnigmaScrollScore({ ...final, durationMs, sessionId })
+      )
       .then((result) => {
         if (session !== sessionRef.current) return;
         if (!result.success) {
+          setRewardError(result.error ?? null);
           setSubmitStatus("error");
           return;
         }
@@ -342,6 +471,7 @@ export function EnigmaScrollGame({
           xpEarned: result.rewards?.xpEarned ?? 0,
           goldEarned: result.rewards?.goldEarned ?? 0,
           newLevel: result.rewards?.newLevel ?? null,
+          reduced: result.rewards?.reduced,
           isNewPersonalBest: result.isNewPersonalBest,
           isNewGlobalBest: result.isNewGlobalBest,
           courseCompleted: result.courseCompleted
@@ -357,19 +487,24 @@ export function EnigmaScrollGame({
         });
         setSubmitStatus("saved");
       })
-      .catch(() => { if (session === sessionRef.current) setSubmitStatus("error"); });
+      .catch(() => {
+        if (session === sessionRef.current) setSubmitStatus("error");
+      });
   }, [phase, state, isLoggedIn, gameSession]);
 
   if (phase === "start") {
+    const attemptsForLength = DEFAULT_CONFIGS[length].maxAttempts;
     return (
       <GameStart
-        title="Trouve le mot caché"
-        intro="Un mot anglais secret, quelques essais pour le découvrir. Après chaque proposition, les lettres se colorent : verte à la bonne place, dorée présente ailleurs, grise absente. Chaque mot se termine par sa traduction."
+        title="Enigma Scroll"
+        intro={`Un mot anglais secret de ${length} lettres et ${attemptsForLength} essais pour le déchiffrer. Vert = bien placé, doré = présent ailleurs, gris = absent.`}
         rules={[
-          "90 secondes par mot. Chaque mot trouvé en appelle un autre, et les points s'accumulent.",
-          "Trouver vite rapporte plus, et les mots enchaînés sans échec font grimper le multiplicateur.",
-          "La session s'arrête au premier mot raté ou quand le temps est écoulé.",
-          missionTarget ? `Objectif de mission : ${missionTarget} points.` : "Les propositions doivent être de vrais mots anglais.",
+          "90 secondes par mot. Chaque mot trouvé rapporte des points et lance le suivant.",
+          "Trouver vite rapporte un bonus de temps ; les séries montent le multiplicateur jusqu'à x2,5.",
+          "Besoin d'un coup de pouce ? Tu peux afficher l'indice français à tout moment.",
+          missionTarget
+            ? `Objectif de mission : ${missionTarget} points.`
+            : "Clavier AZERTY / QWERTY interchangeable en pleine partie.",
         ]}
         onStart={start}
         startDisabled={dictionary === "loading"}
@@ -390,7 +525,12 @@ export function EnigmaScrollGame({
             </button>
           ))}
         </div>
-        <LevelPicker value={level} onChange={setLevel} suggested={suggestedLevel} label="Niveau des mots à trouver" />
+        <LevelPicker
+          value={level}
+          onChange={setLevel}
+          suggested={suggestedLevel}
+          label="Niveau des mots à trouver"
+        />
         {dictionary === "fallback" ? (
           <p className="eq-game-end-note is-error" role="status">
             Le dictionnaire complet n&apos;a pas pu être chargé : seuls les mots de la liste du jeu sont acceptés comme propositions.
@@ -418,8 +558,12 @@ export function EnigmaScrollGame({
         ]}
         rewards={rewards}
         rewardStatus={submitStatus}
+        rewardError={rewardError}
         missionReached={missionTarget != null ? state.totalScore >= missionTarget : null}
-        onReplay={() => { sessionRef.current += 1; setPhase("start"); }}
+        onReplay={() => {
+          sessionRef.current += 1;
+          setPhase("start");
+        }}
       >
         {missedWord ? (
           <div className="eq-enigma-reveal" data-testid="enigma-reveal">
@@ -432,18 +576,22 @@ export function EnigmaScrollGame({
         ) : null}
         {found.length > 0 ? (
           <div>
-            <p className="eq-kicker">Mots trouvés</p>
-            <ul className="eq-game-review">
-              {found.map((word) => (
-                <li key={word}>
-                  <div>
-                    <b lang="en">{word}</b>
-                    {getEnigmaTranslation(word) ? <span lang="fr"> · {getEnigmaTranslation(word)}</span> : null}
-                  </div>
-                  <SpeakButton text={word} label="Audio" />
-                </li>
-              ))}
-            </ul>
+            <p className="eq-kicker">Mots trouvés ({found.length})</p>
+            <div className="eq-game-review-scroll">
+              <ul className="eq-game-review">
+                {found.map((word, idx) => (
+                  <li key={`${word}-${idx}`}>
+                    <div>
+                      <b lang="en">{word}</b>
+                      {getEnigmaTranslation(word) ? (
+                        <span lang="fr"> · {getEnigmaTranslation(word)}</span>
+                      ) : null}
+                    </div>
+                    <SpeakButton text={word} label="Audio" />
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         ) : null}
       </GameEnd>
@@ -452,76 +600,159 @@ export function EnigmaScrollGame({
 
   const keys = keyboardStatus(state);
   const timeLow = timeLeft < 15;
+  const activeCursor = getCurrentGuess(state).length;
+  const keyRows = KEY_LAYOUTS[keyboardLayout];
+  const frenchClue = getEnigmaTranslation(state.targetWord);
 
   return (
-    <div className="eq-game-play">
+    <div className="eq-game-play eq-enigma">
       <GameHud onQuit={quit}>
         <HudStat label="Score" value={state.totalScore} tone="gold" />
         <HudStat label="Temps" value={`${timeLeft} s`} tone={timeLow ? "coral" : "cyan"} />
-        <HudStat label="Série" value={state.currentStreak} tone="mint" />
+        <HudStat
+          label="Série"
+          value={state.currentStreak}
+          tone="mint"
+          hint={`x${Math.min(state.config.streakBonusMultiplier, 1 + state.currentStreak * 0.15).toFixed(2)}`}
+        />
         <HudStat label="Mots" value={state.wordsFound} />
       </GameHud>
       <TimeBar percent={(timeLeft / ROUND_SECONDS) * 100} low={timeLow} />
 
-      <div className={`eq-game-stage eq-enigma-stage ${phase === "won" ? "is-right" : ""}`} data-testid="game-stage">
-        <div className="eq-grid" style={{ ["--cols" as string]: state.config.wordLength }} role="grid" aria-label="Grille">
-          {state.rows.map((row, rowIndex) => (
-            <div
-              key={rowIndex}
-              role="row"
-              className={`eq-grid-row ${shakeRow === rowIndex ? "is-shake" : ""} ${rowIndex === state.currentAttemptIndex && !row.isSubmitted ? "is-active" : ""}`}
+      <div
+        className={`eq-game-stage eq-enigma-stage ${phase === "won" ? "is-right" : ""}`}
+        data-testid="game-stage"
+      >
+        <div className="eq-enigma-toolbar">
+          <div className="eq-enigma-toolbar-left">
+            {frenchClue ? (
+              <button
+                type="button"
+                className={`eq-btn eq-btn-ghost eq-enigma-mini-btn ${hintShown ? "is-active" : ""}`}
+                onClick={() => setHintShown(true)}
+                disabled={phase !== "playing" || paused || hintShown}
+              >
+                {hintShown ? `Indice : « ${frenchClue} »` : "Indice FR"}
+              </button>
+            ) : null}
+          </div>
+          <div className="eq-enigma-toolbar-right">
+            <button
+              type="button"
+              className="eq-btn eq-btn-ghost eq-enigma-mini-btn"
+              onClick={toggleKeyboardLayout}
+              title="Basculer le clavier virtuel AZERTY / QWERTY"
             >
-              {row.cells.map((cell, cellIndex) => (
-                <span
-                  key={cellIndex}
-                  role="gridcell"
-                  className={`eq-grid-cell is-${cell.status} ${cell.letter ? "has-letter" : ""}`}
-                  style={row.isSubmitted ? { animationDelay: `${cellIndex * 70}ms` } : undefined}
-                >
-                  {cell.letter}
-                </span>
-              ))}
-            </div>
-          ))}
+              Clavier : {keyboardLayout.toUpperCase()}
+            </button>
+            {phase === "playing" ? (
+              <button
+                type="button"
+                className="eq-btn eq-btn-ghost eq-enigma-mini-btn"
+                onClick={togglePause}
+              >
+                {paused ? "Reprendre" : "Pause (Échap)"}
+              </button>
+            ) : null}
+          </div>
         </div>
 
-        {message ? (
-          <p className="eq-game-feedback is-wrong" role="status">
-            {message}
-          </p>
-        ) : null}
+        <div
+          className="eq-grid"
+          style={{ ["--cols" as string]: state.config.wordLength }}
+          role="grid"
+          aria-label="Grille"
+        >
+          {state.rows.map((row, rowIndex) => {
+            const isActiveRow = rowIndex === state.currentAttemptIndex && !row.isSubmitted;
+            return (
+              <div
+                key={rowIndex}
+                role="row"
+                className={`eq-grid-row ${shakeRow === rowIndex ? "is-shake" : ""} ${
+                  isActiveRow ? "is-active" : ""
+                }`}
+              >
+                {row.cells.map((cell, cellIndex) => {
+                  const isCursor =
+                    phase === "playing" &&
+                    isActiveRow &&
+                    cellIndex === Math.min(activeCursor, state.config.wordLength - 1) &&
+                    !cell.letter;
+                  return (
+                    <span
+                      key={cellIndex}
+                      role="gridcell"
+                      className={`eq-grid-cell is-${cell.status} ${
+                        cell.letter ? "has-letter" : ""
+                      } ${isCursor ? "is-cursor" : ""}`}
+                      style={
+                        row.isSubmitted
+                          ? { animationDelay: `${cellIndex * 75}ms` }
+                          : undefined
+                      }
+                    >
+                      {cell.letter}
+                    </span>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="eq-enigma-feedback-slot">
+          {message ? (
+            <p className="eq-game-feedback is-wrong" role="status">
+              {message}
+            </p>
+          ) : null}
+        </div>
 
         {phase === "won" ? (
-          <div className="eq-game-feedback is-right" role="status">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <p>
-                Trouvé, + {lastPoints} points.
-              </p>
+          <div className="eq-game-feedback is-right eq-enigma-won" role="status">
+            <div className="eq-enigma-won-head">
+              <div>
+                <p>Trouvé ! + {lastPoints} points</p>
+                <WordMeaning word={state.targetWord} />
+              </div>
               <SpeakButton text={state.targetWord} label="Prononcer" />
             </div>
-            <WordMeaning word={state.targetWord} />
             <div className="eq-game-actions">
-              <button type="button" className="eq-btn eq-btn-gold" onClick={nextWord} autoFocus data-testid="next-word">
-                Mot suivant
+              <button
+                type="button"
+                className="eq-btn eq-btn-gold"
+                onClick={nextWord}
+                autoFocus
+                data-testid="next-word"
+              >
+                Mot suivant (Entrée)
               </button>
               <button
                 type="button"
                 className="eq-btn eq-btn-ghost"
                 onClick={() => {
-                  setState((current) => (current ? { ...current, isFinished: true, isWin: true } : current));
+                  setState((current) =>
+                    current ? { ...current, isFinished: true, isWin: true } : current
+                  );
                   setPhase("ended");
                 }}
               >
-                Arrêter ici
+                Terminer la session
               </button>
             </div>
           </div>
         ) : (
           <div className="eq-keys" aria-label="Clavier">
-            {KEY_ROWS.map((row, rowIndex) => (
+            {keyRows.map((row, rowIndex) => (
               <div key={rowIndex} className="eq-keys-row">
                 {rowIndex === 2 ? (
-                  <button type="button" className="eq-key is-wide" onClick={submit} aria-label="Valider">
+                  <button
+                    type="button"
+                    className="eq-key is-wide"
+                    onClick={submit}
+                    aria-label="Valider"
+                  >
                     OK
                   </button>
                 ) : null}
@@ -536,7 +767,12 @@ export function EnigmaScrollGame({
                   </button>
                 ))}
                 {rowIndex === 2 ? (
-                  <button type="button" className="eq-key is-wide" onClick={backspace} aria-label="Effacer">
+                  <button
+                    type="button"
+                    className="eq-key is-wide"
+                    onClick={backspace}
+                    aria-label="Effacer"
+                  >
                     ⌫
                   </button>
                 ) : null}
@@ -544,6 +780,23 @@ export function EnigmaScrollGame({
             ))}
           </div>
         )}
+
+        {paused ? (
+          <div className="eq-space-overlay">
+            <div className="eq-space-overlay-card">
+              <p className="eq-kicker">Pause</p>
+              <p className="eq-space-overlay-sub">Chrono en pause · le mot reste secret.</p>
+              <div className="eq-space-overlay-actions">
+                <button type="button" className="eq-btn eq-btn-gold" onClick={togglePause}>
+                  Reprendre
+                </button>
+                <button type="button" className="eq-btn eq-btn-ghost" onClick={quit}>
+                  Changer d&apos;options
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   );

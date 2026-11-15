@@ -126,8 +126,13 @@ function normalizeForAnswerComparison(value: string): string {
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
     .replace(/['\u2019]/g, "'")
+    .replace(/-/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function collapsePunctuationAndSpaces(value: string): string {
+  return normalizeForAnswerComparison(value).replace(/['\s]+/g, "");
 }
 
 /**
@@ -249,13 +254,17 @@ function getWordLists() {
 
 const DEFAULT_CONFIG: Required<Omit<WordfallConfig, "mode" | "rng" | "vocabLevel">> = {
   initialLives: 3,
-  initialSpeed: 5, // units per second (0-100 range) - very slow at start for learning
-  speedIncreasePerLevel: 1, // very small speed increase per level (reduced from 2)
+  initialSpeed: 8.5, // units per second (0-100 range) — fluide dès l'apparition sans bloquer le débutant
+  speedIncreasePerLevel: 1.25,
   wordsPerLevel: 5, // Words needed to level up
 };
 
-const FALL_LANES = [22, 50, 78] as const;
-const SAME_LANE_SPAWN_CLEARANCE = 42;
+const FALL_LANES = [19, 50, 81] as const;
+const SAME_LANE_SPAWN_CLEARANCE = 48;
+const EXTRA_SCHOOL_FREE_WORDS = [
+  "XRAY", "XENON", "XYLOPHONE", "ZEBRA", "ZERO", "ZONE", "ZOO", "ZOOM", "ZIP", "ZOMBIE",
+  "QUIZ", "QUEEN", "QUICK", "QUIET", "QUOTE",
+];
 
 function defaultRng(): number {
   return Math.random();
@@ -270,13 +279,13 @@ function getActiveWords(state: WordfallState): FallingWord[] {
 }
 
 export function getWordfallMaxActiveWords(state: WordfallState): number {
-  if (state.level >= 7) return 3;
-  if (state.level >= 4) return 2;
+  if (state.level >= 6) return 3;
+  if (state.level >= 3) return 2;
   return 1;
 }
 
 export function getWordfallSpawnDelayMs(state: WordfallState): number {
-  return Math.max(820, 1750 - (state.level - 1) * 135);
+  return Math.max(760, 1550 - (state.level - 1) * 130);
 }
 
 function pickFallingLane(state: WordfallState, rng: () => number): { lane: number; x: number } | null {
@@ -295,10 +304,10 @@ function pickFallingLane(state: WordfallState, rng: () => number): { lane: numbe
 }
 
 function getVariableSpeed(baseSpeed: number, level: number, rng: () => number): number {
-  const variance = 0.9 + rng() * 0.22;
-  const levelPressure = Math.min(1.5, Math.max(0, level - 1) * 0.08);
+  const variance = 0.92 + rng() * 0.18;
+  const levelPressure = Math.min(2, Math.max(0, level - 1) * 0.12);
 
-  return Math.min(14, Math.max(4.2, baseSpeed * variance + levelPressure));
+  return Math.min(18, Math.max(7.2, baseSpeed * variance + levelPressure));
 }
 
 /**
@@ -445,7 +454,7 @@ function getRandomWordForExactMode(
 }
 
 /**
- * Get a random letter for free mode
+ * Get a weighted random letter for free mode (avoids trapping students on tiny pools like X with 2 words)
  */
 function getRandomLetter(state: WordfallState, rng: () => number = defaultRng): string | null {
   if (!englishWordsSet) return null;
@@ -457,10 +466,23 @@ function getRandomLetter(state: WordfallState, rng: () => number = defaultRng): 
     }
   }
   const active = getActiveWords(state);
-  const letters = Object.keys(remainingByLetter).sort().filter(letter =>
-    remainingByLetter[letter] > active.filter(word => word.displayText === letter).length
-  );
-  return letters.length > 0 ? letters[Math.floor(rng() * letters.length)] : null;
+  const eligible = Object.keys(remainingByLetter)
+    .sort()
+    .map((letter) => ({
+      letter,
+      remaining: remainingByLetter[letter],
+      weight: Math.min(10, Math.sqrt(remainingByLetter[letter])),
+    }))
+    .filter((entry) => entry.remaining > active.filter((word) => word.displayText === entry.letter).length);
+
+  if (eligible.length === 0) return null;
+  const totalWeight = eligible.reduce((sum, entry) => sum + entry.weight, 0);
+  let roll = rng() * totalWeight;
+  for (const entry of eligible) {
+    roll -= entry.weight;
+    if (roll <= 0) return entry.letter;
+  }
+  return eligible[eligible.length - 1].letter;
 }
 
 /**
@@ -482,7 +504,9 @@ export function spawnFallingWord(
   }
 
   const baseSpeed = fullConfig.initialSpeed + (state.level - 1) * fullConfig.speedIncreasePerLevel;
-  const currentSpeed = getVariableSpeed(baseSpeed, state.level, rng);
+  const aheadInLane = getActiveWords(state).filter((word) => word.lane === lane.lane);
+  const maxAllowedSpeed = aheadInLane.length > 0 ? Math.min(...aheadInLane.map((word) => word.speed)) : Infinity;
+  const currentSpeed = Math.min(maxAllowedSpeed, getVariableSpeed(baseSpeed, state.level, rng));
 
   if (state.mode === "exact") {
     // Try up to 10 times to find a word with translation
@@ -570,8 +594,8 @@ export function validateExactWord(
 ): { valid: boolean; reason?: string } {
   const trimmed = input.trim();
   
-  const parts = trimmed.split(/\s+/).filter(p => p.trim().length > 0);
-  const targetEnglishParts = targetWord.trim().split(/\s+/).filter(p => p.trim().length > 0);
+  const parts = trimmed.replace(/-/g, " ").split(/\s+/).filter(p => p.trim().length > 0);
+  const targetEnglishParts = targetWord.trim().replace(/-/g, " ").split(/\s+/).filter(p => p.trim().length > 0);
   
   if (parts.length <= targetEnglishParts.length) {
     return { valid: false, reason: "Tape le mot anglais complet puis sa traduction française." };
@@ -581,7 +605,7 @@ export function validateExactWord(
   const frenchInput = parts.slice(targetEnglishParts.length).join(' ');
   
   const normalizedEnglish = englishInput.toUpperCase().replace(/\s+/g, " ").trim();
-  const normalizedTargetEnglish = targetWord.toUpperCase().replace(/\s+/g, " ").trim();
+  const normalizedTargetEnglish = targetEnglishParts.join(' ').toUpperCase().replace(/\s+/g, " ").trim();
   
   // Check English word
   if (normalizedEnglish !== normalizedTargetEnglish) {
@@ -592,8 +616,10 @@ export function validateExactWord(
   const cleanedTargetFr = cleanTranslationForDisplay(targetTranslation);
   const normalizedInputFr = normalizeForAnswerComparison(frenchInput);
   const normalizedTargetFr = normalizeForAnswerComparison(cleanedTargetFr);
+  const collapsedMatch =
+    collapsePunctuationAndSpaces(frenchInput) === collapsePunctuationAndSpaces(cleanedTargetFr);
   
-  if (normalizedInputFr !== normalizedTargetFr) {
+  if (normalizedInputFr !== normalizedTargetFr && !collapsedMatch) {
     return { valid: false, reason: `La traduction attendue était « ${cleanedTargetFr} ».` };
   }
   
@@ -605,7 +631,10 @@ export function validateExactWord(
  * Loads the free-mode dictionary (about 9 400 common English words, filtered for a school audience)
  */
 export function initializeEnglishWords(englishWords: string[]): void {
-  englishWordsSet = new Set(englishWords.map(w => w.toUpperCase().trim()));
+  const normalized = englishWords.map(w => w.toUpperCase().trim()).filter(Boolean);
+  englishWordsSet = new Set(
+    normalized.length > 500 ? [...normalized, ...EXTRA_SCHOOL_FREE_WORDS] : normalized
+  );
   logWordfallDebug(`Wordfall: Initialized English words dictionary with ${englishWordsSet.size} words`);
 }
 
@@ -620,7 +649,7 @@ export function validateFreeWord(
 ): { valid: boolean; reason?: string } {
   const normalized = input.trim().toUpperCase();
   
-  // Accept words from 2 to 20 letters
+  // Accept words from 3 to 20 letters
   if (normalized.length < 3) {
     return { valid: false, reason: "Mot trop court : trois lettres minimum." };
   }
@@ -659,6 +688,7 @@ export function processWordInput(
 ): { 
   success: boolean; 
   newState: WordfallState; 
+  matchedWord?: FallingWord;
   reason?: string;
   pointsBreakdown?: {
     base: number;
@@ -797,6 +827,7 @@ export function processWordInput(
   return { 
     success: true, 
     newState,
+    matchedWord,
     // Return additional info for UI feedback
     pointsBreakdown: {
       base: basePoints,

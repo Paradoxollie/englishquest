@@ -7,7 +7,7 @@
  * Format compact : [mot, traduction, niveau].
  */
 
-import type { GameLevel } from "./levels";
+import { pickOneByLevel, type GameLevel } from "./levels";
 
 export type EnigmaTarget = { word: string; french: string; level: GameLevel };
 type Entry = readonly [string, string, GameLevel];
@@ -315,6 +315,23 @@ export function enigmaTargetsForLevel(length: 4 | 5 | 6, level: GameLevel): Enig
     pool = all.filter((target) => target.level <= level && target.level >= lowest);
   }
   return pool.length > 0 ? pool : all;
+}
+
+/**
+ * Tire un mot cible pondéré (70 % au niveau du joueur, 30 % niveau inférieur)
+ * en évitant les mots déjà trouvés durant la session.
+ */
+export function pickEnigmaTargetWord(
+  length: 4 | 5 | 6,
+  level: GameLevel,
+  excludeWords: Set<string> = new Set(),
+  rng: () => number = Math.random
+): string {
+  const eligible = enigmaTargetsForLevel(length, level);
+  const available = eligible.filter((target) => !excludeWords.has(target.word));
+  const pool = available.length > 0 ? available : eligible;
+  const picked = pickOneByLevel(pool, level, rng);
+  return (picked ?? pool[0]).word;
 }
 
 /** Traduction d'un mot cible, toutes longueurs confondues. */

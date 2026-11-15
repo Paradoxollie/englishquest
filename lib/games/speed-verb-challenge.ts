@@ -54,6 +54,11 @@ export interface SubmitResult {
   speedBonus?: number;
   timeBonus?: number;
   isMilestone?: boolean;
+  fieldResults?: {
+    pastSimple: boolean;
+    pastParticiple: boolean;
+    translation: boolean;
+  };
 }
 
 export interface GameState {
@@ -151,8 +156,9 @@ export function createInitialGameState(verbs: Verb[], config: GameConfig): GameS
 export function startNewRound(state: GameState, nowMs: number): GameState {
   if (state.ended) return state;
   const rng = state.config.rng ?? defaultRng;
+  const deck = state.remainingVerbs.length > 0 ? state.remainingVerbs : state.verbs;
   const next = pickRandomVerb(
-    state.remainingVerbs,
+    deck,
     rng,
     state.lastVerbBase,
     state.config.allowImmediateRepeat
@@ -169,6 +175,7 @@ export function startNewRound(state: GameState, nowMs: number): GameState {
   };
   return {
     ...state,
+    remainingVerbs: deck,
     currentRound: newRound,
     lastVerbBase: next.base,
   };
@@ -221,12 +228,12 @@ export function submitAnswer(
     const base = state.config.difficulty; // 1 / 2 / 3
     points = Math.round(base * newCombo);
 
-    // Speed bonus: faster answers get bonus points
-    // < 3 seconds: 50% bonus, < 5 seconds: 30% bonus, < 8 seconds: 15% bonus
+    // Speed bonus: faster answers get bonus points without rounding Facile down to 0
+    // < 3 seconds: 50% bonus (min 1), < 5 seconds: 30% bonus (min 1), < 8 seconds: 15% bonus
     if (timeTaken < 3) {
-      speedBonus = Math.round(points * 0.5);
+      speedBonus = Math.max(1, Math.round(points * 0.5));
     } else if (timeTaken < 5) {
-      speedBonus = Math.round(points * 0.3);
+      speedBonus = Math.max(1, Math.round(points * 0.3));
     } else if (timeTaken < 8) {
       speedBonus = Math.round(points * 0.15);
     }
@@ -241,7 +248,7 @@ export function submitAnswer(
     if (milestoneStreaks.includes(newStreak)) {
       isMilestone = true;
       // Milestone bonus: extra points for reaching milestones
-      speedBonus += Math.round(points * 0.5);
+      speedBonus += Math.max(1, Math.round(points * 0.5));
       timeBonus += 2000; // 2 extra seconds for milestones
     }
   } else {
@@ -254,9 +261,11 @@ export function submitAnswer(
     state.config.totalTimeMs,
     state.timeLeftMs + timeBonus
   );
+  const nextDeck = state.remainingVerbs.filter((v) => v.base !== currentVerb.base);
 
   const newState: GameState = {
     ...state,
+    remainingVerbs: nextDeck.length > 0 ? nextDeck : [...state.verbs],
     score: state.score + totalPoints,
     timeLeftMs: newTimeLeft,
     streak: newStreak,
@@ -276,14 +285,22 @@ export function submitAnswer(
       speedBonus,
       timeBonus,
       isMilestone,
+      fieldResults: {
+        pastSimple: psOk,
+        pastParticiple: ppOk,
+        translation: trOk,
+      },
     },
   };
 }
 
 export function skipCurrentVerb(state: GameState): GameState {
   if (state.ended || !state.currentRound || state.currentRound.answered) return state;
+  const skippedBase = state.currentRound.currentVerb.base;
+  const nextDeck = state.remainingVerbs.filter((v) => v.base !== skippedBase);
   return {
     ...state,
+    remainingVerbs: nextDeck.length > 0 ? nextDeck : [...state.verbs],
     streak: 0,
     comboMultiplier: 1,
     currentRound: { ...state.currentRound, answered: true },

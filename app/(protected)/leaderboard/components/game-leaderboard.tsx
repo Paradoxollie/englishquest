@@ -17,16 +17,24 @@ const VALID_GAME_SLUGS = ["speed-verb-challenge", "enigma-scroll", "wordfall", "
 const GAMES_WITHOUT_DIFFICULTY = ["space-lex", "flash-translation", "flashback", "grammar-rush"];
 const TIME_BASED = ["flash-translation"];
 
-function getDifficultyLabels(gameSlug: string | null): Record<Difficulty, string> {
+function getDifficultyLabels(gameSlug: string | null): Partial<Record<Difficulty, string>> {
   if (gameSlug === "enigma-scroll") {
     return { easy: "4 lettres", medium: "5 lettres", hard: "6 lettres" };
+  }
+  if (gameSlug === "wordfall") {
+    return { easy: "Vocabulaire", hard: "Mot libre" };
   }
   return { easy: "Facile", medium: "Moyen", hard: "Difficile" };
 }
 
+function getAvailableDifficulties(gameSlug: string | null): Difficulty[] {
+  if (gameSlug === "wordfall") return ["easy", "hard"];
+  return ["easy", "medium", "hard"];
+}
+
 function formatScore(slug: string, score: number) {
   if (TIME_BASED.includes(slug)) {
-    return `${(score / 1000).toFixed(1)} s`;
+    return `${(score / 1000).toFixed(2)} s`;
   }
   return score.toLocaleString("fr-FR");
 }
@@ -62,6 +70,7 @@ export function GameLeaderboard({ games, currentUserId }: { games: Game[]; curre
 
   const entries = leaderboard[selectedDifficulty];
   const labels = getDifficultyLabels(selectedGame?.slug ?? null);
+  const availableDifficulties = getAvailableDifficulties(selectedGame?.slug ?? null);
 
   if (validGames.length === 0) {
     return (
@@ -102,7 +111,7 @@ export function GameLeaderboard({ games, currentUserId }: { games: Game[]; curre
 
           {hasDifficulty ? (
             <div className="eq-board-difficulty" role="tablist" aria-label="Difficulté">
-              {(["easy", "medium", "hard"] as Difficulty[]).map((difficulty) => (
+              {availableDifficulties.map((difficulty) => (
                 <button
                   key={difficulty}
                   type="button"
@@ -111,7 +120,7 @@ export function GameLeaderboard({ games, currentUserId }: { games: Game[]; curre
                   onClick={() => setSelectedDifficulty(difficulty)}
                   className={`eq-chip ${selectedDifficulty === difficulty ? "eq-chip-cyan" : "eq-chip-muted"}`}
                 >
-                  {labels[difficulty]}
+                  {labels[difficulty] ?? difficulty}
                 </button>
               ))}
             </div>

@@ -53,6 +53,36 @@ export function createRushState(questions: RushQuestion[]): RushState {
   return { queue: questions, index: 0, score: 0, correct: 0, attempts: 0, streak: 0, bestStreak: 0, missed: [] };
 }
 
+/**
+ * Mélange un réservoir de questions pour une nouvelle partie, en intercalant
+ * jusqu'à une question sur trois du cours ciblé lorsqu'il est renseigné.
+ */
+export function weaveRushQueue(
+  pool: readonly RushQuestion[],
+  focusCourseId: number | null,
+  rng: () => number = Math.random
+): RushQuestion[] {
+  const shuffleList = (items: readonly RushQuestion[]) => {
+    const copy = [...items];
+    for (let i = copy.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(rng() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  };
+  const general = shuffleList(pool.filter((q) => q.course !== focusCourseId));
+  const focus = focusCourseId != null ? shuffleList(pool.filter((q) => q.course === focusCourseId)) : [];
+  const queue: RushQuestion[] = [];
+  let g = 0;
+  let f = 0;
+  while (queue.length < GRAMMAR_RUSH_MAX_QUESTIONS && (g < general.length || f < focus.length)) {
+    const takeFocus = focus.length > 0 && f < focus.length && queue.length % 3 === 1;
+    const next = takeFocus ? focus[f++] : general[g++] ?? focus[f++];
+    if (next) queue.push(next);
+  }
+  return queue;
+}
+
 export function currentRushQuestion(state: RushState): RushQuestion | null {
   return state.queue[state.index] ?? null;
 }

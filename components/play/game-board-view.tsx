@@ -13,7 +13,7 @@ export type BoardBucketView = {
 
 export function formatBoardScore(format: "points" | "seconds", score: number) {
   if (format === "seconds") {
-    return `${(score / 1000).toFixed(1)} s`;
+    return `${(score / 1000).toFixed(2)} s`;
   }
   return score.toLocaleString("fr-FR");
 }

@@ -149,6 +149,7 @@ export async function submitFlashTranslationScore(params: {
         xpEarned: number;
         goldEarned: number;
         newLevel?: number;
+        reduced?: boolean;
     };
     isNewPersonalBest?: boolean;
     isNewGlobalBest?: boolean;
@@ -261,7 +262,7 @@ export async function submitFlashTranslationScore(params: {
                 game_id: game.id,
                 score: session.totalTimeMs, // Lower is better
                 max_score: session.roundsCompleted,
-                duration_ms: session.totalTimeMs,
+                duration_ms: session.durationMs,
                 difficulty: "medium", // Default difficulty for this game
             });
 
@@ -290,6 +291,7 @@ export async function submitFlashTranslationScore(params: {
                 xpEarned: rewards.xpEarned,
                 goldEarned: rewards.goldEarned,
                 newLevel: granted.level > granted.previousLevel ? granted.level : undefined,
+                reduced: rewards.reduced,
             },
             dailyChallenge: dailyChallengeResult,
             courseCompleted,

@@ -28,9 +28,9 @@ const ENIGMA_RULES: Record<4 | 5 | 6, { base: number; maxAttempts: number }> = {
   5: { base: 15, maxAttempts: 6 },
   6: { base: 20, maxAttempts: 7 },
 };
-/** Bonus de temps plafonné à 15, multiplicateur de série plafonné à 1,15. */
+/** Bonus de temps plafonné à 15, multiplicateur de série plafonné à 2,5. */
 const ENIGMA_MAX_TIME_BONUS = 15;
-const ENIGMA_MAX_STREAK_MULTIPLIER = 1.15;
+const ENIGMA_MAX_STREAK_MULTIPLIER = 2.5;
 /** Un mot trouvé demande au moins de taper ses lettres et de valider. */
 export const ENIGMA_MIN_MS_PER_WORD = 1_200;
 
@@ -208,7 +208,9 @@ export function maxSpeedVerbScore(difficulty: 1 | 2 | 3, correct: number): numbe
   let total = 0;
   for (let streak = 1; streak <= correct; streak += 1) {
     const points = Math.round(difficulty * (1 + streak * 0.1));
-    total += points + Math.round(points * 0.5) + (milestones.has(streak) ? Math.round(points * 0.5) : 0);
+    const speedMax = Math.max(1, Math.round(points * 0.5));
+    const milestoneMax = milestones.has(streak) ? Math.max(1, Math.round(points * 0.5)) : 0;
+    total += points + speedMax + milestoneMax;
   }
   return total;
 }

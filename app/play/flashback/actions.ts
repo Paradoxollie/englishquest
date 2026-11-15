@@ -152,6 +152,7 @@ export async function submitEchoLexScore(params: {
                 xpEarned: rewards.xpEarned,
                 goldEarned: rewards.goldEarned,
                 newLevel: granted.level > granted.previousLevel ? granted.level : undefined,
+                reduced: rewards.reduced,
             },
             isNewPersonalBest: isNewPB,
             isNewGlobalBest: isNewGB,

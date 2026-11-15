@@ -58,8 +58,21 @@ export function GameShell({ game, mission, isLoggedIn, aside, children }: GameSh
             <div className="eq-game-mission" role="status">
               <span className="eq-chip eq-chip-gold">Mission {mission.courseId}</span>
               <span className="eq-game-mission-text">
-                Une question sur trois porte sur <b>{mission.courseTitle}</b>. C&apos;est le quiz du cours, à 80 %,
-                qui valide la mission et rapporte + {mission.rewardXp} XP, + {mission.rewardGold} or.
+                {mission.alreadyReached ? (
+                  <>
+                    Défi validé pour <b>{mission.courseTitle}</b> : continue pour améliorer ton record.
+                  </>
+                ) : mission.quizPassed ? (
+                  <>
+                    Défi ouvert pour <b>{mission.courseTitle}</b> : {mission.challengeLabel.toLowerCase()} pour
+                    valider la mission (+{mission.rewardXp} XP, +{mission.rewardGold} or).
+                  </>
+                ) : (
+                  <>
+                    Valide d&apos;abord le quiz de <b>{mission.courseTitle}</b> à 80 %, puis{" "}
+                    {mission.challengeLabel.toLowerCase()} (+{mission.rewardXp} XP, +{mission.rewardGold} or).
+                  </>
+                )}
               </span>
               <Link href={`/cours/${mission.courseId}`} className="eq-btn eq-btn-ghost eq-btn-sm">
                 Ouvrir le cours

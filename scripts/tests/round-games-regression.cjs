@@ -302,4 +302,36 @@ test("Speed Verb milestone points match score and time never exceeds initial cap
   assert.equal(state.highestStreak, 10);
 });
 
+test("Flashback submitTimeout penalizes timeout without free points", () => {
+  const start = memory.startGame(memory.createGameState(() => 0));
+  const timedOut = memory.submitTimeout(start);
+  assert.equal(timedOut.score, 0);
+  assert.equal(timedOut.strikes, 1);
+  assert.equal(timedOut.lastDecisionCorrect, false);
+  assert.equal(timedOut.seenWords.length, 1);
+  assert.equal(memory.submitTimeout(timedOut), timedOut);
+});
+
+test("Speed Verb removes answered verbs from deck and grants Facile speed bonus < 5 s", () => {
+  let state = newVerb(1);
+  const firstBase = state.currentRound.currentVerb.base;
+  const quickResult = verb.submitAnswer(state, answerFor(state), 2000);
+  assert.equal(quickResult.result.speedBonus >= 1, true);
+  assert.equal(quickResult.state.remainingVerbs.some((entry) => entry.base === firstBase), false);
+});
+
+test("Grammar Rush weaveRushQueue builds a varied queue with focus ratio", () => {
+  const grammar = loadEngine("grammar-rush");
+  const pool = Array.from({ length: 30 }, (_, idx) => ({
+    id: `q${idx}`,
+    course: idx < 10 ? 7 : idx + 10,
+    question: `Q${idx}`,
+    options: ["A", "B"],
+    correctAnswer: 0,
+  }));
+  const mixed = grammar.weaveRushQueue(pool, 7, seeded(123));
+  assert.equal(mixed.length, 30);
+  assert.equal(mixed[1].course, 7);
+});
+
 console.log(`\n${cases} round-game regression cases passed.`);

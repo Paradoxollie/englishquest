@@ -189,15 +189,17 @@ export function GameHud({
 }) {
   return (
     <div className="eq-game-hud-wrap">
-      <div className="eq-game-hud">
-        {children}
-        {onQuit ? (
-          <button type="button" className="eq-game-quit" onClick={onQuit} data-testid="game-quit">
-            Quitter
-          </button>
-        ) : null}
-      </div>
-      {showSoundToggle ? <SoundToggleButton /> : null}
+      <div className="eq-game-hud">{children}</div>
+      {showSoundToggle || onQuit ? (
+        <div className="eq-game-hud-actions">
+          {showSoundToggle ? <SoundToggleButton /> : null}
+          {onQuit ? (
+            <button type="button" className="eq-game-quit" onClick={onQuit} data-testid="game-quit">
+              Quitter
+            </button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -286,6 +288,7 @@ export function GameEnd({
   lines,
   rewards,
   rewardStatus,
+  rewardError,
   missionReached,
   onReplay,
   children,
@@ -296,6 +299,7 @@ export function GameEnd({
   lines?: string[];
   rewards: RewardSummary | null;
   rewardStatus?: "idle" | "saving" | "saved" | "error" | "guest";
+  rewardError?: string | null;
   missionReached?: boolean | null;
   onReplay: () => void;
   children?: ReactNode;
@@ -332,7 +336,9 @@ export function GameEnd({
       ) : rewardStatus === "saving" ? (
         <p className="eq-game-end-note">Enregistrement du score…</p>
       ) : rewardStatus === "error" ? (
-        <p className="eq-game-end-note is-error">Le score n&apos;a pas pu être enregistré. Réessaie dans un instant.</p>
+        <p className="eq-game-end-note is-error">
+          {rewardError || "Le score n'a pas pu être enregistré. Réessaie dans un instant."}
+        </p>
       ) : rewards ? (
         <div className="eq-game-rewards">
           <RewardCounters xp={rewards.xpEarned} gold={rewards.goldEarned} />

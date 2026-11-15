@@ -343,6 +343,41 @@ check("Space Lex touch reaches finger position and respects board edges", () => 
   assert.equal(space.setShipTarget(playingState(), -1).shipX, 0.02);
 });
 
+check("Wordfall normalizes hyphens and apostrophes and scales active word cap", () => {
+  wordfall.initializeWordLists({
+    translations: { "ICE-CREAM": "crème glacée", "TODAY": "aujourd'hui", "APPLE": "pomme" },
+    wordsByLength: { 5: ["TODAY", "APPLE"] },
+    levels: { "ICE-CREAM": 1, "TODAY": 1, "APPLE": 1 },
+  });
+  const start = wordfall.startGame(wordfall.createGameState({ mode: "exact" }));
+  const card = { id: "ice", text: "ICE-CREAM", displayText: "ICE-CREAM", translation: "crème glacée", x: 50, lane: 1, y: 20, speed: 8.5 };
+  const hit = wordfall.processWordInput({ ...start, activeWords: [card], activeWord: card }, "ice cream creme glacee");
+  assert.equal(hit.success, true);
+  assert.equal(hit.matchedWord.id, "ice");
+  const apostropheCard = { id: "today", text: "TODAY", displayText: "TODAY", translation: "aujourd'hui", x: 50, lane: 1, y: 20, speed: 8.5 };
+  const hit2 = wordfall.processWordInput({ ...start, activeWords: [apostropheCard], activeWord: apostropheCard }, "today aujourdhui");
+  assert.equal(hit2.success, true);
+  assert.equal(wordfall.getWordfallMaxActiveWords({ ...start, level: 1 }), 1);
+  assert.equal(wordfall.getWordfallMaxActiveWords({ ...start, level: 3 }), 2);
+  assert.equal(wordfall.getWordfallMaxActiveWords({ ...start, level: 6 }), 3);
+});
+
+check("Enigma multiplier reaches up to 2.5x across winning streak", () => {
+  enigma.initializeWordLists({ targetWords: { 5: ["APPLE", "BRAVE", "CHAIR", "DREAM", "EAGLE", "FLAME", "GRAPE", "HOUSE", "IMAGE", "JUICE", "KNIFE", "LIGHT"] }, validGuesses: { 5: ["APPLE", "BRAVE", "CHAIR", "DREAM", "EAGLE", "FLAME", "GRAPE", "HOUSE", "IMAGE", "JUICE", "KNIFE", "LIGHT"] } });
+  let st = enigma.createInitialGameState("APPLE");
+  let firstPoints = 0;
+  let laterPoints = 0;
+  const seq = ["APPLE", "BRAVE", "CHAIR", "DREAM", "EAGLE", "FLAME", "GRAPE", "HOUSE", "IMAGE", "JUICE", "KNIFE", "LIGHT"];
+  for (let i = 0; i < seq.length; i += 1) {
+    if (i > 0) st = enigma.resetForNewWord(st, seq[i]);
+    const res = enigma.submitGuess(st, seq[i], 90);
+    st = res.state;
+    if (i === 0) firstPoints = res.result.pointsEarned;
+    if (i === seq.length - 1) laterPoints = res.result.pointsEarned;
+  }
+  assert.ok(laterPoints > firstPoints * 2, `${laterPoints} should surpass 2x of ${firstPoints}`);
+});
+
 async function validateScoreGuards() {
   const actions = [
     { name: "Wordfall", submit: loadEngine("app/play/wordfall/actions.ts", true).submitWordfallScore, valid: { mode: "free", score: 10, wordsCompleted: 1, durationMs: 1_000 }, invalid: [{ mode: "invalid" }, { score: NaN }, { score: -1 }, { wordsCompleted: -1 }, { durationMs: 9_000_000 }] },

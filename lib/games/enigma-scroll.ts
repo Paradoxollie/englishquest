@@ -218,7 +218,8 @@ function calculateScore(
   const attemptBonus = Math.max(0, (config.maxAttempts - attemptsUsed) * 2);
   const timeBonus = Math.max(0, Math.min(Math.floor(timeRemaining / 6), 15));
   const rawScore = basePoints + attemptBonus + timeBonus;
-  const streakMultiplier = 1 + Math.min(currentStreak, 1.5) * 0.1;
+  const maxStreak = Math.max(1, config.streakBonusMultiplier || 2.5);
+  const streakMultiplier = Math.min(maxStreak, 1 + currentStreak * 0.15);
   return Math.floor(rawScore * streakMultiplier);
 }
 
@@ -425,8 +426,8 @@ export function resetForNewWord(
   const normalizedTarget = normalizeWord(newTargetWord);
   const wordLength = normalizedTarget.length;
   
-  if (!isValidWord(normalizedTarget, wordLength)) {
-    throw new Error(`Word "${normalizedTarget}" is not in the word list for length ${wordLength}`);
+  if (!isTargetWord(normalizedTarget, wordLength)) {
+    throw new Error(`Word "${normalizedTarget}" is not in the target words list for length ${wordLength}`);
   }
   
   const config: GameConfig = {

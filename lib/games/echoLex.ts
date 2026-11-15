@@ -150,3 +150,24 @@ export function submitDecision(state: GameState, saysIsSeen: boolean): GameState
         seenWords: newSeenWords,
     };
 }
+
+/**
+ * Temps écoulé sans réponse : compte toujours comme une erreur (aucun point gratuit),
+ * mémorise le mot affiché et termine la partie à 3 erreurs.
+ */
+export function submitTimeout(state: GameState): GameState {
+    if (state.phase !== "playing") return state;
+    const newStrikes = state.strikes + 1;
+    const newPhase: GameState["phase"] = newStrikes >= 3 ? "gameOver" : "result";
+    const newSeenWords = state.seenWords.some(word => word.english === state.currentWord.english)
+        ? state.seenWords
+        : [...state.seenWords, state.currentWord];
+
+    return {
+        ...state,
+        strikes: newStrikes,
+        phase: newPhase,
+        lastDecisionCorrect: false,
+        seenWords: newSeenWords,
+    };
+}

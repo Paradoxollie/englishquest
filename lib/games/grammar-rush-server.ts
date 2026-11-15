@@ -21,6 +21,13 @@ function shuffle<T>(items: T[]): T[] {
  * qui est au-dessus est exclu) ; `focusCourseId` fait revenir les questions
  * du cours de la mission en cours une fois sur trois.
  */
+export function buildRushPool({ maxChapter }: { maxChapter: number }): RushQuestion[] {
+  const allowedCourses = new Set(
+    chapters.filter((chapter) => chapter.id <= Math.max(1, maxChapter)).flatMap((chapter) => chapter.courseIds)
+  );
+  return questions.filter((question) => allowedCourses.has(question.course));
+}
+
 export function buildRushQueue({ maxChapter, focusCourseId }: { maxChapter: number; focusCourseId: number | null }): RushQuestion[] {
   const allowedCourses = new Set(chapters.filter((chapter) => chapter.id <= Math.max(1, maxChapter)).flatMap((chapter) => chapter.courseIds));
   const general = shuffle(questions.filter((question) => allowedCourses.has(question.course) && question.course !== focusCourseId));

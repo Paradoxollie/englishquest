@@ -27,7 +27,7 @@ export async function submitGrammarRushScore(params: {
 }): Promise<{
   success: boolean;
   error?: string;
-  rewards?: { xpEarned: number; goldEarned: number; newLevel?: number };
+  rewards?: { xpEarned: number; goldEarned: number; newLevel?: number; reduced?: boolean };
   isNewPersonalBest?: boolean;
   isNewGlobalBest?: boolean;
   courseCompleted?: AutoCompletedCourse | null;
@@ -115,7 +115,7 @@ export async function submitGrammarRushScore(params: {
 
     return {
       success: true,
-      rewards: { xpEarned: rewards.xpEarned, goldEarned: rewards.goldEarned, newLevel: balances.level > balances.previousLevel ? balances.level : undefined },
+      rewards: { xpEarned: rewards.xpEarned, goldEarned: rewards.goldEarned, newLevel: balances.level > balances.previousLevel ? balances.level : undefined, reduced: rewards.reduced },
       isNewPersonalBest,
       isNewGlobalBest,
       dailyChallenge,

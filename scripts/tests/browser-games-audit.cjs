@@ -43,7 +43,7 @@ async function scenario(name, run) {
   page.on('pageerror', e => errors.push(e.message));
   page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
   try {
-    await run(page);
+    await run(page, errors);
     assert.deepEqual(errors, [], 'browser errors');
     report.checks.push({ name, ok: true });
     console.log('PASS ' + name);
@@ -110,7 +110,7 @@ async function readyChoices(page) {
       const english = vocabulary.get(french);
       assert.ok(english, french);
       const choices = await page.getByTestId('game-choice').allTextContents();
-      const right = choices.findIndex(text => text.trim().endsWith(english));
+      const right = choices.findIndex(text => text.replace(/^[1-4]\s*/, '').trim() === english);
       assert.ok(right >= 0, 'correct translation present');
       await page.getByTestId('game-choice').nth(index === 0 ? (right + 1) % 4 : right).click();
       if (index === 0) assert.equal(await stat(page, 'Erreurs'), '1');
@@ -262,18 +262,24 @@ async function readyChoices(page) {
     await page.keyboard.press('Escape');
     await shot(page, 'space-controls');
   });
-  await scenario('general-pages-all-course-levels', async page => {
+  await scenario('general-pages-all-course-levels', async (page, errors) => {
     for (const route of ['/', '/quest', '/tous-les-cours', '/about', '/auth/login', '/auth/signup', '/auth/forgot', '/cours/1', '/cours/10', '/cours/20', '/cours/30', '/cours/40', '/cours/50']) {
       const response = await page.goto(base + route);
       assert.equal(response.status(), 200, route);
       await page.getByRole('heading', { level: 1 }).first().waitFor();
       assert.ok((await page.locator('body').innerText()).length > 150, route);
     }
+    assert.deepEqual(errors, [], 'browser errors on valid routes');
+    const errorCountBeforeNotFound = errors.length;
     const unknown = await page.goto(base + '/play/unknown-game-audit');
     // Next can stream a not-found page with HTTP 200 after the layout starts.
     assert.ok([200, 404].includes(unknown.status()));
     assert.match(await page.locator('body').innerText(), /404/);
     assert.ok(await page.locator('meta[name="robots"][content*="noindex"]').count());
+    if (unknown.status() === 404) {
+      const extra = errors.splice(errorCountBeforeNotFound);
+      assert.equal(extra.every(msg => msg.includes('status of 404')), true, extra.join('; '));
+    }
   });
   fs.writeFileSync(path.join(out, 'browser-report.json'), JSON.stringify(report, null, 2));
   await browser.close();

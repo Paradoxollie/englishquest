@@ -120,6 +120,7 @@ export async function submitWordfallScore(params: {
     xpEarned: number;
     goldEarned: number;
     newLevel?: number;
+    reduced?: boolean;
   };
   isNewPersonalBest?: boolean;
   isNewGlobalBest?: boolean;
@@ -264,6 +265,7 @@ export async function submitWordfallScore(params: {
         xpEarned: rewards.xpEarned,
         goldEarned: rewards.goldEarned,
         newLevel: updatedProfile.level > updatedProfile.previousLevel ? updatedProfile.level : undefined,
+        reduced: rewards.reduced,
       },
       dailyChallenge: dailyChallengeResult,
       courseCompleted,
