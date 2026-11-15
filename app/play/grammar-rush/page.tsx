@@ -3,11 +3,11 @@ import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { chapters, getChapterForCourse } from "@/lib/courses/chapters";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
-import { getUserCourseRoadmap } from "@/lib/courses/progress";
+import { getCachedUserCourseRoadmap } from "@/lib/courses/roadmap-cache";
 import { lessons } from "@/lib/courses/lessons";
 import { getGameBySlug } from "@/lib/games/config";
 import { buildRushQueue } from "@/lib/games/grammar-rush-server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/auth-cache";
 import { GrammarRushGame } from "./grammar-rush-game";
 
 export const metadata: Metadata = {
@@ -31,10 +31,7 @@ export default async function GrammarRushPage({
     return null;
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
   const userId = user?.id ?? null;
   const mission = await getMissionForGame(userId, SLUG);
 
@@ -44,7 +41,7 @@ export default async function GrammarRushPage({
   const requestedCourse = Number(params.cours);
   const wantsCourse = Number.isInteger(requestedCourse) && Boolean(lessons[requestedCourse]);
   if (userId) {
-    const roadmap = await getUserCourseRoadmap(userId);
+    const roadmap = await getCachedUserCourseRoadmap(userId);
     const current = roadmap.currentCourse ?? roadmap.recommendedCourse;
     maxChapter = current ? getChapterForCourse(current.courseId).id : chapters.length;
     // Entraînement ciblé (?cours=N) : seulement sur un cours déjà ouvert pour ce joueur.

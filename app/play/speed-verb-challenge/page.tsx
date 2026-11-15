@@ -3,7 +3,7 @@ import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
 import { getGameBySlug } from "@/lib/games/config";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/auth-cache";
 import { SpeedVerbGame } from "./speed-verb-game";
 
 export const metadata: Metadata = {
@@ -21,10 +21,7 @@ export default async function SpeedVerbChallengePage() {
     return null;
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
   const userId = user?.id ?? null;
   const mission = await getMissionForGame(userId, SLUG);
 

@@ -15,13 +15,14 @@ import {
   type CourseRoadmap,
   type CourseRoadmapEntry,
 } from "@/lib/courses/progress";
+import { getCachedUserCourseRoadmap } from "@/lib/courses/roadmap-cache";
 import { getPlacementStatus, isPlacementSkip } from "@/lib/placement/placement";
 import { getUserCoursePractice } from "@/lib/courses/practice-server";
 import { getMissionStars, STARS_PER_MISSION, sumStars } from "@/lib/courses/stars";
 import { getChapterExamReward, getLevelProgress } from "@/lib/profile/economy";
 import { EXAM_QUESTION_COUNT, examStatus, getUserChapterExams } from "@/lib/exams/exams";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/auth-cache";
 
 export const metadata: Metadata = {
   title: "Aventure",
@@ -69,7 +70,7 @@ async function resolveRoadmap(userId: string): Promise<{
   roadmap: CourseRoadmap;
   justCompleted: CourseRoadmapEntry | null;
 }> {
-  const roadmap = await getUserCourseRoadmap(userId);
+  const roadmap = await getCachedUserCourseRoadmap(userId);
   const active = roadmap.currentCourse;
   if (!active || active.status !== "in_progress") {
     return { roadmap, justCompleted: null };
@@ -83,10 +84,7 @@ async function resolveRoadmap(userId: string): Promise<{
 }
 
 export default async function QuestPage() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
   const isLoggedIn = Boolean(user);
 
   const { roadmap, justCompleted } = user

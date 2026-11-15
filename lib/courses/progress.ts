@@ -166,10 +166,11 @@ async function ensureUserProgressRows(
     throw existingError;
   }
 
-  const progressRows = (existingProgress ?? []) as DbProgressRecord[];
-  const existingCourseIds = new Set(progressRows.map((row) => row.course_id));
+  let rows = (existingProgress ?? []) as DbProgressRecord[];
+  const existingCourseIds = new Set(rows.map((row) => row.course_id));
+  let insertedRows = false;
 
-  if (progressRows.length === 0) {
+  if (rows.length === 0) {
     const initialRows = catalog.map((course, index) => ({
       user_id: userId,
       course_id: course.id,
@@ -183,6 +184,7 @@ async function ensureUserProgressRows(
     if (insertError) {
       throw insertError;
     }
+    insertedRows = true;
   } else if (existingCourseIds.size < catalog.length) {
     const missingRows = catalog
       .filter((course) => !existingCourseIds.has(course.id))
@@ -200,19 +202,22 @@ async function ensureUserProgressRows(
       if (insertError) {
         throw insertError;
       }
+      insertedRows = true;
     }
   }
 
-  const { data: refreshedProgress, error: refreshError } = await adminClient
-    .from("user_course_progress")
-    .select("id, course_id, status, best_score, completed_at, updated_at, created_at")
-    .eq("user_id", userId);
+  if (insertedRows) {
+    const { data: refreshedProgress, error: refreshError } = await adminClient
+      .from("user_course_progress")
+      .select("id, course_id, status, best_score, completed_at, updated_at, created_at")
+      .eq("user_id", userId);
 
-  if (refreshError || !refreshedProgress) {
-    throw refreshError ?? new Error("Unable to refresh course progress");
+    if (refreshError || !refreshedProgress) {
+      throw refreshError ?? new Error("Unable to refresh course progress");
+    }
+
+    rows = refreshedProgress as DbProgressRecord[];
   }
-
-  const rows = refreshedProgress as DbProgressRecord[];
   const progressByCourseId = new Map(rows.map((row) => [row.course_id, row]));
   const hasAnyActiveStatus = rows.some((row) => row.status !== "locked");
   const updates: Array<{ id: string; status: CourseStatus }> = [];

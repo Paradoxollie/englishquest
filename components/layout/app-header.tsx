@@ -24,6 +24,7 @@ function isActivePath(pathname: string, href: string) {
 
 export function AppHeader() {
   const { user, loading } = useAuth();
+  const userId = user?.id ?? null;
   const pathname = usePathname();
   const router = useRouter();
   const [headerState, setHeaderState] = useState<HeaderState>(guestHeaderState);
@@ -34,7 +35,7 @@ export function AppHeader() {
     let ignore = false;
 
     async function loadHeaderState() {
-      if (!user) {
+      if (!userId) {
         setHeaderState(guestHeaderState);
         setHeaderLoading(false);
         return;
@@ -67,10 +68,16 @@ export function AppHeader() {
 
     void loadHeaderState();
 
+    const handleRefresh = () => {
+      void loadHeaderState();
+    };
+    window.addEventListener("eq:reward", handleRefresh);
+
     return () => {
       ignore = true;
+      window.removeEventListener("eq:reward", handleRefresh);
     };
-  }, [user]);
+  }, [userId]);
 
   useEffect(() => {
     setMenuOpen(false);

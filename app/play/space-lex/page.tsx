@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
+import { unstable_cache } from "next/cache";
 import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
 import { getGameBySlug } from "@/lib/games/config";
 import { getPlayerGameLevel } from "@/lib/games/player-level-server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/auth-cache";
 import { SpaceLexGame } from "./space-lex-game";
 
 export const metadata: Metadata = {
@@ -17,35 +18,44 @@ export const dynamic = "force-dynamic";
 
 const SLUG = "space-lex";
 
+const getDefaultShipSkinImageUrl = unstable_cache(
+  async (): Promise<string | null> => {
+    try {
+      const adminClient = createSupabaseAdminClient();
+      const { data: defaultSkin } = await adminClient
+        .from("shop_items")
+        .select("image_url")
+        .eq("item_type", "ship_skin")
+        .eq("is_active", true)
+        .order("display_order", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      return defaultSkin?.image_url ?? null;
+    } catch {
+      return null;
+    }
+  },
+  ["default-ship-skin"],
+  { revalidate: 3600 }
+);
+
 async function loadShipSkinImageUrl(userId: string | null): Promise<string | null> {
   try {
-    const adminClient = createSupabaseAdminClient();
     if (userId) {
+      const adminClient = createSupabaseAdminClient();
       const { data: equipped } = await adminClient
         .from("user_equipped_items")
-        .select("equipped_ship_skin_id")
+        .select("equipped_ship_skin:shop_items!equipped_ship_skin_id(image_url)")
         .eq("user_id", userId)
         .maybeSingle();
-      if (equipped?.equipped_ship_skin_id) {
-        const { data: skinItem } = await adminClient
-          .from("shop_items")
-          .select("image_url")
-          .eq("id", equipped.equipped_ship_skin_id)
-          .maybeSingle();
-        if (skinItem?.image_url) {
-          return skinItem.image_url;
-        }
+      const skin = Array.isArray(equipped?.equipped_ship_skin)
+        ? equipped.equipped_ship_skin[0]
+        : equipped?.equipped_ship_skin;
+      if (skin?.image_url) {
+        return skin.image_url;
       }
     }
-    const { data: defaultSkin } = await adminClient
-      .from("shop_items")
-      .select("image_url")
-      .eq("item_type", "ship_skin")
-      .eq("is_active", true)
-      .order("display_order", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-    return defaultSkin?.image_url ?? null;
+    return await getDefaultShipSkinImageUrl();
   } catch {
     return null;
   }
@@ -57,10 +67,7 @@ export default async function SpaceLexPage() {
     return null;
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
   const userId = user?.id ?? null;
   const [mission, suggestedLevel, initialShipSkinImageUrl] = await Promise.all([
     getMissionForGame(userId, SLUG),

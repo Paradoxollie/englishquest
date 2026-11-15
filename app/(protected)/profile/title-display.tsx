@@ -10,11 +10,12 @@ import type { UserEquippedItems, ShopItem } from "@/types/shop";
 
 interface TitleDisplayProps {
   userId: string;
+  initialTitle?: ShopItem | null;
 }
 
-export function TitleDisplay({ userId }: TitleDisplayProps) {
-  const [equippedTitle, setEquippedTitle] = useState<ShopItem | null>(null);
-  const [loading, setLoading] = useState(true);
+export function TitleDisplay({ userId, initialTitle }: TitleDisplayProps) {
+  const [equippedTitle, setEquippedTitle] = useState<ShopItem | null>(initialTitle ?? null);
+  const [loading, setLoading] = useState(initialTitle === undefined);
 
   useEffect(() => {
     async function loadData() {
@@ -35,12 +36,24 @@ export function TitleDisplay({ userId }: TitleDisplayProps) {
         if (title) {
           setEquippedTitle(title as ShopItem);
         }
+      } else {
+        setEquippedTitle(null);
       }
       setLoading(false);
     }
 
-    loadData();
-  }, [userId]);
+    if (initialTitle === undefined) {
+      loadData();
+    }
+
+    const handleEquipEvent = () => {
+      loadData();
+    };
+    window.addEventListener("itemEquipped", handleEquipEvent);
+    return () => {
+      window.removeEventListener("itemEquipped", handleEquipEvent);
+    };
+  }, [userId, initialTitle]);
 
   if (loading || !equippedTitle) {
     return null;

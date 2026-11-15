@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { WeeklyLeagueSection } from "@/components/rewards/weekly-league";
 import { getWeeklyLeague } from "@/lib/profile/league-server";
+import { getServerUser } from "@/lib/supabase/auth-cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { games as gameCatalog } from "@/lib/games/config";
 import { GameLeaderboard } from "./components/game-leaderboard";
@@ -13,14 +14,13 @@ export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
 export default async function LeaderboardPage() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
 
   if (!user) {
     redirect("/auth/login");
   }
+
+  const supabase = await createSupabaseServerClient();
 
   const [{ data: games }, league] = await Promise.all([
     supabase.from("games").select("id, slug, name, description").order("name"),

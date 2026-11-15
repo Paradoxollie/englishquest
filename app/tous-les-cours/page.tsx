@@ -4,8 +4,9 @@ import { resolveArt } from "@/lib/art-server";
 import Link from "next/link";
 import { CourseLibraryExplorer } from "@/components/courses/course-library-explorer";
 import { getResolvedCourseMissionPlans } from "@/lib/courses/campaign-server";
-import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { buildGuestCourseRoadmap } from "@/lib/courses/progress";
+import { getCachedUserCourseRoadmap } from "@/lib/courses/roadmap-cache";
+import { getServerUser } from "@/lib/supabase/auth-cache";
 
 export const metadata = {
   title: "Les cours",
@@ -14,12 +15,9 @@ export const metadata = {
 };
 
 export default async function TousLesCoursPage() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
   const isLoggedIn = Boolean(user);
-  const roadmap = user ? await getUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
+  const roadmap = user ? await getCachedUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
   const recommendedCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
   const missionPlans = await getResolvedCourseMissionPlans(roadmap.entries);
 

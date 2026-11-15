@@ -4,7 +4,7 @@ import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
 import { getGameBySlug } from "@/lib/games/config";
 import { getPlayerGameLevel } from "@/lib/games/player-level-server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/auth-cache";
 import { FlashbackGame } from "./flashback-game";
 
 export const metadata: Metadata = {
@@ -22,10 +22,7 @@ export default async function FlashbackPage() {
     return null;
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
   const userId = user?.id ?? null;
   const [mission, suggestedLevel] = await Promise.all([getMissionForGame(userId, SLUG), getPlayerGameLevel(userId)]);
 

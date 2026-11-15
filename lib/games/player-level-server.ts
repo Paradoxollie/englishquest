@@ -1,6 +1,6 @@
 import "server-only";
 import { chapters, getChapterForCourse } from "@/lib/courses/chapters";
-import { getUserCourseRoadmap } from "@/lib/courses/progress";
+import { getCachedUserCourseRoadmap } from "@/lib/courses/roadmap-cache";
 import { levelFromChapter, type GameLevel } from "@/lib/games/levels";
 
 /**
@@ -11,7 +11,7 @@ import { levelFromChapter, type GameLevel } from "@/lib/games/levels";
 export async function getPlayerGameLevel(userId: string | null): Promise<GameLevel | null> {
   if (!userId) return null;
   try {
-    const roadmap = await getUserCourseRoadmap(userId);
+    const roadmap = await getCachedUserCourseRoadmap(userId);
     const current = roadmap.currentCourse ?? roadmap.recommendedCourse;
     const chapterId = current ? getChapterForCourse(current.courseId).id : chapters.length;
     return levelFromChapter(chapterId);

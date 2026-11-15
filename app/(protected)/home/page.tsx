@@ -8,7 +8,7 @@ import { getUserCourseMissionState } from "@/lib/courses/mission-state";
 import { isCoursePlacementSkip } from "@/lib/courses/mission-telemetry";
 import { buildMissionSummary } from "@/lib/courses/mission-summary";
 import { getUserCoursePractice } from "@/lib/courses/practice-server";
-import { getUserCourseRoadmap } from "@/lib/courses/progress";
+import { getCachedUserCourseRoadmap } from "@/lib/courses/roadmap-cache";
 import { STARS_PER_MISSION, getMissionStars, sumStars } from "@/lib/courses/stars";
 import { games, getGameBySlug } from "@/lib/games/config";
 import { getPlacementStatus } from "@/lib/placement/placement";
@@ -16,8 +16,8 @@ import { loadBadgesWithSync } from "@/lib/profile/badges-server";
 import { getDailyChallengeState } from "@/lib/profile/daily-challenge";
 import { DAILY_CHALLENGE_REWARD, WELCOME_GOLD, getDailyStreakMultiplier, getLevelProgress } from "@/lib/profile/economy";
 import { getWeeklyLeague } from "@/lib/profile/league-server";
+import { getServerUser } from "@/lib/supabase/auth-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 /** Le bonus de bienvenue s'affiche pendant les 24 premières heures, avant toute mission jouée. */
 const WELCOME_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -43,10 +43,7 @@ function greeting(date = new Date()) {
 }
 
 export default async function HomePage() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
 
   if (!user) {
     return null;
@@ -59,7 +56,7 @@ export default async function HomePage() {
       .select("username, xp, gold, daily_played_games, daily_streak, last_game_date, last_daily_bonus_date, created_at")
       .eq("id", user.id)
       .maybeSingle(),
-    getUserCourseRoadmap(user.id),
+    getCachedUserCourseRoadmap(user.id),
     getPlacementStatus(user.id),
     getUserCoursePractice(user.id),
     // Rattrape les badges gagnés hors des parties (test de niveau, mission validée depuis la carte).

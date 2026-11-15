@@ -1,7 +1,7 @@
 import { getCourseMissionPlan } from "@/lib/courses/campaign";
 import { lessons } from "@/lib/courses/lessons";
 import { getUserCourseMissionState } from "@/lib/courses/mission-state";
-import { getUserCourseRoadmap } from "@/lib/courses/progress";
+import { getCachedUserCourseRoadmap } from "@/lib/courses/roadmap-cache";
 
 /**
  * La mission en cours qui porte sur un jeu donné, pour l'afficher dans le jeu.
@@ -27,7 +27,7 @@ export async function getMissionForGame(userId: string | null, gameSlug: string)
   }
 
   try {
-    const roadmap = await getUserCourseRoadmap(userId);
+    const roadmap = await getCachedUserCourseRoadmap(userId);
     const active = roadmap.entries.find((entry) => entry.status === "in_progress") ?? roadmap.currentCourse;
     if (!active || active.status === "locked" || active.status === "completed") {
       return null;

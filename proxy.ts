@@ -1,7 +1,7 @@
-import type { NextRequest } from "next/server";
+import type { NextFetchEvent, NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-export async function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest, event: NextFetchEvent) {
   const pathname = request.nextUrl.pathname;
 
   if (
@@ -28,8 +28,9 @@ export async function proxy(request: NextRequest) {
 
   const baseUrl = request.nextUrl.origin;
 
-  fetch(`${baseUrl}/api/track-visit`, {
+  const trackPromise = fetch(`${baseUrl}/api/track-visit`, {
     method: "POST",
+    signal: AbortSignal.timeout(2500),
     headers: {
       "Content-Type": "application/json",
       "User-Agent": request.headers.get("user-agent") || "",
@@ -42,9 +43,11 @@ export async function proxy(request: NextRequest) {
       path: pathname,
       referrer: request.headers.get("referer") || null,
     }),
-  }).catch(() => {
-    return undefined;
-  });
+  }).catch(() => undefined);
+
+  if (typeof event?.waitUntil === "function") {
+    event.waitUntil(trackPromise);
+  }
 
   return NextResponse.next();
 }

@@ -62,12 +62,12 @@ async function headCount(query: PromiseLike<{ count: number | null; error: unkno
  * légères (comptages sans lignes), lancées en parallèle.
  */
 export async function computeBadgeStats(userId: string, admin: AdminClient = createSupabaseAdminClient()): Promise<BadgeStats> {
-  const [profileResult, progressResult, gamesResult, gamesPlayed, examsPassed] = await Promise.all([
+  const [profileResult, progressResult, gamesResult, scoresResult, examsPassed] = await Promise.all([
     // « * » : les colonnes du test de niveau peuvent manquer si sa migration n'est pas passée.
     admin.from("profiles").select("*").eq("id", userId).maybeSingle(),
     admin.from("user_course_progress").select("status, best_score, courses ( course_number )").eq("user_id", userId),
     admin.from("games").select("id, slug"),
-    headCount(admin.from("game_scores").select("id", { count: "exact", head: true }).eq("user_id", userId), "game count"),
+    admin.from("game_scores").select("game_id", { count: "exact" }).eq("user_id", userId),
     headCount(
       admin.from("chapter_exams").select("id", { count: "exact", head: true }).eq("user_id", userId).not("passed_at", "is", null),
       "exam count"
@@ -78,6 +78,7 @@ export async function computeBadgeStats(userId: string, admin: AdminClient = cre
   if (!profileResult.data) throw new Error("Profile not found");
   if (progressResult.error) throw progressResult.error;
   logSoftError("games", gamesResult.error);
+  logSoftError("game scores", scoresResult.error);
 
   const profile = profileResult.data as {
     xp?: number | null;
@@ -87,18 +88,33 @@ export async function computeBadgeStats(userId: string, admin: AdminClient = cre
     placement_at?: string | null;
   };
 
+  const scoreRows = (scoresResult.data ?? []) as Array<{ game_id: string | null }>;
+  const gamesPlayed = scoresResult.error ? 0 : scoresResult.count ?? scoreRows.length;
   const gameIds = new Map(((gamesResult.data ?? []) as Array<{ id: string; slug: string }>).map((game) => [game.slug, game.id]));
-  const perGame = await Promise.all(
-    BADGE_GAMES.map(async (game) => {
+
+  let perGame: Array<readonly [string, number]>;
+  if (!scoresResult.error && gamesPlayed <= scoreRows.length) {
+    const countsByGameId = new Map<string, number>();
+    for (const row of scoreRows) {
+      if (row.game_id) countsByGameId.set(row.game_id, (countsByGameId.get(row.game_id) ?? 0) + 1);
+    }
+    perGame = BADGE_GAMES.map((game) => {
       const gameId = gameIds.get(game.slug);
-      if (!gameId) return [game.slug, 0] as const;
-      const played = await headCount(
-        admin.from("game_scores").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("game_id", gameId),
-        `count ${game.slug}`
-      );
-      return [game.slug, played] as const;
-    })
-  );
+      return [game.slug, gameId ? countsByGameId.get(gameId) ?? 0 : 0] as const;
+    });
+  } else {
+    perGame = await Promise.all(
+      BADGE_GAMES.map(async (game) => {
+        const gameId = gameIds.get(game.slug);
+        if (!gameId) return [game.slug, 0] as const;
+        const played = await headCount(
+          admin.from("game_scores").select("id", { count: "exact", head: true }).eq("user_id", userId).eq("game_id", gameId),
+          `count ${game.slug}`
+        );
+        return [game.slug, played] as const;
+      })
+    );
+  }
 
   const completedCourses = new Set<number>();
   let missionsCompleted = 0;

@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { createContext, useContext } from "react";
 import type { User } from "@supabase/supabase-js";
 
 type AuthContextType = {
@@ -17,23 +16,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname();
+  const lastUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
     const supabase = createSupabaseBrowserClient();
 
-    // Vérifier la session initiale avec un délai court pour laisser les cookies se synchroniser
     const checkSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (isMounted) {
-          if (error) {
-            console.error("Session error:", error);
-          }
-          setUser(session?.user ?? null);
-          setLoading(false);
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+        if (!isMounted) return;
+        if (error) {
+          console.error("Session error:", error);
         }
+        const nextUser = session?.user ?? null;
+        lastUserIdRef.current = nextUser?.id ?? null;
+        setUser(nextUser);
+        setLoading(false);
       } catch (error) {
         console.error("Error checking session:", error);
         if (isMounted) {
@@ -42,35 +44,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // Vérifier immédiatement
-    checkSession();
-    
-    // Re-vérifier après un court délai pour laisser les cookies se synchroniser
-    const timeoutId = setTimeout(() => {
-      checkSession();
-    }, 100);
+    void checkSession();
 
-    // Écouter les changements d'authentification
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (isMounted) {
-          setUser(session?.user ?? null);
-          setLoading(false);
-          
-          // Rafraîchir la page si on est sur une page protégée et qu'on vient de se connecter
-          if (event === "SIGNED_IN" && pathname?.startsWith("/")) {
-            router.refresh();
-          }
-        }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
+      const nextUser = session?.user ?? null;
+      const nextUserId = nextUser?.id ?? null;
+      const prevUserId = lastUserIdRef.current;
+      lastUserIdRef.current = nextUserId;
+
+      setUser((prev) => (prev?.id === nextUserId && prev?.updated_at === nextUser?.updated_at ? prev : nextUser));
+      setLoading(false);
+
+      if (event === "SIGNED_IN" && prevUserId !== nextUserId) {
+        router.refresh();
       }
-    );
+    });
 
     return () => {
       isMounted = false;
       subscription?.unsubscribe();
-      clearTimeout(timeoutId);
     };
-  }, [router, pathname]);
+  }, [router]);
 
   return (
     <AuthContext.Provider value={{ user, loading }}>

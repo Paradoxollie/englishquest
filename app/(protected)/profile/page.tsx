@@ -4,13 +4,13 @@ import { redirect } from "next/navigation";
 import { logoutAction } from "@/app/(protected)/actions";
 import { BadgesSection } from "@/components/rewards/badges-section";
 import { RewardOnMount } from "@/components/rewards/reward-on-mount";
-import { isAdmin } from "@/lib/auth/roles";
 import { lessons } from "@/lib/courses/lessons";
 import { loadBadgesWithSync } from "@/lib/profile/badges-server";
 import { getLevelProgress } from "@/lib/profile/economy";
+import { getServerUser } from "@/lib/supabase/auth-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Profile } from "@/types/profile";
+import type { ShopItem, UserEquippedItems } from "@/types/shop";
 import { AvatarDisplay } from "./avatar-display";
 import { CustomizationDisplay } from "./customization-display";
 import { DeleteAccountForm } from "./delete-account-form";
@@ -54,16 +54,13 @@ export default async function ProfilePage({
   searchParams: Promise<{ motdepasse?: string }>;
 }) {
   const params = await searchParams;
-  const supabase = await createSupabaseServerClient();
-  const adminClient = createSupabaseAdminClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
 
   if (!user) {
     redirect("/auth/login");
   }
 
+  const adminClient = createSupabaseAdminClient();
   const { data: profileData } = await adminClient.from("profiles").select("*").eq("id", user.id).maybeSingle();
   const profile = profileData as Profile | null;
 
@@ -79,7 +76,7 @@ export default async function ProfilePage({
     );
   }
 
-  const [{ data: bestScores }, { data: courseProgress }, { count: gamesPlayed }, userIsAdmin, badges] = await Promise.all([
+  const [{ data: bestScores }, { data: courseProgress }, { count: gamesPlayed }, badges, { data: equippedData }] = await Promise.all([
     adminClient
       .from("game_scores")
       .select("score, created_at, games ( id, name, slug )")
@@ -92,10 +89,35 @@ export default async function ProfilePage({
       .eq("user_id", user.id)
       .in("status", ["unlocked", "in_progress", "completed"]),
     adminClient.from("game_scores").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-    isAdmin(),
     // Rattrape les badges déjà mérités avant de les afficher.
     loadBadgesWithSync(user.id),
+    adminClient
+      .from("user_equipped_items")
+      .select(`
+        *,
+        equipped_avatar:shop_items!equipped_avatar_id(*),
+        equipped_title:shop_items!equipped_title_id(*),
+        equipped_background:shop_items!equipped_background_id(*)
+      `)
+      .eq("user_id", user.id)
+      .maybeSingle(),
   ]);
+  const userIsAdmin = profile.role === "admin";
+  const initialEquipped: UserEquippedItems | null = equippedData
+    ? ({
+        ...equippedData,
+        equipped_avatar: Array.isArray(equippedData.equipped_avatar)
+          ? equippedData.equipped_avatar[0] ?? null
+          : equippedData.equipped_avatar ?? null,
+        equipped_title: Array.isArray(equippedData.equipped_title)
+          ? equippedData.equipped_title[0] ?? null
+          : equippedData.equipped_title ?? null,
+        equipped_background: Array.isArray(equippedData.equipped_background)
+          ? equippedData.equipped_background[0] ?? null
+          : equippedData.equipped_background ?? null,
+      } as UserEquippedItems)
+    : null;
+  const initialTitle = (initialEquipped?.equipped_title as ShopItem | null | undefined) ?? null;
 
   const progressRows = (courseProgress ?? []) as CourseProgressRow[];
   const completedCourses = progressRows.filter((row) => row.status === "completed").length;
@@ -119,11 +141,11 @@ export default async function ProfilePage({
   return (
     <div className="eq-container eq-section eq-profile">
       <header className="eq-profile-head">
-        <AvatarDisplay userId={user.id} username={profile.username} size="lg" />
+        <AvatarDisplay userId={user.id} username={profile.username} size="lg" initialEquipped={initialEquipped} />
         <div className="eq-profile-identity">
           <p className="eq-kicker">{roleLabels[profile.role] ?? profile.role}</p>
           <h1 className="eq-h1">{profile.username}</h1>
-          <TitleDisplay userId={user.id} />
+          <TitleDisplay userId={user.id} initialTitle={initialTitle} />
           <p className="eq-muted">Membre depuis {memberSince}</p>
         </div>
         <div className="eq-profile-level">

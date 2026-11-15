@@ -15,10 +15,11 @@ import { getCourseMissionPlan } from "@/lib/courses/campaign";
 import { getResolvedCourseMissionPlan } from "@/lib/courses/campaign-server";
 import { getUserCourseMissionState } from "@/lib/courses/mission-state";
 import { getChapterForCourse } from "@/lib/courses/chapters";
-import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
+import { buildGuestCourseRoadmap } from "@/lib/courses/progress";
+import { getCachedUserCourseRoadmap } from "@/lib/courses/roadmap-cache";
 import { getUserCoursePractice } from "@/lib/courses/practice-server";
 import { getCourseExtraExercises } from "@/lib/courses/exercises-server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/auth-cache";
 
 interface CoursePageProps {
   params: Promise<{ id: string }>;
@@ -69,11 +70,8 @@ export default async function CoursePage({ params }: CoursePageProps) {
     notFound();
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const roadmap = user ? await getUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
+  const user = await getServerUser();
+  const roadmap = user ? await getCachedUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
   const roadmapEntry = roadmap.entries.find((entry) => entry.courseId === courseId) ?? null;
   const nextEntry = roadmap.entries.find((entry) => entry.courseId === courseId + 1) ?? null;
   const palier = getPalierForCourse(courseId);

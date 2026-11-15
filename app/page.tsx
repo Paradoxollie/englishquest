@@ -5,7 +5,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { GameCard } from "@/components/play/game-card";
 import { games } from "@/lib/games/config";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/auth-cache";
 
 const steps = [
   {
@@ -36,10 +36,7 @@ export default async function PublicHomePage({
   searchParams: Promise<{ compte?: string }>;
 }) {
   const params = await searchParams;
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
 
   if (user) {
     redirect("/home");

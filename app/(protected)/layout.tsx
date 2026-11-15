@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/auth-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { WELCOME_GOLD } from "@/lib/profile/economy";
 import type { Profile } from "@/types/profile";
@@ -57,10 +57,7 @@ async function ensureProfile(userId: string, email: string | null, usernameSeed:
 }
 
 export default async function ProtectedLayout({ children }: ProtectedLayoutProps) {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
 
   if (!user) {
     redirect("/auth/login");

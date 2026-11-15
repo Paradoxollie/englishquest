@@ -13,11 +13,12 @@ interface AvatarDisplayProps {
   userId: string;
   username: string;
   size?: "sm" | "md" | "lg";
+  initialEquipped?: UserEquippedItems | null;
 }
 
-export function AvatarDisplay({ userId, username, size = "md" }: AvatarDisplayProps) {
-  const [equippedItems, setEquippedItems] = useState<UserEquippedItems | null>(null);
-  const [loading, setLoading] = useState(true);
+export function AvatarDisplay({ userId, username, size = "md", initialEquipped }: AvatarDisplayProps) {
+  const [equippedItems, setEquippedItems] = useState<UserEquippedItems | null>(initialEquipped ?? null);
+  const [loading, setLoading] = useState(initialEquipped === undefined);
 
   useEffect(() => {
     async function loadData() {
@@ -48,7 +49,9 @@ export function AvatarDisplay({ userId, username, size = "md" }: AvatarDisplayPr
       setLoading(false);
     }
 
-    loadData();
+    if (initialEquipped === undefined) {
+      loadData();
+    }
     
     // Listen for custom events to refresh when items are equipped
     const handleEquipEvent = () => {
@@ -60,7 +63,7 @@ export function AvatarDisplay({ userId, username, size = "md" }: AvatarDisplayPr
     return () => {
       window.removeEventListener('itemEquipped', handleEquipEvent);
     };
-  }, [userId]);
+  }, [userId, initialEquipped]);
 
   const getItemColor = (theme: string | null) => {
     const colors: Record<string, string> = {

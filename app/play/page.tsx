@@ -5,9 +5,10 @@ import { ART } from "@/lib/art";
 import { resolveArt } from "@/lib/art-server";
 import { getGamePresentation } from "@/lib/games/presentation";
 import { getCourseMissionPlan } from "@/lib/courses/campaign";
-import { buildGuestCourseRoadmap, getUserCourseRoadmap } from "@/lib/courses/progress";
+import { buildGuestCourseRoadmap } from "@/lib/courses/progress";
+import { getCachedUserCourseRoadmap } from "@/lib/courses/roadmap-cache";
 import { games } from "@/lib/games/config";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getServerUser } from "@/lib/supabase/auth-cache";
 
 export const metadata = {
   title: "Jeux",
@@ -16,12 +17,9 @@ export const metadata = {
 };
 
 export default async function PlayPage() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getServerUser();
   const isLoggedIn = Boolean(user);
-  const roadmap = user ? await getUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
+  const roadmap = user ? await getCachedUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
   const activeCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
 
   let missionGameSlug: string | null = null;
