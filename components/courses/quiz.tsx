@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { Burst } from "@/components/comic/burst";
+import { Mascot } from "@/components/comic/mascot";
 import { useCourseMission } from "@/components/courses/course-mission-provider";
 import { isCourseQuizScorePassing } from "@/lib/courses/quiz-score";
 import {
@@ -282,11 +284,19 @@ export function Quiz({ questions }: QuizProps) {
     const passed = isCourseQuizScorePassing(score, total);
 
     return (
-      <div ref={containerRef} className="eq-quiz eq-pop" data-testid="quiz-result">
-        <p className="eq-quiz-kicker">{passed ? "Quiz réussi" : "Pas encore"}</p>
-        <p className="eq-quiz-score">
-          {score} <span>/ {total}</span>
-        </p>
+      <div ref={containerRef} className="eq-quiz eq-quiz-result eq-slam" data-testid="quiz-result">
+        <div className="eq-quiz-result-head">
+          <Mascot pose={passed ? "duo-victoire" : "sam-oups"} size={150} />
+          <Burst color={passed ? "yellow" : "white"} size={170} rotate={-8} className="eq-pop-in">
+            {passed ? "Mission réussie !" : "Presque !"}
+          </Burst>
+          <div>
+            <p className="eq-quiz-kicker">{passed ? "Quiz réussi" : "Pas encore"}</p>
+            <p className="eq-quiz-score">
+              {score} <span>/ {total}</span>
+            </p>
+          </div>
+        </div>
         <p className="eq-quiz-text">
           {passed
             ? `${accuracy} %. Tu tiens la notion.`
@@ -465,10 +475,20 @@ export function Quiz({ questions }: QuizProps) {
       <div className="eq-quiz-feedback" aria-live="polite">
         {isAnswered ? (
           <>
-            <p className={`eq-quiz-verdict ${lastCorrect ? "is-right" : "is-wrong"}`}>
-              {lastCorrect ? "Juste." : "Pas celle-là."}
-              {lastCorrect && combo >= 3 ? ` ${combo} d'affilée.` : ""}
-            </p>
+            <div className={`eq-quiz-verdict ${lastCorrect ? "is-right" : "is-wrong"}`}>
+              <Burst
+                key={`${currentQuestion}-${lastCorrect ? "ok" : "ko"}`}
+                color={lastCorrect ? "yellow" : "red"}
+                size={96}
+                rotate={lastCorrect ? -8 : 6}
+                className="eq-pop-in"
+              >
+                {lastCorrect ? "Juste !" : "Oups !"}
+              </Burst>
+              <span>
+                {lastCorrect ? (combo >= 3 ? `Bonne réponse, ${combo} d'affilée.` : "Bonne réponse.") : "Pas celle-là."}
+              </span>
+            </div>
             {!lastCorrect && item.type !== "mcq" ? (
               <p className="eq-quiz-expected">
                 Réponse attendue : <b lang="en">{expectedAnswerText(item)}</b>

@@ -1,6 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { Bubble } from "@/components/comic/bubble";
+import { Burst } from "@/components/comic/burst";
+import { Mascot } from "@/components/comic/mascot";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   canSpeakEnglish,
@@ -251,9 +254,14 @@ export function GameStart({
   startDisabled?: boolean;
 }) {
   return (
-    <div className="eq-game-start eq-pop">
-      <h2 className="eq-h2">{title}</h2>
-      <p className="eq-game-intro">{intro}</p>
+    <div className="eq-game-start eq-slam">
+      <div className="eq-game-start-head">
+        <Mascot pose="maya-explique" size={128} />
+        <Bubble tail="left" className="eq-game-start-bubble">
+          <b className="eq-game-start-title">{title}</b>
+          <span>{intro}</span>
+        </Bubble>
+      </div>
       <ul className="eq-game-rules">
         {rules.map((rule) => (
           <li key={rule}>{rule}</li>
@@ -270,7 +278,7 @@ export function GameStart({
             });
           }
         }}
-        className="eq-btn eq-btn-gold eq-btn-lg"
+        className="eq-btn eq-btn-primary eq-btn-xl"
         data-testid="game-start"
         disabled={startDisabled}
         aria-busy={startDisabled || undefined}
@@ -304,6 +312,7 @@ export function GameEnd({
   onReplay: () => void;
   children?: ReactNode;
 }) {
+  const isZeroScore = score === 0 || score === "0";
   // Une seule célébration par résultat enregistré (XP, or, niveau, badges, étoiles).
   const celebratedRef = useRef<RewardSummary | null>(null);
   useEffect(() => {
@@ -313,11 +322,19 @@ export function GameEnd({
   }, [rewards, rewardStatus]);
 
   return (
-    <div className="eq-game-end eq-pop" data-testid="game-end">
-      <p className="eq-kicker">{title}</p>
-      <p className="eq-game-end-score">
-        {score} <span>{scoreLabel}</span>
-      </p>
+    <div className="eq-game-end eq-slam" data-testid="game-end">
+      <div className="eq-game-end-head">
+        <Mascot pose={isZeroScore ? "sam-oups" : "sam-bravo"} size={130} />
+        <Burst color={isZeroScore ? "white" : "yellow"} size={150} rotate={-6} className="eq-pop-in">
+          {isZeroScore ? "Oups !" : "Bien joué !"}
+        </Burst>
+        <div>
+          <p className="eq-kicker">{title}</p>
+          <p className="eq-game-end-score">
+            {score} <span>{scoreLabel}</span>
+          </p>
+        </div>
+      </div>
       {lines && lines.length > 0 ? (
         <ul className="eq-game-end-lines">
           {lines.map((line) => (

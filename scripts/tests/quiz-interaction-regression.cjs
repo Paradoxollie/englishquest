@@ -41,6 +41,9 @@ function harness(items = questions, mission = null) {
     if (name === "@/components/courses/course-mission-provider") return { useCourseMission: () => mission };
     if (name === "@/lib/courses/quiz-score") return { isCourseQuizScorePassing: (score, total) => total > 0 && score / total >= 0.8 };
     if (name === "@/lib/courses/exercise-check") return exerciseCheck;
+    // Éléments décoratifs de BD (onomatopée, mascotte) : de simples balises pour le test.
+    if (name === "@/components/comic/burst") return { Burst: "burst" };
+    if (name === "@/components/comic/mascot") return { Mascot: "mascot" };
     throw new Error(`Unexpected import ${name}`);
   };
   mod._compile(compiled, filename);

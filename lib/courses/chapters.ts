@@ -26,7 +26,7 @@ const chapterDefinitions: Omit<Chapter, "courseIds" | "level">[] = [
     tagline: "Parler de soi, du présent et de ses habitudes.",
     accent: "#3ec6e8",
     gradient: ["#0f2a3f", "#0e1526"],
-    artSrc: "/art/bd/chapitre-1.jpg",
+    artSrc: "/art/bd/numero-1.jpg",
   },
   {
     id: 2,
@@ -34,7 +34,7 @@ const chapterDefinitions: Omit<Chapter, "courseIds" | "level">[] = [
     tagline: "Raconter le passé et se projeter dans l'avenir.",
     accent: "#5bd39a",
     gradient: ["#0f3326", "#0e1526"],
-    artSrc: "/art/bd/chapitre-2.jpg",
+    artSrc: "/art/bd/numero-2.jpg",
   },
   {
     id: 3,
@@ -42,7 +42,7 @@ const chapterDefinitions: Omit<Chapter, "courseIds" | "level">[] = [
     tagline: "Relier les idées, nuancer, comparer.",
     accent: "#8b8cf6",
     gradient: ["#1f1f4a", "#0e1526"],
-    artSrc: "/art/bd/chapitre-3.jpg",
+    artSrc: "/art/bd/numero-3.jpg",
   },
   {
     id: 4,
@@ -50,7 +50,7 @@ const chapterDefinitions: Omit<Chapter, "courseIds" | "level">[] = [
     tagline: "Les structures qui font la différence à l'écrit comme à l'oral.",
     accent: "#f2b53a",
     gradient: ["#3d2a0c", "#0e1526"],
-    artSrc: "/art/bd/chapitre-4.jpg",
+    artSrc: "/art/bd/numero-4.jpg",
   },
   {
     id: 5,
@@ -58,7 +58,7 @@ const chapterDefinitions: Omit<Chapter, "courseIds" | "level">[] = [
     tagline: "Les finesses de la langue, jusqu'au niveau avancé.",
     accent: "#ff6b6b",
     gradient: ["#421a1f", "#0e1526"],
-    artSrc: "/art/bd/chapitre-5.jpg",
+    artSrc: "/art/bd/numero-5.jpg",
   },
 ];
 

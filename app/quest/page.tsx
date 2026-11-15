@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { resolveArt } from "@/lib/art-server";
+import { Bubble } from "@/components/comic/bubble";
+import { Mascot } from "@/components/comic/mascot";
 import { AdventureMap, type MapChapter, type MapMission } from "@/components/quest/adventure-map";
 import { getResolvedCourseMissionPlans } from "@/lib/courses/campaign-server";
 import { chapters, getCourseShortName } from "@/lib/courses/chapters";
@@ -172,19 +174,18 @@ export default async function QuestPage() {
 
   return (
     <div className="eq-quest">
-      <section className="eq-editorial-band eq-quest-head">
+      <section className="eq-quest-head eq-band eq-band-yellow">
         <div className="eq-container eq-quest-head-row">
-          <div className="grid gap-3">
-            <h1 className="eq-h1">{player ? `${player.username}, ta carte` : "La carte des 50 missions"}</h1>
-            <p className="eq-lead">
-              Une mission = une leçon, un quiz à réussir à 80 %, puis un défi dans Grammar Rush. La suivante s&apos;ouvre
-              aussitôt.
-            </p>
-            <p className="eq-quest-progress" aria-label="Ta progression">
+          <div className="grid justify-items-start gap-4">
+            <span className="eq-caption eq-caption-white eq-slam eq-slam-1">La carte des missions</span>
+            <h1 className="eq-cover-title text-[clamp(2.6rem,6vw,4.4rem)] eq-slam eq-slam-2">
+              {player ? `${player.username}, en mission !` : "50 missions, 5 numéros"}
+            </h1>
+            <div className="eq-readbox eq-quest-progress eq-slam eq-slam-3" aria-label="Ta progression">
               <b>
                 {roadmap.completedCount} / {roadmap.totalCourses}
-              </b>{" "}
-              missions validées
+              </b>
+              <span>missions validées</span>
               <span className="eq-bar eq-bar-mint" aria-hidden="true">
                 <i style={{ width: `${completedPercent}%` }} />
               </span>
@@ -193,24 +194,32 @@ export default async function QuestPage() {
                   Niveau {level.level} · {level.xpIntoLevel} / {level.xpForLevel} XP
                 </span>
               ) : null}
-            </p>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            {mission ? (
-              <Link href={mission.cta.href} className="eq-btn eq-btn-primary eq-btn-lg">
-                {mission.cta.label}
-              </Link>
-            ) : null}
-            {isLoggedIn && roadmap.completedCount === 0 && !placement.taken ? (
-              <Link href="/test-de-niveau" className="eq-text-link">
-                Ou teste ton niveau
-              </Link>
-            ) : null}
-            {!isLoggedIn ? (
-              <Link href="/auth/signup" className="eq-text-link">
-                Crée un compte pour garder ta progression
-              </Link>
-            ) : null}
+          <div className="eq-mascot-row eq-slam eq-slam-4">
+            <Mascot pose="maya-explique" size={150} priority />
+            <Bubble tail="left" className="grid max-w-sm gap-3">
+              <span>
+                {currentCourse
+                  ? `Prochaine mission : la n° ${currentCourse.courseId}, « ${getCourseShortName(lessons[currentCourse.courseId]?.title ?? currentCourse.title)} ». Une leçon, un quiz à 80 %, et c'est validé !`
+                  : "Bravo, toutes les missions sont validées ! Les jeux restent ouverts."}
+              </span>
+              {mission ? (
+                <Link href={mission.cta.href} className="eq-btn eq-btn-primary w-fit">
+                  {mission.cta.label}
+                </Link>
+              ) : null}
+              {isLoggedIn && roadmap.completedCount === 0 && !placement.taken ? (
+                <Link href="/test-de-niveau" className="eq-text-link w-fit">
+                  Ou teste ton niveau
+                </Link>
+              ) : null}
+              {!isLoggedIn ? (
+                <Link href="/auth/signup" className="eq-text-link w-fit">
+                  Crée un compte pour garder ta progression
+                </Link>
+              ) : null}
+            </Bubble>
           </div>
         </div>
       </section>

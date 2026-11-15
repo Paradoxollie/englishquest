@@ -7,7 +7,7 @@
  * ne s'affiche. La vérification d'existence est dans `lib/art-server.ts`.
  */
 export const ART = {
-  heroHome: "/art/bd/accueil.jpg",
+  heroHome: "/art/bd/couverture-heros.jpg",
   act: (chapterId: number) => `/art/bd/chapitre-${chapterId}.jpg`,
-  game: (slug: string) => `/art/bd/jeu-${slug}.jpg`,
+  game: (slug: string) => `/art/bd/heros-jeu-${slug}.jpg`,
 } as const;

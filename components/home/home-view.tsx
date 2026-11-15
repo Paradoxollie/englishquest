@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { HomeClassCard } from "@/components/classes/home-class-card";
 import { GameCard } from "@/components/play/game-card";
@@ -13,6 +14,8 @@ import { getBadgeDefinition, type BadgeTier } from "@/lib/profile/badges";
 import type { DailyChallengeState } from "@/lib/profile/daily-challenge";
 import type { getLevelProgress } from "@/lib/profile/economy";
 import { formatRank } from "@/lib/profile/league";
+import { resolveArt } from "@/lib/art-server";
+import { getGamePresentation } from "@/lib/games/presentation";
 
 type LevelProgress = ReturnType<typeof getLevelProgress>;
 
@@ -80,10 +83,11 @@ export function HomeView({
 }: HomeViewProps) {
   const completionPercent = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
   const streakBonusPercent = Math.round((streakMultiplier - 1) * 100);
+  const chapterCover = chapter ? resolveArt(chapter.artSrc) : null;
 
   return (
     <div className="eq-container eq-section">
-      <header className="eq-home-head">
+      <header className="eq-home-hero eq-slam">
         <div className="eq-home-identity">
           <span
             className="eq-ring eq-ring-lg"
@@ -91,47 +95,47 @@ export function HomeView({
             style={{ ["--p" as string]: level.percent }}
             aria-label={`Niveau ${level.level}, ${level.percent} % vers le niveau ${level.level + 1}`}
           />
-          <div className="min-w-0">
-            <p className="eq-kicker">{greetingLabel}</p>
-            <div className="eq-home-name">
-              <h1 className="eq-h1">{username}</h1>
-              {latestBadges.length > 0 ? (
-                <ul className="eq-home-badges" aria-label={`Derniers badges, ${badgeCount} au total`}>
-                  {latestBadges.map((badge) => (
-                    <li key={badge.key}>
-                      <Link href="/profile#badges" className="eq-badge-pill" title={getBadgeDefinition(badge.key)?.description}>
-                        <BadgeMedal tier={badge.tier} category={getBadgeDefinition(badge.key)?.category ?? "mission"} size={22} />
-                        <span>{badge.name}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : null}
-            </div>
+          <div className="grid min-w-0 justify-items-start gap-2">
+            <span className="eq-caption">{greetingLabel}</span>
+            <h1 className="eq-cover-title eq-home-title">{username}</h1>
             <p className="eq-home-level">
-              Niveau {level.level} · {level.xpToNext} XP avant le niveau {level.level + 1}
+              Niveau {level.level} · encore {level.xpToNext} XP avant le niveau {level.level + 1}
             </p>
+            {latestBadges.length > 0 ? (
+              <ul className="eq-home-badges" aria-label={`Derniers badges, ${badgeCount} au total`}>
+                {latestBadges.map((badge) => (
+                  <li key={badge.key}>
+                    <Link href="/profile#badges" className="eq-badge-pill" title={getBadgeDefinition(badge.key)?.description}>
+                      <BadgeMedal tier={badge.tier} category={getBadgeDefinition(badge.key)?.category ?? "mission"} size={22} />
+                      <span>{badge.name}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
         </div>
         <dl className="eq-home-stats">
-          <div>
+          <div className="is-xp">
             <dt>Expérience</dt>
-            <dd className="eq-num">{xp.toLocaleString("fr-FR")} XP</dd>
+            <dd>{xp.toLocaleString("fr-FR")}</dd>
           </div>
-          <div>
+          <div className="is-gold">
             <dt>Or</dt>
-            <dd className="eq-num">{gold.toLocaleString("fr-FR")}</dd>
+            <dd>{gold.toLocaleString("fr-FR")}</dd>
           </div>
-          <div>
+          <div className="is-missions">
             <dt>Missions</dt>
-            <dd className="eq-num">
-              {completedCount} <span className="text-sm text-[var(--muted)]">/ {totalCourses}</span>
+            <dd>
+              {completedCount}
+              <small> / {totalCourses}</small>
             </dd>
           </div>
-          <div>
+          <div className="is-streak">
             <dt>Série</dt>
-            <dd className="eq-num">
-              {daily.dailyStreak} jour{daily.dailyStreak > 1 ? "s" : ""}
+            <dd>
+              {daily.dailyStreak}
+              <small> jour{daily.dailyStreak > 1 ? "s" : ""}</small>
             </dd>
           </div>
         </dl>
@@ -158,9 +162,16 @@ export function HomeView({
             </div>
           </section>
         ) : null}
-        <section className="eq-card eq-home-mission flex flex-col" aria-labelledby="home-mission">
+        <section className="eq-home-mission eq-panel eq-slam eq-slam-2" aria-labelledby="home-mission">
+          {chapterCover ? (
+            <div className="eq-home-mission-cover" aria-hidden="true">
+              <Image src={chapterCover} alt="" fill sizes="(max-width: 768px) 40vw, 220px" className="object-cover" />
+            </div>
+          ) : null}
+          <div className="eq-home-mission-body">
           {currentCourse && mission ? (
             <>
+              <span className="eq-caption eq-caption-red">Ta prochaine mission</span>
               <p className="eq-kicker">
                 Mission {currentCourse.courseId}
                 {chapter ? ` · Chapitre ${chapter.id}, ${chapter.name}` : ""}
@@ -185,7 +196,7 @@ export function HomeView({
                 </div>
               ) : null}
               <div className="eq-home-actions">
-                <Link href={mission.cta.href} className={`eq-btn eq-btn-${mission.cta.tone}`}>
+                <Link href={mission.cta.href} className="eq-btn eq-btn-primary eq-btn-lg">
                   {mission.cta.label}
                 </Link>
                 {mission.secondary ? (
@@ -230,6 +241,7 @@ export function HomeView({
             <div className="eq-bar eq-bar-mint mt-1.5" aria-hidden="true">
               <i style={{ width: `${completionPercent}%` }} />
             </div>
+          </div>
           </div>
         </section>
 
@@ -298,36 +310,24 @@ export function HomeView({
 
       {otherGames.length > 0 ? (
         <section className="eq-home-games" aria-labelledby="home-games">
-          <div className="eq-home-section-head">
-            <h2 id="home-games" className="eq-h2">
-              Pour s&apos;entraîner
-            </h2>
-            <Link href="/play" className="font-bold text-[var(--cyan)]">
+          <div className="eq-section-head">
+            <div>
+              <span className="eq-caption eq-caption-blue">Entraînement libre</span>
+              <h2 id="home-games" className="eq-h2">
+                Les jeux
+              </h2>
+            </div>
+            <Link href="/play" className="eq-text-link">
               Tous les jeux
             </Link>
           </div>
-          <div className="eq-home-games-grid">
+          <div className="eq-games-grid">
             {otherGames.map((game) => (
-              <GameCard key={game.slug} game={game} compact />
+              <GameCard key={game.slug} game={game} artSrc={resolveArt(getGamePresentation(game).artworkSrc)} />
             ))}
           </div>
         </section>
       ) : null}
-
-      <nav className="eq-home-links" aria-label="Raccourcis">
-        <Link href="/profile" className="eq-card eq-card-link">
-          <p className="eq-h3">Profil et boutique</p>
-          <p className="text-sm text-[var(--muted)]">Avatars, titres, meilleurs scores.</p>
-        </Link>
-        <Link href="/leaderboard" className="eq-card eq-card-link">
-          <p className="eq-h3">Classements</p>
-          <p className="text-sm text-[var(--muted)]">Où tu te situes, jeu par jeu.</p>
-        </Link>
-        <Link href="/tous-les-cours" className="eq-card eq-card-link">
-          <p className="eq-h3">Tous les cours</p>
-          <p className="text-sm text-[var(--muted)]">Lire librement, dans n&apos;importe quel ordre.</p>
-        </Link>
-      </nav>
     </div>
   );
 }

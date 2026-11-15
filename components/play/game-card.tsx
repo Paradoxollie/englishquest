@@ -53,6 +53,9 @@ export function GameCard({
       className={`eq-game-card eq-card-link ${highlighted ? "is-highlighted" : ""}`}
       aria-label={`${game.name} : ${presentation.hook}`}
     >
+      <span className="eq-game-skill" aria-hidden="true">
+        {presentation.skill}
+      </span>
       <div className="eq-game-poster">
         {artSrc ? (
           <Image

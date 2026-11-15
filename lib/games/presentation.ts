@@ -26,7 +26,7 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "3 min",
     primary: "#5bd39a",
     secondary: "#a8ecc9",
-    artworkSrc: "/art/bd/jeu-enigma-scroll.jpg",
+    artworkSrc: "/art/bd/heros-jeu-enigma-scroll.jpg",
     imageAlt: "Maya et Sam, détectives, examinent une grille de lettres à la loupe.",
   },
   "space-lex": {
@@ -37,7 +37,7 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "5 min",
     primary: "#f472b6",
     secondary: "#fbcfe8",
-    artworkSrc: "/art/bd/jeu-space-lex.jpg",
+    artworkSrc: "/art/bd/heros-jeu-space-lex.jpg",
     imageAlt: "Maya et Sam pilotent une petite fusée et tirent sur des bulles de mots.",
   },
   "speed-verb-challenge": {
@@ -48,7 +48,7 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "2 min",
     primary: "#f2b53a",
     secondary: "#fde5a8",
-    artworkSrc: "/art/bd/jeu-speed-verb-challenge.jpg",
+    artworkSrc: "/art/bd/heros-jeu-speed-verb-challenge.jpg",
     imageAlt: "Maya et Sam font la course devant un grand chronomètre.",
   },
   wordfall: {
@@ -59,7 +59,7 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "4 min",
     primary: "#3ec6e8",
     secondary: "#a9e6f5",
-    artworkSrc: "/art/bd/jeu-wordfall.jpg",
+    artworkSrc: "/art/bd/heros-jeu-wordfall.jpg",
     imageAlt: "Des blocs de mots tombent du ciel sur Maya et Sam, ordinateurs en main.",
   },
   "flash-translation": {
@@ -70,7 +70,7 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "2 min",
     primary: "#ff8a5b",
     secondary: "#ffc7ad",
-    artworkSrc: "/art/bd/jeu-flash-translation.jpg",
+    artworkSrc: "/art/bd/heros-jeu-flash-translation.jpg",
     imageAlt: "Sam frappe le buzzer d'un jeu télévisé, Maya l'encourage.",
   },
   "grammar-rush": {
@@ -81,7 +81,7 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "1 min",
     primary: "#2dd4bf",
     secondary: "#99f6e4",
-    artworkSrc: "/art/bd/jeu-grammar-rush.jpg",
+    artworkSrc: "/art/bd/heros-jeu-grammar-rush.jpg",
     imageAlt: "Maya et Sam se disputent la réponse sur le plateau d'un jeu télévisé.",
   },
   flashback: {
@@ -92,7 +92,7 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "3 min",
     primary: "#a78bfa",
     secondary: "#d6c9ff",
-    artworkSrc: "/art/bd/jeu-flashback.jpg",
+    artworkSrc: "/art/bd/heros-jeu-flashback.jpg",
     imageAlt: "Maya reconnaît une image sur un mur de cartes, Sam cherche dans sa mémoire.",
   },
 };

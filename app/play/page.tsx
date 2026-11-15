@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PageHead } from "@/components/comic/page-head";
 import { GameCard } from "@/components/play/game-card";
 import { resolveArt } from "@/lib/art-server";
 import { getGamePresentation } from "@/lib/games/presentation";
@@ -34,15 +35,15 @@ export default async function PlayPage() {
 
   return (
     <div>
-      <section className="eq-editorial-band">
-        <div className="eq-container grid gap-4">
-          <h1 className="eq-h1">Sept jeux pour t&apos;entraîner</h1>
-          <p className="eq-lead">
-            Des parties d&apos;une à cinq minutes sur les verbes irréguliers, le vocabulaire et la grammaire des cours.
-            {!isLoggedIn ? " Tu peux jouer sans compte ; avec un compte, tes scores sont enregistrés." : ""}
-          </p>
-        </div>
-      </section>
+      <PageHead
+        caption="Salle d'entraînement"
+        title="Sept jeux pour t'entraîner"
+        tone="red"
+        mascot="sam-bravo"
+        bubble={isLoggedIn ? "Chaque partie rapporte de l'XP. À toi de jouer !" : "Tu peux jouer sans compte. Avec un compte, tes scores comptent !"}
+      >
+        Des parties d&apos;une à cinq minutes sur les verbes irréguliers, le vocabulaire et la grammaire des cours.
+      </PageHead>
 
       {missionGame && activeCourse ? (
         <section className="eq-container pt-10 md:pt-14">

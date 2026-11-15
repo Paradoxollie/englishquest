@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Atkinson_Hyperlegible, Bangers } from "next/font/google";
 import "./globals.css";
 import "./studio-theme.css";
+import "./comic-theme.css";
 import { SiteShell } from "@/components/layout/site-shell";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { AppHeader } from "@/components/layout/app-header";
