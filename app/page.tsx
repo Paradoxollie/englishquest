@@ -161,7 +161,14 @@ export default async function PublicHomePage({
                   <Link href={`/quest#chapitre-${chapter.id}`} className="eq-issue">
                     <span className="eq-issue-cover">
                       {cover ? (
-                        <Image src={cover} alt="" fill sizes="(max-width: 640px) 50vw, 220px" className="object-cover" />
+                        <Image
+                          src={cover}
+                          alt=""
+                          fill
+                          loading="eager"
+                          sizes="(max-width: 640px) 50vw, 240px"
+                          className="object-cover"
+                        />
                       ) : null}
                     </span>
                     <span className="eq-issue-body">

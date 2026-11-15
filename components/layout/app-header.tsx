@@ -105,6 +105,32 @@ export function AppHeader() {
     <header className="eq-header">
       <div className="eq-container eq-header-row">
         <Link href={user ? "/home" : "/"} className="eq-brand" aria-label="English Quest, accueil">
+          <span className="eq-brand-mark" aria-hidden="true">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <rect x="2" y="2" width="28" height="28" rx="8" fill="#1E4ED8" stroke="#141A29" strokeWidth="2" />
+              <path
+                d="M8.5 11.5C8.5 10.67 9.17 10 10 10H14.5C15.33 10 16 10.67 16 11.5V22.5C15.2 21.85 14.15 21.5 13 21.5H10C9.17 21.5 8.5 20.83 8.5 20V11.5Z"
+                fill="#FFFDF9"
+                stroke="#141A29"
+                strokeWidth="1.4"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M23.5 11.5C23.5 10.67 22.83 10 22 10H17.5C16.67 10 16 10.67 16 11.5V22.5C16.8 21.85 17.85 21.5 19 21.5H22C22.83 21.5 23.5 20.83 23.5 20V11.5Z"
+                fill="#FFFDF9"
+                stroke="#141A29"
+                strokeWidth="1.4"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M22.5 5.2L23.45 7.12L25.57 7.43L24.03 8.92L24.39 11.03L22.5 10.04L20.61 11.03L20.97 8.92L19.43 7.43L21.55 7.12L22.5 5.2Z"
+                fill="#F6C332"
+                stroke="#141A29"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
           <span className="eq-brand-text">English Quest</span>
         </Link>
 

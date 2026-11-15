@@ -63,7 +63,8 @@ export function GameCard({
             alt=""
             fill
             priority={priority}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            loading="eager"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover"
           />
         ) : (
@@ -72,8 +73,12 @@ export function GameCard({
       </div>
       <div className="eq-game-card-body">
         <h3 className="eq-h3">{game.name}</h3>
-        <p className="text-sm text-[var(--muted)]">{presentation.hook}</p>
+        <p className="eq-game-card-hook text-sm text-[var(--muted)]">{presentation.hook}</p>
         {missionLabel ? <p className="eq-chip eq-chip-gold w-fit">{missionLabel}</p> : null}
+        <span className="eq-game-card-meta">
+          <span>{presentation.duration}</span>
+          <span className="eq-game-card-play">Jouer →</span>
+        </span>
       </div>
     </Link>
   );
