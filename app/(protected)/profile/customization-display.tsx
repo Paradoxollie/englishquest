@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ShopClassArt } from "@/components/ui/game-icons";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
 import { canAutoGrantShopItem } from "@/lib/shop/visibility";
@@ -210,12 +211,12 @@ export function CustomizationDisplay({
 
         <div className="relative" style={{ width: "128px", aspectRatio: "2/3" }}>
           <div
-            className={`absolute inset-0 rounded-lg border-4 border-black ${
+            className={`absolute inset-0 overflow-hidden rounded-lg border-4 border-black ${
               currentBackground?.image_url
                 ? "bg-cover bg-center"
                 : currentBackground?.color_theme
                   ? getItemColor(currentBackground.color_theme)
-                  : "bg-gradient-to-br from-emerald-950/30 to-emerald-900/30"
+                  : "bg-[#161d2f]"
             }`}
             style={
               currentBackground?.image_url
@@ -224,7 +225,15 @@ export function CustomizationDisplay({
                   }
                 : undefined
             }
-          />
+          >
+            {!currentBackground?.image_url && currentBackground?.item_key ? (
+              <ShopClassArt
+                itemKey={currentBackground.item_key}
+                itemType="background"
+                name={currentBackground.name}
+              />
+            ) : null}
+          </div>
           <div className="absolute inset-0 flex items-center justify-center p-2">
             {currentAvatar?.image_url ? (
               <img
@@ -232,6 +241,14 @@ export function CustomizationDisplay({
                 alt={currentAvatar.name}
                 className="h-full w-full rounded-lg border-2 border-black object-cover"
               />
+            ) : currentAvatar?.item_key ? (
+              <div className="h-full w-full overflow-hidden rounded-lg border-2 border-black">
+                <ShopClassArt
+                  itemKey={currentAvatar.item_key}
+                  itemType="avatar"
+                  name={currentAvatar.name}
+                />
+              </div>
             ) : currentAvatar?.color_theme ? (
               <div
                 className={`h-full w-full rounded-lg border-2 border-black ${getItemColor(
@@ -295,6 +312,10 @@ export function CustomizationDisplay({
                         alt={avatar.name}
                         className="h-full w-full rounded object-cover"
                       />
+                    </div>
+                  ) : avatar.item_key ? (
+                    <div className="w-full overflow-hidden rounded" style={{ aspectRatio: "2/3" }}>
+                      <ShopClassArt itemKey={avatar.item_key} itemType="avatar" name={avatar.name} />
                     </div>
                   ) : (
                     avatar.name

@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { ShopClassArt } from "@/components/ui/game-icons";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { UserEquippedItems, ShopItem } from "@/types/shop";
 import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
@@ -88,9 +89,9 @@ export function AvatarDisplay({ userId, username, size = "md", initialEquipped }
     };
     return (
       <div
-        className={`flex items-center justify-center rounded-full bg-gradient-to-br from-emerald-950/30 to-emerald-900/30 border-2 border-emerald-800/40 ${sizeClasses[size]}`}
+        className={`flex items-center justify-center rounded-full border-2 border-[#141824] bg-[#f5efe4] text-[#141824] ${sizeClasses[size]}`}
       >
-        <span className="font-bold text-emerald-400">{username.charAt(0).toUpperCase()}</span>
+        <span className="font-bold">{username.charAt(0).toUpperCase()}</span>
       </div>
     );
   }
@@ -109,12 +110,14 @@ export function AvatarDisplay({ userId, username, size = "md", initialEquipped }
   // For header, use a square format but maintain portrait aspect for avatar
   return (
     <div
-      className={`relative flex items-center justify-center rounded-full border-2 border-black ${classes.container} ${
+      className={`relative flex items-center justify-center overflow-hidden rounded-full border-2 border-black ${classes.container} ${
         currentBackground?.image_url
           ? "bg-cover bg-center"
+          : currentBackground?.item_key
+          ? "bg-[#161d2f]"
           : currentBackground?.color_theme
           ? getItemColor(currentBackground.color_theme)
-          : "bg-gradient-to-br from-emerald-950/30 to-emerald-900/30 border-emerald-800/40"
+          : "bg-[#161d2f]"
       }`}
       style={
         currentBackground?.image_url
@@ -122,19 +125,32 @@ export function AvatarDisplay({ userId, username, size = "md", initialEquipped }
           : undefined
       }
     >
+      {!currentBackground?.image_url && currentBackground?.item_key ? (
+        <div className="pointer-events-none absolute inset-0">
+          <ShopClassArt
+            itemKey={currentBackground.item_key}
+            itemType="background"
+            name={currentBackground.name}
+          />
+        </div>
+      ) : null}
       {currentAvatar?.image_url ? (
         <img
           src={addCacheBustingIfSupabase(currentAvatar.image_url)}
           alt={currentAvatar.name}
-          className={`rounded-full border-2 border-black object-cover ${classes.avatar}`}
+          className={`relative z-10 rounded-full border-2 border-black object-cover ${classes.avatar}`}
           style={{ objectPosition: "center top" }}
         />
+      ) : currentAvatar?.item_key ? (
+        <div className={`relative z-10 overflow-hidden rounded-full border-2 border-black ${classes.avatar}`}>
+          <ShopClassArt itemKey={currentAvatar.item_key} itemType="avatar" name={currentAvatar.name} />
+        </div>
       ) : currentAvatar?.color_theme ? (
         <div
-          className={`rounded-full border-2 border-black ${getItemColor(currentAvatar.color_theme)} ${classes.avatar}`}
+          className={`relative z-10 rounded-full border-2 border-black ${getItemColor(currentAvatar.color_theme)} ${classes.avatar}`}
         />
       ) : (
-        <span className={`font-bold text-white text-outline ${classes.text}`}>
+        <span className={`relative z-10 font-bold text-white ${classes.text}`}>
           {username.charAt(0).toUpperCase()}
         </span>
       )}

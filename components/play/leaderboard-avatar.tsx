@@ -47,7 +47,9 @@ export function LeaderboardAvatar({
         // eslint-disable-next-line @next/next/no-img-element
         <img src={avatar.image_url} alt="" />
       ) : avatar?.color_theme ? (
-        <i style={{ background: themeColor(avatar.color_theme) }} />
+        <b style={{ background: themeColor(avatar.color_theme), width: "100%", height: "100%", display: "grid", placeItems: "center", borderRadius: "999px", color: "#fff" }}>
+          {username.charAt(0).toUpperCase()}
+        </b>
       ) : (
         <b>{username.charAt(0).toUpperCase()}</b>
       )}

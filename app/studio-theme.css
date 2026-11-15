@@ -596,10 +596,38 @@ body {
     linear-gradient(90deg, rgba(16, 21, 34, 0.94) 0%, rgba(16, 21, 34, 0.75) 55%, rgba(16, 21, 34, 0.35) 100%);
 }
 
-.eq-game-stage {
+.eq-game-stage,
+.eq-game-arcade {
+  background-color: var(--ink-2);
+  color: var(--fg);
   border-radius: var(--radius-lg);
   border: 2px solid #141824;
   box-shadow: 6px 6px 0 rgba(20, 24, 36, 0.18);
+}
+
+.eq-game-start,
+.eq-game-end {
+  border: 2px solid var(--ink-rule);
+  border-radius: var(--radius-lg);
+  background: var(--ink-2);
+  box-shadow: 5px 5px 0 rgba(20, 24, 36, 0.14);
+}
+
+.eq-game-option {
+  border: 1.5px solid var(--line-strong);
+  background: var(--ink);
+  color: var(--fg);
+}
+
+.eq-game-option[aria-checked="true"] {
+  border-color: var(--ink-rule);
+  background: #fef3c7;
+  box-shadow: 2px 2px 0 #141824;
+}
+
+.eq-header-skeleton {
+  background: var(--ink-3);
+  border: 1px solid var(--line);
 }
 
 .eq-game-hud .eq-game-stat {
@@ -649,6 +677,7 @@ body {
 .eq-game-board .eq-board-row.is-me {
   background: #fef3c7;
   border-color: #d97706;
+  color: #141824;
 }
 
 /* ---------- Quest & Course Heroes ---------- */
@@ -798,7 +827,6 @@ body {
 
 .eq-map-track {
   margin: 0;
-  padding-top: 22px;
   background: #faf6ed;
   background-image: radial-gradient(rgba(20, 24, 36, 0.065) 1px, transparent 1px);
   background-size: 16px 16px;
@@ -871,9 +899,7 @@ body {
 }
 
 .eq-map-card::before {
-  background: var(--ink-2);
-  border-left: 2px solid var(--ink-rule);
-  border-top: 2px solid var(--ink-rule);
+  display: none;
 }
 
 .eq-map-card-kicker {
