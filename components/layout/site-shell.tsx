@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { BrandEmblem } from "@/components/ui/game-icons";
 
 export function SiteShell({
   header,
@@ -18,9 +17,6 @@ export function SiteShell({
       <footer className="eq-footer">
         <div className="eq-container eq-footer-row">
           <div className="eq-footer-brand">
-            <span className="eq-brand-mark" aria-hidden="true">
-              <BrandEmblem className="h-9 w-9" />
-            </span>
             <div>
               <p className="eq-footer-title">English Quest</p>
               <p className="eq-footer-sub">

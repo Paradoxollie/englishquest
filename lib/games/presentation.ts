@@ -26,8 +26,8 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "3 min",
     primary: "#5bd39a",
     secondary: "#a8ecc9",
-    artworkSrc: "/art/game-enigma-scroll.jpg",
-    imageAlt: "Illustration d'un parchemin pour Enigma Scroll.",
+    artworkSrc: "/art/bd/jeu-enigma-scroll.jpg",
+    imageAlt: "Maya et Sam, détectives, examinent une grille de lettres à la loupe.",
   },
   "space-lex": {
     mark: "LB",
@@ -37,8 +37,8 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "5 min",
     primary: "#f472b6",
     secondary: "#fbcfe8",
-    artworkSrc: "/art/game-space-lex.jpg",
-    imageAlt: "Illustration d'un vaisseau pour Lexicon Blaster.",
+    artworkSrc: "/art/bd/jeu-space-lex.jpg",
+    imageAlt: "Maya et Sam pilotent une petite fusée et tirent sur des bulles de mots.",
   },
   "speed-verb-challenge": {
     mark: "SV",
@@ -48,8 +48,8 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "2 min",
     primary: "#f2b53a",
     secondary: "#fde5a8",
-    artworkSrc: "/art/game-speed-verb-challenge.jpg",
-    imageAlt: "Illustration d'un sprint pour Speed Verb Challenge.",
+    artworkSrc: "/art/bd/jeu-speed-verb-challenge.jpg",
+    imageAlt: "Maya et Sam font la course devant un grand chronomètre.",
   },
   wordfall: {
     mark: "WF",
@@ -59,8 +59,8 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "4 min",
     primary: "#3ec6e8",
     secondary: "#a9e6f5",
-    artworkSrc: "/art/game-wordfall.jpg",
-    imageAlt: "Illustration de mots qui tombent pour Wordfall.",
+    artworkSrc: "/art/bd/jeu-wordfall.jpg",
+    imageAlt: "Des blocs de mots tombent du ciel sur Maya et Sam, ordinateurs en main.",
   },
   "flash-translation": {
     mark: "FT",
@@ -70,8 +70,8 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "2 min",
     primary: "#ff8a5b",
     secondary: "#ffc7ad",
-    artworkSrc: "/art/game-flash-translation.jpg",
-    imageAlt: "Illustration d'un duel de traduction pour Flash Translation.",
+    artworkSrc: "/art/bd/jeu-flash-translation.jpg",
+    imageAlt: "Sam frappe le buzzer d'un jeu télévisé, Maya l'encourage.",
   },
   "grammar-rush": {
     mark: "GR",
@@ -81,8 +81,8 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "1 min",
     primary: "#2dd4bf",
     secondary: "#99f6e4",
-    artworkSrc: "/art/game-grammar-rush.jpg",
-    imageAlt: "Illustration pour Grammar Rush.",
+    artworkSrc: "/art/bd/jeu-grammar-rush.jpg",
+    imageAlt: "Maya et Sam se disputent la réponse sur le plateau d'un jeu télévisé.",
   },
   flashback: {
     mark: "FB",
@@ -92,8 +92,8 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "3 min",
     primary: "#a78bfa",
     secondary: "#d6c9ff",
-    artworkSrc: "/art/game-flashback.jpg",
-    imageAlt: "Illustration de cartes mémoire pour Flashback.",
+    artworkSrc: "/art/bd/jeu-flashback.jpg",
+    imageAlt: "Maya reconnaît une image sur un mur de cartes, Sam cherche dans sa mémoire.",
   },
 };
 
@@ -128,7 +128,7 @@ export function getGamePresentation(game: Pick<GameConfig, "slug" | "name">): Ga
     duration: "3 min",
     primary: "#3ec6e8",
     secondary: "#a9e6f5",
-    artworkSrc: ART.heroGames,
+    artworkSrc: ART.heroHome,
     imageAlt: "Illustration English Quest.",
   };
 }

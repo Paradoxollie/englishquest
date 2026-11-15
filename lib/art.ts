@@ -7,13 +7,7 @@
  * ne s'affiche. La vérification d'existence est dans `lib/art-server.ts`.
  */
 export const ART = {
-  heroHome: "/art/hero-home.jpg",
-  heroGames: "/art/hero-games.jpg",
-  heroCourses: "/art/hero-courses.jpg",
-  heroQuest: "/art/hero-quest.jpg",
-  authShowcase: "/art/auth-showcase.jpg",
-  act: (chapterId: number) => `/art/act-${chapterId}.jpg`,
-  game: (slug: string) => `/art/game-${slug}.jpg`,
-  rewardLevelUp: "/art/reward-level-up.jpg",
-  onboarding: "/art/onboarding-placement.jpg",
+  heroHome: "/art/bd/accueil.jpg",
+  act: (chapterId: number) => `/art/bd/chapitre-${chapterId}.jpg`,
+  game: (slug: string) => `/art/bd/jeu-${slug}.jpg`,
 } as const;

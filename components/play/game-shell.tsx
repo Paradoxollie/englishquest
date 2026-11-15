@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { GameEmblemIcon } from "@/components/ui/game-icons";
 import type { GameConfig } from "@/lib/games/config";
 import { getGamePresentation } from "@/lib/games/presentation";
 import { resolveArt } from "@/lib/art-server";
@@ -17,7 +16,7 @@ type GameShellProps = {
 };
 
 /**
- * Cadre commun des jeux : en-tête avec emblème et image, rappel de la
+ * Cadre commun des jeux : en-tête avec titre et vignette, rappel de la
  * mission en cours, zone de jeu, colonne latérale. Composant serveur ;
  * le jeu lui-même est un composant client passé en enfant.
  */
@@ -27,32 +26,24 @@ export function GameShell({ game, mission, isLoggedIn, aside, children }: GameSh
 
   return (
     <div className="eq-game" style={{ ["--game-accent" as string]: presentation.primary }}>
-      <header className={`eq-game-head ${art ? "has-art" : ""}`}>
-        {art ? (
-          <div className="eq-game-head-art" aria-hidden="true">
-            <Image src={art} alt="" fill sizes="100vw" priority className="object-cover" />
-          </div>
-        ) : null}
+      <header className="eq-game-head">
         <div className="eq-container eq-game-head-body">
           <Link href="/play" className="eq-game-back">
             Tous les jeux
           </Link>
           <div className="eq-game-title-row">
-            <span
-              className="eq-emblem eq-emblem-lg"
-              style={{ background: presentation.primary, color: "#141824" }}
-              aria-hidden="true"
-            >
-              <GameEmblemIcon emblem={presentation.emblem} className="h-6 w-6" />
-            </span>
             <div>
               <h1 className="eq-game-title">{game.name}</h1>
               <p className="eq-game-sub">
-                <span style={{ color: presentation.primary }}>{presentation.skill}</span>
-                <span className="eq-muted"> · {presentation.duration} · </span>
-                <span className="eq-muted">{presentation.hook}</span>
+                <b>{presentation.skill}</b>
+                <span className="eq-muted"> · {presentation.duration} · {presentation.hook}</span>
               </p>
             </div>
+            {art ? (
+              <div className="eq-game-head-vignette" aria-hidden="true">
+                <Image src={art} alt="" fill sizes="220px" priority className="object-cover" />
+              </div>
+            ) : null}
           </div>
           {mission ? (
             <div className="eq-game-mission" role="status">

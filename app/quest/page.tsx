@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ART } from "@/lib/art";
 import { resolveArt } from "@/lib/art-server";
 import { AdventureMap, type MapChapter, type MapMission } from "@/components/quest/adventure-map";
 import { getResolvedCourseMissionPlans } from "@/lib/courses/campaign-server";
-import { chapters, getChapterForCourse, getCourseShortName } from "@/lib/courses/chapters";
+import { chapters, getCourseShortName } from "@/lib/courses/chapters";
 import { lessons } from "@/lib/courses/lessons";
 import { getUserCourseMissionState } from "@/lib/courses/mission-state";
 import { buildMissionSummary } from "@/lib/courses/mission-summary";
@@ -162,7 +161,6 @@ export default async function QuestPage() {
   });
 
   const currentPlan = currentCourse ? missionPlans[currentCourse.courseId] ?? null : null;
-  const currentChapter = currentCourse ? getChapterForCourse(currentCourse.courseId) : chapters[0];
 
   const mission: MapMission | null =
     currentCourse && currentPlan
@@ -171,93 +169,48 @@ export default async function QuestPage() {
 
   const level = player ? getLevelProgress(player.xp) : null;
   const completedPercent = roadmap.totalCourses > 0 ? Math.round((roadmap.completedCount / roadmap.totalCourses) * 100) : 0;
-  const heroArt = resolveArt(ART.heroQuest) ?? resolveArt(ART.act(1));
 
   return (
     <div className="eq-quest">
-      <section className="eq-editorial-band">
-        <div className="eq-container grid gap-6">
-          <div className="eq-split-hero">
-            <div className="grid gap-4">
-              <p className="eq-kicker">Carte d&apos;aventure · 5 actes</p>
-              <h1 className="eq-h1">
-                {player ? `${player.username}, reprenez votre expédition.` : "Cinquante missions, du socle à l'aisance."}
-              </h1>
-              <p className="eq-lead">
-                Chaque mission associe une leçon rédigée, un quiz à valider à 80 % et un entraînement ciblé.
-                Débloquez l&apos;étape suivante à votre rythme, selon votre vrai niveau.
-              </p>
-              <div className="flex flex-wrap gap-3 pt-1">
-                {mission ? (
-                  <Link href={mission.cta.href} className="eq-btn eq-btn-gold eq-btn-lg">
-                    {mission.cta.label}
-                  </Link>
-                ) : null}
-                {isLoggedIn && roadmap.completedCount === 0 && !placement.taken ? (
-                  <Link href="/test-de-niveau" className="eq-btn eq-btn-primary eq-btn-lg">
-                    Test de niveau
-                  </Link>
-                ) : null}
-                <a href="#mission-courante" className="eq-btn eq-btn-ghost eq-btn-lg">
-                  Me situer sur la carte
-                </a>
-                {!isLoggedIn ? (
-                  <Link href="/auth/signup" className="eq-btn eq-btn-primary eq-btn-lg">
-                    Sauvegarder ma progression
-                  </Link>
-                ) : null}
-              </div>
-            </div>
-
-            {heroArt ? (
-              <div className="eq-comic-panel">
-                <div className="eq-comic-panel-media">
-                  <img src={heroArt} alt="Archipel des 5 chapitres English Quest" className="h-full w-full object-cover" />
-                </div>
-                <div className="eq-comic-panel-bar">
-                  <span>
-                    <strong>{roadmap.completedCount} / {roadmap.totalCourses}</strong> missions validées
-                  </span>
-                  <span>Chapitre {currentChapter.id} · {currentChapter.level}</span>
-                </div>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="eq-quest-stats" aria-label="Ta progression">
-            <div className="eq-quest-stat">
-              <span>Missions validées</span>
+      <section className="eq-editorial-band eq-quest-head">
+        <div className="eq-container eq-quest-head-row">
+          <div className="grid gap-3">
+            <h1 className="eq-h1">{player ? `${player.username}, ta carte` : "La carte des 50 missions"}</h1>
+            <p className="eq-lead">
+              Une mission = une leçon, un quiz à réussir à 80 %, puis un défi dans Grammar Rush. La suivante s&apos;ouvre
+              aussitôt.
+            </p>
+            <p className="eq-quest-progress" aria-label="Ta progression">
               <b>
-                {roadmap.completedCount} <small>/ {roadmap.totalCourses}</small>
-              </b>
+                {roadmap.completedCount} / {roadmap.totalCourses}
+              </b>{" "}
+              missions validées
               <span className="eq-bar eq-bar-mint" aria-hidden="true">
                 <i style={{ width: `${completedPercent}%` }} />
               </span>
-            </div>
-            <div className="eq-quest-stat">
-              <span>Chapitre en cours</span>
-              <b>
-                {currentChapter.id} <small>{currentChapter.name}</small>
-              </b>
-              <em>{currentChapter.level}</em>
-            </div>
-            {level ? (
-              <div className="eq-quest-stat">
-                <span>Niveau</span>
-                <b>
-                  {level.level} <small>{level.xpIntoLevel} / {level.xpForLevel} XP</small>
-                </b>
-                <span className="eq-bar eq-bar-cyan" aria-hidden="true">
-                  <i style={{ width: `${level.percent}%` }} />
+              {level ? (
+                <span className="eq-quest-progress-level">
+                  Niveau {level.level} · {level.xpIntoLevel} / {level.xpForLevel} XP
                 </span>
-              </div>
-            ) : (
-              <div className="eq-quest-stat">
-                <span>Lecture libre</span>
-                <b>50 <small>cours ouverts</small></b>
-                <em>Cours accessibles sans compte · sauvegarde activée dès l&apos;inscription.</em>
-              </div>
-            )}
+              ) : null}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            {mission ? (
+              <Link href={mission.cta.href} className="eq-btn eq-btn-primary eq-btn-lg">
+                {mission.cta.label}
+              </Link>
+            ) : null}
+            {isLoggedIn && roadmap.completedCount === 0 && !placement.taken ? (
+              <Link href="/test-de-niveau" className="eq-text-link">
+                Ou teste ton niveau
+              </Link>
+            ) : null}
+            {!isLoggedIn ? (
+              <Link href="/auth/signup" className="eq-text-link">
+                Crée un compte pour garder ta progression
+              </Link>
+            ) : null}
           </div>
         </div>
       </section>

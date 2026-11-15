@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
 import { logoutAction } from "@/app/(protected)/actions";
-import { BrandEmblem } from "@/components/ui/game-icons";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { guestHeaderState, type HeaderState } from "@/lib/navigation/header-state-types";
 
@@ -106,9 +105,6 @@ export function AppHeader() {
     <header className="eq-header">
       <div className="eq-container eq-header-row">
         <Link href={user ? "/home" : "/"} className="eq-brand" aria-label="English Quest, accueil">
-          <span className="eq-brand-mark" aria-hidden="true">
-            <BrandEmblem className="h-9 w-9" />
-          </span>
           <span className="eq-brand-text">English Quest</span>
         </Link>
 
@@ -126,7 +122,7 @@ export function AppHeader() {
         </nav>
 
         <div className="eq-header-actions">
-          <ThemeToggle />
+          <ThemeToggle compact />
           {resolvedLoading ? (
             <span className="eq-header-skeleton" aria-hidden="true" />
           ) : user ? (

@@ -132,27 +132,31 @@ export function AdventureMap({ chapters, mission, player, isLoggedIn }: Adventur
               } as React.CSSProperties
             }
             aria-labelledby={`chapter-${chapter.id}`}
+            id={`chapitre-${chapter.id}`}
           >
-            {chapter.artSrc ? (
-              <Image src={chapter.artSrc} alt="" fill sizes="760px" className="eq-map-art" />
-            ) : null}
-
             <header className="eq-map-chapter-head">
-              <p className="eq-map-chapter-kicker">
-                Chapitre {chapter.id} · {chapter.level}
-              </p>
-              <h2 id={`chapter-${chapter.id}`} className="eq-map-chapter-title">
-                {chapter.name}
-              </h2>
-              <p className="eq-map-chapter-tagline">{chapter.tagline}</p>
-              <div className="eq-map-chapter-progress">
-                <span className="eq-bar eq-bar-mint" aria-hidden="true">
-                  <i style={{ width: `${chapter.nodes.length ? (chapter.completedCount / chapter.nodes.length) * 100 : 0}%` }} />
-                </span>
-                <span>
-                  {chapter.completedCount} / {chapter.nodes.length}
-                </span>
+              <div className="eq-map-chapter-text">
+                <p className="eq-map-chapter-kicker">
+                  Chapitre {chapter.id} · {chapter.level}
+                </p>
+                <h2 id={`chapter-${chapter.id}`} className="eq-map-chapter-title">
+                  {chapter.name}
+                </h2>
+                <p className="eq-map-chapter-tagline">{chapter.tagline}</p>
+                <div className="eq-map-chapter-progress">
+                  <span className="eq-bar eq-bar-mint" aria-hidden="true">
+                    <i style={{ width: `${chapter.nodes.length ? (chapter.completedCount / chapter.nodes.length) * 100 : 0}%` }} />
+                  </span>
+                  <span>
+                    {chapter.completedCount} / {chapter.nodes.length}
+                  </span>
+                </div>
               </div>
+              {chapter.artSrc ? (
+                <div className="eq-map-vignette">
+                  <Image src={chapter.artSrc} alt="" fill sizes="(max-width: 640px) 40vw, 220px" className="object-cover" />
+                </div>
+              ) : null}
             </header>
 
             <div className="eq-map-track" style={{ height: trackHeight }}>

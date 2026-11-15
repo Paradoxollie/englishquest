@@ -1,7 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
 import { GameCard } from "@/components/play/game-card";
-import { ART } from "@/lib/art";
 import { resolveArt } from "@/lib/art-server";
 import { getGamePresentation } from "@/lib/games/presentation";
 import { getCourseMissionPlan } from "@/lib/courses/campaign";
@@ -34,51 +32,15 @@ export default async function PlayPage() {
   const missionGame = missionGameSlug ? games.find((game) => game.slug === missionGameSlug) ?? null : null;
   const otherGames = games.filter((game) => game.slug !== missionGame?.slug);
 
-  const heroArt = resolveArt(ART.heroGames) ?? resolveArt(ART.heroHome);
-
   return (
     <div>
       <section className="eq-editorial-band">
-        <div className="eq-container eq-split-hero">
-          <div className="grid gap-4">
-            <p className="eq-kicker">Arcade &amp; Entraînement</p>
-            <h1 className="eq-h1">Sept jeux pour transformer la révision en réflexe</h1>
-            <p className="eq-lead">
-              Des parties d&apos;une à cinq minutes pour fixer les verbes irréguliers, le vocabulaire et la grammaire.
-              Joue librement, ou relève le défi du chapitre en cours.
-            </p>
-            {!isLoggedIn ? (
-              <div className="flex flex-wrap items-center gap-3 pt-1">
-                <Link href="/auth/signup" className="eq-btn eq-btn-gold">
-                  Enregistrer mes scores
-                </Link>
-                <span className="text-xs font-semibold text-[var(--muted)]">
-                  Jouable sans compte · Classements ouverts avec un compte gratuit
-                </span>
-              </div>
-            ) : null}
-          </div>
-
-          {heroArt ? (
-            <div className="eq-comic-panel">
-              <div className="eq-comic-panel-media">
-                <Image
-                  src={heroArt}
-                  alt="Salle de commande arcade English Quest"
-                  fill
-                  priority
-                  sizes="(max-width: 960px) 100vw, 50vw"
-                  className="object-cover object-[70%_center]"
-                />
-              </div>
-              <div className="eq-comic-panel-bar">
-                <span>
-                  <strong>7 épreuves</strong> · 1 à 5 min
-                </span>
-                <span>Défis du jour · Scores &amp; Ligues</span>
-              </div>
-            </div>
-          ) : null}
+        <div className="eq-container grid gap-4">
+          <h1 className="eq-h1">Sept jeux pour t&apos;entraîner</h1>
+          <p className="eq-lead">
+            Des parties d&apos;une à cinq minutes sur les verbes irréguliers, le vocabulaire et la grammaire des cours.
+            {!isLoggedIn ? " Tu peux jouer sans compte ; avec un compte, tes scores sont enregistrés." : ""}
+          </p>
         </div>
       </section>
 
@@ -107,42 +69,20 @@ export default async function PlayPage() {
         </section>
       ) : null}
 
-      <section className="eq-container eq-section">
-        <h2 className="eq-h2">{missionGame ? "Les autres jeux" : "Tous les jeux"}</h2>
-        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="eq-container eq-section pb-14 md:pb-20">
+        {missionGame ? <h2 className="eq-h2">Les autres jeux</h2> : null}
+        <div className={`eq-games-grid ${missionGame ? "mt-6" : ""}`}>
           {(missionGame ? otherGames : games).map((game, index) => (
             <GameCard
               key={game.slug}
               game={game}
               artSrc={resolveArt(getGamePresentation(game).artworkSrc)}
-              priority={index < 3}
+              priority={index < 4}
             />
           ))}
         </div>
       </section>
 
-      <section className="eq-container pb-12 md:pb-20">
-        <div className="eq-surface grid gap-4 p-5 md:grid-cols-3 md:p-6">
-          <div>
-            <h3 className="eq-h3">Scores et classements</h3>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              Chaque jeu a son classement par difficulté. Un record personnel rapporte un bonus.
-            </p>
-          </div>
-          <div>
-            <h3 className="eq-h3">Expérience et or</h3>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              Les parties rapportent de l&apos;XP et un peu d&apos;or. L&apos;or achète des avatars et des titres.
-            </p>
-          </div>
-          <div>
-            <h3 className="eq-h3">Le défi du jour</h3>
-            <p className="mt-1 text-sm text-[var(--muted)]">
-              Trois jeux tirés au sort chaque jour. Les trois réussis, un bonus tombe et ta série continue.
-            </p>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

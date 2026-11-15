@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Barlow_Condensed, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Atkinson_Hyperlegible, Bangers } from "next/font/google";
 import "./globals.css";
 import "./studio-theme.css";
 import { SiteShell } from "@/components/layout/site-shell";
@@ -8,24 +8,18 @@ import { AppHeader } from "@/components/layout/app-header";
 import { RewardCelebrations } from "@/components/rewards/reward-celebrations";
 import { SITE_URL } from "@/lib/site/config";
 
-const displayFont = Barlow_Condensed({
+// Lettrage BD pour les titres, police très lisible (conçue pour les lecteurs fragiles) pour le texte.
+const displayFont = Bangers({
   subsets: ["latin"],
-  weight: ["700", "800"],
-  variable: "--font-barlow-condensed",
+  weight: ["400"],
+  variable: "--font-bangers",
   display: "swap",
 });
 
-const bodyFont = Plus_Jakarta_Sans({
+const bodyFont = Atkinson_Hyperlegible({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-jakarta",
-  display: "swap",
-});
-
-const monoFont = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["500", "700", "800"],
-  variable: "--font-jetbrains-mono",
+  weight: ["400", "700"],
+  variable: "--font-atkinson",
   display: "swap",
 });
 
@@ -88,7 +82,7 @@ export default function RootLayout({
     <html
       lang="fr"
       suppressHydrationWarning
-      className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable}`}
+      className={`${displayFont.variable} ${bodyFont.variable}`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />

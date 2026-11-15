@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
-import { ART } from "@/lib/art";
-import { resolveArt } from "@/lib/art-server";
 import { getUserCourseRoadmap } from "@/lib/courses/progress";
 import { buildPlacementStep, getPlacementStatus } from "@/lib/placement/placement";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -21,42 +18,17 @@ export default async function PlacementPage() {
     data: { user },
   } = await supabase.auth.getUser();
   const firstStep = buildPlacementStep(1);
-  const onboardingArt = resolveArt(ART.onboarding);
 
   if (!user) {
     return (
       <div>
         <section className="eq-editorial-band">
-          <div className="eq-container eq-split-hero">
-            <div className="grid gap-4">
-              <p className="eq-kicker">Placement rapide · Sans compte</p>
-              <h1 className="eq-h1">Situez votre niveau d&apos;anglais en quelques minutes</h1>
-              <p className="eq-lead">
-                Six questions par palier, de A1 à B1. Tant que vous validez quatre réponses justes, le palier suivant
-                s&apos;enchaîne automatiquement jusqu&apos;à trouver votre vrai point d&apos;ancrage.
-              </p>
-              <p className="text-xs font-semibold text-[var(--muted)]">
-                Résultat conservé localement et appliqué dès que vous créez votre compte.
-              </p>
-            </div>
-            {onboardingArt ? (
-              <div className="eq-comic-panel">
-                <div className="eq-comic-panel-media">
-                  <Image
-                    src={onboardingArt}
-                    alt="Orientation dans la bibliothèque English Quest"
-                    fill
-                    priority
-                    sizes="(max-width: 960px) 100vw, 45vw"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="eq-comic-panel-bar">
-                  <span><strong>2 à 8 min</strong> · Adaptatif</span>
-                  <span>Paliers A1 → B1</span>
-                </div>
-              </div>
-            ) : null}
+          <div className="eq-container grid gap-4">
+            <h1 className="eq-h1">Teste ton niveau d&apos;anglais</h1>
+            <p className="eq-lead">
+              Six questions par chapitre, de A1 à B1. Quatre bonnes réponses et le chapitre suivant s&apos;enchaîne ;
+              au premier qui résiste, c&apos;est là que tu commences. Entre deux et huit minutes, sans compte.
+            </p>
           </div>
         </section>
 
