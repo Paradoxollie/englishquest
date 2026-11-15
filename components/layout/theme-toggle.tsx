@@ -55,6 +55,7 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
       aria-label={isDark ? "Passer en mode clair" : "Passer en mode sombre"}
       title={isDark ? "Passer en mode clair" : "Passer en mode sombre"}
       data-testid={compact ? "theme-toggle-compact" : "theme-toggle"}
+      data-ready={mounted ? "true" : "false"}
     >
       <span className="eq-theme-toggle-icon" aria-hidden="true">
         {isDark ? (
