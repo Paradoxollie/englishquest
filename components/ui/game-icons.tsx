@@ -1,146 +1,157 @@
+import type { GamePresentation } from "@/lib/games/presentation";
+
 /**
- * Game-specific SVG icons for Speed Verb Challenge
- * Professional, modern design inspired by gaming apps
+ * Custom editorial shield-and-nib emblem for English Quest (header, footer, cards).
  */
-
-export function LightningIcon({ className = "w-6 h-6" }: { className?: string }) {
+export function BrandEmblem({ className = "h-8 w-8" }: { className?: string }) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M13 10V3L4 14h7v7l9-11h-7z"
+    <svg viewBox="0 0 36 36" fill="none" className={className} aria-hidden="true">
+      <rect
+        x="2"
+        y="2"
+        width="32"
+        height="32"
+        rx="5"
+        fill="#141824"
+        stroke="#F4B632"
+        strokeWidth="2"
       />
+      <path d="M2 10H34" stroke="#C42B27" strokeWidth="2.5" />
+      <path
+        d="M18 11.5L25.5 22.5L18 29.5L10.5 22.5L18 11.5Z"
+        fill="#FFFDF8"
+        stroke="#F4B632"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      <path d="M18 11.5V21" stroke="#141824" strokeWidth="1.7" strokeLinecap="round" />
+      <circle cx="18" cy="22.5" r="2" fill="#C42B27" />
     </svg>
   );
 }
 
-export function CheckCircleIcon({ className = "w-6 h-6" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>
-  );
+/**
+ * Crisp comic icon matching each game's mechanic (replaces flat two-letter squares).
+ */
+export function GameEmblemIcon({
+  emblem,
+  className = "h-5 w-5",
+}: {
+  emblem: GamePresentation["emblem"];
+  className?: string;
+}) {
+  switch (emblem) {
+    case "scroll":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <path d="M6 4h11a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6" />
+          <path d="M6 4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2" />
+          <path d="M9 9h6M9 13h6M9 17h4" />
+        </svg>
+      );
+    case "crosshair":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <circle cx="12" cy="12" r="7" />
+          <circle cx="12" cy="12" r="2" fill="currentColor" />
+          <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+        </svg>
+      );
+    case "bolt":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <polygon points="13 2 4 14 11 14 10 22 20 10 13 10 13 2" fill="currentColor" fillOpacity="0.18" />
+        </svg>
+      );
+    case "tiles":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <rect x="3" y="4" width="8" height="6" rx="1" />
+          <rect x="13" y="7" width="8" height="6" rx="1" fill="currentColor" fillOpacity="0.18" />
+          <rect x="6" y="14" width="12" height="6" rx="1" />
+        </svg>
+      );
+    case "arrows":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <path d="M4 9h14l-3.5-3.5M20 15H6l3.5 3.5" />
+        </svg>
+      );
+    case "memory":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+          <rect x="4" y="6" width="10" height="14" rx="1.5" fill="currentColor" fillOpacity="0.16" />
+          <path d="M14 4h4.5A1.5 1.5 0 0 1 20 5.5v11a1.5 1.5 0 0 1-1.5 1.5H17" />
+          <path d="M9 11v4M7 13h4" />
+        </svg>
+      );
+  }
 }
 
-export function XCircleIcon({ className = "w-6 h-6" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>
-  );
-}
+/**
+ * Illustrated SVG artwork plates for starter shop items lacking uploaded PNG portraits.
+ */
+export function ShopClassArt({
+  itemKey,
+  itemType,
+  name,
+}: {
+  itemKey: string;
+  itemType: string;
+  name: string;
+}) {
+  if (itemType === "background") {
+    const palettes: Record<string, { sky: string; glow: string; hill: string; label: string }> = {
+      bg_ocean: { sky: "#0f2c4c", glow: "#38bdf8", hill: "#0a1f36", label: "OCEAN" },
+      bg_forest: { sky: "#123524", glow: "#4ade80", hill: "#0b2217", label: "FOREST" },
+      bg_volcano: { sky: "#3b1414", glow: "#fb923c", hill: "#1f0b0b", label: "VOLCANO" },
+      bg_sky: { sky: "#1e3a8a", glow: "#93c5fd", hill: "#172554", label: "SKY" },
+      bg_night: { sky: "#0b1120", glow: "#e2e8f0", hill: "#1e293b", label: "NIGHT" },
+      bg_aurora: { sky: "#0f172a", glow: "#2dd4bf", hill: "#134e4a", label: "AURORA" },
+      bg_cosmos: { sky: "#1e1038", glow: "#c084fc", hill: "#090414", label: "COSMOS" },
+    };
+    const p = palettes[itemKey] ?? { sky: "#161d2f", glow: "#f4b632", hill: "#0e1320", label: name };
+    return (
+      <svg viewBox="0 0 240 160" className="h-full w-full" aria-hidden="true">
+        <rect width="240" height="160" fill={p.sky} />
+        <circle cx="176" cy="46" r="24" fill={p.glow} fillOpacity="0.28" />
+        <circle cx="176" cy="46" r="14" fill={p.glow} fillOpacity="0.85" />
+        <path d="M0 116 L58 76 L112 106 L168 68 L240 108 L240 160 L0 160 Z" fill={p.hill} />
+        <path d="M0 132 L78 102 L150 124 L240 94 L240 160 L0 160 Z" fill="#090d16" fillOpacity="0.72" />
+        <rect x="14" y="14" width="66" height="20" rx="3" fill="#090d16" fillOpacity="0.65" stroke={p.glow} strokeWidth="1" />
+        <text x="47" y="28" textAnchor="middle" fill="#fff" fontSize="9" fontWeight="800" fontFamily="monospace">
+          {p.label.slice(0, 10)}
+        </text>
+      </svg>
+    );
+  }
 
-export function ClockIcon({ className = "w-6 h-6" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
-    </svg>
-  );
-}
+  const classStyles: Record<string, { bg: string; accent: string; sigil: string }> = {
+    avatar_ranger: { bg: "#143025", accent: "#4ade80", sigil: "bow" },
+    avatar_paladin: { bg: "#2b2110", accent: "#f4b632", sigil: "shield" },
+    avatar_necromancer: { bg: "#26133a", accent: "#c084fc", sigil: "orb" },
+    avatar_assassin: { bg: "#2e1118", accent: "#f87171", sigil: "blades" },
+    avatar_dragon_lord: { bg: "#3a160c", accent: "#fb923c", sigil: "crown" },
+    avatar_celestial: { bg: "#122449", accent: "#60a5fa", sigil: "star" },
+  };
+  const s = classStyles[itemKey] ?? { bg: "#161d2f", accent: "#f4b632", sigil: "shield" };
 
-export function FireIcon({ className = "w-6 h-6" }: { className?: string }) {
   return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z"
-      />
-    </svg>
-  );
-}
-
-export function StarIcon({ className = "w-6 h-6" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
-      />
-    </svg>
-  );
-}
-
-export function BookOpenIcon({ className = "w-6 h-6" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-      />
-    </svg>
-  );
-}
-
-export function TrophyIcon({ className = "w-6 h-6" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-      />
-    </svg>
-  );
-}
-
-export function ChevronLeftIcon({ className = "w-6 h-6" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15 19l-7-7 7-7"
-      />
-    </svg>
-  );
-}
-
-export function ChevronRightIcon({ className = "w-6 h-6" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M9 5l7 7-7 7"
-      />
-    </svg>
-  );
-}
-
-export function PlayIcon({ className = "w-6 h-6" }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-      />
+    <svg viewBox="0 0 200 260" className="h-full w-full" aria-hidden="true">
+      <rect width="200" height="260" fill={s.bg} />
+      <circle cx="100" cy="112" r="64" fill={s.accent} fillOpacity="0.14" stroke={s.accent} strokeWidth="2" strokeDasharray="6 4" />
+      <circle cx="100" cy="84" r="24" fill="#0e1320" stroke={s.accent} strokeWidth="3" />
+      <path d="M52 198 C56 152, 144 152, 148 198 Z" fill="#0e1320" stroke={s.accent} strokeWidth="3" />
+      {s.sigil === "crown" ? (
+        <path d="M74 58 L84 40 L100 52 L116 40 L126 58 Z" fill={s.accent} />
+      ) : s.sigil === "star" ? (
+        <path d="M100 124 L106 138 L121 140 L110 150 L113 165 L100 158 L87 165 L90 150 L79 140 L94 138 Z" fill={s.accent} />
+      ) : (
+        <path d="M100 124 L118 134 V154 C118 166 100 176 100 176 C100 176 82 166 82 154 V134 Z" fill={s.accent} fillOpacity="0.88" />
+      )}
+      <text x="100" y="232" textAnchor="middle" fill="#fffdf8" fontSize="13" fontWeight="800" fontFamily="sans-serif">
+        {name.toUpperCase()}
+      </text>
     </svg>
   );
 }

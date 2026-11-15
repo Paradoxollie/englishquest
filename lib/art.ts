@@ -9,6 +9,9 @@
 export const ART = {
   heroHome: "/art/hero-home.jpg",
   heroGames: "/art/hero-games.jpg",
+  heroCourses: "/art/hero-courses.jpg",
+  heroQuest: "/art/hero-quest.jpg",
+  authShowcase: "/art/auth-showcase.jpg",
   act: (chapterId: number) => `/art/act-${chapterId}.jpg`,
   game: (slug: string) => `/art/game-${slug}.jpg`,
   rewardLevelUp: "/art/reward-level-up.jpg",

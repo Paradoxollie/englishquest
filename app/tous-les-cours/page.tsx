@@ -21,40 +21,60 @@ export default async function TousLesCoursPage() {
   const recommendedCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
   const missionPlans = await getResolvedCourseMissionPlans(roadmap.entries);
 
-  const heroArt = resolveArt(ART.act(4));
+  const heroArt = resolveArt(ART.heroCourses) ?? resolveArt(ART.act(4));
 
   return (
     <div>
-      <section className="eq-hero">
-        {heroArt ? (
-          <div className="eq-hero-art">
-            <Image src={heroArt} alt="" fill priority sizes="100vw" className="object-cover object-[65%_center]" />
-          </div>
-        ) : null}
-        <div className="eq-container eq-hero-body">
-          <div className="eq-reveal grid min-h-[380px] content-end gap-4 py-14 md:max-w-[620px] md:py-20">
-            <h1 className="eq-h1">Les cours</h1>
+      <section className="eq-editorial-band">
+        <div className="eq-container eq-split-hero">
+          <div className="grid gap-4">
+            <p className="eq-kicker">Bibliothèque · 50 notions</p>
+            <h1 className="eq-h1">Tous les cours d&apos;anglais, du niveau A1 au niveau C1</h1>
             <p className="eq-lead">
-              Cinquante notions, du niveau A1 au niveau C1. Une notion par cours, des exemples,
-              le piège du francophone, puis un quiz de dix questions. Tout est lisible sans
-              compte.
+              Une leçon claire par notion, les pièges classiques du francophone décryptés et un quiz de validation de dix
+              questions. Tout le programme reste consultable librement sans compte.
             </p>
             {isLoggedIn && recommendedCourse ? (
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3 pt-1">
                 <Link href={`/cours/${recommendedCourse.courseId}`} className="eq-btn eq-btn-gold">
-                  Reprendre : cours {recommendedCourse.courseId}
+                  Reprendre le cours {recommendedCourse.courseId}
                 </Link>
-                <span className="text-sm text-[var(--muted)]">
-                  {roadmap.completedCount} cours validés sur {roadmap.totalCourses}
+                <span className="text-sm font-bold text-[var(--muted)]">
+                  {roadmap.completedCount} / {roadmap.totalCourses} validés
                 </span>
               </div>
             ) : (
-              <p className="text-sm text-[var(--muted)]">
-                Avec un compte, chaque cours validé fait avancer ta carte et rapporte de
-                l&apos;expérience.
-              </p>
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <Link href="/test-de-niveau" className="eq-btn eq-btn-primary">
+                  Trouver mon niveau
+                </Link>
+                <span className="text-xs font-semibold text-[var(--muted)]">
+                  5 chapitres progressifs · Accès libre sans inscription
+                </span>
+              </div>
             )}
           </div>
+
+          {heroArt ? (
+            <div className="eq-comic-panel">
+              <div className="eq-comic-panel-media">
+                <Image
+                  src={heroArt}
+                  alt="Bibliothèque circulaire des 50 cours English Quest"
+                  fill
+                  priority
+                  sizes="(max-width: 960px) 100vw, 50vw"
+                  className="object-cover"
+                />
+              </div>
+              <div className="eq-comic-panel-bar">
+                <span>
+                  <strong>50 fiches</strong> rédigées
+                </span>
+                <span>A1 Fondations → C1 Maîtrise</span>
+              </div>
+            </div>
+          ) : null}
         </div>
       </section>
 

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
 import { logoutAction } from "@/app/(protected)/actions";
+import { BrandEmblem } from "@/components/ui/game-icons";
 import { guestHeaderState, type HeaderState } from "@/lib/navigation/header-state-types";
 
 const baseNavLinks = [
@@ -102,7 +103,7 @@ export function AppHeader() {
       <div className="eq-container eq-header-row">
         <Link href={user ? "/home" : "/"} className="eq-brand" aria-label="English Quest, accueil">
           <span className="eq-brand-mark" aria-hidden="true">
-            EQ
+            <BrandEmblem className="h-9 w-9" />
           </span>
           <span className="eq-brand-text">English Quest</span>
         </Link>

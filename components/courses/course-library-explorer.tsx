@@ -119,24 +119,39 @@ export function CourseLibraryExplorer({
                 <li key={entry.courseId}>
                   <Link
                     href={`/cours/${entry.courseId}`}
-                    className={`eq-card eq-card-link h-full gap-2 ${
-                      isRecommended || entry.status === "in_progress" ? "border-[var(--gold)]" : ""
+                    className={`eq-card eq-card-link h-full gap-2.5 p-4 ${
+                      isRecommended || entry.status === "in_progress"
+                        ? "border-2 border-[var(--ink-rule)]"
+                        : ""
                     }`}
+                    style={{
+                      borderTop: `4px solid ${
+                        palier.level.startsWith("A1")
+                          ? "#15803d"
+                          : palier.level.startsWith("A2")
+                            ? "#1d4ed8"
+                            : palier.level.startsWith("B1")
+                              ? "#6d28d9"
+                              : palier.level.startsWith("B2")
+                                ? "#c42b27"
+                                : "#b47100"
+                      }`,
+                    }}
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <span className="eq-num text-sm font-bold text-[var(--muted)]">
-                        Cours {entry.courseId}
+                      <span className="font-mono text-xs font-extrabold uppercase tracking-wider text-[var(--muted)]">
+                        #{String(entry.courseId).padStart(2, "0")} · {palier.level}
                       </span>
                       {badge ? <span className={`eq-chip ${badge.className}`}>{badge.text}</span> : null}
                     </div>
                     <h3 className="eq-h3">{entry.title}</h3>
-                    <p className="text-sm text-[var(--muted)]">{entry.summary}</p>
+                    <p className="text-sm leading-relaxed text-[var(--muted)]">{entry.summary}</p>
                     <p className="mt-auto pt-2 text-xs font-bold text-[var(--muted)]">
                       {entry.estimatedMinutes} min
                       {isAuthenticated ? (
                         <span className="text-[var(--gold)]">
                           {" "}
-                          · + {entry.rewardXp} XP, + {entry.rewardGold} or
+                          · +{entry.rewardXp} XP, +{entry.rewardGold} or
                         </span>
                       ) : null}
                     </p>

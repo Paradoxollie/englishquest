@@ -1,24 +1,31 @@
 import type { Metadata } from "next";
-import { Atkinson_Hyperlegible, Bricolage_Grotesque } from "next/font/google";
+import { Barlow_Condensed, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import "./studio-theme.css";
 import { SiteShell } from "@/components/layout/site-shell";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { AppHeader } from "@/components/layout/app-header";
 import { RewardCelebrations } from "@/components/rewards/reward-celebrations";
 import { SITE_URL } from "@/lib/site/config";
 
-const bricolage = Bricolage_Grotesque({
+const displayFont = Barlow_Condensed({
   subsets: ["latin"],
-  weight: ["500", "700", "800"],
-  variable: "--font-bricolage",
+  weight: ["700", "800"],
+  variable: "--font-barlow-condensed",
   display: "swap",
 });
 
-const atkinson = Atkinson_Hyperlegible({
+const bodyFont = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-atkinson",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-jakarta",
+  display: "swap",
+});
+
+const monoFont = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["500", "700", "800"],
+  variable: "--font-jetbrains-mono",
   display: "swap",
 });
 
@@ -76,7 +83,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" suppressHydrationWarning className={`${bricolage.variable} ${atkinson.variable}`}>
+    <html
+      lang="fr"
+      suppressHydrationWarning
+      className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable}`}
+    >
       <body className="min-h-screen antialiased" suppressHydrationWarning>
         <AuthProvider>
           <SiteShell header={<AppHeader />}>{children}</SiteShell>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ShopClassArt } from "@/components/ui/game-icons";
 import { GoldIcon } from "@/components/ui/icons";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
@@ -296,6 +297,8 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
                       alt={item.name}
                       className="h-full w-full object-cover"
                     />
+                  ) : item.item_type === "avatar" || item.item_type === "background" ? (
+                    <ShopClassArt itemKey={item.item_key} itemType={item.item_type} name={item.name} />
                   ) : item.color_theme ? (
                     <div className={`h-full w-full ${getItemColor(item.color_theme)}`} />
                   ) : (

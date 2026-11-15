@@ -171,41 +171,57 @@ export default async function QuestPage() {
 
   const level = player ? getLevelProgress(player.xp) : null;
   const completedPercent = roadmap.totalCourses > 0 ? Math.round((roadmap.completedCount / roadmap.totalCourses) * 100) : 0;
-  const heroArt = resolveArt(ART.act(1));
+  const heroArt = resolveArt(ART.heroQuest) ?? resolveArt(ART.act(1));
 
   return (
     <div className="eq-quest">
-      <section className="eq-quest-hero" style={heroArt ? { backgroundImage: `url(${heroArt})` } : undefined}>
-        <div className="eq-container eq-quest-hero-grid">
-          <div>
-            <p className="eq-kicker">Aventure</p>
-            <h1 className="eq-h1">
-              {player ? `${player.username}, ta route continue.` : "Cinquante missions, une seule route."}
-            </h1>
-            <p className="eq-lead">
-              Chaque mission, c&apos;est un cours à lire, un quiz à réussir à 80 % et un défi dans un jeu. Quand les
-              trois sont faits, la mission suivante s&apos;ouvre. Pas de classe, pas d&apos;âge : seulement ton niveau.
-            </p>
-            <div className="eq-quest-actions">
-              {mission ? (
-                <Link href={mission.cta.href} className="eq-btn eq-btn-gold eq-btn-lg">
-                  {mission.cta.label}
-                </Link>
-              ) : null}
-              {isLoggedIn && roadmap.completedCount === 0 && !placement.taken ? (
-                <Link href="/test-de-niveau" className="eq-btn eq-btn-primary eq-btn-lg">
-                  Test de niveau
-                </Link>
-              ) : null}
-              <a href="#mission-courante" className="eq-btn eq-btn-ghost eq-btn-lg">
-                Me situer sur la carte
-              </a>
-              {!isLoggedIn ? (
-                <Link href="/auth/signup" className="eq-btn eq-btn-ghost eq-btn-lg">
-                  Créer un compte
-                </Link>
-              ) : null}
+      <section className="eq-editorial-band">
+        <div className="eq-container grid gap-6">
+          <div className="eq-split-hero">
+            <div className="grid gap-4">
+              <p className="eq-kicker">Carte d&apos;aventure · 5 actes</p>
+              <h1 className="eq-h1">
+                {player ? `${player.username}, reprenez votre expédition.` : "Cinquante missions, du socle à l'aisance."}
+              </h1>
+              <p className="eq-lead">
+                Chaque mission associe une leçon rédigée, un quiz à valider à 80 % et un entraînement ciblé.
+                Débloquez l&apos;étape suivante à votre rythme, selon votre vrai niveau.
+              </p>
+              <div className="flex flex-wrap gap-3 pt-1">
+                {mission ? (
+                  <Link href={mission.cta.href} className="eq-btn eq-btn-gold eq-btn-lg">
+                    {mission.cta.label}
+                  </Link>
+                ) : null}
+                {isLoggedIn && roadmap.completedCount === 0 && !placement.taken ? (
+                  <Link href="/test-de-niveau" className="eq-btn eq-btn-primary eq-btn-lg">
+                    Test de niveau
+                  </Link>
+                ) : null}
+                <a href="#mission-courante" className="eq-btn eq-btn-ghost eq-btn-lg">
+                  Me situer sur la carte
+                </a>
+                {!isLoggedIn ? (
+                  <Link href="/auth/signup" className="eq-btn eq-btn-primary eq-btn-lg">
+                    Sauvegarder ma progression
+                  </Link>
+                ) : null}
+              </div>
             </div>
+
+            {heroArt ? (
+              <div className="eq-comic-panel">
+                <div className="eq-comic-panel-media">
+                  <img src={heroArt} alt="Archipel des 5 chapitres English Quest" className="h-full w-full object-cover" />
+                </div>
+                <div className="eq-comic-panel-bar">
+                  <span>
+                    <strong>{roadmap.completedCount} / {roadmap.totalCourses}</strong> missions validées
+                  </span>
+                  <span>Chapitre {currentChapter.id} · {currentChapter.level}</span>
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <div className="eq-quest-stats" aria-label="Ta progression">
@@ -239,7 +255,7 @@ export default async function QuestPage() {
               <div className="eq-quest-stat">
                 <span>Lecture libre</span>
                 <b>50 <small>cours ouverts</small></b>
-                <em>Sans compte, tout se lit. Avec un compte, tout compte.</em>
+                <em>Cours accessibles sans compte · sauvegarde activée dès l&apos;inscription.</em>
               </div>
             )}
           </div>

@@ -38,27 +38,47 @@ export default async function PlayPage() {
 
   return (
     <div>
-      <section className="eq-hero">
-        {heroArt ? (
-          <div className="eq-hero-art">
-            <Image src={heroArt} alt="" fill priority sizes="100vw" className="object-cover object-[65%_center]" />
-          </div>
-        ) : null}
-        <div className="eq-container eq-hero-body">
-          <div className="eq-reveal grid min-h-[380px] content-end gap-4 py-14 md:max-w-[620px] md:py-20">
-            <h1 className="eq-h1">Les jeux</h1>
+      <section className="eq-editorial-band">
+        <div className="eq-container eq-split-hero">
+          <div className="grid gap-4">
+            <p className="eq-kicker">Arcade &amp; Entraînement</p>
+            <h1 className="eq-h1">Sept jeux pour transformer la révision en réflexe</h1>
             <p className="eq-lead">
-              Sept façons de s&apos;entraîner, en parties d&apos;une à cinq minutes. Chaque jeu
-              travaille une compétence précise. Joue librement, ou vise l&apos;objectif de ta
-              mission en cours.
+              Des parties d&apos;une à cinq minutes pour fixer les verbes irréguliers, le vocabulaire et la grammaire.
+              Joue librement, ou relève le défi du chapitre en cours.
             </p>
             {!isLoggedIn ? (
-              <p className="text-sm text-[var(--muted)]">
-                Tu peux jouer sans compte. Avec un compte, tes scores comptent pour les
-                classements et pour ton parcours.
-              </p>
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <Link href="/auth/signup" className="eq-btn eq-btn-gold">
+                  Enregistrer mes scores
+                </Link>
+                <span className="text-xs font-semibold text-[var(--muted)]">
+                  Jouable sans compte · Classements ouverts avec un compte gratuit
+                </span>
+              </div>
             ) : null}
           </div>
+
+          {heroArt ? (
+            <div className="eq-comic-panel">
+              <div className="eq-comic-panel-media">
+                <Image
+                  src={heroArt}
+                  alt="Salle de commande arcade English Quest"
+                  fill
+                  priority
+                  sizes="(max-width: 960px) 100vw, 50vw"
+                  className="object-cover object-[70%_center]"
+                />
+              </div>
+              <div className="eq-comic-panel-bar">
+                <span>
+                  <strong>7 épreuves</strong> · 1 à 5 min
+                </span>
+                <span>Défis du jour · Scores &amp; Ligues</span>
+              </div>
+            </div>
+          ) : null}
         </div>
       </section>
 
@@ -71,7 +91,7 @@ export default async function PlayPage() {
                 Cours {activeCourse.courseId} : {activeCourse.title}
               </h2>
               <p className="mt-2 text-[var(--muted)]">
-                Pour t&apos;entraîner sur la notion de ta mission : {missionLabel} dans Grammar Rush.
+                Objectif ciblé sur cette notion : {missionLabel} dans {missionGame.name}.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Link href={`/play/${missionGame.slug}`} className="eq-btn eq-btn-gold">
@@ -89,9 +109,14 @@ export default async function PlayPage() {
 
       <section className="eq-container eq-section">
         <h2 className="eq-h2">{missionGame ? "Les autres jeux" : "Tous les jeux"}</h2>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {(missionGame ? otherGames : games).map((game) => (
-            <GameCard key={game.slug} game={game} artSrc={resolveArt(getGamePresentation(game).artworkSrc)} />
+        <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {(missionGame ? otherGames : games).map((game, index) => (
+            <GameCard
+              key={game.slug}
+              game={game}
+              artSrc={resolveArt(getGamePresentation(game).artworkSrc)}
+              priority={index < 3}
+            />
           ))}
         </div>
       </section>

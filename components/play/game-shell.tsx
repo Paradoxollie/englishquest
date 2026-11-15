@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { GameEmblemIcon } from "@/components/ui/game-icons";
 import type { GameConfig } from "@/lib/games/config";
 import { getGamePresentation } from "@/lib/games/presentation";
 import { resolveArt } from "@/lib/art-server";
@@ -37,8 +38,12 @@ export function GameShell({ game, mission, isLoggedIn, aside, children }: GameSh
             Tous les jeux
           </Link>
           <div className="eq-game-title-row">
-            <span className="eq-emblem eq-emblem-lg" style={{ background: presentation.primary }} aria-hidden="true">
-              {presentation.mark}
+            <span
+              className="eq-emblem eq-emblem-lg"
+              style={{ background: presentation.primary, color: "#141824" }}
+              aria-hidden="true"
+            >
+              <GameEmblemIcon emblem={presentation.emblem} className="h-6 w-6" />
             </span>
             <div>
               <h1 className="eq-game-title">{game.name}</h1>
