@@ -1,26 +1,26 @@
 import type { Metadata } from "next";
-import { Atkinson_Hyperlegible, Bangers } from "next/font/google";
+import { Inter, Lexend } from "next/font/google";
 import "./globals.css";
 import "./studio-theme.css";
-import "./comic-theme.css";
+import "./pro-theme.css";
 import { SiteShell } from "@/components/layout/site-shell";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { AppHeader } from "@/components/layout/app-header";
 import { RewardCelebrations } from "@/components/rewards/reward-celebrations";
 import { SITE_URL } from "@/lib/site/config";
 
-// Lettrage BD pour les titres, police très lisible (conçue pour les lecteurs fragiles) pour le texte.
-const displayFont = Bangers({
+// Lexend pour les titres (conçue pour la lisibilité), Inter pour le texte.
+const displayFont = Lexend({
   subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-bangers",
+  weight: ["500", "600", "700"],
+  variable: "--font-lexend",
   display: "swap",
 });
 
-const bodyFont = Atkinson_Hyperlegible({
+const bodyFont = Inter({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-atkinson",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter",
   display: "swap",
 });
 

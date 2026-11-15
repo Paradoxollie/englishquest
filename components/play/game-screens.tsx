@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { Bubble } from "@/components/comic/bubble";
 import { Burst } from "@/components/comic/burst";
 import { Mascot } from "@/components/comic/mascot";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -255,12 +254,9 @@ export function GameStart({
 }) {
   return (
     <div className="eq-game-start eq-slam">
-      <div className="eq-game-start-head">
-        <Mascot pose="maya-explique" size={128} />
-        <Bubble tail="left" className="eq-game-start-bubble">
-          <b className="eq-game-start-title">{title}</b>
-          <span>{intro}</span>
-        </Bubble>
+      <div className="eq-game-start-intro">
+        <h2 className="eq-h2">{title}</h2>
+        <p>{intro}</p>
       </div>
       <ul className="eq-game-rules">
         {rules.map((rule) => (
@@ -324,8 +320,8 @@ export function GameEnd({
   return (
     <div className="eq-game-end eq-slam" data-testid="game-end">
       <div className="eq-game-end-head">
-        <Mascot pose={isZeroScore ? "sam-oups" : "sam-bravo"} size={130} />
-        <Burst color={isZeroScore ? "white" : "yellow"} size={150} rotate={-6} className="eq-pop-in">
+        <Mascot pose={isZeroScore ? "sam-oups" : "sam-bravo"} size={104} />
+        <Burst color={isZeroScore ? "white" : "yellow"} className="eq-pop-in">
           {isZeroScore ? "Oups !" : "Bien joué !"}
         </Burst>
         <div>

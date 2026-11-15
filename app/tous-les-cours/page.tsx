@@ -21,7 +21,7 @@ export default async function TousLesCoursPage() {
 
   return (
     <div>
-      <PageHead caption="La bibliothèque" title="Les 50 cours" tone="blue">
+      <PageHead caption="La bibliothèque" title="Les 50 cours">
         <p>
           Une notion par cours, de A1 à B1+ : la règle, des exemples, les pièges des francophones et un quiz de dix
           questions. Tout est en accès libre.

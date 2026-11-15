@@ -26,9 +26,6 @@ export default async function PlacementPage() {
         <PageHead
           caption="Test de niveau"
           title="Où en es-tu en anglais ?"
-          tone="sky"
-          mascot="maya-explique"
-          bubble="Pas de stress : ce n'est pas une note, juste ton point de départ."
         >
           Six questions par chapitre, de A1 à B1. Quatre bonnes réponses et le chapitre suivant s&apos;enchaîne ; au
           premier qui résiste, c&apos;est là que tu commences. Entre deux et huit minutes, sans compte.

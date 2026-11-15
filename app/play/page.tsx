@@ -38,9 +38,6 @@ export default async function PlayPage() {
       <PageHead
         caption="Salle d'entraînement"
         title="Sept jeux pour t'entraîner"
-        tone="red"
-        mascot="sam-bravo"
-        bubble={isLoggedIn ? "Chaque partie rapporte de l'XP. À toi de jouer !" : "Tu peux jouer sans compte. Avec un compte, tes scores comptent !"}
       >
         Des parties d&apos;une à cinq minutes sur les verbes irréguliers, le vocabulaire et la grammaire des cours.
       </PageHead>

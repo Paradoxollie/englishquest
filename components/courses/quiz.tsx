@@ -286,7 +286,7 @@ export function Quiz({ questions }: QuizProps) {
     return (
       <div ref={containerRef} className="eq-quiz eq-quiz-result eq-slam" data-testid="quiz-result">
         <div className="eq-quiz-result-head">
-          <Mascot pose={passed ? "duo-victoire" : "sam-oups"} size={150} />
+          <Mascot pose={passed ? "duo-victoire" : "sam-oups"} size={110} />
           <Burst color={passed ? "yellow" : "white"} size={170} rotate={-8} className="eq-pop-in">
             {passed ? "Mission réussie !" : "Presque !"}
           </Burst>
