@@ -88,7 +88,7 @@ export function GameShell({ game, mission, isLoggedIn, aside, children }: GameSh
       </header>
 
       <div className={`eq-container eq-game-grid ${aside ? "" : "eq-game-grid-solo"}`}>
-        <main className="eq-game-main">{children}</main>
+        <div className="eq-game-main">{children}</div>
         {aside ? <aside className="eq-game-aside">{aside}</aside> : null}
       </div>
     </div>

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { HomeView } from "@/components/home/home-view";
-import { isAdminOrTeacher } from "@/lib/auth/roles";
 import { getResolvedCourseMissionPlan } from "@/lib/courses/campaign-server";
 import { getChapterForCourse } from "@/lib/courses/chapters";
 import { lessons } from "@/lib/courses/lessons";
@@ -40,14 +39,13 @@ export default async function HomePage() {
   }
 
   const adminClient = createSupabaseAdminClient();
-  const [{ data: profile }, roadmap, canAccessTeachers, placement] = await Promise.all([
+  const [{ data: profile }, roadmap, placement] = await Promise.all([
     adminClient
       .from("profiles")
       .select("username, xp, gold, daily_played_games, daily_streak, last_game_date, last_daily_bonus_date")
       .eq("id", user.id)
       .maybeSingle(),
     getUserCourseRoadmap(user.id),
-    isAdminOrTeacher(),
     getPlacementStatus(user.id),
   ]);
 
@@ -96,7 +94,6 @@ export default async function HomePage() {
       dailyGames={dailyGames}
       otherGames={otherGames}
       nextDailyGame={nextDailyGame}
-      canAccessTeachers={canAccessTeachers}
       suggestPlacement={roadmap.completedCount === 0 && !placement.taken}
     />
   );

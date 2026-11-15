@@ -178,7 +178,7 @@ export async function submitFlashTranslationScore(params: {
             .from("games")
             .select("id")
             .eq("slug", "flash-translation")
-            .single();
+            .maybeSingle();
 
         if (gameError || !game) {
             return {
@@ -288,7 +288,7 @@ export async function getFlashTranslationTopScores() {
         .from("games")
         .select("id")
         .eq("slug", "flash-translation")
-        .single();
+        .maybeSingle();
 
     if (!game) return [];
 
@@ -377,7 +377,7 @@ export async function getFlashTranslationGameLeaderboard() {
         .from("games")
         .select("id")
         .eq("slug", "flash-translation")
-        .single();
+        .maybeSingle();
 
     if (!game) return [];
 

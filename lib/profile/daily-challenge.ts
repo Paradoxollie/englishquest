@@ -174,7 +174,7 @@ export async function checkAndGrantDailyBonus(
       .from("profiles")
       .select("daily_played_games, last_game_date, last_daily_bonus_date, xp, gold, level, daily_streak")
       .eq("id", userId)
-      .single();
+      .maybeSingle();
 
     if (error || !profile) {
       console.error("Error fetching profile for daily challenge:", error);

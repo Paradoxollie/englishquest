@@ -20,6 +20,9 @@ export function SignupForm() {
           type="text"
           name="username"
           autoComplete="username"
+          autoCorrect="off"
+          autoCapitalize="none"
+          spellCheck={false}
           required
           minLength={3}
           maxLength={50}
@@ -44,7 +47,7 @@ export function SignupForm() {
           className={inputClass}
         />
         <span className="text-xs text-[var(--muted)]">
-          Sert uniquement à récupérer ton compte si tu oublies ton mot de passe.
+          Sert à récupérer ton compte si tu oublies ton mot de passe (sinon note bien ton mot de passe).
         </span>
       </label>
 

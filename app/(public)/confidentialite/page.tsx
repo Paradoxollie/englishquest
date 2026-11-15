@@ -77,14 +77,7 @@ export default function PrivacyPage() {
           <h2 className="eq-h2">Cookies</h2>
           <p>
             Un seul cookie est posé par le site lui-même : celui qui te garde connecté. Il est indispensable et
-            ne demande pas de consentement.
-          </p>
-          <p>
-            Les pages d&apos;accueil, à propos et contact peuvent afficher une annonce Google AdSense. Google
-            peut alors déposer ses propres cookies, après ton accord quand la réglementation le demande. Les
-            cours, les jeux et l&apos;espace connecté n&apos;affichent pas de publicité et ne chargent pas le
-            script de Google. Tu peux régler ces annonces sur{" "}
-            <a href="https://adssettings.google.com" rel="noopener noreferrer">adssettings.google.com</a>.
+            ne demande pas de consentement. Le site n&apos;affiche aucune publicité et ne dépose aucun cookie publicitaire.
           </p>
         </section>
 

@@ -19,7 +19,7 @@ const USER_TABLES = [
 /**
  * Supprime définitivement le compte du joueur connecté : ses scores, sa
  * progression, ses objets, ses images, son profil, puis l'utilisateur lui-même.
- * Demandé par le RGPD (droit à l'effacement) et par la politique AdSense.
+ * Demandé par le RGPD (droit à l'effacement).
  */
 export async function deleteOwnAccountAction(
   _prevState: DeleteAccountState,

@@ -47,19 +47,19 @@ export async function purchaseShopItemAction(
       .select("*")
       .eq("id", shopItemId)
       .eq("is_active", true)
-      .single();
+      .maybeSingle();
 
     if (itemError || !shopItem) {
       return {
         success: false,
-        error: "Item not found or not available",
+        error: "Objet introuvable ou indisponible",
       };
     }
 
     if (isCustomItemKey(shopItem.item_key)) {
       return {
         success: false,
-        error: "Cet item personnalise n'est pas disponible a l'achat.",
+        error: "Cet objet personnalisé n'est pas disponible à l'achat.",
       };
     }
 
@@ -67,7 +67,7 @@ export async function purchaseShopItemAction(
       .from("profiles")
       .select("level, gold")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     if (profileError || !profile) {
       return {
@@ -207,7 +207,7 @@ export async function purchaseShopItemAction(
 
 export async function equipItemAction(
   shopItemId: string | null,
-  itemType: "avatar" | "title" | "background"
+  itemType: "avatar" | "title" | "background" | "ship_skin"
 ): Promise<EquipItemResult> {
   try {
     const supabase = await createSupabaseServerClient();
@@ -230,26 +230,26 @@ export async function equipItemAction(
         .from("shop_items")
         .select("item_type, item_key, price_gold, is_active")
         .eq("id", shopItemId)
-        .single();
+        .maybeSingle();
 
       if (shopItemError || !shopItem) {
         return {
           success: false,
-          error: "Item introuvable",
+          error: "Objet introuvable",
         };
       }
 
       if (!shopItem.is_active) {
         return {
           success: false,
-          error: "Cet item n'est plus disponible",
+          error: "Cet objet n'est plus disponible",
         };
       }
 
       if (shopItem.item_type !== itemType) {
         return {
           success: false,
-          error: "Type d'item incorrect",
+          error: "Type d'objet incorrect",
         };
       }
 
@@ -264,14 +264,14 @@ export async function equipItemAction(
         if (userItemError) {
           return {
             success: false,
-            error: "Impossible de verifier la possession de l'item",
+            error: "Impossible de vérifier la possession de l'objet",
           };
         }
 
         if (!userItem) {
           return {
             success: false,
-            error: "Vous ne possedez pas cet item",
+            error: "Vous ne possédez pas cet objet",
           };
         }
       }
@@ -288,7 +288,9 @@ export async function equipItemAction(
         ? "equipped_avatar_id"
         : itemType === "title"
           ? "equipped_title_id"
-          : "equipped_background_id";
+          : itemType === "ship_skin"
+            ? "equipped_ship_skin_id"
+            : "equipped_background_id";
 
     const updateData: Record<string, string | null> = {
       [updateField]: shopItemId,

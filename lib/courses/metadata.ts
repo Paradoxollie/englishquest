@@ -37,7 +37,7 @@ const metadataRules: MetadataRule[] = [
   },
   {
     test: /(present|pr[ée]sent|routine|action en direct|do vs i am doing)/i,
-    summary: "Mieux décrire ce qui se passé maintenant et ce qui revient souvent.",
+    summary: "Mieux décrire ce qui se passe maintenant et ce qui revient souvent.",
     learningGoals: [
       "Distinguer action en cours et habitude",
       "Stabiliser les auxiliaires du présent",

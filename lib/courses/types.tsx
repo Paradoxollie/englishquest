@@ -17,20 +17,22 @@ export type LessonSection = {
 
 // Helper component for placeholders
 export const PlaceholderContent = () => (
-    <div className="min-h-[400px] flex flex-col items-center justify-center p-8 text-center space-y-6">
-        <div className="w-20 h-20 rounded-full bg-slate-800 border-2 border-slate-600 flex items-center justify-center">
-            <span className="text-4xl text-slate-400">🚧</span>
+    <div className="min-h-[320px] flex flex-col items-center justify-center p-8 text-center space-y-5">
+        <div className="eq-inset w-16 h-16 rounded-full flex items-center justify-center">
+            <svg viewBox="0 0 24 24" className="w-8 h-8 text-[var(--gold)]" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 6v6l4 2" />
+                <circle cx="12" cy="12" r="9" />
+            </svg>
         </div>
         <div className="space-y-2">
-            <h3 className="text-2xl font-bold text-white text-outline">En cours de construction</h3>
-            <p className="text-slate-300 max-w-md mx-auto">
-                Nos rédacteurs pédagogiques travaillent actuellement sur cette leçon.
-                Elle sera disponible très prochainement !
+            <h3 className="eq-h3">En cours de préparation</h3>
+            <p className="eq-muted max-w-md mx-auto">
+                Cette leçon sera complétée très prochainement.
             </p>
         </div>
-        <div className="comic-panel border-2 border-emerald-500/30 p-4 bg-emerald-950/20">
-            <p className="text-emerald-400 text-sm font-bold">
-                N'hésitez pas à continuer avec une autre leçon en attendant !
+        <div className="eq-inset border-emerald-500/35 px-4 py-3">
+            <p className="text-[var(--mint)] text-sm font-semibold">
+                Continue avec une autre leçon en attendant.
             </p>
         </div>
     </div>

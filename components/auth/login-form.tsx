@@ -21,6 +21,9 @@ export function LoginForm() {
           type="text"
           name="login"
           autoComplete="username"
+          autoCorrect="off"
+          autoCapitalize="none"
+          spellCheck={false}
           required
           placeholder="renardgris ou toi@exemple.fr"
           className={inputClass}

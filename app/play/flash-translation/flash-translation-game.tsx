@@ -16,7 +16,8 @@ import {
   type GameConfig,
   type GameState,
 } from "@/lib/games/flashTranslation";
-import { GameEnd, GameHud, GameStart, HudStat, TimeBar, type RewardSummary } from "@/components/play/game-screens";
+import { playSoundEffect } from "@/lib/games/audio";
+import { GameEnd, GameHud, GameStart, HudStat, SpeakButton, TimeBar, type RewardSummary } from "@/components/play/game-screens";
 import { submitFlashTranslationScore } from "./actions";
 
 const CONFIG: GameConfig = {
@@ -115,9 +116,11 @@ export function FlashTranslationGame({
         setCombo((current) => {
           const next = current + 1;
           setBestCombo((best) => Math.max(best, next));
+          playSoundEffect(next >= 3 ? "combo" : "correct");
           return next;
         });
       } else {
+        playSoundEffect("wrong");
         setCombo(0);
       }
       feedbackTimer.current = setTimeout(() => {
@@ -148,6 +151,7 @@ export function FlashTranslationGame({
   useEffect(() => {
     if (state.phase !== "ended" || submittedRef.current) return;
     submittedRef.current = true;
+    playSoundEffect("victory");
     if (!isLoggedIn) {
       setSubmitStatus("guest");
       return;
@@ -229,8 +233,11 @@ export function FlashTranslationGame({
                 .filter((entry) => entry.isCorrect === false)
                 .map((entry) => (
                   <li key={entry.wordPair.french} className="is-hard">
-                    <b>{entry.wordPair.french}</b>
-                    <span>{entry.wordPair.english}</span>
+                    <div>
+                      <b>{entry.wordPair.french}</b>
+                      <span> · {entry.wordPair.english}</span>
+                    </div>
+                    <SpeakButton text={entry.wordPair.english} label="Audio" />
                   </li>
                 ))}
             </ul>
@@ -296,11 +303,14 @@ export function FlashTranslationGame({
         )}
 
         {feedback && selected !== null ? (
-          <p className={`eq-game-feedback ${selected === round.correctIndex ? "is-right" : "is-wrong"}`} role="status">
-            {selected === round.correctIndex
-              ? `Juste, en ${seconds(round.reactionTimeMs ?? 0)}.`
-              : `Non : ${round.wordPair.english}. + 5 secondes.`}
-          </p>
+          <div className={`eq-game-feedback flex flex-wrap items-center justify-between gap-2 ${selected === round.correctIndex ? "is-right" : "is-wrong"}`} role="status">
+            <span>
+              {selected === round.correctIndex
+                ? `Juste, en ${seconds(round.reactionTimeMs ?? 0)}.`
+                : `Non : ${round.wordPair.english}. + 5 secondes.`}
+            </span>
+            <SpeakButton text={round.wordPair.english} label="Prononcer" />
+          </div>
         ) : null}
       </div>
     </div>

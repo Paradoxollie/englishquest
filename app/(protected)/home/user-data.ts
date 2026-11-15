@@ -31,7 +31,7 @@ export async function getUserHomeData(userId: string): Promise<UserHomeData> {
     .from("profiles")
     .select("daily_played_games, daily_streak, last_game_date, last_daily_bonus_date")
     .eq("id", userId)
-    .single();
+    .maybeSingle();
 
   const dailyChallenge = getDailyChallengeState(profile);
 

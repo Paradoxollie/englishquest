@@ -6,6 +6,7 @@ import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score"
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { playSoundEffect } from "@/lib/games/audio";
 import { submitLexiconBlasterScore } from "./actions";
 import {
   type GameState,
@@ -401,9 +402,17 @@ function SpaceShip({ x, isRunning, skinImageUrl }: { x: number; isRunning: boole
 // Types for score submission results
 type ScoreResult = RewardSummary;
 
-export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolean; missionTarget: number | null }) {
+export function SpaceLexGame({
+  isLoggedIn,
+  missionTarget,
+  initialShipSkinImageUrl,
+}: {
+  isLoggedIn: boolean;
+  missionTarget: number | null;
+  initialShipSkinImageUrl?: string | null;
+}) {
   const [gameState, setGameState] = useState<GameState | null>(null);
-  const [shipSkinImageUrl, setShipSkinImageUrl] = useState<string | null>(null);
+  const [shipSkinImageUrl, setShipSkinImageUrl] = useState<string | null>(initialShipSkinImageUrl ?? null);
   const [isPaused, setIsPaused] = useState(false);
   const [backgroundFlash, setBackgroundFlash] = useState<"green" | "red" | null>(null);
   const [screenShake, setScreenShake] = useState(false);
@@ -424,6 +433,9 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
 
   // Load default ship skin (first ship_skin item, or user's equipped skin)
   useEffect(() => {
+    if (initialShipSkinImageUrl !== undefined) {
+      return;
+    }
     async function loadShipSkin() {
       const supabase = createSupabaseBrowserClient();
 
@@ -436,7 +448,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
           .from("user_equipped_items")
           .select("equipped_ship_skin_id")
           .eq("user_id", user.id)
-          .single();
+          .maybeSingle();
 
         if (equippedItems?.equipped_ship_skin_id) {
           const { data: skin } = await supabase
@@ -444,7 +456,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
             .select("image_url")
             .eq("id", equippedItems.equipped_ship_skin_id)
             .eq("is_active", true)
-            .single();
+            .maybeSingle();
 
           if (skin?.image_url) {
             setShipSkinImageUrl(skin.image_url);
@@ -461,7 +473,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
         .eq("is_active", true)
         .order("display_order")
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (defaultSkin?.image_url) {
         setShipSkinImageUrl(defaultSkin.image_url);
@@ -485,6 +497,15 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
     const newState = createGameState();
     setGameState(newState);
   }, []);
+
+  const endSfxSessionRef = useRef<number>(-1);
+
+  useEffect(() => {
+    if (!gameState?.gameOver) return;
+    if (endSfxSessionRef.current === sessionRef.current) return;
+    endSfxSessionRef.current = sessionRef.current;
+    playSoundEffect(gameState.score > 0 ? "victory" : "wrong");
+  }, [gameState?.gameOver, gameState?.score]);
 
   // Start the game
   const handleStartGame = useCallback(() => {
@@ -784,10 +805,12 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
         const beforeScore = newState.score;
         newState = checkCollisions(newState, newState.mission);
         if (newState.lives < beforeLives) {
+          playSoundEffect("wrong");
           setBackgroundFlash("red");
           triggerShake();
           setTimeout(() => setBackgroundFlash(null), 600);
         } else if (newState.score > beforeScore) {
+          playSoundEffect(newState.comboCount > 0 && newState.comboCount % 5 === 0 ? "combo" : "correct");
           setBackgroundFlash("green");
           if (newState.comboCount > 0 && newState.comboCount % 5 === 0) {
             setComboBurst(true);
@@ -800,6 +823,7 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
         const beforeLives2 = newState.lives;
         newState = checkEnemiesReachedBottom(newState, newState.mission);
         if (newState.lives < beforeLives2) {
+          playSoundEffect("wrong");
           setBackgroundFlash("red");
           triggerShake();
           setTimeout(() => setBackgroundFlash(null), 600);
@@ -1076,14 +1100,12 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
                 key={enemy.id}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="absolute z-10 enemy-neutral-pixel"
+                className="absolute z-10 rounded-md border-2 border-cyan-400/75 bg-slate-900/90 shadow-[0_6px_18px_rgba(0,0,0,0.65)]"
                 style={{
                   left: `${enemy.x * 100}%`,
                   top: `${enemy.y * 100}%`,
                   transform: "translate(-50%, -50%)",
                   padding: `${basePaddingY}px ${paddingX}px`,
-                  borderRadius: "6px",
-                  border: "3px solid",
                   whiteSpace: "nowrap",
                   display: "inline-block", // Important: makes width fit content
                 }}
@@ -1121,11 +1143,11 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
 
           {/* Power-ups */}
           {gameState.powerups.map((powerup) => {
-            const powerupConfig: Record<string, { icon: string; color: string; bgColor: string }> = {
-              shield: { icon: "🛡️", color: "text-blue-300", bgColor: "from-blue-600 to-cyan-600" },
-              slowmo: { icon: "⏳", color: "text-purple-300", bgColor: "from-purple-600 to-pink-600" },
-              double_xp: { icon: "⭐", color: "text-yellow-300", bgColor: "from-yellow-500 to-amber-500" },
-              extra_life: { icon: "❤️", color: "text-red-300", bgColor: "from-red-500 to-rose-500" },
+            const powerupConfig: Record<string, { label: string; bgColor: string }> = {
+              shield: { label: "Bouclier", bgColor: "from-blue-600 to-cyan-600" },
+              slowmo: { label: "Ralenti", bgColor: "from-purple-600 to-pink-600" },
+              double_xp: { label: "Bonus x2", bgColor: "from-yellow-500 to-amber-500" },
+              extra_life: { label: "Vie +1", bgColor: "from-red-500 to-rose-500" },
             };
             const config = powerupConfig[powerup.type] || powerupConfig.shield;
 
@@ -1143,12 +1165,30 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
                 }}
               >
                 <div
-                  className={`w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br ${config.bgColor} flex items-center justify-center border-2 border-white/50`}
+                  title={config.label}
+                  className={`w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br ${config.bgColor} flex items-center justify-center border-2 border-white/65 text-white`}
                   style={{
                     boxShadow: "0 0 20px rgba(255, 255, 255, 0.5), 0 0 40px rgba(255, 255, 255, 0.3)",
                   }}
                 >
-                  <span className="text-lg md:text-xl">{config.icon}</span>
+                  {powerup.type === "slowmo" ? (
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+                      <circle cx="12" cy="12" r="9" />
+                      <polyline points="12 7 12 12 15 14" />
+                    </svg>
+                  ) : powerup.type === "double_xp" ? (
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                  ) : powerup.type === "extra_life" ? (
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+                      <path d="M12 21s-7-4.5-9.2-9A5.4 5.4 0 0 1 12 6.1 5.4 5.4 0 0 1 21.2 12C19 16.5 12 21 12 21z" />
+                    </svg>
+                  ) : (
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+                      <path d="M12 3l7 3v6c0 4.5-3 7.8-7 9-4-1.2-7-4.5-7-9V6l7-3z" />
+                    </svg>
+                  )}
                 </div>
               </motion.div>
             );
@@ -1221,12 +1261,25 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
               >
                 <div className="eq-space-overlay-card is-cyan">
                   <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-16 h-16 bg-slate-800 border border-slate-700 rounded-md flex items-center justify-center text-2xl">
-                      {gameState.currentDialogue.lines[gameState.dialogueIndex].speaker === "COMMANDER" ? "👨‍✈️" : "🤖"}
+                    <div className="flex-shrink-0 w-14 h-14 bg-slate-900 border-2 border-cyan-400/60 rounded-md flex items-center justify-center text-cyan-300">
+                      {gameState.currentDialogue.lines[gameState.dialogueIndex].speaker === "COMMANDER" ? (
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                          <polygon points="12 2 15 8.5 22 9.5 17 14.5 18 21.5 12 18 6 21.5 7 14.5 2 9.5 9 8.5 12 2" />
+                        </svg>
+                      ) : (
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                          <rect x="4" y="6" width="16" height="12" rx="3" />
+                          <circle cx="9.5" cy="12" r="1.5" fill="currentColor" />
+                          <circle cx="14.5" cy="12" r="1.5" fill="currentColor" />
+                          <line x1="12" y1="2" x2="12" y2="6" />
+                        </svg>
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="text-cyan-400 font-black text-xs md:text-sm tracking-widest mb-1 italic">
-                        {gameState.currentDialogue.lines[gameState.dialogueIndex].speaker}
+                        {gameState.currentDialogue.lines[gameState.dialogueIndex].speaker === "COMMANDER"
+                          ? "COMMANDANT"
+                          : "IA TACTIQUE"}
                       </div>
                       <div className="text-white text-sm md:text-base font-bold leading-tight min-h-[3em]">
                         {gameState.currentDialogue.lines[gameState.dialogueIndex].text}
@@ -1236,15 +1289,15 @@ export function SpaceLexGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
                   <div className="mt-3 flex justify-end gap-3">
                     <button
                       onClick={handleCloseDialogue}
-                      className="text-[10px] font-black text-slate-500 hover:text-white transition-colors"
+                      className="text-xs font-bold text-slate-400 hover:text-white transition-colors"
                     >
-                      SKIP
+                      Passer
                     </button>
                     <button
                       onClick={handleAdvanceDialogue}
                       className="px-4 py-1 bg-cyan-600 hover:bg-cyan-500 border border-cyan-400 text-white font-black text-xs md:text-sm shadow-[2px_2px_0_#083344] active:translate-y-0.5 active:shadow-none"
                     >
-                      {gameState.dialogueIndex < (gameState.currentDialogue.lines.length - 1) ? "NEXT >" : "CONTINUE"}
+                      {gameState.dialogueIndex < (gameState.currentDialogue.lines.length - 1) ? "Suivant >" : "Continuer"}
                     </button>
                   </div>
                 </div>

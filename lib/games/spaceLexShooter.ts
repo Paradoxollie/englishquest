@@ -1788,9 +1788,9 @@ export function getDialogueForWave(waveNumber: number): Dialogue | null {
     return {
       id: "wave_1",
       lines: [
-        { speaker: "COMMANDER", text: "Welcome to the Sector 7, Recruit. We have a lexical breach!" },
-        { speaker: "COMMANDER", text: "Your mission is simple: shoot the words that match your mission profile." },
-        { speaker: "AI GUIDE", text: "I will assist you. Use the Super EMP [SPACE] once the bar is full." },
+        { speaker: "COMMANDER", text: "Bienvenue dans le Secteur 7, Recrue. Alerte : une brèche lexicale vient de s'ouvrir !" },
+        { speaker: "COMMANDER", text: "Ta mission : abats uniquement les vaisseaux dont le mot correspond à l'objectif indiqué." },
+        { speaker: "AI GUIDE", text: "Assistance tactique prête. Appuie sur [ESPACE] pour libérer la Super IEM dès que la jauge est pleine." },
       ]
     };
   }
@@ -1799,9 +1799,9 @@ export function getDialogueForWave(waveNumber: number): Dialogue | null {
     return {
       id: "wave_5_boss",
       lines: [
-        { speaker: "AI GUIDE", text: "WARNING: High power lexical entity detected ahead." },
-        { speaker: "COMMANDER", text: "That's the Centurion X-1! Don't let its distractors confuse you." },
-        { speaker: "COMMANDER", text: "Focus fire on the core by shooting the required synonyms!" },
+        { speaker: "AI GUIDE", text: "ALERTE : Entité lexicale à haute puissance détectée devant le vaisseau." },
+        { speaker: "COMMANDER", text: "C'est le Centurion X-1 ! Ne te laisse pas piéger par ses leurres grammaticaux." },
+        { speaker: "COMMANDER", text: "Concentre ton feu sur le noyau en visant les bons synonymes !" },
       ]
     };
   }

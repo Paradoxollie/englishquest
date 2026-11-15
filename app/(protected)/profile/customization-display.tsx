@@ -25,6 +25,9 @@ function normalizeEquippedItems(equipped: any): UserEquippedItems {
     equipped_background: Array.isArray(equipped.equipped_background)
       ? equipped.equipped_background[0]
       : equipped.equipped_background,
+    equipped_ship_skin: Array.isArray(equipped.equipped_ship_skin)
+      ? equipped.equipped_ship_skin[0]
+      : equipped.equipped_ship_skin,
   };
 }
 
@@ -39,9 +42,10 @@ export function CustomizationDisplay({
     avatars: ShopItem[];
     titles: ShopItem[];
     backgrounds: ShopItem[];
-  }>({ avatars: [], titles: [], backgrounds: [] });
+    shipSkins: ShopItem[];
+  }>({ avatars: [], titles: [], backgrounds: [], shipSkins: [] });
   const [showSelector, setShowSelector] = useState<
-    "avatar" | "title" | "background" | null
+    "avatar" | "title" | "background" | "ship_skin" | null
   >(null);
 
   useEffect(() => {
@@ -57,7 +61,8 @@ export function CustomizationDisplay({
               *,
               equipped_avatar:shop_items!equipped_avatar_id(*),
               equipped_title:shop_items!equipped_title_id(*),
-              equipped_background:shop_items!equipped_background_id(*)
+              equipped_background:shop_items!equipped_background_id(*),
+              equipped_ship_skin:shop_items!equipped_ship_skin_id(*)
             `
           )
           .eq("user_id", userId)
@@ -106,6 +111,7 @@ export function CustomizationDisplay({
         avatars: ownedItems.filter((item) => item.item_type === "avatar"),
         titles: ownedItems.filter((item) => item.item_type === "title"),
         backgrounds: ownedItems.filter((item) => item.item_type === "background"),
+        shipSkins: ownedItems.filter((item) => item.item_type === "ship_skin"),
       });
       setLoading(false);
     }
@@ -127,7 +133,7 @@ export function CustomizationDisplay({
 
   const handleEquip = async (
     itemId: string | null,
-    type: "avatar" | "title" | "background"
+    type: "avatar" | "title" | "background" | "ship_skin"
   ) => {
     const result = await equipItemAction(itemId ?? null, type);
 
@@ -143,7 +149,8 @@ export function CustomizationDisplay({
           *,
           equipped_avatar:shop_items!equipped_avatar_id(*),
           equipped_title:shop_items!equipped_title_id(*),
-          equipped_background:shop_items!equipped_background_id(*)
+          equipped_background:shop_items!equipped_background_id(*),
+          equipped_ship_skin:shop_items!equipped_ship_skin_id(*)
         `
       )
       .eq("user_id", userId)
@@ -175,8 +182,8 @@ export function CustomizationDisplay({
 
   if (loading) {
     return (
-      <div className="comic-panel-dark p-8 text-center">
-        <p className="text-slate-300 text-outline">Chargement...</p>
+      <div className="eq-card p-8 text-center">
+        <p className="eq-muted">Chargement…</p>
       </div>
     );
   }
@@ -184,10 +191,11 @@ export function CustomizationDisplay({
   const currentAvatar = equippedItems?.equipped_avatar;
   const currentTitle = equippedItems?.equipped_title;
   const currentBackground = equippedItems?.equipped_background;
+  const currentShipSkin = equippedItems?.equipped_ship_skin;
 
   return (
-    <div className="comic-panel-dark space-y-6 p-6" style={{ position: "relative", zIndex: 1 }}>
-      <h2 className="mb-4 text-2xl font-bold text-white text-outline">Personnalisation</h2>
+    <div className="eq-card space-y-6 p-6" style={{ position: "relative", zIndex: 1 }}>
+      <h2 className="eq-h2">Personnalisation</h2>
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
@@ -365,19 +373,20 @@ export function CustomizationDisplay({
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-white text-outline">Background</h3>
+          <h3 className="eq-h3">Arrière-plan</h3>
           <button
+            type="button"
             onClick={() =>
               setShowSelector(showSelector === "background" ? null : "background")
             }
-            className="comic-button bg-slate-700 px-4 py-2 text-sm font-bold text-white text-outline hover:bg-slate-600"
+            className="eq-btn eq-btn-ghost eq-btn-sm"
           >
             {showSelector === "background" ? "Fermer" : "Changer"}
           </button>
         </div>
 
         <div
-          className="overflow-hidden rounded-lg border-4 border-black"
+          className="overflow-hidden rounded-[var(--radius)] border border-[var(--line-strong)]"
           style={{ aspectRatio: "2/3", width: "100%", maxWidth: "200px" }}
         >
           {currentBackground?.image_url ? (
@@ -390,8 +399,8 @@ export function CustomizationDisplay({
             <div className={`h-full w-full ${getItemColor(currentBackground.color_theme)}`} />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
-              <span className="font-bold text-white text-outline">
-                {currentBackground?.name || "Defaut"}
+              <span className="font-bold text-[var(--fg)]">
+                {currentBackground?.name || "Par défaut"}
               </span>
             </div>
           )}
@@ -399,7 +408,7 @@ export function CustomizationDisplay({
 
         {showSelector === "background" && (
           <div
-            className="comic-panel border-2 border-black bg-slate-800 p-4"
+            className="eq-inset p-4"
             style={{ position: "relative", zIndex: 10 }}
           >
             <div
@@ -413,10 +422,8 @@ export function CustomizationDisplay({
                   event.stopPropagation();
                   handleEquip(null, "background");
                 }}
-                className={`comic-button relative z-10 px-3 py-2 text-sm font-bold text-outline ${
-                  !currentBackground
-                    ? "bg-cyan-500 text-white"
-                    : "bg-slate-600 text-white hover:bg-slate-500"
+                className={`eq-btn eq-btn-sm ${
+                  !currentBackground ? "eq-btn-primary" : "eq-btn-ghost"
                 }`}
               >
                 Aucun
@@ -430,12 +437,9 @@ export function CustomizationDisplay({
                     event.stopPropagation();
                     handleEquip(background.id, "background");
                   }}
-                  className={`comic-button relative z-10 px-3 py-2 text-sm font-bold text-outline ${
-                    currentBackground?.id === background.id
-                      ? "bg-cyan-500 text-white"
-                      : "bg-slate-700 text-white hover:bg-slate-600"
+                  className={`eq-btn eq-btn-sm ${
+                    currentBackground?.id === background.id ? "eq-btn-primary" : "eq-btn-ghost"
                   }`}
-                  style={{ pointerEvents: "auto", position: "relative", zIndex: 20 }}
                 >
                   {background.image_url ? (
                     <div className="w-full" style={{ aspectRatio: "2/3" }}>
@@ -454,6 +458,67 @@ export function CustomizationDisplay({
           </div>
         )}
       </div>
+
+      {availableItems.shipSkins.length > 0 ? (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="eq-h3">Vaisseau Space Lex</h3>
+            <button
+              type="button"
+              onClick={() =>
+                setShowSelector(showSelector === "ship_skin" ? null : "ship_skin")
+              }
+              className="eq-btn eq-btn-ghost eq-btn-sm"
+            >
+              {showSelector === "ship_skin" ? "Fermer" : "Changer"}
+            </button>
+          </div>
+
+          <div className="eq-inset p-3 text-center">
+            <span className="font-bold text-[var(--cyan)]">
+              {currentShipSkin?.name || "Vaisseau par défaut"}
+            </span>
+          </div>
+
+          {showSelector === "ship_skin" && (
+            <div className="eq-inset p-4">
+              <div className="grid max-h-96 grid-cols-2 gap-3 overflow-y-auto pr-2 sm:grid-cols-3 md:grid-cols-4">
+                <button
+                  type="button"
+                  onClick={() => handleEquip(null, "ship_skin")}
+                  className={`eq-btn eq-btn-sm ${
+                    !currentShipSkin ? "eq-btn-primary" : "eq-btn-ghost"
+                  }`}
+                >
+                  Par défaut
+                </button>
+                {availableItems.shipSkins.map((skin) => (
+                  <button
+                    key={skin.id}
+                    type="button"
+                    onClick={() => handleEquip(skin.id, "ship_skin")}
+                    className={`eq-btn eq-btn-sm ${
+                      currentShipSkin?.id === skin.id ? "eq-btn-primary" : "eq-btn-ghost"
+                    }`}
+                  >
+                    {skin.image_url ? (
+                      <div className="w-full" style={{ aspectRatio: "2/3" }}>
+                        <img
+                          src={addCacheBustingIfSupabase(skin.image_url)}
+                          alt={skin.name}
+                          className="h-full w-full rounded object-cover"
+                        />
+                      </div>
+                    ) : (
+                      skin.name
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 }

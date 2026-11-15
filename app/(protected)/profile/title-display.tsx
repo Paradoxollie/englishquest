@@ -47,7 +47,7 @@ export function TitleDisplay({ userId }: TitleDisplayProps) {
   }
 
   return (
-    <p className="mt-1 text-sm font-semibold text-cyan-400 text-outline">
+    <p className="mt-1 text-sm font-semibold text-[var(--cyan)]">
       {equippedTitle.name}
     </p>
   );

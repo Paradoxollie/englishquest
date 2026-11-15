@@ -160,7 +160,7 @@ export async function submitWordfallScore(params: {
       .from("games")
       .select("id")
       .eq("slug", "wordfall")
-      .single();
+      .maybeSingle();
 
     if (gameError || !game) {
       return {

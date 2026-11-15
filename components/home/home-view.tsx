@@ -27,7 +27,6 @@ type HomeViewProps = {
   dailyGames: GameConfig[];
   otherGames: GameConfig[];
   nextDailyGame: GameConfig | null;
-  canAccessTeachers: boolean;
   /** Nouveau joueur sans mission validée et sans test de niveau. */
   suggestPlacement?: boolean;
 };
@@ -50,7 +49,6 @@ export function HomeView({
   dailyGames,
   otherGames,
   nextDailyGame,
-  canAccessTeachers,
   suggestPlacement = false,
 }: HomeViewProps) {
   const completionPercent = totalCourses > 0 ? Math.round((completedCount / totalCourses) * 100) : 0;
@@ -201,8 +199,8 @@ export function HomeView({
           </ul>
           <p className="text-sm text-[var(--muted)]">
             Les trois jeux joués : + {dailyXp} XP et + {daily.goldBonus} or
-            {streakBonusPercent > 0 ? ` (série de ${daily.dailyStreak} jours, + ${streakBonusPercent} %)` : ""}.
-            {daily.nextRefreshLabel}.
+            {streakBonusPercent > 0 ? ` (série de ${daily.dailyStreak} jours, + ${streakBonusPercent} %)` : ""}.{" "}
+            {daily.nextRefreshLabel}. Jusqu&apos;à 5 parties par jeu à plein tarif chaque jour.
           </p>
           {nextDailyGame && !daily.dailyGoalReached ? (
             <div className="eq-home-actions mt-auto">
@@ -241,11 +239,9 @@ export function HomeView({
           <p className="eq-h3">Classements</p>
           <p className="text-sm text-[var(--muted)]">Où tu te situes, jeu par jeu.</p>
         </Link>
-        <Link href={canAccessTeachers ? "/teachers" : "/tous-les-cours"} className="eq-card eq-card-link">
-          <p className="eq-h3">{canAccessTeachers ? "Espace professeurs" : "Tous les cours"}</p>
-          <p className="text-sm text-[var(--muted)]">
-            {canAccessTeachers ? "Ressources et suivi de classe." : "Lire librement, dans n'importe quel ordre."}
-          </p>
+        <Link href="/tous-les-cours" className="eq-card eq-card-link">
+          <p className="eq-h3">Tous les cours</p>
+          <p className="text-sm text-[var(--muted)]">Lire librement, dans n&apos;importe quel ordre.</p>
         </Link>
       </nav>
     </div>

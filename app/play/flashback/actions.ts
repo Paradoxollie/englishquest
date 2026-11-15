@@ -44,7 +44,14 @@ export async function submitEchoLexScore(params: {
     durationMs: number;
 }) {
     try {
-        if (!Number.isSafeInteger(params.score) || params.score < 0 || !Number.isFinite(params.durationMs) || params.durationMs < 0) {
+        if (
+            !Number.isSafeInteger(params.score) ||
+            params.score < 0 ||
+            params.score > 10_000 ||
+            !Number.isFinite(params.durationMs) ||
+            params.durationMs < 0 ||
+            params.durationMs > 2 * 60 * 60 * 1000
+        ) {
             return { success: false, error: "Score Flashback invalide" };
         }
         const supabase = await createSupabaseServerClient();

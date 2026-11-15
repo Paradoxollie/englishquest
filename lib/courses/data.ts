@@ -26,7 +26,7 @@ export const paliers: Palier[] = [
   {
     id: 1,
     title: "Niveau 1 : Les Fondations",
-    description: "Comprendre la structure de base, parler de soi, de ses habitudes et de ce qui se passé maintenant.",
+    description: "Comprendre la structure de base, parler de soi, de ses habitudes et de ce qui se passe maintenant.",
     level: "A1 - Débutant",
     courses: [
       { id: 1, title: "Être et Avoir (Les Fondamentaux)", type: "grammar" },
@@ -107,7 +107,7 @@ export const paliers: Palier[] = [
       { id: 44, title: "Le Passé du Passé (Past Perfect)", type: "grammar" },
       { id: 45, title: "Nuances de déduction passée (Must have / Can't have)", type: "grammar" },
       { id: 46, title: "Faire faire quelque chose (Have something done)", type: "grammar" },
-      { id: 47, title: "Connecteurs logiques avances (Although, Despite...)", type: "grammar" },
+      { id: 47, title: "Connecteurs logiques avancés (Although, Despite...)", type: "grammar" },
       { id: 48, title: "Prépositions et Gérondif (Préposition + -ing)", type: "grammar" },
       { id: 49, title: "Phrasal Verbs (Introduction)", type: "grammar" },
       { id: 50, title: "Phrasal Verbs (Les essentiels)", type: "grammar" },

@@ -10,7 +10,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 const steps = [
   {
     title: "Tu choisis ton point de départ",
-    copy: "Débutant, tu commences au premier chapitre. Tu as déjà des bases ? Entre plus loin dans la carte. Un test de niveau arrivera pour te placer automatiquement.",
+    copy: "Débutant, tu commences au premier chapitre. Tu as déjà des bases ? Passe le test de niveau pour te placer automatiquement.",
   },
   {
     title: "Chaque mission, un cours et un quiz",
@@ -77,7 +77,7 @@ export default async function PublicHomePage({
               </Link>
             </div>
             <p className="text-sm text-[var(--muted)]">
-              Gratuit, sans publicité dans les cours et les jeux.{" "}
+              100 % gratuit, sans publicité.{" "}
               <span className="font-bold text-[var(--fg)]">
                 Un site de Pierre Marienne, professeur d&apos;anglais.
               </span>

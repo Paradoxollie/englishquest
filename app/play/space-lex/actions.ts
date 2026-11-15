@@ -86,7 +86,7 @@ export async function submitLexiconBlasterScore(params: {
             .from("games")
             .select("id")
             .eq("slug", "space-lex")
-            .single();
+            .maybeSingle();
 
         if (gameError || !game) {
             console.error("Game not found:", gameError);

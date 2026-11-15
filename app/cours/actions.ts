@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import questionsData from "@/lib/placement/questions.json";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   completeCourseAndGrantRewards,
@@ -130,24 +131,54 @@ export async function submitCourseQuizAction(params: {
   courseNumber: number;
   score: number;
   total: number;
+  answers?: number[];
 }) {
   try {
     const userId = await getAuthenticatedUserId();
 
     if (
       !userId ||
-      !Number.isFinite(params.courseNumber) ||
-      !Number.isFinite(params.score) ||
-      !Number.isFinite(params.total)
+      !Number.isSafeInteger(params.courseNumber) ||
+      params.courseNumber < 1 ||
+      params.courseNumber > 50 ||
+      !Number.isSafeInteger(params.total) ||
+      params.total < 1 ||
+      params.total > 30 ||
+      !Number.isSafeInteger(params.score) ||
+      params.score < 0 ||
+      params.score > params.total
     ) {
       return { success: false };
+    }
+
+    let verifiedScore = params.score;
+    let verifiedTotal = params.total;
+
+    if (Array.isArray(params.answers)) {
+      const courseQuestions = questionsData.filter((q) => q.course === params.courseNumber);
+      if (
+        courseQuestions.length === 0 ||
+        params.answers.length !== courseQuestions.length ||
+        params.answers.some((choice, index) => {
+          const optionCount = courseQuestions[index]?.options.length ?? 0;
+          return !Number.isInteger(choice) || choice < 0 || choice >= optionCount;
+        })
+      ) {
+        return { success: false };
+      }
+
+      verifiedTotal = courseQuestions.length;
+      verifiedScore = courseQuestions.reduce(
+        (acc, q, index) => acc + (params.answers![index] === q.correctAnswer ? 1 : 0),
+        0
+      );
     }
 
     const missionState = await submitCourseQuizResult(
       userId,
       params.courseNumber,
-      params.score,
-      params.total
+      verifiedScore,
+      verifiedTotal
     );
 
     // Si le défi de jeu est déjà atteint (meilleur score existant), le cours se

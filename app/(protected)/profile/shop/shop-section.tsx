@@ -31,6 +31,9 @@ function normalizeEquippedItems(equipped: any): UserEquippedItems {
     equipped_background: Array.isArray(equipped.equipped_background)
       ? equipped.equipped_background[0]
       : equipped.equipped_background,
+    equipped_ship_skin: Array.isArray(equipped.equipped_ship_skin)
+      ? equipped.equipped_ship_skin[0]
+      : equipped.equipped_ship_skin,
   };
 }
 
@@ -39,7 +42,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
   const [shopItems, setShopItems] = useState<ShopItem[]>([]);
   const [userItems, setUserItems] = useState<UserItem[]>([]);
   const [equippedItems, setEquippedItems] = useState<UserEquippedItems | null>(null);
-  const [selectedType, setSelectedType] = useState<"avatar" | "title" | "background">("avatar");
+  const [selectedType, setSelectedType] = useState<"avatar" | "title" | "background" | "ship_skin">("avatar");
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +75,8 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
               *,
               equipped_avatar:shop_items!equipped_avatar_id(*),
               equipped_title:shop_items!equipped_title_id(*),
-              equipped_background:shop_items!equipped_background_id(*)
+              equipped_background:shop_items!equipped_background_id(*),
+              equipped_ship_skin:shop_items!equipped_ship_skin_id(*)
             `
           )
           .eq("user_id", userId)
@@ -105,7 +109,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
     const result = await purchaseShopItemAction(item.id);
 
     if (result.success) {
-      setSuccess(`${item.name} achete avec succes.`);
+      setSuccess(`${item.name} acheté avec succès.`);
 
       const supabase = createSupabaseBrowserClient();
       const { data: owned } = await supabase
@@ -139,7 +143,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
 
   const handleEquip = async (
     itemId: string | null,
-    type: "avatar" | "title" | "background"
+    type: "avatar" | "title" | "background" | "ship_skin"
   ) => {
     setError(null);
     setSuccess(null);
@@ -148,7 +152,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
       const result = await equipItemAction(itemId, type);
 
       if (result.success) {
-        setSuccess("Item équipe avec succès.");
+        setSuccess("Objet équipé avec succès.");
 
         const supabase = createSupabaseBrowserClient();
         const { data: equipped } = await supabase
@@ -158,7 +162,8 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
               *,
               equipped_avatar:shop_items!equipped_avatar_id(*),
               equipped_title:shop_items!equipped_title_id(*),
-              equipped_background:shop_items!equipped_background_id(*)
+              equipped_background:shop_items!equipped_background_id(*),
+              equipped_ship_skin:shop_items!equipped_ship_skin_id(*)
             `
           )
           .eq("user_id", userId)
@@ -171,7 +176,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
           router.refresh();
         }, 300);
       } else {
-        setError(result.error || "Erreur lors de l'equipement");
+        setError(result.error || "Erreur lors de l'équipement");
       }
     } catch {
       setError("Une erreur inattendue s'est produite");
@@ -200,42 +205,54 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
 
   if (loading) {
     return (
-      <div className="comic-panel-dark p-8 text-center">
-        <p className="text-slate-300 text-outline">Chargement de la boutique...</p>
+      <div className="eq-card p-8 text-center">
+        <p className="eq-muted">Chargement de la boutique…</p>
       </div>
     );
   }
 
+  const categoryLabels: Record<"avatar" | "title" | "background" | "ship_skin", string> = {
+    avatar: "Avatars",
+    title: "Titres",
+    background: "Arrière-plans",
+    ship_skin: "Vaisseaux Space Lex",
+  };
+
   return (
     <div className="space-y-6" style={{ position: "relative", zIndex: 1 }}>
       {error && (
-        <div className="comic-panel bg-red-600 border-2 border-black p-4 text-white text-outline">
+        <div className="rounded-[var(--radius)] border border-[var(--coral)] bg-[var(--coral-soft)] p-4 text-sm font-bold text-[var(--coral)]">
           {error}
         </div>
       )}
       {success && (
-        <div className="comic-panel bg-green-600 border-2 border-black p-4 text-white text-outline">
+        <div className="rounded-[var(--radius)] border border-[var(--mint)] bg-[var(--mint-soft)] p-4 text-sm font-bold text-[var(--mint)]">
           {success}
         </div>
       )}
 
-      <div className="comic-panel-dark p-4">
-        <div className="flex flex-wrap gap-3">
-          {(["avatar", "title", "background"] as const).map((type) => (
+      <div className="eq-card p-4">
+        <div className="flex flex-wrap gap-2.5">
+          {(["avatar", "title", "background", "ship_skin"] as const).map((type) => (
             <button
               key={type}
+              type="button"
               onClick={() => setSelectedType(type)}
-              className={`comic-button px-6 py-2 font-bold text-outline ${
-                selectedType === type
-                  ? "bg-cyan-500 text-white border-4 border-black"
-                  : "bg-slate-700 text-white hover:bg-slate-600"
+              className={`eq-btn eq-btn-sm ${
+                selectedType === type ? "eq-btn-primary" : "eq-btn-ghost"
               }`}
             >
-              {type === "avatar" ? "Avatars" : type === "title" ? "Titres" : "Backgrounds"}
+              {categoryLabels[type]}
             </button>
           ))}
         </div>
       </div>
+
+      {filteredItems.length === 0 ? (
+        <div className="eq-card p-6 text-center">
+          <p className="eq-muted text-sm">Aucun objet disponible dans cette catégorie pour le moment.</p>
+        </div>
+      ) : null}
 
       <div
         className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
@@ -252,19 +269,19 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
           const isEquipped =
             (selectedType === "avatar" && equippedItems?.equipped_avatar_id === item.id) ||
             (selectedType === "title" && equippedItems?.equipped_title_id === item.id) ||
-            (selectedType === "background" &&
-              equippedItems?.equipped_background_id === item.id);
+            (selectedType === "background" && equippedItems?.equipped_background_id === item.id) ||
+            (selectedType === "ship_skin" && equippedItems?.equipped_ship_skin_id === item.id);
 
           return (
             <div
               key={item.id}
-              className={`comic-panel border-2 border-black p-4 ${
-                isEquipped ? "bg-gradient-to-br from-cyan-900/30 to-blue-900/30" : "bg-slate-800"
+              className={`eq-card flex flex-col justify-between gap-3 ${
+                isEquipped ? "border-[var(--cyan)]" : ""
               }`}
             >
               <div className="space-y-3">
                 <div
-                  className="flex items-center justify-center overflow-hidden rounded-lg border-2 border-black bg-slate-900"
+                  className="flex items-center justify-center overflow-hidden rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--ink)]"
                   style={{ aspectRatio: "2/3", width: "100%" }}
                 >
                   {item.image_url ? (
@@ -277,20 +294,20 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
                     <div className={`h-full w-full ${getItemColor(item.color_theme)}`} />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
-                      <span className="text-2xl font-bold text-white">{item.name.charAt(0)}</span>
+                      <span className="text-2xl font-bold text-[var(--fg)]">{item.name.charAt(0)}</span>
                     </div>
                   )}
                 </div>
 
                 <div>
-                  <h3 className="text-lg font-bold text-white text-outline">{item.name}</h3>
+                  <h3 className="eq-h3">{item.name}</h3>
                   {item.description && (
-                    <p className="mt-1 text-sm text-slate-300 text-outline">{item.description}</p>
+                    <p className="mt-1 text-sm text-[var(--muted)]">{item.description}</p>
                   )}
                 </div>
 
-                <div className="space-y-1 text-xs text-slate-400 text-outline">
-                  <div className="flex items-center gap-2">
+                <div className="space-y-1 text-xs text-[var(--muted)]">
+                  <div className="flex items-center gap-2 font-bold text-[var(--gold)]">
                     <GoldIcon className="h-4 w-4" />
                     <span>{item.price_gold} or</span>
                   </div>
@@ -309,20 +326,11 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
                         event.stopPropagation();
                         handleEquip(isEquipped ? null : item.id, selectedType);
                       }}
-                      className={`comic-button flex-1 px-4 py-2 text-sm font-bold text-outline ${
-                        isEquipped
-                          ? "bg-slate-600 text-white hover:bg-slate-500"
-                          : "bg-cyan-500 text-white hover:bg-cyan-600"
+                      className={`eq-btn eq-btn-sm flex-1 ${
+                        isEquipped ? "eq-btn-ghost" : "eq-btn-primary"
                       }`}
-                      style={{
-                        pointerEvents: "auto",
-                        position: "relative",
-                        zIndex: 50,
-                        cursor: "pointer",
-                        touchAction: "manipulation",
-                      }}
                     >
-                      {isEquipped ? "Desequiper" : "Equiper"}
+                      {isEquipped ? "Déséquiper" : "Équiper"}
                     </button>
                   ) : (
                     <button
@@ -335,14 +343,12 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
                         }
                       }}
                       disabled={!canBuy || purchasing === item.id}
-                      className={`comic-button flex-1 px-4 py-2 text-sm font-bold text-outline transition-colors ${
-                        canBuy && !purchasing
-                          ? "bg-emerald-500 text-white hover:bg-emerald-600"
-                          : "cursor-not-allowed bg-slate-600 text-slate-400 opacity-50"
+                      className={`eq-btn eq-btn-sm flex-1 ${
+                        canBuy && !purchasing ? "eq-btn-gold" : "eq-btn-ghost opacity-55"
                       }`}
                     >
                       {purchasing === item.id
-                        ? "..."
+                        ? "Achat…"
                         : !canAfford
                           ? "Pas assez d'or"
                           : !hasLevel

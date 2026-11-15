@@ -3,30 +3,27 @@ import { BookIcon } from "@/components/ui/icons";
 
 export default function CourseNotFound() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-stone-950 via-stone-900 to-stone-950 comic-dot-pattern">
-      <div className="mx-auto max-w-4xl px-4 py-8 md:px-6 md:py-12">
-        <div className="comic-panel-dark w-full p-6 md:p-8">
-          <div className="text-center">
-            <div className="mb-6 flex justify-center">
-              <div className="comic-panel bg-slate-800 border-2 border-black p-6">
-                <BookIcon className="w-16 h-16 text-slate-400" />
-              </div>
-            </div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-4 text-outline">
-              Cours introuvable
-            </h1>
-            <p className="text-lg text-slate-300 mb-8 text-outline">
-              Ce cours n'existe pas encore ou n'est pas disponible.
-            </p>
-            <Link
-              href="/tous-les-cours"
-              className="comic-button bg-indigo-600 text-white px-6 py-3 font-bold hover:bg-indigo-700 inline-flex items-center gap-2"
-            >
-              <BookIcon className="w-5 h-5" />
-              Retour aux cours
-            </Link>
+    <main className="eq-container eq-section flex min-h-[60vh] items-center justify-center">
+      <div className="eq-card w-full max-w-2xl p-6 md:p-10 text-center">
+        <div className="mb-6 flex justify-center">
+          <div className="eq-inset flex h-20 w-20 items-center justify-center rounded-xl">
+            <BookIcon className="w-10 h-10 text-[var(--gold)]" />
           </div>
         </div>
+        <p className="eq-kicker">Cours</p>
+        <h1 className="eq-h1 mt-2 mb-4">
+          Cours introuvable
+        </h1>
+        <p className="eq-lead mx-auto mb-8">
+          Ce cours n&apos;existe pas encore ou n&apos;est pas disponible.
+        </p>
+        <Link
+          href="/tous-les-cours"
+          className="eq-btn eq-btn-primary"
+        >
+          <BookIcon className="w-5 h-5" />
+          Retour aux cours
+        </Link>
       </div>
     </main>
   );

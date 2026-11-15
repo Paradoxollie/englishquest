@@ -42,18 +42,15 @@ export default function AboutPage() {
           <section>
             <h2 className="eq-h2">Ce que ça coûte</h2>
             <p className="mt-3 text-[var(--muted)]">
-              Rien. Le site est gratuit, sans publicité dans les cours et les jeux. Les pages
-              d&apos;information peuvent afficher une annonce en bas de page pour couvrir les
-              frais d&apos;hébergement. Aucune donnée n&apos;est vendue.
+              Rien. Le site est 100 % gratuit et sans publicité. Aucune donnée n&apos;est vendue.
             </p>
           </section>
 
           <section>
-            <h2 className="eq-h2">Pour les professeurs</h2>
+            <h2 className="eq-h2">Une question ou un retour ?</h2>
             <p className="mt-3 text-[var(--muted)]">
-              Un espace dédié est en préparation : codes de classe, suivi des élèves, ressources
-              prêtes à projeter. Si vous enseignez l&apos;anglais et voulez l&apos;essayer en
-              avance, écrivez-moi.
+              Le site évolue en continu avec mes élèves. Si vous repérez une coquille ou avez une
+              suggestion, écrivez-moi via le formulaire de contact.
             </p>
             <Link href="/contact" className="eq-btn eq-btn-ghost mt-4">
               Me contacter

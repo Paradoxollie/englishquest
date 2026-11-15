@@ -4,7 +4,8 @@ import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score"
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createGameState, nextRound, startGame, submitDecision, type GameState } from "@/lib/games/echoLex";
-import { GameEnd, GameHud, GameStart, HudStat, TimeBar, type RewardSummary } from "@/components/play/game-screens";
+import { playSoundEffect } from "@/lib/games/audio";
+import { GameEnd, GameHud, GameStart, HudStat, SpeakButton, TimeBar, type RewardSummary } from "@/components/play/game-screens";
 import { submitEchoLexScore } from "./actions";
 
 const ROUND_MS = 5000;
@@ -68,9 +69,11 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
       setCombo((value) => {
         const next = value + 1;
         setBestCombo((best) => Math.max(best, next));
+        playSoundEffect(next > 0 && next % 5 === 0 ? "combo" : "correct");
         return next;
       });
     } else {
+      playSoundEffect("wrong");
       setCombo(0);
     }
     if (result.phase !== "gameOver") {
@@ -123,6 +126,7 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
   useEffect(() => {
     if (!state || state.phase !== "gameOver" || submittedRef.current) return;
     submittedRef.current = true;
+    playSoundEffect(state.score > 0 ? "victory" : "wrong");
     if (!isLoggedIn) {
       setSubmitStatus("guest");
       return;
@@ -191,8 +195,11 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
           <ul className="eq-game-review">
             {state.seenWords.slice(0, 24).map((word) => (
               <li key={word.english}>
-                <b>{word.english}</b>
-                <span>{word.french}</span>
+                <div>
+                  <b>{word.english}</b>
+                  <span> · {word.french}</span>
+                </div>
+                <SpeakButton text={word.english} label="Audio" />
               </li>
             ))}
           </ul>
@@ -220,7 +227,10 @@ export function FlashbackGame({ isLoggedIn, missionTarget }: { isLoggedIn: boole
       <TimeBar percent={(timeLeft / ROUND_MS) * 100} low={timeLow} />
 
       <div className={`eq-game-stage ${tone}`} data-testid="game-stage">
-        <p className="eq-game-prompt-kicker">Ce mot, tu l&apos;as déjà vu dans cette partie ?</p>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="eq-game-prompt-kicker">Ce mot, tu l&apos;as déjà vu dans cette partie ?</p>
+          <SpeakButton text={state.currentWord.english} label="Prononcer" />
+        </div>
         <p className="eq-game-prompt" data-testid="game-prompt">
           {state.currentWord.english}
         </p>

@@ -12,6 +12,7 @@ import {
   type RushQuestion,
   type RushState,
 } from "@/lib/games/grammar-rush";
+import { playSoundEffect } from "@/lib/games/audio";
 import { GameEnd, GameHud, GameStart, HudStat, TimeBar, type RewardSummary } from "@/components/play/game-screens";
 import { submitGrammarRushScore } from "./actions";
 
@@ -115,6 +116,11 @@ export function GrammarRushGame({
       stateRef.current = result.state;
       setState(result.state);
       setSelected(choice);
+      if (result.isCorrect) {
+        playSoundEffect(result.state.streak >= 3 ? "combo" : "correct");
+      } else {
+        playSoundEffect("wrong");
+      }
       setFeedback(
         result.isCorrect
           ? { right: true, text: `+ ${result.points}${result.speedBonus ? " (rapide)" : ""}`, question }
@@ -155,6 +161,7 @@ export function GrammarRushGame({
   useEffect(() => {
     if (phase !== "ended" || submittedRef.current) return;
     submittedRef.current = true;
+    playSoundEffect(stateRef.current.correct > 0 ? "victory" : "wrong");
     const run = runRef.current;
     const final = stateRef.current;
     if (!isLoggedIn) {

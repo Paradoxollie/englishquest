@@ -43,7 +43,7 @@ export async function getGameLeaderboard(gameId: string): Promise<LeaderboardDat
     .from("games")
     .select("slug")
     .eq("id", gameId)
-    .single();
+    .maybeSingle();
 
   const isTimeBased = game?.slug === "flash-translation";
   const sortOrder = isTimeBased ? { ascending: true } : { ascending: false };

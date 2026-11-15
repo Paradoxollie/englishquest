@@ -209,7 +209,7 @@ export default async function ProfilePage({
           <div>
             <p className="eq-kicker">Apparence</p>
             <h2 id="profile-look" className="eq-h3">
-              Avatar, titre et fond
+              Avatar, titre, fond et vaisseau
             </h2>
           </div>
         </div>

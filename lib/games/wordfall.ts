@@ -232,7 +232,7 @@ const DEFAULT_CONFIG: Required<Omit<WordfallConfig, "mode" | "rng">> = {
   wordsPerLevel: 5, // Words needed to level up
 };
 
-const FALL_LANES = [18, 50, 82] as const;
+const FALL_LANES = [22, 50, 78] as const;
 const SAME_LANE_SPAWN_CLEARANCE = 42;
 
 function defaultRng(): number {

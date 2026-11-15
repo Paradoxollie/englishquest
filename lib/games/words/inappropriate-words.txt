@@ -1,0 +1,9 @@
+# Liste de mots inappropriés à filtrer
+# Format : un mot par ligne, en majuscules
+# Ce fichier peut être utilisé pour charger la liste dans le code
+
+# Exemple (à remplacer par votre vraie liste) :
+# WORD1
+# WORD2
+# ...
+

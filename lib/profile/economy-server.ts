@@ -30,7 +30,7 @@ export async function grantProfileRewards(
   }
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const { data: profile, error } = await adminClient.from("profiles")
-      .select("xp, gold, level").eq("id", userId).single();
+      .select("xp, gold, level").eq("id", userId).maybeSingle();
     if (error || !profile) throw error ?? new Error("Profile not found");
     const xp = (profile.xp ?? 0) + reward.xp;
     const gold = (profile.gold ?? 0) + reward.gold;

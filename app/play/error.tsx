@@ -15,24 +15,26 @@ export default function PlayError({
   }, [error]);
 
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center">
-      <div className="comic-panel-dark max-w-md p-8 text-center">
-        <h2 className="mb-4 text-2xl font-bold text-red-400 text-outline">
+    <div className="eq-container flex min-h-[60vh] flex-col items-center justify-center">
+      <div className="eq-card max-w-md p-8 text-center">
+        <p className="eq-kicker text-[var(--coral)]">Erreur</p>
+        <h2 className="eq-h2 mt-2 mb-3">
           Erreur de chargement
         </h2>
-        <p className="mb-6 text-slate-300 text-outline">
+        <p className="eq-muted mb-6">
           Impossible de charger la page des jeux. Veuillez réessayer.
         </p>
         <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
           <button
+            type="button"
             onClick={reset}
-            className="comic-button bg-cyan-600 text-white px-6 py-3 font-bold hover:bg-cyan-700"
+            className="eq-btn eq-btn-primary"
           >
             Réessayer
           </button>
           <Link
             href="/play"
-            className="comic-button bg-slate-700 text-white px-6 py-3 font-bold hover:bg-slate-600 text-center"
+            className="eq-btn eq-btn-ghost text-center"
           >
             Retour aux jeux
           </Link>

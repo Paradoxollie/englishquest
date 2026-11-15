@@ -81,7 +81,7 @@ export async function submitEnigmaScrollScore(params: {
       .from("games")
       .select("id")
       .eq("slug", "enigma-scroll")
-      .single();
+      .maybeSingle();
 
     if (gameError || !game) {
       return {
@@ -102,7 +102,7 @@ export async function submitEnigmaScrollScore(params: {
       .eq("difficulty", difficulty)
       .order("score", { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     const isNewPersonalBest = !personalBest || params.totalScore > personalBest.score;
 
@@ -114,7 +114,7 @@ export async function submitEnigmaScrollScore(params: {
       .eq("difficulty", difficulty)
       .order("score", { ascending: false })
       .limit(1)
-      .single();
+      .maybeSingle();
 
     const currentGlobalBest = globalTopScore?.score ?? 0;
     const isNewGlobalBest = params.totalScore > currentGlobalBest;

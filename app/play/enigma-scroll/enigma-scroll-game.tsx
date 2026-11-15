@@ -15,8 +15,8 @@ import {
   type LetterStatus,
 } from "@/lib/games/enigma-scroll";
 import { loadAndFilterWordLists, validateWordLists } from "@/lib/games/enigma-scroll-words";
-import wordListsData from "@/lib/games/words/enigma-scroll-words.json";
-import { GameEnd, GameHud, GameStart, HudStat, TimeBar, type RewardSummary } from "@/components/play/game-screens";
+import { playSoundEffect } from "@/lib/games/audio";
+import { GameEnd, GameHud, GameStart, HudStat, SpeakButton, TimeBar, type RewardSummary } from "@/components/play/game-screens";
 import { submitEnigmaScrollScore } from "./actions";
 
 type WordLength = 4 | 5 | 6;
@@ -36,25 +36,32 @@ const LENGTHS: { value: WordLength; label: string; detail: string }[] = [
 ];
 
 let listsReady = false;
+let listsLoadPromise: Promise<void> | null = null;
 
-function ensureLists() {
+async function ensureLists(): Promise<void> {
   if (listsReady) return;
-  try {
-    const lists = loadAndFilterWordLists(wordListsData.targetWords, wordListsData.validGuesses);
-    for (const length of [4, 5, 6]) {
-      if (!lists.validGuesses[length] || lists.validGuesses[length].length === 0) {
-        lists.validGuesses[length] = [...lists.targetWords[length]];
+  if (listsLoadPromise) return listsLoadPromise;
+  listsLoadPromise = (async () => {
+    try {
+      const wordListsData = (await import("@/lib/games/words/enigma-scroll-words.json")).default;
+      const lists = loadAndFilterWordLists(wordListsData.targetWords, wordListsData.validGuesses);
+      for (const length of [4, 5, 6]) {
+        if (!lists.validGuesses[length] || lists.validGuesses[length].length === 0) {
+          lists.validGuesses[length] = [...lists.targetWords[length]];
+        }
       }
+      const validation = validateWordLists(lists);
+      if (!validation.valid) {
+        console.error("Enigma Scroll : listes de mots", validation.errors);
+      }
+      initializeWordLists(lists);
+      listsReady = true;
+    } catch (error) {
+      console.error("Enigma Scroll : chargement des listes", error);
+      listsLoadPromise = null;
     }
-    const validation = validateWordLists(lists);
-    if (!validation.valid) {
-      console.error("Enigma Scroll : listes de mots", validation.errors);
-    }
-    initializeWordLists(lists);
-  } catch (error) {
-    console.error("Enigma Scroll : chargement des listes", error);
-  }
-  listsReady = true;
+  })();
+  return listsLoadPromise;
 }
 
 function keyboardStatus(state: GameState | null): Record<string, LetterStatus> {
@@ -91,11 +98,11 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
   const sessionRef = useRef(0);
 
   useEffect(() => {
-    ensureLists();
+    void ensureLists();
   }, []);
 
-  const start = useCallback(() => {
-    ensureLists();
+  const start = useCallback(async () => {
+    await ensureLists();
     sessionRef.current += 1;
     setState(createRandomGameState(length));
     setPhase("playing");
@@ -163,6 +170,7 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
     }
     const guess = getCurrentGuess(state);
     if (guess.length !== state.config.wordLength) {
+      playSoundEffect("wrong");
       setMessage("Mot incomplet.");
       setShakeRow(state.currentAttemptIndex);
       window.setTimeout(() => setShakeRow(null), 500);
@@ -170,6 +178,7 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
     }
     const { state: next, result } = submitGuess(state, guess, remaining);
     if (!result.isValid) {
+      playSoundEffect("wrong");
       setMessage(result.errorMessage || "Ce mot n'est pas dans la liste.");
       setShakeRow(state.currentAttemptIndex);
       window.setTimeout(() => setShakeRow(null), 500);
@@ -178,10 +187,14 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
     setState(next);
     setMessage(null);
     if (result.isWin) {
+      playSoundEffect("victory");
       setLastPoints(result.pointsEarned);
       setPhase("won");
     } else if (result.isGameOver) {
+      playSoundEffect("wrong");
       setPhase("ended");
+    } else {
+      playSoundEffect("tick");
     }
   }, [phase, state]);
 
@@ -323,7 +336,11 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
         rewardStatus={submitStatus}
         missionReached={missionTarget != null ? state.totalScore >= missionTarget : null}
         onReplay={() => { sessionRef.current += 1; setPhase("start"); }}
-      />
+      >
+        <div className="flex justify-center">
+          <SpeakButton text={state.targetWord} label={`Écouter « ${state.targetWord} »`} />
+        </div>
+      </GameEnd>
     );
   }
 
@@ -370,9 +387,12 @@ export function EnigmaScrollGame({ isLoggedIn, missionTarget }: { isLoggedIn: bo
 
         {phase === "won" ? (
           <div className="eq-game-feedback is-right" role="status">
-            <p>
-              <b>{state.targetWord}</b> trouvé, + {lastPoints} points.
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p>
+                <b>{state.targetWord}</b> trouvé, + {lastPoints} points.
+              </p>
+              <SpeakButton text={state.targetWord} label="Prononcer" />
+            </div>
             <div className="eq-game-actions">
               <button type="button" className="eq-btn eq-btn-gold" onClick={nextWord} autoFocus data-testid="next-word">
                 Mot suivant

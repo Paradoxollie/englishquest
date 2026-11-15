@@ -76,10 +76,10 @@ export async function submitSpeedVerbScore(params: {
   try {
     if (
       ![1, 2, 3].includes(params.difficulty) ||
-      !Number.isSafeInteger(params.score) || params.score < 0 ||
-      !Number.isSafeInteger(params.correctCount) || params.correctCount < 0 ||
-      !Number.isSafeInteger(params.totalRounds) || params.totalRounds < params.correctCount ||
-      !Number.isFinite(params.durationMs) || params.durationMs < 0
+      !Number.isSafeInteger(params.score) || params.score < 0 || params.score > 1_000_000 ||
+      !Number.isSafeInteger(params.correctCount) || params.correctCount < 0 || params.correctCount > 5_000 ||
+      !Number.isSafeInteger(params.totalRounds) || params.totalRounds < params.correctCount || params.totalRounds > 5_000 ||
+      !Number.isFinite(params.durationMs) || params.durationMs < 0 || params.durationMs > 2 * 60 * 60 * 1000
     ) {
       return { success: false, error: "Score Speed Verb Challenge invalide" };
     }
@@ -104,7 +104,7 @@ export async function submitSpeedVerbScore(params: {
       .from("games")
       .select("id")
       .eq("slug", "speed-verb-challenge")
-      .single();
+      .maybeSingle();
 
     if (gameError || !game) {
       return {

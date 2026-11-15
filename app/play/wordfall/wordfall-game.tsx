@@ -21,7 +21,8 @@ import {
   type WordfallState,
 } from "@/lib/games/wordfall";
 import wordfallWordsData from "@/lib/games/words/wordfall-words.json";
-import { GameEnd, GameHud, GameStart, HudStat, type RewardSummary } from "@/components/play/game-screens";
+import { playSoundEffect } from "@/lib/games/audio";
+import { GameEnd, GameHud, GameStart, HudStat, SpeakButton, type RewardSummary } from "@/components/play/game-screens";
 import { submitWordfallScore } from "./actions";
 
 type SubmitStatus = "idle" | "saving" | "saved" | "error" | "guest";
@@ -196,6 +197,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
         const moved = active.map((word) => updateFallingWord(word, delta));
         const missed = moved.find(hasReachedBottom);
         if (missed) {
+          playSoundEffect("wrong");
           pulse("is-wrong");
           say("bad", "Mot manqué : une vie en moins.");
           return processWordMissed({ ...current, activeWord: moved[0] ?? null, activeWords: moved }, missed.id);
@@ -241,6 +243,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
       if (!state || !state.isRunning || paused || !input.trim()) return;
       const result = processWordInput(state, input);
       if (!result.success) {
+        playSoundEffect("wrong");
         setState(result.newState);
         say("bad", result.reason || "Réponse incorrecte.", 1900);
         pulse("is-wrong");
@@ -250,6 +253,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
       setState(result.newState);
       setInput("");
       pulse("is-right");
+      playSoundEffect(result.newState.combo > state.combo ? "combo" : "correct");
       if (result.pointsBreakdown?.isPerfect) {
         say("ok", `+ ${gained} points, capture parfaite.`);
       } else if (result.newState.combo > state.combo) {
@@ -300,6 +304,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
   useEffect(() => {
     if (!state?.gameOver || submittedRef.current) return;
     submittedRef.current = true;
+    playSoundEffect(state.wordsCompleted > 0 ? "victory" : "wrong");
     if (!isLoggedIn) {
       setSubmitStatus("guest");
       return;
@@ -422,10 +427,11 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
           const top = 4 + Math.min(1, Math.max(0, word.y) / 100) * 66;
           const progress = Math.max(0, 100 - word.y);
           const long = word.text.replace(/\s+/g, "").length > 9;
+          const inDanger = word.y >= 62;
           return (
             <div
               key={word.id}
-              className="eq-fall-card"
+              className={`eq-fall-card${inDanger ? " is-danger" : ""}`}
               style={{
                 top: `${top}%`,
                 left: `clamp(calc(var(--card-w) / 2 + 8px), ${word.x}%, calc(100% - var(--card-w) / 2 - 8px))`,
@@ -460,6 +466,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
             data-testid="wordfall-input"
             type="text"
             autoComplete="off"
+            autoCorrect="off"
             autoCapitalize="none"
             spellCheck={false}
             value={input}
@@ -472,6 +479,7 @@ export function WordfallGame({ isLoggedIn, missionTarget }: { isLoggedIn: boolea
           <button type="submit" className="eq-btn eq-btn-gold" disabled={paused || !input.trim()}>
             Valider
           </button>
+          {mode === "exact" && words[0] ? <SpeakButton text={words[0].text} /> : null}
           <button type="button" className="eq-btn eq-btn-ghost" onClick={togglePause}>
             {paused ? "Reprendre" : "Pause"}
           </button>

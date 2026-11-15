@@ -14,6 +14,7 @@ import {
   startCourseAction,
   submitCourseQuizAction,
 } from "@/app/cours/actions";
+import { playSoundEffect } from "@/lib/games/audio";
 import type { CourseMissionState } from "@/lib/courses/mission-state";
 
 type CourseMissionContextValue = {
@@ -23,7 +24,11 @@ type CourseMissionContextValue = {
   missionState: CourseMissionState | null;
   isSyncing: boolean;
   markReadingCheckpoint: () => Promise<void>;
-  submitQuizResult: (score: number, total: number) => Promise<QuizSubmissionOutcome | null>;
+  submitQuizResult: (
+    score: number,
+    total: number,
+    answers?: number[]
+  ) => Promise<QuizSubmissionOutcome | null>;
 };
 
 export type QuizSubmissionOutcome = {
@@ -99,7 +104,7 @@ export function CourseMissionProvider({
     return pending;
   }
 
-  async function submitQuizResult(score: number, total: number) {
+  async function submitQuizResult(score: number, total: number, answers?: number[]) {
     if (!isAuthenticated || !isMissionTrackingEnabled) {
       return null;
     }
@@ -111,10 +116,14 @@ export function CourseMissionProvider({
         courseNumber,
         score,
         total,
+        answers,
       });
 
       if (result?.success && result.missionState) {
         setMissionState(result.missionState);
+        playSoundEffect(
+          result.courseCompleted || result.missionState.quizPassed ? "victory" : "tick"
+        );
         router.refresh();
         return {
           missionState: result.missionState,

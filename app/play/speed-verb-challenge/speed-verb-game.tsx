@@ -15,7 +15,8 @@ import {
   type GameState,
   type RequiredFields,
 } from "@/lib/games/speed-verb-challenge";
-import { GameEnd, GameHud, GameStart, HudStat, TimeBar, type RewardSummary } from "@/components/play/game-screens";
+import { playSoundEffect } from "@/lib/games/audio";
+import { GameEnd, GameHud, GameStart, HudStat, SpeakButton, TimeBar, type RewardSummary } from "@/components/play/game-screens";
 import { submitSpeedVerbScore } from "./actions";
 
 const TOTAL_TIME_MS = 90_000;
@@ -201,6 +202,7 @@ export function SpeedVerbGame({
     }));
 
     if (result.isCorrect) {
+      playSoundEffect(result.isMilestone ? "combo" : "correct");
       const parts = [`+ ${result.pointsAwarded} points`];
       if (result.speedBonus) parts.push(`vitesse + ${result.speedBonus}`);
       if (result.timeBonus) parts.push(`+ ${Math.round(result.timeBonus / 1000)} s`);
@@ -211,6 +213,7 @@ export function SpeedVerbGame({
         toastTimeoutRef.current = setTimeout(() => setToast(null), 2600);
       }
     } else {
+      playSoundEffect("wrong");
       setFeedback({ kind: "wrong", message: "Pas tout à fait. Les bonnes réponses :", answers: correctAnswersFor(current) });
       setMissed((previous) => [
         ...previous,
@@ -238,6 +241,7 @@ export function SpeedVerbGame({
     roundLockedRef.current = true;
     const round = current.currentRound;
     updateState(skipCurrentVerb(current));
+    playSoundEffect("wrong");
     setStats((previous) => ({ ...previous, attempts: previous.attempts + 1 }));
     setFeedback({ kind: "skipped", message: "Verbe passé. Série remise à zéro. À retenir :", answers: correctAnswersFor(current) });
     setMissed((previous) => [
@@ -258,6 +262,7 @@ export function SpeedVerbGame({
   useEffect(() => {
     if (phase !== "ended" || !state || submittedRef.current) return;
     submittedRef.current = true;
+    playSoundEffect(stats.correct > 0 ? "victory" : "wrong");
 
     if (!isLoggedIn) {
       setSubmitStatus("guest");
@@ -367,7 +372,10 @@ export function SpeedVerbGame({
                       · {verb.pastSimple.join(" / ")} · {verb.pastParticiple.join(" / ")}
                     </span>
                   </div>
-                  <span>{verb.translations[0]}</span>
+                  <div className="flex items-center gap-2">
+                    <span>{verb.translations[0]}</span>
+                    <SpeakButton text={`${verb.base}, ${verb.pastSimple[0]}, ${verb.pastParticiple[0]}`} label="Audio" />
+                  </div>
                 </li>
               ))}
             </ul>
@@ -421,7 +429,13 @@ export function SpeedVerbGame({
           handleSubmit();
         }}
       >
-        <p className="eq-game-prompt-kicker">Verbe irrégulier</p>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="eq-game-prompt-kicker">Verbe irrégulier</p>
+          <SpeakButton
+            text={`${round.currentVerb.base}`}
+            label="Prononcer"
+          />
+        </div>
         <p className="eq-game-prompt" data-testid="game-prompt">
           {round.currentVerb.base}
         </p>
@@ -438,6 +452,7 @@ export function SpeedVerbGame({
                 type="text"
                 inputMode="text"
                 autoComplete="off"
+                autoCorrect="off"
                 autoCapitalize="none"
                 spellCheck={false}
                 placeholder={field.placeholder}

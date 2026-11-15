@@ -47,9 +47,7 @@ export default function LegalNoticePage() {
         <section>
           <h2 className="eq-h2">Publicité</h2>
           <p>
-            Les pages d&apos;information (accueil, à propos, contact) peuvent afficher une annonce fournie par
-            Google AdSense (Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irlande). Les cours,
-            les jeux et l&apos;espace connecté n&apos;en affichent aucune.
+            Le site English Quest n&apos;affiche aucune publicité et n&apos;intègre aucun traceur publicitaire.
           </p>
         </section>
 

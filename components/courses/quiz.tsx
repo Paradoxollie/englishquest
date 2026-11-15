@@ -26,6 +26,7 @@ export function Quiz({ questions }: QuizProps) {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
   const [score, setScore] = useState(0);
+  const [answers, setAnswers] = useState<number[]>([]);
   const [showResult, setShowResult] = useState(false);
   const [combo, setCombo] = useState(0);
   const [maxCombo, setMaxCombo] = useState(0);
@@ -87,7 +88,7 @@ export function Quiz({ questions }: QuizProps) {
     const attempt = attemptRef.current;
     void (async () => {
       try {
-        const outcome = await mission.submitQuizResult(score, questions.length);
+        const outcome = await mission.submitQuizResult(score, questions.length, answers);
         if (attempt !== attemptRef.current) return;
         if (!outcome) {
           setSyncMessage("Le score n'a pas pu être enregistré. Réessaie dans un instant.");
@@ -125,6 +126,11 @@ export function Quiz({ questions }: QuizProps) {
     if (!Number.isInteger(index) || index < 0 || index >= question.options.length) return;
     current.answered = true;
     setSelectedOption(index);
+    setAnswers((prev) => {
+      const next = [...prev];
+      next[currentQuestion] = index;
+      return next;
+    });
     setIsAnswered(true);
     setAnimationKey((key) => key + 1);
 
@@ -159,6 +165,7 @@ export function Quiz({ questions }: QuizProps) {
     setSelectedOption(null);
     setIsAnswered(false);
     setScore(0);
+    setAnswers([]);
     setShowResult(false);
     setCombo(0);
     setMaxCombo(0);

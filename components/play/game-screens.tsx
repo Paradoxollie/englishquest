@@ -2,6 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
+import {
+  canSpeakEnglish,
+  isSoundMuted,
+  setSoundMuted,
+  speakEnglish,
+} from "@/lib/games/audio";
 
 /* Écrans partagés par les jeux : démarrage, fin de partie, HUD. */
 
@@ -56,8 +62,115 @@ function RewardCounters({ xp, gold }: { xp: number; gold: number }) {
   );
 }
 
-export function GameHud({ children }: { children: ReactNode }) {
-  return <div className="eq-game-hud">{children}</div>;
+export function SoundToggleButton() {
+  const [muted, setMuted] = useState(false);
+
+  useEffect(() => {
+    setMuted(isSoundMuted());
+  }, []);
+
+  const toggle = () => {
+    const next = setSoundMuted(!muted);
+    setMuted(next);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-pressed={!muted}
+      aria-label={muted ? "Activer les effets sonores" : "Couper les effets sonores"}
+      className={`eq-sound-btn ${muted ? "is-muted" : ""}`}
+      title={muted ? "Activer le son" : "Couper le son"}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+        {muted ? (
+          <>
+            <line x1="22" y1="9" x2="16" y2="15" />
+            <line x1="16" y1="9" x2="22" y2="15" />
+          </>
+        ) : (
+          <>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+          </>
+        )}
+      </svg>
+      <span>{muted ? "Son coupé" : "Son activé"}</span>
+    </button>
+  );
+}
+
+export function SpeakButton({
+  text,
+  label = "Écouter",
+  className = "",
+}: {
+  text: string;
+  label?: string;
+  className?: string;
+}) {
+  const [supported, setSupported] = useState(false);
+
+  useEffect(() => {
+    setSupported(canSpeakEnglish());
+  }, []);
+
+  if (!supported || !text.trim()) {
+    return null;
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => speakEnglish(text)}
+      className={`eq-speak-btn ${className}`.trim()}
+      aria-label={`Écouter la prononciation anglaise de ${text}`}
+      title="Écouter la prononciation anglaise"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        width="16"
+        height="16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      </svg>
+      <span>{label}</span>
+    </button>
+  );
+}
+
+export function GameHud({
+  children,
+  showSoundToggle = true,
+}: {
+  children: ReactNode;
+  showSoundToggle?: boolean;
+}) {
+  return (
+    <div className="eq-game-hud-wrap">
+      <div className="eq-game-hud">{children}</div>
+      {showSoundToggle ? <SoundToggleButton /> : null}
+    </div>
+  );
 }
 
 export function HudStat({

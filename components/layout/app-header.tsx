@@ -12,7 +12,6 @@ const baseNavLinks = [
   { label: "Aventure", href: "/quest" },
   { label: "Cours", href: "/tous-les-cours" },
   { label: "Jeux", href: "/play" },
-  { label: "Profs", href: "/teachers" },
 ];
 
 function isActivePath(pathname: string, href: string) {
