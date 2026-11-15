@@ -1,0 +1,102 @@
+{
+  "course": 21,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : Emma ___ her homework. She can go out now.",
+      "options": ["have finished", "has finished", "has finish", "finished has"],
+      "correctAnswer": 1,
+      "explanation": "Emma = she : au Present Perfect, on utilise has + participe passé. Le résultat compte maintenant : elle peut sortir."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment dire « Je viens de rater le bus » ?",
+      "options": ["I come to miss the bus.", "Just I missed the bus.", "I have missed the bus just.", "I have just missed the bus."],
+      "correctAnswer": 3,
+      "explanation": "« Venir de » se traduit par have just + participe passé. Just se place entre have et le participe passé."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : Someone has ___ my bike! It isn't in the garage.",
+      "options": ["stole", "stealed", "stolen", "steal"],
+      "correctAnswer": 2,
+      "explanation": "Après has, il faut le participe passé. Steal est irrégulier : steal, stole, stolen."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : ___ you seen my keys? I can't find them.",
+      "options": ["Have", "Has", "Do", "Are"],
+      "correctAnswer": 0,
+      "explanation": "Question au Present Perfect : have passe devant le sujet. Avec you, on utilise have, pas has."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : I ___ Lucas at the cinema last Saturday.",
+      "options": ["have seen", "has seen", "have saw", "saw"],
+      "correctAnswer": 3,
+      "explanation": "Last Saturday est un moment passé et terminé : on utilise le Past Simple, pas le Present Perfect."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Ta mère te demande si tu as fait la vaisselle. Tu ne l'as pas encore faite. Que réponds-tu ?",
+      "options": ["No, I have done it yet.", "No, I didn't do it already.", "No, I haven't done it yet."],
+      "correctAnswer": 2,
+      "explanation": "« Pas encore » se dit haven't + participe passé + yet. Yet se place à la fin de la phrase négative."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "Have you ___ your train ticket yet? (buy)",
+      "answers": ["bought"],
+      "explanation": "Après have, on met le participe passé. Buy est irrégulier : buy, bought, bought."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Oh no! I've ___ my phone in the water! (drop)",
+      "answers": ["dropped"],
+      "explanation": "Après have, on met le participe passé. Drop double son p avant -ed : dropped."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Tom hasn't ___ his room yet. (tidy)",
+      "answers": ["tidied"],
+      "explanation": "Après hasn't, on met le participe passé. Tidy se termine par consonne + y : le y devient ied."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "Don't buy any bread. I have ___ bought some. (déjà)",
+      "answers": ["already"],
+      "explanation": "Déjà se dit already au Present Perfect. Il se place entre have et le participe passé."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["I have just finished my homework."],
+      "translation": "Je viens de finir mes devoirs.",
+      "explanation": "« Venir de » se traduit par have just + participe passé."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["Has she called you yet?"],
+      "translation": "Est-ce qu'elle t'a déjà téléphoné ?",
+      "explanation": "Question au Present Perfect : has + sujet + participe passé. Yet se place à la fin de la question."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["We have already seen this film.", "We have seen this film already."],
+      "translation": "Nous avons déjà vu ce film.",
+      "explanation": "Already se place en général entre have et le participe passé. On peut aussi le mettre en fin de phrase."
+    }
+  ]
+}

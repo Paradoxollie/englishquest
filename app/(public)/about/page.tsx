@@ -53,7 +53,7 @@ export default function AboutPage() {
               suggestion, écrivez-moi via le formulaire de contact.
             </p>
             <Link href="/contact" className="eq-btn eq-btn-ghost mt-4">
-              Me contacter
+              Écrire via contact
             </Link>
           </section>
         </div>

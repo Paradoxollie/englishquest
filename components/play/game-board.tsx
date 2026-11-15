@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getGameLeaderboards, getPersonalBests, type LeaderboardBucket } from "@/lib/games/leaderboard-service";
 import type { Difficulty } from "@/lib/profile/leveling";
 import { GameBoardView, type BoardBucketView } from "./game-board-view";
@@ -23,6 +24,22 @@ export async function GameBoard({
   userId: string | null;
   title?: string;
 }) {
+  // Les pseudos des élèves ne s'affichent qu'aux joueurs connectés (page Confidentialité).
+  if (!userId) {
+    return (
+      <section className="eq-card eq-game-board" aria-label={title ?? "Classement"}>
+        <h3>{title ?? "Classement"}</h3>
+        <p className="eq-muted eq-board-empty">
+          Le classement est visible une fois connecté. Avec un compte, tes scores y entrent et te rapportent de
+          l&apos;expérience.
+        </p>
+        <Link href="/auth/signup" className="eq-btn eq-btn-primary eq-btn-sm">
+          Créer un compte gratuit
+        </Link>
+      </section>
+    );
+  }
+
   const serviceBuckets: LeaderboardBucket<string>[] = buckets.map((bucket) => ({
     key: bucket.key,
     difficulty: bucket.difficulty,

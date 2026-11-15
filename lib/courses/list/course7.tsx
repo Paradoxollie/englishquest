@@ -69,9 +69,9 @@ export const course7: LessonContent = {
               <tbody className="divide-y divide-slate-700 bg-slate-900/40 font-mono">
                 <tr><td className="p-3">I (Je)</td><td className="p-3 text-emerald-400 font-bold">My <span className="text-slate-500 font-normal text-xs">(Mon/Ma/Mes)</span></td></tr>
                 <tr><td className="p-3">You (Tu)</td><td className="p-3 text-emerald-400 font-bold">Your <span className="text-slate-500 font-normal text-xs">(Ton/Ta/Tes)</span></td></tr>
-                <tr><td className="p-3">He (Il)</td><td className="p-3 text-emerald-400 font-bold">His <span className="text-slate-500 font-normal text-xs">(Son - Homme)</span></td></tr>
-                <tr><td className="p-3">She (Elle)</td><td className="p-3 text-emerald-400 font-bold">Her <span className="text-slate-500 font-normal text-xs">(Sa - Femme)</span></td></tr>
-                <tr><td className="p-3">It (Chose)</td><td className="p-3 text-emerald-400 font-bold">Its <span className="text-slate-500 font-normal text-xs">(Son - Chose)</span></td></tr>
+                <tr><td className="p-3">He (Il)</td><td className="p-3 text-emerald-400 font-bold">His <span className="text-slate-500 font-normal text-xs">(Son/Sa/Ses - Homme)</span></td></tr>
+                <tr><td className="p-3">She (Elle)</td><td className="p-3 text-emerald-400 font-bold">Her <span className="text-slate-500 font-normal text-xs">(Son/Sa/Ses - Femme)</span></td></tr>
+                <tr><td className="p-3">It (Chose)</td><td className="p-3 text-emerald-400 font-bold">Its <span className="text-slate-500 font-normal text-xs">(Son/Sa/Ses - Chose)</span></td></tr>
                 <tr><td className="p-3">We (Nous)</td><td className="p-3 text-emerald-400 font-bold">Our <span className="text-slate-500 font-normal text-xs">(Notre/Nos)</span></td></tr>
                 <tr><td className="p-3">They (Eux)</td><td className="p-3 text-emerald-400 font-bold">Their <span className="text-slate-500 font-normal text-xs">(Leur/Leurs)</span></td></tr>
               </tbody>
@@ -89,7 +89,7 @@ export const course7: LessonContent = {
               <div className="space-y-2">
                 <p className="text-white font-bold">Si le propriétaire est un HOMME (He)</p>
                 <p className="text-emerald-400 font-mono text-lg">➔ HIS House</p>
-                <p className="text-xs text-slate-500">Même si 'House' est féminin, on s'en fiche. C'est À LUI.</p>
+                <p className="text-xs text-slate-500">Même si 'maison' est féminin en français, on s'en fiche. C'est À LUI.</p>
               </div>
               <div className="space-y-2">
                 <p className="text-white font-bold">Si le propriétaire est une FEMME (She)</p>
@@ -219,14 +219,14 @@ export const course7: LessonContent = {
               question: "I have a brother. ___ name is Paul.",
               options: ["His", "Her", "He", "Him"],
               correctAnswer: 0,
-              explanation: "Le sujet est 'Brother' (Homme) ➔ HIS.",
+              explanation: "Le possesseur est 'Brother' (Homme) ➔ HIS.",
             },
             {
               id: 2,
               question: "This is my sister. ___ car is red.",
               options: ["His", "Her", "She", "Hers"],
               correctAnswer: 1,
-              explanation: "Le sujet est 'Sister' (Femme) ➔ HER.",
+              explanation: "Le possesseur est 'Sister' (Femme) ➔ HER.",
             },
             {
               id: 3,

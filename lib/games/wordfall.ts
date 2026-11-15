@@ -5,7 +5,12 @@
  * A Tetris-style word typing game with two modes:
  * - Exact Word Mode: Type the exact falling word
  * - Free Word Mode: Type any valid word starting with the displayed letter
+ *
+ * In exact mode, words come from the player's vocabulary level (about 70 %)
+ * and the level below (30 %), as tagged in wordfall-words.json (manualWords.levels).
  */
+
+import { isGameLevel, pickOneByLevel, type GameLevel } from "./levels";
 
 export type WordfallMode = "exact" | "free";
 
@@ -37,6 +42,8 @@ export interface WordfallState {
   highestStreak: number; // Best streak achieved
   perfectCatches: number; // Words caught high up (y < 20)
   wordStartTime?: number; // When current word appeared (for speed bonus)
+  /** Niveau du vocabulaire (mode exact) ; null = tous les mots. */
+  vocabLevel: GameLevel | null;
 }
 
 export interface WordfallConfig {
@@ -45,6 +52,8 @@ export interface WordfallConfig {
   initialSpeed?: number;
   speedIncreasePerLevel?: number;
   wordsPerLevel?: number;
+  /** Niveau du vocabulaire du joueur (mode exact). */
+  vocabLevel?: GameLevel | null;
   rng?: () => number; // optional PRNG for deterministic tests
 }
 
@@ -61,6 +70,9 @@ let globalDictionary: Record<string, string> | null = null;
 
 // Complete English words dictionary for free mode validation (all valid English words)
 let englishWordsSet: Set<string> | null = null;
+
+// Vocabulary level of each manual word (1 = A1 ... 5 = C1)
+let wordLevels: Map<string, GameLevel> = new Map();
 
 function logWordfallDebug(message: string, ...details: unknown[]): void {
   if (process.env.NODE_ENV !== "production") {
@@ -106,6 +118,10 @@ function cleanTranslationForDisplay(translation: string): string {
 
 function normalizeForAnswerComparison(value: string): string {
   return value
+    .replace(/œ/g, "oe")
+    .replace(/Œ/g, "OE")
+    .replace(/æ/g, "ae")
+    .replace(/Æ/g, "AE")
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
@@ -133,7 +149,13 @@ export function initializeWordLists(wordLists: {
   translations: Record<string, string>; // word -> translation mapping
   wordsByLength: Record<number, string[]>; // words grouped by length (only words with translations)
   expressions?: string[]; // Optional: expressions with spaces
+  levels?: Record<string, number>; // Optional: vocabulary level of each word
 }): void {
+  wordLevels = new Map();
+  for (const [word, level] of Object.entries(wordLists.levels ?? {})) {
+    if (isGameLevel(level)) wordLevels.set(word.toUpperCase().trim(), level);
+  }
+
   // Only use words that have translations
   const allWords = new Set<string>();
   const wordsByLength: Record<number, string[]> = {};
@@ -225,7 +247,7 @@ function getWordLists() {
   };
 }
 
-const DEFAULT_CONFIG: Required<Omit<WordfallConfig, "mode" | "rng">> = {
+const DEFAULT_CONFIG: Required<Omit<WordfallConfig, "mode" | "rng" | "vocabLevel">> = {
   initialLives: 3,
   initialSpeed: 5, // units per second (0-100 range) - very slow at start for learning
   speedIncreasePerLevel: 1, // very small speed increase per level (reduced from 2)
@@ -304,7 +326,41 @@ export function createGameState(config: WordfallConfig): WordfallState {
     highestStreak: 0,
     perfectCatches: 0,
     wordStartTime: undefined,
+    vocabLevel: config.vocabLevel ?? null,
   };
+}
+
+/** Mots d'un niveau donné (et du niveau inférieur), pour le mode exact. */
+export function getExactWordsForLevel(level: GameLevel): string[] {
+  const words = getWordLists().allManualWords ?? [];
+  return words.filter((word) => {
+    const wordLevel = wordLevels.get(word);
+    return wordLevel === level || wordLevel === level - 1;
+  });
+}
+
+/** Niveau d'un mot du lexique, ou null s'il n'est pas classé. */
+export function getWordLevel(word: string): GameLevel | null {
+  return wordLevels.get(word.toUpperCase().trim()) ?? null;
+}
+
+/**
+ * Tire un mot du mode exact au niveau du joueur, en évitant les mots déjà à
+ * l'écran et ceux déjà attrapés pendant la partie (tant qu'il en reste).
+ */
+function getLevelledWordForExactMode(state: WordfallState, rng: () => number): string | null {
+  if (!state.vocabLevel || wordLevels.size === 0) return null;
+  const active = new Set(getActiveWords(state).map((word) => word.text));
+  const used = new Set(state.usedWords);
+  const candidates: { word: string; level: GameLevel }[] = [];
+  for (const word of getWordLists().allManualWords ?? []) {
+    const wordLevel = wordLevels.get(word);
+    if (!wordLevel || active.has(word) || !getTranslation(word)) continue;
+    candidates.push({ word, level: wordLevel });
+  }
+  const fresh = candidates.filter((candidate) => !used.has(candidate.word));
+  const picked = pickOneByLevel(fresh.length > 0 ? fresh : candidates, state.vocabLevel, rng);
+  return picked?.word ?? null;
 }
 
 /**
@@ -434,7 +490,7 @@ export function spawnFallingWord(
     let translation: string | undefined = undefined;
     
     for (let attempt = 0; attempt < 10; attempt++) {
-      const candidate = getRandomWordForExactMode(4, 6, rng);
+      const candidate = getLevelledWordForExactMode(state, rng) ?? getRandomWordForExactMode(4, 6, rng);
       if (!candidate) break;
       
       const candidateTranslation = getTranslation(candidate);
@@ -664,9 +720,9 @@ export function processWordInput(
 
   // Word is valid - update state
   // Keep the full round history so a previously played word stays unavailable.
-  const newUsedWords = state.mode === "free" 
+  const newUsedWords = state.mode === "free"
     ? [...state.usedWords, input.trim().toUpperCase()]
-    : state.usedWords;
+    : [...state.usedWords, matchedWord.text]; // exact mode: not dropped again too soon
 
   const newWordsCompleted = state.wordsCompleted + 1;
   const newLevel = Math.floor(newWordsCompleted / DEFAULT_CONFIG.wordsPerLevel) + 1;
@@ -791,7 +847,7 @@ export function processWordMissed(state: WordfallState, missedWordId?: string): 
 export function startGame(state: WordfallState): WordfallState {
   if (state.gameOver) {
     // Reset game
-    return createGameState({ mode: state.mode });
+    return createGameState({ mode: state.mode, vocabLevel: state.vocabLevel });
   }
 
   return {

@@ -1,0 +1,102 @@
+{
+  "course": 11,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : Last Saturday, Léa ___ her grandparents.",
+      "options": ["visit", "visits", "visited", "was visit"],
+      "correctAnswer": 2,
+      "explanation": "Last Saturday indique un passé terminé : past simple. Visit est régulier, on ajoute -ed."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : ___ you do your homework yesterday?",
+      "options": ["Do", "Did", "Were", "Have"],
+      "correctAnswer": 1,
+      "explanation": "Question au passé : auxiliaire did + sujet + base verbale. Ici, do est le verbe « faire »."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["She didn't went to school.", "She doesn't went to school.", "She not went to school.", "She didn't go to school."],
+      "correctAnswer": 3,
+      "explanation": "Didn't porte déjà la marque du passé : le verbe reste à la base verbale, go."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : The film ___ really funny last night.",
+      "options": ["was", "were", "did", "is"],
+      "correctAnswer": 0,
+      "explanation": "Be n'a pas besoin de did. Au passé, the film (it) donne was."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Dans quel verbe la terminaison -ed se prononce-t-elle « id » ?",
+      "options": ["played", "watched", "started", "lived"],
+      "correctAnswer": 2,
+      "explanation": "On prononce « id » seulement après un son t ou d. Start finit par t, donc start-id."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Comment dire « Nous n'étions pas à la maison » ?",
+      "options": ["We didn't be at home.", "We weren't at home.", "We wasn't at home.", "We didn't were at home."],
+      "correctAnswer": 1,
+      "explanation": "Be se débrouille sans did : on ajoute not. Avec we, on utilise were, donc weren't."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "My sister ___ (get) a new phone last week.",
+      "answers": ["got"],
+      "explanation": "Get est irrégulier : son prétérit est got. Last week indique un passé terminé."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "We ___ (not / watch) TV last night.",
+      "answers": ["didn't watch", "did not watch"],
+      "explanation": "Négation au passé : didn't + base verbale. Le verbe ne prend pas -ed après didn't."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "___ you enjoy the concert last Saturday?",
+      "answers": ["Did"],
+      "explanation": "Question au passé : on commence par l'auxiliaire did, puis le sujet et la base verbale."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "Tom and I ___ (be) very tired after the match yesterday.",
+      "answers": ["were"],
+      "explanation": "Be au passé : was avec I, he, she, it et were avec you, we, they. Tom and I = we, donc were."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["Did you see Emma at the party?"],
+      "translation": "Est-ce que tu as vu Emma à la fête ?",
+      "explanation": "Question au passé : did + sujet + base verbale. On écrit see, pas saw."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["My brother didn't eat his vegetables."],
+      "translation": "Mon frère n'a pas mangé ses légumes.",
+      "explanation": "Négation au passé : didn't + base verbale. Le verbe eat ne change pas."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["Was your mum angry with you?"],
+      "translation": "Est-ce que ta mère était fâchée contre toi ?",
+      "explanation": "Question avec be au passé : pas de did, on inverse simplement was et le sujet."
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "course": 30,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Comment dire « Ce T-shirt est trop petit pour moi » ?",
+      "options": ["This T-shirt is very small for me.", "This T-shirt is too small for me.", "This T-shirt is small enough for me.", "This T-shirt is too much small for me."],
+      "correctAnswer": 1,
+      "explanation": "Trop + adjectif se dit too + adjectif. Very veut dire « très » et ne marque pas l'excès."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment dire « Je ne suis pas assez grande pour atteindre l'étagère » ?",
+      "options": ["I'm not enough tall to reach the shelf.", "I'm not tall enough for reach the shelf.", "I'm not tall enough to reach the shelf.", "I'm not enough tall for reaching the shelf."],
+      "correctAnswer": 2,
+      "explanation": "Enough se place après l'adjectif (tall enough), puis on ajoute to + base verbale."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : We haven't got ___ to go on holiday this year.",
+      "options": ["money enough", "too money", "enough of money", "enough money"],
+      "correctAnswer": 3,
+      "explanation": "Money est un nom : enough se place avant le nom, sans of."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : There's ___ noise in this canteen! I can't hear you.",
+      "options": ["too much", "too many", "very much", "enough"],
+      "correctAnswer": 0,
+      "explanation": "Noise est indénombrable : too much. Too many s'utilise avec un nom au pluriel."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Quelle phrase veut dire que tu ne peux pas porter le sac ?",
+      "options": ["The bag is very heavy.", "The bag is light enough.", "The bag isn't very heavy.", "The bag is too heavy."],
+      "correctAnswer": 3,
+      "explanation": "Too indique un excès qui empêche l'action. Very renforce l'adjectif, mais l'action reste possible."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Comment dire « Ta sœur est-elle assez âgée pour conduire ? »",
+      "options": ["Is your sister enough old to drive?", "Is your sister old enough to drive?", "Is your sister old enough for drive?", "Is your sister too old to drive?"],
+      "correctAnswer": 1,
+      "explanation": "Old est un adjectif : enough se place après lui, puis to + base verbale."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "My little brother is too young ___ watch this film.",
+      "answers": ["to"],
+      "explanation": "Structure : too + adjectif + to + base verbale."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Are there ___ chairs for everyone? (assez de)",
+      "answers": ["enough"],
+      "explanation": "Chairs est un nom : enough se place avant le nom."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "I can't buy these trainers. They're ___ expensive. (trop)",
+      "answers": ["too"],
+      "explanation": "Trop se dit too : l'excès empêche l'action (je ne peux pas les acheter)."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "She isn't ___ to lift that box. (strong, assez)",
+      "answers": ["strong enough"],
+      "explanation": "Avec un adjectif, enough se place après : strong enough to."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["It's too cold to go swimming."],
+      "translation": "Il fait trop froid pour aller nager.",
+      "explanation": "Structure : too + adjectif + to + base verbale."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["We don't have enough time to finish."],
+      "translation": "Nous n'avons pas assez de temps pour finir.",
+      "explanation": "Avec un nom, enough se place avant : enough time to + base verbale."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["My room isn't big enough for a desk."],
+      "translation": "Ma chambre n'est pas assez grande pour un bureau.",
+      "explanation": "Avec un adjectif, enough se place après : big enough."
+    }
+  ]
+}

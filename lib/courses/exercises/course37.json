@@ -1,0 +1,102 @@
+{
+  "course": 37,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : My best friend has a brother ___ plays in a rock band.",
+      "options": ["which", "who", "what", "he"],
+      "correctAnswer": 1,
+      "explanation": "L'antécédent est a brother, une personne : on utilise who. What ne s'emploie jamais juste après un nom."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : I lost the earrings ___ my grandmother gave me.",
+      "options": ["who", "what", "which", "where"],
+      "correctAnswer": 2,
+      "explanation": "L'antécédent est the earrings, des objets : on utilise which."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Comment dire « La fille qui m'a parlé s'appelle Amira » ?",
+      "options": ["The girl who talked to me is called Amira.", "The girl which talked to me is called Amira.", "The girl who she talked to me is called Amira.", "The girl what talked to me is called Amira."],
+      "correctAnswer": 0,
+      "explanation": "The girl est une personne : who. Le pronom relatif remplace le sujet, on n'ajoute donc pas she."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : Is this the app ___ helps you learn languages?",
+      "options": ["who", "it", "what", "which"],
+      "correctAnswer": 3,
+      "explanation": "L'antécédent est the app, une chose : on utilise which."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Comment dire « Le film que nous avons vu hier était génial » ?",
+      "options": ["The film who we saw yesterday was great.", "The film what we saw yesterday was great.", "The film which we saw yesterday was great.", "The film which we saw it yesterday was great."],
+      "correctAnswer": 2,
+      "explanation": "The film est une chose : which. Which remplace déjà le film, on ne répète donc pas it."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : The people ___ we met on holiday were really friendly.",
+      "options": ["who", "which", "what"],
+      "correctAnswer": 0,
+      "explanation": "L'antécédent est the people, des personnes : on utilise who."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "My sister is the kind of person ___ never gives up.",
+      "answers": ["who", "that"],
+      "explanation": "L'antécédent est person, un être humain : who. That est aussi possible."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "This is the jacket ___ I bought in London.",
+      "answers": ["which", "that"],
+      "explanation": "L'antécédent est the jacket, une chose : which. That est aussi possible."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "The boy ___ sits next to me in maths is really funny.",
+      "answers": ["who", "that"],
+      "explanation": "L'antécédent est the boy, une personne : who. That est aussi possible."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "I can't find the headphones ___ were on my desk this morning.",
+      "answers": ["which", "that"],
+      "explanation": "L'antécédent est the headphones, un objet : which. That est aussi possible."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["I have a friend who speaks four languages."],
+      "translation": "J'ai une amie qui parle quatre langues.",
+      "explanation": "Who suit directement l'antécédent (a friend), une personne."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["This is the book which changed my life."],
+      "translation": "C'est le livre qui a changé ma vie.",
+      "explanation": "Which suit directement l'antécédent (the book), une chose."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["I don't like people who are always late."],
+      "translation": "Je n'aime pas les gens qui sont toujours en retard.",
+      "explanation": "Who suit directement l'antécédent (people). Always se place après be : are always late."
+    }
+  ]
+}

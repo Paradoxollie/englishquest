@@ -1,0 +1,102 @@
+{
+  "course": 1,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Comment dire « Elle a soif » ?",
+      "options": ["She has thirsty", "She is thirsty", "She have thirsty", "She are thirsty"],
+      "correctAnswer": 1,
+      "explanation": "Avoir soif est un état : on utilise be. Avec she, be devient is."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : I ___ got two brothers.",
+      "options": ["have", "has", "am", "is"],
+      "correctAnswer": 0,
+      "explanation": "Avec I, on dit have got. Has got est réservé à he, she et it."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["My parents is at home.", "My parents are at home.", "My parents am at home.", "My parents has at home."],
+      "correctAnswer": 1,
+      "explanation": "My parents = they, donc are."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Comment dire « Tu as peur » ?",
+      "options": ["You have afraid", "You are afraid", "You have fear of", "You is afraid"],
+      "correctAnswer": 1,
+      "explanation": "Avoir peur se dit be afraid : c'est un état, comme avoir faim ou avoir froid."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : Tom ___ got a bike.",
+      "options": ["have", "has", "is", "are"],
+      "correctAnswer": 1,
+      "explanation": "Tom = he. À la 3e personne du singulier, have devient has."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Quelle phrase parle de possession ?",
+      "options": ["I am tired.", "She is twelve.", "We have got a dog.", "They are cold."],
+      "correctAnswer": 2,
+      "explanation": "Avoir un chien est une possession : have got. Les trois autres phrases décrivent un état ou l'âge, avec be."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "My brother ___ fourteen years old.",
+      "answers": ["is"],
+      "explanation": "L'âge se dit avec be. My brother = he, donc is."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "We ___ hungry. Let's eat!",
+      "answers": ["are", "'re"],
+      "explanation": "Avoir faim = be hungry. Avec we, be devient are."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "She ___ got blue eyes.",
+      "answers": ["has"],
+      "explanation": "Avec she, have got devient has got."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "I ___ cold. Close the window, please.",
+      "answers": ["am", "'m"],
+      "explanation": "Avoir froid = be cold. Avec I, be devient am."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["I am eleven years old."],
+      "translation": "J'ai onze ans.",
+      "explanation": "L'âge se dit avec be : I am + âge + years old."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["She has got a black cat."],
+      "translation": "Elle a un chat noir.",
+      "explanation": "Possession avec has got. L'adjectif se place avant le nom : a black cat."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["They are very happy today."],
+      "translation": "Ils sont très contents aujourd'hui.",
+      "explanation": "They + are. Very se place juste avant l'adjectif."
+    }
+  ]
+}

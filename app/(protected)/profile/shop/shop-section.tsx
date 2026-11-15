@@ -109,7 +109,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
     const result = await purchaseShopItemAction(item.id);
 
     if (result.success) {
-      setSuccess(`${item.name} acheté avec succès.`);
+      setSuccess(`${item.name} est à toi. Équipe-le quand tu veux.`);
 
       const supabase = createSupabaseBrowserClient();
       const { data: owned } = await supabase
@@ -152,7 +152,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
       const result = await equipItemAction(itemId, type);
 
       if (result.success) {
-        setSuccess("Objet équipé avec succès.");
+        setSuccess(itemId ? "Objet équipé." : "Objet retiré.");
 
         const supabase = createSupabaseBrowserClient();
         const { data: equipped } = await supabase
@@ -280,6 +280,12 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
               }`}
             >
               <div className="space-y-3">
+                {item.item_type === "title" && !item.image_url ? (
+                  // Titre en texte : une plaque avec le titre tel qu'il s'affiche sous le pseudo.
+                  <div className="eq-shop-title-plate" aria-hidden="true">
+                    <span>{item.name}</span>
+                  </div>
+                ) : (
                 <div
                   className="flex items-center justify-center overflow-hidden rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--ink)]"
                   style={{ aspectRatio: "2/3", width: "100%" }}
@@ -298,6 +304,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
                     </div>
                   )}
                 </div>
+                )}
 
                 <div>
                   <h3 className="eq-h3">{item.name}</h3>
@@ -330,7 +337,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
                         isEquipped ? "eq-btn-ghost" : "eq-btn-primary"
                       }`}
                     >
-                      {isEquipped ? "Déséquiper" : "Équiper"}
+                      {isEquipped ? "Retirer" : "Équiper"}
                     </button>
                   ) : (
                     <button

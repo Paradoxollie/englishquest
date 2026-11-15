@@ -3,12 +3,13 @@ import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
 import { getGameBySlug } from "@/lib/games/config";
+import { getPlayerGameLevel } from "@/lib/games/player-level-server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { EnigmaScrollGame } from "./enigma-scroll-game";
 
 export const metadata: Metadata = {
   title: "Enigma Scroll",
-  description: "Trouve le mot anglais caché en quelques essais : les lettres se colorent pour te guider, les mots s'enchaînent.",
+  description: "Trouve le mot anglais caché en quelques essais : les lettres se colorent pour te guider, et chaque mot se termine par sa traduction.",
 };
 
 export const dynamic = "force-dynamic";
@@ -26,7 +27,7 @@ export default async function EnigmaScrollPage() {
     data: { user },
   } = await supabase.auth.getUser();
   const userId = user?.id ?? null;
-  const mission = await getMissionForGame(userId, SLUG);
+  const [mission, suggestedLevel] = await Promise.all([getMissionForGame(userId, SLUG), getPlayerGameLevel(userId)]);
 
   return (
     <GameShell
@@ -48,6 +49,7 @@ export default async function EnigmaScrollPage() {
       <EnigmaScrollGame
         isLoggedIn={Boolean(user)}
         missionTarget={mission && mission.quizPassed && !mission.alreadyReached ? mission.scoreTarget : null}
+        suggestedLevel={suggestedLevel}
       />
     </GameShell>
   );

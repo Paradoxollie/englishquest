@@ -4,14 +4,14 @@ import { Quiz } from "@/components/courses/quiz";
 export const course27: LessonContent = {
     courseNumber: 27,
     title: "Le Futur : Décision vs Plan",
-    objective: "Maîtriser l&apos;usage du FUTUR SPONTANÉ (Will).",
+    objective: "Maîtriser l'usage du FUTUR SPONTANÉ (Will).",
     sections: [
         {
             title: "1. La Décision Spontanée",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        L&apos;auxiliaire <strong>WILL</strong> s&apos;utilise principalement lorsqu&apos;une décision est prise <strong className="text-white">au moment même où l&apos;on parle</strong>.
+                        L&apos;auxiliaire <strong>WILL</strong> s&apos;utilise notamment lorsqu&apos;une décision est prise <strong className="text-white">au moment même où l&apos;on parle</strong>.
                         Il n&apos;y a aucune préméditation.
                     </p>
 

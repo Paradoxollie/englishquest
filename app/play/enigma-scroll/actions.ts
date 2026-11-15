@@ -2,6 +2,7 @@
 import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
 import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
 import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
+import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 
 /**
  * Server Actions for Enigma Scroll
@@ -17,6 +18,8 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
   mapWordLengthToDifficulty,
 } from "@/lib/profile/enigma-scroll-rewards";
+import { consumeGameSession } from "@/lib/games/game-session-server";
+import { checkEnigmaScroll } from "@/lib/games/score-plausibility";
 
 /**
  * Submit an Enigma Scroll game score and update user rewards.
@@ -33,6 +36,7 @@ export async function submitEnigmaScrollScore(params: {
   totalScore: number;
   wordsFound: number;
   durationMs: number;
+  sessionId?: string | null;
 }): Promise<{
   success: boolean;
   error?: string;
@@ -45,6 +49,7 @@ export async function submitEnigmaScrollScore(params: {
   isNewGlobalBest?: boolean;
   personalBest?: number | null;
   courseCompleted?: AutoCompletedCourse | null;
+  newBadges?: NewBadge[];
   dailyChallenge?: {
     dailyPlayedGames: string[];
     requiredGames: string[];
@@ -60,6 +65,9 @@ export async function submitEnigmaScrollScore(params: {
       params.totalScore > 1_000_000 || params.wordsFound > 20_000 || params.durationMs > 2 * 60 * 60 * 1000) {
       return { success: false, error: "Score Enigma Scroll invalide" };
     }
+    if (!checkEnigmaScroll(params).ok) {
+      return { success: false, error: "Score Enigma Scroll invraisemblable" };
+    }
     const supabase = await createSupabaseServerClient();
     const adminClient = createSupabaseAdminClient();
 
@@ -74,6 +82,16 @@ export async function submitEnigmaScrollScore(params: {
         success: false,
         error: "User not authenticated",
       };
+    }
+
+    const gameSession = await consumeGameSession({
+      sessionId: params.sessionId,
+      userId: user.id,
+      slug: "enigma-scroll",
+      claimedDurationMs: params.durationMs,
+    });
+    if (!gameSession.ok) {
+      return { success: false, error: gameSession.error };
     }
 
     // Get the Enigma Scroll game ID
@@ -159,6 +177,7 @@ export async function submitEnigmaScrollScore(params: {
     const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
     const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "enigma-scroll");
     const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "enigma-scroll", params.totalScore);
+    const newBadges = await syncBadgesSafely(user.id);
 
     return {
       success: true,
@@ -169,6 +188,7 @@ export async function submitEnigmaScrollScore(params: {
       },
       dailyChallenge: dailyChallengeResult,
       courseCompleted,
+      newBadges,
       isNewPersonalBest,
       isNewGlobalBest,
       personalBest: personalBest?.score ?? null,

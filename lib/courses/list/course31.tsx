@@ -150,7 +150,7 @@ export const course31: LessonContent = {
                             question: "If she ___ study, she won't pass.",
                             options: ["don't", "doesn't"],
                             correctAnswer: 1,
-                            explanation: "She (3ème personne) ➔ doesn't.",
+                            explanation: "She (3e personne) ➔ doesn't.",
                         },
                         {
                             id: 4,
@@ -171,7 +171,7 @@ export const course31: LessonContent = {
                             question: "If you are tired, ___ to bed.",
                             options: ["go", "will go"],
                             correctAnswer: 0,
-                            explanation: "C'est un conseil/ordre (Impératif). Le futur n'est pas nécessaire.",
+                            explanation: "C'est un conseil/ordre : on utilise l'impératif (go). Will go est impossible ici, la phrase n'a pas de sujet.",
                         },
                         {
                             id: 7,

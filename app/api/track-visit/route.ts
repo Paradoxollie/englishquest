@@ -61,6 +61,7 @@ function isBot(userAgent: string | null): boolean {
     /google-inspectiontool/i, /ahrefsbot/i, /semrushbot/i,
     /mj12bot/i, /dotbot/i, /megaindex/i, /blexbot/i,
     /petalbot/i, /applebot/i, /bingpreview/i,
+    /headlesschrome/i, /playwright/i, /puppeteer/i, /lighthouse/i,
   ];
   
   return botPatterns.some(pattern => pattern.test(userAgent));

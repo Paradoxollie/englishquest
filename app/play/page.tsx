@@ -73,7 +73,7 @@ export default async function PlayPage() {
                 Cours {activeCourse.courseId} : {activeCourse.title}
               </h2>
               <p className="mt-2 text-[var(--muted)]">
-                Pour valider la mission, il te reste le défi de jeu : {missionLabel}.
+                Pour t&apos;entraîner sur la notion de ta mission : {missionLabel} dans Grammar Rush.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Link href={`/play/${missionGame.slug}`} className="eq-btn eq-btn-gold">

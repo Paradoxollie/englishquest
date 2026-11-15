@@ -1,0 +1,102 @@
+{
+  "course": 18,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : My sister is ___ than me.",
+      "options": ["older", "more old", "the oldest", "elder"],
+      "correctAnswer": 0,
+      "explanation": "Old est un adjectif court : on ajoute -er, puis than."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : For me, maths is ___ than history.",
+      "options": ["difficulter", "more difficult", "the most difficult", "most difficult"],
+      "correctAnswer": 1,
+      "explanation": "Difficult est un adjectif long : more + adjectif + than."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["Today is hoter than yesterday.", "Today is more hot than yesterday.", "Today is hotter than yesterday.", "Today is hotter that yesterday."],
+      "correctAnswer": 2,
+      "explanation": "Hot finit par consonne-voyelle-consonne : on double le t, hotter. « Que » se dit than."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : Mia is the ___ girl in our class.",
+      "options": ["taller", "most tall", "tallest", "more tall"],
+      "correctAnswer": 2,
+      "explanation": "Superlatif d'un adjectif court : the + adjectif + -est."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : This is the best pizza ___ the world!",
+      "options": ["of", "in", "than", "on"],
+      "correctAnswer": 1,
+      "explanation": "Après un superlatif, on utilise in devant un lieu ou un groupe : in the world."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Comment dire « Mon téléphone est aussi cher que le tien » ?",
+      "options": ["My phone is so expensive than yours.", "My phone is as expensive than yours.", "My phone is more expensive as yours.", "My phone is as expensive as yours."],
+      "correctAnswer": 3,
+      "explanation": "Égalité : as + adjectif + as, quelle que soit la longueur de l'adjectif."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "Lucie runs ___ (fast) than her brother.",
+      "answers": ["faster"],
+      "explanation": "Fast est court : on ajoute -er, puis than."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "This is the ___ (bad) day of my life!",
+      "answers": ["worst"],
+      "explanation": "Bad est irrégulier : bad, worse, the worst. Ici, c'est un superlatif."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "This summer was ___ (sunny) than last summer.",
+      "answers": ["sunnier"],
+      "explanation": "Sunny finit par y : le y devient i, puis on ajoute -er."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "Football is ___ (popular) sport in the world.",
+      "answers": ["the most popular"],
+      "explanation": "Popular est un adjectif long : superlatif avec the most."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["My brother is taller than my dad."],
+      "translation": "Mon frère est plus grand que mon père.",
+      "explanation": "Adjectif court + -er, puis than pour introduire le second élément."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["This is the most beautiful beach in France."],
+      "translation": "C'est la plus belle plage de France.",
+      "explanation": "Adjectif long : the most + adjectif. Devant un lieu, on utilise in, pas of."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["My bedroom isn't as big as yours."],
+      "translation": "Ma chambre n'est pas aussi grande que la tienne.",
+      "explanation": "Infériorité : not as + adjectif + as. C'est la forme la plus naturelle."
+    }
+  ]
+}

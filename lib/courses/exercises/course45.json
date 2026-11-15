@@ -1,0 +1,102 @@
+{
+  "course": 45,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : The streets are completely wet this morning. It ___ during the night.",
+      "options": ["can't have rained", "must have rained", "should have rained", "must rained"],
+      "correctAnswer": 1,
+      "explanation": "L'indice est fort : on est presque sûr. Déduction sur le passé : must have + participe passé."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment dire « Elle a dû oublier notre rendez-vous » (c'est une déduction) ?",
+      "options": ["She must forget our meeting.", "She had to forget our meeting.", "She must have forgotten our meeting.", "She must have forget our meeting."],
+      "correctAnswer": 2,
+      "explanation": "Ici, « elle a dû » est une déduction sur le passé : must have + participe passé. Had to exprime une obligation."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : Chloé ___ the cake. She was at football practice when it disappeared.",
+      "options": ["must have eaten", "should have eaten", "mustn't have eaten", "can't have eaten"],
+      "correctAnswer": 3,
+      "explanation": "Elle était absente, donc c'est impossible. La déduction négative au passé se fait avec can't have, pas mustn't have."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Ton amie ne répond pas à tes messages. Tu n'as aucun indice, tu proposes juste une hypothèse. Quelle phrase convient ?",
+      "options": ["She might have fallen asleep.", "She must have fallen asleep.", "She can't have fallen asleep.", "She should have fallen asleep."],
+      "correctAnswer": 0,
+      "explanation": "Sans indice, on reste prudent : might have exprime une simple possibilité. Must have demanderait des preuves fortes."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "« She can't have seen my message. » Que veut dire la personne ?",
+      "options": ["Elle n'a pas le droit de voir mon message.", "Je suis sûr qu'elle n'a pas vu mon message.", "Elle ne peut pas voir mon message.", "Elle aurait dû voir mon message."],
+      "correctAnswer": 1,
+      "explanation": "Can't have + participe passé est une déduction négative sur le passé : pour moi, c'est impossible qu'elle l'ait vu."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : You ___ me you weren't coming! I waited for you for an hour.",
+      "options": ["must have told", "can't have told", "should have told", "must told"],
+      "correctAnswer": 2,
+      "explanation": "On reproche une action qui n'a pas été faite : should have + participe passé. Ce n'est pas une déduction."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "The window is broken and there's a football on the floor. Someone ___ it through the window. (must / kick)",
+      "answers": ["must have kicked"],
+      "explanation": "Les indices sont forts : déduction sur le passé avec must have + participe passé."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Julien ___ the film. It doesn't come out until next week! (can't / see)",
+      "answers": ["can't have seen", "cannot have seen"],
+      "explanation": "C'est impossible : can't have + participe passé. Le participe passé de see est seen."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "I can't find my keys. I ___ them on the bus, but I'm not sure. (might / leave)",
+      "answers": ["might have left"],
+      "explanation": "Simple hypothèse sur le passé : might have + participe passé. But I'm not sure montre qu'on n'est pas certain."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "Sara isn't here yet. She ___ the wrong train. (may / take)",
+      "answers": ["may have taken"],
+      "explanation": "Possibilité sur le passé : may have + participe passé. Le participe passé de take est taken."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["They must have left early this morning."],
+      "translation": "Ils ont dû partir tôt ce matin.",
+      "explanation": "Déduction forte : must have + participe passé. Ici, « ils ont dû » ne se traduit pas par had to."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["He can't have written this message."],
+      "translation": "Il ne peut pas avoir écrit ce message.",
+      "explanation": "Pour dire qu'une action passée est impossible : can't have + participe passé."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["You might have seen her at the library."],
+      "translation": "Tu l'as peut-être vue à la bibliothèque.",
+      "explanation": "Might have + participe passé exprime une possibilité sur le passé, comme peut-être en français."
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "course": 12,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : What ___ you doing at 9 o'clock last night?",
+      "options": ["were", "was", "did", "are"],
+      "correctAnswer": 0,
+      "explanation": "Past continuous : was/were + verbe en -ing. Avec you, on utilise were."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : The lights went out while Chloé ___ a shower.",
+      "options": ["was take", "were taking", "was taking", "taking"],
+      "correctAnswer": 2,
+      "explanation": "Past continuous : was/were + verbe en -ing. Chloé = she, donc was taking."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["I was knowing the answer.", "I was know the answer.", "I knowed the answer.", "I knew the answer."],
+      "correctAnswer": 3,
+      "explanation": "Know est un verbe d'état : jamais de forme en -ing. On utilise le past simple, knew."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : I was reading when my phone suddenly ___.",
+      "options": ["was ringing", "rang", "rings", "ringed"],
+      "correctAnswer": 1,
+      "explanation": "L'action courte qui interrompt le décor est au past simple. Ring est irrégulier : rang."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : ___ you sleeping when I called you?",
+      "options": ["Did", "Was", "Were", "Are"],
+      "correctAnswer": 2,
+      "explanation": "Question au past continuous : was/were se place avant le sujet. Avec you, c'est were."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Quelle phrase décrit deux actions longues qui se déroulent en même temps ?",
+      "options": ["While I was studying, my brother was playing video games.", "I was studying when my brother came home.", "I studied and then I played video games."],
+      "correctAnswer": 0,
+      "explanation": "Deux actions longues et simultanées : past continuous des deux côtés, souvent reliées par while."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "My parents ___ having breakfast when I woke up.",
+      "answers": ["were"],
+      "explanation": "Past continuous : was/were + verbe en -ing. My parents = they, donc were."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Sorry, I didn't hear you. I ___ (listen) to music.",
+      "answers": ["was listening"],
+      "explanation": "On décrit ce qui était en train de se passer à ce moment-là : past continuous, was + verbe en -ing."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "___ it raining when you left school?",
+      "answers": ["Was"],
+      "explanation": "Question au past continuous : was/were se place avant le sujet. Avec it, c'est was."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "We ___ (swim) in the sea when we saw a dolphin.",
+      "answers": ["were swimming"],
+      "explanation": "On était en train de nager quand l'événement soudain est arrivé : past continuous. Attention, swim double le m : swimming."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["I wasn't sleeping when you called me.", "When you called me I wasn't sleeping."],
+      "translation": "Je ne dormais pas quand tu m'as appelé.",
+      "explanation": "Négation au past continuous : wasn't + verbe en -ing. L'appel, action courte, est au past simple."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["My brother was cleaning his room while I was cooking.", "While I was cooking my brother was cleaning his room."],
+      "translation": "Mon frère rangeait sa chambre pendant que je cuisinais.",
+      "explanation": "Deux actions longues en même temps : past continuous dans les deux parties, reliées par while."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["Were your parents working yesterday afternoon?"],
+      "translation": "Est-ce que tes parents travaillaient hier après-midi ?",
+      "explanation": "Question au past continuous : were avant le sujet (your parents = they), puis le verbe en -ing."
+    }
+  ]
+}

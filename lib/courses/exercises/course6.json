@@ -1,0 +1,102 @@
+{
+  "course": 6,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Comment dire « Je ne suis pas en retard » ?",
+      "options": ["I don't late.", "I'm not late.", "I am no late.", "I not am late."],
+      "correctAnswer": 1,
+      "explanation": "Late est un adjectif : on utilise be. Not se place après be : I am not, ou I'm not."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["She doesn't plays the piano.", "She don't play the piano.", "She doesn't play the piano.", "She not plays the piano."],
+      "correctAnswer": 2,
+      "explanation": "Doesn't porte déjà la marque de la 3e personne : le verbe reste à la base verbale, play."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Comment dire « Il ne regarde jamais la télé » ?",
+      "options": ["He never watches TV.", "He doesn't never watch TV.", "He never watch TV.", "He doesn't watches never TV."],
+      "correctAnswer": 0,
+      "explanation": "Never suffit à rendre la phrase négative : pas de doesn't. Le verbe garde sa marque de 3e personne : watches."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Réponds « non » à la question : Are you tired?",
+      "options": ["No, I don't.", "No, I amn't.", "No, I isn't.", "No, I'm not."],
+      "correctAnswer": 3,
+      "explanation": "La réponse courte reprend l'auxiliaire de la question : Are you...? No, I'm not. Am not ne se contracte jamais en amn't."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Comment dire « Ne cours pas dans le couloir ! » ?",
+      "options": ["Not run in the corridor!", "Don't run in the corridor!", "No run in the corridor!", "You not run in the corridor!"],
+      "correctAnswer": 1,
+      "explanation": "L'ordre négatif commence par Don't + base verbale, même quand on parle à une seule personne."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : My little sister is three. She ___ read.",
+      "options": ["can't", "doesn't can", "isn't can", "not can"],
+      "correctAnswer": 0,
+      "explanation": "Can porte lui-même la négation, sans do : can + not = can't, ou cannot."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "We ___ at home. We're at the cinema.",
+      "answers": ["aren't", "are not", "'re not"],
+      "explanation": "Be porte seul la négation, sans do : are + not, ou aren't."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "My dad ___ coffee. He prefers tea. (not / drink)",
+      "answers": ["doesn't drink", "does not drink"],
+      "explanation": "My dad = he : doesn't + base verbale. Le verbe drink ne prend pas de s."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "___ open the window, it's cold!",
+      "answers": ["Don't", "Do not"],
+      "explanation": "Pour un ordre négatif, on commence la phrase par Don't + base verbale."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "Does your sister like football? No, she ___.",
+      "answers": ["doesn't", "does not"],
+      "explanation": "La réponse courte reprend l'auxiliaire de la question : Does...? No, she doesn't."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["Emma doesn't like rap music."],
+      "translation": "Emma n'aime pas le rap.",
+      "explanation": "À la 3e personne : doesn't + base verbale. Like ne prend pas de s."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["They aren't in the same class."],
+      "translation": "Ils ne sont pas dans la même classe.",
+      "explanation": "Be porte seul la négation : are not, ou aren't. Pas besoin de do."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["My grandmother never uses her phone."],
+      "translation": "Ma grand-mère n'utilise jamais son téléphone.",
+      "explanation": "Never se place avant le verbe et suffit à rendre la phrase négative. Le verbe garde son -s à la 3e personne."
+    }
+  ]
+}

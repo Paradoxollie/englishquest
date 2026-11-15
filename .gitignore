@@ -45,3 +45,6 @@ progress.md
 
 # gabarit d'environnement, versionné
 !.env.example
+
+# worktrees des agents de code
+/.claude/

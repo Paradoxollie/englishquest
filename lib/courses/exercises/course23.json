@@ -1,0 +1,102 @@
+{
+  "course": 23,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : My parents have been married ___ 2005.",
+      "options": ["for", "since", "ago", "during"],
+      "correctAnswer": 1,
+      "explanation": "2005 est un point de départ sur le calendrier : since."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment dire « Je connais Inès depuis trois ans » ?",
+      "options": ["I know Inès since three years.", "I know Inès for three years.", "I have known Inès since three years.", "I have known Inès for three years."],
+      "correctAnswer": 3,
+      "explanation": "Depuis + durée se dit for. Et le présent français devient un Present Perfect en anglais : have known."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : I met Inès three years ___.",
+      "options": ["for", "since", "ago"],
+      "correctAnswer": 2,
+      "explanation": "Met est au Past Simple : l'action est terminée. Il y a trois ans se dit three years ago."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : She has been on the phone ___ lunchtime!",
+      "options": ["since", "for", "ago", "from"],
+      "correctAnswer": 0,
+      "explanation": "Lunchtime est un moment précis, le point de départ : since."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Quelle expression peut suivre since ?",
+      "options": ["two hours", "a long time", "last Monday", "ages"],
+      "correctAnswer": 2,
+      "explanation": "Since est suivi d'un point de départ (last Monday). Les trois autres expressions sont des durées : on utilise for."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Comment dire « Elle est partie il y a dix minutes » ?",
+      "options": ["She has left ten minutes ago.", "She left ten minutes ago.", "She has left since ten minutes.", "There is ten minutes she left."],
+      "correctAnswer": 1,
+      "explanation": "Il y a + durée se dit ago, placé après la durée. Ago s'utilise avec le Past Simple, jamais avec le Present Perfect."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "I've had this phone ___ two years.",
+      "answers": ["for"],
+      "explanation": "Two years est une durée, une quantité de temps : for."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "My best friend has lived in Lyon ___ she was ten.",
+      "answers": ["since"],
+      "explanation": "She was ten indique le point de départ : since. Since peut être suivi d'une phrase entière."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "We moved to this town five years ___.",
+      "answers": ["ago"],
+      "explanation": "Moved est au Past Simple, l'action est terminée. Il y a cinq ans se dit five years ago."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "I ___ Sarah since primary school. (know)",
+      "answers": ["have known", "'ve known"],
+      "explanation": "Tu la connais toujours : avec since, on utilise le Present Perfect. Know est irrégulier : known."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["Have you had your dog for a long time?"],
+      "translation": "Tu as ton chien depuis longtemps ?",
+      "explanation": "Depuis + présent en français devient un Present Perfect en anglais. A long time est une durée : for."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["She has lived in Marseille since 2019.", "Since 2019 she has lived in Marseille."],
+      "translation": "Elle habite à Marseille depuis 2019.",
+      "explanation": "2019 est un point de départ : since. Present Perfect, car elle y habite toujours."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["My parents bought this house ten years ago.", "Ten years ago my parents bought this house."],
+      "translation": "Mes parents ont acheté cette maison il y a dix ans.",
+      "explanation": "Ago se place après la durée et s'utilise avec le Past Simple."
+    }
+  ]
+}

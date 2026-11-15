@@ -1,0 +1,102 @@
+{
+  "course": 36,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Lina : « What time does the film start? » Quelle phrase rapporte correctement sa question ?",
+      "options": ["Lina asked me what time did the film start.", "Lina asked me what time the film started.", "Lina asked me what time does the film start.", "Lina asked me what time the film did start."],
+      "correctAnswer": 1,
+      "explanation": "Dans une question rapportée, does disparaît et on revient à l'ordre sujet + verbe, au passé : the film started."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment rapporter la question « Do you like K-pop? » ?",
+      "options": ["She asked me that I liked K-pop.", "She asked me did I like K-pop.", "She asked me if I liked K-pop.", "She asked me if did I like K-pop."],
+      "correctAnswer": 2,
+      "explanation": "Question fermée (réponse oui ou non) : on ajoute if et do disparaît. Le verbe recule d'un pas : liked."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : The teacher asked us why we ___ late.",
+      "options": ["was", "are we", "were we", "were"],
+      "correctAnswer": 3,
+      "explanation": "On revient à l'ordre sujet + verbe (we were). Are recule d'un pas et devient were."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Léna : « Can you lend me your notes? » Complète : Léna asked me ___ lend her my notes.",
+      "options": ["if I could", "could I", "that I could", "if could I"],
+      "correctAnswer": 0,
+      "explanation": "Question fermée : if + sujet + verbe. Can recule d'un pas et devient could."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["He asked to me what I was doing.", "He asked me what was I doing.", "He asked me what I was doing.", "He asked me what did I do."],
+      "correctAnswer": 2,
+      "explanation": "On dit ask someone, sans to. Dans la question rapportée, on garde l'ordre sujet + verbe : I was doing."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : My mum ___ me if I was hungry.",
+      "options": ["said", "asked", "told", "asked to"],
+      "correctAnswer": 1,
+      "explanation": "Pour rapporter une question, on utilise ask. Say et tell servent à rapporter une affirmation."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "« Is the museum open on Mondays? » A tourist asked me ___ the museum was open on Mondays.",
+      "answers": ["if", "whether"],
+      "explanation": "Une question fermée (réponse oui ou non) se rapporte avec if, ou whether."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "« Why are you crying? » Yesterday, my sister asked me why I ___ crying.",
+      "answers": ["was"],
+      "explanation": "On revient à l'ordre sujet + verbe (I was), et am recule d'un pas : was."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Last weekend, Zoé asked me if I ___ to go skating with her. (want)",
+      "answers": ["wanted"],
+      "explanation": "Dans la question rapportée, do disparaît et le verbe recule d'un pas : want devient wanted."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "« Can I borrow your charger? » My brother ___ me if he could borrow my charger.",
+      "answers": ["asked"],
+      "explanation": "Pour rapporter une question, on utilise ask, ici au prétérit : asked."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["He asked me what time it was."],
+      "translation": "Il m'a demandé quelle heure il était.",
+      "explanation": "Question rapportée : ordre sujet + verbe (it was) et plus de point d'interrogation."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["The teacher asked us if we were ready."],
+      "translation": "Le professeur nous a demandé si nous étions prêts.",
+      "explanation": "Question fermée rapportée avec if, puis sujet + verbe au passé : we were."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["I asked her why she was so happy."],
+      "translation": "Je lui ai demandé pourquoi elle était si heureuse.",
+      "explanation": "Après why, on garde l'ordre sujet + verbe : she was. Pas d'inversion dans une question rapportée."
+    }
+  ]
+}

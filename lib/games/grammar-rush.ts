@@ -61,6 +61,36 @@ export function rushMultiplier(streak: number) {
   return Math.min(GRAMMAR_RUSH_MAX_MULTIPLIER, 1 + streak * 0.1);
 }
 
+/**
+ * Bonnes réponses sur les questions du cours ciblé (?cours=N) pendant la
+ * partie : questions répondues dont le cours est le cours ciblé, moins
+ * celles qui ont été ratées.
+ */
+export function countFocusCorrect(state: RushState, focusCourseId: number | null | undefined): number {
+  if (!focusCourseId) return 0;
+  const answered = state.queue.slice(0, state.index).filter((question) => question.course === focusCourseId).length;
+  const missed = state.missed.filter((question) => question.course === focusCourseId).length;
+  return Math.max(0, answered - missed);
+}
+
+/**
+ * Bornes de l'entraînement ciblé : jamais plus que les bonnes réponses de la
+ * partie, et une question sur trois au plus vient du cours ciblé (voir
+ * buildRushQueue), avec dix questions par cours dans la banque.
+ */
+export const GRAMMAR_RUSH_FOCUS_POOL = 10;
+
+export function isValidFocusResult(result: { focusCorrect: number; correct: number; attempts: number }): boolean {
+  if (![result.focusCorrect, result.correct, result.attempts].every((value) => Number.isSafeInteger(value) && value >= 0)) {
+    return false;
+  }
+  return (
+    result.focusCorrect <= result.correct &&
+    result.focusCorrect <= GRAMMAR_RUSH_FOCUS_POOL &&
+    result.focusCorrect <= Math.ceil(result.attempts / 3)
+  );
+}
+
 export function answerRush(state: RushState, choice: number, elapsedMs: number) {
   const question = currentRushQuestion(state);
   if (!question) {

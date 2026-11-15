@@ -1,0 +1,102 @@
+{
+  "course": 48,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : My little sister is afraid of ___ alone at night.",
+      "options": ["be", "to be", "being", "been"],
+      "correctAnswer": 2,
+      "explanation": "Of est une préposition : le verbe qui suit prend la forme en -ing, being."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : Instead of ___ about the exam, you should start revising.",
+      "options": ["worry", "worrying", "to worry", "worried"],
+      "correctAnswer": 1,
+      "explanation": "Instead of se termine par la préposition of : le verbe qui suit prend -ing."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Comment dire « Elle s'habitue à vivre à Londres » ?",
+      "options": ["She is getting used to live in London.", "She used to live in London.", "She is used to live in London.", "She is getting used to living in London."],
+      "correctAnswer": 3,
+      "explanation": "Get used to = s'habituer à. Comme dans be used to, to est une préposition : on met -ing."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : When it comes to ___, my dad is a real chef.",
+      "options": ["cook", "cooking", "to cook", "cooked"],
+      "correctAnswer": 1,
+      "explanation": "Dans when it comes to, to est une préposition : il est suivi d'un nom ou d'un verbe en -ing."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Comment dire « Elle a progressé en regardant des séries en anglais » ?",
+      "options": ["She improved by watching TV series in English.", "She improved by watch TV series in English.", "She improved to watching TV series in English.", "She improved for watching TV series in English."],
+      "correctAnswer": 0,
+      "explanation": "Pour dire comment on fait quelque chose, on utilise by + -ing, qui correspond à « en + participe présent »."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : She's capable ___ a marathon.",
+      "options": ["to run", "of run", "of running", "for running"],
+      "correctAnswer": 2,
+      "explanation": "Capable se construit avec of. Après cette préposition, le verbe prend -ing."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "Clara is thinking of ___ to Spain next year. (move)",
+      "answers": ["moving"],
+      "explanation": "Think of + -ing : après la préposition of, le verbe prend -ing."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "After ___ the film, we went for a pizza. (watch)",
+      "answers": ["watching", "having watched"],
+      "explanation": "After est ici une préposition : le verbe qui suit prend -ing, alors que le français dit « après avoir vu »."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "I'm not used to ___ in front of the whole class. (speak)",
+      "answers": ["speaking"],
+      "explanation": "Be used to = être habitué à. Ici, to est une préposition, donc -ing."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "She apologised for ___ late. (be)",
+      "answers": ["being", "having been"],
+      "explanation": "Apologise for + -ing : après la préposition for, le verbe prend -ing."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["She left the room without saying a word."],
+      "translation": "Elle a quitté la pièce sans dire un mot.",
+      "explanation": "Without est une préposition : le verbe qui suit prend -ing, alors que le français utilise l'infinitif."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["Thanks for inviting me to your party."],
+      "translation": "Merci de m'avoir invité à ta fête.",
+      "explanation": "Thanks for + -ing : après for, on met -ing, même si le français dit « de m'avoir invité »."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["Are you interested in joining our band?"],
+      "translation": "Est-ce que ça t'intéresse de rejoindre notre groupe ?",
+      "explanation": "Interested in + -ing : après la préposition in, le verbe prend -ing."
+    }
+  ]
+}

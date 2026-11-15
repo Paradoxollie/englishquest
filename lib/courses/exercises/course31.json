@@ -1,0 +1,102 @@
+{
+  "course": 31,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : If Léa ___ the bus, she will be late for school.",
+      "options": ["misses", "will miss", "missed", "miss"],
+      "correctAnswer": 0,
+      "explanation": "Après if, on met le présent simple, jamais will. Avec she, le verbe prend -es : misses."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment dire « Si je finis mes devoirs tôt, je t'appellerai » ?",
+      "options": ["If I will finish my homework early, I'll call you.", "If I finish my homework early, I'll call you.", "If I finish my homework early, I'd call you.", "If I finished my homework early, I'll call you."],
+      "correctAnswer": 1,
+      "explanation": "Condition au présent simple (finish), conséquence avec will (I'll call). Comme en français : « si je finis », pas « si je finirai »."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : If you don't tell her the truth, she ___ trust you again.",
+      "options": ["doesn't", "wouldn't", "won't", "isn't"],
+      "correctAnswer": 2,
+      "explanation": "La conséquence est au futur : won't + base verbale. La condition, elle, reste au présent (don't tell)."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Quelle question est correcte ?",
+      "options": ["Where you will live if you get into that university?", "Where will you live if you will get into that university?", "Where do you will live if you get into that university?", "Where will you live if you get into that university?"],
+      "correctAnswer": 3,
+      "explanation": "Dans la question, will passe devant le sujet : will you live. Après if, on garde le présent : get."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["I'll lend you my charger if you will need it.", "I lend you my charger if you'll need it.", "I'll lend you my charger if you need it.", "I'll lend you my charger if you needed it."],
+      "correctAnswer": 2,
+      "explanation": "If peut se trouver au milieu de la phrase : la règle ne change pas. Will dans la conséquence, présent simple après if."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Quel conseil est correct ?",
+      "options": ["If you will feel nervous tomorrow, take deep breaths.", "If you feel nervous tomorrow, take deep breaths.", "If you felt nervous tomorrow, take deep breaths."],
+      "correctAnswer": 1,
+      "explanation": "Pour donner un conseil, on peut mettre l'impératif dans la conséquence. La partie avec if reste au présent simple, même avec tomorrow : feel."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "If you ___ more water, you'll feel better. (drink)",
+      "answers": ["drink"],
+      "explanation": "Après if, on met le présent simple, même si l'action est future. Avec you, pas de -s."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "If Malik doesn't hurry, he ___ the train. (miss)",
+      "answers": ["will miss", "'ll miss"],
+      "explanation": "La conséquence se met au futur : will + base verbale. On peut contracter : he'll miss."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "If it rains tomorrow, we ___ to the beach. (not / go)",
+      "answers": ["won't go", "will not go"],
+      "explanation": "Conséquence négative au futur : won't (ou will not) + base verbale."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "What will you do if your mum ___ no? (say)",
+      "answers": ["says"],
+      "explanation": "Même dans une question, la partie avec if reste au présent simple. Your mum = she, donc says."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["I will help you if you need me.", "If you need me I will help you."],
+      "translation": "Je t'aiderai si tu as besoin de moi.",
+      "explanation": "Will dans la conséquence, présent simple après if. Quand if est au milieu de la phrase, pas de virgule."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["She won't come if you don't invite her.", "If you don't invite her she won't come."],
+      "translation": "Elle ne viendra pas si tu ne l'invites pas.",
+      "explanation": "Négation au futur avec won't dans la conséquence, négation au présent avec don't après if."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["Will you call me if you get lost?", "If you get lost will you call me?"],
+      "translation": "Tu m'appelleras si tu te perds ?",
+      "explanation": "Dans la question, will passe devant le sujet. Après if, présent simple : get lost."
+    }
+  ]
+}

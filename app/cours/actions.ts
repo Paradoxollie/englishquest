@@ -2,18 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import questionsData from "@/lib/placement/questions.json";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   completeCourseAndGrantRewards,
   getUserCourseRoadmap,
   launchCourseMission,
 } from "@/lib/courses/progress";
+import { gradeCourseQuiz, type CourseQuizAnswer } from "@/lib/courses/quiz-grading";
 import {
   getUserCourseMissionState,
   recordCourseReadingCheckpoint,
   submitCourseQuizResult,
 } from "@/lib/courses/mission-state";
+import { syncBadgesSafely } from "@/lib/profile/badges-server";
 
 async function getAuthenticatedUserId() {
   const supabase = await createSupabaseServerClient();
@@ -129,60 +130,29 @@ export async function recordCourseCheckpointAction(courseNumber: number) {
 
 export async function submitCourseQuizAction(params: {
   courseNumber: number;
-  score: number;
-  total: number;
-  answers?: number[];
+  answers: CourseQuizAnswer[];
 }) {
   try {
     const userId = await getAuthenticatedUserId();
 
-    if (
-      !userId ||
-      !Number.isSafeInteger(params.courseNumber) ||
-      params.courseNumber < 1 ||
-      params.courseNumber > 50 ||
-      !Number.isSafeInteger(params.total) ||
-      params.total < 1 ||
-      params.total > 30 ||
-      !Number.isSafeInteger(params.score) ||
-      params.score < 0 ||
-      params.score > params.total
-    ) {
+    if (!userId || !Number.isFinite(params.courseNumber)) {
       return { success: false };
     }
 
-    let verifiedScore = params.score;
-    let verifiedTotal = params.total;
-
-    if (Array.isArray(params.answers)) {
-      const courseQuestions = questionsData.filter((q) => q.course === params.courseNumber);
-      if (
-        courseQuestions.length === 0 ||
-        params.answers.length !== courseQuestions.length ||
-        params.answers.some((choice, index) => {
-          const optionCount = courseQuestions[index]?.options.length ?? 0;
-          return !Number.isInteger(choice) || choice < 0 || choice >= optionCount;
-        })
-      ) {
-        return { success: false };
-      }
-
-      verifiedTotal = courseQuestions.length;
-      verifiedScore = courseQuestions.reduce(
-        (acc, q, index) => acc + (params.answers![index] === q.correctAnswer ? 1 : 0),
-        0
-      );
+    // La note est recalculée ici à partir des réponses : le navigateur ne fixe plus son score.
+    const graded = gradeCourseQuiz(params.courseNumber, params.answers);
+    if (!graded) {
+      return { success: false };
     }
 
     const missionState = await submitCourseQuizResult(
       userId,
       params.courseNumber,
-      verifiedScore,
-      verifiedTotal
+      graded.score,
+      graded.total
     );
 
-    // Si le défi de jeu est déjà atteint (meilleur score existant), le cours se
-    // valide tout de suite : pas d'étape manuelle.
+    // Quiz réussi : la mission se valide tout de suite. Le défi de jeu est un bonus.
     let courseCompleted: { xp: number; gold: number; newLevel: number | null } | null = null;
     if (missionState?.readyToComplete) {
       const result = await completeCourseAndGrantRewards(userId, params.courseNumber);
@@ -190,6 +160,8 @@ export async function submitCourseQuizAction(params: {
         courseCompleted = { ...result.rewards, newLevel: result.newLevel };
       }
     }
+    // Après la validation : mission, chapitre, niveau ou quiz parfait peuvent débloquer un badge.
+    const newBadges = await syncBadgesSafely(userId);
 
     revalidateCourseSurfaces(params.courseNumber);
 
@@ -197,6 +169,7 @@ export async function submitCourseQuizAction(params: {
       success: true,
       missionState,
       courseCompleted,
+      newBadges,
     };
   } catch (error) {
     console.error("submitCourseQuizAction failed", error);

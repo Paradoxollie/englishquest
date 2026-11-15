@@ -2,12 +2,22 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import { PLACEMENT_TOKEN_STORAGE_KEY } from "@/lib/placement/placement-storage";
 import type { PlacementStep } from "@/lib/placement/placement";
 import { restartPlacementAction, submitPlacementStepAction, type PlacementStepResult } from "./actions";
 
 type Phase = "intro" | "question" | "stepResult" | "done";
 
-export function PlacementTest({ firstStep, compact = false }: { firstStep: PlacementStep; compact?: boolean }) {
+export function PlacementTest({
+  firstStep,
+  compact = false,
+  guest = false,
+}: {
+  firstStep: PlacementStep;
+  compact?: boolean;
+  /** Visiteur sans compte : le résultat est gardé dans le navigateur jusqu'à l'inscription. */
+  guest?: boolean;
+}) {
   const [step, setStep] = useState<PlacementStep>(firstStep);
   const [phase, setPhase] = useState<Phase>("intro");
   const [index, setIndex] = useState(0);
@@ -44,6 +54,13 @@ export function PlacementTest({ firstStep, compact = false }: { firstStep: Place
         return;
       }
       setResult(outcome);
+      if (outcome.guestToken) {
+        try {
+          window.localStorage.setItem(PLACEMENT_TOKEN_STORAGE_KEY, outcome.guestToken);
+        } catch {
+          // Stockage indisponible (navigation privée) : le résultat s'affiche quand même.
+        }
+      }
       if (outcome.passed) {
         setPassedChapters((list) => [...list, step.chapter]);
       }
@@ -86,6 +103,33 @@ export function PlacementTest({ firstStep, compact = false }: { firstStep: Place
         <button type="button" className="eq-btn eq-btn-gold eq-btn-lg mt-4" onClick={begin} data-testid="placement-start">
           {compact ? "Repasser le test" : "Lancer le test"}
         </button>
+      </div>
+    );
+  }
+
+  if (phase === "done" && result?.placed && guest) {
+    const placed = result.placed;
+    return (
+      <div className="eq-card eq-pop" data-testid="placement-done">
+        <p className="eq-kicker">Résultat</p>
+        <h2 className="eq-h2">
+          Ton point de départ : chapitre {placed.chapterId}, {placed.chapterName} ({placed.level})
+        </h2>
+        <p className="mt-2 text-[var(--muted)]">
+          {passedChapters.length > 0
+            ? `Chapitre${passedChapters.length > 1 ? "s" : ""} ${passedChapters.join(", ")} déjà acquis. `
+            : "Le chapitre 1 pose les bases dont tout le reste dépend. "}
+          Dernière série : {result.correct} sur {result.total}. Crée ton compte : ta carte s&apos;ouvrira directement à ce
+          chapitre, et chaque mission validée te rapportera de l&apos;expérience et de l&apos;or.
+        </p>
+        <div className="eq-home-actions mt-5">
+          <Link href="/auth/signup" className="eq-btn eq-btn-gold">
+            Créer mon compte et garder ce résultat
+          </Link>
+          <Link href={`/cours/${placed.firstCourseId}`} className="eq-btn eq-btn-ghost">
+            Lire le premier cours
+          </Link>
+        </div>
       </div>
     );
   }

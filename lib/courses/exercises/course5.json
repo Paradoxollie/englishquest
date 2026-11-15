@@ -1,0 +1,102 @@
+{
+  "course": 5,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Traduis : « Est-ce que ton frère a faim ? »",
+      "options": ["Does your brother hungry?", "Is your brother hungry?", "Has your brother hungry?", "Do your brother hungry?"],
+      "correctAnswer": 1,
+      "explanation": "Avoir faim se dit be hungry. Be passe seul devant le sujet, sans do ni does."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Quelle question est correcte ?",
+      "options": ["Have you a pet?", "Do you got a pet?", "Has you got a pet?", "Have you got a pet?"],
+      "correctAnswer": 3,
+      "explanation": "Avec have got, have passe devant le sujet et got reste derrière. Sans got, il faut do : Do you have a pet?"
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : ___ is your birthday? It's in May.",
+      "options": ["When", "Who", "Where", "Why"],
+      "correctAnswer": 0,
+      "explanation": "La réponse est une date (in May) : on demande quand, donc When."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : What ___ your sister do on Sundays?",
+      "options": ["do", "is", "does", "are"],
+      "correctAnswer": 2,
+      "explanation": "Your sister = she : l'auxiliaire est does. Le do de la fin est le verbe faire, il reste à la base verbale."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Quelle question est bien construite ?",
+      "options": ["What music you like?", "What music do you like?", "What do you like music?", "What music like you?"],
+      "correctAnswer": 1,
+      "explanation": "Ordre QUASI : mot interrogatif (What music) + auxiliaire (do) + sujet (you) + verbe (like)."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : Who ___ your favourite singer?",
+      "options": ["do", "does", "are", "is"],
+      "correctAnswer": 3,
+      "explanation": "Il n'y a pas d'autre verbe dans la question : on utilise be. Your favourite singer = une seule personne, donc is."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "___ your best friend like horror films?",
+      "answers": ["Does"],
+      "explanation": "Like n'est pas be : il faut un auxiliaire. Your best friend = une seule personne, donc does."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Where ___ you from?",
+      "answers": ["are"],
+      "explanation": "Il n'y a pas d'autre verbe : be passe devant le sujet. Avec you, be devient are."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "___ they playing in the garden?",
+      "answers": ["Are"],
+      "explanation": "Playing est en -ing : c'est le present continuous, donc l'auxiliaire est be. Avec they, be devient are."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "What time ___ the film start?",
+      "answers": ["does"],
+      "explanation": "The film = it, et start n'est pas be : l'auxiliaire est does. Le verbe start reste à la base verbale."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["What time do you get up?"],
+      "translation": "À quelle heure est-ce que tu te lèves ?",
+      "explanation": "Ordre QUASI : What time + do + you + get up."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["Is your sister in your class?"],
+      "translation": "Est-ce que ta sœur est dans ta classe ?",
+      "explanation": "Il n'y a pas d'autre verbe : be passe devant le sujet. Your sister = she, donc Is."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["Has your mum got a car?"],
+      "translation": "Est-ce que ta mère a une voiture ?",
+      "explanation": "Avec have got, has passe devant le sujet et got reste derrière. Your mum = she, donc has."
+    }
+  ]
+}

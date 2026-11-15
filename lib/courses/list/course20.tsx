@@ -144,7 +144,7 @@ export const course20: LessonContent = {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <strong className="text-purple-300 block mb-1">HOWEVER (Cependant)</strong>
-                <p className="text-slate-400 text-xs">Le classique (Début phrase).</p>
+                <p className="text-slate-400 text-xs">Le classique (Début de phrase).</p>
                 <p className="text-white italic text-xs">"It's raining. <strong className="text-purple-300">However</strong>, I smile."</p>
               </div>
               <div>
@@ -180,8 +180,8 @@ export const course20: LessonContent = {
               <p className="text-white italic mt-2">"You can't enter <strong className="text-orange-400">unless</strong> you are a member."</p>
             </div>
             <div className="bg-slate-900 p-4 rounded border-l-4 border-green-500">
-              <h4 className="text-green-400 font-bold mb-1">PROVIDED / AS LONG AS (Tant que)</h4>
-              <p className="text-slate-300 text-sm">Impouse une condition stricte.</p>
+              <h4 className="text-green-400 font-bold mb-1">PROVIDED / AS LONG AS (À condition que / Tant que)</h4>
+              <p className="text-slate-300 text-sm">Impose une condition stricte.</p>
               <p className="text-white italic mt-2">"You can come <strong className="text-green-400">as long as</strong> you are quiet."</p>
             </div>
           </div>
@@ -229,7 +229,7 @@ export const course20: LessonContent = {
                 <strong className="text-blue-400 block mb-1">IF (Si)</strong>
                 <p className="text-slate-400 mb-2">J'attends que l'événement arrive pour agir.</p>
                 <p className="text-white italic">"I'll buy food <strong className="text-blue-400">if</strong> Tom comes."</p>
-                <p className="text-xs text-slate-500 mt-1">(Si Tom ne vient pas, j'achète rien).</p>
+                <p className="text-xs text-slate-500 mt-1">(Si Tom ne vient pas, je n'achète rien).</p>
               </div>
               <div className="bg-slate-900 p-3 rounded">
                 <strong className="text-orange-400 block mb-1">IN CASE (Au cas où)</strong>
@@ -271,7 +271,7 @@ export const course20: LessonContent = {
           <div className="bg-slate-800 p-4 rounded border-l-4 border-cyan-500">
             <h4 className="text-cyan-400 font-bold mb-1">AS (Au moment où...)</h4>
             <p className="text-white italic">"<strong className="text-cyan-400">As</strong> I walked into the room, he left."</p>
-            <p className="text-slate-400 text-sm mt-1">= Au moment précis où je suis rentré.</p>
+            <p className="text-slate-400 text-sm mt-1">= Au moment précis où je suis entré.</p>
           </div>
 
           {/* Vocabulary Booster: Time */}
@@ -291,7 +291,7 @@ export const course20: LessonContent = {
                 <p className="text-white italic text-xs">"<strong className="text-cyan-300">As soon as</strong> I saw him, I smiled."</p>
               </div>
               <div>
-                <strong className="text-cyan-300 block mb-1">WHENEVER (N'importe quand)</strong>
+                <strong className="text-cyan-300 block mb-1">WHENEVER (Chaque fois que / N'importe quand)</strong>
                 <p className="text-slate-400 text-xs">Répétition / Généralité.</p>
                 <p className="text-white italic text-xs">"<strong className="text-cyan-300">Whenever</strong> I go there, it rains."</p>
               </div>

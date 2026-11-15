@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { WELCOME_GOLD } from "@/lib/profile/economy";
 import type { Profile } from "@/types/profile";
 
 export const dynamic = "force-dynamic";
@@ -42,7 +43,7 @@ async function ensureProfile(userId: string, email: string | null, usernameSeed:
       email,
       role: "student",
       xp: 0,
-      gold: 0,
+      gold: WELCOME_GOLD,
       level: 1,
     })
     .select()

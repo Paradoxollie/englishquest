@@ -1,9 +1,14 @@
 "use server";
 
+import { getSafeNextPath } from "@/lib/navigation/safe-next";
+import { applyPlacement } from "@/lib/placement/placement";
+import { readPlacementToken } from "@/lib/placement/placement-token";
+
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { WELCOME_GOLD } from "@/lib/profile/economy";
 import type { AuthFormState } from "@/types/auth";
 
 
@@ -190,7 +195,7 @@ export async function signUpAction(
               email: effectiveEmail, // Utilise l'email effectif (réel ou fantôme)
               role: "student",
               xp: 0,
-              gold: 0,
+              gold: WELCOME_GOLD,
               level: 1,
             });
 
@@ -263,7 +268,7 @@ export async function signUpAction(
           email: effectiveEmail, // Utilise l'email effectif (réel ou fantôme)
           role: "student",
           xp: 0,
-          gold: 0,
+          gold: WELCOME_GOLD,
           level: 1,
         },
         {
@@ -311,7 +316,27 @@ export async function signUpAction(
     };
   }
 
-  return { success: "Compte créé. Tu peux te connecter." };
+  // Test de niveau passé avant l'inscription : résultat signé, appliqué maintenant.
+  let success = "Compte créé. Tu peux te connecter.";
+  const placementChapter = readPlacementToken(formData.get("placement"));
+  if (placementChapter && placementChapter > 1) {
+    try {
+      await applyPlacement(userId, placementChapter);
+      success = `Compte créé. Ta carte commence au chapitre ${placementChapter}, comme l'a montré ton test.`;
+    } catch (error) {
+      console.error("Placement after signup failed:", error);
+    }
+  }
+
+  // Retour prévu (lien de classe /rejoindre?code=...) : si la session est déjà
+  // ouverte, on y va directement ; sinon le formulaire propose de se connecter.
+  const next = getSafeNextPath(formData.get("next"));
+  if (next && data.session) {
+    revalidatePath("/", "layout");
+    redirect(next);
+  }
+
+  return { success };
 }
 
 /**
@@ -411,7 +436,7 @@ export async function loginAction(
           email: emailToUse,
           role: "student",
           xp: 0,
-          gold: 0,
+          gold: WELCOME_GOLD,
           level: 1,
         });
       }
@@ -425,8 +450,8 @@ export async function loginAction(
   revalidatePath("/", "layout");
   revalidatePath("/profile", "layout");
   
-  // Redirige vers la home protégée
-  redirect("/");
+  // Redirige vers la page demandée avant la connexion (lien de classe), sinon l'accueil.
+  redirect(getSafeNextPath(formData.get("next")) ?? "/");
 }
 
 /**

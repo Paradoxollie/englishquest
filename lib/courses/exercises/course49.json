@@ -1,0 +1,102 @@
+{
+  "course": 49,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Comment dire « Je cherche mes clés » ?",
+      "options": ["I'm looking after my keys.", "I'm looking for my keys.", "I'm finding out my keys.", "I'm looking my keys."],
+      "correctAnswer": 1,
+      "explanation": "Look for = chercher. Look after veut dire s'occuper de : la particule change tout le sens."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : It's freezing outside. ___ your coat!",
+      "options": ["Put on", "Take off", "Give up", "Turn on"],
+      "correctAnswer": 0,
+      "explanation": "Put on = mettre un vêtement. Son contraire est take off, enlever."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : These shoes hurt. I'm going to ___.",
+      "options": ["take off them", "take them off", "take them of", "off take them"],
+      "correctAnswer": 1,
+      "explanation": "Take off est séparable. Avec un pronom, il se place obligatoirement entre le verbe et la particule."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Que veut dire « She turned down the job offer » ?",
+      "options": ["Elle a accepté l'offre d'emploi.", "Elle a cherché une offre d'emploi.", "Elle a perdu l'offre d'emploi.", "Elle a refusé l'offre d'emploi."],
+      "correctAnswer": 3,
+      "explanation": "Turn down an offer = refuser une offre. Ce sens idiomatique ne se devine pas mot à mot."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : Don't stop now! ___ working, you're nearly there.",
+      "options": ["Give up", "Sit down", "Carry on", "Look after"],
+      "correctAnswer": 2,
+      "explanation": "Carry on + -ing = continuer à faire quelque chose. Give up veut dire le contraire : abandonner."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : Yesterday I ___ that my best friend was moving to Canada.",
+      "options": ["found out", "found up", "looked for", "gave up"],
+      "correctAnswer": 0,
+      "explanation": "Find out = découvrir, apprendre une information. Au past simple, find devient found."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "Can you look ___ my cat while I'm on holiday? (s'occuper de)",
+      "answers": ["after"],
+      "explanation": "Look after = s'occuper de, prendre soin de. C'est un phrasal verb inséparable."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "On school days, Mia gets ___ at 6.30. (se lever)",
+      "answers": ["up"],
+      "explanation": "Get up = se lever. Ne le confonds pas avec wake up, qui veut dire se réveiller."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "The music is too loud. Can you turn ___ down, please?",
+      "answers": ["it", "that"],
+      "explanation": "Turn down est séparable. Avec un pronom, il se place entre le verbe et la particule : turn it down."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "Don't ___! You can do it! (abandonner)",
+      "answers": ["give up", "quit"],
+      "explanation": "Give up = abandonner. Le sens ne se devine pas mot à mot : il faut l'apprendre en bloc."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["Please turn off your phones.", "Please turn your phones off."],
+      "translation": "Éteignez vos téléphones, s'il vous plaît.",
+      "explanation": "Turn off est séparable : avec un nom, la particule peut se placer avant ou après le nom."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["She picked it up from the floor."],
+      "translation": "Elle l'a ramassé par terre.",
+      "explanation": "Avec un pronom, il se place entre le verbe et la particule : picked it up, jamais picked up it."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["We are looking for a new flat."],
+      "translation": "Nous cherchons un nouvel appartement.",
+      "explanation": "Look for = chercher. Ce phrasal verb est inséparable : le complément se place après for."
+    }
+  ]
+}

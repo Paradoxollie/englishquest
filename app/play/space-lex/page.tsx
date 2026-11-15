@@ -3,13 +3,14 @@ import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
 import { getGameBySlug } from "@/lib/games/config";
+import { getPlayerGameLevel } from "@/lib/games/player-level-server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { SpaceLexGame } from "./space-lex-game";
 
 export const metadata: Metadata = {
   title: "Lexicon Blaster",
-  description: "Un shooter spatial où l'on tire sur les bons mots : familles de mots, connecteurs, synonymes, et des boss.",
+  description: "Un shooter spatial où l'on tire sur les bons mots : thèmes, connecteurs, synonymes, et des boss. Consignes en français pour les débutants.",
 };
 
 export const dynamic = "force-dynamic";
@@ -61,8 +62,9 @@ export default async function SpaceLexPage() {
     data: { user },
   } = await supabase.auth.getUser();
   const userId = user?.id ?? null;
-  const [mission, initialShipSkinImageUrl] = await Promise.all([
+  const [mission, suggestedLevel, initialShipSkinImageUrl] = await Promise.all([
     getMissionForGame(userId, SLUG),
+    getPlayerGameLevel(userId),
     loadShipSkinImageUrl(userId),
   ]);
 
@@ -77,6 +79,7 @@ export default async function SpaceLexPage() {
         isLoggedIn={Boolean(user)}
         missionTarget={mission && mission.quizPassed && !mission.alreadyReached ? mission.scoreTarget : null}
         initialShipSkinImageUrl={initialShipSkinImageUrl}
+        suggestedLevel={suggestedLevel}
       />
     </GameShell>
   );

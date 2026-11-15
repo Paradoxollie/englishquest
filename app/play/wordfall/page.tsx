@@ -3,6 +3,7 @@ import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
 import { getGameBySlug } from "@/lib/games/config";
+import { getPlayerGameLevel } from "@/lib/games/player-level-server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { WordfallGame } from "./wordfall-game";
 
@@ -26,7 +27,7 @@ export default async function WordfallPage() {
     data: { user },
   } = await supabase.auth.getUser();
   const userId = user?.id ?? null;
-  const mission = await getMissionForGame(userId, SLUG);
+  const [mission, suggestedLevel] = await Promise.all([getMissionForGame(userId, SLUG), getPlayerGameLevel(userId)]);
 
   return (
     <GameShell
@@ -47,6 +48,7 @@ export default async function WordfallPage() {
       <WordfallGame
         isLoggedIn={Boolean(user)}
         missionTarget={mission && mission.quizPassed && !mission.alreadyReached ? mission.scoreTarget : null}
+        suggestedLevel={suggestedLevel}
       />
     </GameShell>
   );

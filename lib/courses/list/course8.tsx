@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 export const course8: LessonContent = {
   courseNumber: 8,
   title: "L'Existence (There is / There are)",
-  description: "Dire qu'une chose existe vs La décrire.",
+  description: "Dire qu'une chose existe vs la décrire.",
   icon: "📍",
   difficulty: "Facile",
   objective: "Maîtriser la distinction entre 'Il y a' et 'C'est'.",
@@ -151,7 +151,7 @@ export const course8: LessonContent = {
               question: "List: ___ a laptop and two phones.",
               options: ["There is", "There are", "It is", "They are"],
               correctAnswer: 0,
-              explanation: "Règle de Proximité : Le premier mot est 'a laptop' (Singulier) ➔ THERE IS.",
+              explanation: "Règle de Proximité : Le premier élément est 'a laptop' (Singulier) ➔ THERE IS.",
             },
             {
               id: 3,
@@ -193,7 +193,7 @@ export const course8: LessonContent = {
               question: "On the table, ___ two books and a pen.",
               options: ["there is", "there are", "it is", "they are"],
               correctAnswer: 1,
-              explanation: "Règle de Proximité : Le premier mot est 'two books' (Pluriel) ➔ THERE ARE.",
+              explanation: "Règle de Proximité : Le premier élément est 'two books' (Pluriel) ➔ THERE ARE.",
             },
             {
               id: 9,

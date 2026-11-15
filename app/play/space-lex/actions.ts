@@ -2,6 +2,7 @@
 import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
 import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
 import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
+import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 
 /**
  * Server Actions for Lexicon Blaster (Space Lex)
@@ -16,6 +17,8 @@ import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/li
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { consumeGameSession } from "@/lib/games/game-session-server";
+import { checkLexiconBlaster } from "@/lib/games/score-plausibility";
 
 // Default difficulty for all Lexicon Blaster scores (no difficulty selection in this game)
 const DEFAULT_DIFFICULTY = "medium" as const;
@@ -37,6 +40,7 @@ export async function submitLexiconBlasterScore(params: {
     wordsMastered: number;
     wordsMissed: number;
     durationMs: number;
+    sessionId?: string | null;
 }): Promise<{
     success: boolean;
     error?: string;
@@ -49,6 +53,7 @@ export async function submitLexiconBlasterScore(params: {
     isNewGlobalBest?: boolean;
     personalBest?: number;
     courseCompleted?: AutoCompletedCourse | null;
+    newBadges?: NewBadge[];
     dailyChallenge?: {
         dailyPlayedGames: string[];
         requiredGames: string[];
@@ -65,6 +70,9 @@ export async function submitLexiconBlasterScore(params: {
             params.wordsMissed > 20_000 || params.durationMs > 2 * 60 * 60 * 1000) {
             return { success: false, error: "Score Space Lex invalide" };
         }
+        if (!checkLexiconBlaster(params).ok) {
+            return { success: false, error: "Score Space Lex invraisemblable" };
+        }
         const supabase = await createSupabaseServerClient();
         const adminClient = createSupabaseAdminClient();
 
@@ -79,6 +87,16 @@ export async function submitLexiconBlasterScore(params: {
                 success: false,
                 error: "User not authenticated",
             };
+        }
+
+        const gameSession = await consumeGameSession({
+            sessionId: params.sessionId,
+            userId: user.id,
+            slug: "space-lex",
+            claimedDurationMs: params.durationMs,
+        });
+        if (!gameSession.ok) {
+            return { success: false, error: gameSession.error };
         }
 
         // Get the Lexicon Blaster game ID
@@ -160,6 +178,7 @@ export async function submitLexiconBlasterScore(params: {
         const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
         const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "space-lex");
         const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "space-lex", params.score);
+        const newBadges = await syncBadgesSafely(user.id);
 
         return {
             success: true,
@@ -169,7 +188,8 @@ export async function submitLexiconBlasterScore(params: {
                 newLevel: updatedProfile.level > updatedProfile.previousLevel ? updatedProfile.level : undefined,
             },
             dailyChallenge: dailyChallengeResult,
-          courseCompleted,
+            courseCompleted,
+            newBadges,
             isNewPersonalBest,
             isNewGlobalBest,
             personalBest: isNewPersonalBest ? params.score : currentPersonalBest,

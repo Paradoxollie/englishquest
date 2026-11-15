@@ -1,0 +1,102 @@
+{
+  "course": 7,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Comment dire « Julie et son frère » ?",
+      "options": ["Julie and his brother", "Julie and her brother", "Julie and she brother", "Julie and hers brother"],
+      "correctAnswer": 1,
+      "explanation": "Le possessif s'accorde avec le possesseur, pas avec l'objet. Julie est une fille, donc her, même si frère est masculin."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment dire « le vélo de Max » ?",
+      "options": ["the bike of Max", "Max bike", "the Max's bike", "Max's bike"],
+      "correctAnswer": 3,
+      "explanation": "Avec une personne, on utilise le génitif : possesseur + 's + objet. L'article the disparaît."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : ___ your favourite actress?",
+      "options": ["Who's", "Whose", "Who", "Who are"],
+      "correctAnswer": 0,
+      "explanation": "On demande qui est cette actrice : Who's = Who is. Whose sert à demander à qui appartient quelque chose."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : Is this Clara's bag? Yes, it's ___.",
+      "options": ["her", "she", "hers", "her's"],
+      "correctAnswer": 2,
+      "explanation": "Pas de nom après : on utilise le pronom possessif hers (le sien, à elle). Jamais d'apostrophe dans hers."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : This phone is great. ___ battery lasts two days.",
+      "options": ["It's", "Its", "His"],
+      "correctAnswer": 1,
+      "explanation": "La batterie appartient au téléphone, une chose : its, sans apostrophe. It's veut dire it is."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : My brothers can't find ___ shoes.",
+      "options": ["his", "theirs", "their", "there"],
+      "correctAnswer": 2,
+      "explanation": "Le possesseur est pluriel (my brothers = they) : their. Le nom shoes suit, donc on prend l'adjectif, pas le pronom theirs."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "Ryan is my cousin. ___ sister is in my class.",
+      "answers": ["His"],
+      "explanation": "Le possesseur est Ryan, un garçon : his, même si sister est féminin."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "My ___ name is Rex. (dog)",
+      "answers": ["dog's"],
+      "explanation": "Le génitif se forme avec le nom du possesseur + 's : my dog's name."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Our garden is small, but ___ is huge. (their garden)",
+      "answers": ["theirs"],
+      "explanation": "On ne répète pas le nom : on utilise le pronom possessif. Their garden devient theirs."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "We love ___ new teacher. She's really funny.",
+      "answers": ["our"],
+      "explanation": "We donne our devant un nom. Ours s'utilise seul, sans nom après."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["My sister's room is very small."],
+      "translation": "La chambre de ma sœur est très petite.",
+      "explanation": "Génitif : possesseur + 's + objet. On ne dit pas the room of my sister."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["Whose phone is ringing?"],
+      "translation": "À qui est le téléphone qui sonne ?",
+      "explanation": "Pour demander à qui appartient quelque chose, la question commence par Whose + nom."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["That red bike is hers."],
+      "translation": "Ce vélo rouge est à elle.",
+      "explanation": "Pas de nom après : on utilise le pronom possessif hers, qui veut dire à elle."
+    }
+  ]
+}

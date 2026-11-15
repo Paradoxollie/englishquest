@@ -1,0 +1,102 @@
+{
+  "course": 47,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : ___ her injury, Maëlle played the whole match.",
+      "options": ["Although", "Despite", "Even though", "However"],
+      "correctAnswer": 1,
+      "explanation": "Her injury est un groupe nominal : on utilise despite. Although et even though demandent un sujet et un verbe."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : I still love this song, ___ I've heard it a hundred times.",
+      "options": ["despite", "in spite of", "however", "even though"],
+      "correctAnswer": 3,
+      "explanation": "Après le connecteur viennent un sujet et un verbe (I've heard) : il faut even though, qui renforce le contraste."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["In spite of the cold, we swam in the sea.", "In spite of it was cold, we swam in the sea.", "Despite of the cold, we swam in the sea.", "Although the cold, we swam in the sea."],
+      "correctAnswer": 0,
+      "explanation": "In spite of + nom. Attention : on dit despite ou in spite of, mais jamais despite of."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Même sens : « Although Yasmine was nervous, she gave a great speech. » = « ___ nervous, she gave a great speech. »",
+      "options": ["Despite she was", "Although being", "In spite of she was", "Despite being"],
+      "correctAnswer": 3,
+      "explanation": "Avec despite, on remplace sujet + verbe par une forme en -ing : despite being nervous."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Quelle phrase exprime une vraie opposition logique ?",
+      "options": ["Although she studied hard, she passed the exam.", "Despite the rain, we stayed at home.", "Although she studied hard, she failed the exam.", "Even though he was hungry, he ate a big sandwich."],
+      "correctAnswer": 2,
+      "explanation": "Although et despite annoncent un résultat inattendu. Travailler beaucoup puis échouer, c'est bien une opposition."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : The hotel was great. The food was a bit disappointing, ___.",
+      "options": ["though", "although", "even though", "despite"],
+      "correctAnswer": 0,
+      "explanation": "En fin de phrase, seul though est possible. Il veut dire « pourtant » ou « quand même »."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "We enjoyed the trip ___ the bad weather.",
+      "answers": ["despite", "in spite of"],
+      "explanation": "Devant un groupe nominal (the bad weather), on utilise despite ou in spite of."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "She went to school ___ she had a terrible cold.",
+      "answers": ["although", "even though", "though"],
+      "explanation": "Devant un sujet et un verbe conjugué (she had), on utilise although, even though ou though."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Despite ___ a ticket, Malik got into the concert. (not / have)",
+      "answers": ["not having"],
+      "explanation": "Après despite, le verbe se met en -ing. À la forme négative, not se place devant : not having."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "In spite ___ the noise, I managed to sleep.",
+      "answers": ["of"],
+      "explanation": "On dit in spite of, avec of. En revanche, despite s'emploie toujours sans of."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["We went to the beach although it was cloudy."],
+      "translation": "Nous sommes allés à la plage même si le temps était nuageux.",
+      "explanation": "Although est suivi d'un sujet et d'un verbe conjugué. Placé au milieu de la phrase, il n'a pas besoin de virgule."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["She passed the test despite having a bad cold."],
+      "translation": "Elle a réussi le contrôle malgré un gros rhume.",
+      "explanation": "Après despite, on met un nom ou un verbe en -ing : despite having."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["He kept smiling even though he was disappointed."],
+      "translation": "Il a continué à sourire même s'il était déçu.",
+      "explanation": "Even though + sujet + verbe exprime un contraste fort, comme même si en français."
+    }
+  ]
+}

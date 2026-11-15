@@ -1,0 +1,102 @@
+{
+  "course": 41,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : If Léa ___ her alarm, she wouldn't have missed the bus.",
+      "options": ["had set", "would have set", "set", "has set"],
+      "correctAnswer": 0,
+      "explanation": "Dans la partie avec if, le third conditional utilise le past perfect : had + participe passé. Jamais would have après if."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment dire « Si tu m'avais prévenu, je serais venu » ?",
+      "options": ["If you told me, I would come.", "If you would have told me, I would have come.", "If you had told me, I would have come.", "If you had told me, I had come."],
+      "correctAnswer": 2,
+      "explanation": "Si + plus-que-parfait devient if + had + participe passé. Le conditionnel passé devient would have + participe passé."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "« If Nora had trained harder, she might have won the race. » Que s'est-il passé en réalité ?",
+      "options": ["Nora s'est beaucoup entraînée et elle a gagné.", "Nora ne s'est pas assez entraînée et elle n'a pas gagné.", "Nora va s'entraîner plus dur pour la prochaine course.", "Nora s'est beaucoup entraînée mais elle a perdu."],
+      "correctAnswer": 1,
+      "explanation": "Le third conditional imagine le contraire de ce qui s'est passé. En réalité, Nora ne s'est pas assez entraînée et elle n'a pas gagné."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Comment dire « Si j'avais eu mon vélo, j'aurais pu venir » ?",
+      "options": ["If I had my bike, I could come.", "If I had had my bike, I could have come.", "If I would have had my bike, I could have come.", "If I had had my bike, I could have came."],
+      "correctAnswer": 1,
+      "explanation": "Le past perfect de have donne had had. J'aurais pu se dit could have + participe passé : come, pas came."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : If it hadn't rained, we ___ the picnic last Saturday.",
+      "options": ["wouldn't cancel", "hadn't cancelled", "didn't cancel", "wouldn't have cancelled"],
+      "correctAnswer": 3,
+      "explanation": "Le résultat imaginé dans le passé se forme avec would not have + participe passé. Hadn't cancelled ne s'emploie que dans la partie avec if."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Dans « If I'd known, I'd have called you », que remplacent les deux 'd ?",
+      "options": ["would, puis would", "had, puis had", "had, puis would", "would, puis had"],
+      "correctAnswer": 2,
+      "explanation": "Après if, 'd = had (past perfect). Devant have + participe passé, 'd = would."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "If you ___ to me, you wouldn't have made that mistake. (listen)",
+      "answers": ["had listened", "'d listened"],
+      "explanation": "Dans la partie avec if, on met le past perfect : had + participe passé."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "If Inès had applied, she might ___ the job. (get)",
+      "answers": ["have got", "have gotten"],
+      "explanation": "Après might, on ajoute have + participe passé. Might have présente le résultat comme possible, pas certain."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "If I ___ up so late, I wouldn't have been so tired during the exam. (not / stay)",
+      "answers": ["hadn't stayed", "had not stayed"],
+      "explanation": "La condition négative se forme avec hadn't + participe passé. En réalité, je me suis couché trop tard."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "If she ___ more time, she would have finished her essay. (have)",
+      "answers": ["had had", "'d had"],
+      "explanation": "Le past perfect de have est had had : le premier had est l'auxiliaire, le second est le participe passé."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["We would have won if Lucie had played."],
+      "translation": "Nous aurions gagné si Lucie avait joué.",
+      "explanation": "Quand la partie avec if vient en second, pas de virgule. Résultat : would have + participe passé, condition : had + participe passé."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["I wouldn't have failed if I had revised."],
+      "translation": "Je n'aurais pas échoué si j'avais révisé.",
+      "explanation": "Le résultat négatif se construit avec wouldn't have + participe passé. Après if, on garde le past perfect."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["Would you have gone if they had invited you?"],
+      "translation": "Est-ce que tu y serais allé s'ils t'avaient invité ?",
+      "explanation": "Dans la question, would passe devant le sujet : Would you have + participe passé ?"
+    }
+  ]
+}

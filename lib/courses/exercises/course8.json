@@ -1,0 +1,102 @@
+{
+  "course": 8,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Comment dire « Il y a deux filles dans mon équipe » ?",
+      "options": ["There is two girls in my team.", "There are two girls in my team.", "It is two girls in my team.", "It has two girls in my team."],
+      "correctAnswer": 1,
+      "explanation": "Two girls est au pluriel : there are. Il y a ne se traduit jamais par it is ni par it has."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : ___ bread on the table.",
+      "options": ["There are", "It is", "There is", "They are"],
+      "correctAnswer": 2,
+      "explanation": "Bread est indénombrable en anglais : il se construit comme un singulier, donc there is."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : There is a new shop near my house. ___ very cool.",
+      "options": ["It's", "There's", "It has", "There are"],
+      "correctAnswer": 0,
+      "explanation": "Le magasin est déjà présenté : maintenant on le décrit, avec it is (it's)."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Traduis : « Est-ce qu'il y a une piscine ici ? »",
+      "options": ["Is it a swimming pool here?", "Does there is a swimming pool here?", "Has it a swimming pool here?", "Is there a swimming pool here?"],
+      "correctAnswer": 3,
+      "explanation": "Pour la question, be passe devant there : Is there...? Pas de do, comme toujours avec be."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Comment dire « Il n'y a pas de cinéma dans mon village » ?",
+      "options": ["There isn't a cinema in my village.", "It isn't a cinema in my village.", "There aren't a cinema in my village.", "There doesn't have a cinema in my village."],
+      "correctAnswer": 0,
+      "explanation": "Négation : not se place après be. A cinema est au singulier, donc there isn't."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : I love my new shoes. ___ so comfortable!",
+      "options": ["There are", "It's", "They're", "There's"],
+      "correctAnswer": 2,
+      "explanation": "Les chaussures sont déjà connues : on les décrit avec they are (they're). There are sert seulement à dire qu'elles existent."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "___ a big tree in front of my school.",
+      "answers": ["There is", "There's"],
+      "explanation": "On présente une seule chose pour la première fois : there is, souvent contracté en there's."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "___ thirty pupils in my class.",
+      "answers": ["There are"],
+      "explanation": "Thirty pupils est au pluriel : there are."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Look, there is a cat on the wall. ___ black and white.",
+      "answers": ["It's", "It is"],
+      "explanation": "Le chat est déjà présenté : pour le décrire, on utilise it is (it's)."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "___ water on the floor. Be careful!",
+      "answers": ["There is", "There's"],
+      "explanation": "Water est indénombrable : il se construit comme un singulier, donc there is."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["There is a problem with my computer."],
+      "translation": "Il y a un problème avec mon ordinateur.",
+      "explanation": "Un seul problème : there is + a + nom au singulier."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["There are three bedrooms and a kitchen."],
+      "translation": "Il y a trois chambres et une cuisine.",
+      "explanation": "Règle de proximité : le premier élément (three bedrooms) est au pluriel, donc there are."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["Is there a pharmacy near here?"],
+      "translation": "Est-ce qu'il y a une pharmacie près d'ici ?",
+      "explanation": "Dans la question, be passe devant there. A pharmacy est au singulier, donc Is there."
+    }
+  ]
+}

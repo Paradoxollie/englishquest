@@ -3,12 +3,13 @@ import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
 import { getGameBySlug } from "@/lib/games/config";
+import { getPlayerGameLevel } from "@/lib/games/player-level-server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { FlashTranslationGame } from "./flash-translation-game";
 
 export const metadata: Metadata = {
   title: "Flash Translation",
-  description: "Dix mots français, quatre traductions anglaises à chaque fois : réponds vite, le score est ton temps total.",
+  description: "Dix mots français à ton niveau, quatre traductions anglaises à chaque fois : réponds vite, le score est ton temps total.",
 };
 
 export const dynamic = "force-dynamic";
@@ -26,7 +27,7 @@ export default async function FlashTranslationPage() {
     data: { user },
   } = await supabase.auth.getUser();
   const userId = user?.id ?? null;
-  const mission = await getMissionForGame(userId, SLUG);
+  const [mission, suggestedLevel] = await Promise.all([getMissionForGame(userId, SLUG), getPlayerGameLevel(userId)]);
 
   return (
     <GameShell
@@ -47,6 +48,7 @@ export default async function FlashTranslationPage() {
       <FlashTranslationGame
         isLoggedIn={Boolean(user)}
         missionTarget={mission && mission.quizPassed && !mission.alreadyReached ? mission.scoreTarget : null}
+        suggestedLevel={suggestedLevel}
       />
     </GameShell>
   );

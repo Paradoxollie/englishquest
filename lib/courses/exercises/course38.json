@@ -1,0 +1,102 @@
+{
+  "course": 38,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Dans quelle phrase peut-on supprimer le pronom relatif ?",
+      "options": ["The girl who lives next door is Italian.", "The song that won the contest is amazing.", "The film that we watched last night was scary.", "The man who called you is my uncle."],
+      "correctAnswer": 2,
+      "explanation": "Dans the film that we watched, that est suivi d'un nouveau sujet (we) : il est complément, on peut le supprimer. Dans les autres phrases, le pronom est sujet."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Dans quelle phrase le pronom relatif est-il obligatoire ?",
+      "options": ["The shoes which I bought are too small.", "The teacher who taught me English has retired.", "The game that we played was boring.", "The friends who I invited are all here."],
+      "correctAnswer": 1,
+      "explanation": "Who est directement suivi du verbe (taught) : c'est le sujet, il est obligatoire. Dans les autres phrases, un nouveau sujet suit le pronom."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Comment dire « Le garçon avec qui je parlais est mon cousin » en anglais courant ?",
+      "options": ["The boy I was talking to is my cousin.", "The boy I was talking is my cousin.", "The boy to I was talking is my cousin.", "The boy who I was talking to him is my cousin."],
+      "correctAnswer": 0,
+      "explanation": "Sans pronom relatif, la préposition se place à la fin de la relative : talking to. On ne répète pas him."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["The bus goes to the beach is always full.", "The bus what goes to the beach is always full.", "The bus that it goes to the beach is always full.", "The bus that goes to the beach is always full."],
+      "correctAnswer": 3,
+      "explanation": "That est le sujet de goes : on ne peut pas le supprimer, et on n'ajoute pas it."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète (Ø = aucun mot) : The girl ___ I met at the festival sent me a message.",
+      "options": ["what", "Ø", "which", "where"],
+      "correctAnswer": 1,
+      "explanation": "Le pronom est suivi d'un nouveau sujet (I) : il est complément, on peut le supprimer. Which est impossible pour une personne."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Comment dire « La ville d'où je viens est petite » ?",
+      "options": ["The town from I come is small.", "The town I come is small.", "The town I come from is small.", "The town I from come is small."],
+      "correctAnswer": 2,
+      "explanation": "Sans pronom relatif, la préposition (from) se place à la fin de la relative : I come from."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "The flat we live ___ is too small for five people.",
+      "answers": ["in"],
+      "explanation": "On dit live in. Sans pronom relatif, la préposition se place à la fin de la relative."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Is this the podcast you were telling me ___?",
+      "answers": ["about"],
+      "explanation": "On dit tell someone about something. Sans pronom relatif, about se place à la fin de la relative."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "I know a girl ___ can play five instruments.",
+      "answers": ["who", "that"],
+      "explanation": "Le pronom est directement suivi du verbe (can play) : c'est le sujet, il est obligatoire."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "The friends I went on holiday ___ are coming to my party.",
+      "answers": ["with"],
+      "explanation": "On dit go on holiday with someone. Sans pronom relatif, with se place à la fin de la relative."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["The cake you made was delicious."],
+      "translation": "Le gâteau que tu as fait était délicieux.",
+      "explanation": "Le pronom relatif est suivi d'un nouveau sujet (you) : on peut le supprimer."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["This is the girl I told you about."],
+      "translation": "C'est la fille dont je t'ai parlé.",
+      "explanation": "Sans pronom relatif, la préposition about se place à la fin de la relative."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["The girls I share a flat with are very tidy."],
+      "translation": "Les filles avec qui je partage un appartement sont très ordonnées.",
+      "explanation": "Sans pronom relatif, with se place à la fin de la relative, juste avant le verbe principal (are)."
+    }
+  ]
+}

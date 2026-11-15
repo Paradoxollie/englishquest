@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   GRAMMAR_RUSH_TIME_MS,
   answerRush,
+  countFocusCorrect,
   createRushState,
   currentRushQuestion,
   rushMultiplier,
@@ -13,7 +14,10 @@ import {
   type RushState,
 } from "@/lib/games/grammar-rush";
 import { playSoundEffect } from "@/lib/games/audio";
+import { PRACTICE_STAR_TARGET } from "@/lib/courses/stars";
 import { GameEnd, GameHud, GameStart, HudStat, TimeBar, type RewardSummary } from "@/components/play/game-screens";
+import { useGameFocusMode } from "@/components/play/use-game-focus-mode";
+import { useGameSession } from "@/components/play/use-game-session";
 import { submitGrammarRushScore } from "./actions";
 
 const KEYS = ["1", "2", "3", "4"];
@@ -27,11 +31,14 @@ export function GrammarRushGame({
   isLoggedIn,
   missionTarget,
   levelLabel,
+  focusCourseId = null,
 }: {
   queue: RushQuestion[];
   isLoggedIn: boolean;
   missionTarget: number | null;
   levelLabel: string;
+  /** Cours ciblé : ses bonnes réponses comptent pour l'étoile d'entraînement. */
+  focusCourseId?: number | null;
 }) {
   const router = useRouter();
   const [phase, setPhase] = useState<"start" | "playing" | "ended">("start");
@@ -49,6 +56,8 @@ export function GrammarRushGame({
   const answerPendingRef = useRef(false);
   const runRef = useRef(0);
   const stateRef = useRef(state);
+  const gameSession = useGameSession("grammar-rush", isLoggedIn);
+  useGameFocusMode(phase === "playing");
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
@@ -72,10 +81,22 @@ export function GrammarRushGame({
     submittedRef.current = false;
     answerPendingRef.current = false;
     runRef.current += 1;
+    gameSession.begin();
     startedAtRef.current = Date.now();
     questionAtRef.current = Date.now();
     setPhase("playing");
-  }, [queue]);
+  }, [queue, gameSession]);
+
+  /* Abandon : retour à l'écran de départ, rien n'est enregistré. */
+  const quit = useCallback(() => {
+    if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
+    runRef.current += 1;
+    gameSession.cancel();
+    answerPendingRef.current = false;
+    setFeedback(null);
+    setSelected(null);
+    setPhase("start");
+  }, [gameSession]);
 
   /* Chronomètre */
   useEffect(() => {
@@ -169,12 +190,19 @@ export function GrammarRushGame({
       return;
     }
     setSubmitStatus("saving");
-    submitGrammarRushScore({
-      score: final.score,
-      correct: final.correct,
-      attempts: final.attempts,
-      durationMs: Math.min(GRAMMAR_RUSH_TIME_MS, Date.now() - startedAtRef.current),
-    })
+    gameSession
+      .finish(Math.min(GRAMMAR_RUSH_TIME_MS, Date.now() - startedAtRef.current))
+      .then(({ sessionId, durationMs }) =>
+        submitGrammarRushScore({
+          score: final.score,
+          correct: final.correct,
+          attempts: final.attempts,
+          durationMs,
+          sessionId,
+          focusCourseId,
+          focusCorrect: countFocusCorrect(final, focusCourseId),
+        })
+      )
       .then((result) => {
         if (run !== runRef.current) return;
         if (!result.success) {
@@ -192,9 +220,12 @@ export function GrammarRushGame({
                 courseNumber: result.courseCompleted.courseNumber,
                 courseTitle: result.courseCompleted.courseTitle,
                 rewards: result.courseCompleted.rewards,
+                newLevel: result.courseCompleted.newLevel,
               }
             : null,
           dailyChallenge: result.dailyChallenge ?? null,
+          newBadges: result.newBadges ?? [],
+          practice: result.practice ?? null,
         });
         setSubmitStatus("saved");
         router.refresh();
@@ -202,7 +233,7 @@ export function GrammarRushGame({
       .catch(() => {
         if (run === runRef.current) setSubmitStatus("error");
       });
-  }, [phase, isLoggedIn, router]);
+  }, [phase, isLoggedIn, router, focusCourseId, gameSession]);
 
   if (phase === "start") {
     return (
@@ -214,6 +245,9 @@ export function GrammarRushGame({
           "Une erreur ne retire rien mais remet la série à zéro, et la bonne réponse s'affiche.",
           "Au clavier : touches 1 à 4.",
           missionTarget ? `Objectif de mission : ${missionTarget} points.` : "À la fin, chaque question ratée renvoie vers son cours.",
+          ...(focusCourseId && isLoggedIn
+            ? [`Étoile d'entraînement : ${PRACTICE_STAR_TARGET} bonnes réponses sur les questions du cours ${focusCourseId} dans une même partie.`]
+            : []),
         ]}
         onStart={start}
       />
@@ -266,7 +300,7 @@ export function GrammarRushGame({
 
   return (
     <div className="eq-game-play">
-      <GameHud>
+      <GameHud onQuit={quit}>
         <HudStat label="Score" value={state.score} tone="gold" />
         <HudStat label="Temps" value={`${Math.ceil(timeLeft / 1000)} s`} tone={timeLow ? "coral" : "cyan"} />
         <HudStat label="Série" value={state.streak} tone="mint" hint={`x${rushMultiplier(state.streak).toFixed(1)}`} />

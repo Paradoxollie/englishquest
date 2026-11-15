@@ -38,7 +38,7 @@ export default async function ContactPage() {
           <ul className="mt-6 grid gap-2 text-sm text-[var(--muted)]">
             <li>Mot de passe oublié : indique ton pseudo, je réinitialise ton accès.</li>
             <li>Un bug : dis sur quelle page, et avec quel appareil si tu le sais.</li>
-            <li>Professeur ? Dis-moi quelles classes tu as, l&apos;espace profs se construit.</li>
+            <li>Professeur ? Indiquez votre pseudo et votre établissement : j&apos;active le rôle professeur sur votre compte.</li>
           </ul>
           {profile ? (
             <p className="mt-6 text-sm text-[var(--muted)]">

@@ -45,7 +45,7 @@ export const course14: LessonContent = {
       content: (
         <div className="space-y-6">
           <p className="text-slate-200">
-            C'est une machine à 3 pièces. Mais attention : pour le verbe "Allez" (To Go), on triche souvent !
+            C'est une machine à 3 pièces. Mais attention : pour le verbe "Aller" (To Go), on triche souvent !
           </p>
 
           <div className="flex flex-wrap justify-center gap-2 font-mono text-lg md:text-xl bg-slate-900 p-6 rounded-xl border border-slate-700 shadow-xl">
@@ -73,7 +73,7 @@ export const course14: LessonContent = {
             <p className="text-slate-300 text-sm">
               "I'm <strong className="text-white">gonna</strong> do it."
               <br />
-              C'est LA façon dont les natifs de parlent. Mais attention, "Gonna" ne s'écrit jamais (sauf SMS).
+              C'est LA façon dont les natifs parlent. Mais attention, "Gonna" ne s'écrit jamais (sauf SMS).
             </p>
           </div>
 
@@ -172,7 +172,7 @@ export const course14: LessonContent = {
             },
             {
               id: 6,
-              question: "We ___ visit Paris next summer.",
+              question: "We ___ visit Paris next summer. (C'est notre projet).",
               options: ["are going to", "will", "go to", "going to"],
               correctAnswer: 0,
               explanation: "Projet de vacances (Intention).",
@@ -189,7 +189,7 @@ export const course14: LessonContent = {
               question: "I feel sick. I think I ___ be sick.",
               options: ["will", "am going to", "go to", "am being"],
               correctAnswer: 1,
-              explanation: "Sensation interne (Preuve sensorielle). 'I feel terrible' ➔ Evidence ➔ GOING TO be sick.",
+              explanation: "Sensation interne (Preuve sensorielle). 'I feel sick' ➔ Preuve ➔ GOING TO be sick.",
             },
             {
               id: 9,

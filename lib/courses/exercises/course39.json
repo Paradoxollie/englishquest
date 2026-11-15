@@ -1,0 +1,102 @@
+{
+  "course": 39,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : Maya really enjoys ___ photos of street art.",
+      "options": ["to take", "taking", "take", "takes"],
+      "correctAnswer": 1,
+      "explanation": "Enjoy est toujours suivi du verbe en -ing : enjoy taking."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : My friend suggested ___ a film at home instead of going out.",
+      "options": ["to watch", "watch", "watching", "we to watch"],
+      "correctAnswer": 2,
+      "explanation": "Suggest est suivi du verbe en -ing : suggested watching. Suggest to watch est une erreur fréquente."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Comment dire « Évite de manger juste avant de nager » ?",
+      "options": ["Avoid eating just before swimming.", "Avoid to eat just before swimming.", "Avoid eating just before to swim.", "Avoid eat just before swim."],
+      "correctAnswer": 0,
+      "explanation": "Avoid est suivi de -ing (eating). Before est une préposition : le verbe qui suit prend aussi -ing (swimming)."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : I'm tired ___ the same songs on the radio.",
+      "options": ["to hear", "of hear", "hearing", "of hearing"],
+      "correctAnswer": 3,
+      "explanation": "On dit tired of. Après une préposition comme of, le verbe se met toujours en -ing."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : Even when she's exhausted, Clara keeps ___ for the marathon.",
+      "options": ["to train", "training", "train", "trains"],
+      "correctAnswer": 1,
+      "explanation": "Keep, au sens de « continuer à », est suivi du verbe en -ing : keeps training."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["Léo is good to draw manga.", "Léo is good at draw manga.", "Léo is good at drawing manga.", "Léo is good to drawing manga."],
+      "correctAnswer": 2,
+      "explanation": "On dit good at. At est une préposition : le verbe qui suit se met en -ing (drawing)."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "I don't mind ___ the dishes if you cook. (do)",
+      "answers": ["doing"],
+      "explanation": "Mind est toujours suivi du verbe en -ing : don't mind doing."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Thanks for ___ me with my presentation! (help)",
+      "answers": ["helping"],
+      "explanation": "For est une préposition : le verbe qui suit se met en -ing."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "My brother has finally stopped ___ his nails. (bite)",
+      "answers": ["biting"],
+      "explanation": "Stop + -ing signifie arrêter une habitude ou une activité. Bite perd son e : biting."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "She's interested in ___ marine biology at university. (study)",
+      "answers": ["studying"],
+      "explanation": "In est une préposition : le verbe qui suit se met en -ing (studying)."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["I really enjoy cooking for my friends."],
+      "translation": "J'aime vraiment cuisiner pour mes amis.",
+      "explanation": "Enjoy est suivi du verbe en -ing : enjoy cooking. Really se place devant le verbe."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["Avoid using your phone before going to bed.", "Before going to bed avoid using your phone."],
+      "translation": "Évite d'utiliser ton téléphone avant d'aller te coucher.",
+      "explanation": "Avoid est suivi de -ing (using). Before est une préposition : going."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["We are thinking of moving to Spain."],
+      "translation": "Nous envisageons de déménager en Espagne.",
+      "explanation": "Of est une préposition : le verbe qui suit se met en -ing (moving)."
+    }
+  ]
+}

@@ -11,7 +11,7 @@ export const course45: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Ici, on ne raconte pas directement un fait observe. On fait une déduction à partir d'indices.
+                        Ici, on ne raconte pas directement un fait observé. On fait une déduction à partir d'indices.
                         Le choix du modal montre à quel point on est certain.
                     </p>
 
@@ -61,7 +61,7 @@ export const course45: LessonContent = {
                                 She <strong>might have missed</strong> the bus.
                             </p>
                             <p className="mt-2 text-xs italic text-slate-500">
-                                C'est possible, mais je ne suis pas sur.
+                                C'est possible, mais je ne suis pas sûr.
                             </p>
                         </div>
                     </div>
@@ -71,8 +71,8 @@ export const course45: LessonContent = {
                             Nuances utiles
                         </p>
                         <ul className="space-y-3 text-slate-200">
-                            <li><strong>must have</strong> = deduction forte</li>
-                            <li><strong>may have / might have</strong> = possibilite</li>
+                            <li><strong>must have</strong> = déduction forte</li>
+                            <li><strong>may have / might have</strong> = possibilité</li>
                             <li><strong>could have</strong> = déduction possible aussi, souvent un peu moins fréquent</li>
                         </ul>
                     </div>
@@ -129,7 +129,7 @@ export const course45: LessonContent = {
                             <p className="text-slate-300">must have</p>
                         </div>
                         <div className="rounded-xl border border-slate-700 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Hypothese ouverte</h4>
+                            <h4 className="mb-2 font-bold text-white">Hypothèse ouverte</h4>
                             <p className="text-slate-300">may / might / could have</p>
                         </div>
                         <div className="rounded-xl border border-slate-700 bg-slate-800 p-4">
@@ -140,7 +140,7 @@ export const course45: LessonContent = {
 
                     <div className="rounded-xl border border-cyan-500/50 bg-cyan-950/20 p-5">
                         <p className="text-slate-200">
-                            Exemple: <em>The door was locked and nothing was broken. The thief must have had a key.</em>
+                            Exemple : <em>The door was locked and nothing was broken. The thief must have had a key.</em>
                             On ne sait pas exactement ce qui s'est passé, mais les indices orientent fortement la déduction.
                         </p>
                     </div>
@@ -192,14 +192,14 @@ export const course45: LessonContent = {
                             question: "Which one expresses criticism, not deduction?",
                             options: ["She should have called.", "She must have called."],
                             correctAnswer: 0,
-                            explanation: "Should have critique une action manquante; ce n'est pas une déduction.",
+                            explanation: "Should have critique une action manquante ; ce n'est pas une déduction.",
                         },
                         {
                             id: 7,
                             question: "Police think the suspect ___ the country using a fake passport.",
                             options: ["can't have left", "may have left"],
                             correctAnswer: 1,
-                            explanation: "L'enquete n'apporte qu'une hypothèse possible.",
+                            explanation: "L'enquête n'apporte qu'une hypothèse possible.",
                         },
                         {
                             id: 8,
@@ -213,7 +213,7 @@ export const course45: LessonContent = {
                             question: "The train is late, so they ___ arrived yet.",
                             options: ["must have", "can't have"],
                             correctAnswer: 1,
-                            explanation: "Les indices rendent l'arrivee déjà accomplie très improbable.",
+                            explanation: "Les indices rendent l'arrivée déjà accomplie très improbable.",
                         },
                         {
                             id: 10,

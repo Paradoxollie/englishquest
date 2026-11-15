@@ -17,7 +17,7 @@ export const course41: LessonContent = {
 
                     <div className="bg-slate-900 p-6 rounded-xl border border-slate-700">
                         <p className="text-center text-sm font-bold uppercase tracking-[0.2em] text-rose-300 mb-4">
-                            La formule cle
+                            La formule clé
                         </p>
                         <div className="grid gap-3 md:grid-cols-2 text-center font-mono text-white">
                             <div className="rounded-lg bg-slate-800 p-4 text-emerald-300">
@@ -26,7 +26,7 @@ export const course41: LessonContent = {
                             </div>
                             <div className="rounded-lg bg-slate-800 p-4 text-cyan-300">
                                 would / could / might have + past participle
-                                <div className="mt-2 text-xs text-slate-400">resultat imagine</div>
+                                <div className="mt-2 text-xs text-slate-400">résultat imaginé</div>
                             </div>
                         </div>
 
@@ -36,7 +36,7 @@ export const course41: LessonContent = {
                                 <strong className="text-cyan-400">would have caught</strong> the train.
                             </p>
                             <p className="mt-2 text-sm italic text-slate-400">
-                                En vrai: je suis parti trop tard, donc j'ai raté le train.
+                                En réalité : je suis parti trop tard, donc j'ai raté le train.
                             </p>
                         </div>
                     </div>
@@ -48,7 +48,7 @@ export const course41: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        On l'utilise surtout pour trois idées: le regret, l'explication d'un échec, ou une conséquence
+                        On l'utilise surtout pour trois idées : le regret, l'explication d'un échec, ou une conséquence
                         positive qui aurait été possible dans un autre scénario.
                     </p>
 
@@ -74,12 +74,12 @@ export const course41: LessonContent = {
                         </div>
 
                         <div className="rounded-xl border-l-4 border-amber-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Possibilite alternative</h4>
+                            <h4 className="mb-2 font-bold text-white">Possibilité alternative</h4>
                             <p className="text-slate-300">
                                 If you had called me, I could have helped you.
                             </p>
                             <p className="mt-2 text-xs italic text-slate-500">
-                                <strong>could have</strong> = capacite possible.
+                                <strong>could have</strong> = capacité possible.
                             </p>
                         </div>
                     </div>
@@ -90,7 +90,7 @@ export const course41: LessonContent = {
                         </p>
                         <ul className="space-y-3 text-slate-200">
                             <li>
-                                <strong className="text-white">would have</strong> = resultat probable
+                                <strong className="text-white">would have</strong> = résultat certain dans ce scénario imaginé
                             </li>
                             <li>
                                 <strong className="text-white">could have</strong> = possibilité ou capacité
@@ -104,11 +104,11 @@ export const course41: LessonContent = {
             )
         },
         {
-            title: "2. Les pieges a eviter",
+            title: "2. Les pièges à éviter",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Le piège principal est toujours le même: on ne met pas <strong>would have</strong> dans la
+                        Le piège principal est toujours le même : on ne met pas <strong>would have</strong> dans la
                         partie après <strong>if</strong>.
                     </p>
 
@@ -137,14 +137,14 @@ export const course41: LessonContent = {
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
                         <p className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-amber-300">
-                            A retenir
+                            À retenir
                         </p>
                         <ul className="space-y-3 text-slate-200">
                             <li>Le third conditional parle d'un passé impossible à changer.</li>
-                            <li>Il est souvent proche de l'idee de <strong>regret</strong>.</li>
+                            <li>Il est souvent proche de l'idée de <strong>regret</strong>.</li>
                             <li>
                                 Si le résultat continue dans le présent, on entre parfois dans un <strong>mixed conditional</strong>,
-                                mais la base reste la même: un passé différent.
+                                mais la base reste la même : un passé différent.
                             </li>
                         </ul>
                     </div>
@@ -161,7 +161,7 @@ export const course41: LessonContent = {
                             question: "If I ___ earlier, I would have caught the train.",
                             options: ["left", "had left"],
                             correctAnswer: 1,
-                            explanation: "Dans la partie après IF, on utilise le past perfect: had left.",
+                            explanation: "Dans la partie après IF, on utilise le past perfect : had left.",
                         },
                         {
                             id: 2,
@@ -175,7 +175,7 @@ export const course41: LessonContent = {
                             question: "If we had known about the traffic, we ___ another road.",
                             options: ["would have taken", "took"],
                             correctAnswer: 0,
-                            explanation: "Le resultat imagine se construit avec would have + past participle.",
+                            explanation: "Le résultat imaginé se construit avec would have + past participle.",
                         },
                         {
                             id: 4,
@@ -189,7 +189,7 @@ export const course41: LessonContent = {
                             question: "They ___ on time if they had left earlier.",
                             options: ["would arrive", "would have arrived"],
                             correctAnswer: 1,
-                            explanation: "Le third conditional parle d'un resultat passe: would have arrived.",
+                            explanation: "Le third conditional parle d'un résultat passé : would have arrived.",
                         },
                         {
                             id: 6,
@@ -206,7 +206,7 @@ export const course41: LessonContent = {
                             question: "If he had worn a coat, he ___ cold.",
                             options: ["wouldn't have been", "hadn't been"],
                             correctAnswer: 0,
-                            explanation: "Le resultat imagine se forme avec would not have been.",
+                            explanation: "Le résultat imaginé se forme avec would not have been.",
                         },
                         {
                             id: 8,
@@ -225,7 +225,7 @@ export const course41: LessonContent = {
                         {
                             id: 10,
                             question: "Le third conditional sert surtout à parler de ...",
-                            options: ["faits generaux", "situations passees imaginaires"],
+                            options: ["faits généraux", "situations passées imaginaires"],
                             correctAnswer: 1,
                             explanation: "Il sert à imaginer un autre passé et un autre résultat.",
                         }

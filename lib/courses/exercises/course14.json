@@ -1,0 +1,102 @@
+{
+  "course": 14,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : My sister ___ going to study in Spain next year.",
+      "options": ["is", "are", "am", "has"],
+      "correctAnswer": 0,
+      "explanation": "Going to se construit avec be conjugué. My sister = she, donc is."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["I'm going visit my cousins on Sunday.", "I going to visit my cousins on Sunday.", "I'm going to visit my cousins on Sunday.", "I'm going to visiting my cousins on Sunday."],
+      "correctAnswer": 2,
+      "explanation": "Structure complète : be + going to + base verbale. Aucun élément ne doit manquer."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Comment dire « Ils ne vont pas venir à la fête » ?",
+      "options": ["They don't going to come to the party.", "They aren't going to come to the party.", "They not going to come to the party.", "They aren't going to coming to the party."],
+      "correctAnswer": 1,
+      "explanation": "Négation : on ajoute not à be (aren't). Jamais de don't avec going to."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : Look at that bus! It's full. We ___ get a seat.",
+      "options": ["aren't going to", "don't go to", "isn't going to", "not going to"],
+      "correctAnswer": 0,
+      "explanation": "On voit la preuve (le bus est plein) : be going to. Avec we, la négation est aren't going to."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : ___ Emma going to sing at the school concert?",
+      "options": ["Does", "Is", "Are", "Will"],
+      "correctAnswer": 1,
+      "explanation": "Question : be passe devant le sujet. Emma = she, donc Is Emma going to…?"
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Comment dire « On allait jouer dehors, mais il a commencé à pleuvoir » ?",
+      "options": ["We are going to play outside, but it started to rain.", "We went to play outside, but it started to rain.", "We was going to play outside, but it started to rain.", "We were going to play outside, but it started to rain."],
+      "correctAnswer": 3,
+      "explanation": "Projet passé qui ne s'est pas réalisé : was/were going to. Avec we, c'est were."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "My friends ___ going to play football after school.",
+      "answers": ["are", "'re"],
+      "explanation": "Be + going to. My friends = they, donc are."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "I'm really tired, so I ___ (not) going to stay up late tonight.",
+      "answers": ["am not", "'m not"],
+      "explanation": "Négation : not se place juste après be. Avec I, on dit am not."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Who ___ you going to invite to your birthday party?",
+      "answers": ["are"],
+      "explanation": "Question : mot interrogatif + be + sujet + going to. Avec you, c'est are."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "I ___ going to call you, but my phone died.",
+      "answers": ["was"],
+      "explanation": "Projet passé qui ne s'est pas réalisé : was/were going to. Avec I, c'est was."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["We are going to visit our grandparents."],
+      "translation": "Nous allons rendre visite à nos grands-parents.",
+      "explanation": "Projet déjà décidé : be + going to + base verbale."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["Is she going to play in the match?"],
+      "translation": "Est-ce qu'elle va jouer dans le match ?",
+      "explanation": "Question : is passe devant le sujet, puis going to + base verbale."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["I'm not going to tell anybody."],
+      "translation": "Je ne vais le dire à personne.",
+      "explanation": "Négation : not se place après be. Going to ne change jamais."
+    }
+  ]
+}

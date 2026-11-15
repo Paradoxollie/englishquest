@@ -37,10 +37,13 @@ export default function PrivacyPage() {
               compte sans adresse e-mail fonctionne aussi ;</li>
             <li>tes scores aux jeux, ta progression sur la carte d&apos;aventure, tes points d&apos;expérience,
               ton or et les objets que tu as choisis pour ton profil ;</li>
-            <li>les messages que tu envoies par le formulaire de contact.</li>
+            <li>les messages que tu envoies par le formulaire de contact ;</li>
+            <li>les classes que tu rejoins avec le code de ton professeur. Ton professeur voit alors ton
+              pseudo et ta progression (missions, expérience, résultats aux quiz), jamais ton adresse
+              e-mail. Tu peux quitter une classe à tout moment depuis ton profil.</li>
           </ul>
           <p>
-            Rien d&apos;autre : pas de nom réel, pas de classe, pas d&apos;établissement, pas de date de
+            Rien d&apos;autre : pas de nom réel, pas d&apos;établissement, pas de date de
             naissance. Ton pseudo et tes meilleurs scores apparaissent dans les classements, visibles par les
             autres joueurs connectés. Choisis un pseudo qui ne te désigne pas si tu préfères rester discret.
           </p>

@@ -1,0 +1,102 @@
+{
+  "course": 34,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : Sorry, you can't use the gym today. The floor ___.",
+      "options": ["is being repaired", "is repairing", "has being repaired", "is been repaired"],
+      "correctAnswer": 0,
+      "explanation": "L'action est en cours aujourd'hui. Au passif : is being + participe passé."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : Great news! The missing cat ___ found.",
+      "options": ["has being", "is been", "has been", "have been"],
+      "correctAnswer": 2,
+      "explanation": "Le résultat compte maintenant : has been + participe passé. Cat est singulier, donc has."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Comment dire « Mon vélo est en train d'être réparé » ?",
+      "options": ["My bike is repairing.", "My bike is being repaired.", "My bike has been repaired.", "My bike is been repaired."],
+      "correctAnswer": 1,
+      "explanation": "« En train d'être » se traduit par is being + participe passé. Has been repaired voudrait dire « a été réparé »."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : All the cookies ___ eaten! There's nothing left.",
+      "options": ["are being", "has been", "were being", "have been"],
+      "correctAnswer": 3,
+      "explanation": "On constate le résultat maintenant : present perfect passif. Cookies est pluriel, donc have been + participe passé."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Quelle question est correcte ?",
+      "options": ["Has the homework been corrected yet?", "Has been the homework corrected yet?", "Is the homework been corrected yet?", "Has the homework being corrected yet?"],
+      "correctAnswer": 0,
+      "explanation": "Question au present perfect passif : has passe devant le sujet, puis been + participe passé."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : This castle ___ in the 12th century.",
+      "options": ["has been built", "was built", "is being built", "has built"],
+      "correctAnswer": 1,
+      "explanation": "In the 12th century est une date passée et terminée : was + participe passé, pas le present perfect."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "Shh! A podcast ___ in the next room. (record)",
+      "answers": ["is being recorded"],
+      "explanation": "L'action est en cours en ce moment : is being + participe passé."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Over ten million copies of her novel ___ since 2020. (sell)",
+      "answers": ["have been sold"],
+      "explanation": "Since impose le present perfect. Le sujet (copies) est pluriel : have been + participe passé."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "The exam results ___ yet. (not / publish)",
+      "answers": ["haven't been published", "have not been published"],
+      "explanation": "Yet appelle le present perfect. À la forme négative : haven't been + participe passé."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "At the moment, a new skate park ___ next to the library. (build)",
+      "answers": ["is being built"],
+      "explanation": "At the moment : action en cours. Au passif, is being + participe passé (built)."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["My laptop is still being repaired."],
+      "translation": "Mon ordinateur portable est toujours en réparation.",
+      "explanation": "L'action est toujours en cours : is being + participe passé. Still se place juste après is."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["Has your phone been fixed yet?"],
+      "translation": "Ton téléphone a-t-il déjà été réparé ?",
+      "explanation": "Question : has passe devant le sujet, puis been + participe passé. Yet se place en fin de phrase."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["Three new songs have been added to the playlist."],
+      "translation": "Trois nouvelles chansons ont été ajoutées à la playlist.",
+      "explanation": "Le résultat compte maintenant : have been + participe passé. Songs est pluriel, donc have."
+    }
+  ]
+}

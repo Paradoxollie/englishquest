@@ -178,7 +178,7 @@ export const course12: LessonContent = {
               question: "When you arrived, I ___ (sleep).",
               options: ["slept", "was sleeping", "am sleeping", "sleeped"],
               correctAnswer: 1,
-              explanation: "C'était le 'Décor' (action longue en cours) quand tu es arrivé. On a interrompu ton sommeil. ➔ WAS SLEEPING.",
+              explanation: "C'était le 'Décor' (action longue en cours) quand tu es arrivé : tu as interrompu mon sommeil. ➔ WAS SLEEPING.",
             },
             {
               id: 2,
@@ -238,7 +238,7 @@ export const course12: LessonContent = {
             },
             {
               id: 10,
-              question: "They ___ (not / listen) to the teacher.",
+              question: "At 10 am yesterday, they ___ (not / listen) to the teacher.",
               options: ["didn't listen", "weren't listening", "wasn't listening", "not listening"],
               correctAnswer: 1,
               explanation: "Action de 'ne pas écouter' en cours. THEY WERE NOT listening.",

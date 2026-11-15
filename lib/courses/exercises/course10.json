@@ -1,0 +1,102 @@
+{
+  "course": 10,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : My mum is ___ engineer.",
+      "options": ["a", "an", "the", "Ø"],
+      "correctAnswer": 1,
+      "explanation": "Devant un métier, on met toujours un article. Engineer commence par un son voyelle, donc an."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment dire « J'adore la musique » (la musique en général) ?",
+      "options": ["I love the music.", "I love a music.", "I love musics.", "I love music."],
+      "correctAnswer": 3,
+      "explanation": "On parle de la musique en général : article zéro. Pas de the devant une généralité."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : I have a cat and a dog. ___ cat is black.",
+      "options": ["The", "A", "An", "Ø"],
+      "correctAnswer": 0,
+      "explanation": "Le chat a déjà été mentionné : il est connu, donc the."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : It's ___ useful app.",
+      "options": ["an", "a", "Ø"],
+      "correctAnswer": 1,
+      "explanation": "Useful commence par le son « you », un son consonne : on dit a. C'est le son qui compte, pas la lettre."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : Every morning, Inès goes to ___ school by bike.",
+      "options": ["the", "a", "an", "Ø"],
+      "correctAnswer": 3,
+      "explanation": "Elle y va comme élève, pour étudier : c'est la fonction du lieu, donc pas d'article. Go to school."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : My cousin lives in ___ United Kingdom.",
+      "options": ["Ø", "a", "the", "an"],
+      "correctAnswer": 2,
+      "explanation": "Le Royaume-Uni est une union de plusieurs pays : on met the, comme pour the USA."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "I eat ___ egg every morning.",
+      "answers": ["an"],
+      "explanation": "Un œuf parmi d'autres : article indéfini. Egg commence par un son voyelle, donc an."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Can you close ___ door, please?",
+      "answers": ["the"],
+      "explanation": "On parle d'une porte précise, celle de la pièce où l'on est : the."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Paris is ___ capital of France.",
+      "answers": ["the"],
+      "explanation": "La France n'a qu'une capitale : elle est unique et spécifique, donc the."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "My brother has got ___ horse.",
+      "answers": ["a"],
+      "explanation": "Le h de horse se prononce : c'est un son consonne, donc a."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["My dad is a firefighter."],
+      "translation": "Mon père est pompier.",
+      "explanation": "En anglais, on met toujours a ou an devant un métier, contrairement au français."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["I don't like horror films."],
+      "translation": "Je n'aime pas les films d'horreur.",
+      "explanation": "On parle des films d'horreur en général : article zéro, même si le français dit les."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["She has got an older brother."],
+      "translation": "Elle a un grand frère.",
+      "explanation": "Older commence par un son voyelle : on dit an. C'est le mot qui suit l'article qui compte, même si c'est un adjectif."
+    }
+  ]
+}

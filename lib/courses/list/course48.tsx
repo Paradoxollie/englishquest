@@ -4,20 +4,20 @@ import { Quiz } from "@/components/courses/quiz";
 export const course48: LessonContent = {
     courseNumber: 48,
     title: "Prépositions et Gérondif (Préposition + -ing)",
-    objective: "Maitriser la règle préposition + -ing, y compris avec les expressions en to qui ne sont pas des infinitifs.",
+    objective: "Maîtriser la règle préposition + -ing, y compris avec les expressions en to qui ne sont pas des infinitifs.",
     sections: [
         {
-            title: "0. La regle d'or",
+            title: "0. La règle d'or",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Quand un verbe arrive juste après une <strong>preposition</strong>, il prend normalement la
+                        Quand un verbe arrive juste après une <strong>préposition</strong>, il prend normalement la
                         forme en <strong>-ing</strong>.
                     </p>
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-6">
                         <p className="mb-4 text-center text-sm font-bold uppercase tracking-[0.18em] text-emerald-300">
-                            Reflexe a automatiser
+                            Réflexe à automatiser
                         </p>
                         <p className="text-center font-mono text-xl text-white">
                             preposition + verb-ing
@@ -32,7 +32,7 @@ export const course48: LessonContent = {
             )
         },
         {
-            title: "1. Prépositions frequentes et formes courantes",
+            title: "1. Prépositions fréquentes et formes courantes",
             content: (
                 <div className="space-y-6">
                     <div className="grid gap-4 md:grid-cols-2 text-sm">
@@ -46,7 +46,7 @@ export const course48: LessonContent = {
                             </ul>
                         </div>
                         <div className="rounded-xl border-l-4 border-cyan-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Apres adjectif + preposition</h4>
+                            <h4 className="mb-2 font-bold text-white">Après adjectif + préposition</h4>
                             <ul className="space-y-2 text-slate-300">
                                 <li>interested in learning</li>
                                 <li>afraid of flying</li>
@@ -68,7 +68,7 @@ export const course48: LessonContent = {
                 <div className="space-y-6">
                     <p className="text-slate-300">
                         Parfois, <strong>to</strong> n'est pas le marqueur de l'infinitif. C'est simplement une{" "}
-                        <strong>préposition</strong>. Dans ce cas, on garde la règle: <strong>to + -ing</strong>.
+                        <strong>préposition</strong>. Dans ce cas, on garde la règle : <strong>to + -ing</strong>.
                     </p>
 
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
@@ -108,13 +108,13 @@ export const course48: LessonContent = {
                             <h4 className="mb-3 font-bold uppercase text-cyan-300">be used to + -ing / noun</h4>
                             <p className="text-white">I am used to living in a big city.</p>
                             <p className="mt-2 text-sm text-slate-300">
-                                Etre habitue a quelque chose.
+                                Être habitué à quelque chose.
                             </p>
                         </div>
                     </div>
 
                     <p className="text-slate-300">
-                        Même forme écrite, logique différente. Dans le deuxieme cas, <strong>to</strong> est une
+                        Même forme écrite, logique différente. Dans le deuxième cas, <strong>to</strong> est une
                         préposition, donc la forme en <strong>-ing</strong> est normale.
                     </p>
                 </div>
@@ -137,14 +137,14 @@ export const course48: LessonContent = {
                             question: "She is interested in ___ abroad.",
                             options: ["to work", "working"],
                             correctAnswer: 1,
-                            explanation: "In est une préposition: working.",
+                            explanation: "In est une préposition : working.",
                         },
                         {
                             id: 3,
                             question: "I am looking forward to ___ you.",
                             options: ["seeing", "see"],
                             correctAnswer: 0,
-                            explanation: "Ici, to est une preposition, pas un infinitif.",
+                            explanation: "Ici, to est une préposition, pas un infinitif.",
                         },
                         {
                             id: 4,
@@ -158,7 +158,7 @@ export const course48: LessonContent = {
                             question: "They are used to ___ early.",
                             options: ["getting up", "get up"],
                             correctAnswer: 0,
-                            explanation: "Be used to = etre habitue a, donc to + -ing.",
+                            explanation: "Be used to = être habitué à, donc to + -ing.",
                         },
                         {
                             id: 6,
@@ -172,7 +172,7 @@ export const course48: LessonContent = {
                             question: "She insisted on ___ the bill herself.",
                             options: ["pay", "paying"],
                             correctAnswer: 1,
-                            explanation: "On est une préposition: paying.",
+                            explanation: "On est une préposition : paying.",
                         },
                         {
                             id: 8,

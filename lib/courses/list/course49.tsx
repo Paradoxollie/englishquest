@@ -18,7 +18,7 @@ export const course49: LessonContent = {
 
                     <div className="grid gap-4 md:grid-cols-3 text-sm">
                         <div className="rounded-xl border-l-4 border-emerald-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Sens assez literal</h4>
+                            <h4 className="mb-2 font-bold text-white">Sens assez littéral</h4>
                             <p className="text-slate-300">sit down, come in</p>
                         </div>
                         <div className="rounded-xl border-l-4 border-cyan-500 bg-slate-800 p-4">
@@ -26,7 +26,7 @@ export const course49: LessonContent = {
                             <p className="text-slate-300">give up, find out</p>
                         </div>
                         <div className="rounded-xl border-l-4 border-amber-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">A apprendre en bloc</h4>
+                            <h4 className="mb-2 font-bold text-white">À apprendre en bloc</h4>
                             <p className="text-slate-300">turn down an offer, carry on working</p>
                         </div>
                     </div>
@@ -34,7 +34,7 @@ export const course49: LessonContent = {
             )
         },
         {
-            title: "1. Sens literal ou sens idiomatique",
+            title: "1. Sens littéral ou sens idiomatique",
             content: (
                 <div className="space-y-6">
                     <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
@@ -43,26 +43,26 @@ export const course49: LessonContent = {
                                 <strong>sit down</strong> = s'asseoir
                             </p>
                             <p>
-                                <strong>turn off</strong> the light = eteindre
+                                <strong>turn off</strong> the light = éteindre
                             </p>
                             <p>
                                 <strong>give up</strong> = abandonner
                             </p>
                             <p>
-                                <strong>find out</strong> = decouvrir
+                                <strong>find out</strong> = découvrir
                             </p>
                         </div>
                     </div>
 
                     <p className="text-slate-300">
                         C'est pour cela qu'il faut mémoriser le groupe entier, pas seulement traduire la particule.
-                        <strong> give up</strong> ne veut pas dire "donner vers le haut".
+                        <strong> give up</strong> ne veut pas dire « donner vers le haut ».
                     </p>
                 </div>
             )
         },
         {
-            title: "2. Separable ou inseparable ?",
+            title: "2. Séparable ou inséparable ?",
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
@@ -72,7 +72,7 @@ export const course49: LessonContent = {
 
                     <div className="grid gap-4 md:grid-cols-2">
                         <div className="rounded-xl border border-emerald-500/50 bg-emerald-950/20 p-5">
-                            <h4 className="mb-3 font-bold uppercase text-emerald-300">Separable</h4>
+                            <h4 className="mb-3 font-bold uppercase text-emerald-300">Séparable</h4>
                             <p className="text-white">turn on the light / turn the light on</p>
                             <p className="text-white mt-2">turn it on</p>
                             <p className="mt-2 text-sm text-slate-300">
@@ -81,11 +81,11 @@ export const course49: LessonContent = {
                         </div>
 
                         <div className="rounded-xl border border-cyan-500/50 bg-cyan-950/20 p-5">
-                            <h4 className="mb-3 font-bold uppercase text-cyan-300">Inseparable</h4>
+                            <h4 className="mb-3 font-bold uppercase text-cyan-300">Inséparable</h4>
                             <p className="text-white">look after the children</p>
                             <p className="text-white mt-2">look after them</p>
                             <p className="mt-2 text-sm text-slate-300">
-                                On ne séparé pas: <span className="line-through">look them after</span>.
+                                On ne sépare pas : <span className="line-through">look them after</span>.
                             </p>
                         </div>
                     </div>
@@ -93,7 +93,7 @@ export const course49: LessonContent = {
             )
         },
         {
-            title: "3. Premiere boite a outils",
+            title: "3. Première boîte à outils",
             content: (
                 <div className="space-y-6">
                     <div className="grid gap-4 md:grid-cols-2 text-sm">
@@ -175,7 +175,7 @@ export const course49: LessonContent = {
                             question: "Which phrasal verb is most likely separable?",
                             options: ["turn off", "look after"],
                             correctAnswer: 0,
-                            explanation: "Turn off peut se separer: turn the light off.",
+                            explanation: "Turn off peut se séparer : turn the light off.",
                         },
                         {
                             id: 8,

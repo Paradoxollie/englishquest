@@ -69,6 +69,44 @@ test("Every vocabulary question has four distinct choices and exactly one correc
     assert.equal(round.choices[round.correctIndex].text, round.wordPair.english);
   }
 });
+test("Flash Translation vocabulary: 35+ words per level, one clear answer each", () => {
+  const french = new Set();
+  const english = new Set();
+  for (const level of [1, 2, 3, 4, 5]) {
+    const count = flash.VOCABULARY.filter((word) => word.level === level).length;
+    assert.ok(count >= 35, `level ${level}: ${count}`);
+  }
+  for (const word of flash.VOCABULARY) {
+    assert.ok([1, 2, 3, 4, 5].includes(word.level), word.french);
+    assert.ok(!french.has(word.french), `duplicate prompt ${word.french}`);
+    assert.ok(!english.has(word.english.toLowerCase()), `duplicate answer ${word.english}`);
+    french.add(word.french);
+    english.add(word.english.toLowerCase());
+    assert.equal(word.distractors.length, 3, word.french);
+    const normalized = word.distractors.map((item) => item.toLowerCase().trim());
+    assert.equal(new Set(normalized).size, 3, word.french);
+    assert.ok(!normalized.includes(word.english.toLowerCase()), `${word.french}: answer among distractors`);
+    assert.ok(!/[\u2013\u2014]/.test(word.french + word.english), `${word.french}: no dashes`);
+  }
+  // Les premiers mots ne sont plus des phrasal verbs B1-B2.
+  assert.equal(flash.VOCABULARY[0].level, 1);
+});
+test("Flash Translation rounds come from the player's level (70 %) and the level below", () => {
+  for (const level of [1, 2, 3, 4, 5]) {
+    for (let seed = 1; seed <= 30; seed += 1) {
+      const state = flash.createGameState(flash.VOCABULARY, {
+        totalRounds: 10, minWaitMs: 100, maxWaitMs: 200, wrongAnswerPenaltyMs: 5000, rng: seeded(seed * 97), level,
+      });
+      const levels = state.rounds.map((round) => round.wordPair.level);
+      assert.equal(new Set(state.rounds.map((round) => round.wordPair.french)).size, 10);
+      if (level === 1) assert.ok(levels.every((value) => value === 1));
+      else {
+        assert.equal(levels.filter((value) => value === level).length, 7, `level ${level}`);
+        assert.equal(levels.filter((value) => value === level - 1).length, 3, `level ${level}`);
+      }
+    }
+  }
+});
 test("Flash Translation ignores invalid choices and accepts one answer per round", () => {
   const current = flash.startAnswering(flash.startGame(newFlash()), 100);
   for (const choice of [-1, 4, 1.5, NaN]) assert.equal(flash.submitAnswer(current, choice, 200), current);
@@ -136,6 +174,26 @@ test("Flashback stops on three errors and cannot restart a settled state", () =>
   assert.equal(state.score, 0);
   assert.equal(memory.nextRound(state), state);
   assert.equal(memory.submitDecision(state, false), state);
+});
+test("Flashback shows levelled words with their meaning and favours the player's level", () => {
+  for (const level of [1, 2, 3, 4, 5]) {
+    const pool = memory.flashbackWordsForLevel(level);
+    assert.ok(pool.length >= 35, `level ${level}: ${pool.length}`);
+    assert.ok(pool.every((word) => word.french && word.english && (word.level === level || word.level === level - 1)));
+    const rng = seeded(level * 31);
+    let state = memory.startGame(memory.createGameState(rng, pool, level));
+    const shownLevels = [state.currentWord.level];
+    for (let i = 0; i < 60; i += 1) {
+      state = memory.submitDecision(state, !state.isNew);
+      state = memory.nextRound(state, rng);
+      if (state.isNew) shownLevels.push(state.currentWord.level);
+    }
+    assert.ok(state.seenWords.every((word) => pool.includes(word)), "words stay in the level pool");
+    if (level > 1) {
+      const main = shownLevels.filter((value) => value === level).length;
+      assert.ok(main / shownLevels.length > 0.5, `level ${level}: ${main} of ${shownLevels.length}`);
+    }
+  }
 });
 test("Flashback remains consistent over 500 rounds including vocabulary exhaustion", () => {
   const rng = seeded(87654);

@@ -1,0 +1,102 @@
+{
+  "course": 50,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Comment dire « Je dépose ma petite sœur à l'école tous les matins » ?",
+      "options": ["I drop off my little sister at school every morning.", "I pick up my little sister at school every morning.", "I set up my little sister at school every morning.", "I take off my little sister at school every morning."],
+      "correctAnswer": 0,
+      "explanation": "Drop off = déposer quelqu'un ou quelque chose. Pick up veut dire le contraire : aller chercher, récupérer."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : I'm stuck on this maths problem. Can you help me ___ the answer?",
+      "options": ["drop off", "set up", "work out", "take off"],
+      "correctAnswer": 2,
+      "explanation": "Work out = trouver une solution en réfléchissant, par exemple pour un calcul ou un problème."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Que veut dire « The police are looking into the robbery » ?",
+      "options": ["La police regarde le cambriolage à la télé.", "La police enquête sur le cambriolage.", "La police a empêché le cambriolage.", "La police a oublié le cambriolage."],
+      "correctAnswer": 1,
+      "explanation": "Look into = examiner, étudier un problème en détail. Ici, la police enquête."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : Here's the form. Please ___ and give it back to me.",
+      "options": ["fill it in", "fill in it", "fill it", "it fill in"],
+      "correctAnswer": 0,
+      "explanation": "Fill in est séparable. Avec un pronom, il se place entre le verbe et la particule : fill it in."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : I loved Lisbon! I really want to ___ there next summer.",
+      "options": ["take off", "go back", "give up", "pick up"],
+      "correctAnswer": 1,
+      "explanation": "Go back = retourner dans un endroit où l'on est déjà allé."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : You have to ___ this new series. It's brilliant!",
+      "options": ["work out", "drop off", "look after", "check out"],
+      "correctAnswer": 3,
+      "explanation": "Check out = jeter un œil, découvrir quelque chose qu'on te recommande."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "My phone ___ out of battery during the concert. (run)",
+      "answers": ["ran"],
+      "explanation": "Run out of = ne plus avoir, tomber à court de. Au past simple, run devient ran."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Could you ___ the lights when you leave? (éteindre)",
+      "answers": ["turn off", "switch off", "turn out"],
+      "explanation": "Turn off = éteindre. Son contraire est turn on, allumer."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Mum will pick me ___ after training. (aller chercher)",
+      "answers": ["up"],
+      "explanation": "Pick up = aller chercher quelqu'un. Avec le pronom me, l'ordre est pick me up."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "I don't know how to ___ with all this homework. (gérer)",
+      "answers": ["deal", "cope"],
+      "explanation": "Deal with = gérer, s'occuper d'un problème. La particule with est indispensable."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["She took off her shoes.", "She took her shoes off."],
+      "translation": "Elle a enlevé ses chaussures.",
+      "explanation": "Take off est séparable : avec un nom, la particule se place avant ou après le nom."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["We set up the tent near the lake.", "We set the tent up near the lake."],
+      "translation": "Nous avons monté la tente près du lac.",
+      "explanation": "Set up est séparable : the tent peut se placer avant ou après up. Le past simple de set est set."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["I have to go back to the dentist next week."],
+      "translation": "Je dois retourner chez le dentiste la semaine prochaine.",
+      "explanation": "Go back = retourner. La préposition to introduit ensuite le lieu."
+    }
+  ]
+}

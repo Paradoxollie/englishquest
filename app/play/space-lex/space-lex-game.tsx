@@ -35,10 +35,15 @@ import {
   updateSuperState,
   advanceDialogue,
   closeDialogue,
+  isBeginnerLevel,
 } from "@/lib/games/spaceLexShooter";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
 import { GameEnd, GameHud, GameStart, HudStat, type RewardSummary } from "@/components/play/game-screens";
+import { LevelPicker } from "@/components/play/level-picker";
+import { useGameFocusMode } from "@/components/play/use-game-focus-mode";
+import { useGameSession } from "@/components/play/use-game-session";
+import { DEFAULT_GAME_LEVEL, type GameLevel } from "@/lib/games/levels";
 
 
 // Professional Pixel Art Ship Component based on provided image
@@ -406,11 +411,14 @@ export function SpaceLexGame({
   isLoggedIn,
   missionTarget,
   initialShipSkinImageUrl,
+  suggestedLevel,
 }: {
   isLoggedIn: boolean;
   missionTarget: number | null;
   initialShipSkinImageUrl?: string | null;
+  suggestedLevel: GameLevel | null;
 }) {
+  const [level, setLevel] = useState<GameLevel>(suggestedLevel ?? DEFAULT_GAME_LEVEL);
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [shipSkinImageUrl, setShipSkinImageUrl] = useState<string | null>(initialShipSkinImageUrl ?? null);
   const [isPaused, setIsPaused] = useState(false);
@@ -430,6 +438,8 @@ export function SpaceLexGame({
   const lastUpdateRef = useRef<number>(Date.now());
   const pausedAtRef = useRef<number>(0);
   const gameAreaRef = useRef<HTMLDivElement>(null);
+  const gameSession = useGameSession("space-lex", isLoggedIn);
+  useGameFocusMode(Boolean(gameState?.isRunning && !gameState.gameOver && !isPaused));
 
   // Load default ship skin (first ship_skin item, or user's equipped skin)
   useEffect(() => {
@@ -494,9 +504,9 @@ export function SpaceLexGame({
 
   // Initialize game
   useEffect(() => {
-    const newState = createGameState();
+    const newState = createGameState(suggestedLevel ?? DEFAULT_GAME_LEVEL);
     setGameState(newState);
-  }, []);
+  }, [suggestedLevel]);
 
   const endSfxSessionRef = useRef<number>(-1);
 
@@ -511,7 +521,8 @@ export function SpaceLexGame({
   const handleStartGame = useCallback(() => {
     if (!gameState) return;
     sessionRef.current += 1;
-    const newState = startGame(gameState);
+    gameSession.begin();
+    const newState = startGame(createGameState(level));
     setGameState(newState);
     setIsPaused(false);
     setKeysPressed(new Set());
@@ -522,7 +533,7 @@ export function SpaceLexGame({
     setScoreResult(null);
     setScoreError(false);
     setIsSubmittingScore(false);
-  }, [gameState]);
+  }, [gameState, gameSession, level]);
 
   // Pause/Resume
   const handlePauseToggle = useCallback(() => {
@@ -550,6 +561,7 @@ export function SpaceLexGame({
   const handleReset = useCallback(() => {
     if (!gameState) return;
     sessionRef.current += 1;
+    gameSession.cancel();
     const newState = resetGame(gameState);
     setGameState(newState);
     setIsPaused(false);
@@ -560,7 +572,7 @@ export function SpaceLexGame({
     setScoreResult(null);
     setScoreError(false);
     setIsSubmittingScore(false);
-  }, [gameState]);
+  }, [gameState, gameSession]);
 
   // Submit score when game ends
   useEffect(() => {
@@ -571,17 +583,17 @@ export function SpaceLexGame({
       setIsSubmittingScore(true);
       scoreSubmittedRef.current = true;
 
-      const durationMs = Date.now() - gameStartTimeRef.current;
+      const final = {
+        score: gameState.score,
+        wave: gameState.waveNumber,
+        maxCombo: gameState.maxCombo,
+        wordsMastered: gameState.learnedWords.length,
+        wordsMissed: gameState.missedWords.length,
+      };
 
       try {
-        const result = await submitLexiconBlasterScore({
-          score: gameState.score,
-          wave: gameState.waveNumber,
-          maxCombo: gameState.maxCombo,
-          wordsMastered: gameState.learnedWords.length,
-          wordsMissed: gameState.missedWords.length,
-          durationMs,
-        });
+        const { sessionId, durationMs } = await gameSession.finish(Date.now() - gameStartTimeRef.current);
+        const result = await submitLexiconBlasterScore({ ...final, durationMs, sessionId });
         if (session !== sessionRef.current) return;
 
         if (result.success && result.rewards) {
@@ -596,9 +608,11 @@ export function SpaceLexGame({
                   courseNumber: result.courseCompleted.courseNumber,
                   courseTitle: result.courseCompleted.courseTitle,
                   rewards: result.courseCompleted.rewards,
+                  newLevel: result.courseCompleted.newLevel,
                 }
               : null,
             dailyChallenge: result.dailyChallenge ?? null,
+            newBadges: result.newBadges ?? [],
           });
         } else {
           setScoreError(true);
@@ -613,7 +627,7 @@ export function SpaceLexGame({
     };
 
     submitScore();
-  }, [gameState?.gameOver, gameState?.score, gameState?.waveNumber, gameState?.maxCombo, gameState?.learnedWords.length, gameState?.missedWords.length, isLoggedIn, isSubmittingScore]);
+  }, [gameState?.gameOver, gameState?.score, gameState?.waveNumber, gameState?.maxCombo, gameState?.learnedWords.length, gameState?.missedWords.length, isLoggedIn, isSubmittingScore, gameSession]);
 
   const handleActivateSuper = useCallback(() => {
     if (isPaused) return;
@@ -858,16 +872,28 @@ export function SpaceLexGame({
     return (
       <GameStart
         title="Paré au décollage ?"
-        intro="Des mots arrivent du fond de l'espace. La mission en haut de l'écran dit lesquels viser : famille de mots, connecteurs, synonymes. Tire sur les bons, laisse passer les autres."
+        intro="Des mots arrivent du fond de l'espace. La mission en haut de l'écran dit lesquels viser : les mots d'un thème, des synonymes ou des connecteurs. Tire sur les bons, laisse passer les autres."
         rules={[
           "Tirer sur un mot hors mission ou laisser passer un bon mot coûte une vie.",
           "Les mots touchés remplissent la barre EMP : à 100 %, espace déclenche une onde qui nettoie l'écran.",
           "Ordinateur : flèches ou A/D pour bouger, tir automatique. Mobile : glisse le doigt.",
           missionTarget ? `Objectif de mission : ${missionTarget} points.` : "Les vagues s'enchaînent, avec un boss régulièrement.",
+          isBeginnerLevel(level)
+            ? "Niveaux Débutant et Élémentaire : consignes en français, mots courants, pas de connecteurs."
+            : "À partir du niveau Intermédiaire : consignes en anglais et connecteurs logiques.",
         ]}
         onStart={handleStartGame}
         startLabel="Décoller"
-      />
+      >
+        <LevelPicker
+          value={level}
+          onChange={(next) => {
+            setLevel(next);
+            setGameState(createGameState(next));
+          }}
+          suggested={suggestedLevel}
+        />
+      </GameStart>
     );
   }
 
@@ -917,7 +943,7 @@ export function SpaceLexGame({
 
   return (
     <div className="eq-game-play">
-      <GameHud>
+      <GameHud onQuit={handleReset}>
         <HudStat label="Score" value={gameState.score} tone="gold" />
         <HudStat label="Vies" value={"●".repeat(Math.max(0, gameState.lives))} tone={gameState.lives <= 1 ? "coral" : "mint"} />
         <HudStat label="Vague" value={gameState.waveNumber} tone="cyan" hint={`niveau ${gameState.level}`} />
@@ -952,11 +978,8 @@ export function SpaceLexGame({
             y: [0, 5, -5, 5, -5, 0],
           } : { x: 0, y: 0 }}
           transition={{ duration: 0.3 }}
-          className={`eq-game-arcade eq-space ${comboBurst ? "is-right" : ""}`}
-          style={{
-            height: isMobile ? "440px" : "600px",
-            touchAction: "none",
-          }}
+          className={`eq-game-arcade eq-space eq-space-stage ${comboBurst ? "is-right" : ""}`}
+          style={{ touchAction: "none" }}
           data-testid="space-stage"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -1261,13 +1284,13 @@ export function SpaceLexGame({
               >
                 <div className="eq-space-overlay-card is-cyan">
                   <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0 w-14 h-14 bg-slate-900 border-2 border-cyan-400/60 rounded-md flex items-center justify-center text-cyan-300">
+                    <div className="eq-space-speaker" aria-hidden="true">
                       {gameState.currentDialogue.lines[gameState.dialogueIndex].speaker === "COMMANDER" ? (
-                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                           <polygon points="12 2 15 8.5 22 9.5 17 14.5 18 21.5 12 18 6 21.5 7 14.5 2 9.5 9 8.5 12 2" />
                         </svg>
                       ) : (
-                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                           <rect x="4" y="6" width="16" height="12" rx="3" />
                           <circle cx="9.5" cy="12" r="1.5" fill="currentColor" />
                           <circle cx="14.5" cy="12" r="1.5" fill="currentColor" />
@@ -1281,23 +1304,30 @@ export function SpaceLexGame({
                           ? "COMMANDANT"
                           : "IA TACTIQUE"}
                       </div>
-                      <div className="text-white text-sm md:text-base font-bold leading-tight min-h-[3em]">
+                      <div className="text-white text-sm md:text-base font-bold leading-tight min-h-[3em]" lang="en">
                         {gameState.currentDialogue.lines[gameState.dialogueIndex].text}
                       </div>
+                      {gameState.currentDialogue.lines[gameState.dialogueIndex].subtitle ? (
+                        <p className="eq-space-subtitle" lang="fr">
+                          {gameState.currentDialogue.lines[gameState.dialogueIndex].subtitle}
+                        </p>
+                      ) : null}
                     </div>
                   </div>
                   <div className="mt-3 flex justify-end gap-3">
                     <button
+                      type="button"
                       onClick={handleCloseDialogue}
-                      className="text-xs font-bold text-slate-400 hover:text-white transition-colors"
+                      className="text-xs font-black text-slate-400 hover:text-white transition-colors"
                     >
                       Passer
                     </button>
                     <button
+                      type="button"
                       onClick={handleAdvanceDialogue}
                       className="px-4 py-1 bg-cyan-600 hover:bg-cyan-500 border border-cyan-400 text-white font-black text-xs md:text-sm shadow-[2px_2px_0_#083344] active:translate-y-0.5 active:shadow-none"
                     >
-                      {gameState.dialogueIndex < (gameState.currentDialogue.lines.length - 1) ? "Suivant >" : "Continuer"}
+                      {gameState.dialogueIndex < (gameState.currentDialogue.lines.length - 1) ? "Suite" : "C'est parti"}
                     </button>
                   </div>
                 </div>
@@ -1368,7 +1398,7 @@ export function SpaceLexGame({
               />
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-[10px] md:text-xs font-black text-white text-outline-sm uppercase tracking-wider">
-                  {gameState.waveProgress} / {gameState.waveTarget} TARGETS ACQUIRED
+                  {gameState.waveProgress} / {gameState.waveTarget} cibles
                 </span>
               </div>
             </div>

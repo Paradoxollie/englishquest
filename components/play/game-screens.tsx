@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   canSpeakEnglish,
   isSoundMuted,
   setSoundMuted,
   speakEnglish,
 } from "@/lib/games/audio";
+import { buildGameRewardDetail, dispatchReward, type RewardBadge } from "@/lib/profile/reward-events";
 
 /* Écrans partagés par les jeux : démarrage, fin de partie, HUD. */
 
@@ -18,8 +19,23 @@ export type RewardSummary = {
   reduced?: boolean;
   isNewPersonalBest?: boolean;
   isNewGlobalBest?: boolean;
-  courseCompleted?: { courseNumber: number; courseTitle: string; rewards: { xp: number; gold: number } } | null;
+  courseCompleted?: {
+    courseNumber: number;
+    courseTitle: string;
+    rewards: { xp: number; gold: number };
+    newLevel?: number | null;
+  } | null;
   dailyChallenge?: { bonusGranted: boolean; xpBonus: number; goldBonus: number; dailyGoalReached: boolean } | null;
+  /** Badges obtenus grâce à cette partie. */
+  newBadges?: RewardBadge[];
+  /** Entraînement ciblé sur un cours (Grammar Rush ouvert avec ?cours=N). */
+  practice?: {
+    courseId: number;
+    focusCorrect: number;
+    target: number;
+    starReached: boolean;
+    newlyEarned: boolean;
+  } | null;
 };
 
 /** Compteur qui monte de 0 à la valeur en quelques dixièmes de seconde. */
@@ -158,16 +174,29 @@ export function SpeakButton({
   );
 }
 
+/**
+ * Barre de statistiques. `onQuit` ajoute un bouton « Quitter », visible
+ * seulement en mode concentration sur téléphone (voir useGameFocusMode).
+ */
 export function GameHud({
   children,
+  onQuit,
   showSoundToggle = true,
 }: {
   children: ReactNode;
+  onQuit?: () => void;
   showSoundToggle?: boolean;
 }) {
   return (
     <div className="eq-game-hud-wrap">
-      <div className="eq-game-hud">{children}</div>
+      <div className="eq-game-hud">
+        {children}
+        {onQuit ? (
+          <button type="button" className="eq-game-quit" onClick={onQuit} data-testid="game-quit">
+            Quitter
+          </button>
+        ) : null}
+      </div>
       {showSoundToggle ? <SoundToggleButton /> : null}
     </div>
   );
@@ -208,6 +237,7 @@ export function GameStart({
   children,
   onStart,
   startLabel = "Lancer la partie",
+  startDisabled = false,
 }: {
   title: string;
   intro: string;
@@ -215,6 +245,8 @@ export function GameStart({
   children?: ReactNode;
   onStart: () => void;
   startLabel?: string;
+  /** Bouton inactif, par exemple pendant le chargement d'un dictionnaire. */
+  startDisabled?: boolean;
 }) {
   return (
     <div className="eq-game-start eq-pop">
@@ -238,6 +270,8 @@ export function GameStart({
         }}
         className="eq-btn eq-btn-gold eq-btn-lg"
         data-testid="game-start"
+        disabled={startDisabled}
+        aria-busy={startDisabled || undefined}
       >
         {startLabel}
       </button>
@@ -266,6 +300,14 @@ export function GameEnd({
   onReplay: () => void;
   children?: ReactNode;
 }) {
+  // Une seule célébration par résultat enregistré (XP, or, niveau, badges, étoiles).
+  const celebratedRef = useRef<RewardSummary | null>(null);
+  useEffect(() => {
+    if (!rewards || rewardStatus !== "saved" || celebratedRef.current === rewards) return;
+    celebratedRef.current = rewards;
+    dispatchReward(buildGameRewardDetail(rewards));
+  }, [rewards, rewardStatus]);
+
   return (
     <div className="eq-game-end eq-pop" data-testid="game-end">
       <p className="eq-kicker">{title}</p>
@@ -312,7 +354,22 @@ export function GameEnd({
               Défi du jour réussi : + {rewards.dailyChallenge.xpBonus} XP, + {rewards.dailyChallenge.goldBonus} or
             </p>
           ) : null}
+          {rewards.newBadges && rewards.newBadges.length > 0 ? (
+            <p className="eq-game-badges">
+              {rewards.newBadges.length > 1 ? "Badges débloqués : " : "Badge débloqué : "}
+              <b>{rewards.newBadges.map((badge) => badge.name).join(", ")}</b>.{" "}
+              <Link href="/profile#badges">Voir mes badges</Link>
+            </p>
+          ) : null}
         </div>
+      ) : null}
+
+      {rewards?.practice ? (
+        <p className={`eq-game-practice${rewards.practice.starReached ? " is-earned" : ""}`}>
+          {rewards.practice.starReached
+            ? `Étoile d'entraînement gagnée pour le cours ${rewards.practice.courseId}.`
+            : `Cours ${rewards.practice.courseId} : ${rewards.practice.focusCorrect} bonne${rewards.practice.focusCorrect > 1 ? "s" : ""} réponse${rewards.practice.focusCorrect > 1 ? "s" : ""} sur ses questions. Il en faut ${rewards.practice.target} dans une partie pour l'étoile d'entraînement.`}
+        </p>
       ) : null}
 
       {rewards?.courseCompleted ? (

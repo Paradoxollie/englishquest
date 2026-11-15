@@ -72,11 +72,29 @@ en invité et enregistre ses captures dans `output/playwright/audit-2026-10-13/`
 
 ## Ajouter du vocabulaire
 
-- Flash Translation et Flashback : `lib/games/flashTranslation.ts` (`VOCABULARY`)
-- Wordfall : `lib/games/words/wordfall-words.json` (`manualWords`, mots de 4 à 6 lettres avec
-  traduction, et `expressions`)
-- Lexicon Blaster : `lib/games/spaceLexShooter.ts` (familles de mots, connecteurs, synonymes)
+Chaque mot porte un niveau : 1 = A1 (chapitre 1) à 5 = C1 (chapitre 5), voir
+`lib/games/levels.ts`. Un joueur connecté joue au niveau de son chapitre en cours ; un
+invité choisit son niveau (Débutant par défaut). Les jeux tirent environ 70 % des mots au
+niveau du joueur et 30 % au niveau inférieur.
+
+- Flash Translation et Flashback : `lib/games/flashTranslation.ts` (`VOCABULARY` : mot
+  français, réponse anglaise, trois distracteurs jamais acceptables, niveau)
+- Wordfall : `lib/games/words/wordfall-words.json` (`manualWords.translations`,
+  `manualWords.levels`, `expressions`)
+- Enigma Scroll : `lib/games/enigma-scroll-targets.ts` (mots à deviner avec traduction et
+  niveau) ; les propositions acceptées sont dans `public/data/enigma-guesses-4.json`, `-5`,
+  `-6`, chargées à la demande (`node scripts/update-word-lists.js` pour les régénérer)
+- Lexicon Blaster : `lib/games/spaceLexShooter.ts` (thèmes, connecteurs, synonymes, et leurs
+  versions simplifiées pour les niveaux 1 et 2)
 - Speed Verb Challenge : `lib/games/speed-verb-challenge.ts` (`VERBS`)
+
+## Sessions de partie et scores
+
+Un joueur connecté ouvre une session côté serveur au lancement de chaque partie
+(`lib/games/game-session-server.ts`, table `game_sessions`). L'action de score exige cette
+session, une seule fois, avec une durée compatible avec l'horloge du serveur, et un score
+plausible pour cette durée (`lib/games/score-plausibility.ts`). Les invités n'envoient
+aucun score.
 
 ## Règles du projet
 

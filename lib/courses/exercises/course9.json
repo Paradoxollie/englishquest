@@ -1,0 +1,102 @@
+{
+  "course": 9,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : There are ___ apples in the fridge.",
+      "options": ["any", "much", "a", "some"],
+      "correctAnswer": 3,
+      "explanation": "Phrase affirmative : some, pour une quantité non précisée."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : We haven't got ___ milk.",
+      "options": ["some", "a", "any", "many"],
+      "correctAnswer": 2,
+      "explanation": "Phrase négative : any. Milk est indénombrable, donc ni a ni many."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Complète : Are there ___ good films on TV tonight?",
+      "options": ["any", "some", "much", "a"],
+      "correctAnswer": 0,
+      "explanation": "C'est une vraie question : on ne sait pas s'il y en a, donc any."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Comment dire « J'ai besoin de conseils » ?",
+      "options": ["I need an advice.", "I need some advice.", "I need some advices.", "I need any advice."],
+      "correctAnswer": 1,
+      "explanation": "Advice est indénombrable : jamais de an ni de s. Phrase affirmative, donc some advice."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : I can't find ___ socks in my drawer!",
+      "options": ["some", "no", "a", "any"],
+      "correctAnswer": 3,
+      "explanation": "Can't rend la phrase négative : any. Avec no, on ferait une double négation."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["She has got some informations.", "She has got an information.", "She has got some information.", "She has got any informations."],
+      "correctAnswer": 2,
+      "explanation": "Information est indénombrable en anglais : jamais de an ni de s. On dit some information."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "I've got ___ sweets. Do you want one?",
+      "answers": ["some"],
+      "explanation": "Phrase affirmative : some, pour une quantité non précisée."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "There isn't ___ shampoo in the bathroom.",
+      "answers": ["any"],
+      "explanation": "Phrase négative (isn't) : on utilise any."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Have you got ___ pets?",
+      "answers": ["any"],
+      "explanation": "C'est une vraie question : on ne sait pas si la personne a des animaux, donc any."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "There are ___ students in the canteen at noon. (beaucoup de)",
+      "answers": ["a lot of", "lots of", "many"],
+      "explanation": "Dans une phrase affirmative, a lot of (ou lots of) marche avec tous les noms. Many est aussi possible devant un pluriel."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["Is there any juice in the fridge?"],
+      "translation": "Est-ce qu'il y a du jus dans le frigo ?",
+      "explanation": "C'est une vraie question : on ne sait pas s'il y en a, donc any."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["We need some eggs for the cake."],
+      "translation": "Nous avons besoin d'œufs pour le gâteau.",
+      "explanation": "Phrase affirmative : some + nom, pour une quantité non précisée."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["My brother doesn't eat any vegetables."],
+      "translation": "Mon frère ne mange aucun légume.",
+      "explanation": "Phrase négative (doesn't) : any + nom. Any se place juste devant le nom."
+    }
+  ]
+}

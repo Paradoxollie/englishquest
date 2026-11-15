@@ -1,0 +1,102 @@
+{
+  "course": 3,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : My mum ___ coffee every morning.",
+      "options": ["drink", "is drinking", "drinks", "drinking"],
+      "correctAnswer": 2,
+      "explanation": "Every morning indique une habitude : present simple. My mum = she, donc le verbe prend un -s."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : Sarah ___ her homework after dinner. (do)",
+      "options": ["does", "dos", "do", "doing"],
+      "correctAnswer": 0,
+      "explanation": "C'est une habitude, donc present simple. Do se termine par o : à la 3e personne, on ajoute -es."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Comment dire « Il n'aime pas les maths » ?",
+      "options": ["He don't like maths.", "He doesn't likes maths.", "He not like maths.", "He doesn't like maths."],
+      "correctAnswer": 3,
+      "explanation": "À la 3e personne, la négation est doesn't. Le s est déjà sur does : le verbe reste à la base verbale, like."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Quelle question est correcte ?",
+      "options": ["Does your brother plays the guitar?", "Does your brother play the guitar?", "Do your brother play the guitar?", "Is your brother play the guitar?"],
+      "correctAnswer": 1,
+      "explanation": "Avec une 3e personne, la question se forme avec does. Après does, le verbe reste à la base verbale : play."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Comment dire « Je mange souvent des pâtes » ?",
+      "options": ["I eat often pasta.", "I often eat pasta.", "I often eats pasta."],
+      "correctAnswer": 1,
+      "explanation": "L'adverbe de fréquence se place avant le verbe : I often eat. Avec I, le verbe ne prend pas de s."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : School ___ at five o'clock. (finish)",
+      "options": ["finish", "finishs", "finishes", "finishing"],
+      "correctAnswer": 2,
+      "explanation": "School = it, donc 3e personne. Finish se termine par sh : on ajoute -es."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "My brother ___ in a pizza restaurant. (work)",
+      "answers": ["works"],
+      "explanation": "C'est un fait stable : present simple. My brother = he, donc le verbe prend un -s."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "My best friend ___ hip-hop. (not / like)",
+      "answers": ["doesn't like", "does not like"],
+      "explanation": "Négation à la 3e personne : doesn't + base verbale. Le verbe like ne prend pas de s."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "___ your parents watch football on TV?",
+      "answers": ["Do"],
+      "explanation": "Your parents = they : la question se forme avec do devant le sujet, pas does."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "Amira ___ English and Spanish at school. (study)",
+      "answers": ["studies"],
+      "explanation": "Study se termine par consonne + y : à la 3e personne, le y devient -ies."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["She always walks to school."],
+      "translation": "Elle va toujours à l'école à pied.",
+      "explanation": "Always se place avant le verbe. Avec she, le verbe prend un -s : walks."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["Does your dad cook on Sundays?"],
+      "translation": "Est-ce que ton père cuisine le dimanche ?",
+      "explanation": "Question à la 3e personne : Does + sujet + base verbale. Pas de s sur cook."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["My friends don't eat meat."],
+      "translation": "Mes amis ne mangent pas de viande.",
+      "explanation": "My friends = they : la négation est don't + base verbale."
+    }
+  ]
+}

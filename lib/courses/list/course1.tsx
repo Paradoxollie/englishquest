@@ -129,7 +129,7 @@ export const course1: LessonContent = {
       ),
     },
     {
-      title: "Point de Vigilance : Les \"Faux Amis\"",
+      title: "Point de vigilance : le calque du français",
       content: (
         <div className="space-y-6">
           <div className="bg-gradient-to-br from-red-950/80 to-slate-900 border-l-4 border-red-500 rounded-r-xl shadow-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 relative overflow-hidden group">

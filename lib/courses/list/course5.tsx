@@ -56,7 +56,7 @@ export const course5: LessonContent = {
             </div>
             <div className="bg-slate-800 p-4 rounded-xl border-l-4 border-cyan-500 shadow-lg shadow-cyan-900/20">
               <p className="text-cyan-400 text-sm mb-1 font-bold">Question</p>
-              <p className="text-xl text-white font-mono"><span className="text-cyan-400 font-bold decoration-2 underline decoration-cyan-500/50">Are</span> <span className="text-emerald-400">you</span> ready ?</p>
+              <p className="text-xl text-white font-mono"><span className="text-cyan-400 font-bold decoration-2 underline decoration-cyan-500/50">Are</span> <span className="text-emerald-400">you</span> ready?</p>
             </div>
           </div>
         </div>
@@ -112,7 +112,7 @@ export const course5: LessonContent = {
             </div>
 
             <p className="text-white mb-6 leading-relaxed">
-              Le Bodyguard <strong className="text-amber-400">DO</strong> passé devant et prend tous les coups à la place du verbe. C'est lui qui porte la marque de la 3ème personne (le "S").
+              Le Bodyguard <strong className="text-amber-400">DO</strong> passe devant et prend tous les coups à la place du verbe. C'est lui qui porte la marque de la 3e personne (le "S").
             </p>
 
             <div className="space-y-4 font-mono text-lg">
@@ -151,7 +151,7 @@ export const course5: LessonContent = {
             <div className="bg-slate-800 p-6 rounded-xl border-l-4 border-amber-500 flex flex-col items-center text-center">
               <span className="text-4xl mb-3">🇺🇸</span>
               <h3 className="text-amber-400 font-bold text-lg uppercase tracking-wider mb-2">L'Option Moderne</h3>
-              <p className="text-slate-400 text-sm mb-4">On traité "Have" comme un verbe normal (faible). Il a besoin du Bodyguard.</p>
+              <p className="text-slate-400 text-sm mb-4">On traite "Have" comme un verbe normal (faible). Il a besoin du Bodyguard.</p>
 
               <div className="bg-slate-900 p-4 rounded-lg w-full">
                 <p className="text-white font-mono text-lg mb-1">
@@ -164,13 +164,13 @@ export const course5: LessonContent = {
             <div className="bg-slate-800 p-6 rounded-xl border-l-4 border-purple-500 flex flex-col items-center text-center">
               <span className="text-4xl mb-3">🇬🇧</span>
               <h3 className="text-purple-400 font-bold text-lg uppercase tracking-wider mb-2">L'Option "Got"</h3>
-              <p className="text-slate-400 text-sm mb-4">Ici, "Have" est un Auxiliaire (Fort). Il passé devant tout seul, mais il traîne "Got" derrière.</p>
+              <p className="text-slate-400 text-sm mb-4">Ici, "Have" est un Auxiliaire (Fort). Il passe devant tout seul, mais il traîne "Got" derrière.</p>
 
               <div className="bg-slate-900 p-4 rounded-lg w-full">
                 <p className="text-white font-mono text-lg mb-1">
                   <span className="text-purple-400 font-bold">Have</span> you <span className="text-slate-500 text-sm">got</span> a car?
                 </p>
-                <p className="text-xs text-slate-500">Plus formel ou britannique.</p>
+                <p className="text-xs text-slate-500">Plus courant à l'oral, surtout en anglais britannique.</p>
               </div>
             </div>
           </div>
@@ -178,10 +178,10 @@ export const course5: LessonContent = {
           <div className="flex items-start gap-3 bg-red-900/20 border border-red-500/30 p-4 rounded-lg">
             <AlertIcon className="w-6 h-6 text-red-400 shrink-0" />
             <div>
-              <p className="text-red-300 font-bold text-sm uppercase mb-1">Le Piège à éviter absoluement</p>
+              <p className="text-red-300 font-bold text-sm uppercase mb-1">Le Piège à éviter absolument</p>
               <p className="text-slate-300 text-sm">
                 Ne dites jamais <span className="line-through decoration-red-500 decoration-2 text-white">"Have you a car?"</span>. <br />
-                Soit vous utilisez <strong>DO</strong>, soit vous ajoutez <strong>GOT</strong>. Mais "Have" tout seul ne passé pas devant !
+                Soit vous utilisez <strong>DO</strong>, soit vous ajoutez <strong>GOT</strong>. Mais "Have" tout seul ne passe pas devant !
               </p>
             </div>
           </div>
@@ -325,7 +325,7 @@ export const course5: LessonContent = {
               question: "Where ___ she live?",
               options: ["do", "does", "is", "are"],
               correctAnswer: 1,
-              explanation: "Sujet 'She' (3ème pers) + Verbe 'live' ➔ Auxiliaire DOES.",
+              explanation: "Sujet 'She' (3e pers.) + Verbe 'live' ➔ Auxiliaire DOES.",
             },
             {
               id: 3,
@@ -346,7 +346,7 @@ export const course5: LessonContent = {
               question: "___ John play football?",
               options: ["Do", "Is", "Does", "Play"],
               correctAnswer: 2,
-              explanation: "John = He (3ème pers) + Verbe 'play'. ➔ DOES (l'aspirateur à S).",
+              explanation: "John = He (3e pers.) + Verbe 'play'. ➔ DOES (l'aspirateur à S).",
             },
             {
               id: 6,
@@ -381,7 +381,7 @@ export const course5: LessonContent = {
               question: "___ it rain often here?",
               options: ["Do", "Is", "Does", "Are"],
               correctAnswer: 2,
-              explanation: "It (le temps/3ème pers singulier) + Rain (verbe). ➔ DOES.",
+              explanation: "It (le temps/3e pers. du singulier) + Rain (verbe). ➔ DOES.",
             },
           ]}
         />

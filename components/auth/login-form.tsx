@@ -9,11 +9,12 @@ import { authInitialState } from "@/types/auth";
 const inputClass =
   "w-full rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--ink)] px-4 py-3 text-[0.95rem] text-[var(--fg)] outline-none placeholder:text-[var(--muted-2)] focus:border-[var(--cyan)]";
 
-export function LoginForm() {
+export function LoginForm({ next = null }: { next?: string | null }) {
   const [state, formAction] = useActionState(loginAction, authInitialState);
 
   return (
     <form action={formAction} className="grid gap-4">
+      {next ? <input type="hidden" name="next" value={next} /> : null}
       <label className="grid gap-1.5">
         <span className="text-sm font-bold">Pseudo ou e-mail</span>
         <input

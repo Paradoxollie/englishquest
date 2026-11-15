@@ -1,0 +1,102 @@
+{
+  "course": 2,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Comment dire « Elle est en train de lire » ?",
+      "options": ["She reads", "She is reading", "She is read", "She reading"],
+      "correctAnswer": 1,
+      "explanation": "Être en train de se dit be + verbe en -ing. Avec she, be devient is : she is reading."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : My friends ___ football in the park now.",
+      "options": ["is playing", "playing", "are playing", "plays"],
+      "correctAnswer": 2,
+      "explanation": "My friends = they, donc are. Now indique une action en cours : are playing."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Quelle est la bonne orthographe de write + -ing ?",
+      "options": ["writing", "writeing", "writting"],
+      "correctAnswer": 0,
+      "explanation": "Write se termine par un e muet : on l'enlève avant -ing. Le t ne double pas, car le verbe ne finit pas par consonne-voyelle-consonne."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Quelle question est correcte ?",
+      "options": ["Does Emma dancing?", "Are Emma dancing?", "Is dancing Emma?", "Is Emma dancing?"],
+      "correctAnswer": 3,
+      "explanation": "Dans une question, be passe devant le sujet, puis vient le verbe en -ing. Emma = she, donc is."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Comment dire « Mon frère n'est pas en train de dormir » ?",
+      "options": ["My brother doesn't sleeping.", "My brother not sleeping.", "My brother isn't sleeping.", "My brother aren't sleeping."],
+      "correctAnswer": 2,
+      "explanation": "À la forme négative, on ajoute not après be : is not, ou isn't. Jamais de don't ni de doesn't avec le present continuous."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["I know the answer.", "I am knowing the answer.", "I knowing the answer.", "I am know the answer."],
+      "correctAnswer": 0,
+      "explanation": "Know (savoir, connaître) est un verbe d'état : il ne se met pas en -ing. On garde le present simple : I know."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "Look! The cat ___ on my bed. (sit)",
+      "answers": ["is sitting", "'s sitting"],
+      "explanation": "Look! montre que l'action se passe maintenant : is + verbe en -ing. Sit finit par consonne-voyelle-consonne, on double le t."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "Be quiet! The baby ___. (sleep)",
+      "answers": ["is sleeping", "'s sleeping"],
+      "explanation": "Le bébé dort en ce moment : be + verbe en -ing. Une seule personne, donc is sleeping."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "We ___ a film at the moment. (watch)",
+      "answers": ["are watching", "'re watching"],
+      "explanation": "At the moment signifie en ce moment : present continuous. Avec we, be devient are."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "I ___ my homework. I'm playing a game! (not / do)",
+      "answers": ["am not doing", "'m not doing"],
+      "explanation": "Forme négative : be + not + verbe en -ing. Avec I, on dit am not, ou 'm not."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["She is listening to music."],
+      "translation": "Elle est en train d'écouter de la musique.",
+      "explanation": "Sujet + be + verbe en -ing + complément. Listen se construit avec to."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["Are you doing your homework?"],
+      "translation": "Est-ce que tu es en train de faire tes devoirs ?",
+      "explanation": "Dans une question, be passe devant le sujet : Are + you + doing."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["My parents are not watching TV."],
+      "translation": "Mes parents ne sont pas en train de regarder la télé.",
+      "explanation": "Not se place juste après be : are not + verbe en -ing."
+    }
+  ]
+}

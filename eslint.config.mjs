@@ -42,6 +42,7 @@ const eslintConfig = defineConfig([
     "supabase/**",
     "ancienne version/**",
     "output/**",
+    ".claude/**",
     ".playwright-cli/**",
     ".playwright-mcp/**",
   ]),

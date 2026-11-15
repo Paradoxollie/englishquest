@@ -4,6 +4,7 @@ import "./globals.css";
 import { SiteShell } from "@/components/layout/site-shell";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { AppHeader } from "@/components/layout/app-header";
+import { RewardCelebrations } from "@/components/rewards/reward-celebrations";
 import { SITE_URL } from "@/lib/site/config";
 
 const bricolage = Bricolage_Grotesque({
@@ -79,6 +80,7 @@ export default function RootLayout({
       <body className="min-h-screen antialiased" suppressHydrationWarning>
         <AuthProvider>
           <SiteShell header={<AppHeader />}>{children}</SiteShell>
+          <RewardCelebrations />
         </AuthProvider>
       </body>
     </html>

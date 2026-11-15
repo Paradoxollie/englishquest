@@ -10,15 +10,15 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 const steps = [
   {
     title: "Tu choisis ton point de départ",
-    copy: "Débutant, tu commences au premier chapitre. Tu as déjà des bases ? Passe le test de niveau pour te placer automatiquement.",
+    copy: "Débutant, tu commences au premier chapitre. Tu as déjà des bases ? Passe le test de niveau pour te placer automatiquement sur la carte en quelques minutes.",
   },
   {
     title: "Chaque mission, un cours et un quiz",
-    copy: "Une notion, dix minutes de lecture, dix questions. Il faut 80 % pour passer.",
+    copy: "Une notion, quelques minutes de lecture, dix questions. Avec 80 %, la mission est validée et la suivante s'ouvre.",
   },
   {
-    title: "Le jeu verrouille la notion",
-    copy: "Un objectif de score dans le jeu lié au cours. Réussi : la mission suivante s'ouvre.",
+    title: "Le jeu ancre la notion",
+    copy: "Grammar Rush te repose la notion du cours, mêlée aux précédentes. Six autres jeux entraînent le vocabulaire et les verbes.",
   },
 ] as const;
 
@@ -69,13 +69,18 @@ export default async function PublicHomePage({
               l&apos;or.
             </p>
             <div className="flex flex-wrap gap-3">
-              <Link href="/auth/signup" className="eq-btn eq-btn-primary eq-btn-lg">
+              <Link href="/test-de-niveau" className="eq-btn eq-btn-primary eq-btn-lg">
+                Tester mon niveau, 5 minutes
+              </Link>
+              <Link href="/auth/signup" className="eq-btn eq-btn-ghost eq-btn-lg">
                 Créer un compte gratuit
               </Link>
-              <Link href="/play" className="eq-btn eq-btn-ghost eq-btn-lg">
-                Essayer un jeu sans compte
-              </Link>
             </div>
+            <p className="text-sm">
+              <Link href="/play" className="font-bold text-[var(--cyan)]">
+                Ou essaie un jeu tout de suite, sans compte
+              </Link>
+            </p>
             <p className="text-sm text-[var(--muted)]">
               100 % gratuit, sans publicité.{" "}
               <span className="font-bold text-[var(--fg)]">

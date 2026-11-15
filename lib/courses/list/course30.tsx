@@ -36,7 +36,7 @@ export const course30: LessonContent = {
             content: (
                 <div className="space-y-6">
                     <p className="text-slate-300">
-                        Les anglais adorent combiner ces mots avec l&apos;infinitif complet pour expliquer la conséquence.
+                        Les Anglais adorent combiner ces mots avec l&apos;infinitif complet pour expliquer la conséquence.
                     </p>
 
                     <div className="bg-slate-900 p-6 rounded-xl border border-indigo-500/30 shadow-lg">
@@ -151,7 +151,7 @@ export const course30: LessonContent = {
                             question: "It is too cold ___ outside.",
                             options: ["for going", "to go"],
                             correctAnswer: 1,
-                            explanation: "Structure: Too + Adj + TO + Verbe.",
+                            explanation: "Structure : Too + Adj + TO + Verbe.",
                         },
                         {
                             id: 5,
@@ -162,7 +162,7 @@ export const course30: LessonContent = {
                         },
                         {
                             id: 6,
-                            question: "There are ___ people in this bus.",
+                            question: "There are ___ people on this bus.",
                             options: ["too much", "too many"],
                             correctAnswer: 1,
                             explanation: "People est un pluriel dénombrable = Too many.",

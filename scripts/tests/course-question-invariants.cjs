@@ -23,7 +23,7 @@ function loadSource(filename) {
     if (name === "server-only") return {};
     if (name.startsWith("@/") || name.startsWith("./")) {
       const base = name.startsWith("@/") ? path.join(root, name.slice(2)) : path.resolve(path.dirname(filename), name);
-      const resolved = [base, `${base}.ts`, `${base}.tsx`].find((candidate) => fs.existsSync(candidate));
+      const resolved = [base, `${base}.ts`, `${base}.tsx`, path.join(base, "index.ts")].find((candidate) => fs.existsSync(candidate) && fs.statSync(candidate).isFile());
       return loadSource(resolved);
     }
     return originalRequire(name);
@@ -58,7 +58,13 @@ function checkQuestion(question, context) {
   assert.ok(question.options.every((option) => typeof option === "string" && option.trim()), `${context}: nonempty options`);
   assert.equal(new Set(question.options.map((option) => option.trim().toLowerCase())).size, question.options.length, `${context}: distinct options`);
   assert.ok(Number.isInteger(question.correctAnswer) && question.correctAnswer >= 0 && question.correctAnswer < question.options.length, `${context}: valid correct index`);
+  for (const text of [question.question, question.explanation ?? "", ...question.options]) {
+    assert.ok(!HTML_ENTITY.test(text), `${context}: HTML entity shown as raw text in "${text}"`);
+  }
 }
+// Les chaînes JavaScript n'interprètent pas &apos; : l'élève verrait « Don&apos;t ».
+const HTML_ENTITY = /&(?:[a-z]+|#\d+);/i;
+const STRING_PROPERTY_WITH_ENTITY = /^\s*(?:objective|title|question|explanation|options)\s*:.*&(?:[a-z]+|#\d+);/im;
 
 const { chapters, getChapterForCourse } = loadSource(path.join(root, "lib/courses/chapters.ts"));
 const { paliers } = loadSource(path.join(root, "lib/courses/data.ts"));
@@ -76,6 +82,7 @@ let nativeCount = 0;
 for (const course of courseIds) {
   const quiz = nativeQuiz(course);
   assert.ok(new RegExp(`courseNumber:\\s*${course}\\b`).test(quiz.source), `Course ${course}: declared lesson number matches path`);
+  assert.ok(!STRING_PROPERTY_WITH_ENTITY.test(quiz.source), `Course ${course}: no HTML entity inside a string property`);
   assert.ok(new RegExp(`import \\{ course${course} \\} from "\\./list/course${course}"`).test(lessonIndex), `Course ${course}: imported by lesson index`);
   assert.ok(new RegExp(`\\b${course}: course${course}\\b`).test(lessonIndex), `Course ${course}: registered in lesson index`);
   assert.equal(quiz.questions.length, 10, `Course ${course}: complete ten-question quiz`);
@@ -95,6 +102,68 @@ for (const course of courseIds) {
 }
 assert.equal(bank.length, nativeCount, "Question bank has no orphaned entries");
 for (const question of bank) checkQuestion(question, `Bank ${question.id}`);
+
+const { gradeCourseQuiz } = loadSource(path.join(root, "lib/courses/quiz-grading.ts"));
+for (const course of [1, 27, 50]) {
+  const own = bank.filter((question) => question.course === course);
+  const perfect = own.map((question) => ({ id: Number(question.id.split("-")[1]), choice: question.correctAnswer }));
+  assert.deepEqual(gradeCourseQuiz(course, perfect), { score: own.length, total: own.length }, `Course ${course}: perfect copy`);
+  const oneWrong = perfect.map((answer, index) => index === 0 ? { ...answer, choice: (answer.choice + 1) % own[0].options.length } : answer);
+  assert.deepEqual(gradeCourseQuiz(course, oneWrong), { score: own.length - 1, total: own.length });
+  assert.equal(gradeCourseQuiz(course, perfect.slice(1)), null, "Incomplete copy refused");
+  assert.equal(gradeCourseQuiz(course, [...perfect.slice(1), perfect[1]]), null, "Duplicate answer refused");
+  assert.equal(gradeCourseQuiz(course, perfect.map((answer) => ({ ...answer, choice: 9 }))), null, "Missing choice refused");
+  assert.equal(gradeCourseQuiz(course, { score: 10, total: 10 }), null, "Client score refused");
+}
+// Séries mêlant QCM, phrases à compléter et phrases à remettre dans l'ordre.
+const check = loadSource(path.join(root, "lib/courses/exercise-check.ts"));
+const extras1 = JSON.parse(fs.readFileSync(path.join(root, "lib/courses/exercises/course1.json"), "utf8")).items;
+const gap = extras1.find((item) => item.type === "gap");
+const order = extras1.find((item) => item.type === "order");
+const mixed = [
+  ...bank.filter((q) => q.course === 1 && /^1-\d+$/.test(q.id)).slice(0, 8).map((q) => ({ id: q.id.split("-")[1], choice: q.correctAnswer })),
+  { id: gap.id, text: `  ${gap.answers[0].toUpperCase()} ` },
+  { id: order.id, text: order.answers[0].replace(/[.?!]$/, "").toLowerCase() },
+];
+assert.deepEqual(gradeCourseQuiz(1, mixed), { score: 10, total: 10 }, "Typed answers ignore case, spaces and final punctuation");
+assert.deepEqual(gradeCourseQuiz(1, mixed.map((a) => a.id === gap.id ? { ...a, text: "zzz" } : a)), { score: 9, total: 10 });
+assert.equal(gradeCourseQuiz(1, mixed.map((a) => a.id === gap.id ? { id: a.id, choice: 0 } : a)), null, "A gap needs text");
+assert.equal(gradeCourseQuiz(1, mixed.map((a) => a.id === order.id ? { ...a, text: "x".repeat(201) } : a)), null, "Text length is bounded");
+assert.equal(gradeCourseQuiz(1, [...mixed.slice(0, 9), { id: "x99", choice: 0 }]), null, "Unknown exercise refused");
+assert.equal(check.normalizeAnswer(" Isn’t  it? "), "isn't it");
+assert.equal(check.displayToken("She", 0), "she");
+assert.equal(check.displayToken("Tom", 0), "Tom");
+assert.equal(check.displayToken("I", 0), "I");
+let seed = 7;
+const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+for (let course = 1; course <= 50; course += 1) {
+  const pool = [
+    ...bank.filter((q) => q.course === course && /^\d+-\d+$/.test(q.id)).map((q) => ({ id: q.id.split("-")[1], type: "mcq", question: q.question, options: q.options, correctAnswer: q.correctAnswer, explanation: "" })),
+    ...JSON.parse(fs.readFileSync(path.join(root, `lib/courses/exercises/course${course}.json`), "utf8")).items,
+  ];
+  for (let draw = 0; draw < 4; draw += 1) {
+    const series = check.drawQuizSeries(pool, rnd);
+    assert.equal(series.length, 10, `Course ${course}: ten exercises`);
+    assert.equal(new Set(series.map((item) => item.id)).size, 10, `Course ${course}: no repeat`);
+    assert.equal(series.filter((item) => item.type === "gap").length, 2);
+    assert.equal(series.filter((item) => item.type === "order").length, 2);
+    const answers = series.map((item) => item.type === "mcq" ? { id: item.id, choice: item.correctAnswer } : { id: item.id, text: item.answers[0] });
+    assert.deepEqual(gradeCourseQuiz(course, answers), { score: 10, total: 10 }, `Course ${course}: perfect mixed series`);
+  }
+}
+console.log("PASS Course quizzes are graded on the server from the answers only, mixed series of 50 courses included.");
+
+process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "test-only-key";
+const { createPlacementToken, readPlacementToken } = loadSource(path.join(root, "lib/placement/placement-token.ts"));
+const now = Date.UTC(2026, 9, 15);
+const token = createPlacementToken(3, now);
+assert.equal(readPlacementToken(token, now + 1000), 3, "Signed guest placement is accepted");
+assert.equal(readPlacementToken(token.replace(/^3\./, "5."), now), null, "Edited chapter is refused");
+assert.equal(readPlacementToken(`${token}x`, now), null, "Edited signature is refused");
+assert.equal(readPlacementToken(token, now + 15 * 24 * 3600 * 1000), null, "Old result expires");
+assert.equal(readPlacementToken(createPlacementToken(9, now), now), null, "Unknown chapter is refused");
+assert.equal(readPlacementToken(undefined, now), null);
+console.log("PASS Guest placement results are signed, tamper-proof and expire.");
 
 let queueScenarios = 0;
 for (const chapter of chapters) {

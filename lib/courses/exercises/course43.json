@@ -1,0 +1,102 @@
+{
+  "course": 43,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : Don't text me at 10 a.m. tomorrow. I ___ my driving test then.",
+      "options": ["will have taken", "will be taking", "would take", "will be take"],
+      "correctAnswer": 1,
+      "explanation": "À un moment précis du futur, l'action sera en cours : will be + verbe en -ing."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Comment dire « D'ici la fin de l'année, j'aurai lu vingt livres » ?",
+      "options": ["By the end of the year, I will be reading twenty books.", "Until the end of the year, I will have read twenty books.", "By the end of the year, I will have read twenty books.", "By the end of the year, I will has read twenty books."],
+      "correctAnswer": 2,
+      "explanation": "Le futur antérieur se dit will have + participe passé, à toutes les personnes. « D'ici » se traduit par by, pas par until (jusqu'à)."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "« By the time we get to the cinema, the film will have started. » Que comprend-on ?",
+      "options": ["Le film aura déjà commencé à notre arrivée.", "Le film commencera au moment où nous arriverons.", "Nous arriverons avant le début du film.", "Le film sera en train de se terminer."],
+      "correctAnswer": 0,
+      "explanation": "Will have started indique une action déjà terminée avant le repère futur : le film aura déjà commencé."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : By the time you ___ home, I'll have finished the washing-up.",
+      "options": ["will get", "get", "will have got", "got"],
+      "correctAnswer": 1,
+      "explanation": "Après by the time, comme après when, on met le présent pour parler du futur, jamais will."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : This time next year, Maya ___ in Canada. She's so excited!",
+      "options": ["will have studied", "studies", "will be studying", "is studied"],
+      "correctAnswer": 2,
+      "explanation": "This time next year renvoie à un moment précis du futur où l'action sera en cours : will be + verbe en -ing."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Complète : Call me after 6. I ___ my homework by then.",
+      "options": ["will be doing", "have done", "will had done", "will have done"],
+      "correctAnswer": 3,
+      "explanation": "By then indique que l'action sera terminée avant ce repère : will have + participe passé."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "By the time she's thirty, Camille ___ all over the world. (travel)",
+      "answers": ["will have travelled", "will have traveled", "'ll have travelled", "'ll have traveled"],
+      "explanation": "Action achevée avant un repère futur (by the time she's thirty) : will have + participe passé."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "This time tomorrow, Lucas ___ his first surfing lesson. (have)",
+      "answers": ["will be having", "'ll be having"],
+      "explanation": "This time tomorrow renvoie à un moment précis du futur où l'action sera en cours : will be + verbe en -ing."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "Sorry, I ___ the book by Monday. Can I give it back on Wednesday? (not / finish)",
+      "answers": ["won't have finished", "will not have finished"],
+      "explanation": "Négation du future perfect : won't have + participe passé. Le repère by Monday montre qu'on parle d'une action achevée."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "This time next week, we ___ on a beach in Greece! (lie)",
+      "answers": ["will be lying", "'ll be lying"],
+      "explanation": "Action en cours à un moment précis du futur : will be + verbe en -ing. Attention, lie devient lying."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["I will have left by the time you arrive."],
+      "translation": "Je serai déjà parti quand tu arriveras.",
+      "explanation": "Future perfect : will have + participe passé. Après by the time, le verbe reste au présent."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["I will be taking my exam this time tomorrow."],
+      "translation": "Demain à la même heure, je serai en train de passer mon examen.",
+      "explanation": "Action en cours à un moment précis du futur : will be + verbe en -ing."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["Will you have finished your project by Friday?"],
+      "translation": "Auras-tu fini ton projet d'ici vendredi ?",
+      "explanation": "Dans la question, will passe devant le sujet : Will you have + participe passé ?"
+    }
+  ]
+}

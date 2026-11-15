@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { logoutAction } from "@/app/(protected)/actions";
+import { BadgesSection } from "@/components/rewards/badges-section";
+import { RewardOnMount } from "@/components/rewards/reward-on-mount";
 import { isAdmin } from "@/lib/auth/roles";
 import { lessons } from "@/lib/courses/lessons";
+import { loadBadgesWithSync } from "@/lib/profile/badges-server";
 import { getLevelProgress } from "@/lib/profile/economy";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -76,7 +79,7 @@ export default async function ProfilePage({
     );
   }
 
-  const [{ data: bestScores }, { data: courseProgress }, { count: gamesPlayed }, userIsAdmin] = await Promise.all([
+  const [{ data: bestScores }, { data: courseProgress }, { count: gamesPlayed }, userIsAdmin, badges] = await Promise.all([
     adminClient
       .from("game_scores")
       .select("score, created_at, games ( id, name, slug )")
@@ -90,6 +93,8 @@ export default async function ProfilePage({
       .in("status", ["unlocked", "in_progress", "completed"]),
     adminClient.from("game_scores").select("id", { count: "exact", head: true }).eq("user_id", user.id),
     isAdmin(),
+    // Rattrape les badges déjà mérités avant de les afficher.
+    loadBadgesWithSync(user.id),
   ]);
 
   const progressRows = (courseProgress ?? []) as CourseProgressRow[];
@@ -204,6 +209,9 @@ export default async function ProfilePage({
         </section>
       </div>
 
+      <BadgesSection earned={badges.all} stats={badges.stats} />
+      {badges.newlyEarned.length > 0 ? <RewardOnMount detail={{ badges: badges.newlyEarned }} /> : null}
+
       <section className="eq-profile-section" aria-labelledby="profile-look">
         <div className="eq-home-section-head">
           <div>
@@ -216,7 +224,7 @@ export default async function ProfilePage({
         <CustomizationDisplay userId={user.id} username={profile.username} />
       </section>
 
-      <section className="eq-profile-section" aria-labelledby="profile-shop">
+      <section className="eq-profile-section" id="boutique" aria-labelledby="profile-shop">
         <div className="eq-home-section-head">
           <div>
             <p className="eq-kicker">Boutique</p>

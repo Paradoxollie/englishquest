@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import type { ExamQuestion } from "@/lib/exams/exams";
+import { dispatchReward } from "@/lib/profile/reward-events";
 import { submitChapterExamAction, type ExamResult } from "./actions";
 
 export function ChapterExam({
@@ -52,6 +53,15 @@ export function ChapterExam({
       }
       setResult(outcome);
       setPhase("done");
+      if (outcome.firstPass || outcome.newBadges.length > 0) {
+        dispatchReward({
+          xp: outcome.rewards.xp,
+          gold: outcome.rewards.gold,
+          newLevel: outcome.newLevel,
+          badges: outcome.newBadges,
+          label: outcome.firstPass ? `Examen du chapitre ${chapter} réussi` : undefined,
+        });
+      }
     });
   };
 

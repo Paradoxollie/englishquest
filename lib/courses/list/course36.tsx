@@ -81,7 +81,7 @@ export const course36: LessonContent = {
                         <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-indigo-500">
                             <p className="text-slate-400 text-xs uppercase font-bold mb-1">INDIRECT</p>
                             <p className="text-white text-lg">He asked <strong className="text-yellow-400 px-2 bg-yellow-400/10 rounded">if</strong> I was happy.</p>
-                            <p className="text-xs text-slate-400 mt-2 italic">Note : L'inversion disparait aussi (Are you ➔ I was).</p>
+                            <p className="text-xs text-slate-400 mt-2 italic">Note : L'inversion disparaît aussi (Are you ➔ I was).</p>
                         </div>
                     </div>
                 </div>

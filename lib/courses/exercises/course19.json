@@ -1,0 +1,102 @@
+{
+  "course": 19,
+  "items": [
+    {
+      "id": "x1",
+      "type": "mcq",
+      "question": "Complète : How ___ brothers and sisters have you got?",
+      "options": ["much", "many", "lot", "any"],
+      "correctAnswer": 1,
+      "explanation": "Les frères et sœurs se comptent : how many + nom pluriel."
+    },
+    {
+      "id": "x2",
+      "type": "mcq",
+      "question": "Complète : We haven't got ___ homework this weekend.",
+      "options": ["many", "a lot", "lots", "much"],
+      "correctAnswer": 3,
+      "explanation": "Homework est indénombrable : jamais de s. Dans une phrase négative, on utilise much."
+    },
+    {
+      "id": "x3",
+      "type": "mcq",
+      "question": "Quelle phrase est correcte ?",
+      "options": ["I drink much water every day.", "I drink many water every day.", "I drink a lot of water every day.", "I drink a lot water every day."],
+      "correctAnswer": 2,
+      "explanation": "Phrase affirmative : on utilise a lot of. Much s'emploie surtout dans les négations et les questions."
+    },
+    {
+      "id": "x4",
+      "type": "mcq",
+      "question": "Complète : How ___ is this T-shirt?",
+      "options": ["much", "many", "lot", "more"],
+      "correctAnswer": 0,
+      "explanation": "Pour demander un prix, on utilise how much."
+    },
+    {
+      "id": "x5",
+      "type": "mcq",
+      "question": "Complète : There are too ___ people on this bus!",
+      "options": ["much", "lot", "many", "lots"],
+      "correctAnswer": 2,
+      "explanation": "People est un nom pluriel : too many. Too much s'utilise avec un indénombrable."
+    },
+    {
+      "id": "x6",
+      "type": "mcq",
+      "question": "Comment dire « Je n'ai pas beaucoup d'amis ici » ?",
+      "options": ["I haven't got much friends here.", "I haven't got many friends here.", "I haven't got many friend here.", "I haven't got a lot friends here."],
+      "correctAnswer": 1,
+      "explanation": "Friends est dénombrable : many + nom au pluriel. Much est réservé aux indénombrables."
+    },
+    {
+      "id": "x7",
+      "type": "gap",
+      "prompt": "How ___ money have you got?",
+      "answers": ["much"],
+      "explanation": "Money est indénombrable : how much."
+    },
+    {
+      "id": "x8",
+      "type": "gap",
+      "prompt": "There aren't ___ shops in my village. (beaucoup de)",
+      "answers": ["many", "a lot of", "lots of"],
+      "explanation": "Shops est dénombrable et la phrase est négative : many. A lot of est aussi possible."
+    },
+    {
+      "id": "x9",
+      "type": "gap",
+      "prompt": "My mum drinks ___ coffee in the morning. (beaucoup de)",
+      "answers": ["a lot of", "lots of"],
+      "explanation": "Phrase affirmative : a lot of (ou lots of), qui marche avec tous les noms. Much ne s'emploie pas ici."
+    },
+    {
+      "id": "x10",
+      "type": "gap",
+      "prompt": "I ate too ___ chocolate at the party.",
+      "answers": ["much"],
+      "explanation": "Chocolate, ici le chocolat en général, est indénombrable : too much."
+    },
+    {
+      "id": "x11",
+      "type": "order",
+      "answers": ["How many languages do you speak?"],
+      "translation": "Combien de langues est-ce que tu parles ?",
+      "explanation": "Languages se comptent : how many + nom pluriel, puis la question avec do."
+    },
+    {
+      "id": "x12",
+      "type": "order",
+      "answers": ["We don't have much time."],
+      "translation": "Nous n'avons pas beaucoup de temps.",
+      "explanation": "Time est indénombrable et la phrase est négative : much."
+    },
+    {
+      "id": "x13",
+      "type": "order",
+      "answers": ["She has got a lot of friends."],
+      "translation": "Elle a beaucoup d'amis.",
+      "explanation": "Phrase affirmative : a lot of marche avec tous les noms, dénombrables ou non."
+    }
+  ]
+}

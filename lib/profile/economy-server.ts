@@ -3,11 +3,40 @@ import { getLevelFromXP } from "@/lib/profile/economy";
 
 /** Minuit à Paris, sans dépendre du fuseau du serveur. */
 export function getParisDayStart(date = new Date()): Date {
+  const { year, month, day } = getParisCalendarDate(date);
+  return getParisMidnight(year, month, day);
+}
+
+/**
+ * Lundi 00:00 à Paris de la semaine en cours (semaine du lundi au dimanche),
+ * sans dépendre du fuseau du serveur. Sert à la ligue de la semaine.
+ */
+export function getParisWeekStart(date = new Date()): Date {
+  const { year, month, day } = getParisCalendarDate(date);
+  // Jour de la semaine du calendrier parisien : 0 = dimanche, 1 = lundi…
+  const weekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+  const monday = new Date(Date.UTC(year, month - 1, day - ((weekday + 6) % 7)));
+  return getParisMidnight(monday.getUTCFullYear(), monday.getUTCMonth() + 1, monday.getUTCDate());
+}
+
+/** Lundi suivant, 00:00 à Paris : la prochaine remise à zéro de la ligue. */
+export function getNextParisWeekStart(date = new Date()): Date {
+  const start = getParisWeekStart(date);
+  const { year, month, day } = getParisCalendarDate(new Date(start.getTime() + 12 * 3_600_000));
+  return getParisMidnight(year, month, day + 7);
+}
+
+function getParisCalendarDate(date: Date) {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit",
   }).formatToParts(date);
   const value = (type: string) => Number(parts.find((part) => part.type === type)?.value);
-  const midnight = Date.UTC(value("year"), value("month") - 1, value("day"));
+  return { year: value("year"), month: value("month"), day: value("day") };
+}
+
+/** Instant UTC de minuit à Paris pour une date du calendrier (jour hors bornes accepté). */
+function getParisMidnight(year: number, month: number, day: number): Date {
+  const midnight = Date.UTC(year, month - 1, day);
   let utc = midnight;
   for (let i = 0; i < 2; i += 1) {
     utc = midnight - getParisOffsetMinutes(new Date(utc)) * 60_000;
