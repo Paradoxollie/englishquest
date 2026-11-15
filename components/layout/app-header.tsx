@@ -186,7 +186,7 @@ export function AppHeader() {
             </Link>
           ))}
           <div className="eq-mobile-actions">
-            <ThemeToggle />
+            <ThemeToggle testId="theme-toggle-drawer" />
             {user ? (
               <>
                 <Link href="/profile" className="eq-btn eq-btn-ghost">

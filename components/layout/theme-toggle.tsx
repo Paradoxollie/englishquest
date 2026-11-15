@@ -24,7 +24,13 @@ function applyTheme(next: ThemeMode) {
   window.dispatchEvent(new CustomEvent<ThemeMode>(THEME_EVENT, { detail: next }));
 }
 
-export function ThemeToggle({ compact = false }: { compact?: boolean }) {
+export function ThemeToggle({
+  compact = false,
+  testId,
+}: {
+  compact?: boolean;
+  testId?: string;
+}) {
   const [theme, setTheme] = useState<ThemeMode>("light");
   const [mounted, setMounted] = useState(false);
 
@@ -54,7 +60,7 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
       className={`eq-theme-toggle ${compact ? "is-compact" : ""}`}
       aria-label={isDark ? "Passer en mode clair" : "Passer en mode sombre"}
       title={isDark ? "Passer en mode clair" : "Passer en mode sombre"}
-      data-testid={compact ? "theme-toggle-compact" : "theme-toggle"}
+      data-testid={testId ?? (compact ? "theme-toggle-compact" : "theme-toggle")}
       data-ready={mounted ? "true" : "false"}
     >
       <span className="eq-theme-toggle-icon" aria-hidden="true">

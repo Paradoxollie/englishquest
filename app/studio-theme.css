@@ -802,6 +802,13 @@ body {
 }
 
 .eq-game-option[aria-checked="true"] {
+  border-color: var(--ink-rule);
+  background: var(--surface-option-active);
+  color: var(--fg);
+  box-shadow: 2px 2px 0 var(--ink-shadow);
+}
+
+.eq-game-stage .eq-game-option[aria-checked="true"] {
   border-color: #f4b632;
   background: rgba(244, 182, 50, 0.22);
   color: #fffdf8;
