@@ -90,17 +90,17 @@ export default async function MyMessagesPage() {
               <div className="mb-4">
                 <p className="eq-kicker mb-2">Votre message</p>
                 <div className="eq-inset p-4">
-                  <p className="text-slate-200 whitespace-pre-wrap">{message.message}</p>
+                  <p className="whitespace-pre-wrap">{message.message}</p>
                 </div>
               </div>
 
               {message.reply ? (
                 <div>
                   <p className="eq-kicker text-[var(--mint)] mb-2">Réponse de l&apos;équipe</p>
-                  <div className="eq-inset border-emerald-500/40 p-4">
-                    <p className="text-emerald-100 whitespace-pre-wrap">{message.reply}</p>
+                  <div className="eq-inset p-4">
+                    <p className="whitespace-pre-wrap">{message.reply}</p>
                     {message.replied_at ? (
-                      <p className="text-xs text-emerald-300/80 mt-2">
+                      <p className="mt-2 text-xs text-[var(--muted)]">
                         Répondu le{" "}
                         {new Date(message.replied_at).toLocaleString("fr-FR", {
                           day: "numeric",

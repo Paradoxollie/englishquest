@@ -176,7 +176,13 @@ for (const chapter of chapters) {
       assert.equal(queue.length, GRAMMAR_RUSH_MAX_QUESTIONS, `Chapter ${chapter.id}: full playable queue`);
       assert.equal(new Set(queue.map((question) => question.id)).size, queue.length, "No duplicate queued question");
       assert.ok(queue.every((question) => allowed.has(question.course)), `Chapter ${chapter.id}: no questions above permitted level`);
-      for (const question of queue) assert.deepEqual(question, bankMap.get(question.id), "Queue preserves source question data");
+      for (const question of queue) {
+        // Les propositions sont mélangées à chaque partie : même question, mêmes options, bonne réponse suivie.
+        const source = bankMap.get(question.id);
+        assert.equal(question.question, source.question, "Queue preserves the prompt");
+        assert.deepEqual([...question.options].sort(), [...source.options].sort(), "Queue preserves the options");
+        assert.equal(question.options[question.correctAnswer], source.options[source.correctAnswer], "Queue keeps the right answer");
+      }
       if (focusCourseId != null && allowed.has(focusCourseId)) {
         assert.equal(queue.filter((question) => question.course === focusCourseId).length, 10, `Course ${focusCourseId}: all focused revision questions included`);
         assert.equal(queue[1].course, focusCourseId, `Course ${focusCourseId}: focus begins at second question`);

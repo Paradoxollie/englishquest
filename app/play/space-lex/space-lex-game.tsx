@@ -668,8 +668,9 @@ export function SpaceLexGame({
     return () => cancelAnimationFrame(frameId);
   }, [gameState?.isRunning, gameState?.gameOver, isPaused, stepSimulation]);
 
-  // Deterministic audit hooks
+  // Deterministic audit hooks : uniquement hors production (ils révèlent les cibles et accélèrent le jeu).
   useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
     window.advanceTime = (ms: number) => {
       const steps = Math.max(1, Math.round(ms / 16));
       const dt = ms / steps;

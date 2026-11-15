@@ -31,7 +31,7 @@ export default function AboutPage() {
           <section>
             <h2 className="eq-h2">Ce qu&apos;il y a dedans</h2>
             <p className="mt-3 text-[var(--muted)]">
-              Cinquante cours de grammaire, du niveau A1 au niveau C1, chacun avec un quiz de dix
+              Cinquante cours de grammaire, du niveau A1 au niveau B1+, chacun avec un quiz de dix
               questions. Sept jeux qui travaillent le vocabulaire, la conjugaison, la traduction,
               la mémoire et l&apos;orthographe. Une carte de missions qui enchaîne cours, quiz et
               jeu. Le parcours suit le niveau, pas l&apos;âge : un collégien avancé et un adulte

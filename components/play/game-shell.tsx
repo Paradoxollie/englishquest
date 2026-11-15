@@ -64,13 +64,13 @@ export function GameShell({ game, mission, isLoggedIn, aside, children }: GameSh
                   </>
                 ) : mission.quizPassed ? (
                   <>
-                    Défi ouvert pour <b>{mission.courseTitle}</b> : {mission.challengeLabel.toLowerCase()} pour
-                    valider la mission (+{mission.rewardXp} XP, +{mission.rewardGold} or).
+                    Mission <b>{mission.courseTitle}</b> : {mission.challengeLabel} À la clé : +{mission.rewardXp} XP,
+                    +{mission.rewardGold} or.
                   </>
                 ) : (
                   <>
-                    Valide d&apos;abord le quiz de <b>{mission.courseTitle}</b> à 80 %, puis{" "}
-                    {mission.challengeLabel.toLowerCase()} (+{mission.rewardXp} XP, +{mission.rewardGold} or).
+                    Mission <b>{mission.courseTitle}</b> : réussis d&apos;abord le quiz du cours à 80 %. Ensuite :{" "}
+                    {mission.challengeLabel} À la clé : +{mission.rewardXp} XP, +{mission.rewardGold} or.
                   </>
                 )}
               </span>

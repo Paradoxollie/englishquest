@@ -126,6 +126,12 @@ export async function consumeGameSession(params: {
     return (await sessionsTableMissing()) ? { ok: true } : reject("missing");
   }
   if (!isSessionId(params.sessionId) || !params.userId || !isGameSessionSlug(params.slug)) return reject("invalid");
+  // Exposée comme action serveur : on n'accepte que la session du joueur connecté.
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user: currentUser },
+  } = await supabase.auth.getUser();
+  if (!currentUser || currentUser.id !== params.userId) return reject("invalid");
   const sessionId = params.sessionId;
 
   const admin = createSupabaseAdminClient();

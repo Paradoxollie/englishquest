@@ -1532,3 +1532,36 @@ html[data-theme="dark"] .cahier .lesson-section-content .text-slate-600 {
     transition: none;
   }
 }
+
+/* Correction du quiz : texte lisible dans les deux thèmes (avant : texte crème sur fond pâle en mode sombre). */
+html .eq-quiz-option[data-state="right"],
+html .eq-quiz-input[data-state="right"],
+html .eq-quiz-built[data-state="right"] {
+  border-color: #2f9e6a;
+  background: #e3f6ec;
+  color: #0f3320;
+}
+
+html .eq-quiz-option[data-state="wrong"],
+html .eq-quiz-input[data-state="wrong"],
+html .eq-quiz-built[data-state="wrong"] {
+  border-color: #d9534f;
+  background: #fde9e9;
+  color: #4a1414;
+}
+
+html[data-theme="dark"] .eq-quiz-option[data-state="right"],
+html[data-theme="dark"] .eq-quiz-input[data-state="right"],
+html[data-theme="dark"] .eq-quiz-built[data-state="right"] {
+  border-color: #3fbf86;
+  background: #123826;
+  color: #e7f8ef;
+}
+
+html[data-theme="dark"] .eq-quiz-option[data-state="wrong"],
+html[data-theme="dark"] .eq-quiz-input[data-state="wrong"],
+html[data-theme="dark"] .eq-quiz-built[data-state="wrong"] {
+  border-color: #e46a66;
+  background: #3b1616;
+  color: #fde9e9;
+}

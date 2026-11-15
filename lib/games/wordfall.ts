@@ -254,8 +254,8 @@ function getWordLists() {
 
 const DEFAULT_CONFIG: Required<Omit<WordfallConfig, "mode" | "rng" | "vocabLevel">> = {
   initialLives: 3,
-  initialSpeed: 8.5, // units per second (0-100 range) — fluide dès l'apparition sans bloquer le débutant
-  speedIncreasePerLevel: 1.25,
+  initialSpeed: 5, // units per second (0-100 range) : lent au départ, l'élève tape le mot et sa traduction
+  speedIncreasePerLevel: 1,
   wordsPerLevel: 5, // Words needed to level up
 };
 
@@ -279,13 +279,13 @@ function getActiveWords(state: WordfallState): FallingWord[] {
 }
 
 export function getWordfallMaxActiveWords(state: WordfallState): number {
-  if (state.level >= 6) return 3;
-  if (state.level >= 3) return 2;
+  if (state.level >= 7) return 3;
+  if (state.level >= 4) return 2;
   return 1;
 }
 
 export function getWordfallSpawnDelayMs(state: WordfallState): number {
-  return Math.max(760, 1550 - (state.level - 1) * 130);
+  return Math.max(820, 1750 - (state.level - 1) * 135);
 }
 
 function pickFallingLane(state: WordfallState, rng: () => number): { lane: number; x: number } | null {
@@ -304,10 +304,10 @@ function pickFallingLane(state: WordfallState, rng: () => number): { lane: numbe
 }
 
 function getVariableSpeed(baseSpeed: number, level: number, rng: () => number): number {
-  const variance = 0.92 + rng() * 0.18;
-  const levelPressure = Math.min(2, Math.max(0, level - 1) * 0.12);
+  const variance = 0.9 + rng() * 0.22;
+  const levelPressure = Math.min(1.5, Math.max(0, level - 1) * 0.08);
 
-  return Math.min(18, Math.max(7.2, baseSpeed * variance + levelPressure));
+  return Math.min(14, Math.max(4.2, baseSpeed * variance + levelPressure));
 }
 
 /**

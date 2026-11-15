@@ -18,9 +18,9 @@ const levelFilters = [
   { label: "Tous les niveaux", value: "all" },
   { label: "A1", value: "1" },
   { label: "A2", value: "2" },
-  { label: "B1", value: "3" },
-  { label: "B2", value: "4" },
-  { label: "C1", value: "5" },
+  { label: "A2+", value: "3" },
+  { label: "B1", value: "4" },
+  { label: "B1+", value: "5" },
 ];
 
 function statusLabel(entry: CourseRoadmapEntry, isRecommended: boolean, isAuthenticated: boolean) {
@@ -126,15 +126,7 @@ export function CourseLibraryExplorer({
                     }`}
                     style={{
                       borderTop: `4px solid ${
-                        palier.level.startsWith("A1")
-                          ? "#15803d"
-                          : palier.level.startsWith("A2")
-                            ? "#1d4ed8"
-                            : palier.level.startsWith("B1")
-                              ? "#6d28d9"
-                              : palier.level.startsWith("B2")
-                                ? "#c42b27"
-                                : "#b47100"
+                        ["#15803d", "#1d4ed8", "#6d28d9", "#c42b27", "#b47100"][palier.id - 1] ?? "#b47100"
                       }`,
                     }}
                   >

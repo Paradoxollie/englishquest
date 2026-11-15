@@ -16,14 +16,14 @@ maintient actif.
   écritures des soldes et scores réservées au serveur. Les nouveaux comptes sont
   toujours créés avec le rôle étudiant ; les métadonnées utilisateur ne choisissent
   pas les droits administrateur.
-- Les quatre migrations du 16 octobre 2026 (récompenses) sont à appliquer dans l'ordre :
-  `10_xp_events` (historique de l'XP, ligue de la semaine), `11_badges`,
-  `12_starter_shop` (boutique de départ, mises à jour et ajouts seulement),
-  `13_course_practice` (étoile d'entraînement). Tant qu'elles ne sont pas passées,
-  le site fonctionne : la ligue, les badges et les étoiles d'entraînement restent vides.
-- `2026-10-16_30_classes.sql` (espace classe : classes à code, élèves inscrits, devoirs,
-  limite des codes erronés) n'est pas encore appliquée. Les pages professeur et la carte
-  Classe du profil en ont besoin ; sans elle, elles affichent un message d'erreur discret.
+- **15 novembre 2026 : production remise à jour.** Appliqués : les sections non destructives
+  de `2026-11-15_apply_all_pending_oct16.sql` (3 et 5 à 10 : `search_path`, historique de l'XP
+  et ligue, badges, boutique de départ, étoile d'entraînement, sessions de partie),
+  `2026-10-16_30_classes.sql` (espace classe) et `2026-11-15_10_lock_public_writes.sql`
+  (plus aucune écriture depuis le navigateur, scores plus lisibles publiquement).
+  **Volontairement pas appliqué** (suppression de données, à décider) : sections 1, 2 et 4 du
+  fichier consolidé (jeux fantômes, tables `marvel_*` et `ship_skins`, visites de test).
+  Valeurs d'avant sauvegardées dans `output/backups/2026-11-15-avant-migrations.md` (hors dépôt).
 - `archive/` : les 39 scripts historiques de 2025-2026, déjà exécutés, à ne pas relancer.
 
 ## Tables utilisées par le code

@@ -315,17 +315,17 @@ export const course5: LessonContent = {
           questions={[
             {
               id: 1,
-              question: "___ you speak English?",
+              question: "___ they play football on Sundays?",
               options: ["Are", "Do", "Does", "Is"],
               correctAnswer: 1,
-              explanation: "Verbe 'speak' (pas 'be') + Sujet 'You' ➔ Auxiliaire DO.",
+              explanation: "Verbe 'play' (pas 'be') + Sujet 'They' ➔ Auxiliaire DO.",
             },
             {
               id: 2,
-              question: "Where ___ she live?",
+              question: "What time ___ the film start?",
               options: ["do", "does", "is", "are"],
               correctAnswer: 1,
-              explanation: "Sujet 'She' (3e pers.) + Verbe 'live' ➔ Auxiliaire DOES.",
+              explanation: "Sujet 'the film' (3e pers.) + Verbe 'start' ➔ Auxiliaire DOES.",
             },
             {
               id: 3,

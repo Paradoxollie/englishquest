@@ -151,9 +151,9 @@ export const course29: LessonContent = {
                         {
                             id: 4,
                             question: "The sky is blue. It ___ rain, but I doubt it.",
-                            options: ["may", "might"],
+                            options: ["must", "might"],
                             correctAnswer: 1,
-                            explanation: "Probabilité très faible ('I doubt it') = Might.",
+                            explanation: "Probabilité faible ('I doubt it') = might. Must exprimerait une quasi-certitude.",
                         },
                         {
                             id: 5,

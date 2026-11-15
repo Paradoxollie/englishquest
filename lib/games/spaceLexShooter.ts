@@ -540,7 +540,7 @@ export const SYNONYMS: Record<string, string[]> = {
   ],
   SMART: [
     "smart", "intelligent", "clever", "brilliant", "bright",
-    "sharp", "wise", "astute", "shrewd", "quick-witted",
+    "sharp", "astute", "shrewd", "quick-witted",
     "gifted", "brainy"
   ],
   GOOD: [
@@ -563,7 +563,7 @@ export const SYNONYMS: Record<string, string[]> = {
     "taxing"
   ],
   EASY: [
-    "easy", "simple", "clear", "basic", "accessible", "straightforward", "effortless", "uncomplicated",
+    "easy", "simple", "straightforward", "effortless", "uncomplicated",
     "painless", "undemanding"
   ],
   DANGEROUS: [
@@ -613,7 +613,7 @@ export const EASY_SYNONYMS: Record<string, string[]> = {
   BAD: ["bad", "awful", "terrible", "horrible"],
   FAST: ["fast", "quick", "rapid"],
   DIFFICULT: ["difficult", "hard", "tough", "complicated"],
-  EASY: ["easy", "simple", "clear", "basic"],
+  EASY: ["easy", "simple"],
   BEAUTIFUL: ["beautiful", "pretty", "lovely", "gorgeous"],
   STRANGE: ["strange", "weird", "odd"],
 };
@@ -877,12 +877,11 @@ function getDistractorWords(mission: Mission | null): { neutral: string[]; thema
   }
 
   if (mission.type === "CONNECTORS") {
-    const otherConnectors = Object.entries(CONNECTORS)
-      .filter(([category]) => category !== mission.connectorCategory)
-      .flatMap(([, list]) => list);
+    // Jamais un autre connecteur comme distracteur : « since » ou « as » sont à la fois
+    // cause et temps, « while » contraste et temps ; l'élève serait pénalisé à tort.
     return {
       neutral: [...NEUTRAL_GREETINGS, ...NEUTRAL_OBJECTS, ...NEUTRAL_VERBS, ...NEUTRAL_NOUNS].filter(keep),
-      thematic: [...otherConnectors, ...themeWords(NOUN_THEMES)].filter(keep),
+      thematic: [...themeWords(NOUN_THEMES), ...Object.values(SYNONYMS).flat()].filter(keep),
     };
   }
 

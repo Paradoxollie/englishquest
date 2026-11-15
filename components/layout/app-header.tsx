@@ -93,6 +93,9 @@ export function AppHeader() {
 
   const navLinks = [
     ...baseNavLinks,
+    // L'espace profs (classes, suivi, devoirs) : visible seulement des comptes prof et admin.
+    // Les visiteurs trouvent la présentation sur /profs, en pied de page.
+    ...(headerState.canAccessTeachers ? [{ label: "Profs", href: "/teachers" }] : []),
     ...(headerState.canAccessDashboard ? [{ label: "Dashboard", href: "/dashboard" }] : []),
   ];
 

@@ -1,7 +1,7 @@
 /**
  * Niveaux de vocabulaire des jeux : un niveau par chapitre de l'aventure.
  *
- * 1 = A1 (chapitre 1), 2 = A2, 3 = B1, 4 = B2, 5 = C1 (chapitre 5).
+ * 1 = A1 (chapitre 1), 2 = A2, 3 = A2+, 4 = B1, 5 = B1+ (chapitre 5).
  * Module pur, partagé par les moteurs, les pages serveur et les jeux.
  */
 
@@ -12,9 +12,9 @@ export const GAME_LEVEL_VALUES: readonly GameLevel[] = [1, 2, 3, 4, 5];
 export const GAME_LEVELS: readonly { value: GameLevel; label: string; cefr: string }[] = [
   { value: 1, label: "Débutant", cefr: "A1" },
   { value: 2, label: "Élémentaire", cefr: "A2" },
-  { value: 3, label: "Intermédiaire", cefr: "B1" },
-  { value: 4, label: "Avancé", cefr: "B2" },
-  { value: 5, label: "Expert", cefr: "C1" },
+  { value: 3, label: "Pré-intermédiaire", cefr: "A2+" },
+  { value: 4, label: "Intermédiaire", cefr: "B1" },
+  { value: 5, label: "Confirmé", cefr: "B1+" },
 ];
 
 /** Niveau proposé aux invités. */

@@ -313,9 +313,9 @@ export const course9: LessonContent = {
             {
               id: 10,
               question: "I refused without ___ difficulty.",
-              options: ["some", "any", "no", "much"],
+              options: ["some", "any", "no", "many"],
               correctAnswer: 1,
-              explanation: "Without implique une négation ➔ ANY.",
+              explanation: "Without implique une négation ➔ ANY (difficulty est indénombrable : pas de many).",
             },
           ]}
         />

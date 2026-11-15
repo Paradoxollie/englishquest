@@ -1,7 +1,7 @@
 import "server-only";
 import { chapters } from "@/lib/courses/chapters";
 import bank from "@/lib/placement/questions.json";
-import { GRAMMAR_RUSH_MAX_QUESTIONS, type RushQuestion } from "./grammar-rush";
+import { GRAMMAR_RUSH_MAX_QUESTIONS, shuffleRushOptions, type RushQuestion } from "./grammar-rush";
 
 type BankQuestion = { id: string; course: number; question: string; options: string[]; correctAnswer: number };
 
@@ -41,5 +41,5 @@ export function buildRushQueue({ maxChapter, focusCourseId }: { maxChapter: numb
     const next = takeFocus ? focus[f++] : general[g++] ?? focus[f++];
     if (next) queue.push(next);
   }
-  return queue;
+  return queue.map((question) => shuffleRushOptions(question));
 }

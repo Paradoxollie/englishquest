@@ -1,6 +1,7 @@
 "use server";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { isAdmin } from "@/lib/auth/roles";
 
 export type DashboardStats = {
   totalUsers: number;
@@ -35,6 +36,10 @@ export type DashboardStats = {
 };
 
 export async function getDashboardStats(): Promise<DashboardStats> {
+  if (!(await isAdmin())) {
+    throw new Error("Accès réservé aux administrateurs.");
+  }
+
   const adminClient = createSupabaseAdminClient();
 
   // Compter les utilisateurs par rôle

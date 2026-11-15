@@ -76,7 +76,7 @@ export default function TeachersLandingPage() {
           </h2>
           <p className="mt-3 max-w-3xl text-[var(--muted)]">
             Les professeurs d&apos;anglais de collège et de lycée, de la 6e à la terminale. Les cinquante missions vont du
-            niveau A1 au niveau C1 : chaque élève travaille à son niveau, le test de niveau le place au bon endroit de la
+            niveau A1 au niveau B1+ : chaque élève travaille à son niveau, le test de niveau le place au bon endroit de la
             carte. Chaque mission, c&apos;est un cours court, un quiz de dix questions à réussir à 80 % et un jeu qui reprend
             la notion.
           </p>

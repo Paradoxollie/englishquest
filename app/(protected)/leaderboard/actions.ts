@@ -5,6 +5,7 @@
  */
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getServerUser } from "@/lib/supabase/auth-cache";
 import { getGameLeaderboards, type PublicLeaderboardEntry } from "@/lib/games/leaderboard-service";
 
 export type LeaderboardEntry = PublicLeaderboardEntry;
@@ -19,6 +20,12 @@ export interface LeaderboardData {
  * Get leaderboard data for a specific game using the shared paginated leaderboard service.
  */
 export async function getGameLeaderboard(gameId: string): Promise<LeaderboardData> {
+  // Classements réservés aux joueurs connectés (page Confidentialité).
+  const user = await getServerUser();
+  if (!user) {
+    return { easy: [], medium: [], hard: [] };
+  }
+
   const adminClient = createSupabaseAdminClient();
   const { data: game } = await adminClient
     .from("games")

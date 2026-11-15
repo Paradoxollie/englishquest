@@ -80,7 +80,23 @@ export function weaveRushQueue(
     const next = takeFocus ? focus[f++] : general[g++] ?? focus[f++];
     if (next) queue.push(next);
   }
-  return queue;
+  // Les propositions sont mélangées à chaque partie : la bonne réponse ne reste
+  // jamais à la même place (elle était en 2e position dans 63 % des questions).
+  return queue.map((question) => shuffleRushOptions(question, rng));
+}
+
+/** Mélange les propositions d'une question et recalcule l'indice de la bonne réponse. */
+export function shuffleRushOptions(question: RushQuestion, rng: () => number = Math.random): RushQuestion {
+  const order = question.options.map((_, index) => index);
+  for (let i = order.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(rng() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  return {
+    ...question,
+    options: order.map((index) => question.options[index]),
+    correctAnswer: order.indexOf(question.correctAnswer),
+  };
 }
 
 export function currentRushQuestion(state: RushState): RushQuestion | null {

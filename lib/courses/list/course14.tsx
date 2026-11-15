@@ -194,9 +194,9 @@ export const course14: LessonContent = {
             {
               id: 9,
               question: "I can't come tonight. I ___ (see) my doctor.",
-              options: ["am seeing", "will see", "am going to see", "see"],
+              options: ["am seeing", "will see", "seeing", "see"],
               correctAnswer: 0,
-              explanation: "C'est un rendez-vous (Arrangement) confirmé. Le Present Continuous (I am seeing) est le plus naturel ici, bien que 'Going to' soit grammaticalement correct pour l'intention.",
+              explanation: "C'est un rendez-vous confirmé : le Present Continuous (I am seeing) est le plus naturel. 'Seeing' seul ne suffit pas : il faut l'auxiliaire am.",
             },
             {
               id: 10,

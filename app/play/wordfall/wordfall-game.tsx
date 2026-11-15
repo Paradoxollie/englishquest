@@ -1,5 +1,6 @@
 "use client";
 
+import { filterInappropriateWords } from "@/lib/games/enigma-scroll-words";
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import {
@@ -107,7 +108,7 @@ function bootstrap() {
       levels: manual.levels,
     });
     if (Array.isArray(wordfallWordsData.freeModeWords)) {
-      initializeEnglishWords(wordfallWordsData.freeModeWords);
+      initializeEnglishWords(filterInappropriateWords(wordfallWordsData.freeModeWords));
     }
     bootstrapped = { ok: true, error: null };
   } catch (error) {

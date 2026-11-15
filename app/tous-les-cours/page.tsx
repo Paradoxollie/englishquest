@@ -11,7 +11,7 @@ import { getServerUser } from "@/lib/supabase/auth-cache";
 export const metadata = {
   title: "Les cours",
   description:
-    "50 cours d'anglais du niveau A1 au niveau C1 : une notion par cours, des exemples, un quiz de dix questions. Lecture libre, progression avec un compte.",
+    "50 cours d'anglais du niveau A1 au niveau B1+ : une notion par cours, des exemples, un quiz de dix questions. Lecture libre, progression avec un compte.",
 };
 
 export default async function TousLesCoursPage() {
@@ -29,7 +29,7 @@ export default async function TousLesCoursPage() {
         <div className="eq-container eq-split-hero">
           <div className="grid gap-4">
             <p className="eq-kicker">Bibliothèque · 50 notions</p>
-            <h1 className="eq-h1">Tous les cours d&apos;anglais, du niveau A1 au niveau C1</h1>
+            <h1 className="eq-h1">Tous les cours d&apos;anglais, du niveau A1 au niveau B1+</h1>
             <p className="eq-lead">
               Une leçon claire par notion, les pièges classiques du francophone décryptés et un quiz de validation de dix
               questions. Tout le programme reste consultable librement sans compte.
@@ -71,7 +71,7 @@ export default async function TousLesCoursPage() {
                 <span>
                   <strong>50 fiches</strong> rédigées
                 </span>
-                <span>A1 Fondations → C1 Maîtrise</span>
+                <span>A1 Fondations → B1+ Maîtrise</span>
               </div>
             </div>
           ) : null}

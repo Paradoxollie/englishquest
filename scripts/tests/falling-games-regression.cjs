@@ -358,8 +358,10 @@ check("Wordfall normalizes hyphens and apostrophes and scales active word cap", 
   const hit2 = wordfall.processWordInput({ ...start, activeWords: [apostropheCard], activeWord: apostropheCard }, "today aujourdhui");
   assert.equal(hit2.success, true);
   assert.equal(wordfall.getWordfallMaxActiveWords({ ...start, level: 1 }), 1);
-  assert.equal(wordfall.getWordfallMaxActiveWords({ ...start, level: 3 }), 2);
-  assert.equal(wordfall.getWordfallMaxActiveWords({ ...start, level: 6 }), 3);
+  // Un seul mot à la fois jusqu'au niveau 3 : l'élève tape l'anglais et le français.
+  assert.equal(wordfall.getWordfallMaxActiveWords({ ...start, level: 3 }), 1);
+  assert.equal(wordfall.getWordfallMaxActiveWords({ ...start, level: 4 }), 2);
+  assert.equal(wordfall.getWordfallMaxActiveWords({ ...start, level: 7 }), 3);
 });
 
 check("Enigma multiplier reaches up to 2.5x across winning streak", () => {

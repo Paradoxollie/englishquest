@@ -12,7 +12,7 @@ const steps = [
   {
     code: "Étape 01",
     title: "Prendre son point de départ",
-    copy: "Démarrez au premier chapitre ou passez le test de placement pour situer directement vos acquis de A1 à C1.",
+    copy: "Démarrez au premier chapitre ou passez le test de placement pour situer directement vos acquis de A1 à B1+.",
   },
   {
     code: "Étape 02",
@@ -29,9 +29,9 @@ const steps = [
 const levels = [
   { label: "A1", name: "Fondations", active: true },
   { label: "A2", name: "Quotidien", active: false },
-  { label: "B1", name: "Autonomie", active: false },
-  { label: "B2", name: "Aisance", active: false },
-  { label: "C1", name: "Maîtrise", active: false },
+  { label: "A2+", name: "Autonomie", active: false },
+  { label: "B1", name: "Aisance", active: false },
+  { label: "B1+", name: "Maîtrise", active: false },
 ] as const;
 
 export default async function PublicHomePage({
@@ -78,7 +78,7 @@ export default async function PublicHomePage({
               </Link>
             </div>
             <p className="text-xs font-semibold text-[var(--muted)]">
-              Accès libre et gratuit · Zéro publicité · Niveaux A1 à C1
+              Accès libre et gratuit · Zéro publicité · Niveaux A1 à B1+
             </p>
           </div>
 

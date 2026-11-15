@@ -237,7 +237,7 @@ export const course11: LessonContent = {
             {
               id: 10,
               question: "Why ___ you ___ (do) that?",
-              options: ["did / /", "did / do", "do / did", "did / done"],
+              options: ["did / did", "did / do", "do / did", "did / done"],
               correctAnswer: 1,
               explanation: "Le premier DID est l'auxiliaire, le deuxième est le verbe d'action 'Faire'.",
             },

@@ -15,7 +15,7 @@ export type Palier = {
   id: number; // 1–5
   title: string;
   description: string;
-  level: string; // A1, A2, B1, B2, C1
+  level: string; // A1, A2, A2+, B1, B1+ (niveaux visés, d'après l'English Grammar Profile)
   courses: Course[];
 };
 
@@ -63,7 +63,7 @@ export const paliers: Palier[] = [
     id: 3,
     title: "Niveau 3 : La Connexion Passé-Présent",
     description: "Maîtriser le Present Perfect et nuancer son discours.",
-    level: "B1 - Intermédiaire",
+    level: "A2+ - Pré-intermédiaire",
     courses: [
       { id: 21, title: "Present Perfect (1) : Résultat Présent", type: "grammar" },
       { id: 22, title: "Present Perfect (2) : Expérience de vie", type: "grammar" },
@@ -81,7 +81,7 @@ export const paliers: Palier[] = [
     id: 4,
     title: "Niveau 4 : Structure et Style",
     description: "Faire des phrases complexes, conditionnelles et passives.",
-    level: "B2 - Intermédiaire Supérieur",
+    level: "B1 - Intermédiaire",
     courses: [
       { id: 31, title: "Le Futur Réel (First Conditional)", type: "grammar" },
       { id: 32, title: "L'Imaginaire (Second Conditional)", type: "grammar" },
@@ -99,7 +99,7 @@ export const paliers: Palier[] = [
     id: 5,
     title: "Niveau 5 : Maîtrise et Subtilités",
     description: "Exprimer des regrets, utiliser des structures idiomatiques et complexes.",
-    level: "C1 - Avancé",
+    level: "B1+ - Confirmé",
     courses: [
       { id: 41, title: "Le Regret (Third Conditional)", type: "grammar" },
       { id: 42, title: "Les Souhaits et Regrets (I wish...)", type: "grammar" },

@@ -11,6 +11,9 @@ import type { WordLists } from "./enigma-scroll";
  * This is a basic list - can be expanded or loaded from a file
  */
 const INAPPROPRIATE_WORDS = new Set<string>([
+  // Termes de sites pour adultes venus de la liste Google 10000 (Wordfall, mode libre).
+  "BABE", "BABES", "BUTTS", "LIVECAM", "NUDIST", "PICHUNTER", "SPANK", "SPANKING", "SPERM", "SWINGERS",
+  "THUMBZILLA", "TITTEN", "TRANSEXUALES", "VOYEURWEB", "WEBCAM", "WEBCAMS",
   // Mots exclus des cibles et des propositions (public scolaire)
   "ANAL",
   "ARSE",

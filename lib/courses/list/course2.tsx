@@ -240,10 +240,10 @@ export const course2: LessonContent = {
             },
             {
               id: 2,
-              question: "Complétez : She ___ (watch) TV.",
+              question: "Complétez : Look! She ___ (watch) TV right now.",
               options: ["is watching", "are watching", "watches", "is watch"],
               correctAnswer: 0,
-              explanation: "She (3e pers.) + is + watching.",
+              explanation: "Look! et right now : action en cours. She (3e pers.) + is + watching.",
             },
             {
               id: 3,
