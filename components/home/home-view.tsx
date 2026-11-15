@@ -267,9 +267,8 @@ export function HomeView({
               })}
             </ul>
             <p className="text-sm text-[var(--muted)]">
-              Les trois jeux joués : + {dailyXp} XP et + {daily.goldBonus} or
-              {streakBonusPercent > 0 ? ` (série de ${daily.dailyStreak} jours, + ${streakBonusPercent} %)` : ""}.{" "}
-              {daily.nextRefreshLabel}. Jusqu&apos;à 5 parties par jeu à plein tarif chaque jour.
+              Joue aux trois jeux du jour : + {dailyXp} XP et + {daily.goldBonus} or
+              {streakBonusPercent > 0 ? ` (bonus de série + ${streakBonusPercent} %)` : ""}.
             </p>
             {nextDailyGame && !daily.dailyGoalReached ? (
               <div className="eq-home-actions mt-auto">

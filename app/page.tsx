@@ -65,15 +65,16 @@ export default async function PublicHomePage({
               <Link href="/cours/1" className="eq-btn eq-btn-primary eq-btn-xl">
                 Commencer la mission 1
               </Link>
-              <Link href="/test-de-niveau" className="eq-text-link">
+              <Link href="/test-de-niveau" className="eq-btn eq-btn-ghost eq-btn-xl">
                 Tester mon niveau
               </Link>
             </div>
-            <ul className="eq-home-facts eq-slam eq-slam-4">
-              <li>Gratuit</li>
-              <li>Sans publicité</li>
-              <li>Sans compte pour commencer</li>
-            </ul>
+            <p className="eq-home-note eq-slam eq-slam-4">
+              Gratuit, sans publicité. Pas besoin de compte pour commencer.{" "}
+              <Link href="/auth/login" className="eq-text-link">
+                J&apos;ai déjà un compte
+              </Link>
+            </p>
           </div>
 
           {coverArt ? (
@@ -89,6 +90,27 @@ export default async function PublicHomePage({
             </div>
           ) : null}
         </div>
+      </section>
+
+      <section className="eq-container pb-10" aria-label="English Quest en chiffres">
+        <ul className="eq-figures">
+          <li>
+            <b>50</b>
+            <span>leçons de grammaire, chacune avec son quiz</span>
+          </li>
+          <li>
+            <b>5</b>
+            <span>chapitres, du niveau A1 au niveau B1+</span>
+          </li>
+          <li>
+            <b>7</b>
+            <span>jeux pour s&apos;entraîner</span>
+          </li>
+          <li>
+            <b>0 €</b>
+            <span>gratuit et sans publicité</span>
+          </li>
+        </ul>
       </section>
 
       <section className="eq-section-pro is-alt" aria-labelledby="home-how">
