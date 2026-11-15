@@ -77,6 +77,8 @@ export const metadata: Metadata = {
   },
 };
 
+const themeInitScript = `try{var t=localStorage.getItem('eq-theme');if(t==='dark'||t==='light'){document.documentElement.dataset.theme=t;}else{document.documentElement.dataset.theme='light';}}catch(e){document.documentElement.dataset.theme='light';}`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -88,6 +90,9 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${displayFont.variable} ${bodyFont.variable} ${monoFont.variable}`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="min-h-screen antialiased" suppressHydrationWarning>
         <AuthProvider>
           <SiteShell header={<AppHeader />}>{children}</SiteShell>

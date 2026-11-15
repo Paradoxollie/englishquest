@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
 import { logoutAction } from "@/app/(protected)/actions";
 import { BrandEmblem } from "@/components/ui/game-icons";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { guestHeaderState, type HeaderState } from "@/lib/navigation/header-state-types";
 
 const baseNavLinks = [
@@ -122,6 +123,7 @@ export function AppHeader() {
         </nav>
 
         <div className="eq-header-actions">
+          <ThemeToggle />
           {resolvedLoading ? (
             <span className="eq-header-skeleton" aria-hidden="true" />
           ) : user ? (
@@ -154,18 +156,21 @@ export function AppHeader() {
           )}
         </div>
 
-        <button
-          type="button"
-          className="eq-burger"
-          aria-expanded={menuOpen}
-          aria-controls="eq-mobile-menu"
-          aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-          onClick={() => setMenuOpen((open) => !open)}
-        >
-          <span className="eq-burger-bar" />
-          <span className="eq-burger-bar" />
-          <span className="eq-burger-bar" />
-        </button>
+        <div className="eq-mobile-controls">
+          <ThemeToggle compact />
+          <button
+            type="button"
+            className="eq-burger"
+            aria-expanded={menuOpen}
+            aria-controls="eq-mobile-menu"
+            aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
+            <span className="eq-burger-bar" />
+            <span className="eq-burger-bar" />
+            <span className="eq-burger-bar" />
+          </button>
+        </div>
       </div>
 
       <div id="eq-mobile-menu" className="eq-mobile-menu" hidden={!menuOpen}>
@@ -181,6 +186,7 @@ export function AppHeader() {
             </Link>
           ))}
           <div className="eq-mobile-actions">
+            <ThemeToggle />
             {user ? (
               <>
                 <Link href="/profile" className="eq-btn eq-btn-ghost">

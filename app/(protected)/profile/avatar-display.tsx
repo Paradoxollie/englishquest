@@ -89,7 +89,7 @@ export function AvatarDisplay({ userId, username, size = "md", initialEquipped }
     };
     return (
       <div
-        className={`flex items-center justify-center rounded-full border-2 border-[#141824] bg-[#f5efe4] text-[#141824] ${sizeClasses[size]}`}
+        className={`flex items-center justify-center rounded-full border-2 border-[var(--ink-rule)] bg-[var(--ink-2)] text-[var(--fg)] ${sizeClasses[size]}`}
       >
         <span className="font-bold">{username.charAt(0).toUpperCase()}</span>
       </div>
