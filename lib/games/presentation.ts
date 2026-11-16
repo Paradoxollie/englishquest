@@ -103,8 +103,8 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "2 min",
     primary: "#facc15",
     secondary: "#fde68a",
-    artworkSrc: "/art/bd/heros-jeu-spell-strike-v2.jpg",
-    imageAlt: "Maya dicte un mot au micro pendant que Sam tape à toute vitesse sur une machine à écrire.",
+    artworkSrc: "/art/bd/heros-jeu-spell-strike-v3.jpg",
+    imageAlt: "Maya dicte un mot au micro pendant que Sam l'écrit au crayon sur une feuille.",
   },
   "echo-signal": {
     mark: "EC",
@@ -114,8 +114,8 @@ const manualPresentations: Record<string, GamePresentation> = {
     duration: "3 min",
     primary: "#38bdf8",
     secondary: "#bae6fd",
-    artworkSrc: "/art/bd/heros-jeu-echo-signal-v2.jpg",
-    imageAlt: "Sur un toit de Londres, Sam écoute la radio au casque pendant que Maya oriente une antenne.",
+    artworkSrc: "/art/bd/heros-jeu-echo-signal-v3.jpg",
+    imageAlt: "Sur un toit de Londres, Maya règle une radio ancienne pendant que Sam écoute au casque.",
   },
 };
 
