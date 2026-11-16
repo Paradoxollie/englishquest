@@ -51,7 +51,7 @@ const DIFFICULTY_CONFIG: Record<
 > = {
   1: {
     label: "Facile",
-    subtitle: "3 écoutes · option vitesse lente 0,85x",
+    subtitle: "3 écoutes · vitesse lente possible",
     dbDifficulty: "easy",
     maxPlays: 3,
     allowSlowSpeed: true,
