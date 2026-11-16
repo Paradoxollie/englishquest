@@ -52,7 +52,7 @@ const steps = [
 export default function TeachersLandingPage() {
   return (
     <div className="eq-container eq-section">
-      <div className="mx-auto grid max-w-5xl gap-12">
+      <div className="mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)] gap-12 [&>*]:min-w-0">
         <header className="eq-profs-hero">
           <p className="eq-kicker">Pour les professeurs d&apos;anglais</p>
           <h1 className="eq-h1">English Quest en classe</h1>

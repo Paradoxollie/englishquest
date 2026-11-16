@@ -3779,3 +3779,199 @@ html[data-theme="dark"] .eq-shop-title-plate span {
   padding-top: 28px;
   border-top: 1.5px solid var(--pro-border);
 }
+
+/* ============================================================================
+   TÉLÉPHONES, PETITS ÉCRANS & TABLETTES (LISIBILITÉ & JOUABILITÉ)
+   ============================================================================ */
+
+.eq-space-stage {
+  border-radius: var(--pro-radius-lg) !important;
+  box-shadow: var(--pro-shadow) !important;
+}
+
+.eq-lesson-aside,
+.eq-lesson-article,
+.eq-lesson-section,
+.cahier .lesson-section-content,
+.eq-quiz {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.cahier .eq-lesson-body {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.cahier .lesson-section-content {
+  overflow-wrap: anywhere;
+}
+
+.cahier .eq-quiz-input {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  flex: 1 1 160px;
+}
+
+@media (max-width: 899px) {
+  .cahier .eq-lesson-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .cahier .eq-lesson-article {
+    padding: 18px 14px !important;
+  }
+
+  .cahier .eq-quiz {
+    padding: 14px !important;
+  }
+
+  .cahier .eq-toc {
+    padding: 12px 14px !important;
+  }
+
+  .eq-profs-hero {
+    padding: 20px 18px !important;
+  }
+
+  .eq-btn-lg,
+  .eq-btn-xl,
+  .eq-home-actions .eq-btn,
+  .eq-profs-hero .eq-btn,
+  .eq-mission-note .eq-btn {
+    white-space: normal;
+    text-align: center;
+    line-height: 1.25;
+    padding-block: 10px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .eq-space-touch-pad .eq-btn {
+    padding: 0 8px !important;
+    font-size: 0.88rem !important;
+  }
+
+  .eq-game-choices-duo .eq-game-choice {
+    padding: 10px 8px !important;
+    gap: 6px !important;
+    font-size: 0.96rem !important;
+    white-space: nowrap;
+  }
+}
+
+/* HUD mobile ultra-compact sans troncature « Sc... / ♥... » sur petits téléphones */
+@media (max-width: 390px) {
+  body.eq-game-focus .eq-game-hud-wrap {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  body.eq-game-focus .eq-game-hud-actions {
+    order: 1;
+    width: 100%;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+
+  body.eq-game-focus .eq-game-hud {
+    order: 2;
+    flex: 1 0 100%;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  body.eq-game-focus .eq-sound-btn,
+  body.eq-game-focus .eq-game-quit {
+    min-height: 28px;
+    padding: 3px 9px !important;
+    border-radius: 8px !important;
+  }
+
+  body.eq-game-focus .eq-game-stat {
+    padding: 4px 5px !important;
+    border-radius: 9px !important;
+  }
+
+  body.eq-game-focus .eq-game-stat small {
+    font-size: 0.56rem !important;
+    letter-spacing: 0 !important;
+  }
+
+  body.eq-game-focus .eq-game-stat b {
+    font-size: 0.94rem !important;
+  }
+}
+
+/* Enigma Scroll : grille + retour + clavier visibles ensemble sans défilement sur petits écrans */
+@media (max-width: 767px) and (max-height: 680px) {
+  body.eq-game-focus .eq-enigma-stage {
+    padding: 8px !important;
+  }
+
+  body.eq-game-focus .eq-enigma-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+
+  body.eq-game-focus .eq-enigma-toolbar-left,
+  body.eq-game-focus .eq-enigma-toolbar-right {
+    display: contents;
+  }
+
+  body.eq-game-focus .eq-enigma-toolbar-right > :first-child {
+    margin-left: auto;
+  }
+
+  body.eq-game-focus .eq-enigma-mini-btn {
+    min-height: 28px;
+    padding: 3px 8px !important;
+    font-size: 0.72rem;
+  }
+
+  body.eq-game-focus .eq-grid {
+    gap: 3px;
+  }
+
+  body.eq-game-focus .eq-grid-row {
+    gap: 3px;
+    max-width: min(100%, calc(var(--cols, 5) * 38px));
+  }
+
+  body.eq-game-focus .eq-grid-cell {
+    font-size: 1.05rem;
+    border-radius: 6px !important;
+  }
+
+  body.eq-game-focus .eq-enigma-feedback-slot {
+    min-height: 28px;
+    margin-top: 4px;
+  }
+
+  body.eq-game-focus .eq-enigma-feedback-slot .eq-game-feedback {
+    min-height: 0;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+  }
+
+  body.eq-game-focus .eq-keys {
+    margin-top: 4px;
+    gap: 3px;
+  }
+
+  body.eq-game-focus .eq-keys-row {
+    gap: 3px;
+  }
+
+  body.eq-game-focus .eq-key {
+    height: 36px;
+    font-size: 0.84rem;
+    border-radius: 6px !important;
+  }
+}

@@ -338,7 +338,11 @@ export function SpaceLexGame({
   }, [initialShipSkinImageUrl]);
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    const checkMobile = () =>
+      setIsMobile(
+        window.innerWidth < 768 ||
+          (typeof window.matchMedia === "function" && window.matchMedia("(pointer: coarse)").matches)
+      );
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
