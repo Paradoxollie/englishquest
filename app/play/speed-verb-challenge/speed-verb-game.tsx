@@ -535,6 +535,7 @@ export function SpeedVerbGame({
     const accuracy = stats.attempts > 0 ? Math.round((stats.correct / stats.attempts) * 100) : 0;
     return (
       <GameEnd
+        gameSlug="speed-verb-challenge"
         title="Temps écoulé"
         score={state.score}
         scoreLabel="points"

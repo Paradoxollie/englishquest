@@ -5,6 +5,9 @@ import { logoutAction } from "@/app/(protected)/actions";
 import { BadgesSection } from "@/components/rewards/badges-section";
 import { RewardOnMount } from "@/components/rewards/reward-on-mount";
 import { ClassJoinCard } from "@/components/classes/class-join-card";
+import { games as gameCatalog } from "@/lib/games/config";
+import { formatLeaderboardScore, getGameLeaderboardMeta } from "@/lib/games/leaderboard-config";
+import { getUserBestScoresBySlug } from "@/lib/games/leaderboard-service";
 import { lessons } from "@/lib/courses/lessons";
 import { loadBadgesWithSync } from "@/lib/profile/badges-server";
 import { getLevelProgress } from "@/lib/profile/economy";
@@ -24,12 +27,6 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
-type BestScoreRow = {
-  score: number;
-  created_at: string;
-  games: { name: string; slug?: string } | Array<{ name: string; slug?: string }> | null;
-};
-
 type CourseProgressRow = {
   status: string;
   courses: { course_number: number; title: string } | Array<{ course_number: number; title: string }> | null;
@@ -37,10 +34,6 @@ type CourseProgressRow = {
 
 function relatedCourse(row: CourseProgressRow) {
   return Array.isArray(row.courses) ? row.courses[0] ?? null : row.courses;
-}
-
-function relatedGame(row: BestScoreRow) {
-  return Array.isArray(row.games) ? row.games[0] ?? null : row.games;
 }
 
 const roleLabels: Record<string, string> = {
@@ -77,13 +70,12 @@ export default async function ProfilePage({
     );
   }
 
-  const [{ data: bestScores }, { data: courseProgress }, { count: gamesPlayed }, badges, { data: equippedData }] = await Promise.all([
-    adminClient
-      .from("game_scores")
-      .select("score, created_at, games ( id, name, slug )")
-      .eq("user_id", user.id)
-      .order("score", { ascending: false })
-      .limit(40),
+  const scoreOrderBySlug = Object.fromEntries(
+    gameCatalog.map((game) => [game.slug, getGameLeaderboardMeta(game.slug).scoreOrder])
+  );
+
+  const [bestBySlug, { data: courseProgress }, { count: gamesPlayed }, badges, { data: equippedData }] = await Promise.all([
+    getUserBestScoresBySlug(user.id, scoreOrderBySlug),
     adminClient
       .from("user_course_progress")
       .select("status, courses ( id, course_number, title )")
@@ -125,16 +117,13 @@ export default async function ProfilePage({
   const currentRow = progressRows.find((row) => row.status === "in_progress") ?? progressRows.find((row) => row.status === "unlocked");
   const currentCourse = currentRow ? relatedCourse(currentRow) : null;
 
-  // Un seul meilleur score par jeu.
-  const bestByGame = new Map<string, { name: string; score: number; slug: string | null }>();
-  for (const row of (bestScores ?? []) as BestScoreRow[]) {
-    const game = relatedGame(row);
-    if (!game) continue;
-    if (!bestByGame.has(game.name)) {
-      bestByGame.set(game.name, { name: game.name, score: row.score, slug: game.slug ?? null });
-    }
-  }
-  const bestList = Array.from(bestByGame.values());
+  const bestList = gameCatalog
+    .filter((game) => typeof bestBySlug[game.slug] === "number")
+    .map((game) => ({
+      name: game.name,
+      slug: game.slug,
+      scoreLabel: formatLeaderboardScore(getGameLeaderboardMeta(game.slug).format, bestBySlug[game.slug]),
+    }));
 
   const level = getLevelProgress(profile.xp);
   const memberSince = new Date(profile.created_at).toLocaleDateString("fr-FR", { year: "numeric", month: "long" });
@@ -215,9 +204,11 @@ export default async function ProfilePage({
           {bestList.length > 0 ? (
             <ul className="eq-profile-scores">
               {bestList.map((item) => (
-                <li key={item.name}>
-                  {item.slug ? <Link href={`/play/${item.slug}`}>{item.name}</Link> : <span>{item.name}</span>}
-                  <b>{item.score}</b>
+                <li key={item.slug}>
+                  <Link href={`/play/${item.slug}`}>{item.name}</Link>
+                  <Link href={`/leaderboard?game=${item.slug}`} title={`Voir le classement ${item.name}`}>
+                    <b>{item.scoreLabel}</b>
+                  </Link>
                 </li>
               ))}
             </ul>

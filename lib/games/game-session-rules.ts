@@ -15,6 +15,8 @@ export const GAME_SESSION_SLUGS = [
   "flash-translation",
   "grammar-rush",
   "flashback",
+  "spell-strike",
+  "echo-signal",
 ] as const;
 
 export type GameSessionSlug = (typeof GAME_SESSION_SLUGS)[number];

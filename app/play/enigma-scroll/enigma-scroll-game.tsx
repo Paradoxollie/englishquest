@@ -532,6 +532,7 @@ export function EnigmaScrollGame({
     const missedWord = state.isWin ? null : state.targetWord;
     return (
       <GameEnd
+        gameSlug="enigma-scroll"
         title={state.isWin ? "Session terminée" : timeLeft === 0 ? "Temps écoulé" : "Mot manqué"}
         score={state.totalScore}
         scoreLabel="points"

@@ -305,6 +305,7 @@ export function FlashbackGame({
   if (state.phase === "gameOver") {
     return (
       <GameEnd
+        gameSlug="flashback"
         title="Trois erreurs"
         score={state.score}
         scoreLabel="mots reconnus"

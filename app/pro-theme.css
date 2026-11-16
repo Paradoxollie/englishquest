@@ -4016,3 +4016,220 @@ html[data-theme="dark"] .eq-shop-title-plate span {
     border-radius: 6px !important;
   }
 }
+
+/* ============================================================================
+   SPELL STRIKE & ECHO SIGNAL (jeux 8 et 9)
+   ============================================================================ */
+
+.eq-spell-stage,
+.eq-echo-stage {
+  display: grid;
+  gap: 16px;
+}
+
+.eq-game-stage h2,
+.eq-game-stage h3,
+.eq-game-stage .eq-h3,
+.eq-echo-title {
+  color: #f3efe6 !important;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+}
+
+.eq-echo-stage .eq-game-feedback {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+}
+
+.eq-spell-audio-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+}
+
+.eq-spell-audio-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.eq-spell-prompt {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+}
+
+.eq-spell-hint {
+  margin: 4px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--cyan-soft);
+  color: var(--cyan-deep);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.eq-spell-slots {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.eq-spell-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 30px;
+  height: 38px;
+  padding: 0 6px;
+  border-radius: 8px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--ink-2);
+  color: var(--fg);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1rem;
+  transition: border-color 0.14s ease, background-color 0.14s ease, transform 0.12s ease;
+}
+
+.eq-spell-slot.is-filled {
+  border-color: var(--cyan);
+  background: var(--cyan-soft);
+}
+
+.eq-spell-slot.is-match {
+  border-color: var(--mint);
+  background: var(--mint-soft);
+  color: var(--mint);
+}
+
+.eq-spell-slot.is-miss {
+  border-color: var(--coral);
+  background: var(--coral-soft);
+  color: var(--coral);
+}
+
+.eq-spell-form {
+  display: grid;
+  gap: 12px;
+}
+
+.eq-spell-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.eq-echo-radio {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 14px;
+  background: var(--ink-2);
+  border: 1px solid var(--line-strong);
+}
+
+.eq-echo-radio-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.eq-echo-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 28px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: var(--ink-3);
+  border: 1px solid var(--line);
+}
+
+.eq-echo-bars span {
+  display: block;
+  width: 4px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--cyan);
+  transition: height 0.18s ease;
+}
+
+@keyframes eq-echo-wave {
+  0%, 100% { height: 6px; }
+  50% { height: 20px; }
+}
+
+.eq-echo-bars.is-playing span {
+  animation: eq-echo-wave 0.75s ease-in-out infinite;
+}
+
+.eq-echo-bars.is-playing span:nth-child(2) { animation-delay: 0.12s; }
+.eq-echo-bars.is-playing span:nth-child(3) { animation-delay: 0.24s; }
+.eq-echo-bars.is-playing span:nth-child(4) { animation-delay: 0.36s; }
+.eq-echo-bars.is-playing span:nth-child(5) { animation-delay: 0.48s; }
+
+.eq-echo-speaker {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--gold);
+}
+
+.eq-echo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.eq-echo-transcript {
+  display: grid;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--ink);
+  border: 1px solid var(--line);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.eq-echo-transcript p {
+  margin: 0;
+}
+
+.eq-echo-transcript p.is-active-line {
+  color: var(--cyan-deep);
+  font-weight: 600;
+}
+
+.eq-echo-question {
+  display: grid;
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .eq-spell-slot {
+    min-width: 24px;
+    height: 32px;
+    padding: 0 4px;
+    font-size: 0.88rem;
+  }
+
+  .eq-spell-controls .eq-btn {
+    flex: 1 1 auto;
+  }
+}

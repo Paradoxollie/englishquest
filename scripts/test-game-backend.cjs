@@ -209,6 +209,51 @@ async function main() {
   const fastest = await leaderboard.getPersonalBests({ slug: "grammar-rush", userId: "a", buckets: [{ key: "all" }], scoreOrder: "asc" });
   assert.equal(fastest.all, 0);
 
+  // getGameStandings returns user's rank outside Top 10 + getUserBestScoresBySlug handles asc vs desc accurately.
+  const multiScores = Array.from({ length: 15 }, (_, index) => ({
+    id: `r-${index}`,
+    user_id: `player-${index + 1}`,
+    game_id: "game",
+    score: (15 - index) * 10,
+    difficulty: "medium",
+  }));
+  const rankDb = {
+    games: [{ id: "game", slug: "grammar-rush" }],
+    game_scores: multiScores,
+    profiles: multiScores.map((s) => ({ id: s.user_id, username: s.user_id })),
+    user_equipped_items: [],
+  };
+  const rankLb = loadTs("lib/games/leaderboard-service.ts", {
+    "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(rankDb) },
+  });
+  const standings = await rankLb.getGameStandings({
+    slug: "grammar-rush",
+    buckets: [{ key: "all" }],
+    userId: "player-13",
+    scoreOrder: "desc",
+    limit: 10,
+  });
+  assert.equal(standings.all.entries.length, 10);
+  assert.equal(standings.all.totalPlayers, 15);
+  assert.equal(standings.all.myRank, 13);
+  assert.equal(standings.all.personalBest, 30);
+
+  const ascDb = {
+    games: [],
+    game_scores: [
+      { id: "ft1", user_id: "u1", score: 25_000, games: { slug: "flash-translation" } },
+      { id: "ft2", user_id: "u1", score: 12_500, games: { slug: "flash-translation" } },
+      { id: "ss1", user_id: "u1", score: 800, games: { slug: "spell-strike" } },
+      { id: "ss2", user_id: "u1", score: 1_200, games: { slug: "spell-strike" } },
+    ],
+  };
+  const ascLb = loadTs("lib/games/leaderboard-service.ts", {
+    "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(ascDb) },
+  });
+  const bestMap = await ascLb.getUserBestScoresBySlug("u1", { "flash-translation": "asc", "spell-strike": "desc" });
+  assert.equal(bestMap["flash-translation"], 12_500, "asc keeps fastest Flash Translation time");
+  assert.equal(bestMap["spell-strike"], 1_200, "desc keeps highest Spell Strike score");
+
   function courseFixture() {
     const courses = [1, 2, 3].map((number) => ({ id: `course-${number}`, course_number: number, title: `Course ${number}`, description: `Summary ${number}`, reward_xp: 80, reward_gold: 6, required_xp: (number - 1) * 30 }));
     const db = {

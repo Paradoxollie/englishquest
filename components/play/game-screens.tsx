@@ -369,6 +369,7 @@ export function GameEnd({
   rewardStatus,
   rewardError,
   missionReached,
+  gameSlug,
   onReplay,
   children,
 }: {
@@ -380,6 +381,7 @@ export function GameEnd({
   rewardStatus?: "idle" | "saving" | "saved" | "error" | "guest";
   rewardError?: string | null;
   missionReached?: boolean | null;
+  gameSlug?: string;
   onReplay: () => void;
   children?: ReactNode;
 }) {
@@ -551,6 +553,11 @@ export function GameEnd({
         <button type="button" onClick={onReplay} className="eq-btn eq-btn-primary">
           Rejouer
         </button>
+        {gameSlug && rewardStatus !== "guest" ? (
+          <Link href={`/leaderboard?game=${gameSlug}`} className="eq-btn eq-btn-ghost">
+            Classement
+          </Link>
+        ) : null}
         <Link href="/play" className="eq-btn eq-btn-ghost">
           Autres jeux
         </Link>

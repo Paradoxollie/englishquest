@@ -175,4 +175,10 @@ export const gamePerformance = {
   lexiconBlaster(wordsMastered: number, wave: number) {
     return wordsMastered / 25 + Math.max(0, wave - 1) * 0.05;
   },
+  spellStrike(correctWords: number, totalRounds: number) {
+    return totalRounds > 0 ? correctWords / totalRounds : 0;
+  },
+  echoSignal(correctAnswers: number, totalQuestions: number) {
+    return totalQuestions > 0 ? correctAnswers / totalQuestions : 0;
+  },
 };

@@ -238,3 +238,82 @@ export function checkSpeedVerb(input: {
 export function checkGrammarRush(input: { score: number; correct: number; attempts: number; durationMs: number }): Plausibility {
   return isValidRushResult(input) ? OK : fail("résultat incohérent");
 }
+
+/* ------------------------------------------------------------------ */
+/* Spell Strike (lib/games/spellStrike.ts)                             */
+/* ------------------------------------------------------------------ */
+
+export const SPELL_STRIKE_TOTAL_ROUNDS = 10;
+export const SPELL_STRIKE_MIN_MS_PER_WORD = 900;
+
+const SPELL_SCORE_RULES: Record<1 | 2 | 3, { base: number; speedMax: number; streakStep: number; maxSteps: number }> = {
+  1: { base: 100, speedMax: 40, streakStep: 15, maxSteps: 4 },
+  2: { base: 130, speedMax: 50, streakStep: 20, maxSteps: 4 },
+  3: { base: 170, speedMax: 60, streakStep: 25, maxSteps: 4 },
+};
+
+export function maxSpellStrikePlausibleScore(difficulty: 1 | 2 | 3, correctCount: number): number {
+  const r = SPELL_SCORE_RULES[difficulty];
+  let total = 0;
+  for (let streak = 1; streak <= correctCount; streak += 1) {
+    total += r.base + r.speedMax + Math.min(r.maxSteps, streak - 1) * r.streakStep;
+  }
+  return total;
+}
+
+export function checkSpellStrike(input: {
+  difficulty: number;
+  score: number;
+  correctCount: number;
+  totalRounds: number;
+  durationMs: number;
+}): Plausibility {
+  const { difficulty, score, correctCount, totalRounds, durationMs } = input;
+  if (difficulty !== 1 && difficulty !== 2 && difficulty !== 3) return fail("difficulté");
+  if (![score, correctCount, totalRounds, durationMs].every(isCount)) return fail("valeurs");
+  if (totalRounds !== SPELL_STRIKE_TOTAL_ROUNDS || correctCount > totalRounds) return fail("manches");
+  if (score > maxSpellStrikePlausibleScore(difficulty, correctCount)) return fail("score trop haut");
+  if (score < correctCount * 40) return fail("score trop bas");
+  if (correctCount > Math.floor(durationMs / SPELL_STRIKE_MIN_MS_PER_WORD) + 1) return fail("partie trop courte");
+  return OK;
+}
+
+/* ------------------------------------------------------------------ */
+/* Echo Signal (lib/games/echoSignal.ts)                               */
+/* ------------------------------------------------------------------ */
+
+export const ECHO_SIGNAL_TOTAL_QUESTIONS = 8;
+export const ECHO_SIGNAL_MIN_MS_PER_CLIP = 1_200;
+
+const ECHO_SCORE_RULES: Record<1 | 2 | 3, { base: number; streakStep: number; maxSteps: number; listenBonus: number }> = {
+  1: { base: 100, streakStep: 20, maxSteps: 4, listenBonus: 20 },
+  2: { base: 130, streakStep: 25, maxSteps: 4, listenBonus: 30 },
+  3: { base: 170, streakStep: 30, maxSteps: 4, listenBonus: 40 },
+};
+
+export function maxEchoSignalPlausibleScore(difficulty: 1 | 2 | 3, correctCount: number): number {
+  const r = ECHO_SCORE_RULES[difficulty];
+  let total = 0;
+  for (let streak = 1; streak <= correctCount; streak += 1) {
+    total += r.base + Math.min(r.maxSteps, streak - 1) * r.streakStep + r.listenBonus;
+  }
+  return total;
+}
+
+export function checkEchoSignal(input: {
+  difficulty: number;
+  score: number;
+  correctCount: number;
+  totalQuestions: number;
+  durationMs: number;
+}): Plausibility {
+  const { difficulty, score, correctCount, totalQuestions, durationMs } = input;
+  if (difficulty !== 1 && difficulty !== 2 && difficulty !== 3) return fail("difficulté");
+  if (![score, correctCount, totalQuestions, durationMs].every(isCount)) return fail("valeurs");
+  if (totalQuestions !== ECHO_SIGNAL_TOTAL_QUESTIONS || correctCount > totalQuestions) return fail("questions");
+  if (score > maxEchoSignalPlausibleScore(difficulty, correctCount)) return fail("score trop haut");
+  if (score < correctCount * Math.floor(ECHO_SCORE_RULES[difficulty].base * 0.6)) return fail("score trop bas");
+  const minMs = Math.floor(correctCount / 2) * ECHO_SIGNAL_MIN_MS_PER_CLIP;
+  if (correctCount > 0 && durationMs + 500 < minMs) return fail("partie trop courte");
+  return OK;
+}

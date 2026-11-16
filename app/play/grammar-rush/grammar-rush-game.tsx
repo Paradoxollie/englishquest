@@ -327,6 +327,7 @@ export function GrammarRushGame({
     const accuracy = state.attempts > 0 ? Math.round((state.correct / state.attempts) * 100) : 0;
     return (
       <GameEnd
+        gameSlug="grammar-rush"
         title={
           state.index >= state.queue.length
             ? "Toutes les questions terminées"

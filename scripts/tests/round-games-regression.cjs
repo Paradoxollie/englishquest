@@ -334,4 +334,43 @@ test("Grammar Rush weaveRushQueue builds a varied queue with focus ratio", () =>
   assert.equal(mixed[1].course, 7);
 });
 
+test("Spell Strike covers all 5 levels cleanly, accepts variants and builds diffs", () => {
+  const spell = loadEngine("spellStrike");
+  assert.ok(spell.SPELL_STRIKE_WORDS.length >= 150);
+  for (const level of [1, 2, 3, 4, 5]) {
+    const levelWords = spell.SPELL_STRIKE_WORDS.filter((w) => w.level === level);
+    assert.ok(levelWords.length >= 25, `level ${level}: ${levelWords.length}`);
+    const picked = spell.pickSpellRounds({ level, totalRounds: 10, rng: seeded(level * 17) });
+    assert.equal(picked.length, 10);
+    assert.equal(new Set(picked.map((w) => w.id)).size, 10);
+  }
+  const fav = spell.SPELL_STRIKE_WORDS.find((w) => w.word === "favourite");
+  assert.equal(spell.isSpellAnswerCorrect(fav, " FAVORITE "), true);
+  assert.equal(spell.isSpellAnswerCorrect(fav, "favrit"), false);
+  const diff = spell.buildSpellingDiff("friend", "freind");
+  assert.equal(diff[2].status, "wrong");
+  assert.equal(diff[0].status, "match");
+});
+
+test("Echo Signal scenarios cover all 5 levels cleanly with valid comprehension questions", () => {
+  const echo = loadEngine("echoSignal");
+  assert.ok(echo.ECHO_SIGNAL_SCENARIOS.length >= 40);
+  for (const level of [1, 2, 3, 4, 5]) {
+    const list = echo.ECHO_SIGNAL_SCENARIOS.filter((s) => s.level === level);
+    assert.ok(list.length >= 8, `level ${level}: ${list.length}`);
+    for (const s of list) {
+      assert.ok(s.lines.length >= 1);
+      assert.equal(s.questions.length, 2);
+      for (const q of s.questions) {
+        assert.equal(q.options.length, 4);
+        assert.equal(new Set(q.options).size, 4, `${s.id} duplicate option`);
+        assert.ok(q.correctIndex >= 0 && q.correctIndex <= 3);
+      }
+    }
+    const picked = echo.pickEchoSignalMissions({ level, count: 4, rng: seeded(level * 29) });
+    assert.equal(picked.length, 4);
+    assert.equal(new Set(picked.map((s) => s.id)).size, 4);
+  }
+});
+
 console.log(`\n${cases} round-game regression cases passed.`);

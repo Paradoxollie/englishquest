@@ -84,7 +84,7 @@ async function readyChoices(page) {
 }
 (async () => {
   browser = await chromium.launch({ headless: true, executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH || undefined });
-  const slugs = ['wordfall', 'enigma-scroll', 'space-lex', 'flash-translation', 'flashback', 'speed-verb-challenge', 'grammar-rush'];
+  const slugs = ['wordfall', 'enigma-scroll', 'space-lex', 'flash-translation', 'flashback', 'speed-verb-challenge', 'grammar-rush', 'spell-strike', 'echo-signal'];
   await scenario('all-routes-desktop-mobile', async page => {
     for (const slug of slugs) {
       await open(page, slug);
@@ -99,6 +99,23 @@ async function readyChoices(page) {
       await page.setViewportSize({ width: 1440, height: 1000 });
       await shot(page, slug + '-desktop-playing');
     }
+  });
+  await scenario('spell-strike-and-echo-signal-play', async page => {
+    await open(page, 'spell-strike');
+    await page.getByLabel(/Mode sans son/).check();
+    await start(page);
+    await page.getByTestId('spell-input').fill('friend');
+    await page.getByTestId('game-submit').click();
+    await page.locator('.eq-game-feedback').waitFor();
+    await shot(page, 'spell-strike-feedback');
+
+    await open(page, 'echo-signal');
+    await page.getByLabel(/Mode sans son/).check();
+    await start(page);
+    await page.locator('.eq-echo-transcript').waitFor();
+    await page.getByTestId('game-choice').first().click();
+    await page.locator('.eq-game-feedback').waitFor();
+    await shot(page, 'echo-signal-feedback');
   });
   await scenario('flash-translation-full-ten-rounds', async page => {
     await open(page, 'flash-translation');
@@ -263,12 +280,15 @@ async function readyChoices(page) {
     await shot(page, 'space-controls');
   });
   await scenario('general-pages-all-course-levels', async (page, errors) => {
-    for (const route of ['/', '/quest', '/tous-les-cours', '/about', '/auth/login', '/auth/signup', '/auth/forgot', '/cours/1', '/cours/10', '/cours/20', '/cours/30', '/cours/40', '/cours/50']) {
+    for (const route of ['/', '/play', '/quest', '/tous-les-cours', '/about', '/auth/login', '/auth/signup', '/auth/forgot', '/cours/1', '/cours/10', '/cours/20', '/cours/30', '/cours/40', '/cours/50']) {
       const response = await page.goto(base + route);
       assert.equal(response.status(), 200, route);
       await page.getByRole('heading', { level: 1 }).first().waitFor();
       assert.ok((await page.locator('body').innerText()).length > 150, route);
     }
+    assert.ok((await page.locator('a[href^="/leaderboard"]').count()) >= 2, 'header/footer leaderboard links present');
+    await page.goto(base + '/play');
+    assert.equal(await page.locator('.eq-games-grid a[href^="/play/"]').count(), 9, 'all 9 games listed on /play');
     assert.deepEqual(errors, [], 'browser errors on valid routes');
     const errorCountBeforeNotFound = errors.length;
     const unknown = await page.goto(base + '/play/unknown-game-audit');

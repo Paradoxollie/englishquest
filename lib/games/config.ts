@@ -122,6 +122,30 @@ export const games: GameConfig[] = [
     iconBg: "bg-gradient-to-br from-indigo-600 to-purple-600",
     iconColor: "text-indigo-400",
   },
+  {
+    slug: "spell-strike",
+    name: "Spell Strike",
+    description:
+      "Écoute chaque mot anglais, appuie sur le contexte et frappe l'orthographe exacte sans faute.",
+    difficulty: "medium",
+    tags: ["Orthographe", "Écoute", "Vocabulaire"],
+    icon: "SS",
+    gradient: "linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(250, 204, 21, 0.2) 100%)",
+    iconBg: "bg-gradient-to-br from-blue-600 to-amber-500",
+    iconColor: "text-blue-400",
+  },
+  {
+    slug: "echo-signal",
+    name: "Echo Signal",
+    description:
+      "Capte les transmissions radio anglaises et relève les bonnes informations dans de courtes situations.",
+    difficulty: "medium",
+    tags: ["Écoute", "Compréhension", "Audio"],
+    icon: "EC",
+    gradient: "linear-gradient(135deg, rgba(6, 182, 212, 0.2) 0%, rgba(244, 63, 94, 0.2) 100%)",
+    iconBg: "bg-gradient-to-br from-cyan-600 to-rose-600",
+    iconColor: "text-cyan-400",
+  },
 ];
 
 /**

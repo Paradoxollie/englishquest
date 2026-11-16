@@ -15,6 +15,8 @@ type GameCardProps = {
   artSrc?: string | null;
   /** Priorité d'affichage sur les premières cartes visibles. */
   priority?: boolean;
+  /** Record personnel formaté pour ce jeu, s'il existe. */
+  personalBestLabel?: string | null;
 };
 
 export function GameCard({
@@ -24,6 +26,7 @@ export function GameCard({
   highlighted = false,
   artSrc = null,
   priority = false,
+  personalBestLabel = null,
 }: GameCardProps) {
   const presentation = getGamePresentation(game);
   const href = `/play/${game.slug}`;
@@ -75,6 +78,9 @@ export function GameCard({
         <h3 className="eq-h3">{game.name}</h3>
         <p className="eq-game-card-hook text-sm text-[var(--muted)]">{presentation.hook}</p>
         {missionLabel ? <p className="eq-chip eq-chip-gold w-fit">{missionLabel}</p> : null}
+        {personalBestLabel ? (
+          <p className="eq-chip eq-chip-cyan w-fit">Record : {personalBestLabel}</p>
+        ) : null}
         <span className="eq-game-card-meta">
           <span>{presentation.duration}</span>
           <span className="eq-game-card-play">Jouer →</span>

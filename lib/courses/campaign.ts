@@ -65,6 +65,10 @@ export const MISSION_TARGETS: Record<
   "flash-translation": { base: 24000, perPalier: -2000, perCourse: -150 },
   // Points : 10 à 25 par bonne réponse selon la série, environ 15 réponses en une minute.
   "grammar-rush": { base: 120, perPalier: 40, perCourse: 5 },
+  // Points : orthographe sous chrono, 10 mots (~100 à 240 pts par mot).
+  "spell-strike": { base: 500, perPalier: 150, perCourse: 15 },
+  // Points : écoute radio, 8 questions (~100 à 200 pts par bonne réponse).
+  "echo-signal": { base: 400, perPalier: 120, perCourse: 12 },
 };
 
 function computeFixedTarget(
@@ -253,6 +257,24 @@ function getChallengeDefinition(
         label: (value) => `Atteins ${value} points en gardant le combo.`,
         compact: (value) => `${value} pts`,
         action: "garder le combo",
+      };
+    case "spell-strike":
+      return {
+        scoreDirection: "higher",
+        metric: "points",
+        target,
+        label: (value) => `Atteins ${value} points en orthographiant les mots sans faute.`,
+        compact: (value) => `${value} pts`,
+        action: "frapper juste",
+      };
+    case "echo-signal":
+      return {
+        scoreDirection: "higher",
+        metric: "points",
+        target,
+        label: (value) => `Atteins ${value} points en captant les messages audio.`,
+        compact: (value) => `${value} pts`,
+        action: "capter le signal",
       };
     default:
       return {

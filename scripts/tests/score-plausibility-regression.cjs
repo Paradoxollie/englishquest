@@ -140,6 +140,30 @@ test("Flashback and Flash Translation: timing bounds", () => {
   ko(plausible.checkGrammarRush({ score: 5_000, correct: 60, attempts: 60, durationMs: 60_000 }), "grammar rush max");
 });
 
+test("Spell Strike & Echo Signal: scoring and duration bounds", () => {
+  const spell = loadEngine("spellStrike");
+  const echo = loadEngine("echoSignal");
+  for (const difficulty of [1, 2, 3]) {
+    let spellMax = 0;
+    for (let i = 1; i <= spell.SPELL_STRIKE_ROUNDS; i += 1) {
+      spellMax += spell.computeSpellRoundPoints({ difficulty, correct: true, usedHint: false, reactionMs: 400, newStreak: i });
+    }
+    assert.ok(spellMax <= plausible.maxSpellStrikePlausibleScore(difficulty, 10));
+    ok(plausible.checkSpellStrike({ difficulty, score: spellMax, correctCount: 10, totalRounds: 10, durationMs: 12_000 }), `spell honest d${difficulty}`);
+    ko(plausible.checkSpellStrike({ difficulty, score: spellMax + 100, correctCount: 10, totalRounds: 10, durationMs: 30_000 }), "spell inflated");
+    ko(plausible.checkSpellStrike({ difficulty, score: spellMax, correctCount: 10, totalRounds: 10, durationMs: 2_000 }), "spell too fast");
+
+    let echoMax = 0;
+    for (let i = 1; i <= echo.ECHO_SIGNAL_TOTAL_QUESTIONS; i += 1) {
+      echoMax += echo.computeEchoQuestionPoints({ difficulty, correct: true, playsUsed: 1, newStreak: i, silentMode: false });
+    }
+    assert.ok(echoMax <= plausible.maxEchoSignalPlausibleScore(difficulty, 8));
+    ok(plausible.checkEchoSignal({ difficulty, score: echoMax, correctCount: 8, totalQuestions: 8, durationMs: 15_000 }), `echo honest d${difficulty}`);
+    ko(plausible.checkEchoSignal({ difficulty, score: echoMax + 100, correctCount: 8, totalQuestions: 8, durationMs: 30_000 }), "echo inflated");
+    ko(plausible.checkEchoSignal({ difficulty, score: echoMax, correctCount: 8, totalQuestions: 8, durationMs: 1_000 }), "echo too fast");
+  }
+});
+
 test("Game sessions: unknown, foreign, used, wrong game, too fast and expired sessions are rejected", () => {
   const now = Date.parse("2026-10-16T10:00:00Z");
   const row = { id: "s", user_id: "user", game_slug: "wordfall", started_at: new Date(now - 60_000).toISOString(), used_at: null };
@@ -155,7 +179,7 @@ test("Game sessions: unknown, foreign, used, wrong game, too fast and expired se
   assert.equal(rules.checkGameSession(row, { ...expected, claimedDurationMs: NaN }).reason, "invalid");
   assert.equal(rules.isSessionId("4f6c1b0e-8a2d-4c3b-9f1e-2a7d5c9b0e11"), true);
   assert.equal(rules.isSessionId("not-a-uuid"), false);
-  assert.deepEqual([...rules.GAME_SESSION_SLUGS].sort(), ["enigma-scroll", "flash-translation", "flashback", "grammar-rush", "space-lex", "speed-verb-challenge", "wordfall"]);
+  assert.deepEqual([...rules.GAME_SESSION_SLUGS].sort(), ["echo-signal", "enigma-scroll", "flash-translation", "flashback", "grammar-rush", "space-lex", "speed-verb-challenge", "spell-strike", "wordfall"]);
   for (const reason of ["missing", "invalid", "unknown", "foreign", "wrong_game", "used", "too_fast", "expired"]) {
     assert.ok(rules.sessionRejectionMessage(reason).length > 10);
   }

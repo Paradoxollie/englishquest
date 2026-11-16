@@ -857,6 +857,7 @@ export function SpaceLexGame({
 
     return (
       <GameEnd
+        gameSlug="space-lex"
         title={gameState.lives <= 0 ? "Vaisseau neutralisé" : "Mission terminée"}
         score={gameState.score.toLocaleString("fr-FR")}
         scoreLabel="points"

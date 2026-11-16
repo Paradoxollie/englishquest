@@ -59,7 +59,7 @@ export type BadgeProgress = {
   percent: number;
 };
 
-/** Les sept jeux, avec le nom de leur badge « 10 parties ». */
+/** Les neuf jeux, avec le nom de leur badge « 10 parties ». */
 export const BADGE_GAMES = [
   { slug: "speed-verb-challenge", name: "Speed Verb Challenge", badgeName: "Verbes en rafale" },
   { slug: "enigma-scroll", name: "Enigma Scroll", badgeName: "Décodeur" },
@@ -68,6 +68,8 @@ export const BADGE_GAMES = [
   { slug: "flash-translation", name: "Flash Translation", badgeName: "Traducteur éclair" },
   { slug: "flashback", name: "Flashback", badgeName: "Mémoire vive" },
   { slug: "grammar-rush", name: "Grammar Rush", badgeName: "Grammaire express" },
+  { slug: "spell-strike", name: "Spell Strike", badgeName: "As de l'orthographe" },
+  { slug: "echo-signal", name: "Echo Signal", badgeName: "Oreille d'aigle" },
 ] as const;
 
 export const GAME_BADGE_TARGET = 10;

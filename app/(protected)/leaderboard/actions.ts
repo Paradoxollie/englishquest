@@ -5,47 +5,52 @@
  */
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getGameLeaderboardMeta } from "@/lib/games/leaderboard-config";
+import { getGameStandings, type BucketStandings, type PublicLeaderboardEntry } from "@/lib/games/leaderboard-service";
 import { getServerUser } from "@/lib/supabase/auth-cache";
-import { getGameLeaderboards, type PublicLeaderboardEntry } from "@/lib/games/leaderboard-service";
 
 export type LeaderboardEntry = PublicLeaderboardEntry;
 
 export interface LeaderboardData {
-  easy: LeaderboardEntry[];
-  medium: LeaderboardEntry[];
-  hard: LeaderboardEntry[];
+  slug: string;
+  buckets: Record<string, BucketStandings>;
 }
 
 /**
- * Get leaderboard data for a specific game using the shared paginated leaderboard service.
+ * Get leaderboard data for a game using its shared bucket & ordering configuration.
  */
-export async function getGameLeaderboard(gameId: string): Promise<LeaderboardData> {
+export async function getGameLeaderboard(gameSlugOrId: string): Promise<LeaderboardData> {
   // Classements réservés aux joueurs connectés (page Confidentialité).
   const user = await getServerUser();
   if (!user) {
-    return { easy: [], medium: [], hard: [] };
+    return { slug: gameSlugOrId, buckets: {} };
   }
 
-  const adminClient = createSupabaseAdminClient();
-  const { data: game } = await adminClient
-    .from("games")
-    .select("slug")
-    .eq("id", gameId)
-    .maybeSingle();
-
-  if (!game?.slug) {
-    return { easy: [], medium: [], hard: [] };
+  let slug = gameSlugOrId;
+  if (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(gameSlugOrId)) {
+    const adminClient = createSupabaseAdminClient();
+    const { data: game } = await adminClient
+      .from("games")
+      .select("slug")
+      .eq("id", gameSlugOrId)
+      .maybeSingle();
+    if (!game?.slug) {
+      return { slug: gameSlugOrId, buckets: {} };
+    }
+    slug = game.slug;
   }
 
-  return getGameLeaderboards({
-    slug: game.slug,
-    buckets: [
-      { key: "easy", difficulty: "easy" },
-      { key: "medium", difficulty: "medium" },
-      { key: "hard", difficulty: "hard" },
-    ],
-    scoreOrder: game.slug === "flash-translation" ? "asc" : "desc",
+  const meta = getGameLeaderboardMeta(slug);
+  const buckets = await getGameStandings({
+    slug,
+    buckets: meta.buckets.map((bucket) => ({
+      key: bucket.key,
+      difficulty: bucket.difficulty,
+    })),
+    userId: user.id,
+    scoreOrder: meta.scoreOrder,
     limit: 10,
   });
-}
 
+  return { slug, buckets };
+}

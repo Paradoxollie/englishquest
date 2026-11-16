@@ -2,77 +2,83 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { Difficulty } from "@/lib/profile/leveling";
 import { LeaderboardAvatar } from "@/components/play/leaderboard-avatar";
+import { formatLeaderboardScore, getGameLeaderboardMeta } from "@/lib/games/leaderboard-config";
 import { getGameLeaderboard, type LeaderboardData } from "../actions";
 
-interface Game {
-  id: string;
+export interface LeaderboardGameInfo {
   slug: string;
   name: string;
   description: string | null;
 }
 
-const VALID_GAME_SLUGS = ["speed-verb-challenge", "enigma-scroll", "wordfall", "space-lex", "flash-translation", "flashback", "grammar-rush"];
-const GAMES_WITHOUT_DIFFICULTY = ["space-lex", "flash-translation", "flashback", "grammar-rush"];
-const TIME_BASED = ["flash-translation"];
+export function GameLeaderboard({
+  games,
+  currentUserId,
+  initialSlug,
+  initialData,
+}: {
+  games: LeaderboardGameInfo[];
+  currentUserId?: string;
+  initialSlug?: string;
+  initialData?: LeaderboardData;
+}) {
+  const initialGame =
+    games.find((game) => game.slug === initialSlug) ?? games[0] ?? null;
 
-function getDifficultyLabels(gameSlug: string | null): Partial<Record<Difficulty, string>> {
-  if (gameSlug === "enigma-scroll") {
-    return { easy: "4 lettres", medium: "5 lettres", hard: "6 lettres" };
-  }
-  if (gameSlug === "wordfall") {
-    return { easy: "Vocabulaire", hard: "Mot libre" };
-  }
-  return { easy: "Facile", medium: "Moyen", hard: "Difficile" };
-}
+  const [selectedSlug, setSelectedSlug] = useState<string>(initialGame?.slug ?? "");
+  const selectedGame = games.find((game) => game.slug === selectedSlug) ?? games[0] ?? null;
 
-function getAvailableDifficulties(gameSlug: string | null): Difficulty[] {
-  if (gameSlug === "wordfall") return ["easy", "hard"];
-  return ["easy", "medium", "hard"];
-}
-
-function formatScore(slug: string, score: number) {
-  if (TIME_BASED.includes(slug)) {
-    return `${(score / 1000).toFixed(2)} s`;
-  }
-  return score.toLocaleString("fr-FR");
-}
-
-export function GameLeaderboard({ games, currentUserId }: { games: Game[]; currentUserId?: string }) {
-  const validGames = games.filter((game) => VALID_GAME_SLUGS.includes(game.slug));
-  const [selectedGame, setSelectedGame] = useState<Game | null>(validGames[0] ?? null);
-  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>("easy");
-  const [leaderboard, setLeaderboard] = useState<LeaderboardData>({ easy: [], medium: [], hard: [] });
-  const [loading, setLoading] = useState(true);
-
-  const hasDifficulty = selectedGame ? !GAMES_WITHOUT_DIFFICULTY.includes(selectedGame.slug) : true;
+  const meta = getGameLeaderboardMeta(selectedGame?.slug ?? "");
+  const [selectedBucketKey, setSelectedBucketKey] = useState<string>(meta.buckets[0]?.key ?? "all");
+  const [cache, setCache] = useState<Record<string, LeaderboardData>>(() =>
+    initialData && initialData.slug ? { [initialData.slug]: initialData } : {}
+  );
+  const [loadingSlug, setLoadingSlug] = useState<string | null>(null);
 
   useEffect(() => {
     if (!selectedGame) return;
-    setSelectedDifficulty(GAMES_WITHOUT_DIFFICULTY.includes(selectedGame.slug) ? "medium" : "easy");
+    const nextMeta = getGameLeaderboardMeta(selectedGame.slug);
+    setSelectedBucketKey(nextMeta.buckets[0]?.key ?? "all");
+
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      if (url.searchParams.get("game") !== selectedGame.slug) {
+        url.searchParams.set("game", selectedGame.slug);
+        window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+      }
+    }
+
+    if (cache[selectedGame.slug]) {
+      setLoadingSlug(null);
+      return;
+    }
+
     let cancelled = false;
-    setLoading(true);
-    getGameLeaderboard(selectedGame.id)
+    setLoadingSlug(selectedGame.slug);
+    getGameLeaderboard(selectedGame.slug)
       .then((data) => {
-        if (!cancelled) setLeaderboard(data);
+        if (!cancelled) {
+          setCache((prev) => ({ ...prev, [selectedGame.slug]: data }));
+        }
       })
       .catch(() => {
-        if (!cancelled) setLeaderboard({ easy: [], medium: [], hard: [] });
+        if (!cancelled) {
+          setCache((prev) => ({ ...prev, [selectedGame.slug]: { slug: selectedGame.slug, buckets: {} } }));
+        }
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoadingSlug((current) => (current === selectedGame.slug ? null : current));
+        }
       });
+
     return () => {
       cancelled = true;
     };
-  }, [selectedGame]);
+  }, [selectedGame, cache]);
 
-  const entries = leaderboard[selectedDifficulty];
-  const labels = getDifficultyLabels(selectedGame?.slug ?? null);
-  const availableDifficulties = getAvailableDifficulties(selectedGame?.slug ?? null);
-
-  if (validGames.length === 0) {
+  if (games.length === 0) {
     return (
       <div className="eq-card">
         <p className="eq-muted">Aucun jeu disponible pour le moment.</p>
@@ -80,17 +86,26 @@ export function GameLeaderboard({ games, currentUserId }: { games: Game[]; curre
     );
   }
 
+  const activeData = selectedGame ? cache[selectedGame.slug] : undefined;
+  const activeBucket = meta.buckets.find((bucket) => bucket.key === selectedBucketKey) ?? meta.buckets[0];
+  const standings = activeBucket ? activeData?.buckets[activeBucket.key] : undefined;
+  const entries = standings?.entries ?? [];
+  const loading = selectedGame ? loadingSlug === selectedGame.slug && !activeData : false;
+  const myRank = standings?.myRank ?? null;
+  const totalPlayers = standings?.totalPlayers ?? 0;
+  const personalBest = standings?.personalBest ?? null;
+
   return (
     <div className="eq-board">
       <div className="eq-board-tabs" role="tablist" aria-label="Jeu">
-        {validGames.map((game) => (
+        {games.map((game) => (
           <button
-            key={game.id}
+            key={game.slug}
             type="button"
             role="tab"
-            aria-selected={selectedGame?.id === game.id}
-            onClick={() => setSelectedGame(game)}
-            className={`eq-board-tab${selectedGame?.id === game.id ? " is-active" : ""}`}
+            aria-selected={selectedGame?.slug === game.slug}
+            onClick={() => setSelectedSlug(game.slug)}
+            className={`eq-board-tab${selectedGame?.slug === game.slug ? " is-active" : ""}`}
           >
             {game.name}
           </button>
@@ -109,33 +124,49 @@ export function GameLeaderboard({ games, currentUserId }: { games: Game[]; curre
             </Link>
           </div>
 
-          {hasDifficulty ? (
+          {meta.hasDifficultyTabs ? (
             <div className="eq-board-difficulty" role="tablist" aria-label="Difficulté">
-              {availableDifficulties.map((difficulty) => (
+              {meta.buckets.map((bucket) => (
                 <button
-                  key={difficulty}
+                  key={bucket.key}
                   type="button"
                   role="tab"
-                  aria-selected={selectedDifficulty === difficulty}
-                  onClick={() => setSelectedDifficulty(difficulty)}
-                  className={`eq-chip ${selectedDifficulty === difficulty ? "eq-chip-cyan" : "eq-chip-muted"}`}
+                  aria-selected={activeBucket?.key === bucket.key}
+                  onClick={() => setSelectedBucketKey(bucket.key)}
+                  className={`eq-chip ${activeBucket?.key === bucket.key ? "eq-chip-cyan" : "eq-chip-muted"}`}
                 >
-                  {labels[difficulty] ?? difficulty}
+                  {bucket.label}
                 </button>
               ))}
             </div>
+          ) : null}
+
+          {!loading && currentUserId && personalBest != null ? (
+            <p className="eq-game-board-me">
+              Ton record : <b className="eq-num">{formatLeaderboardScore(meta.format, personalBest)}</b>
+              {myRank != null && totalPlayers > 0 ? (
+                <span className="eq-muted">
+                  {" "}
+                  · {myRank}
+                  {myRank === 1 ? "re" : "e"} place sur {totalPlayers}
+                </span>
+              ) : null}
+            </p>
           ) : null}
 
           {loading ? (
             <p className="eq-muted eq-board-empty">Chargement du classement…</p>
           ) : entries.length === 0 ? (
             <p className="eq-muted eq-board-empty">
-              Aucun score enregistré{hasDifficulty ? " pour cette difficulté" : ""}. Sois le premier.
+              Aucun score enregistré{meta.hasDifficultyTabs ? " pour cette catégorie" : ""}. Sois le premier.
             </p>
           ) : (
             <ol className="eq-board-list">
               {entries.map((entry) => (
-                <li key={entry.user_id} className={`eq-board-row${entry.user_id === currentUserId ? " is-me" : ""}${entry.rank <= 3 ? ` is-top-${entry.rank}` : ""}`}>
+                <li
+                  key={entry.user_id}
+                  className={`eq-board-row${entry.user_id === currentUserId ? " is-me" : ""}${entry.rank <= 3 ? ` is-top-${entry.rank}` : ""}`}
+                >
                   <span className="eq-board-rank">{entry.rank}</span>
                   <span className="eq-board-avatar">
                     <LeaderboardAvatar
@@ -146,13 +177,16 @@ export function GameLeaderboard({ games, currentUserId }: { games: Game[]; curre
                     />
                   </span>
                   <span className="eq-board-name">
-                    <b>{entry.username}</b>
+                    <b>
+                      {entry.username}
+                      {entry.user_id === currentUserId ? <span className="eq-league-you"> (toi)</span> : null}
+                    </b>
                     <small>
                       {entry.equipped_title ? `${entry.equipped_title.name} · ` : ""}
                       {entry.games_played} partie{entry.games_played > 1 ? "s" : ""}
                     </small>
                   </span>
-                  <span className="eq-board-score">{formatScore(selectedGame.slug, entry.best_score)}</span>
+                  <span className="eq-board-score">{formatLeaderboardScore(meta.format, entry.best_score)}</span>
                 </li>
               ))}
             </ol>

@@ -16,7 +16,9 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       subtitle={
         next?.startsWith("/rejoindre")
           ? "Connecte-toi, puis tu rejoins ta classe."
-          : "Retrouve ta carte, tes scores et ta progression."
+          : next?.startsWith("/leaderboard")
+            ? "Connecte-toi pour consulter la ligue et les classements des jeux."
+            : "Retrouve ta carte, tes scores et ta progression."
       }
       footerHint="Pas encore de compte ?"
       footerLinkLabel="Créer un compte"

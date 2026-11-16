@@ -2,23 +2,31 @@ import Link from "next/link";
 import { PageHead } from "@/components/comic/page-head";
 import { GameCard } from "@/components/play/game-card";
 import { resolveArt } from "@/lib/art-server";
-import { getGamePresentation } from "@/lib/games/presentation";
 import { getCourseMissionPlan } from "@/lib/courses/campaign";
 import { buildGuestCourseRoadmap } from "@/lib/courses/progress";
 import { getCachedUserCourseRoadmap } from "@/lib/courses/roadmap-cache";
 import { games } from "@/lib/games/config";
+import { formatLeaderboardScore, getGameLeaderboardMeta } from "@/lib/games/leaderboard-config";
+import { getUserBestScoresBySlug } from "@/lib/games/leaderboard-service";
+import { getGamePresentation } from "@/lib/games/presentation";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 
 export const metadata = {
   title: "Jeux",
   description:
-    "Sept jeux pour s'entraîner en anglais : conjugaison, grammaire, vocabulaire, traduction, mémoire, orthographe. Parties courtes, scores et classements.",
+    "Neuf jeux pour s'entraîner en anglais : conjugaison, grammaire, vocabulaire, traduction, mémoire, orthographe et compréhension orale. Parties courtes, scores et classements.",
 };
 
 export default async function PlayPage() {
   const user = await getServerUser();
   const isLoggedIn = Boolean(user);
-  const roadmap = user ? await getCachedUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
+  const scoreOrderBySlug = Object.fromEntries(
+    games.map((game) => [game.slug, getGameLeaderboardMeta(game.slug).scoreOrder])
+  );
+  const [roadmap, bestBySlug] = await Promise.all([
+    user ? getCachedUserCourseRoadmap(user.id) : Promise.resolve(buildGuestCourseRoadmap()),
+    user ? getUserBestScoresBySlug(user.id, scoreOrderBySlug).catch(() => ({} as Record<string, number>)) : Promise.resolve({} as Record<string, number>),
+  ]);
   const activeCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
 
   let missionGameSlug: string | null = null;
@@ -36,9 +44,13 @@ export default async function PlayPage() {
     <div>
       <PageHead
         caption="Salle d'entraînement"
-        title="Sept jeux pour t'entraîner"
+        title="Neuf jeux pour t'entraîner"
       >
-        Des parties d&apos;une à cinq minutes sur les verbes irréguliers, le vocabulaire et la grammaire des cours.
+        Des parties courtes sur les verbes irréguliers, le vocabulaire, la grammaire, l&apos;orthographe et l&apos;écoute.
+        {" "}
+        <Link href="/leaderboard" className="eq-text-link">
+          Voir la ligue et les classements →
+        </Link>
       </PageHead>
 
       {missionGame && activeCourse ? (
@@ -59,6 +71,9 @@ export default async function PlayPage() {
                 <Link href={`/cours/${activeCourse.courseId}`} className="eq-btn eq-btn-ghost">
                   Revoir le cours
                 </Link>
+                <Link href={`/leaderboard?game=${missionGame.slug}`} className="eq-btn eq-btn-ghost">
+                  Classement
+                </Link>
               </div>
             </div>
             <GameCard game={missionGame} compact missionLabel={missionLabel} highlighted />
@@ -71,11 +86,17 @@ export default async function PlayPage() {
         <div className={`eq-games-grid ${missionGame ? "mt-6" : ""}`}>
           {games.map((game, index) => {
             const isMissionGame = game.slug === missionGame?.slug;
+            const rawBest = bestBySlug[game.slug];
+            const bestLabel =
+              typeof rawBest === "number"
+                ? formatLeaderboardScore(getGameLeaderboardMeta(game.slug).format, rawBest)
+                : null;
             return (
               <GameCard
                 key={game.slug}
                 game={game}
                 missionLabel={isMissionGame ? missionLabel : null}
+                personalBestLabel={bestLabel}
                 highlighted={isMissionGame}
                 artSrc={resolveArt(getGamePresentation(game).artworkSrc)}
                 priority={index < 4}
@@ -84,7 +105,6 @@ export default async function PlayPage() {
           })}
         </div>
       </section>
-
     </div>
   );
 }

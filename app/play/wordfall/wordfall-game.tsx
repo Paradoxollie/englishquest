@@ -606,6 +606,7 @@ export function WordfallGame({
   if (state.gameOver) {
     return (
       <GameEnd
+        gameSlug="wordfall"
         title={state.wordsCompleted > 0 ? "Partie terminée" : "Plus de vies"}
         score={state.score.toLocaleString("fr-FR")}
         scoreLabel="points"

@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
+import { formatLeaderboardScore, type LeaderboardScoreFormat } from "@/lib/games/leaderboard-config";
 import type { PublicLeaderboardEntry } from "@/lib/games/leaderboard-service";
 import { LeaderboardAvatar } from "./leaderboard-avatar";
 
@@ -9,24 +11,25 @@ export type BoardBucketView = {
   label: string;
   entries: PublicLeaderboardEntry[];
   personalBest: number | null;
+  myRank?: number | null;
+  totalPlayers?: number;
 };
 
-export function formatBoardScore(format: "points" | "seconds", score: number) {
-  if (format === "seconds") {
-    return `${(score / 1000).toFixed(2)} s`;
-  }
-  return score.toLocaleString("fr-FR");
+export function formatBoardScore(format: LeaderboardScoreFormat, score: number) {
+  return formatLeaderboardScore(format, score);
 }
 
 export function GameBoardView({
+  slug,
   buckets,
   currentUserId,
   format,
   title = "Classement",
 }: {
+  slug: string;
   buckets: BoardBucketView[];
   currentUserId: string | null;
-  format: "points" | "seconds";
+  format: LeaderboardScoreFormat;
   title?: string;
 }) {
   const [activeKey, setActiveKey] = useState(buckets[0]?.key ?? "");
@@ -36,9 +39,16 @@ export function GameBoardView({
     return null;
   }
 
+  const hasRank = typeof active.myRank === "number" && typeof active.totalPlayers === "number" && active.totalPlayers > 0;
+
   return (
     <section className="eq-card eq-game-board" aria-label={title}>
-      <h3>{title}</h3>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h3>{title}</h3>
+        <Link href={`/leaderboard?game=${slug}`} className="eq-text-link text-xs">
+          Tout voir →
+        </Link>
+      </div>
       {buckets.length > 1 ? (
         <div className="eq-board-difficulty" role="tablist" aria-label="Catégorie">
           {buckets.map((bucket) => (
@@ -58,7 +68,17 @@ export function GameBoardView({
 
       {currentUserId ? (
         <p className="eq-game-board-me">
-          Ton record : <b className="eq-num">{active.personalBest == null ? "aucun" : formatBoardScore(format, active.personalBest)}</b>
+          Ton record :{" "}
+          <b className="eq-num">
+            {active.personalBest == null ? "aucun" : formatBoardScore(format, active.personalBest)}
+          </b>
+          {hasRank ? (
+            <span className="eq-muted">
+              {" "}
+              · {active.myRank}
+              {active.myRank === 1 ? "re" : "e"} sur {active.totalPlayers}
+            </span>
+          ) : null}
         </p>
       ) : null}
 

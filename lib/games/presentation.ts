@@ -95,6 +95,28 @@ const manualPresentations: Record<string, GamePresentation> = {
     artworkSrc: "/art/bd/heros-jeu-flashback.jpg",
     imageAlt: "Maya reconnaît une image sur un mur de cartes, Sam cherche dans sa mémoire.",
   },
+  "spell-strike": {
+    mark: "SS",
+    emblem: "bolt",
+    skill: "Orthographe",
+    hook: "Écoute le mot anglais et écris son orthographe exacte.",
+    duration: "2 min",
+    primary: "#facc15",
+    secondary: "#fde68a",
+    artworkSrc: "/art/bd/heros-jeu-spell-strike.jpg",
+    imageAlt: "Maya dicte au micro et Sam frappe des touches illuminées devant un tableau de lettres.",
+  },
+  "echo-signal": {
+    mark: "EC",
+    emblem: "arrows",
+    skill: "Écoute",
+    hook: "Capte les messages radio en anglais et réponds juste.",
+    duration: "3 min",
+    primary: "#38bdf8",
+    secondary: "#bae6fd",
+    artworkSrc: "/art/bd/heros-jeu-echo-signal.jpg",
+    imageAlt: "Sur un toit londonien, Sam écoute un casque radio et Maya règle le radar des signaux.",
+  },
 };
 
 export function getGameMark(game: Pick<GameConfig, "slug" | "name">): string {

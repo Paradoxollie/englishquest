@@ -340,6 +340,7 @@ export function FlashTranslationGame({
     const total = getFinalScore(state);
     return (
       <GameEnd
+        gameSlug="flash-translation"
         title="Série terminée"
         score={seconds(total)}
         scoreLabel="au total"
