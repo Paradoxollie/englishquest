@@ -31,7 +31,6 @@ export default async function PlayPage() {
   }
 
   const missionGame = missionGameSlug ? games.find((game) => game.slug === missionGameSlug) ?? null : null;
-  const otherGames = games.filter((game) => game.slug !== missionGame?.slug);
 
   return (
     <div>
@@ -44,7 +43,7 @@ export default async function PlayPage() {
 
       {missionGame && activeCourse ? (
         <section className="eq-container pt-10 md:pt-14">
-          <div className="eq-surface grid gap-5 p-5 md:grid-cols-[1fr_minmax(280px,360px)] md:items-center md:p-6">
+          <div className="eq-surface grid grid-cols-[minmax(0,1fr)] gap-5 p-4 sm:p-5 md:grid-cols-[minmax(0,1fr)_minmax(280px,360px)] md:items-center md:p-6 [&>*]:min-w-0">
             <div>
               <p className="eq-chip eq-chip-gold w-fit">Mission en cours</p>
               <h2 className="eq-h2 mt-3">
@@ -68,16 +67,21 @@ export default async function PlayPage() {
       ) : null}
 
       <section className="eq-container eq-section pb-14 md:pb-20">
-        {missionGame ? <h2 className="eq-h2">Les autres jeux</h2> : null}
+        {missionGame ? <h2 className="eq-h2">Tous les jeux</h2> : null}
         <div className={`eq-games-grid ${missionGame ? "mt-6" : ""}`}>
-          {(missionGame ? otherGames : games).map((game, index) => (
-            <GameCard
-              key={game.slug}
-              game={game}
-              artSrc={resolveArt(getGamePresentation(game).artworkSrc)}
-              priority={index < 4}
-            />
-          ))}
+          {games.map((game, index) => {
+            const isMissionGame = game.slug === missionGame?.slug;
+            return (
+              <GameCard
+                key={game.slug}
+                game={game}
+                missionLabel={isMissionGame ? missionLabel : null}
+                highlighted={isMissionGame}
+                artSrc={resolveArt(getGamePresentation(game).artworkSrc)}
+                priority={index < 4}
+              />
+            );
+          })}
         </div>
       </section>
 

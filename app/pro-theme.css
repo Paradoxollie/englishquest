@@ -1319,6 +1319,12 @@ html[data-theme="dark"] .eq-issues li:nth-child(3) .eq-issue-meta { color: #a78b
   color: var(--pro-text);
 }
 
+.eq-game-card.is-highlighted {
+  border-color: var(--pro-gold-edge) !important;
+  outline: 2px solid var(--pro-gold-fill) !important;
+  outline-offset: 2px;
+}
+
 .eq-game-card .eq-game-poster {
   border: 0 !important;
   border-bottom: 1.5px solid var(--pro-ink-frame) !important;

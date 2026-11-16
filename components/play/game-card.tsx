@@ -32,7 +32,7 @@ export function GameCard({
     return (
       <Link
         href={href}
-        className={`eq-card eq-card-link gap-3 p-4 ${highlighted ? "border-[var(--crimson)]" : ""}`}
+        className={`eq-card eq-card-link grid gap-3 p-4 ${highlighted ? "border-[var(--pro-gold-edge)] ring-2 ring-[var(--pro-gold-fill)]" : ""}`}
         aria-label={`${game.name} : ${presentation.hook}`}
       >
         <div className="min-w-0">
