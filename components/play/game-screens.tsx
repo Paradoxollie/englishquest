@@ -19,6 +19,12 @@ export type RewardSummary = {
   goldEarned: number;
   newLevel?: number | null;
   reduced?: boolean;
+  breakdown?: {
+    base: number;
+    personalBest: number;
+    globalBest: number;
+  };
+  playsUsedToday?: number;
   isNewPersonalBest?: boolean;
   isNewGlobalBest?: boolean;
   courseCompleted?: {
@@ -27,7 +33,15 @@ export type RewardSummary = {
     rewards: { xp: number; gold: number };
     newLevel?: number | null;
   } | null;
-  dailyChallenge?: { bonusGranted: boolean; xpBonus: number; goldBonus: number; dailyGoalReached: boolean } | null;
+  dailyChallenge?: {
+    bonusGranted: boolean;
+    xpBonus: number;
+    goldBonus: number;
+    dailyGoalReached: boolean;
+    dailyPlayedGames?: string[];
+    requiredGames?: string[];
+    newLevel?: number | null;
+  } | null;
   /** Badges obtenus grâce à cette partie. */
   newBadges?: RewardBadge[];
   /** Entraînement ciblé sur un cours (Grammar Rush ouvert avec ?cours=N). */
@@ -39,6 +53,67 @@ export type RewardSummary = {
     newlyEarned: boolean;
   } | null;
 };
+
+type ScoreActionResultLike = {
+  rewards?: {
+    xpEarned: number;
+    goldEarned: number;
+    newLevel?: number;
+    reduced?: boolean;
+    breakdown?: { base: number; personalBest: number; globalBest: number };
+    playsUsedToday?: number;
+  };
+  isNewPersonalBest?: boolean;
+  isNewGlobalBest?: boolean;
+  courseCompleted?: {
+    courseNumber: number;
+    courseTitle: string;
+    rewards: { xp: number; gold: number };
+    newLevel?: number | null;
+  } | null;
+  dailyChallenge?: {
+    bonusGranted: boolean;
+    xpBonus: number;
+    goldBonus: number;
+    dailyGoalReached: boolean;
+    dailyPlayedGames?: string[];
+    requiredGames?: string[];
+    newLevel?: number | null;
+  } | null;
+  newBadges?: RewardBadge[];
+  practice?: {
+    courseId: number;
+    focusCorrect: number;
+    target: number;
+    starReached: boolean;
+    newlyEarned: boolean;
+  } | null;
+};
+
+/** Normalise la réponse serveur de n'importe quel jeu vers RewardSummary. */
+export function mapScoreResultToRewards(result: ScoreActionResultLike): RewardSummary {
+  return {
+    xpEarned: result.rewards?.xpEarned ?? 0,
+    goldEarned: result.rewards?.goldEarned ?? 0,
+    newLevel: result.rewards?.newLevel ?? null,
+    reduced: result.rewards?.reduced,
+    breakdown: result.rewards?.breakdown,
+    playsUsedToday: result.rewards?.playsUsedToday,
+    isNewPersonalBest: result.isNewPersonalBest,
+    isNewGlobalBest: result.isNewGlobalBest,
+    courseCompleted: result.courseCompleted
+      ? {
+          courseNumber: result.courseCompleted.courseNumber,
+          courseTitle: result.courseCompleted.courseTitle,
+          rewards: result.courseCompleted.rewards,
+          newLevel: result.courseCompleted.newLevel,
+        }
+      : null,
+    dailyChallenge: result.dailyChallenge ?? null,
+    newBadges: result.newBadges ?? [],
+    practice: result.practice ?? null,
+  };
+}
 
 /** Compteur qui monte de 0 à la valeur en quelques dixièmes de seconde. */
 function useCountUp(target: number, durationMs = 900) {
@@ -353,34 +428,100 @@ export function GameEnd({
           {rewardError || "Le score n'a pas pu être enregistré. Réessaie dans un instant."}
         </p>
       ) : rewards ? (
-        <div className="eq-game-rewards">
-          <RewardCounters xp={rewards.xpEarned} gold={rewards.goldEarned} />
-          {rewards.isNewGlobalBest ? (
-            <p className="eq-chip eq-chip-gold">Record du site</p>
-          ) : rewards.isNewPersonalBest ? (
-            <p className="eq-chip eq-chip-gold-soft">Record personnel</p>
-          ) : null}
-          {rewards.reduced ? (
-            <p className="eq-game-end-note">Après cinq parties sur un même jeu dans la journée, les gains sont réduits.</p>
-          ) : null}
-          {rewards.newLevel ? (
-            <p className="eq-game-levelup eq-pop" role="status">
-              <b>Niveau {rewards.newLevel}</b> atteint. Ton anneau passe au cran suivant.
-            </p>
-          ) : null}
-          {rewards.dailyChallenge?.bonusGranted ? (
-            <p className="eq-chip eq-chip-mint">
-              Défi du jour réussi : + {rewards.dailyChallenge.xpBonus} XP, + {rewards.dailyChallenge.goldBonus} or
-            </p>
-          ) : null}
-          {rewards.newBadges && rewards.newBadges.length > 0 ? (
-            <p className="eq-game-badges">
-              {rewards.newBadges.length > 1 ? "Badges débloqués : " : "Badge débloqué : "}
-              <b>{rewards.newBadges.map((badge) => badge.name).join(", ")}</b>.{" "}
-              <Link href="/profile#badges">Voir mes badges</Link>
-            </p>
-          ) : null}
-        </div>
+        (() => {
+          const dailyBonusXp = rewards.dailyChallenge?.bonusGranted ? rewards.dailyChallenge.xpBonus : 0;
+          const dailyBonusGold = rewards.dailyChallenge?.bonusGranted ? rewards.dailyChallenge.goldBonus : 0;
+          const missionXp = rewards.courseCompleted?.rewards.xp ?? 0;
+          const missionGold = rewards.courseCompleted?.rewards.gold ?? 0;
+          const totalXp = rewards.xpEarned + dailyBonusXp + missionXp;
+          const totalGold = rewards.goldEarned + dailyBonusGold + missionGold;
+          const reachedLevel =
+            Math.max(
+              0,
+              rewards.newLevel ?? 0,
+              rewards.dailyChallenge?.bonusGranted ? (rewards.dailyChallenge.newLevel ?? 0) : 0,
+              rewards.courseCompleted?.newLevel ?? 0
+            ) || null;
+          const requiredDaily = rewards.dailyChallenge?.requiredGames ?? [];
+          const playedDaily = rewards.dailyChallenge?.dailyPlayedGames ?? [];
+          const dailyDoneCount = requiredDaily.filter((slug) => playedDaily.includes(slug)).length;
+          const breakdown = rewards.breakdown;
+          const parts: string[] = [];
+          if (breakdown && breakdown.base > 0) {
+            parts.push(`Partie : + ${breakdown.base} XP`);
+          } else if (rewards.xpEarned > 0) {
+            parts.push(`Partie : + ${rewards.xpEarned} XP${rewards.goldEarned > 0 ? `, + ${rewards.goldEarned} or` : ""}`);
+          }
+          if (breakdown?.globalBest) {
+            parts.push(`Record du site : + ${breakdown.globalBest} XP, + 3 or`);
+          } else if (breakdown?.personalBest) {
+            parts.push(`Record personnel : + ${breakdown.personalBest} XP, + 1 or`);
+          }
+          if (dailyBonusXp > 0 || dailyBonusGold > 0) {
+            parts.push(`Défi du jour : + ${dailyBonusXp} XP, + ${dailyBonusGold} or`);
+          }
+          if (missionXp > 0 || missionGold > 0) {
+            parts.push(`Mission ${rewards.courseCompleted?.courseNumber} : + ${missionXp} XP, + ${missionGold} or`);
+          }
+          const baseXpForGoldHint = breakdown?.base ?? rewards.xpEarned;
+          const xpMissingForGold =
+            !rewards.reduced && rewards.xpEarned > 0 && rewards.goldEarned === 0 && baseXpForGoldHint < 12
+              ? 12 - baseXpForGoldHint
+              : 0;
+
+          return (
+            <div className="eq-game-rewards">
+              <RewardCounters xp={totalXp} gold={totalGold} />
+              {rewards.isNewGlobalBest ? (
+                <p className="eq-chip eq-chip-gold">Record du site</p>
+              ) : rewards.isNewPersonalBest ? (
+                <p className="eq-chip eq-chip-gold-soft">Record personnel</p>
+              ) : null}
+              {rewards.dailyChallenge?.bonusGranted ? (
+                <p className="eq-chip eq-chip-mint">
+                  Défi du jour réussi : + {rewards.dailyChallenge.xpBonus} XP, + {rewards.dailyChallenge.goldBonus} or
+                </p>
+              ) : requiredDaily.length > 0 && !rewards.dailyChallenge?.dailyGoalReached ? (
+                <p className="eq-chip eq-chip-cyan">
+                  Défi du jour : {dailyDoneCount} / {requiredDaily.length} jeux
+                </p>
+              ) : null}
+              {parts.length > 0 ? (
+                <p className="eq-game-end-note eq-game-reward-breakdown">{parts.join(" · ")}</p>
+              ) : rewards.xpEarned === 0 ? (
+                <p className="eq-game-end-note eq-game-reward-breakdown">
+                  Aucune bonne réponse enregistrée : 0 XP et 0 or sur cette partie.
+                </p>
+              ) : null}
+              {xpMissingForGold > 0 ? (
+                <p className="eq-game-end-note eq-game-reward-breakdown">
+                  L&apos;or de partie se débloque dès 12 XP en une partie (1 or par palier de 12 XP, jusqu&apos;à 3).
+                </p>
+              ) : null}
+              {rewards.reduced ? (
+                <p className="eq-game-end-note eq-game-reward-breakdown">
+                  Après 5 parties sur ce jeu dans la journée ({rewards.playsUsedToday ? `${rewards.playsUsedToday}e partie` : "quota dépassé"}), les gains de partie sont réduits (1/4 d&apos;XP, 0 or ; les records et le défi du jour restent payés).
+                </p>
+              ) : rewards.playsUsedToday && rewards.playsUsedToday <= 5 ? (
+                <p className="eq-game-end-note eq-game-reward-breakdown">
+                  Plein tarif du jour sur ce jeu : {rewards.playsUsedToday} / 5 parties.
+                </p>
+              ) : null}
+              {reachedLevel ? (
+                <p className="eq-game-levelup eq-pop" role="status">
+                  <b>Niveau {reachedLevel}</b> atteint. Ton anneau passe au cran suivant.
+                </p>
+              ) : null}
+              {rewards.newBadges && rewards.newBadges.length > 0 ? (
+                <p className="eq-game-badges">
+                  {rewards.newBadges.length > 1 ? "Badges débloqués : " : "Badge débloqué : "}
+                  <b>{rewards.newBadges.map((badge) => badge.name).join(", ")}</b>.{" "}
+                  <Link href="/profile#badges">Voir mes badges</Link>
+                </p>
+              ) : null}
+            </div>
+          );
+        })()
       ) : null}
 
       {rewards?.practice ? (

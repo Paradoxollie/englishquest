@@ -3668,6 +3668,41 @@ html[data-theme="dark"] .eq-shop-title-plate span {
   border-radius: var(--pro-radius) !important;
 }
 
+.eq-game-reward-breakdown {
+  flex-basis: 100%;
+  color: var(--pro-muted) !important;
+}
+
+.eq-game-badges {
+  flex-basis: 100%;
+  padding: 10px 14px;
+  background: var(--pro-gold-soft);
+  border: 1.5px solid var(--pro-gold-edge);
+  border-radius: var(--pro-radius);
+  color: var(--pro-text);
+}
+
+.eq-game-badges b {
+  color: var(--pro-gold-text) !important;
+}
+
+.eq-game-badges a {
+  color: var(--pro-primary) !important;
+}
+
+.eq-game-practice {
+  background: var(--pro-surface-2) !important;
+  border: 1.5px solid var(--pro-border) !important;
+  border-radius: var(--pro-radius) !important;
+  color: var(--pro-muted) !important;
+}
+
+.eq-game-practice.is-earned {
+  background: var(--pro-gold-soft) !important;
+  border-color: var(--pro-gold-edge) !important;
+  color: var(--pro-text) !important;
+}
+
 .eq-game-mission-done {
   background: var(--pro-success-soft) !important;
   border: 1.5px solid rgba(21, 128, 61, 0.35) !important;

@@ -24,7 +24,7 @@ import {
 } from "@/lib/games/wordfall";
 import wordfallWordsData from "@/lib/games/words/wordfall-words.json";
 import { playSoundEffect } from "@/lib/games/audio";
-import { GameEnd, GameHud, GameStart, HudStat, SpeakButton, TimeBar, type RewardSummary } from "@/components/play/game-screens";
+import { GameEnd, GameHud, GameStart, HudStat, SpeakButton, TimeBar, mapScoreResultToRewards, type RewardSummary } from "@/components/play/game-screens";
 import { LevelPicker } from "@/components/play/level-picker";
 import { useGameFocusMode } from "@/components/play/use-game-focus-mode";
 import { useGameSession } from "@/components/play/use-game-session";
@@ -526,24 +526,7 @@ export function WordfallGame({
           setSubmitStatus("error");
           return;
         }
-        setRewards({
-          xpEarned: result.rewards?.xpEarned ?? 0,
-          goldEarned: result.rewards?.goldEarned ?? 0,
-          newLevel: result.rewards?.newLevel ?? null,
-          reduced: result.rewards?.reduced,
-          isNewPersonalBest: result.isNewPersonalBest,
-          isNewGlobalBest: result.isNewGlobalBest,
-          courseCompleted: result.courseCompleted
-            ? {
-                courseNumber: result.courseCompleted.courseNumber,
-                courseTitle: result.courseCompleted.courseTitle,
-                rewards: result.courseCompleted.rewards,
-                newLevel: result.courseCompleted.newLevel,
-              }
-            : null,
-          dailyChallenge: result.dailyChallenge ?? null,
-          newBadges: result.newBadges ?? [],
-        });
+        setRewards(mapScoreResultToRewards(result));
         setSubmitStatus("saved");
       })
       .catch(() => {

@@ -142,17 +142,23 @@ export async function submitEchoLexScore(params: {
 
         // Daily Challenge
         const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
-        const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "flashback");
+        const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "flashback", {
+            eligible: rewards.xpEarned > 0,
+        });
         const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "flashback", params.score);
         const newBadges = await syncBadgesSafely(user.id);
+        const gameNewLevel = granted.level > granted.previousLevel ? granted.level : 0;
+        const mergedNewLevel = Math.max(gameNewLevel, dailyChallengeResult.newLevel ?? 0) || undefined;
 
         return {
             success: true,
             rewards: {
                 xpEarned: rewards.xpEarned,
                 goldEarned: rewards.goldEarned,
-                newLevel: granted.level > granted.previousLevel ? granted.level : undefined,
+                newLevel: mergedNewLevel,
                 reduced: rewards.reduced,
+                breakdown: rewards.breakdown,
+                playsUsedToday: playsToday + 1,
             },
             isNewPersonalBest: isNewPB,
             isNewGlobalBest: isNewGB,

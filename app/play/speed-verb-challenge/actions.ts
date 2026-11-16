@@ -64,6 +64,8 @@ export async function submitSpeedVerbScore(params: {
     goldEarned: number;
     newLevel?: number;
     reduced?: boolean;
+    breakdown?: { base: number; personalBest: number; globalBest: number };
+    playsUsedToday?: number;
   };
   isNewPersonalBest?: boolean;
   isNewGlobalBest?: boolean;
@@ -77,6 +79,7 @@ export async function submitSpeedVerbScore(params: {
     xpBonus: number;
     goldBonus: number;
     dailyGoalReached: boolean;
+    newLevel?: number | null;
   };
 }> {
   try {
@@ -206,17 +209,23 @@ export async function submitSpeedVerbScore(params: {
 
     // Check and grant Daily Challenge bonus
     const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
-    const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "speed-verb-challenge");
+    const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "speed-verb-challenge", {
+      eligible: rewards.xpEarned > 0,
+    });
     const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "speed-verb-challenge", params.score);
     const newBadges = await syncBadgesSafely(user.id);
+    const gameNewLevel = granted.level > granted.previousLevel ? granted.level : 0;
+    const mergedNewLevel = Math.max(gameNewLevel, dailyChallengeResult.newLevel ?? 0) || undefined;
 
     return {
       success: true,
       rewards: {
         xpEarned: rewards.xpEarned,
         goldEarned: rewards.goldEarned,
-        newLevel: granted.level > granted.previousLevel ? granted.level : undefined,
+        newLevel: mergedNewLevel,
         reduced: rewards.reduced,
+        breakdown: rewards.breakdown,
+        playsUsedToday: playsToday + 1,
       },
       dailyChallenge: dailyChallengeResult,
       courseCompleted,

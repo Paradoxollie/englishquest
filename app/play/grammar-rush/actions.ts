@@ -27,7 +27,14 @@ export async function submitGrammarRushScore(params: {
 }): Promise<{
   success: boolean;
   error?: string;
-  rewards?: { xpEarned: number; goldEarned: number; newLevel?: number; reduced?: boolean };
+  rewards?: {
+    xpEarned: number;
+    goldEarned: number;
+    newLevel?: number;
+    reduced?: boolean;
+    breakdown?: { base: number; personalBest: number; globalBest: number };
+    playsUsedToday?: number;
+  };
   isNewPersonalBest?: boolean;
   isNewGlobalBest?: boolean;
   courseCompleted?: AutoCompletedCourse | null;
@@ -40,6 +47,7 @@ export async function submitGrammarRushScore(params: {
     xpBonus: number;
     goldBonus: number;
     dailyGoalReached: boolean;
+    newLevel?: number | null;
   };
 }> {
   if (!isValidRushResult(params) || !checkGrammarRush(params).ok) return { success: false, error: "Les résultats de cette partie sont incohérents." };
@@ -99,7 +107,9 @@ export async function submitGrammarRushScore(params: {
     }
 
     const balances = await grantProfileRewards(admin, user.id, { xp: rewards.xpEarned, gold: rewards.goldEarned });
-    const dailyChallenge = await checkAndGrantDailyBonus(user.id, SLUG);
+    const dailyChallenge = await checkAndGrantDailyBonus(user.id, SLUG, {
+      eligible: rewards.xpEarned > 0,
+    });
     const courseCompleted = await autoCompleteCourseMissionForGame(user.id, SLUG, score);
     // Étoile d'entraînement : seulement quand la partie était ouverte sur un cours.
     const practice =
@@ -112,10 +122,19 @@ export async function submitGrammarRushScore(params: {
           })
         : null;
     const newBadges = await syncBadgesSafely(user.id);
+    const gameNewLevel = balances.level > balances.previousLevel ? balances.level : 0;
+    const mergedNewLevel = Math.max(gameNewLevel, dailyChallenge.newLevel ?? 0) || undefined;
 
     return {
       success: true,
-      rewards: { xpEarned: rewards.xpEarned, goldEarned: rewards.goldEarned, newLevel: balances.level > balances.previousLevel ? balances.level : undefined, reduced: rewards.reduced },
+      rewards: {
+        xpEarned: rewards.xpEarned,
+        goldEarned: rewards.goldEarned,
+        newLevel: mergedNewLevel,
+        reduced: rewards.reduced,
+        breakdown: rewards.breakdown,
+        playsUsedToday: playsToday + 1,
+      },
       isNewPersonalBest,
       isNewGlobalBest,
       dailyChallenge,

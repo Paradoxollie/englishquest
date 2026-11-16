@@ -71,7 +71,7 @@ export type GameRewardLike = {
   goldEarned: number;
   newLevel?: number | null;
   courseCompleted?: { courseNumber: number; rewards: { xp: number; gold: number }; newLevel?: number | null } | null;
-  dailyChallenge?: { bonusGranted: boolean; xpBonus: number; goldBonus: number } | null;
+  dailyChallenge?: { bonusGranted: boolean; xpBonus: number; goldBonus: number; newLevel?: number | null } | null;
   newBadges?: RewardBadge[] | null;
   practice?: { courseId: number; newlyEarned: boolean } | null;
 };
@@ -80,7 +80,7 @@ export type GameRewardLike = {
 export function buildGameRewardDetail(rewards: GameRewardLike): RewardEventDetail {
   const daily = rewards.dailyChallenge?.bonusGranted ? rewards.dailyChallenge : null;
   const course = rewards.courseCompleted ?? null;
-  const levels = [rewards.newLevel, course?.newLevel].map(positive).filter((level) => level > 0);
+  const levels = [rewards.newLevel, daily?.newLevel, course?.newLevel].map(positive).filter((level) => level > 0);
   return {
     xp: positive(rewards.xpEarned) + positive(daily?.xpBonus) + positive(course?.rewards.xp),
     gold: positive(rewards.goldEarned) + positive(daily?.goldBonus) + positive(course?.rewards.gold),

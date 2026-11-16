@@ -22,6 +22,7 @@ import {
   GameStart,
   HudStat,
   TimeBar,
+  mapScoreResultToRewards,
   type RewardSummary,
 } from "@/components/play/game-screens";
 import { useGameFocusMode } from "@/components/play/use-game-focus-mode";
@@ -291,25 +292,7 @@ export function GrammarRushGame({
           setSubmitStatus("error");
           return;
         }
-        setRewards({
-          xpEarned: result.rewards?.xpEarned ?? 0,
-          goldEarned: result.rewards?.goldEarned ?? 0,
-          newLevel: result.rewards?.newLevel ?? null,
-          reduced: result.rewards?.reduced,
-          isNewPersonalBest: result.isNewPersonalBest,
-          isNewGlobalBest: result.isNewGlobalBest,
-          courseCompleted: result.courseCompleted
-            ? {
-                courseNumber: result.courseCompleted.courseNumber,
-                courseTitle: result.courseCompleted.courseTitle,
-                rewards: result.courseCompleted.rewards,
-                newLevel: result.courseCompleted.newLevel,
-              }
-            : null,
-          dailyChallenge: result.dailyChallenge ?? null,
-          newBadges: result.newBadges ?? [],
-          practice: result.practice ?? null,
-        });
+        setRewards(mapScoreResultToRewards(result));
         setSubmitStatus("saved");
       })
       .catch(() => {

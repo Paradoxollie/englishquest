@@ -150,6 +150,8 @@ export async function submitFlashTranslationScore(params: {
         goldEarned: number;
         newLevel?: number;
         reduced?: boolean;
+        breakdown?: { base: number; personalBest: number; globalBest: number };
+        playsUsedToday?: number;
     };
     isNewPersonalBest?: boolean;
     isNewGlobalBest?: boolean;
@@ -163,6 +165,7 @@ export async function submitFlashTranslationScore(params: {
         xpBonus: number;
         goldBonus: number;
         dailyGoalReached: boolean;
+        newLevel?: number | null;
     };
 }> {
     try {
@@ -227,8 +230,9 @@ export async function submitFlashTranslationScore(params: {
             .limit(1)
             .maybeSingle();
 
+        const hasCorrect = session.wrongAnswers < session.roundsCompleted;
         const currentPersonalBest = personalBest?.score ?? Infinity;
-        const isNewPersonalBest = session.totalTimeMs < currentPersonalBest;
+        const isNewPersonalBest = hasCorrect && session.totalTimeMs < currentPersonalBest;
 
         // Check if this is a new global best score (lowest time)
         const { data: globalTopScore } = await adminClient
@@ -240,7 +244,7 @@ export async function submitFlashTranslationScore(params: {
             .maybeSingle();
 
         const currentGlobalBest = globalTopScore?.score ?? Infinity;
-        const isNewGlobalBest = session.totalTimeMs < currentGlobalBest;
+        const isNewGlobalBest = hasCorrect && session.totalTimeMs < currentGlobalBest;
 
         // Calculate rewards
         const playsToday = await countPlaysToday(adminClient, user.id, game.id);
@@ -281,17 +285,23 @@ export async function submitFlashTranslationScore(params: {
 
         // Check and grant Daily Challenge bonus
         const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
-        const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "flash-translation");
+        const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "flash-translation", {
+            eligible: rewards.xpEarned > 0,
+        });
         const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "flash-translation", session.totalTimeMs);
         const newBadges = await syncBadgesSafely(user.id);
+        const gameNewLevel = granted.level > granted.previousLevel ? granted.level : 0;
+        const mergedNewLevel = Math.max(gameNewLevel, dailyChallengeResult.newLevel ?? 0) || undefined;
 
         return {
             success: true,
             rewards: {
                 xpEarned: rewards.xpEarned,
                 goldEarned: rewards.goldEarned,
-                newLevel: granted.level > granted.previousLevel ? granted.level : undefined,
+                newLevel: mergedNewLevel,
                 reduced: rewards.reduced,
+                breakdown: rewards.breakdown,
+                playsUsedToday: playsToday + 1,
             },
             dailyChallenge: dailyChallengeResult,
             courseCompleted,

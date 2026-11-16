@@ -49,6 +49,8 @@ export async function submitLexiconBlasterScore(params: {
         goldEarned: number;
         newLevel?: number;
         reduced?: boolean;
+        breakdown?: { base: number; personalBest: number; globalBest: number };
+        playsUsedToday?: number;
     };
     isNewPersonalBest?: boolean;
     isNewGlobalBest?: boolean;
@@ -62,6 +64,7 @@ export async function submitLexiconBlasterScore(params: {
         xpBonus: number;
         goldBonus: number;
         dailyGoalReached: boolean;
+        newLevel?: number | null;
     };
 }> {
     try {
@@ -177,17 +180,23 @@ export async function submitLexiconBlasterScore(params: {
 
         // Check and grant Daily Challenge bonus
         const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
-        const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "space-lex");
+        const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "space-lex", {
+            eligible: rewards.xpEarned > 0,
+        });
         const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "space-lex", params.score);
         const newBadges = await syncBadgesSafely(user.id);
+        const gameNewLevel = updatedProfile.level > updatedProfile.previousLevel ? updatedProfile.level : 0;
+        const mergedNewLevel = Math.max(gameNewLevel, dailyChallengeResult.newLevel ?? 0) || undefined;
 
         return {
             success: true,
             rewards: {
                 xpEarned: rewards.xpEarned,
                 goldEarned: rewards.goldEarned,
-                newLevel: updatedProfile.level > updatedProfile.previousLevel ? updatedProfile.level : undefined,
+                newLevel: mergedNewLevel,
                 reduced: rewards.reduced,
+                breakdown: rewards.breakdown,
+                playsUsedToday: playsToday + 1,
             },
             dailyChallenge: dailyChallengeResult,
             courseCompleted,

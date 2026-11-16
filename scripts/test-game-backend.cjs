@@ -468,6 +468,65 @@ async function main() {
     const source = fs.readFileSync(path.resolve(__dirname, "..", "app/play", slug, "actions.ts"), "utf8");
     assert.match(source, /consumeGameSession\(/, `${slug} submit action must consume a game session`);
     assert.match(source, /score-plausibility/, `${slug} submit action must check plausibility`);
+    assert.match(source, /eligible:\s*rewards\.xpEarned\s*>\s*0/, `${slug} daily challenge must require positive XP`);
+    assert.match(source, /dailyChallenge(?:Result)?\.newLevel/, `${slug} must propagate daily challenge level-up`);
+  }
+
+  {
+    // Daily challenge bonus crosses a 200-XP threshold -> returns newLevel; 0-XP runs do not advance progress.
+    const levelingMod = loadTs("lib/profile/leveling.ts");
+    const mockGamesList = sessionRules.GAME_SESSION_SLUGS.map((slug) => ({ slug }));
+    const dailyLevelDb = {
+      profiles: [{
+        id: "daily-user",
+        xp: 185,
+        gold: 5,
+        level: 1,
+        daily_challenge_date: null,
+        daily_played_games: [],
+        daily_bonus_claimed: false,
+        daily_streak: 0,
+        last_daily_completed_date: null,
+      }],
+    };
+    const dailyMod = loadTs("lib/profile/daily-challenge.ts", {
+      "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(dailyLevelDb) },
+      "@/lib/profile/economy": economy,
+      "@/lib/profile/economy-server": server,
+      "@/lib/profile/leveling": levelingMod,
+      "@/lib/games/config": { games: mockGamesList },
+    });
+    const initialDaily = await dailyMod.getDailyChallengeState("daily-user");
+    assert.equal(initialDaily.requiredGames.length, 3);
+    const ineligible = await dailyMod.checkAndGrantDailyBonus("daily-user", initialDaily.requiredGames[0], { eligible: false });
+    assert.deepEqual(ineligible.dailyPlayedGames, [], "0-XP play must not advance daily challenge");
+    assert.equal(ineligible.bonusGranted, false);
+    await dailyMod.checkAndGrantDailyBonus("daily-user", initialDaily.requiredGames[0], { eligible: true });
+    await dailyMod.checkAndGrantDailyBonus("daily-user", initialDaily.requiredGames[1], { eligible: true });
+    const dailyLevelUp = await dailyMod.checkAndGrantDailyBonus("daily-user", initialDaily.requiredGames[2], { eligible: true });
+    assert.equal(dailyLevelUp.bonusGranted, true);
+    assert.equal(dailyLevelUp.dailyGoalReached, true);
+    assert.equal(dailyLevelUp.newLevel, 2, "daily challenge crossing 200 XP must report newLevel");
+    assert.equal(dailyLevelDb.profiles[0].level, 2);
+
+    // buildGameRewardDetail merges daily challenge XP, gold and level-up.
+    const rewardEvents = loadTs("lib/profile/reward-events.ts", {
+      "@/lib/profile/daily-challenge": dailyMod,
+      "@/lib/courses/mission-auto-complete": {},
+    });
+    const mergedReward = rewardEvents.buildGameRewardDetail({
+      xpEarned: 15,
+      goldEarned: 1,
+      dailyChallenge: { bonusGranted: true, xpBonus: 30, goldBonus: 3, newLevel: 2 },
+    });
+    assert.equal(mergedReward.xp, 45);
+    assert.equal(mergedReward.gold, 4);
+    assert.equal(mergedReward.newLevel, 2, "buildGameRewardDetail includes dailyChallenge.newLevel");
+
+    const flashSrc = fs.readFileSync(path.resolve(__dirname, "..", "app/play/flash-translation/actions.ts"), "utf8");
+    assert.match(flashSrc, /hasCorrect/, "flash-translation guards 0-correct finishes from personal/global best");
+
+    console.log("PASS: Daily challenge eligibility, daily bonus level-up propagation, and reward event merging.");
   }
 
   console.log("PASS: Game sessions (guest, unknown game, cleanup, single use, race, foreign, wrong game, too fast, expired, 30 per minute) and score actions requiring a valid session.");

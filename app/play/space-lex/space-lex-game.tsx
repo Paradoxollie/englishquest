@@ -47,6 +47,7 @@ import {
   HudStat,
   SpeakButton,
   TimeBar,
+  mapScoreResultToRewards,
   type RewardSummary,
 } from "@/components/play/game-screens";
 import { LevelPicker } from "@/components/play/level-picker";
@@ -755,24 +756,7 @@ export function SpaceLexGame({
       });
 
     function setRewardsFromResponse(res: Awaited<ReturnType<typeof submitLexiconBlasterScore>>) {
-      setScoreResult({
-        xpEarned: res.rewards?.xpEarned ?? 0,
-        goldEarned: res.rewards?.goldEarned ?? 0,
-        newLevel: res.rewards?.newLevel ?? null,
-        reduced: res.rewards?.reduced,
-        isNewPersonalBest: res.isNewPersonalBest,
-        isNewGlobalBest: res.isNewGlobalBest,
-        courseCompleted: res.courseCompleted
-          ? {
-              courseNumber: res.courseCompleted.courseNumber,
-              courseTitle: res.courseCompleted.courseTitle,
-              rewards: res.courseCompleted.rewards,
-              newLevel: res.courseCompleted.newLevel,
-            }
-          : null,
-        dailyChallenge: res.dailyChallenge ?? null,
-        newBadges: res.newBadges ?? [],
-      });
+      setScoreResult(mapScoreResultToRewards(res));
       setSubmitStatus("saved");
     }
   }, [gameSession, gameState, isLoggedIn]);

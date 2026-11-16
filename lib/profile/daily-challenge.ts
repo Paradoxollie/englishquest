@@ -35,6 +35,7 @@ export type DailyChallengeState = {
 
 export type DailyChallengeResult = DailyChallengeState & {
   bonusGranted: boolean;
+  newLevel?: number | null;
 };
 
 function formatDateKey(date: Date, timeZone = DAILY_CHALLENGE_TIME_ZONE) {
@@ -162,12 +163,26 @@ export function getDailyChallengeState(
  */
 export async function checkAndGrantDailyBonus(
   userId: string,
-  gameSlug: string
+  gameSlug: string,
+  options: { eligible?: boolean } = {}
 ): Promise<DailyChallengeResult> {
   const adminClient = createSupabaseAdminClient();
   const now = new Date();
   const today = formatDateKey(now);
   const yesterday = getYesterdayDateKey(now);
+
+  if (options.eligible === false) {
+    const { data: profile } = await adminClient
+      .from("profiles")
+      .select("daily_played_games, last_game_date, last_daily_bonus_date, xp, gold, level, daily_streak")
+      .eq("id", userId)
+      .maybeSingle();
+    return {
+      ...getDailyChallengeState(profile, now),
+      bonusGranted: false,
+      newLevel: null,
+    };
+  }
 
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const { data: profile, error } = await adminClient
@@ -181,6 +196,7 @@ export async function checkAndGrantDailyBonus(
       return {
         ...getDailyChallengeState(null, now),
         bonusGranted: false,
+        newLevel: null,
       };
     }
 
@@ -224,16 +240,22 @@ export async function checkAndGrantDailyBonus(
       daily_streak: dailyStreak,
     };
 
+    let dailyNewLevel: number | null = null;
     if (bonusGranted) {
       // La série de jours augmente le bonus : +10 % par jour, +50 % au maximum.
       const multiplier = getDailyStreakMultiplier(dailyStreak);
+      const previousLevel = profile.level ?? calculateLevelFromXP(profile.xp ?? 0);
       const nextXP = (profile.xp ?? 0) + Math.round(DAILY_CHALLENGE_XP_BONUS * multiplier);
       const nextGold = (profile.gold ?? 0) + DAILY_CHALLENGE_GOLD_BONUS;
+      const nextLevel = calculateLevelFromXP(nextXP);
 
       updates.last_daily_bonus_date = today;
       updates.xp = nextXP;
       updates.gold = nextGold;
-      updates.level = calculateLevelFromXP(nextXP);
+      updates.level = nextLevel;
+      if (nextLevel > previousLevel) {
+        dailyNewLevel = nextLevel;
+      }
     }
 
     let update = adminClient
@@ -255,6 +277,7 @@ export async function checkAndGrantDailyBonus(
       return {
         ...getDailyChallengeState(profile, now),
         bonusGranted: false,
+        newLevel: null,
       };
     }
     if (!updated) continue;
@@ -273,8 +296,9 @@ export async function checkAndGrantDailyBonus(
       goldBonus: DAILY_CHALLENGE_GOLD_BONUS,
       dailyStreak,
       bonusGranted,
+      newLevel: dailyNewLevel,
     };
   }
   console.error("Daily challenge changed repeatedly while granting its bonus");
-  return { ...getDailyChallengeState(null, now), bonusGranted: false };
+  return { ...getDailyChallengeState(null, now), bonusGranted: false, newLevel: null };
 }
