@@ -149,7 +149,7 @@ test("Spell Strike & Echo Signal: scoring and duration bounds", () => {
       spellMax += spell.computeSpellRoundPoints({ difficulty, correct: true, usedHint: false, reactionMs: 400, newStreak: i });
     }
     assert.ok(spellMax <= plausible.maxSpellStrikePlausibleScore(difficulty, 10));
-    ok(plausible.checkSpellStrike({ difficulty, score: spellMax, correctCount: 10, totalRounds: 10, durationMs: 12_000 }), `spell honest d${difficulty}`);
+    ok(plausible.checkSpellStrike({ difficulty, score: spellMax, correctCount: 10, totalRounds: 10, durationMs: 16_000 }), `spell honest d${difficulty}`);
     ko(plausible.checkSpellStrike({ difficulty, score: spellMax + 100, correctCount: 10, totalRounds: 10, durationMs: 30_000 }), "spell inflated");
     ko(plausible.checkSpellStrike({ difficulty, score: spellMax, correctCount: 10, totalRounds: 10, durationMs: 2_000 }), "spell too fast");
 

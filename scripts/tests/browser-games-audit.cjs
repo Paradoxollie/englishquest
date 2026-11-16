@@ -101,21 +101,33 @@ async function readyChoices(page) {
     }
   });
   await scenario('spell-strike-and-echo-signal-play', async page => {
+    // Mode écrit / lecture : coché s'il est proposé (il est imposé quand le navigateur n'a pas de voix anglaise).
+    const tickTextMode = async label => {
+      const box = page.getByLabel(label);
+      if (await box.count()) await box.check();
+    };
     await open(page, 'spell-strike');
-    await page.getByLabel(/Mode sans son/).check();
+    await tickTextMode(/Mode écrit/);
     await start(page);
-    await page.getByTestId('spell-input').fill('friend');
+    await page.getByTestId('spell-input').fill('zzzz');
     await page.getByTestId('game-submit').click();
-    await page.locator('.eq-game-feedback').waitFor();
+    await page.locator('.eq-spell-feedback.is-wrong').waitFor();
+    await page.locator('.eq-spell-diff').waitFor();
     await shot(page, 'spell-strike-feedback');
+    await page.getByTestId('spell-continue').click();
+    await page.getByTestId('spell-input').waitFor();
+    assert.equal(await page.getByTestId('spell-input').inputValue(), '', 'next word starts empty');
 
     await open(page, 'echo-signal');
-    await page.getByLabel(/Mode sans son/).check();
+    await tickTextMode(/Mode lecture/);
     await start(page);
     await page.locator('.eq-echo-transcript').waitFor();
     await page.getByTestId('game-choice').first().click();
-    await page.locator('.eq-game-feedback').waitFor();
+    await page.locator('.eq-spell-feedback').waitFor();
     await shot(page, 'echo-signal-feedback');
+    await page.getByTestId('echo-continue').click();
+    await page.getByTestId('game-choice').first().click();
+    await page.getByTestId('echo-continue').waitFor();
   });
   await scenario('flash-translation-full-ten-rounds', async page => {
     await open(page, 'flash-translation');

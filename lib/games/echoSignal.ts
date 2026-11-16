@@ -73,9 +73,9 @@ const DIFFICULTY_CONFIG: Record<
   },
   3: {
     label: "Difficile",
-    subtitle: "1 écoute pour le bonus · 1 secours max",
+    subtitle: "Une seule écoute · score maximal",
     dbDifficulty: "hard",
-    maxPlays: 2,
+    maxPlays: 1,
     allowSlowSpeed: false,
     basePoints: 170,
     streakStep: 30,
@@ -135,7 +135,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     context: "Sam commande à manger et à boire au comptoir.",
     lines: [
       { speaker: "Sam", voiceProfile: "male_uk", text: "Hello! Can I have one cheese sandwich and a small orange juice, please?" },
-      { speaker: "Vendeuse", voiceProfile: "female_uk", text: "Sure. That is six pounds fifty altogether. Take a seat by the window." },
+      { speaker: "Vendeuse", voiceProfile: "female_uk", text: "Sure. That's six pounds fifty altogether. Take a seat by the window." },
     ],
     questions: [
       {
@@ -164,7 +164,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         speaker: "Maya",
         voiceProfile: "female_uk",
-        text: "Hi Sam, it is Maya. Let us meet at the library on Tuesday at four o'clock. Do not forget your red notebook!",
+        text: "Hi Sam, it's Maya. Let's meet at the library on Tuesday at four o'clock. Don't forget your red notebook!",
       },
     ],
     questions: [
@@ -180,7 +180,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
         prompt: "Quel objet Sam ne doit-il pas oublier ?",
         options: ["Son dictionnaire vert", "Ses lunettes", "Son cahier rouge", "Son parapluie bleu"],
         correctIndex: 2,
-        explanation: "Maya lui rappelle : « Do not forget your red notebook! »",
+        explanation: "Maya lui rappelle : « Don't forget your red notebook! »",
       },
     ],
   },
@@ -219,7 +219,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     level: 1,
     category: "Musée & visites",
     title: "Entrée au musée",
-    context: "Un visiteur demande les horaires et le tarif à l'accueil.",
+    context: "Un visiteur demande l'heure de fermeture à l'accueil.",
     lines: [
       { speaker: "Sam", voiceProfile: "male_uk", text: "Excuse me, what time does the museum close today?" },
       { speaker: "Guide", voiceProfile: "female_uk", text: "We close at six p.m. And tickets for students are free today!" },
@@ -235,7 +235,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q2",
         prompt: "Combien coûte le billet pour les élèves aujourd'hui ?",
-        options: ["C'est gratuit", "3 livres", "6 livres", "10 livres"],
+        options: ["C'est gratuit", "Moitié prix", "3 livres chacun", "6 livres chacun"],
         correctIndex: 0,
         explanation: "La guide indique : « tickets for students are free today » (gratuit).",
       },
@@ -250,17 +250,17 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Météo",
-        voiceProfile: "female_us",
-        text: "Good morning! Today in York, it will be sunny and warm this morning, with light rain later tonight.",
+        voiceProfile: "female_uk",
+        text: "Good morning! In York it will be sunny and warm this morning, with light rain later tonight.",
       },
     ],
     questions: [
       {
         id: "q1",
         prompt: "Quel temps fait-il ce matin à York ?",
-        options: ["Orageux et froid", "Neigeux", "Ensoleillé et doux", "Brouillard épais"],
+        options: ["Orageux et froid", "Neigeux et venteux", "Ensoleillé et chaud", "Pluvieux et frais"],
         correctIndex: 2,
-        explanation: "« sunny and warm this morning » = ensoleillé et doux ce matin.",
+        explanation: "« sunny and warm this morning » = ensoleillé et chaud ce matin.",
       },
       {
         id: "q2",
@@ -279,7 +279,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     context: "Sam décrit son sac au bureau des objets trouvés.",
     lines: [
       { speaker: "Agent", voiceProfile: "male_uk", text: "What does your school bag look like?" },
-      { speaker: "Sam", voiceProfile: "male_us", text: "It is dark blue with a yellow star on the front pocket. My keys are inside." },
+      { speaker: "Sam", voiceProfile: "male_uk", text: "It's dark blue with a yellow star on the front pocket. My keys are inside." },
     ],
     questions: [
       {
@@ -302,7 +302,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     id: "l1-directions-park",
     level: 1,
     category: "Orientation",
-    title: "Trouver la librairie",
+    title: "Dans la rue",
     context: "Maya demande son chemin dans la rue.",
     lines: [
       { speaker: "Maya", voiceProfile: "female_uk", text: "Excuse me, how do I get to the bookshop?" },
@@ -336,7 +336,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       { speaker: "Maya", voiceProfile: "female_uk", text: "Hi! Are there any seats left for the seven thirty film?" },
       { speaker: "Guichet", voiceProfile: "male_uk", text: "Only two seats in row C, near the front. Or you can wait for the nine o'clock show." },
-      { speaker: "Maya", voiceProfile: "female_uk", text: "We will take row C, please. Nine o'clock is too late for us." },
+      { speaker: "Maya", voiceProfile: "female_uk", text: "We'll take row C, please. Nine o'clock is too late for us." },
     ],
     questions: [
       {
@@ -344,7 +344,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
         prompt: "Quelle séance Maya choisit-elle finalement ?",
         options: ["Celle de 19 h 30", "Celle de 20 h 30", "Celle de 21 h", "Aucune séance ce soir"],
         correctIndex: 0,
-        explanation: "Elle préfère « row C » pour 19 h 30 (« seven thirty ») car 21 h est trop tard.",
+        explanation: "Elle garde la séance de 19 h 30 (« seven thirty ») : « nine o'clock is too late ».",
       },
       {
         id: "q2",
@@ -394,7 +394,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Annonce",
-        voiceProfile: "female_us",
+        voiceProfile: "female_uk",
         text: "Passengers on flight B A four two six to Edinburgh: boarding is delayed by twenty minutes. Please proceed to gate eighteen.",
       },
     ],
@@ -402,7 +402,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q1",
         prompt: "Quelle est la situation du vol pour Édimbourg ?",
-        options: ["Il est annulé", "Il embarque avec 20 minutes de retard", "Il part 20 minutes plus tôt", "Il est déjà complet"],
+        options: ["Il est annulé et remplacé par un autre vol", "Il embarque avec 20 minutes de retard", "Il part 20 minutes plus tôt que prévu", "Il est complet et ne prend plus personne"],
         correctIndex: 1,
         explanation: "« boarding is delayed by twenty minutes » = l'embarquement a 20 minutes de retard.",
       },
@@ -436,7 +436,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q2",
         prompt: "Comment faut-il ajouter le lait ?",
-        options: ["D'un seul coup en arrêtant de remuer", "Tout doucement tout en remuant", "Après la cuisson", "Froid avec du chocolat"],
+        options: ["D'un seul coup, sans remuer", "Doucement, en remuant", "Avant la farine et les œufs", "En même temps que le sucre"],
         correctIndex: 1,
         explanation: "« slowly pour in the milk while stirring » = verser lentement tout en mélangeant.",
       },
@@ -466,7 +466,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q2",
         prompt: "Quel nouveau créneau est proposé ?",
-        options: ["Jeudi à 15 h", "Vendredi à 11 h 15", "Vendredi à 15 h 11", "Samedi matin"],
+        options: ["Jeudi à 11 h 15", "Vendredi à 11 h 15", "Vendredi à 11 h 50", "Samedi à 11 h 15"],
         correctIndex: 1,
         explanation: "« Friday at eleven fifteen » = vendredi à 11 h 15.",
       },
@@ -477,12 +477,12 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     level: 2,
     category: "Sport & loisirs",
     title: "Entraînement déplacé",
-    context: "L'entraîneur prévient son équipe avant le match.",
+    context: "L'entraîneur prévient son équipe avant l'entraînement.",
     lines: [
       {
         speaker: "Coach",
-        voiceProfile: "male_us",
-        text: "Because the outdoor pitch is completely flooded, today's basketball practice is moved to the main sports hall. Wear clean indoor trainers!",
+        voiceProfile: "male_uk",
+        text: "Because the outdoor court is completely flooded, today's basketball practice is moved to the main sports hall. Wear clean indoor trainers!",
       },
     ],
     questions: [
@@ -491,7 +491,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
         prompt: "Pourquoi ne jouent-ils pas dehors ?",
         options: ["Il fait trop chaud", "Le terrain extérieur est inondé", "Le gymnase est en travaux", "Il n'y a pas d'éclairage"],
         correctIndex: 1,
-        explanation: "« the outdoor pitch is completely flooded » = le terrain extérieur est complètement inondé.",
+        explanation: "« the outdoor court is completely flooded » = le terrain extérieur est complètement inondé.",
       },
       {
         id: "q2",
@@ -510,7 +510,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     context: "Conversation dans une boutique de vêtements.",
     lines: [
       { speaker: "Client", voiceProfile: "male_uk", text: "I bought this jacket yesterday, but the sleeves are a bit too short. Do you have a medium?" },
-      { speaker: "Vendeur", voiceProfile: "female_uk", text: "Let me check. Yes, we have one medium left in navy blue, though black is sold out." },
+      { speaker: "Vendeur", voiceProfile: "male_uk", text: "Let me check. Yes, we have one medium left in navy blue, though black is sold out." },
     ],
     questions: [
       {
@@ -522,8 +522,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       },
       {
         id: "q2",
-        prompt: "Quelle taille M reste-t-il en rayon ?",
-        options: ["En noir uniquement", "En bleu marine uniquement", "Dans les deux couleurs", "Aucune taille M en stock"],
+        prompt: "En quelle couleur reste-t-il une veste taille M ?",
+        options: ["En noir", "En bleu marine", "En noir et en bleu marine", "Dans aucune couleur"],
         correctIndex: 1,
         explanation: "Le vendeur explique que la taille M reste en bleu marine (« navy blue »), mais que le noir est épuisé.",
       },
@@ -565,7 +565,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     id: "l3-tube-maintenance",
     level: 3,
     category: "Transports Londres",
-    title: "Incident sur la ligne centrale",
+    title: "Incident sur la Central Line",
     context: "Information voyageurs dans le métro londonien.",
     lines: [
       {
@@ -623,12 +623,12 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     level: 3,
     category: "Téléphone & suivi",
     title: "Livraison manquée",
-    context: "Appel au service de livraison pour un colis.",
+    context: "Message vocal laissé par le livreur.",
     lines: [
       {
         speaker: "Livreur",
-        voiceProfile: "male_us",
-        text: "Hello, I tried delivering your parcel at two p.m., but nobody answered. I left it safely with your next-door neighbour at number forty-two, not behind the bins.",
+        voiceProfile: "male_uk",
+        text: "Hello, I tried to deliver your parcel at two p.m., but nobody answered. I left it safely with your next-door neighbour at number forty-two, not behind the bins.",
       },
     ],
     questions: [
@@ -662,14 +662,14 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q1",
         prompt: "Qu'est-ce qui est inclus sans frais supplémentaires ?",
-        options: ["Le petit-déjeuner complet", "La consigne à bagages après le départ", "Les deux services", "Ni l'un ni l'autre"],
+        options: ["Le petit-déjeuner complet chaque matin", "La consigne à bagages après le départ", "Le petit-déjeuner et la consigne", "Ni le petit-déjeuner ni la consigne"],
         correctIndex: 1,
         explanation: "La consigne est gratuite (« luggage storage is completely free »).",
       },
       {
         id: "q2",
-        prompt: "Quel supplément coûte le petit-déjeuner ?",
-        options: ["5 livres", "7 livres par personne", "10 livres par chambre", "Il est interdit en dehors du week-end"],
+        prompt: "Combien coûte le petit-déjeuner en plus ?",
+        options: ["5 livres par personne", "7 livres par personne", "7 livres par chambre", "10 livres par chambre"],
         correctIndex: 1,
         explanation: "« breakfast costs an extra seven pounds per person ».",
       },
@@ -682,8 +682,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Partage des tâches",
     context: "Deux élèves organisent leur exposé de sciences.",
     lines: [
-      { speaker: "Sam", voiceProfile: "male_uk", text: "I already drew the diagrams for solar power, so could you prepare the slides on wind turbines?" },
-      { speaker: "Maya", voiceProfile: "female_uk", text: "Deal! I will finish them tonight and send you the link so we can rehearse tomorrow before lunch." },
+      { speaker: "Sam", voiceProfile: "male_uk", text: "I've already drawn the diagrams for solar power, so could you prepare the slides on wind turbines?" },
+      { speaker: "Maya", voiceProfile: "female_uk", text: "Deal! I'll finish them tonight and send you the link so we can rehearse tomorrow before lunch." },
     ],
     questions: [
       {
@@ -707,11 +707,11 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     level: 3,
     category: "Santé & conseil",
     title: "Conseil à la pharmacie",
-    context: "Un pharmacien explique comment utiliser des pastilles.",
+    context: "Un pharmacien explique comment prendre des comprimés.",
     lines: [
       {
         speaker: "Pharmacien",
-        voiceProfile: "female_uk",
+        voiceProfile: "male_uk",
         text: "Take one tablet after meals, up to three times a day, and drink plenty of water. Avoid driving if you feel sleepy.",
       },
     ],
@@ -736,13 +736,13 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     id: "l3-bike-repair",
     level: 3,
     category: "Réparation",
-    title: "Devis pour un vélo",
+    title: "Vélo réparé",
     context: "Appel de l'atelier de réparation vélos.",
     lines: [
       {
         speaker: "Mécanicien",
         voiceProfile: "male_uk",
-        text: "Hi Sam, your bike brakes are fixed, though the back tyre had a nail in it and needed replacing. Your bike will be ready for collection after three thirty.",
+        text: "Hi Sam, your bike's brakes are fixed, though the back tyre had a nail in it and needed replacing. Your bike will be ready for collection after three thirty.",
       },
     ],
     questions: [
@@ -771,7 +771,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Présentatrice",
-        voiceProfile: "female_us",
+        voiceProfile: "female_uk",
         text: "Welcome back to Youth Voices! In today's episode, we visit a zero-waste canteen in Bristol that cut food waste by half in six months.",
       },
     ],
@@ -815,7 +815,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q2",
         prompt: "Quel point fort a particulièrement plu aux recruteurs ?",
-        options: ["Son expérience de trois ans", "Le fait qu'elle parle français et anglais", "Sa disponibilité le dimanche", "Son permis de conduire"],
+        options: ["Ses trois ans d'expérience en librairie", "Le fait qu'elle parle français et anglais", "Sa disponibilité tous les dimanches", "Son permis de conduire tout récent"],
         correctIndex: 1,
         explanation: "« impressed that I speak both French and English ».",
       },
@@ -860,7 +860,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Élève",
-        voiceProfile: "male_us",
+        voiceProfile: "male_uk",
         text: "On my first day in Manchester, the northern accent caught me completely off guard, even though I had watched British films for months. By the third day, however, everything started clicking.",
       },
     ],
@@ -868,14 +868,14 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q1",
         prompt: "Qu'est-ce qui a surpris l'élève le premier jour ?",
-        options: ["La taille de son lycée", "L'accent du nord de l'Angleterre", "L'heure du dîner", "Le froid dans la maison"],
+        options: ["La taille immense de son lycée", "L'accent du nord de l'Angleterre", "L'heure très tôt du dîner", "Le froid dans sa famille d'accueil"],
         correctIndex: 1,
         explanation: "« the northern accent caught me completely off guard » = l'accent du Nord l'a pris de court.",
       },
       {
         id: "q2",
         prompt: "Comment la situation a-t-elle évolué ensuite ?",
-        options: ["Il a demandé à changer de famille", "Dès le troisième jour, il comprenait bien mieux", "Il n'a jamais réussi à s'habituer", "Son hôte s'est mis à parler français"],
+        options: ["Il a demandé à changer de famille d'accueil", "Dès le troisième jour, il comprenait bien mieux", "Il n'a jamais réussi à s'habituer à l'accent", "Sa famille s'est mise à lui parler français"],
         correctIndex: 1,
         explanation: "« By the third day, however, everything started clicking » = dès le 3e jour, le déclic s'est fait.",
       },
@@ -885,7 +885,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     id: "l4-tech-announcement",
     level: 4,
     category: "Annonce radio",
-    title: "Réseau Wi-Fi du campus",
+    title: "Mise à jour des ordinateurs",
     context: "Annonce technique sur la radio universitaire.",
     lines: [
       {
@@ -905,7 +905,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q2",
         prompt: "Que doivent faire les étudiants avant 22 h ?",
-        options: ["Éteindre les écrans", "Sauvegarder leurs textes non enregistrés", "Rendre leurs cartes d'accès", "Changer leur mot de passe"],
+        options: ["Éteindre eux-mêmes tous les écrans", "Sauvegarder leurs textes non enregistrés", "Rendre leurs cartes d'accès à l'accueil", "Changer leur mot de passe de connexion"],
         correctIndex: 1,
         explanation: "« back up any unsaved essays beforehand » = sauvegarder vos devoirs avant.",
       },
@@ -932,7 +932,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q2",
         prompt: "Quelle critique nuancée fait-il ?",
-        options: ["La fin était prévisible", "L'intrigue traînait un peu avant le rebondissement final", "Les acteurs parlaient trop bas", "Le décor manquait de réalisme"],
+        options: ["La fin était prévisible dès la première scène", "L'intrigue traînait un peu avant le rebondissement final", "Les acteurs parlaient trop bas pour être compris", "Les costumes manquaient de couleurs et d'éclat"],
         correctIndex: 1,
         explanation: "« the plot dragged slightly before the final twist » = l'intrigue a traîné légèrement avant la chute.",
       },
@@ -962,7 +962,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q2",
         prompt: "Que doivent faire les passagers sans véhicule ?",
-        options: ["Acheter un nouveau billet", "Ils sont transférés automatiquement sur le bateau de 18 h 15", "Prendre le tunnel à leurs frais", "Revenir le lendemain matin"],
+        options: ["Racheter un billet pour le bateau de 18 h 15", "Rien : ils passent d'office sur le bateau de 18 h 15", "Prendre le tunnel sous la Manche à leurs frais", "Revenir au port le lendemain à 6 h 15"],
         correctIndex: 1,
         explanation: "« automatically transferred to the six fifteen vessel ».",
       },
@@ -982,7 +982,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q1",
         prompt: "Pourquoi Maya préfère-t-elle le roman policier historique ?",
-        options: ["Il vient d'être adapté en film", "Le livre de science-fiction du mois dernier a semblé lourd et celui-ci est deux fois plus court", "L'auteur vient dans leur lycée", "Personne n'aime la science-fiction"],
+        options: ["Il vient d'être adapté au cinéma", "Le dernier livre a paru lourd, et celui-ci est plus court", "L'auteur vient le présenter au lycée", "Le club n'a jamais aimé la science-fiction"],
         correctIndex: 1,
         explanation: "« found last month's sci-fi book a bit heavy going, and this one is half the length ».",
       },
@@ -1004,7 +1004,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Professeur",
-        voiceProfile: "female_us",
+        voiceProfile: "female_uk",
         text: "Hi, I have to attend a rehearsal on Monday afternoon, so could we switch your lesson to Wednesday at five, just for next week? Let me know if that clashes with your swimming training.",
       },
     ],
@@ -1019,7 +1019,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q2",
         prompt: "Avec quelle autre activité cela risque-t-il de se chevaucher ?",
-        options: ["L'entraînement de natation", "Le match de tennis", "Le cours de théâtre", "La chorale"],
+        options: ["L'entraînement de natation", "Le match de tennis du lundi", "La répétition de théâtre", "Le cours de piano du mercredi"],
         correctIndex: 0,
         explanation: "« if that clashes with your swimming training ».",
       },
@@ -1037,21 +1037,21 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         speaker: "Journaliste",
         voiceProfile: "female_uk",
-        text: "While banning phones during breaks boosted face-to-face chat in our pilot school, teachers pointed out that older pupils still need controlled access for digital research in class.",
+        text: "While banning phones during breaks boosted face-to-face chat in a pilot school, teachers pointed out that older pupils still need controlled access for digital research in class.",
       },
     ],
     questions: [
       {
         id: "q1",
         prompt: "Quel effet positif l'interdiction pendant les pauses a-t-elle eu ?",
-        options: ["Moins de pannes Wi-Fi", "Davantage d'échanges en face à face entre élèves", "Des notes d'anglais doublées", "Des pauses plus courtes"],
+        options: ["Moins de pannes du réseau Wi-Fi du lycée", "Davantage d'échanges en face à face entre élèves", "Des notes d'anglais en nette hausse", "Des pauses plus courtes et plus calmes"],
         correctIndex: 1,
         explanation: "« boosted face-to-face chat » = a stimulé les discussions directes.",
       },
       {
         id: "q2",
         prompt: "Quelle nuance les enseignants soulignent-ils ?",
-        options: ["L'interdiction totale doit s'étendre à la maison", "Les plus grands ont encore besoin d'un accès encadré en cours pour des recherches", "Les téléphones doivent rester allumés aux examens", "Aucun élève ne respecte la règle"],
+        options: ["L'interdiction devrait aussi s'appliquer à la maison", "Les plus grands ont encore besoin d'un accès encadré pour leurs recherches", "Les téléphones devraient rester permis pendant les pauses", "Les plus jeunes contournent la règle sans arrêt"],
         correctIndex: 1,
         explanation: "« older pupils still need controlled access for digital research in class ».",
       },
@@ -1061,8 +1061,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     id: "l5-news-urban-trees",
     level: 5,
     category: "Actualité",
-    title: "Îlots de fraîcheur urbains",
-    context: "Reportage radio bref sur l'urbanisme à Leeds.",
+    title: "Des parkings transformés",
+    context: "Court reportage radio sur une ville anglaise.",
     lines: [
       {
         speaker: "Reporter",
@@ -1081,7 +1081,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q2",
         prompt: "Quel impact mesurable a été observé pendant la canicule ?",
-        options: ["Jusqu'à 3 degrés de moins dans les rues voisines", "Une baisse de 30 % du trafic automobile", "Une hausse du prix des billets de bus", "Aucun effet la première année"],
+        options: ["Jusqu'à 3 degrés de moins dans les rues", "Une baisse de 3 % de la circulation", "Trois fois plus de piétons l'été", "Aucun effet mesurable l'été dernier"],
         correctIndex: 0,
         explanation: "« cutting street temperatures by up to three degrees ».",
       },
@@ -1092,11 +1092,11 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     level: 5,
     category: "Innovation",
     title: "Réparer plutôt que jeter",
-    context: "Interview du fondateur d'un atelier associatif.",
+    context: "Interview de la fondatrice d'un atelier associatif.",
     lines: [
       {
-        speaker: "Fondateur",
-        voiceProfile: "female_us",
+        speaker: "Fondatrice",
+        voiceProfile: "female_uk",
         text: "When we launched our repair café, we assumed only retired engineers would volunteer. In fact, teenagers have been our keenest learners, eager to swap disposable habits for hands-on skills.",
       },
     ],
@@ -1104,14 +1104,14 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q1",
         prompt: "À quoi s'attendait l'équipe au lancement du projet ?",
-        options: ["À ce que seuls des ingénieurs à la retraite soient bénévoles", "À attirer uniquement des commerçants", "À devoir fermer au bout d'un mois", "À recevoir une subvention européenne"],
+        options: ["À ce que seuls des ingénieurs retraités viennent aider", "À attirer surtout des commerçants du quartier", "À devoir fermer au bout de quelques mois", "À recevoir une aide de la mairie dès le début"],
         correctIndex: 0,
         explanation: "« we assumed only retired engineers would volunteer ».",
       },
       {
         id: "q2",
         prompt: "Quelle surprise réelle ont-ils constatée ?",
-        options: ["Les adolescents sont les plus enthousiastes pour apprendre à réparer", "Personne n'apportait d'appareils électroniques", "Les ateliers coûtent trop cher aux habitants", "Les pièces détachées sont interdites"],
+        options: ["Les adolescents sont les plus motivés pour apprendre", "Les retraités sont venus plus nombreux que prévu", "Les habitants trouvent les ateliers trop chers", "Les ados viennent surtout jeter leurs vieux objets"],
         correctIndex: 0,
         explanation: "« teenagers have been our keenest learners » = les ados ont été les apprentis les plus motivés.",
       },
@@ -1121,13 +1121,13 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     id: "l5-exam-strategy",
     level: 5,
     category: "Méthode & oral",
-    title: "Gérer le trac à l'oral",
+    title: "Conseil avant l'oral",
     context: "Un examinateur donne un conseil pratique avant un examen d'anglais.",
     lines: [
       {
         speaker: "Examinateur",
         voiceProfile: "male_uk",
-        text: "Students often rush their answers because silence feels awkward. Pausing for two seconds to structure a clear contrast actually shows far stronger fluency than speaking at top speed.",
+        text: "Students often rush their answers because silence feels awkward. Pausing for two seconds to organise your ideas actually shows far stronger fluency than speaking at top speed.",
       },
     ],
     questions: [
@@ -1141,9 +1141,9 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q2",
         prompt: "Que vaut-il mieux faire à la place ?",
-        options: ["Répéter la question mot à mot", "Marquer une pause de deux secondes pour structurer une idée claire", "Changer de sujet dès qu'on hésite", "Mémoriser un texte entier par cœur"],
+        options: ["Répéter la question mot à mot pour gagner du temps", "Faire une pause de deux secondes pour organiser ses idées", "Parler le plus vite possible pour montrer son aisance", "Réciter un texte appris par cœur à l'avance"],
         correctIndex: 1,
-        explanation: "« Pausing for two seconds to structure a clear contrast shows far stronger fluency ».",
+        explanation: "« Pausing for two seconds to organise your ideas » montre une meilleure aisance que parler à toute vitesse.",
       },
     ],
   },
@@ -1164,14 +1164,14 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q1",
         prompt: "Qui continue de payer près du double malgré les tarifs « heures creuses » ?",
-        options: ["Les touristes étrangers", "Les voyageurs quotidiens qui partent avant 9 h 30", "Les étudiants en fin de journée", "Les voyageurs du dimanche soir"],
+        options: ["Les touristes qui voyagent en heures creuses", "Les voyageurs quotidiens qui partent avant 9 h 30", "Les étudiants qui rentrent en fin de journée", "Les voyageurs qui partent après 9 h 30"],
         correctIndex: 1,
         explanation: "« commuters travelling before nine thirty still end up paying nearly double ».",
       },
       {
         id: "q2",
         prompt: "Comment ces voyageurs peuvent-ils tout de même réduire la facture ?",
-        options: ["En réservant un aller simple à l'avance plusieurs semaines avant", "En payant en espèces au contrôleur", "En voyageant sans réservation", "En changeant de gare à l'arrivée"],
+        options: ["En réservant un aller simple plusieurs semaines à l'avance", "En achetant leur billet au contrôleur, dans le train", "En prenant un aller-retour le jour même, en gare", "En voyageant aux heures de pointe avec une carte"],
         correctIndex: 0,
         explanation: "« unless they book an advance single weeks ahead ».",
       },
@@ -1194,14 +1194,14 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q1",
         prompt: "Quel mythe l'audioguide remet-il en question ?",
-        options: ["Que les ordinateurs n'existaient pas à l'époque", "Que le décodage reposait surtout sur un coup de génie soudain et solitaire", "Que les messages étaient en français", "Que la météo n'avait aucune importance"],
+        options: ["Que les machines faisaient tout le travail seules", "Que le décodage venait surtout d'un éclair de génie", "Que les messages interceptés étaient faciles à lire", "Que les bulletins météo n'avaient aucune utilité"],
         correctIndex: 1,
         explanation: "« Contrary to popular myth, breaking intercepted codes was rarely a sudden flash of genius. »",
       },
       {
         id: "q2",
         prompt: "Qu'est-ce qui a réellement permis de réussir ?",
-        options: ["Un travail d'équipe minutieux comparant des milliers de bulletins météo", "Des espions sur le terrain uniquement", "Une erreur d'impression du manuel", "Un hasard complet"],
+        options: ["Un travail d'équipe minutieux sur des milliers de bulletins météo", "Les renseignements envoyés par des espions sur le terrain", "Le génie d'un seul mathématicien travaillant en secret", "Une machine capable de tout décoder en une journée"],
         correctIndex: 0,
         explanation: "« painstaking teamwork, cross-checking thousands of weather broadcasts ».",
       },
@@ -1216,7 +1216,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Chercheuse",
-        voiceProfile: "female_us",
+        voiceProfile: "female_uk",
         text: "Participants who reviewed new vocabulary for just ten minutes right before sleeping recalled significantly more words the next morning than those who revised for twice as long at noon.",
       },
     ],
@@ -1224,23 +1224,23 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q1",
         prompt: "Quel groupe a retenu nettement plus de mots le lendemain matin ?",
-        options: ["Ceux qui ont révisé deux fois plus longtemps à midi", "Ceux qui ont révisé dix minutes juste avant de dormir", "Ceux qui ont relu leurs fiches en marchant", "Il n'y avait aucune différence"],
+        options: ["Ceux qui ont révisé plus longtemps à midi", "Ceux qui ont révisé dix minutes avant de dormir", "Ceux qui ont relu leurs fiches au réveil", "Les deux groupes ont retenu autant de mots"],
         correctIndex: 1,
         explanation: "« reviewed new vocabulary for just ten minutes right before sleeping recalled significantly more words ».",
       },
       {
         id: "q2",
-        prompt: "Combien de temps le groupe du midi avait-il révisé ?",
-        options: ["Cinq minutes", "Dix minutes", "Deux fois plus longtemps (20 minutes)", "Une heure complète"],
+        prompt: "Quand a-t-on mesuré ce que les participants avaient retenu ?",
+        options: ["Juste avant de dormir", "Le lendemain matin", "Le lendemain à midi", "Une semaine plus tard"],
         correctIndex: 2,
-        explanation: "« twice as long at noon » = deux fois plus longtemps à midi.",
+        explanation: "« recalled significantly more words the next morning » = le lendemain matin.",
       },
     ],
   },
   {
     id: "l5-dialogue-misunderstanding",
     level: 5,
-    category: "Nuances & quiproquo",
+    category: "Imprévu & consignes",
     title: "Changement de salle imprévu",
     context: "Conversation rapide entre Maya et Sam devant le bâtiment B.",
     lines: [
@@ -1251,14 +1251,14 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
       {
         id: "q1",
         prompt: "Pourquoi la salle 204 est-elle vide ?",
-        options: ["La présentation a été annulée", "Le projecteur est tombé en panne il y a une heure", "Ils sont en avance d'une heure", "Le cours se déroule dehors"],
+        options: ["La présentation a été annulée ce matin", "Le projecteur est tombé en panne il y a une heure", "Ils sont arrivés une heure trop tôt", "La présentation a lieu dans la salle 205"],
         correctIndex: 1,
         explanation: "« the projector broke down an hour ago » = le projecteur est tombé en panne.",
       },
       {
         id: "q2",
         prompt: "Où doivent-ils se rendre maintenant ?",
-        options: ["Au laboratoire de langues au rez-de-chaussée", "Dans l'amphithéâtre du 3e étage", "Au secrétariat", "En salle 205 juste à côté"],
+        options: ["Au laboratoire de langues, à l'étage en dessous", "À l'amphithéâtre, à l'étage au-dessus", "Au secrétariat, pour avoir la nouvelle salle", "Dans la salle 205, juste à côté"],
         correctIndex: 0,
         explanation: "« downstairs to the language lab » = en bas, au laboratoire de langues.",
       },
@@ -1274,7 +1274,28 @@ export function pickEchoSignalMissions(options: {
   const level = options.level ?? 1;
   const count = options.count ?? ECHO_SIGNAL_CLIPS_PER_RUN;
   const rng = options.rng ?? Math.random;
-  return pickByLevel(ECHO_SIGNAL_SCENARIOS, level, count, rng);
+  return pickByLevel(ECHO_SIGNAL_SCENARIOS, level, count, rng).map((scenario) => shuffleEchoScenario(scenario, rng));
+}
+
+/**
+ * Mélange les quatre propositions de chaque question et recalcule la bonne
+ * réponse : sa position ne doit jamais se deviner sans écouter.
+ */
+export function shuffleEchoScenario(scenario: EchoScenario, rng: () => number = Math.random): EchoScenario {
+  const shuffleQuestion = (question: EchoQuestion): EchoQuestion => {
+    const order = [0, 1, 2, 3];
+    for (let i = order.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(rng() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    const options = order.map((index) => question.options[index]) as EchoQuestion["options"];
+    const correctIndex = order.indexOf(question.correctIndex) as EchoQuestion["correctIndex"];
+    return { ...question, options, correctIndex };
+  };
+  return {
+    ...scenario,
+    questions: [shuffleQuestion(scenario.questions[0]), shuffleQuestion(scenario.questions[1])],
+  };
 }
 
 export function computeEchoQuestionPoints({

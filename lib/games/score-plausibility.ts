@@ -244,7 +244,7 @@ export function checkGrammarRush(input: { score: number; correct: number; attemp
 /* ------------------------------------------------------------------ */
 
 export const SPELL_STRIKE_TOTAL_ROUNDS = 10;
-export const SPELL_STRIKE_MIN_MS_PER_WORD = 900;
+export const SPELL_STRIKE_MIN_MS_PER_WORD = 1_500; // écouter puis taper un mot prend au moins 1,5 s
 
 const SPELL_SCORE_RULES: Record<1 | 2 | 3, { base: number; speedMax: number; streakStep: number; maxSteps: number }> = {
   1: { base: 100, speedMax: 40, streakStep: 15, maxSteps: 4 },

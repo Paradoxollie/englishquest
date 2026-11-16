@@ -4233,3 +4233,207 @@ html[data-theme="dark"] .eq-shop-title-plate span {
     flex: 1 1 auto;
   }
 }
+
+/* ---------- Spell Strike : correction, avertissement voix, bilan ---------- */
+
+.eq-game-notice {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--gold-deep, #b45309);
+  background: var(--gold-soft, rgba(245, 158, 11, 0.12));
+  color: var(--fg);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.eq-spell-feedback {
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--ink-2);
+  color: var(--fg);
+  line-height: 1.5;
+}
+
+.eq-spell-feedback.is-right {
+  border-color: var(--mint);
+  background: var(--mint-soft);
+}
+
+.eq-spell-feedback.is-wrong {
+  border-color: var(--coral);
+}
+
+.eq-spell-feedback-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.eq-spell-feedback p {
+  margin: 0;
+}
+
+.eq-spell-feedback s,
+.eq-spell-review s {
+  color: var(--coral);
+  text-decoration-thickness: 2px;
+}
+
+.eq-spell-feedback-rule {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--cyan-soft);
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.eq-spell-diff {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.eq-spell-diff-cell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 34px;
+  padding: 0 5px;
+  border-radius: 7px;
+  border: 1.5px solid var(--line-strong);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.eq-spell-diff-cell.is-match {
+  border-color: var(--mint);
+  background: var(--mint-soft);
+  color: var(--mint);
+}
+
+.eq-spell-diff-cell.is-wrong,
+.eq-spell-diff-cell.is-missing {
+  border-color: var(--coral);
+  background: var(--coral-soft);
+  color: var(--coral);
+}
+
+.eq-spell-diff-cell.is-missing {
+  border-style: dashed;
+}
+
+.eq-spell-diff-cell.is-extra {
+  border-color: var(--coral);
+  color: var(--coral);
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+.eq-spell-review {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eq-spell-review li {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--coral);
+  background: var(--ink-2);
+}
+
+.eq-spell-review p {
+  margin: 0;
+}
+
+.eq-spell-review-given {
+  font-size: 0.9rem;
+}
+
+.eq-spell-review-rule {
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.eq-spell-solved {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--mint-soft);
+  color: var(--fg);
+  font-size: 0.92rem;
+}
+
+/* ---------- Echo Signal : bilan détaillé ---------- */
+
+.eq-echo-review {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eq-echo-review > li {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--ink-2);
+}
+
+.eq-echo-review-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.eq-echo-review .eq-echo-transcript p {
+  margin: 0 0 4px;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.eq-echo-review-q {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border-left: 4px solid var(--line-strong);
+  background: var(--ink-3);
+  font-size: 0.92rem;
+}
+
+.eq-echo-review-q p {
+  margin: 0 0 3px;
+}
+
+.eq-echo-review-q.is-right {
+  border-left-color: var(--mint);
+}
+
+.eq-echo-review-q.is-wrong {
+  border-left-color: var(--coral);
+}
+
+.eq-echo-review-q s {
+  color: var(--coral);
+}
+
+.eq-echo-review-why {
+  color: var(--muted);
+}

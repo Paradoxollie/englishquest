@@ -18,6 +18,7 @@ export interface Verb {
   pastSimple: string[];         // e.g., ["began"]
   pastParticiple: string[];     // e.g., ["begun"]
   translations: string[];       // e.g., ["commencer"]
+  hint?: string;                // lève une ambiguïté de sens, sans donner la traduction
 }
 
 export interface RequiredFields {
@@ -359,7 +360,7 @@ export const VERBS: Verb[] = [
       base: "get",
       pastSimple: ["got"],
       pastParticiple: ["got", "gotten"],
-      translations: ["obtenir", "recevoir"],
+      translations: ["obtenir", "recevoir", "devenir", "avoir", "aller chercher"],
     },
     {
       base: "make",
@@ -383,13 +384,13 @@ export const VERBS: Verb[] = [
       base: "think",
       pastSimple: ["thought"],
       pastParticiple: ["thought"],
-      translations: ["penser"],
+      translations: ["penser", "réfléchir", "croire"],
     },
     {
       base: "take",
       pastSimple: ["took"],
       pastParticiple: ["taken"],
-      translations: ["prendre"],
+      translations: ["prendre", "emmener", "emporter"],
     },
     {
       base: "see",
@@ -443,13 +444,13 @@ export const VERBS: Verb[] = [
       base: "feel",
       pastSimple: ["felt"],
       pastParticiple: ["felt"],
-      translations: ["sentir", "ressentir"],
+      translations: ["sentir", "ressentir", "se sentir"],
     },
     {
       base: "put",
       pastSimple: ["put"],
       pastParticiple: ["put"],
-      translations: ["mettre"],
+      translations: ["mettre", "poser"],
     },
     {
       base: "bring",
@@ -461,13 +462,13 @@ export const VERBS: Verb[] = [
       base: "begin",
       pastSimple: ["began"],
       pastParticiple: ["begun"],
-      translations: ["commencer"],
+      translations: ["commencer", "débuter"],
     },
     {
       base: "keep",
       pastSimple: ["kept"],
       pastParticiple: ["kept"],
-      translations: ["garder"],
+      translations: ["garder", "conserver"],
     },
     {
       base: "hold",
@@ -485,7 +486,7 @@ export const VERBS: Verb[] = [
       base: "stand",
       pastSimple: ["stood"],
       pastParticiple: ["stood"],
-      translations: ["se tenir debout"],
+      translations: ["se tenir debout", "être debout", "supporter"],
     },
     {
       base: "hear",
@@ -509,7 +510,7 @@ export const VERBS: Verb[] = [
       base: "set",
       pastSimple: ["set"],
       pastParticiple: ["set"],
-      translations: ["mettre", "fixer"],
+      translations: ["mettre", "fixer", "régler", "placer"],
     },
     {
       base: "meet",
@@ -521,7 +522,7 @@ export const VERBS: Verb[] = [
       base: "run",
       pastSimple: ["ran"],
       pastParticiple: ["run"],
-      translations: ["courir"],
+      translations: ["courir", "diriger"],
     },
     {
       base: "pay",
@@ -533,7 +534,7 @@ export const VERBS: Verb[] = [
       base: "sit",
       pastSimple: ["sat"],
       pastParticiple: ["sat"],
-      translations: ["s'asseoir"],
+      translations: ["s'asseoir", "être assis"],
     },
     {
       base: "speak",
@@ -545,7 +546,8 @@ export const VERBS: Verb[] = [
       base: "lie",
       pastSimple: ["lay"],
       pastParticiple: ["lain"],
-      translations: ["être allongé", "se coucher"],
+      translations: ["être allongé", "être couché", "s'allonger", "se coucher"],
+      hint: "pas au sens de « mentir »",
     },
     {
       base: "lead",
@@ -563,7 +565,7 @@ export const VERBS: Verb[] = [
       base: "grow",
       pastSimple: ["grew"],
       pastParticiple: ["grown"],
-      translations: ["grandir", "cultiver"],
+      translations: ["grandir", "cultiver", "pousser"],
     },
     {
       base: "lose",
@@ -587,7 +589,7 @@ export const VERBS: Verb[] = [
       base: "build",
       pastSimple: ["built"],
       pastParticiple: ["built"],
-      translations: ["construire"],
+      translations: ["construire", "bâtir"],
     },
     {
       base: "understand",
@@ -605,7 +607,7 @@ export const VERBS: Verb[] = [
       base: "break",
       pastSimple: ["broke"],
       pastParticiple: ["broken"],
-      translations: ["casser", "briser"],
+      translations: ["casser", "briser", "rompre"],
     },
     {
       base: "spend",
@@ -665,7 +667,7 @@ export const VERBS: Verb[] = [
       base: "teach",
       pastSimple: ["taught"],
       pastParticiple: ["taught"],
-      translations: ["enseigner"],
+      translations: ["enseigner", "apprendre (à quelqu'un)"],
     },
     {
       base: "catch",
@@ -677,7 +679,7 @@ export const VERBS: Verb[] = [
       base: "fight",
       pastSimple: ["fought"],
       pastParticiple: ["fought"],
-      translations: ["se battre"],
+      translations: ["se battre", "combattre"],
     },
     {
       base: "throw",
@@ -701,7 +703,7 @@ export const VERBS: Verb[] = [
       base: "beat",
       pastSimple: ["beat"],
       pastParticiple: ["beaten"],
-      translations: ["battre"],
+      translations: ["battre", "vaincre"],
     },
     {
       base: "hit",
@@ -743,7 +745,7 @@ export const VERBS: Verb[] = [
       base: "ring",
       pastSimple: ["rang"],
       pastParticiple: ["rung"],
-      translations: ["sonner", "appeler"],
+      translations: ["sonner", "appeler", "téléphoner"],
     },
     {
       base: "drink",
@@ -773,7 +775,7 @@ export const VERBS: Verb[] = [
       base: "freeze",
       pastSimple: ["froze"],
       pastParticiple: ["frozen"],
-      translations: ["geler"],
+      translations: ["geler", "congeler"],
     },
     {
       base: "hang",
@@ -821,7 +823,7 @@ export const VERBS: Verb[] = [
       base: "wake",
       pastSimple: ["woke"],
       pastParticiple: ["woken"],
-      translations: ["se réveiller"],
+      translations: ["se réveiller", "réveiller"],
     },
     {
       base: "dig",
@@ -911,7 +913,7 @@ export const VERBS: Verb[] = [
       base: "seek",
       pastSimple: ["sought"],
       pastParticiple: ["sought"],
-      translations: ["chercher"],
+      translations: ["chercher", "rechercher"],
     },
     {
       base: "shake",
@@ -983,7 +985,7 @@ export const VERBS: Verb[] = [
       base: "swing",
       pastSimple: ["swung"],
       pastParticiple: ["swung"],
-      translations: ["se balancer"],
+      translations: ["se balancer", "balancer"],
     },
     {
       base: "undertake",
@@ -1233,3 +1235,27 @@ export const VERBS: Verb[] = [
     },
   ];
 
+const EASY_EXTRA_BASES = ["forget", "learn", "fly", "sing", "swim", "drink", "sell", "wake", "dream", "hide", "ride"];
+const MEDIUM_EXTRA_BASES = [
+  "learn", "burn", "smell", "spell", "spill", "dream", "lay", "bet", "burst", "prove",
+  "dive", "fit", "quit", "spin", "bend", "lean", "leap", "flee", "upset",
+];
+
+function poolFrom(count: number, extras: string[]): Verb[] {
+  const bases = new Set([...VERBS.slice(0, count).map((verb) => verb.base), ...extras]);
+  return VERBS.filter((verb) => bases.has(verb.base));
+}
+
+/**
+ * Facile : les verbes irréguliers les plus courants ; Moyen : une liste élargie ;
+ * Difficile : les 150 verbes.
+ */
+export const VERB_POOLS: Record<Difficulty, Verb[]> = {
+  1: poolFrom(60, EASY_EXTRA_BASES),
+  2: poolFrom(110, MEDIUM_EXTRA_BASES),
+  3: VERBS,
+};
+
+export function verbsForDifficulty(difficulty: Difficulty): Verb[] {
+  return VERB_POOLS[difficulty] ?? VERBS;
+}

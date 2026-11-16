@@ -4,7 +4,8 @@ import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score"
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  VERBS,
+  VERB_POOLS,
+  verbsForDifficulty,
   createInitialGameState,
   startNewRound,
   submitAnswer,
@@ -35,9 +36,9 @@ const FEEDBACK_RIGHT_MS = 900;
 const FEEDBACK_WRONG_MS = 2200;
 
 const DIFFICULTIES: { value: Difficulty; label: string; detail: string }[] = [
-  { value: 1, label: "Facile", detail: "Prétérit seulement" },
-  { value: 2, label: "Moyen", detail: "Prétérit et participe passé" },
-  { value: 3, label: "Difficile", detail: "Prétérit, participe passé et traduction" },
+  { value: 1, label: "Facile", detail: `Prétérit seulement · ${VERB_POOLS[1].length} verbes courants` },
+  { value: 2, label: "Moyen", detail: `Prétérit et participe passé · ${VERB_POOLS[2].length} verbes` },
+  { value: 3, label: "Difficile", detail: `Prétérit, participe et traduction · ${VERB_POOLS[3].length} verbes` },
 ];
 
 type Phase = "start" | "playing" | "ended";
@@ -245,7 +246,7 @@ export function SpeedVerbGame({
     gameSession.begin();
     roundLockedRef.current = false;
     const now = performance.now();
-    const initial = createInitialGameState(VERBS, {
+    const initial = createInitialGameState(verbsForDifficulty(difficulty), {
       totalTimeMs: TOTAL_TIME_MS,
       difficulty,
       allowImmediateRepeat: false,
@@ -689,6 +690,12 @@ export function SpeedVerbGame({
         <p className="eq-game-prompt eq-speed-verb" data-testid="game-prompt">
           {round.currentVerb.base}
         </p>
+
+        {round.currentVerb.hint ? (
+          <p className="eq-game-prompt-sub" data-testid="verb-hint">
+            ({round.currentVerb.hint})
+          </p>
+        ) : null}
 
         <p className="eq-game-prompt-sub">
           {fields.length === 1

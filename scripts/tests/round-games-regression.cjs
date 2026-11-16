@@ -373,4 +373,62 @@ test("Echo Signal scenarios cover all 5 levels cleanly with valid comprehension 
   }
 });
 
+test("Spell Strike never shows the answer, checks capitals and aligns the correction", () => {
+  const spell = loadEngine("spellStrike");
+  const strip = (v) => v.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  for (const entry of spell.SPELL_STRIKE_WORDS) {
+    assert.ok(!strip(entry.hint).includes(strip(entry.word)), `${entry.id}: l'indice contient le mot`);
+    assert.equal(entry.sentence.split("____").length, 2, `${entry.id}: un seul trou`);
+    if (strip(entry.french).includes(strip(entry.word))) {
+      assert.equal(spell.shouldShowSpellMeaning(entry), false, `${entry.id}: le sens révèle le mot`);
+    }
+  }
+  const byWord = (w) => spell.SPELL_STRIKE_WORDS.find((e) => e.word === w);
+  assert.equal(spell.shouldShowSpellMeaning(byWord("orange")), false);
+  assert.equal(spell.shouldShowSpellMeaning(byWord("education")), false);
+  assert.equal(spell.shouldShowSpellMeaning(byWord("address")), true);
+  assert.equal(spell.spellAnswerIssue(byWord("Monday"), "monday"), "capital");
+  assert.equal(spell.spellAnswerIssue(byWord("Monday"), "Monday"), "ok");
+  assert.equal(spell.spellAnswerIssue(byWord("friend"), "Friend"), "ok");
+  const missing = spell.buildSpellingDiff("listen", "liten").map((c) => c.status);
+  assert.deepEqual(missing, ["match", "match", "missing", "match", "match", "match"]);
+  const extra = spell.buildSpellingDiff("dinner", "dinnerr").map((c) => c.status);
+  assert.equal(extra.filter((st) => st === "extra").length, 1);
+  assert.equal(extra.filter((st) => st === "match").length, 6);
+});
+
+test("Echo Signal shuffles answers so their position never gives them away", () => {
+  const echo = loadEngine("echoSignal");
+  const positions = [0, 0, 0, 0];
+  const rng = seeded(4242);
+  for (let run = 0; run < 400; run += 1) {
+    const level = (run % 5) + 1;
+    for (const scenario of echo.pickEchoSignalMissions({ level, count: 4, rng })) {
+      const source = echo.ECHO_SIGNAL_SCENARIOS.find((s) => s.id === scenario.id);
+      scenario.questions.forEach((q, i) => {
+        const original = source.questions[i];
+        assert.equal(q.options[q.correctIndex], original.options[original.correctIndex], `${scenario.id}: bonne réponse conservée`);
+        positions[q.correctIndex] += 1;
+      });
+    }
+  }
+  const total = positions.reduce((a, b) => a + b, 0);
+  for (const count of positions) assert.ok(count / total < 0.35 && count / total > 0.15, `positions ${positions.join("/")}`);
+});
+
+test("Speed Verb pools grow with the level and accept the common meanings", () => {
+  const easy = verb.VERB_POOLS[1].map((v) => v.base);
+  const medium = verb.VERB_POOLS[2].map((v) => v.base);
+  assert.equal(verb.VERB_POOLS[3].length, verb.VERBS.length);
+  assert.ok(easy.length >= 60 && easy.length < medium.length && medium.length < verb.VERBS.length);
+  for (const base of easy) assert.ok(medium.includes(base), `${base} manque au niveau moyen`);
+  for (const base of ["be", "go", "forget", "learn"]) assert.ok(easy.includes(base), base);
+  for (const base of ["bind", "wring", "forgo", "undergo"]) assert.ok(!easy.includes(base), base);
+  const byBase = (b) => verb.VERBS.find((v) => v.base === b);
+  assert.ok(byBase("think").translations.includes("réfléchir"));
+  assert.ok(byBase("feel").translations.includes("se sentir"));
+  const lie = byBase("lie");
+  assert.ok(lie.hint && !lie.translations.some((t) => lie.hint.includes(t)));
+});
+
 console.log(`\n${cases} round-game regression cases passed.`);

@@ -174,7 +174,7 @@ export function SoundToggleButton() {
       aria-pressed={!muted}
       aria-label={muted ? "Activer les effets sonores" : "Couper les effets sonores"}
       className={`eq-sound-btn ${muted ? "is-muted" : ""}`}
-      title={muted ? "Activer le son" : "Couper le son"}
+      title={muted ? "Activer les effets sonores (les voix restent actives)" : "Couper les effets sonores (les voix restent actives)"}
     >
       <svg
         viewBox="0 0 24 24"
@@ -200,7 +200,7 @@ export function SoundToggleButton() {
           </>
         )}
       </svg>
-      <span>{muted ? "Son coupé" : "Son activé"}</span>
+      <span>{muted ? "Effets coupés" : "Effets sonores"}</span>
     </button>
   );
 }
@@ -370,6 +370,7 @@ export function GameEnd({
   rewardError,
   missionReached,
   gameSlug,
+  ratio,
   onReplay,
   children,
 }: {
@@ -382,10 +383,14 @@ export function GameEnd({
   rewardError?: string | null;
   missionReached?: boolean | null;
   gameSlug?: string;
+  /** Part de bonnes réponses (0 à 1) : règle le message de fin (« Bien joué », « Pas mal », « Continue »). */
+  ratio?: number;
   onReplay: () => void;
   children?: ReactNode;
 }) {
   const isZeroScore = score === 0 || score === "0";
+  const mood: "great" | "ok" | "low" =
+    typeof ratio === "number" ? (ratio >= 0.7 ? "great" : ratio >= 0.4 ? "ok" : "low") : isZeroScore ? "low" : "great";
   // Une seule célébration par résultat enregistré (XP, or, niveau, badges, étoiles).
   const celebratedRef = useRef<RewardSummary | null>(null);
   useEffect(() => {
@@ -397,9 +402,9 @@ export function GameEnd({
   return (
     <div className="eq-game-end eq-slam" data-testid="game-end">
       <div className="eq-game-end-head">
-        <Mascot pose={isZeroScore ? "sam-oups" : "sam-bravo"} size={104} />
-        <Burst color={isZeroScore ? "white" : "yellow"} className="eq-pop-in">
-          {isZeroScore ? "Oups !" : "Bien joué !"}
+        <Mascot pose={mood === "low" ? "sam-oups" : "sam-bravo"} size={104} />
+        <Burst color={mood === "low" ? "white" : "yellow"} className="eq-pop-in">
+          {mood === "great" ? "Bien joué !" : mood === "ok" ? "Pas mal !" : "Continue, ça vient !"}
         </Burst>
         <div>
           <p className="eq-kicker">{title}</p>

@@ -166,15 +166,8 @@ export function FlashTranslationGame({
       setPaused(false);
       if (current.phase === "answering") {
         answerStartedAtRef.current = performance.now() - pausedAnswerElapsedRef.current;
-      } else if (current.phase === "waiting" && round) {
-        waitTimer.current = setTimeout(() => {
-          if (pausedRef.current) return;
-          const now = performance.now();
-          answerStartedAtRef.current = now;
-          setLiveAnswerMs(0);
-          setState((prev) => startAnswering(prev, now));
-        }, 700);
       } else if (current.phase === "feedback") {
+        // (En phase d'attente, l'effet « Délai avant l'apparition des choix » relance seul le minuteur.)
         feedbackTimer.current = setTimeout(() => {
           if (pausedRef.current) return;
           setState((prev) => nextRound(prev));
@@ -224,7 +217,10 @@ export function FlashTranslationGame({
     (index: number) => {
       if (state.phase !== "answering" || !round || lockRef.current || pausedRef.current) return;
       lockRef.current = true;
-      const now = answerStartedAtRef.current + Math.max(0, performance.now() - answerStartedAtRef.current);
+      // Temps de réponse sans les pauses : la référence affichée est recalée à la reprise,
+      // on reporte donc le temps écoulé sur l'heure d'apparition des choix connue du moteur.
+      const elapsed = Math.max(0, performance.now() - answerStartedAtRef.current);
+      const now = (round.startTimeMs ?? answerStartedAtRef.current) + elapsed;
       const answered = submitAnswer(state, index, now);
       if (answered === state) {
         lockRef.current = false;

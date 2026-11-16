@@ -24,7 +24,7 @@ const steps = [
   {
     pose: "duo-victoire",
     title: "Entraîne-toi en jouant",
-    copy: "Sept jeux pour fixer le vocabulaire, la grammaire et les verbes irréguliers.",
+    copy: "Neuf jeux pour fixer le vocabulaire, la grammaire, les verbes irréguliers, l'orthographe et l'écoute.",
   },
 ] as const;
 
@@ -192,7 +192,7 @@ export default async function PublicHomePage({
             <div>
               <span className="eq-caption">Entraînement</span>
               <h2 id="home-games" className="eq-h2">
-                Sept jeux pour s&apos;entraîner
+                Neuf jeux pour s&apos;entraîner
               </h2>
             </div>
             <Link href="/play" className="eq-text-link">
