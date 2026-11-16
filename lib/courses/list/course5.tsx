@@ -81,7 +81,7 @@ export const course5: LessonContent = {
           {/* Concept 2: The Muscle */}
           <div>
             <h3 className="text-xl text-slate-100 font-bold mb-3 flex items-center gap-2">
-              <span className="bg-amber-600 text-amber-100 w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+              <span className="bg-amber-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
               L'arrivée du Bodyguard (DO)
             </h3>
             <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700">
@@ -107,7 +107,7 @@ export const course5: LessonContent = {
           {/* Concept 3: The Job */}
           <div className="bg-amber-950/20 border border-amber-500/30 rounded-xl p-6 relative overflow-hidden">
             <div className="flex items-center gap-3 mb-4">
-              <div className="bg-amber-500 text-amber-950 font-black px-3 py-1 rounded text-sm uppercase tracking-wider">La Mission</div>
+              <div className="bg-amber-500 text-white font-black px-3 py-1 rounded text-sm uppercase tracking-wider">La Mission</div>
               <h4 className="text-amber-300 font-bold">Le Sacrifice du Bodyguard</h4>
             </div>
 

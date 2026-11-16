@@ -200,10 +200,11 @@ export function CustomizationDisplay({
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-white text-outline">Avatar</h3>
+          <h3 className="eq-h3">Avatar</h3>
           <button
+            type="button"
             onClick={() => setShowSelector(showSelector === "avatar" ? null : "avatar")}
-            className="comic-button bg-slate-700 px-4 py-2 text-sm font-bold text-white text-outline hover:bg-slate-600"
+            className="eq-btn eq-btn-ghost eq-btn-sm"
           >
             {showSelector === "avatar" ? "Fermer" : "Changer"}
           </button>
@@ -211,12 +212,12 @@ export function CustomizationDisplay({
 
         <div className="relative" style={{ width: "128px", aspectRatio: "2/3" }}>
           <div
-            className={`absolute inset-0 overflow-hidden rounded-lg border-4 border-black ${
+            className={`absolute inset-0 overflow-hidden rounded-[var(--pro-radius)] border border-[var(--pro-border-strong)] ${
               currentBackground?.image_url
                 ? "bg-cover bg-center"
                 : currentBackground?.color_theme
                   ? getItemColor(currentBackground.color_theme)
-                  : "bg-[#161d2f]"
+                  : "bg-[var(--pro-surface-2)]"
             }`}
             style={
               currentBackground?.image_url
@@ -239,10 +240,10 @@ export function CustomizationDisplay({
               <img
                 src={addCacheBustingIfSupabase(currentAvatar.image_url)}
                 alt={currentAvatar.name}
-                className="h-full w-full rounded-lg border-2 border-black object-cover"
+                className="h-full w-full rounded-[var(--pro-radius-sm)] border border-[var(--pro-border-strong)] object-cover"
               />
             ) : currentAvatar?.item_key ? (
-              <div className="h-full w-full overflow-hidden rounded-lg border-2 border-black">
+              <div className="h-full w-full overflow-hidden rounded-[var(--pro-radius-sm)] border border-[var(--pro-border-strong)]">
                 <ShopClassArt
                   itemKey={currentAvatar.item_key}
                   itemType="avatar"
@@ -251,13 +252,13 @@ export function CustomizationDisplay({
               </div>
             ) : currentAvatar?.color_theme ? (
               <div
-                className={`h-full w-full rounded-lg border-2 border-black ${getItemColor(
+                className={`h-full w-full rounded-[var(--pro-radius-sm)] border border-[var(--pro-border-strong)] ${getItemColor(
                   currentAvatar.color_theme
                 )}`}
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center rounded-lg border-2 border-black bg-slate-800/50">
-                <span className="text-4xl font-bold text-white text-outline">
+              <div className="flex h-full w-full items-center justify-center rounded-[var(--pro-radius-sm)] border border-[var(--pro-border)] bg-[var(--pro-surface)]">
+                <span className="text-4xl font-bold text-[var(--pro-text)]">
                   {username.charAt(0).toUpperCase()}
                 </span>
               </div>
@@ -267,7 +268,7 @@ export function CustomizationDisplay({
 
         {showSelector === "avatar" && (
           <div
-            className="comic-panel border-2 border-black bg-slate-800 p-4"
+            className="eq-inset p-4"
             style={{ position: "relative", zIndex: 10 }}
           >
             <div
@@ -281,10 +282,8 @@ export function CustomizationDisplay({
                   event.stopPropagation();
                   handleEquip(null, "avatar");
                 }}
-                className={`comic-button relative z-10 px-3 py-2 text-sm font-bold text-outline ${
-                  !currentAvatar
-                    ? "bg-cyan-500 text-white"
-                    : "bg-slate-600 text-white hover:bg-slate-500"
+                className={`eq-btn eq-btn-sm relative z-10 ${
+                  !currentAvatar ? "eq-btn-primary" : "eq-btn-ghost"
                 }`}
               >
                 Aucun
@@ -298,10 +297,8 @@ export function CustomizationDisplay({
                     event.stopPropagation();
                     handleEquip(avatar.id, "avatar");
                   }}
-                  className={`comic-button relative z-10 px-3 py-2 text-sm font-bold text-outline ${
-                    currentAvatar?.id === avatar.id
-                      ? "bg-cyan-500 text-white"
-                      : "bg-slate-700 text-white hover:bg-slate-600"
+                  className={`eq-btn eq-btn-sm relative z-10 h-auto py-2 ${
+                    currentAvatar?.id === avatar.id ? "eq-btn-primary" : "eq-btn-ghost"
                   }`}
                   style={{ pointerEvents: "auto", position: "relative", zIndex: 20 }}
                 >
@@ -329,24 +326,25 @@ export function CustomizationDisplay({
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-white text-outline">Titre</h3>
+          <h3 className="eq-h3">Titre</h3>
           <button
+            type="button"
             onClick={() => setShowSelector(showSelector === "title" ? null : "title")}
-            className="comic-button bg-slate-700 px-4 py-2 text-sm font-bold text-white text-outline hover:bg-slate-600"
+            className="eq-btn eq-btn-ghost eq-btn-sm"
           >
             {showSelector === "title" ? "Fermer" : "Changer"}
           </button>
         </div>
 
-        <div className="comic-panel border-2 border-black bg-slate-800 p-3 text-center">
-          <span className="text-lg font-bold text-cyan-400 text-outline">
+        <div className="eq-inset p-3 text-center">
+          <span className="text-base font-bold text-[var(--cyan)]">
             {currentTitle?.name || "Aucun titre"}
           </span>
         </div>
 
         {showSelector === "title" && (
           <div
-            className="comic-panel border-2 border-black bg-slate-800 p-4"
+            className="eq-inset p-4"
             style={{ position: "relative", zIndex: 10 }}
           >
             <div
@@ -360,10 +358,8 @@ export function CustomizationDisplay({
                   event.stopPropagation();
                   handleEquip(null, "title");
                 }}
-                className={`comic-button relative z-10 px-3 py-2 text-sm font-bold text-outline ${
-                  !currentTitle
-                    ? "bg-cyan-500 text-white"
-                    : "bg-slate-600 text-white hover:bg-slate-500"
+                className={`eq-btn eq-btn-sm relative z-10 ${
+                  !currentTitle ? "eq-btn-primary" : "eq-btn-ghost"
                 }`}
               >
                 Aucun
@@ -377,10 +373,8 @@ export function CustomizationDisplay({
                     event.stopPropagation();
                     handleEquip(title.id, "title");
                   }}
-                  className={`comic-button relative z-10 px-3 py-2 text-sm font-bold text-outline ${
-                    currentTitle?.id === title.id
-                      ? "bg-cyan-500 text-white"
-                      : "bg-slate-700 text-white hover:bg-slate-600"
+                  className={`eq-btn eq-btn-sm relative z-10 ${
+                    currentTitle?.id === title.id ? "eq-btn-primary" : "eq-btn-ghost"
                   }`}
                   style={{ pointerEvents: "auto", position: "relative", zIndex: 20 }}
                 >
@@ -419,8 +413,8 @@ export function CustomizationDisplay({
           ) : currentBackground?.color_theme ? (
             <div className={`h-full w-full ${getItemColor(currentBackground.color_theme)}`} />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
-              <span className="font-bold text-[var(--fg)]">
+            <div className="eq-inset flex h-full w-full items-center justify-center border-0">
+              <span className="eq-muted text-sm font-semibold">
                 {currentBackground?.name || "Par défaut"}
               </span>
             </div>

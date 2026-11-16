@@ -53,7 +53,7 @@ export function LoginForm({ next = null }: { next?: string | null }) {
       <SubmitButton />
 
       <p className="text-center text-sm">
-        <Link href="/auth/forgot" className="font-bold text-[var(--cyan)]">
+        <Link href="/auth/forgot" className="eq-text-link">
           Mot de passe oublié ?
         </Link>
       </p>

@@ -72,7 +72,7 @@ export function GameShell({ game, mission, isLoggedIn, aside, children }: GameSh
           ) : !isLoggedIn ? (
             <p className="eq-game-guest">
               Tu joues sans compte : le score ne sera pas enregistré.{" "}
-              <Link href="/auth/signup" className="font-bold text-[var(--cyan)]">
+              <Link href="/auth/signup" className="eq-text-link">
                 Créer un compte
               </Link>
             </p>

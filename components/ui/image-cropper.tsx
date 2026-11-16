@@ -116,22 +116,21 @@ export function ImageCropper({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-      <div className="comic-panel-dark p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm">
+      <div className="eq-card p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-auto">
         <div className="space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-white text-outline">
-              Ajuster l&apos;image
-            </h3>
+          <div className="flex items-center justify-between gap-3 border-b border-[var(--pro-border)] pb-3">
+            <h3 className="eq-h3">Ajuster l&apos;image</h3>
             <button
+              type="button"
               onClick={onCancel}
-              className="comic-button bg-red-600 text-white px-4 py-2 text-sm font-bold text-outline hover:bg-red-700"
+              className="eq-btn eq-btn-ghost eq-btn-sm"
             >
-              ✕ Annuler
+              Annuler
             </button>
           </div>
 
-          <div className="relative w-full" style={{ height: "400px" }}>
+          <div className="relative w-full overflow-hidden rounded-[var(--pro-radius)] border border-[var(--pro-border)]" style={{ height: "400px" }}>
             <Cropper
               image={image}
               crop={crop}
@@ -142,17 +141,17 @@ export function ImageCropper({
               onCropComplete={onCropAreaChange}
               style={{
                 containerStyle: {
-                  backgroundColor: "#1e293b",
-                  borderRadius: "0.5rem",
+                  backgroundColor: "var(--pro-surface-2)",
+                  borderRadius: "var(--pro-radius)",
                 },
               }}
             />
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-white text-outline mb-2">
-                Zoom: {Math.round(zoom * 100)}%
+              <label className="block text-sm font-bold mb-2">
+                Zoom : {Math.round(zoom * 100)}%
               </label>
               <input
                 type="range"
@@ -167,15 +166,17 @@ export function ImageCropper({
 
             <div className="flex gap-3">
               <button
+                type="button"
                 onClick={handleSave}
                 disabled={isProcessing || !croppedAreaPixels}
-                className="comic-button bg-cyan-500 text-white px-6 py-3 font-bold text-outline hover:bg-cyan-600 flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="eq-btn eq-btn-primary flex-1"
               >
-                {isProcessing ? "Traitement..." : "✓ Valider"}
+                {isProcessing ? "Traitement…" : "Valider"}
               </button>
               <button
+                type="button"
                 onClick={onCancel}
-                className="comic-button bg-slate-600 text-white px-6 py-3 font-bold text-outline hover:bg-slate-500"
+                className="eq-btn eq-btn-ghost"
               >
                 Annuler
               </button>

@@ -146,7 +146,8 @@ export const course18: LessonContent = {
             Le superlatif désigne l'élément <strong>numéro 1</strong> d'un groupe. L'article <span className="text-yellow-400 font-bold">"THE"</span> est absolument OBLIGATOIRE car l'élément est unique.
           </p>
 
-          <table className="w-full text-left text-sm text-slate-300 border-collapse mb-4">
+          <div className="overflow-x-auto mb-4">
+          <table className="w-full text-left text-sm text-slate-300 border-collapse">
             <thead>
               <tr className="border-b border-slate-600 text-slate-400">
                 <th className="py-2">Type d'Adjectif</th>
@@ -177,6 +178,7 @@ export const course18: LessonContent = {
               </tr>
             </tbody>
           </table>
+          </div>
 
           <div className="bg-slate-900 p-4 rounded border-l-4 border-purple-500">
             <h4 className="text-purple-400 font-bold mb-2">La Précision du Contexte (IN vs OF)</h4>

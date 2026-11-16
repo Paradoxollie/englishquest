@@ -16,7 +16,7 @@ export const course8: LessonContent = {
       content: (
         <div className="space-y-6">
           <div className="bg-slate-900/40 p-4 rounded-lg border-l-4 border-amber-500">
-            <p className="text-slate-200 text-lg">
+            <div className="text-slate-200 text-lg">
               <strong>Le Problème :</strong> En français, "Il y a" est une expression "poubelle" qui fait tout (Singulier, Pluriel, Indénombrable).
               <br /><br />
               En anglais, c'est de la chirurgie :
@@ -24,7 +24,7 @@ export const course8: LessonContent = {
                 <li>Vous devez scanner la <strong>quantité</strong> avant de parler.</li>
                 <li>Vous devez scanner la <strong>nature</strong> (comptable ou non).</li>
               </ul>
-            </p>
+            </div>
           </div>
         </div>
       )
@@ -108,7 +108,7 @@ export const course8: LessonContent = {
           <div className="relative pl-8 border-l-2 border-slate-700 space-y-8">
             {/* EXISTENCE */}
             <div className="relative">
-              <div className="absolute -left-[41px] top-0 bg-emerald-500 text-slate-900 font-bold w-8 h-8 rounded-full flex items-center justify-center">1</div>
+              <div className="absolute -left-[41px] top-0 bg-emerald-500 text-white font-bold w-8 h-8 rounded-full flex items-center justify-center">1</div>
               <h4 className="text-emerald-400 font-bold uppercase mb-1">Introduction (Inconnu)</h4>
               <p className="text-slate-400 text-sm mb-2">L'objet n'est pas encore dans la conversation. On le fait apparaître.</p>
               <p className="font-mono text-white bg-slate-900 p-2 rounded inline-block">
@@ -118,7 +118,7 @@ export const course8: LessonContent = {
 
             {/* DESCRIPTION */}
             <div className="relative">
-              <div className="absolute -left-[41px] top-0 bg-amber-500 text-slate-900 font-bold w-8 h-8 rounded-full flex items-center justify-center">2</div>
+              <div className="absolute -left-[41px] top-0 bg-amber-500 text-white font-bold w-8 h-8 rounded-full flex items-center justify-center">2</div>
               <h4 className="text-amber-400 font-bold uppercase mb-1">Description (Connu)</h4>
               <p className="text-slate-400 text-sm mb-2">L'objet est maintenant "sur la table". On peut le qualifier.</p>
               <p className="font-mono text-white bg-slate-900 p-2 rounded inline-block">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PageHead } from "@/components/comic/page-head";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { ContactForm } from "./contact-form";
@@ -27,29 +28,32 @@ export default async function ContactPage() {
   }
 
   return (
-    <div className="eq-container eq-section">
-      <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
-        <section>
-          <h1 className="eq-h1">Contact</h1>
-          <p className="eq-lead mt-4">
-            Une question, un bug, un mot de passe oublié, une idée de jeu : écris-moi, je lis
-            tout.
-          </p>
-          <ul className="mt-6 grid gap-2 text-sm text-[var(--muted)]">
-            <li>Mot de passe oublié : indique ton pseudo, je réinitialise ton accès.</li>
-            <li>Un bug : dis sur quelle page, et avec quel appareil si tu le sais.</li>
-            <li>Professeur ? Indiquez votre pseudo et votre établissement : j&apos;active le rôle professeur sur votre compte.</li>
-          </ul>
-          {profile ? (
-            <p className="mt-6 text-sm text-[var(--muted)]">
-              Connecté en tant que <span className="font-bold text-[var(--fg)]">{profile.username}</span>.
-              La réponse arrivera dans tes messages.
-            </p>
-          ) : null}
-        </section>
-        <section className="eq-card p-6 md:p-8">
-          <ContactForm user={user} profile={profile} />
-        </section>
+    <div>
+      <PageHead caption="Contact" title="Écrire à Pierre">
+        Une question, un bug, un mot de passe oublié ou une idée de jeu : écris-moi, je lis tout.
+      </PageHead>
+
+      <div className="eq-container eq-section">
+        <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+          <section className="eq-card p-6 space-y-4">
+            <span className="eq-caption">Informations utiles</span>
+            <h2 className="eq-h3">Comment formuler ta demande</h2>
+            <ul className="eq-muted grid gap-2.5 text-sm leading-relaxed">
+              <li>Mot de passe oublié : indique ton pseudo, je réinitialise ton accès.</li>
+              <li>Un bug : précise sur quelle page et avec quel appareil si possible.</li>
+              <li>Professeur : indiquez votre pseudo et votre établissement pour activer le rôle professeur.</li>
+            </ul>
+            {profile ? (
+              <p className="eq-inset p-3 text-sm eq-muted">
+                Connecté en tant que <b className="text-[var(--pro-text)]">{profile.username}</b>. La réponse arrivera
+                dans tes messages.
+              </p>
+            ) : null}
+          </section>
+          <section className="eq-card p-6 md:p-8">
+            <ContactForm user={user} profile={profile} />
+          </section>
+        </div>
       </div>
     </div>
   );

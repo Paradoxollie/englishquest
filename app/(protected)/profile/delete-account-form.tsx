@@ -19,7 +19,7 @@ export function DeleteAccountForm() {
   }
 
   return (
-    <form action={formAction} className="eq-inset grid gap-3" aria-label="Suppression du compte">
+    <form action={formAction} className="eq-inset p-4 grid gap-3" aria-label="Suppression du compte">
       <p className="text-sm">
         <b>Cette action est définitive.</b> Scores, progression sur la carte, objets achetés et pseudo seront effacés.
         Pour confirmer, écris <code>SUPPRIMER</code> ci-dessous.
@@ -29,7 +29,7 @@ export function DeleteAccountForm() {
         name="confirmation"
         autoComplete="off"
         placeholder="SUPPRIMER"
-        className="w-full rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--ink)] px-4 py-3 text-[0.95rem] text-[var(--fg)] outline-none focus:border-[var(--coral)]"
+        className="eq-input w-full px-4 py-3 text-[0.95rem]"
       />
       {state.error ? (
         <p role="alert" className="text-sm font-bold text-[var(--coral)]">

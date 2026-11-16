@@ -1,10 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
-import { updateUserRoleAction, type UpdateRoleState } from "./actions";
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { updateUserRoleAction, type UpdateRoleState } from "./actions";
 
 type UserRoleFormProps = {
   userId: string;
@@ -17,9 +16,9 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="comic-button bg-cyan-500 text-white px-4 py-1.5 text-sm font-bold hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed"
+      className="eq-btn eq-btn-primary eq-btn-sm"
     >
-      {pending ? "Mise à jour..." : "Mettre à jour"}
+      {pending ? "Mise à jour…" : "Mettre à jour"}
     </button>
   );
 }
@@ -38,13 +37,13 @@ export function UserRoleForm({ userId, currentRole }: UserRoleFormProps) {
   }, [state.success, router]);
 
   return (
-    <form action={formAction} className="inline-flex flex-col gap-2">
+    <form action={formAction} className="inline-flex flex-col gap-1.5">
       <input type="hidden" name="userId" value={userId} />
       <div className="flex items-center gap-2">
         <select
           name="newRole"
           defaultValue={currentRole}
-          className="comic-panel border-2 border-black bg-slate-800 px-3 py-1.5 text-sm font-bold text-white focus:border-cyan-400 focus:outline-none"
+          className="eq-input px-3 py-1.5 text-sm font-semibold"
         >
           <option value="student">Student</option>
           <option value="teacher">Teacher</option>
@@ -53,12 +52,11 @@ export function UserRoleForm({ userId, currentRole }: UserRoleFormProps) {
         <SubmitButton />
       </div>
       {state.error && (
-        <p className="text-xs text-red-400">{state.error}</p>
+        <p className="text-xs font-semibold text-[var(--pro-error)]">{state.error}</p>
       )}
       {state.success && (
-        <p className="text-xs text-green-400">{state.success}</p>
+        <p className="text-xs font-semibold text-[var(--pro-success)]">{state.success}</p>
       )}
     </form>
   );
 }
-

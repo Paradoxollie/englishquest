@@ -277,7 +277,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
             <div
               key={item.id}
               className={`eq-card flex flex-col justify-between gap-3 ${
-                isEquipped ? "border-[var(--cyan)]" : ""
+                isEquipped ? "ring-2 ring-[var(--pro-primary)]" : ""
               }`}
             >
               <div className="space-y-3">
@@ -288,7 +288,7 @@ export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
                   </div>
                 ) : (
                 <div
-                  className="flex items-center justify-center overflow-hidden rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--ink)]"
+                  className="flex items-center justify-center overflow-hidden rounded-[var(--pro-radius)] border border-[var(--pro-border)] bg-[var(--pro-surface-2)]"
                   style={{ aspectRatio: "2/3", width: "100%" }}
                 >
                   {item.image_url ? (

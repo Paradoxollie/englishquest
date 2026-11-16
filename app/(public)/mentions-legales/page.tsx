@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PageHead } from "@/components/comic/page-head";
 
 export const metadata: Metadata = {
   title: "Mentions légales",
@@ -8,17 +9,19 @@ export const metadata: Metadata = {
 
 export default function LegalNoticePage() {
   return (
-    <div className="eq-container eq-section">
-      <article className="eq-legal mx-auto max-w-3xl">
-        <p className="eq-kicker">Informations légales</p>
-        <h1 className="eq-h1">Mentions légales</h1>
-        <p className="eq-lead mt-4 max-w-none">
-          Ce que la loi demande d&apos;afficher, en clair. Pour tout ce qui concerne tes données,
-          voir la <Link href="/confidentialite">politique de confidentialité</Link>.
-        </p>
+    <div>
+      <PageHead caption="Informations légales" title="Mentions légales">
+        Ce que la loi demande d&apos;afficher, en clair. Pour tout ce qui concerne tes données, voir la{" "}
+        <Link href="/confidentialite" className="eq-text-link">
+          politique de confidentialité
+        </Link>
+        .
+      </PageHead>
 
-        <section>
-          <h2 className="eq-h2">Éditeur du site</h2>
+      <div className="eq-container eq-section">
+        <article className="eq-legal mx-auto max-w-3xl">
+          <section className="mt-0 pt-0 border-t-0">
+            <h2 className="eq-h2">Éditeur du site</h2>
           <p>
             English Quest est un site personnel, édité à titre non professionnel par Pierre Marienne,
             professeur d&apos;anglais. Il est gratuit et ne vend rien.
@@ -72,6 +75,7 @@ export default function LegalNoticePage() {
 
         <p className="eq-muted text-sm">Dernière mise à jour : octobre 2026.</p>
       </article>
+      </div>
     </div>
   );
 }

@@ -144,7 +144,7 @@ export default async function ProfilePage({
       <header className="eq-profile-head">
         <AvatarDisplay userId={user.id} username={profile.username} size="lg" initialEquipped={initialEquipped} />
         <div className="eq-profile-identity">
-          <p className="eq-kicker">{roleLabels[profile.role] ?? profile.role}</p>
+          <span className="eq-caption">{roleLabels[profile.role] ?? profile.role}</span>
           <h1 className="eq-h1">{profile.username}</h1>
           <TitleDisplay userId={user.id} initialTitle={initialTitle} />
           <p className="eq-muted">Membre depuis {memberSince}</p>
@@ -164,19 +164,19 @@ export default async function ProfilePage({
       </header>
 
       <dl className="eq-home-stats eq-profile-stats">
-        <div>
+        <div className="is-xp">
           <dt>Expérience totale</dt>
           <dd>{profile.xp} XP</dd>
         </div>
-        <div>
+        <div className="is-gold">
           <dt>Or</dt>
           <dd>{profile.gold}</dd>
         </div>
-        <div>
+        <div className="is-missions">
           <dt>Missions validées</dt>
           <dd>{completedCourses} / 50</dd>
         </div>
-        <div>
+        <div className="is-streak">
           <dt>Parties jouées</dt>
           <dd>{gamesPlayed ?? 0}</dd>
         </div>
@@ -184,7 +184,7 @@ export default async function ProfilePage({
 
       <div className="eq-profile-grid">
         <section className="eq-card" aria-labelledby="profile-progress">
-          <p className="eq-kicker">Aventure</p>
+          <span className="eq-caption">Aventure</span>
           <h2 id="profile-progress" className="eq-h3">
             {currentCourse
               ? `Mission ${currentCourse.course_number} · ${lessons[currentCourse.course_number]?.title ?? currentCourse.title}`
@@ -208,7 +208,7 @@ export default async function ProfilePage({
         </section>
 
         <section className="eq-card" aria-labelledby="profile-scores">
-          <p className="eq-kicker">Meilleurs scores</p>
+          <span className="eq-caption">Meilleurs scores</span>
           <h2 id="profile-scores" className="eq-h3">
             {bestList.length > 0 ? "Ton record par jeu" : "Pas encore de score"}
           </h2>
@@ -236,11 +236,11 @@ export default async function ProfilePage({
       {badges.newlyEarned.length > 0 ? <RewardOnMount detail={{ badges: badges.newlyEarned }} /> : null}
 
       <ClassJoinCard userId={user.id} />
-      <section className="eq-profile-section" aria-labelledby="profile-look">
-        <div className="eq-home-section-head">
+      <section className="eq-profile-section eq-section-divider" aria-labelledby="profile-look">
+        <div className="eq-section-head">
           <div>
-            <p className="eq-kicker">Apparence</p>
-            <h2 id="profile-look" className="eq-h3">
+            <span className="eq-caption">Apparence</span>
+            <h2 id="profile-look" className="eq-h2">
               Avatar, titre, fond et vaisseau
             </h2>
           </div>
@@ -248,11 +248,11 @@ export default async function ProfilePage({
         <CustomizationDisplay userId={user.id} username={profile.username} />
       </section>
 
-      <section className="eq-profile-section" id="boutique" aria-labelledby="profile-shop">
-        <div className="eq-home-section-head">
+      <section className="eq-profile-section eq-section-divider" id="boutique" aria-labelledby="profile-shop">
+        <div className="eq-section-head">
           <div>
-            <p className="eq-kicker">Boutique</p>
-            <h2 id="profile-shop" className="eq-h3">
+            <span className="eq-caption">Boutique</span>
+            <h2 id="profile-shop" className="eq-h2">
               Dépense ton or
             </h2>
           </div>
@@ -266,7 +266,7 @@ export default async function ProfilePage({
       </section>
 
       <section className="eq-card eq-profile-account" aria-labelledby="profile-account">
-        <p className="eq-kicker">Compte</p>
+        <span className="eq-caption">Compte</span>
         <h2 id="profile-account" className="eq-h3">
           {user.email && !user.email.endsWith("@noreply.englishquest.local") ? user.email : "Compte sans adresse e-mail"}
         </h2>
@@ -278,7 +278,7 @@ export default async function ProfilePage({
         <p className="eq-muted text-sm">
           Tes données : pseudo, adresse e-mail si tu en as donné une, scores, progression et objets. Rien d&apos;autre.
           Tout est expliqué dans la{" "}
-          <Link href="/confidentialite" className="font-bold text-[var(--cyan)]">
+          <Link href="/confidentialite" className="eq-text-link">
             politique de confidentialité
           </Link>
           .

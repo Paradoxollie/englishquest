@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PageHead } from "@/components/comic/page-head";
 
 export const metadata: Metadata = {
   title: "Confidentialité",
@@ -9,17 +10,16 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="eq-container eq-section">
-      <article className="eq-legal mx-auto max-w-3xl">
-        <p className="eq-kicker">Tes données</p>
-        <h1 className="eq-h1">Politique de confidentialité</h1>
-        <p className="eq-lead mt-4 max-w-none">
-          La version courte : le site garde le strict nécessaire pour faire fonctionner ton compte, ne vend
-          rien à personne, et tu peux tout effacer toi-même depuis ton profil.
-        </p>
+    <div>
+      <PageHead caption="Tes données" title="Politique de confidentialité">
+        La version courte : le site garde le strict nécessaire pour faire fonctionner ton compte, ne vend rien à
+        personne, et tu peux tout effacer toi-même depuis ton profil.
+      </PageHead>
 
-        <section>
-          <h2 className="eq-h2">Sans compte</h2>
+      <div className="eq-container eq-section">
+        <article className="eq-legal mx-auto max-w-3xl">
+          <section className="mt-0 pt-0 border-t-0">
+            <h2 className="eq-h2">Sans compte</h2>
           <p>
             Tu peux lire tous les cours et jouer à tous les jeux sans t&apos;inscrire. Dans ce cas, aucun
             score n&apos;est enregistré et aucune donnée personnelle n&apos;est conservée. Le site compte
@@ -116,6 +116,7 @@ export default function PrivacyPage() {
 
         <p className="eq-muted text-sm">Dernière mise à jour : octobre 2026.</p>
       </article>
+      </div>
     </div>
   );
 }

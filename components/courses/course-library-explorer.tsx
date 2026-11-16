@@ -121,14 +121,9 @@ export function CourseLibraryExplorer({
                     href={`/cours/${entry.courseId}`}
                     className={`eq-card eq-card-link h-full gap-2.5 p-4 ${
                       isRecommended || entry.status === "in_progress"
-                        ? "border-2 border-[var(--ink-rule)]"
+                        ? "ring-2 ring-[var(--pro-primary)]"
                         : ""
                     }`}
-                    style={{
-                      borderTop: `4px solid ${
-                        ["#15803d", "#1d4ed8", "#6d28d9", "#c42b27", "#b47100"][palier.id - 1] ?? "#b47100"
-                      }`,
-                    }}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <span className="font-mono text-xs font-extrabold uppercase tracking-wider text-[var(--muted)]">

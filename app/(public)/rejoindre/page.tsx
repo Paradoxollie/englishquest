@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { PageHead } from "@/components/comic/page-head";
 import { JoinClassForm } from "@/components/classes/join-class-form";
 import { CLASS_CODE_LENGTH, normalizeClassCode } from "@/lib/classes/classes";
 import { withNextParam } from "@/lib/navigation/safe-next";
@@ -37,20 +38,21 @@ export default async function JoinClassPage({ searchParams }: { searchParams: Pr
   }
 
   return (
-    <div className="eq-container eq-section">
-      <div className="eq-card eq-class-join-page mx-auto grid max-w-xl gap-3">
-        <p className="eq-kicker">Classe</p>
-        <h1 className="eq-h2">Rejoindre une classe</h1>
-        <p className="eq-muted">
-          Tape le code donné par ton professeur. Il verra ton pseudo et ta progression, jamais ton adresse e-mail. Tu pourras
-          quitter la classe depuis ton profil.
-        </p>
-        <JoinClassForm initialCode={prefill} showNextSteps />
-        <p className="text-sm">
-          <Link href="/profile#classe" className="font-bold text-[var(--cyan)]">
-            Voir mes classes
-          </Link>
-        </p>
+    <div>
+      <PageHead caption="Classe" title="Rejoindre une classe">
+        Tape le code donné par ton professeur. Il verra ton pseudo et ta progression, jamais ton adresse e-mail.
+      </PageHead>
+
+      <div className="eq-container eq-section">
+        <div className="eq-card eq-class-join-page mx-auto grid max-w-xl gap-4 p-6">
+          <p className="eq-muted text-sm">Tu pourras quitter la classe à tout moment depuis ton profil.</p>
+          <JoinClassForm initialCode={prefill} showNextSteps />
+          <p className="text-sm">
+            <Link href="/profile#classe" className="eq-text-link">
+              Voir mes classes
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

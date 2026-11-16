@@ -1,13 +1,13 @@
 import { redirect } from "next/navigation";
+import { PageHead } from "@/components/comic/page-head";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isAdmin } from "@/lib/auth/roles";
-import Link from "next/link";
+import { DashboardNav } from "../dashboard-nav";
 import { ShopItemsManager } from "./shop-items-manager";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
-export const fetchCache = 'force-no-store';
+export const fetchCache = "force-no-store";
 
 export default async function ShopManagementPage() {
   const supabase = await createSupabaseServerClient();
@@ -24,24 +24,15 @@ export default async function ShopManagementPage() {
   }
 
   return (
-    <section className="space-y-6 text-slate-200">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold text-white">Gestion de la Boutique</h2>
-          <p className="text-sm text-slate-400">
-            Gérez les avatars, titres, backgrounds et skins de vaisseau disponibles dans la boutique
-          </p>
-        </div>
-        <Link
-          href="/dashboard"
-          className="comic-button bg-slate-700 text-white px-4 py-2 font-bold hover:bg-slate-600"
-        >
-          Retour au Dashboard
-        </Link>
-      </div>
+    <div>
+      <PageHead caption="Administration" title="Gestion de la boutique">
+        Gérez les avatars, titres, arrière-plans et skins de vaisseau disponibles dans la boutique.
+      </PageHead>
 
-      <ShopItemsManager />
-    </section>
+      <div className="eq-container eq-section">
+        <DashboardNav />
+        <ShopItemsManager />
+      </div>
+    </div>
   );
 }
-

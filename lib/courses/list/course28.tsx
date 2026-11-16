@@ -112,7 +112,7 @@ export const course28: LessonContent = {
                         Observez comment le sens de la phrase change radicalement juste en changeant le temps.
                     </p>
 
-                    <div className="bg-slate-900 border border-slate-700 rounded-lg overflow-hidden">
+                    <div className="bg-slate-900 border border-slate-700 rounded-lg overflow-x-auto">
                         <table className="w-full text-left text-sm">
                             <thead className="bg-slate-950 text-slate-400 uppercase font-bold">
                                 <tr>

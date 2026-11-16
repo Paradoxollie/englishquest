@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
+import { PageHead } from "@/components/comic/page-head";
 import { isAdmin } from "@/lib/auth/roles";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { DashboardNav } from "../dashboard-nav";
 import { PromoteAdminForm } from "./promote-admin-form";
 
 export const dynamic = "force-dynamic";
@@ -30,28 +32,27 @@ export default async function PromoteAdminPage() {
     .maybeSingle();
 
   return (
-    <section className="space-y-6 text-slate-200">
-      <div>
-        <h2 className="text-2xl font-semibold text-white">Promouvoir en Admin</h2>
-        <p className="text-sm text-slate-400">
-          Cette page est reservee aux admins.
-          <br />
-          Promouvoir un compte applique immediatement de nouveaux droits sur tout le
-          back-office.
-        </p>
-      </div>
+    <div>
+      <PageHead caption="Administration" title="Promouvoir en admin">
+        Page réservée aux administrateurs. Promouvoir un compte accorde immédiatement les droits complets sur le back-office.
+      </PageHead>
 
-      <div className="rounded-2xl border border-white/10 bg-black/20 p-6">
-        <div className="mb-4">
-          <p className="text-sm text-slate-300">
-            Votre compte actuel : <span className="font-semibold text-white">{profile?.username}</span>
-            <br />
-            Role actuel : <span className="font-semibold text-amber-300">{profile?.role}</span>
-          </p>
+      <div className="eq-container eq-section">
+        <DashboardNav />
+
+        <div className="eq-card max-w-2xl p-6 space-y-5">
+          <div className="eq-inset p-4 text-sm space-y-1">
+            <p>
+              Votre compte actuel : <b>{profile?.username}</b>
+            </p>
+            <p className="eq-muted">
+              Rôle actuel : <span className="eq-chip eq-chip-gold-soft">{profile?.role}</span>
+            </p>
+          </div>
+
+          <PromoteAdminForm />
         </div>
-
-        <PromoteAdminForm />
       </div>
-    </section>
+    </div>
   );
 }

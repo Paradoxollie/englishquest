@@ -60,7 +60,7 @@ export const course13: LessonContent = {
             La structure est invariable, mais attention aux pièges d'orthographe et de prononciation.
           </p>
 
-          <div className="bg-slate-900 rounded-lg overflow-hidden border border-slate-700">
+          <div className="bg-slate-900 rounded-lg overflow-x-auto border border-slate-700">
             <table className="w-full text-sm md:text-base">
               <thead className="bg-slate-800 text-slate-200">
                 <tr>
@@ -107,13 +107,13 @@ export const course13: LessonContent = {
             </div>
             <div className="bg-slate-800 p-4 rounded border border-slate-600">
               <h4 className="text-slate-200 font-bold mb-2 text-sm">🛑 "Any More" vs "No Longer"</h4>
-              <p className="text-slate-400 text-sm">
+              <div className="text-slate-400 text-sm">
                 Pour insister sur la rupture :
                 <ul className="list-disc pl-4 mt-1 space-y-1">
                   <li>"I don't smoke <strong>any more</strong>." (Courant)</li>
                   <li>"I <strong>no longer</strong> smoke." (Plus formel/écrit)</li>
                 </ul>
-              </p>
+              </div>
             </div>
           </div>
         </div>

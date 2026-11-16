@@ -169,56 +169,54 @@ export function ShopItemsManager() {
     <div className="space-y-6">
       {/* Error/Success Messages */}
       {error && (
-        <div className="comic-panel bg-red-600 border-2 border-black p-4 text-white text-outline">
+        <div className="rounded-[var(--pro-radius)] border border-[var(--pro-error)] bg-[var(--pro-error-soft)] p-4 text-sm font-semibold text-[var(--pro-error)]">
           {error}
         </div>
       )}
       {success && (
-        <div className="comic-panel bg-green-600 border-2 border-black p-4 text-white text-outline">
+        <div className="rounded-[var(--pro-radius)] border border-[var(--pro-success)] bg-[var(--pro-success-soft)] p-4 text-sm font-semibold text-[var(--pro-success)]">
           {success}
         </div>
       )}
 
       {/* Type Selector */}
-      <div className="comic-panel-dark p-4">
+      <div className="eq-card p-4">
         <div className="flex flex-wrap gap-3 items-center justify-between">
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2">
             {(["avatar", "title", "background", "ship_skin"] as const).map((type) => (
               <button
                 key={type}
+                type="button"
                 onClick={() => {
                   setSelectedType(type);
                   setEditingItem(null);
                   setShowCreateForm(false);
                 }}
-                className={`comic-button px-6 py-2 font-bold text-outline ${
-                  selectedType === type
-                    ? "bg-cyan-500 text-white border-4 border-black"
-                    : "bg-slate-700 text-white hover:bg-slate-600"
+                className={`eq-btn eq-btn-sm ${
+                  selectedType === type ? "eq-btn-primary" : "eq-btn-ghost"
                 }`}
               >
-                {type === "avatar" ? "Avatars" : type === "title" ? "Titres" : type === "background" ? "Backgrounds" : "Skins de Vaisseau"}
+                {type === "avatar" ? "Avatars" : type === "title" ? "Titres" : type === "background" ? "Arrière-plans" : "Skins de vaisseau"}
               </button>
             ))}
           </div>
           <button
+            type="button"
             onClick={() => {
               setShowCreateForm(true);
               setEditingItem(null);
             }}
-            className="comic-button bg-emerald-500 text-white px-6 py-2 font-bold text-outline hover:bg-emerald-600"
+            className="eq-btn eq-btn-mint eq-btn-sm"
           >
-            + Créer un {selectedType === "avatar" ? "Avatar" : selectedType === "title" ? "Titre" : selectedType === "background" ? "Background" : "Skin de Vaisseau"}
+            + Créer ({selectedType === "avatar" ? "Avatar" : selectedType === "title" ? "Titre" : selectedType === "background" ? "Arrière-plan" : "Skin de vaisseau"})
           </button>
         </div>
       </div>
 
       {/* Create Form */}
       {showCreateForm && (
-        <div className="comic-panel-dark p-6">
-          <h3 className="text-xl font-bold text-white text-outline mb-4">
-            Créer un nouveau {selectedType}
-          </h3>
+        <div className="eq-card p-6">
+          <h3 className="eq-h3 mb-4">Créer un élément ({selectedType})</h3>
           <form
             onSubmit={async (e) => {
               e.preventDefault();
@@ -228,65 +226,54 @@ export function ShopItemsManager() {
             className="space-y-4"
           >
             <div>
-              <label className="block text-sm font-bold text-white text-outline mb-2">
-                Nom
-              </label>
+              <label className="block text-sm font-bold mb-1.5">Nom</label>
               <input
                 type="text"
                 name="name"
                 required
-                className="w-full comic-panel bg-slate-800 border-2 border-black p-3 text-white"
+                className="eq-input w-full px-3.5 py-2.5 text-sm"
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-white text-outline mb-2">
-                Description
-              </label>
+              <label className="block text-sm font-bold mb-1.5">Description</label>
               <textarea
                 name="description"
-                className="w-full comic-panel bg-slate-800 border-2 border-black p-3 text-white"
+                className="eq-input w-full px-3.5 py-2.5 text-sm"
                 rows={3}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-bold text-white text-outline mb-2">
-                  Prix (or)
-                </label>
+                <label className="block text-sm font-bold mb-1.5">Prix (or)</label>
                 <input
                   type="number"
                   name="price_gold"
                   required
                   min="0"
                   defaultValue="0"
-                  className="w-full comic-panel bg-slate-800 border-2 border-black p-3 text-white"
+                  className="eq-input w-full px-3.5 py-2.5 text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-white text-outline mb-2">
-                  Niveau requis
-                </label>
+                <label className="block text-sm font-bold mb-1.5">Niveau requis</label>
                 <input
                   type="number"
                   name="required_level"
                   required
                   min="1"
                   defaultValue="1"
-                  className="w-full comic-panel bg-slate-800 border-2 border-black p-3 text-white"
+                  className="eq-input w-full px-3.5 py-2.5 text-sm"
                 />
               </div>
             </div>
             <div className="flex gap-3">
-              <button
-                type="submit"
-                className="comic-button bg-cyan-500 text-white px-6 py-2 font-bold text-outline hover:bg-cyan-600"
-              >
+              <button type="submit" className="eq-btn eq-btn-primary">
                 Créer
               </button>
               <button
                 type="button"
                 onClick={() => setShowCreateForm(false)}
-                className="comic-button bg-slate-600 text-white px-6 py-2 font-bold text-outline hover:bg-slate-500"
+                className="eq-btn eq-btn-ghost"
               >
                 Annuler
               </button>
@@ -297,26 +284,23 @@ export function ShopItemsManager() {
 
       {/* Items List */}
       {loading ? (
-        <div className="comic-panel-dark p-8 text-center">
-          <p className="text-slate-300 text-outline">Chargement...</p>
+        <div className="eq-card p-8 text-center">
+          <p className="eq-muted font-medium">Chargement…</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className="comic-panel border-2 border-black p-4 bg-slate-800"
-            >
+            <div key={item.id} className="eq-card p-4 flex flex-col justify-between gap-4">
               <div className="space-y-3">
-                {/* Item Preview - Format portrait pour avatars/backgrounds/ship_skins, texte pour titres */}
                 {selectedType === "title" ? (
-                  <div className="flex items-center justify-center rounded-lg border-2 border-black bg-slate-900 p-4 min-h-[120px]">
-                    <span className="text-2xl font-bold text-cyan-400 text-outline text-center">
-                      {item.name}
-                    </span>
+                  <div className="eq-shop-title-plate min-h-[120px]">
+                    <span>{item.name}</span>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center rounded-lg border-2 border-black bg-slate-900 overflow-hidden" style={{ aspectRatio: "2/3", width: "100%" }}>
+                  <div
+                    className="flex items-center justify-center rounded-[var(--pro-radius)] border border-[var(--pro-border)] bg-[var(--pro-surface-2)] overflow-hidden"
+                    style={{ aspectRatio: "2/3", width: "100%" }}
+                  >
                     {item.image_url ? (
                       <img
                         src={addCacheBustingIfSupabase(item.image_url)}
@@ -327,77 +311,68 @@ export function ShopItemsManager() {
                       <div className={`w-full h-full ${getItemColor(item.color_theme)}`} />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-4xl font-bold text-white">{item.name.charAt(0)}</span>
+                        <span className="text-4xl font-bold">{item.name.charAt(0)}</span>
                       </div>
                     )}
                   </div>
                 )}
 
-                {/* Item Info */}
                 <div>
-                  <h3 className="font-bold text-white text-outline text-lg">{item.name}</h3>
+                  <h3 className="eq-h3">{item.name}</h3>
                   {item.description && (
-                    <p className="text-sm text-slate-300 text-outline mt-1">{item.description}</p>
+                    <p className="eq-muted text-sm mt-1">{item.description}</p>
                   )}
-                  <div className="mt-2 text-xs text-slate-400 text-outline">
-                    <div>Prix: {item.price_gold} or</div>
-                    <div>Niveau requis: {item.required_level}</div>
-                    <div>Ordre: {item.display_order}</div>
+                  <div className="eq-muted mt-2 text-xs space-y-0.5 font-medium">
+                    <div>Prix : {item.price_gold} or</div>
+                    <div>Niveau requis : {item.required_level}</div>
+                    <div>Ordre : {item.display_order}</div>
                   </div>
                 </div>
+              </div>
 
-                {/* Actions */}
-                <div className="space-y-2">
-                  {/* Upload Image - Only for avatars, backgrounds, and ship_skins */}
-                  {selectedType !== "title" && (
-                    <div>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          console.log("File selected:", file?.name, file?.size, file?.type);
-                          if (file) {
-                            handleFileSelect(item.id, file);
-                          } else {
-                            console.log("No file selected");
-                          }
-                        }}
-                        className="hidden"
-                        id={`upload-${item.id}`}
-                        disabled={uploading === item.id || !!croppingImage}
-                      />
-                      <label
-                        htmlFor={`upload-${item.id}`}
-                        className={`comic-button w-full text-center px-4 py-2 text-sm font-bold text-outline ${
-                          uploading === item.id || croppingImage
-                            ? "bg-slate-600 text-slate-400 cursor-not-allowed"
-                            : "bg-purple-500 text-white hover:bg-purple-600 cursor-pointer"
-                        }`}
-                      >
-                        {uploading === item.id ? "Upload..." : croppingImage ? "Traitement..." : "📤 Upload Image"}
-                      </label>
-                      {uploading === item.id && (
-                        <p className="text-xs text-slate-400 mt-1">Upload en cours...</p>
-                      )}
-                    </div>
-                  )}
+              <div className="space-y-2">
+                {selectedType !== "title" && (
+                  <div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          handleFileSelect(item.id, file);
+                        }
+                      }}
+                      className="hidden"
+                      id={`upload-${item.id}`}
+                      disabled={uploading === item.id || !!croppingImage}
+                    />
+                    <label
+                      htmlFor={`upload-${item.id}`}
+                      className={`eq-btn eq-btn-sm w-full cursor-pointer ${
+                        uploading === item.id || croppingImage ? "eq-btn-ghost opacity-50" : "eq-btn-gold"
+                      }`}
+                    >
+                      {uploading === item.id ? "Upload…" : croppingImage ? "Traitement…" : "Uploader une image"}
+                    </label>
+                    {uploading === item.id && (
+                      <p className="eq-muted text-xs mt-1">Upload en cours…</p>
+                    )}
+                  </div>
+                )}
 
-                  {/* Edit Button */}
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      console.log("Edit button clicked for item:", item.id);
-                      setEditingItem(item);
-                      setShowCreateForm(false);
-                    }}
-                    className="comic-button w-full bg-cyan-500 text-white px-4 py-2 text-sm font-bold text-outline hover:bg-cyan-600 active:bg-cyan-700"
-                  >
-                    Modifier
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setEditingItem(item);
+                    setShowCreateForm(false);
+                  }}
+                  className="eq-btn eq-btn-primary eq-btn-sm w-full"
+                >
+                  Modifier
+                </button>
               </div>
             </div>
           ))}
@@ -406,19 +381,15 @@ export function ShopItemsManager() {
 
       {/* Edit Form */}
       {editingItem && (
-        <div className="comic-panel-dark p-6 border-4 border-cyan-500">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-white text-outline">
-              Modifier {editingItem.name}
-            </h3>
+        <div className="eq-card p-6 border-2 border-[var(--pro-primary)]">
+          <div className="flex items-center justify-between gap-3 border-b border-[var(--pro-border)] pb-3 mb-4">
+            <h3 className="eq-h3">Modifier {editingItem.name}</h3>
             <button
-              onClick={() => {
-                console.log("Closing edit form");
-                setEditingItem(null);
-              }}
-              className="comic-button bg-red-600 text-white px-4 py-2 text-sm font-bold text-outline hover:bg-red-700"
+              type="button"
+              onClick={() => setEditingItem(null)}
+              className="eq-btn eq-btn-ghost eq-btn-sm"
             >
-              ✕ Fermer
+              Fermer
             </button>
           </div>
           <form
@@ -431,79 +402,66 @@ export function ShopItemsManager() {
           >
             <input type="hidden" name="itemId" value={editingItem.id} />
             <div>
-              <label className="block text-sm font-bold text-white text-outline mb-2">
-                Nom
-              </label>
+              <label className="block text-sm font-bold mb-1.5">Nom</label>
               <input
                 type="text"
                 name="name"
                 required
                 defaultValue={editingItem.name}
-                className="w-full comic-panel bg-slate-800 border-2 border-black p-3 text-white"
+                className="eq-input w-full px-3.5 py-2.5 text-sm"
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-white text-outline mb-2">
-                Description
-              </label>
+              <label className="block text-sm font-bold mb-1.5">Description</label>
               <textarea
                 name="description"
                 defaultValue={editingItem.description || ""}
-                className="w-full comic-panel bg-slate-800 border-2 border-black p-3 text-white"
+                className="eq-input w-full px-3.5 py-2.5 text-sm"
                 rows={3}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-bold text-white text-outline mb-2">
-                  Prix (or)
-                </label>
+                <label className="block text-sm font-bold mb-1.5">Prix (or)</label>
                 <input
                   type="number"
                   name="price_gold"
                   required
                   min="0"
                   defaultValue={editingItem.price_gold}
-                  className="w-full comic-panel bg-slate-800 border-2 border-black p-3 text-white"
+                  className="eq-input w-full px-3.5 py-2.5 text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold text-white text-outline mb-2">
-                  Niveau requis
-                </label>
+                <label className="block text-sm font-bold mb-1.5">Niveau requis</label>
                 <input
                   type="number"
                   name="required_level"
                   required
                   min="1"
                   defaultValue={editingItem.required_level}
-                  className="w-full comic-panel bg-slate-800 border-2 border-black p-3 text-white"
+                  className="eq-input w-full px-3.5 py-2.5 text-sm"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-bold text-white text-outline mb-2">
-                Ordre d'affichage
-              </label>
+              <label className="block text-sm font-bold mb-1.5">Ordre d&apos;affichage</label>
               <input
                 type="number"
                 name="display_order"
                 required
                 defaultValue={editingItem.display_order}
-                className="w-full comic-panel bg-slate-800 border-2 border-black p-3 text-white"
+                className="eq-input w-full px-3.5 py-2.5 text-sm"
               />
             </div>
             <div className="flex gap-3">
-              <button
-                type="submit"
-                className="comic-button bg-cyan-500 text-white px-6 py-2 font-bold text-outline hover:bg-cyan-600"
-              >
+              <button type="submit" className="eq-btn eq-btn-primary">
                 Enregistrer
               </button>
               <button
                 type="button"
                 onClick={() => setEditingItem(null)}
-                className="comic-button bg-slate-600 text-white px-6 py-2 font-bold text-outline hover:bg-slate-500"
+                className="eq-btn eq-btn-ghost"
               >
                 Annuler
               </button>

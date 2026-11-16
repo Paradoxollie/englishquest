@@ -342,7 +342,7 @@ export function GameEnd({
       {rewardStatus === "guest" ? (
         <p className="eq-game-end-note">
           Partie non enregistrée : sans compte, pas d&apos;expérience ni de classement.{" "}
-          <Link href="/auth/signup" className="font-bold text-[var(--cyan)]">
+          <Link href="/auth/signup" className="eq-text-link">
             Créer un compte
           </Link>
         </p>

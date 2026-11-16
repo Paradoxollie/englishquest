@@ -147,11 +147,11 @@ export function HomeView({
       <div className="eq-home-grid">
         {suggestPlacement ? (
           <section className="eq-card eq-home-placement" aria-labelledby="home-placement">
-            <p className="eq-kicker">Nouveau ici ?</p>
+            <span className="eq-caption">Nouveau ici ?</span>
             <h2 id="home-placement" className="eq-h3">
               Trouve ton point de départ
             </h2>
-            <p className="text-sm text-[var(--muted)]">
+            <p className="eq-muted text-sm">
               Six questions par chapitre, entre deux et huit minutes. Si tu connais déjà les bases, tu sautes les
               premiers chapitres et tu commences au bon endroit. Sinon, la mission 1 t&apos;attend juste en dessous.
             </p>
@@ -172,7 +172,7 @@ export function HomeView({
           {currentCourse && mission ? (
             <>
               <span className="eq-caption eq-caption-red">Ta prochaine mission</span>
-              <p className="eq-kicker">
+              <p className="eq-muted text-xs font-bold uppercase tracking-wider">
                 Mission {currentCourse.courseId}
                 {chapter ? ` · Chapitre ${chapter.id}, ${chapter.name}` : ""}
               </p>
@@ -187,7 +187,7 @@ export function HomeView({
               </ol>
               {missionStars ? (
                 <div className="eq-home-stars">
-                  <p className="eq-kicker">Étoiles de la mission</p>
+                  <span className="eq-caption mb-1">Étoiles de la mission</span>
                   <MissionStarsLegend
                     stars={missionStars}
                     practiceBest={missionPracticeBest}
@@ -214,11 +214,11 @@ export function HomeView({
             </>
           ) : (
             <>
-              <p className="eq-kicker">Aventure</p>
+              <span className="eq-caption">Aventure</span>
               <h2 id="home-mission" className="eq-h2">
                 Toutes les missions sont validées
               </h2>
-              <p className="text-[var(--muted)]">
+              <p className="eq-muted">
                 Tu as terminé la carte. Les jeux restent ouverts, et de nouveaux chapitres arrivent.
               </p>
               <div className="eq-home-actions">
@@ -232,7 +232,7 @@ export function HomeView({
             </>
           )}
           <div className="mt-4">
-            <div className="flex items-center justify-between text-xs font-bold text-[var(--muted)]">
+            <div className="flex items-center justify-between text-xs font-bold eq-muted">
               <span>Progression sur la carte</span>
               <span>
                 {completionPercent} %{maxStars > 0 ? ` · ${totalStars} / ${maxStars} étoiles` : ""}
@@ -247,7 +247,7 @@ export function HomeView({
 
         <div className="eq-home-side">
           <section className="eq-card eq-home-daily flex flex-col" aria-labelledby="home-daily">
-            <p className="eq-kicker">Défi du jour · {daily.challengeLabel}</p>
+            <span className="eq-caption">Défi du jour · {daily.challengeLabel}</span>
             <h2 id="home-daily" className="eq-h3">
               {daily.dailyGoalReached
                 ? daily.bonusClaimedToday

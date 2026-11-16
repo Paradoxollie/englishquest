@@ -24,9 +24,9 @@ export function AuthCard({
 
       <div className="mt-6">{children}</div>
 
-      <p className="mt-6 border-t border-[var(--line)] pt-5 text-center text-sm text-[var(--muted)]">
+      <p className="mt-6 border-t border-[var(--line)] pt-5 text-center text-sm eq-muted">
         {footerHint}{" "}
-        <Link href={footerHref} className="font-bold text-[var(--cyan)]">
+        <Link href={footerHref} className="eq-text-link">
           {footerLinkLabel}
         </Link>
       </p>

@@ -53,7 +53,7 @@ export const course1: LessonContent = {
                 {/* Bottom: Verb Form & Example */}
                 <div className="w-full bg-cyan-950/30 rounded-lg p-3 border border-cyan-500/20 group-hover:border-cyan-500/40 transition-colors flex flex-col items-center gap-1">
                   <span className="text-cyan-300 font-black text-3xl">{item.form}</span>
-                  <span className="text-cyan-100/60 text-xs italic text-center w-full truncate">{item.example}</span>
+                  <span className="text-cyan-100/60 text-xs italic text-center w-full leading-snug">{item.example}</span>
                 </div>
               </div>
             ))}

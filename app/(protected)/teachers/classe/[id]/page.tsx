@@ -72,8 +72,8 @@ export default async function TeacherClassPage({ params, searchParams }: ClassPa
 
       <header className="eq-teach-head">
         <div>
-          <p className="eq-kicker">{archived ? "Classe archivée" : "Classe"}</p>
-          <h1 className="eq-h1">{summary.name}</h1>
+          <span className="eq-caption">{archived ? "Classe archivée" : "Classe"}</span>
+          <h1 className="eq-h1 mt-1">{summary.name}</h1>
           <p className="eq-muted">
             {pupils.length === 0 ? "Aucun élève" : `${pupils.length} élève${pupils.length > 1 ? "s" : ""}`} · créée le {createdOn}
             {!summary.isOwn && summary.teacherName ? ` · classe de ${summary.teacherName}` : ""}
@@ -97,8 +97,8 @@ export default async function TeacherClassPage({ params, searchParams }: ClassPa
         </p>
       ) : null}
 
-      <section className="eq-teach-block" aria-labelledby="class-pupils">
-        <div className="eq-home-section-head">
+      <section className="eq-teach-block eq-section-divider" aria-labelledby="class-pupils">
+        <div className="eq-section-head">
           <h2 id="class-pupils" className="eq-h2">
             Élèves
           </h2>

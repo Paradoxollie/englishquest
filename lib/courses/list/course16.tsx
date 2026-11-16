@@ -52,7 +52,7 @@ export const course16: LessonContent = {
             Dès qu'on sort du présent, il démissionne et laisse la place à <strong className="text-orange-400">HAVE TO</strong>.
           </p>
 
-          <div className="bg-slate-900 rounded-lg overflow-hidden border border-slate-700 mt-4">
+          <div className="bg-slate-900 rounded-lg overflow-x-auto border border-slate-700 mt-4">
             <table className="w-full text-sm">
               <thead className="bg-slate-800 text-slate-200">
                 <tr>

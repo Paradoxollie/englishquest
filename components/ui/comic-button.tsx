@@ -1,4 +1,4 @@
-import { ReactNode, ButtonHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 type ComicButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
@@ -8,16 +8,16 @@ type ComicButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variantClasses = {
-  primary: "bg-cyan-500 text-white hover:bg-cyan-600",
-  secondary: "bg-slate-700 text-white hover:bg-slate-600",
-  danger: "bg-red-500 text-white hover:bg-red-600",
-  success: "bg-emerald-500 text-white hover:bg-emerald-600",
+  primary: "eq-btn-primary",
+  secondary: "eq-btn-ghost",
+  danger: "eq-btn-danger",
+  success: "eq-btn-mint",
 };
 
 const sizeClasses = {
-  sm: "px-4 py-2 text-sm",
-  md: "px-6 py-3 text-base",
-  lg: "px-8 py-4 text-lg",
+  sm: "eq-btn-sm",
+  md: "",
+  lg: "eq-btn-lg",
 };
 
 export function ComicButton({
@@ -29,11 +29,10 @@ export function ComicButton({
 }: ComicButtonProps) {
   return (
     <button
-      className={`comic-button ${variantClasses[variant]} ${sizeClasses[size]} text-outline ${className}`}
+      className={`eq-btn ${variantClasses[variant]} ${sizeClasses[size]} ${className}`.trim()}
       {...props}
     >
       {children}
     </button>
   );
 }
-

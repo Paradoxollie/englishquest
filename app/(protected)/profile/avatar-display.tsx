@@ -110,14 +110,14 @@ export function AvatarDisplay({ userId, username, size = "md", initialEquipped }
   // For header, use a square format but maintain portrait aspect for avatar
   return (
     <div
-      className={`relative flex items-center justify-center overflow-hidden rounded-full border-2 border-black ${classes.container} ${
+      className={`relative flex items-center justify-center overflow-hidden rounded-full border-2 border-[var(--pro-border-strong)] ${classes.container} ${
         currentBackground?.image_url
           ? "bg-cover bg-center"
           : currentBackground?.item_key
-          ? "bg-[#161d2f]"
+          ? "bg-[var(--pro-surface-2)]"
           : currentBackground?.color_theme
           ? getItemColor(currentBackground.color_theme)
-          : "bg-[#161d2f]"
+          : "bg-[var(--pro-surface-2)]"
       }`}
       style={
         currentBackground?.image_url
@@ -138,19 +138,19 @@ export function AvatarDisplay({ userId, username, size = "md", initialEquipped }
         <img
           src={addCacheBustingIfSupabase(currentAvatar.image_url)}
           alt={currentAvatar.name}
-          className={`relative z-10 rounded-full border-2 border-black object-cover ${classes.avatar}`}
+          className={`relative z-10 rounded-full border border-[var(--pro-border-strong)] object-cover ${classes.avatar}`}
           style={{ objectPosition: "center top" }}
         />
       ) : currentAvatar?.item_key ? (
-        <div className={`relative z-10 overflow-hidden rounded-full border-2 border-black ${classes.avatar}`}>
+        <div className={`relative z-10 overflow-hidden rounded-full border border-[var(--pro-border-strong)] ${classes.avatar}`}>
           <ShopClassArt itemKey={currentAvatar.item_key} itemType="avatar" name={currentAvatar.name} />
         </div>
       ) : currentAvatar?.color_theme ? (
         <div
-          className={`relative z-10 rounded-full border-2 border-black ${getItemColor(currentAvatar.color_theme)} ${classes.avatar}`}
+          className={`relative z-10 rounded-full border border-[var(--pro-border-strong)] ${getItemColor(currentAvatar.color_theme)} ${classes.avatar}`}
         />
       ) : (
-        <span className={`relative z-10 font-bold text-white ${classes.text}`}>
+        <span className={`relative z-10 font-bold text-[var(--pro-text)] ${classes.text}`}>
           {username.charAt(0).toUpperCase()}
         </span>
       )}

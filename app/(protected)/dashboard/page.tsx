@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { ComponentType } from "react";
+import { PageHead } from "@/components/comic/page-head";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { isAdminOrTeacher } from "@/lib/auth/roles";
@@ -11,12 +12,12 @@ import {
   GameIcon,
   GiftIcon,
   GoldIcon,
-  LevelIcon,
   TeacherIcon,
   TrophyIcon,
   UsersIcon,
   XPIcon,
 } from "@/components/ui/icons";
+import { DashboardNav } from "./dashboard-nav";
 import { getDashboardStats } from "./stats";
 
 export const dynamic = "force-dynamic";
@@ -24,44 +25,41 @@ export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
 type IconComponent = ComponentType<{ className?: string }>;
-type StatTone = "cyan" | "emerald" | "amber" | "red" | "purple" | "slate";
+type StatTone = "primary" | "success" | "gold" | "error" | "neutral";
 
-const toneClasses: Record<StatTone, { panel: string; icon: string; text: string; rail: string }> = {
-  cyan: {
-    panel: "border-cyan-300/25 bg-cyan-950/28",
-    icon: "bg-cyan-600 text-white",
-    text: "text-cyan-200",
-    rail: "bg-cyan-400",
+const toneStyles: Record<
+  StatTone,
+  { border: string; iconBg: string; valueColor: string; barColor: string }
+> = {
+  primary: {
+    border: "border-l-4 border-l-[var(--pro-primary)]",
+    iconBg: "bg-[var(--pro-primary-soft)] text-[var(--pro-primary)] border border-[var(--pro-border)]",
+    valueColor: "text-[var(--pro-primary)]",
+    barColor: "bg-[var(--pro-primary)]",
   },
-  emerald: {
-    panel: "border-emerald-300/25 bg-emerald-950/28",
-    icon: "bg-emerald-600 text-white",
-    text: "text-emerald-200",
-    rail: "bg-emerald-400",
+  success: {
+    border: "border-l-4 border-l-[var(--pro-success)]",
+    iconBg: "bg-[var(--pro-success-soft)] text-[var(--pro-success)] border border-[var(--pro-border)]",
+    valueColor: "text-[var(--pro-success)]",
+    barColor: "bg-[var(--pro-success)]",
   },
-  amber: {
-    panel: "border-amber-300/25 bg-amber-950/28",
-    icon: "bg-amber-600 text-white",
-    text: "text-amber-200",
-    rail: "bg-amber-400",
+  gold: {
+    border: "border-l-4 border-l-[var(--pro-gold-edge)]",
+    iconBg: "bg-[var(--pro-gold-soft)] text-[var(--pro-gold-text)] border border-[var(--pro-gold-edge)]",
+    valueColor: "text-[var(--pro-gold-text)]",
+    barColor: "bg-[var(--pro-gold-fill)]",
   },
-  red: {
-    panel: "border-red-300/25 bg-red-950/28",
-    icon: "bg-red-600 text-white",
-    text: "text-red-200",
-    rail: "bg-red-400",
+  error: {
+    border: "border-l-4 border-l-[var(--pro-error)]",
+    iconBg: "bg-[var(--pro-error-soft)] text-[var(--pro-error)] border border-[var(--pro-border)]",
+    valueColor: "text-[var(--pro-error)]",
+    barColor: "bg-[var(--pro-error)]",
   },
-  purple: {
-    panel: "border-purple-300/25 bg-purple-950/28",
-    icon: "bg-purple-600 text-white",
-    text: "text-purple-200",
-    rail: "bg-purple-400",
-  },
-  slate: {
-    panel: "border-white/10 bg-white/5",
-    icon: "bg-slate-800 text-white",
-    text: "text-slate-200",
-    rail: "bg-slate-400",
+  neutral: {
+    border: "border-l-4 border-l-[var(--pro-border-strong)]",
+    iconBg: "bg-[var(--pro-surface-2)] text-[var(--pro-text)] border border-[var(--pro-border)]",
+    valueColor: "text-[var(--pro-text)]",
+    barColor: "bg-[var(--pro-border-strong)]",
   },
 };
 
@@ -98,51 +96,22 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <section className="relative overflow-hidden rounded-[var(--radius-lg)] border border-[var(--line)] bg-[var(--ink-2)]">
-        <div className="absolute inset-0 comic-dot-pattern-light opacity-20" />
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(6,182,212,0.18),rgba(2,6,23,0.92)_42%,rgba(16,185,129,0.16))]" />
+      <PageHead caption="Pilotage" title="Administration">
+        Vue opérationnelle pour suivre les utilisateurs, les messages, les visites et les ressources de la plateforme.
+        Session connectée : <b>{profile.username}</b> ({profile.role}).
+      </PageHead>
 
-        <div className="relative mx-auto grid min-h-[360px] max-w-[1280px] gap-6 px-4 py-8 md:px-8 md:py-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
-          <div className="self-end">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-cyan-200 text-outline">
-              Pilotage English Quest
-            </p>
-            <h1 className="mt-4 max-w-4xl text-4xl font-bold leading-[1.02] text-white text-outline md:text-6xl">
-              Dashboard clair, chiffres lisibles, actions rapides.
-            </h1>
-            <p className="mt-5 max-w-3xl text-base font-semibold leading-relaxed text-slate-200 md:text-lg">
-              Vue operationnelle pour suivre les utilisateurs, les messages, les visites et les
-              ressources de la plateforme sans perdre de temps.
-            </p>
-          </div>
+      <div className="eq-container eq-section">
+        <DashboardNav isAdmin={isUserAdmin} />
 
-          <aside className="self-end border-4 border-black bg-slate-950/90 p-5 shadow-[0_4px_0_#000] backdrop-blur-sm">
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-400">
-              Session
-            </p>
-            <h2 className="mt-2 text-2xl font-bold text-white text-outline">
-              {profile.username}
-            </h2>
-            <p className="mt-2 text-sm font-semibold text-slate-300">
-              Role: <span className="text-amber-300">{profile.role}</span>
-            </p>
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <DashboardLink href="/teachers" label="Profs" Icon={TeacherIcon} />
-              <DashboardLink href="/dashboard/messages" label="Messages" Icon={EnvelopeIcon} />
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <main className="py-8">
         {isUserAdmin && stats ? (
-          <>
-            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="space-y-8">
+            <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" aria-label="Indicateurs clés">
               <StatCard
                 title="Utilisateurs"
                 value={formatNumber(stats.totalUsers)}
-                detail="Comptes crees"
-                tone="cyan"
+                detail="Comptes créés"
+                tone="primary"
                 Icon={UsersIcon}
                 href="/dashboard/users"
               />
@@ -150,131 +119,115 @@ export default async function AdminDashboardPage() {
                 title="Messages non lus"
                 value={formatNumber(stats.unreadMessages)}
                 detail={`${formatNumber(stats.totalMessages)} messages au total`}
-                tone={stats.unreadMessages > 0 ? "red" : "emerald"}
+                tone={stats.unreadMessages > 0 ? "error" : "success"}
                 Icon={EnvelopeIcon}
                 href="/dashboard/messages"
               />
               <StatCard
-                title="XP distribuee"
+                title="XP distribuée"
                 value={formatNumber(stats.totalXP)}
                 detail={`Niveau moyen ${stats.averageLevel}`}
-                tone="emerald"
+                tone="success"
                 Icon={XPIcon}
               />
               <StatCard
                 title="Or en circulation"
                 value={formatNumber(stats.totalGold)}
-                detail="Economie joueurs"
-                tone="amber"
+                detail="Économie joueurs"
+                tone="gold"
                 Icon={GoldIcon}
                 href="/dashboard/shop"
               />
             </section>
 
-            <section className="mt-8 grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-              <div className="border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] md:p-6">
-                <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+              <div className="eq-card p-6">
+                <div className="mb-5 flex flex-col gap-2 border-b border-[var(--pro-border)] pb-4 md:flex-row md:items-end md:justify-between">
                   <div>
-                    <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-300 text-outline">
-                      Trafic
-                    </p>
-                    <h2 className="mt-2 text-3xl font-bold text-white text-outline">
-                      Visiteurs et visites
-                    </h2>
+                    <span className="eq-caption">Trafic</span>
+                    <h2 className="eq-h2 mt-1">Visiteurs et visites</h2>
                   </div>
-                  <p className="text-sm font-semibold text-slate-400">
-                    30 derniers jours
-                  </p>
+                  <p className="eq-muted text-sm font-semibold">30 derniers jours</p>
                 </div>
 
-                <div className="grid gap-3 md:grid-cols-4">
-                  <MiniMetric label="Uniques total" value={stats.visitors.totalUniqueVisitors} tone="purple" />
-                  <MiniMetric label="Visites total" value={stats.visitors.totalVisits} tone="cyan" />
-                  <MiniMetric label="Uniques jour" value={stats.visitors.uniqueVisitorsToday} tone="emerald" />
-                  <MiniMetric label="Visites jour" value={stats.visitors.visitsToday} tone="amber" />
+                <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
+                  <MiniMetric label="Uniques total" value={stats.visitors.totalUniqueVisitors} tone="primary" />
+                  <MiniMetric label="Visites total" value={stats.visitors.totalVisits} tone="primary" />
+                  <MiniMetric label="Uniques jour" value={stats.visitors.uniqueVisitorsToday} tone="success" />
+                  <MiniMetric label="Visites jour" value={stats.visitors.visitsToday} tone="gold" />
                 </div>
 
-                <div className="mt-6 max-h-[420px] space-y-3 overflow-y-auto pr-1">
+                <div className="mt-6 max-h-[420px] space-y-2.5 overflow-y-auto pr-1">
                   {stats.visitors.dailyStats.length > 0 ? (
                     stats.visitors.dailyStats.map((day) => {
                       const width = Math.max((day.totalVisits / maxDailyVisits) * 100, 4);
 
                       return (
-                        <div key={day.date} className="border border-white/10 bg-white/5 p-3">
-                          <div className="flex flex-wrap items-center justify-between gap-3">
-                            <p className="text-sm font-bold text-white">
+                        <div key={day.date} className="eq-inset p-3.5">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="text-sm font-bold">
                               {new Date(day.date).toLocaleDateString("fr-FR", {
                                 day: "numeric",
                                 month: "short",
                                 year: "numeric",
                               })}
                             </p>
-                            <p className="text-xs font-semibold text-slate-300">
+                            <p className="eq-muted text-xs font-semibold">
                               {day.uniqueVisitors} uniques / {day.totalVisits} visites
                             </p>
                           </div>
-                          <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-900">
-                            <div className="h-full rounded-full bg-cyan-400" style={{ width: `${width}%` }} />
+                          <div className="eq-bar mt-2.5">
+                            <div
+                              className="h-full rounded-full bg-[var(--pro-primary)]"
+                              style={{ width: `${width}%` }}
+                            />
                           </div>
                         </div>
                       );
                     })
                   ) : (
-                    <p className="border border-white/10 bg-white/5 p-4 text-sm font-semibold text-slate-300">
-                      Aucune statistique de visité disponible pour le moment.
+                    <p className="eq-inset eq-muted p-4 text-sm font-semibold">
+                      Aucune statistique de visite disponible pour le moment.
                     </p>
                   )}
                 </div>
               </div>
 
-              <div className="space-y-5">
-                <div className="border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] md:p-6">
-                  <p className="text-xs font-bold uppercase tracking-[0.22em] text-emerald-300 text-outline">
-                    Roles
-                  </p>
-                  <h2 className="mt-2 text-3xl font-bold text-white text-outline">
-                    Repartition
-                  </h2>
+              <div className="space-y-6">
+                <div className="eq-card p-6">
+                  <span className="eq-caption">Rôles</span>
+                  <h2 className="eq-h2 mt-1">Répartition</h2>
                   <div className="mt-5 space-y-3">
-                    <RoleStat label="Eleves" count={stats.usersByRole.students} tone="emerald" total={stats.totalUsers} />
-                    <RoleStat label="Professeurs" count={stats.usersByRole.teachers} tone="cyan" total={stats.totalUsers} />
-                    <RoleStat label="Admins" count={stats.usersByRole.admins} tone="red" total={stats.totalUsers} />
+                    <RoleStat label="Élèves" count={stats.usersByRole.students} tone="success" total={stats.totalUsers} />
+                    <RoleStat label="Professeurs" count={stats.usersByRole.teachers} tone="primary" total={stats.totalUsers} />
+                    <RoleStat label="Admins" count={stats.usersByRole.admins} tone="error" total={stats.totalUsers} />
                   </div>
                 </div>
 
-                <div className="border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] md:p-6">
-                  <div className="mb-4 flex items-center justify-between gap-4">
+                <div className="eq-card p-6">
+                  <div className="mb-4 flex items-center justify-between gap-4 border-b border-[var(--pro-border)] pb-3">
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-300 text-outline">
-                        Recents
-                      </p>
-                      <h2 className="mt-2 text-3xl font-bold text-white text-outline">
-                        Utilisateurs
-                      </h2>
+                      <span className="eq-caption">Récents</span>
+                      <h2 className="eq-h2 mt-1">Utilisateurs</h2>
                     </div>
-                    <Link
-                      href="/dashboard/users"
-                      className="inline-flex items-center gap-2 text-sm font-bold text-cyan-300 hover:underline"
-                    >
+                    <Link href="/dashboard/users" className="eq-text-link inline-flex items-center gap-1.5 text-sm">
                       Voir tout
                       <ArrowRightIcon className="h-4 w-4" />
                     </Link>
                   </div>
 
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {stats.recentUsers.length > 0 ? (
                       stats.recentUsers.map((recentUser) => (
                         <div
                           key={recentUser.id}
-                          className="flex flex-wrap items-center justify-between gap-3 border border-white/10 bg-white/5 p-3"
+                          className="eq-inset flex flex-wrap items-center justify-between gap-3 px-3.5 py-2.5"
                         >
                           <div className="min-w-0">
-                            <p className="truncate text-sm font-bold text-white">
-                              {recentUser.username}
-                            </p>
-                            <p className="text-xs font-semibold text-slate-400">{recentUser.role}</p>
+                            <p className="truncate text-sm font-bold">{recentUser.username}</p>
+                            <p className="eq-muted text-xs font-semibold">{recentUser.role}</p>
                           </div>
-                          <p className="text-xs font-semibold text-slate-400">
+                          <p className="eq-muted text-xs font-semibold">
                             {new Date(recentUser.created_at).toLocaleDateString("fr-FR", {
                               day: "numeric",
                               month: "short",
@@ -284,86 +237,62 @@ export default async function AdminDashboardPage() {
                         </div>
                       ))
                     ) : (
-                      <p className="border border-white/10 bg-white/5 p-4 text-sm font-semibold text-slate-300">
-                        Aucun utilisateur recent.
+                      <p className="eq-inset eq-muted p-4 text-sm font-semibold">
+                        Aucun utilisateur récent.
                       </p>
                     )}
                   </div>
                 </div>
               </div>
             </section>
-          </>
+          </div>
         ) : (
           <section className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
-            <div className="border-4 border-black bg-slate-950 p-6 shadow-[0_4px_0_#000]">
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-300 text-outline">
-                Espace professeur
-              </p>
-              <h2 className="mt-2 text-3xl font-bold text-white text-outline">
-                Accès limite aux outils pedagogiques.
-              </h2>
-              <p className="mt-4 max-w-2xl text-sm font-semibold leading-relaxed text-slate-300">
-                Les statistiques globales sont reservees aux administrateurs. Tu peux
-                continuer vers les ressources professeurs et les outils autorises.
+            <div className="eq-card p-6">
+              <span className="eq-caption">Espace professeur</span>
+              <h2 className="eq-h2 mt-2">Accès limité aux outils pédagogiques.</h2>
+              <p className="eq-muted mt-3 max-w-2xl text-sm leading-relaxed">
+                Les statistiques globales sont réservées aux administrateurs. Tu peux continuer vers les ressources
+                professeurs et les outils autorisés.
               </p>
             </div>
-            <div className="border-4 border-black bg-slate-950 p-6 shadow-[0_4px_0_#000]">
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-300 text-outline">
-                Acces
-              </p>
-              <div className="mt-5 flex flex-col gap-3">
-                <QuickAction href="/teachers" label="Espace professeurs" Icon={TeacherIcon} tone="cyan" />
-                <QuickAction href="/dashboard/promote-admin" label="Promotion temporaire" Icon={TrophyIcon} tone="amber" />
+            <div className="eq-card p-6">
+              <span className="eq-caption">Accès</span>
+              <div className="mt-4 flex flex-col gap-3">
+                <Link href="/teachers" className="eq-btn eq-btn-primary">
+                  <TeacherIcon className="h-4 w-4" />
+                  Espace professeurs
+                </Link>
+                <Link href="/dashboard/promote-admin" className="eq-btn eq-btn-ghost">
+                  <TrophyIcon className="h-4 w-4" />
+                  Promotion admin
+                </Link>
               </div>
             </div>
           </section>
         )}
 
-        <section className="mt-8 border-4 border-black bg-gradient-to-r from-slate-950 via-cyan-950/70 to-emerald-950/70 p-5 shadow-[0_4px_0_#000] md:p-6">
+        <section className="eq-card mt-8 p-6">
           <div className="grid gap-5 md:grid-cols-[1fr_auto] md:items-center">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-cyan-300 text-outline">
-                Actions rapides
-              </p>
-              <h2 className="mt-2 text-3xl font-bold text-white text-outline">
-                Aller directement au bon outil.
-              </h2>
+              <span className="eq-caption">Actions rapides</span>
+              <h2 className="eq-h2 mt-1">Aller directement au bon outil.</h2>
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2.5">
               {isUserAdmin && (
                 <>
-                  <QuickAction href="/dashboard/users" label="Utilisateurs" Icon={UsersIcon} tone="cyan" />
-                  <QuickAction href="/dashboard/messages" label="Messages" Icon={EnvelopeIcon} tone="purple" />
-                  <QuickAction href="/dashboard/shop" label="Boutique" Icon={GiftIcon} tone="amber" />
+                  <QuickAction href="/dashboard/users" label="Utilisateurs" Icon={UsersIcon} variant="eq-btn-primary" />
+                  <QuickAction href="/dashboard/messages" label="Messages" Icon={EnvelopeIcon} variant="eq-btn-ghost" />
+                  <QuickAction href="/dashboard/shop" label="Boutique" Icon={GiftIcon} variant="eq-btn-gold" />
                 </>
               )}
-              <QuickAction href="/tous-les-cours" label="Cours" Icon={BookIcon} tone="emerald" />
-              <QuickAction href="/play" label="Jeux" Icon={GameIcon} tone="slate" />
+              <QuickAction href="/tous-les-cours" label="Cours" Icon={BookIcon} variant="eq-btn-ghost" />
+              <QuickAction href="/play" label="Jeux" Icon={GameIcon} variant="eq-btn-ghost" />
             </div>
           </div>
         </section>
-      </main>
+      </div>
     </div>
-  );
-}
-
-function DashboardLink({
-  href,
-  label,
-  Icon,
-}: {
-  href: string;
-  label: string;
-  Icon: IconComponent;
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-2 border border-white/10 bg-white/5 px-3 py-2 text-sm font-bold text-white hover:bg-white/10"
-    >
-      <Icon className="h-4 w-4 text-cyan-300" />
-      {label}
-    </Link>
   );
 }
 
@@ -382,45 +311,42 @@ function StatCard({
   Icon: IconComponent;
   href?: string;
 }) {
-  const classes = toneClasses[tone];
+  const styles = toneStyles[tone];
   const content = (
-    <div className={`relative h-full overflow-hidden border-4 border-black bg-slate-950 p-5 shadow-[0_4px_0_#000] ${classes.panel}`}>
-      <div className={`absolute inset-y-0 left-0 w-2 ${classes.rail}`} />
-      <div className="relative z-10 flex items-start justify-between gap-4">
+    <div className={`eq-card ${href ? "eq-card-link" : ""} h-full p-5`}>
+      <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
-            {title}
+          <p className="eq-muted text-xs font-bold uppercase tracking-wider">{title}</p>
+          <p className={`mt-2.5 break-words font-[var(--font-display)] text-3xl font-bold ${styles.valueColor}`}>
+            {value}
           </p>
-          <p className={`mt-3 break-words text-3xl font-bold ${classes.text}`}>{value}</p>
-          <p className="mt-2 text-sm font-semibold text-slate-300">{detail}</p>
+          <p className="eq-muted mt-1.5 text-sm font-medium">{detail}</p>
         </div>
-        <div className={`flex h-12 w-12 shrink-0 items-center justify-center border-4 border-black shadow-[0_3px_0_#000] ${classes.icon}`}>
-          <Icon className="h-6 w-6" />
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-[var(--pro-radius)] ${styles.iconBg}`}>
+          <Icon className="h-5 w-5" />
         </div>
       </div>
     </div>
   );
 
-  if (href) {
-    return (
-      <Link href={href} className="block transition-transform hover:-translate-y-0.5">
-        {content}
-      </Link>
-    );
-  }
-
-  return content;
+  return href ? (
+    <Link href={href} className="block h-full">
+      {content}
+    </Link>
+  ) : (
+    content
+  );
 }
 
 function MiniMetric({ label, value, tone }: { label: string; value: number; tone: StatTone }) {
-  const classes = toneClasses[tone];
+  const styles = toneStyles[tone];
 
   return (
-    <div className={`border border-white/10 p-4 ${classes.panel}`}>
-      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">
-        {label}
+    <div className="eq-inset p-3.5">
+      <p className="eq-muted text-[11px] font-bold uppercase tracking-wider">{label}</p>
+      <p className={`mt-1.5 font-[var(--font-display)] text-2xl font-bold ${styles.valueColor}`}>
+        {formatNumber(value)}
       </p>
-      <p className={`mt-2 text-2xl font-bold ${classes.text}`}>{formatNumber(value)}</p>
     </div>
   );
 }
@@ -436,17 +362,17 @@ function RoleStat({
   tone: StatTone;
   total: number;
 }) {
-  const classes = toneClasses[tone];
+  const styles = toneStyles[tone];
   const percent = total > 0 ? Math.round((count / total) * 100) : 0;
 
   return (
-    <div className="border border-white/10 bg-white/5 p-3">
+    <div className="eq-inset p-3.5">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-bold text-white">{label}</span>
-        <span className={`text-sm font-black ${classes.text}`}>{formatNumber(count)}</span>
+        <span className="text-sm font-bold">{label}</span>
+        <span className={`text-sm font-bold ${styles.valueColor}`}>{formatNumber(count)}</span>
       </div>
-      <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-900">
-        <div className={`h-full rounded-full ${classes.rail}`} style={{ width: `${percent}%` }} />
+      <div className="eq-bar mt-2.5">
+        <div className={`h-full rounded-full ${styles.barColor}`} style={{ width: `${percent}%` }} />
       </div>
     </div>
   );
@@ -456,20 +382,15 @@ function QuickAction({
   href,
   label,
   Icon,
-  tone,
+  variant,
 }: {
   href: string;
   label: string;
   Icon: IconComponent;
-  tone: StatTone;
+  variant: string;
 }) {
-  const classes = toneClasses[tone];
-
   return (
-    <Link
-      href={href}
-      className={`comic-button inline-flex items-center gap-2 px-4 py-3 text-sm font-bold text-white ${classes.icon}`}
-    >
+    <Link href={href} className={`eq-btn eq-btn-sm ${variant}`}>
       <Icon className="h-4 w-4" />
       {label}
     </Link>
