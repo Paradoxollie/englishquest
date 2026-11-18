@@ -40,6 +40,7 @@
 .collection-roster { padding-top: clamp(2rem, 3.7vw, 3.3rem); scroll-margin-top: 5rem; }
 .collection-roster .collection-section-heading { align-items: center; }
 .collection-roster .collection-section-heading p { margin-top: .32rem; }
+html[data-theme="dark"] .collection-roster .eq-btn-ghost { --pro-primary: var(--pro-info); }
 .collection-roster-grid {
   list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0,1fr));
   gap: clamp(.55rem, 1.3vw, 1rem); margin: 1rem 0; padding: 0;
