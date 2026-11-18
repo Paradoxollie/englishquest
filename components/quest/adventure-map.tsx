@@ -114,10 +114,8 @@ export function AdventureMap({ chapters, mission, player, isLoggedIn }: Adventur
       {chapters.map((chapter) => {
         const points = chapter.nodes.map((_, index) => nodePosition(index));
         const trackHeight = TOP_PADDING + Math.max(0, chapter.nodes.length - 1) * ROW_HEIGHT + BOTTOM_PADDING;
-        const lastDoneIndex = chapter.nodes.reduce(
-          (acc, node, index) => (node.status === "completed" || node.isCurrent ? index : acc),
-          -1
-        );
+        const firstUpcoming = chapter.nodes.findIndex((node) => node.status !== "completed" && !node.isCurrent);
+        const lastDoneIndex = firstUpcoming === -1 ? chapter.nodes.length - 1 : firstUpcoming - 1;
         const basePath = buildPath(points);
         const donePath = lastDoneIndex >= 0 ? buildPath(points.slice(0, lastDoneIndex + 1)) : "";
         const hasSelectedHere = selected ? chapter.nodes.some((node) => node.courseId === selected.courseId) : false;
@@ -297,7 +295,7 @@ export function AdventureMap({ chapters, mission, player, isLoggedIn }: Adventur
                             : "Mission validée. Tu peux relire le cours ou t'entraîner encore sur la notion."
                           : isLoggedIn
                             ? "Le cours se lit librement. Il deviendra ta mission quand les précédentes seront validées."
-                            : "Le cours se lit librement. Avec un compte, il devient une mission qui fait avancer ton pion."}
+                            : "Tu peux ouvrir ce cours et réussir son quiz pour le retrouver sur ta carte."}
                       </p>
                       <div className="eq-map-card-actions">
                         <Link href={`/cours/${selected.courseId}`} className="eq-btn eq-btn-ghost">

@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -7,167 +8,119 @@ export const course27: LessonContent = {
     objective: "Maîtriser l'usage du FUTUR SPONTANÉ (Will).",
     sections: [
         {
-            title: "1. La Décision Spontanée",
+            title: "Le téléphone sonne",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        L&apos;auxiliaire <strong>WILL</strong> s&apos;utilise notamment lorsqu&apos;une décision est prise <strong className="text-white">au moment même où l&apos;on parle</strong>.
-                        Il n&apos;y a aucune préméditation.
-                    </p>
-
-                    <div className="bg-slate-900 p-6 rounded-xl border-t-8 border-cyan-500 shadow-xl">
-                        <div className="flex items-center gap-4 mb-4">
-                            <div>
-                                <h4 className="text-cyan-400 font-bold text-lg">Mise en Situation</h4>
-                            </div>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div className="bg-slate-800 p-4 rounded border-l-2 border-slate-600">
-                                <p className="text-sm text-slate-400 italic mb-2">Situation : Le téléphone sonne.</p>
-                                <div className="space-y-2">
-                                    <p className="text-slate-500 line-through text-sm">"I am going to answer." <span className="text-xs ml-2">(Incorrect : Implique que c&apos;était prévu)</span></p>
-                                    <p className="text-white font-medium">"I <strong className="text-cyan-400">will</strong> answer."</p>
-                                    <p className="text-xs text-cyan-300 ml-4">➔ Décision prise à l&apos;instant T.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "I’ll get it!", meaning: "Tu te proposes sur le moment." },
+                  { english: "I’m going to call him after lunch.", meaning: "Tu avais déjà l’intention de le rappeler." },
+                ]}
+              >
+                Ta sœur a les mains prises. En entendant le téléphone, tu décides de répondre. Will, souvent réduit à ’ll, est courant dans cette offre spontanée.
+              </LessonExamples>
             )
         },
         {
-            title: "2. Les Contextes Fonctionnels",
+            title: "Offrir, promettre, choisir",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Au-delà de la spontanéité, WILL est utilisé pour certaines fonctions de communication spécifiques :
-                    </p>
-
-                    <div className="grid grid-cols-1 gap-4">
-                        <div className="bg-slate-800 p-4 rounded border-l-4 border-indigo-500">
-                            <h4 className="text-indigo-400 font-bold text-sm uppercase mb-1">1. L&apos;Offre d&apos;Aide</h4>
-                            <p className="text-slate-300 text-sm mb-2">Proposer ses services volontairement.</p>
-                            <p className="text-white italic">"Your bag looks heavy. I <strong className="text-indigo-400">will help</strong> you."</p>
-                        </div>
-
-                        <div className="bg-slate-800 p-4 rounded border-l-4 border-pink-500">
-                            <h4 className="text-pink-400 font-bold text-sm uppercase mb-1">2. La Promesse</h4>
-                            <p className="text-slate-300 text-sm mb-2">S&apos;engager à faire quelque chose.</p>
-                            <p className="text-white italic">"I <strong className="text-pink-400">will pay</strong> you back tomorrow. I promise."</p>
-                        </div>
-
-                        <div className="bg-slate-800 p-4 rounded border-l-4 border-amber-500">
-                            <h4 className="text-amber-400 font-bold text-sm uppercase mb-1">3. L&apos;Opinion / Prédiction Personnelle</h4>
-                            <p className="text-slate-300 text-sm mb-2">Exprimer ce que l&apos;on pense qu&apos;il va arriver (souvent après "I think").</p>
-                            <p className="text-white italic">"I think it <strong className="text-amber-400">will rain</strong> later."</p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "I’ll carry that for you.", meaning: "Tu proposes de porter le sac." },
+                  { english: "I promise I’ll be there.", meaning: "Tu t’engages à venir." },
+                  { english: "I’ll have the soup, please.", meaning: "Tu choisis au moment de commander." },
+                ]}
+              >
+                Will permet de faire quelque chose en parlant, par exemple promettre son aide ou prendre une décision.
+              </LessonExamples>
             )
         },
         {
-            title: "3. Distinction : Will vs Going To",
+            title: "Exprimer une intention",
             content: (
-                <div className="space-y-6">
-                    <div className="bg-blue-900/20 p-5 rounded border border-blue-500/50">
-                        <h4 className="text-blue-400 font-bold mb-4 uppercase text-sm text-center">
-                            La Règle de l&apos;Intention
-                        </h4>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <h5 className="text-slate-300 font-bold border-b border-slate-600 pb-1">GOING TO</h5>
-                                <p className="text-xs text-slate-400 font-bold uppercase">PLAN PRÉÉTABLI</p>
-                                <p className="text-white italic text-sm">"I am going to fly to Paris."</p>
-                                <p className="text-xs text-slate-500">L&apos;intention existait avant la conversation. Tout est organisé.</p>
-                            </div>
-
-                            <div className="space-y-2">
-                                <h5 className="text-cyan-400 font-bold border-b border-cyan-800 pb-1">WILL</h5>
-                                <p className="text-xs text-cyan-600 font-bold uppercase">DÉCISION IMMÉDIATE</p>
-                                <p className="text-white italic text-sm">"I will fly to Paris!"</p>
-                                <p className="text-xs text-slate-500">Idée qui vient d&apos;émerger. "Tiens, et si j&apos;allais à Paris ?"</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "I’m going to learn Italian. I haven’t picked a course yet.", meaning: "L’intention existe déjà." },
+                  { english: "You’re learning Italian? I’ll join you!", meaning: "L’idée te vient pendant l’échange." },
+                ]}
+              >
+                Be going to présente ton intention comme déjà formée. Les détails peuvent être encore ouverts. Les deux formes sont possibles dans de nombreuses situations et la nuance dépend de ce que tu souhaites dire.
+              </LessonExamples>
             )
         },
         {
-            title: "Quiz de Validation",
+            title: "Quiz · Annoncer une décision ou un projet",
             content: (
                 <Quiz
                     questions={[
                         {
                             id: 1,
-                            question: "The phone is ringing. - OK, I ___ answer it.",
-                            options: ["am going to", "will"],
-                            correctAnswer: 1,
-                            explanation: "Réaction immédiate au stimulus (téléphone). Aucune planification antérieure.",
+                            question: "Le téléphone sonne. Quelle réplique est une offre de répondre tout de suite ?",
+                            options: ["I’ll get it.", "It rang yesterday.", "I never answer it."],
+                            correctAnswer: 0,
+                            explanation: "I’ll get it offre une aide immédiate.",
                         },
                         {
                             id: 2,
-                            question: "Why did you buy paint? - Because I ___ paint my room.",
-                            options: ["will", "am going to"],
-                            correctAnswer: 1,
-                            explanation: "L'achat de la peinture prouve l'existence d'un plan antérieur. 'Going to' est requis.",
+                            question: "La peinture est achetée. Présente ton intention avec going to. I ___ paint my room.",
+                            options: ["am going to", "is going to", "going"],
+                            correctAnswer: 0,
+                            explanation: "I prend am dans la construction be going to.",
                         },
                         {
                             id: 3,
-                            question: "It's cold in here. - I ___ close the window.",
-                            options: ["am going to", "'ll (will)"],
-                            correctAnswer: 1,
-                            explanation: "Décision prise à l'instant en réaction au froid (ou offre de service).",
+                            question: "Quelqu’un a froid. Tu proposes ton aide. Que dis-tu ?",
+                            options: ["I’ll close the window.", "Who closed it yesterday?", "Is it usually closed?"],
+                            correctAnswer: 0,
+                            explanation: "I’ll close the window est une offre.",
                         },
                         {
                             id: 4,
-                            question: "What are your plans for the weekend? - I ___ visit my parents.",
-                            options: ["am going to", "will"],
+                            question: "Qu’est-ce qu’une intention déjà formée ?",
+                            options: ["I’m going to visit my parents this weekend.", "I visited them yesterday.", "Where do they live?"],
                             correctAnswer: 0,
-                            explanation: "La question porte spécifiquement sur les plans prévus.",
+                            explanation: "Le premier énoncé présente un projet.",
                         },
                         {
                             id: 5,
-                            question: "I think Liverpool ___ win.",
-                            options: ["is going to", "will"],
+                            question: "Que fait la personne en disant « I think Liverpool will win » ?",
+                            options: ["Elle annonce le score final déjà connu.", "Elle donne son pronostic.", "Elle promet de jouer."],
                             correctAnswer: 1,
-                            explanation: "Expression d'une opinion ou prédiction personnelle ('I think').",
+                            explanation: "I think annonce le point de vue du locuteur.",
                         },
                         {
                             id: 6,
-                            question: "Don't worry about the money. I ___ pay you back.",
-                            options: ["am going to", "will"],
-                            correctAnswer: 1,
-                            explanation: "Promesse faite pour rassurer l'interlocuteur.",
+                            question: "Quelle phrase est une promesse de remboursement ?",
+                            options: ["I’ll pay you back, I promise.", "Did you pay him?", "You paid me back."],
+                            correctAnswer: 0,
+                            explanation: "Le locuteur s’engage à rendre l’argent.",
                         },
                         {
                             id: 7,
-                            question: "Did you talk to him? - Oh no! I forgot. I ___ call him now.",
-                            options: ["will", "am going to"],
+                            question: "Une amie oublie d’éteindre la lumière. Tu t’en charges tout de suite. « Don’t worry, I ___ do it. »",
+                            options: ["’ll", "did", "have"],
                             correctAnswer: 0,
-                            explanation: "Oubli constaté = Nouvelle décision prise instantanément.",
+                            explanation: "Will contracté en ’ll convient à une prise en charge immédiate.",
                         },
                         {
                             id: 8,
-                            question: "Look at those black clouds! It ___ rain.",
-                            options: ["will", "is going to"],
-                            correctAnswer: 1,
-                            explanation: "Prédiction basée sur une évidence physique présente (les nuages), pas juste une opinion. 'Going to' est préféré ici.",
+                            question: "Quel indice convient à « It’s going to rain » ?",
+                            options: ["The clouds are getting very dark.", "It rained last winter.", "I have a new umbrella at home."],
+                            correctAnswer: 0,
+                            explanation: "Des nuages qui s’assombrissent motivent cette prévision.",
                         },
                         {
                             id: 9,
-                            question: "Do you want tea or coffee? - I ___ have coffee, please.",
-                            options: ["will", "am going to"],
+                            question: "Tu commandes au café. Quelle réplique est naturelle ?",
+                            options: ["I’ll have a coffee, please.", "I having a coffee, please.", "I am have a coffee, please."],
                             correctAnswer: 0,
-                            explanation: "Choix exprimé au moment de la commande.",
+                            explanation: "I’ll have … est courant pour commander.",
                         },
                         {
                             id: 10,
-                            question: "I promise I ___ be late.",
-                            options: ["won't", "am not going to"],
+                            question: "Que veut dire « I promise I won’t be late » ?",
+                            options: ["Je m’engage à être à l’heure.", "Je crains d’être déjà en retard.", "Je demande l’heure."],
                             correctAnswer: 0,
-                            explanation: "Engagement personnel (Promesse).",
+                            explanation: "Won’t est la forme négative de will dans la promesse.",
                         },
                     ]}
                 />

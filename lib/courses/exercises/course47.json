@@ -80,21 +80,21 @@
     {
       "id": "x11",
       "type": "order",
-      "answers": ["We went to the beach although it was cloudy."],
+      "answers": ["We went to the beach although it was cloudy.", "Although it was cloudy we went to the beach."],
       "translation": "Nous sommes allés à la plage même si le temps était nuageux.",
       "explanation": "Although est suivi d'un sujet et d'un verbe conjugué. Placé au milieu de la phrase, il n'a pas besoin de virgule."
     },
     {
       "id": "x12",
       "type": "order",
-      "answers": ["She passed the test despite having a bad cold."],
+      "answers": ["She passed the test despite having a bad cold.", "Despite having a bad cold she passed the test."],
       "translation": "Elle a réussi le contrôle malgré un gros rhume.",
       "explanation": "Après despite, on met un nom ou un verbe en -ing : despite having."
     },
     {
       "id": "x13",
       "type": "order",
-      "answers": ["He kept smiling even though he was disappointed."],
+      "answers": ["He kept smiling even though he was disappointed.", "Even though he was disappointed he kept smiling."],
       "translation": "Il a continué à sourire même s'il était déçu.",
       "explanation": "Even though + sujet + verbe exprime un contraste fort, comme même si en français."
     }

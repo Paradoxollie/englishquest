@@ -1,6 +1,5 @@
 "use server";
-import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
-import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
+import { gamePerformance } from "@/lib/profile/economy";
 import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
 import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 
@@ -14,9 +13,8 @@ import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
  */
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { type Difficulty } from "@/lib/profile/leveling";
-import { consumeGameSession } from "@/lib/games/game-session-server";
+import { gameAuthFailure, interruptedGameSave, saveGameScore } from "@/lib/games/score-settlement";
 import { checkWordfall } from "@/lib/games/score-plausibility";
 
 /**
@@ -115,6 +113,7 @@ export async function submitWordfallScore(params: {
   sessionId?: string | null;
 }): Promise<{
   success: boolean;
+  retryable?: boolean;
   error?: string;
   rewards?: {
     xpEarned: number;
@@ -152,7 +151,6 @@ export async function submitWordfallScore(params: {
     }
 
     const supabase = await createSupabaseServerClient();
-    const adminClient = createSupabaseAdminClient();
 
     // Get current user
     const {
@@ -161,109 +159,26 @@ export async function submitWordfallScore(params: {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      return {
-        success: false,
-        error: "User not authenticated",
-      };
+      return gameAuthFailure(userError);
     }
 
-    const gameSession = await consumeGameSession({
-      sessionId: params.sessionId,
-      userId: user.id,
-      slug: "wordfall",
-      claimedDurationMs: session.durationMs,
+    const saved = await saveGameScore({
+      userId: user.id, slug: "wordfall", sessionId: params.sessionId,
+      score: session.score, maxScore: session.wordsCompleted, durationMs: session.durationMs,
+      difficulty: mapModeToDifficulty(session.mode), performance: gamePerformance.wordfall(session.wordsCompleted, session.mode),
+      recordEligible: session.score > 0,
     });
-    if (!gameSession.ok) {
-      return { success: false, error: gameSession.error };
-    }
-
-    // Get the Wordfall game ID
-    const { data: game, error: gameError } = await adminClient
-      .from("games")
-      .select("id")
-      .eq("slug", "wordfall")
-      .maybeSingle();
-
-    if (gameError || !game) {
-      return {
-        success: false,
-        error: "Game not found",
-      };
-    }
-
-    // Map mode to difficulty
-    const difficulty = mapModeToDifficulty(session.mode);
-
-    // Get user's current personal best score for this mode
-    const { data: personalBest } = await adminClient
-      .from("game_scores")
-      .select("id, score")
-      .eq("user_id", user.id)
-      .eq("game_id", game.id)
-      .eq("difficulty", difficulty)
-      .order("score", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    const currentPersonalBest = personalBest?.score ?? 0;
-    const isNewPersonalBest = session.score > currentPersonalBest;
-
-    // Check if this is a new global best score for this mode
-    const { data: globalTopScore } = await adminClient
-      .from("game_scores")
-      .select("score")
-      .eq("game_id", game.id)
-      .eq("difficulty", difficulty)
-      .order("score", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    const currentGlobalBest = globalTopScore?.score ?? 0;
-    const isNewGlobalBest = session.score > currentGlobalBest;
-
-    // Calculate rewards (always calculate, even if not saving)
-    const playsToday = await countPlaysToday(adminClient, user.id, game.id);
-    const rewards = computeGameRewards({
-      performance: gamePerformance.wordfall(session.wordsCompleted, session.mode),
-      difficulty,
-      playsToday,
-      isNewPersonalBest,
-      isNewGlobalBest,
-    });
-
-    const { error: insertError } = await adminClient
-      .from("game_scores")
-      .insert({
-        user_id: user.id,
-        game_id: game.id,
-        score: session.score,
-        max_score: session.wordsCompleted,
-        duration_ms: session.durationMs,
-        difficulty: difficulty,
-      });
-
-    if (insertError) {
-      console.error("Error inserting game score:", insertError);
-      return {
-        success: false,
-        error: "Failed to save score",
-      };
-    }
-
-
-    const updatedProfile = await grantProfileRewards(adminClient, user.id, {
-      xp: rewards.xpEarned,
-      gold: rewards.goldEarned,
-    });
+    if (!saved.ok) return { success: false, error: saved.error, retryable: saved.retryable };
+    const { rewards, playsToday, isNewPersonalBest, isNewGlobalBest } = saved.receipt;
 
     // Check and grant Daily Challenge bonus
     const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
     const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "wordfall", {
-      eligible: rewards.xpEarned > 0,
+      eligible: rewards.xpEarned > 0, earnedAt: saved.receipt.savedAt,
     });
-    const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "wordfall", session.score);
+    const courseCompleted = saved.receipt.replayed ? null : await autoCompleteCourseMissionForGame(user.id, "wordfall", session.score);
     const newBadges = await syncBadgesSafely(user.id);
-    const gameNewLevel = updatedProfile.level > updatedProfile.previousLevel ? updatedProfile.level : 0;
+    const gameNewLevel = saved.receipt.level > saved.receipt.previousLevel ? saved.receipt.level : 0;
     const mergedNewLevel = Math.max(gameNewLevel, dailyChallengeResult.newLevel ?? 0) || undefined;
 
     return {
@@ -281,14 +196,11 @@ export async function submitWordfallScore(params: {
       newBadges,
       isNewPersonalBest,
       isNewGlobalBest,
-      personalBest: isNewPersonalBest ? session.score : currentPersonalBest,
+      personalBest: isNewPersonalBest ? session.score : (saved.receipt.previousBest ?? 0),
     };
   } catch (error) {
     console.error("Error in submitWordfallScore:", error);
-    return {
-      success: false,
-      error: "An unexpected error occurred",
-    };
+    return interruptedGameSave;
   }
 }
 

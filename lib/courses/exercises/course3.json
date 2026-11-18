@@ -87,7 +87,7 @@
     {
       "id": "x12",
       "type": "order",
-      "answers": ["Does your dad cook on Sundays?"],
+      "answers": ["Does your dad cook on Sundays?", "On Sundays does your dad cook?"],
       "translation": "Est-ce que ton père cuisine le dimanche ?",
       "explanation": "Question à la 3e personne : Does + sujet + base verbale. Pas de s sur cook."
     },

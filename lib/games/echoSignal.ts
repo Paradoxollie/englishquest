@@ -106,7 +106,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Annonce",
-        voiceProfile: "female_uk",
+        voiceProfile: "female_us",
         text: "Attention please. The ten fifteen train to Brighton will leave from platform four, not platform two.",
       },
     ],
@@ -134,8 +134,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Pause au café",
     context: "Sam commande à manger et à boire au comptoir.",
     lines: [
-      { speaker: "Sam", voiceProfile: "male_uk", text: "Hello! Can I have one cheese sandwich and a small orange juice, please?" },
-      { speaker: "Vendeuse", voiceProfile: "female_uk", text: "Sure. That's six pounds fifty altogether. Take a seat by the window." },
+      { speaker: "Sam", voiceProfile: "male_us", text: "Hello! Can I have one cheese sandwich and a small orange juice, please?" },
+      { speaker: "Vendeuse", voiceProfile: "female_us", text: "Sure. That's six pounds fifty altogether. Take a seat by the window." },
     ],
     questions: [
       {
@@ -163,7 +163,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Maya",
-        voiceProfile: "female_uk",
+        voiceProfile: "female_us",
         text: "Hi Sam, it's Maya. Let's meet at the library on Tuesday at four o'clock. Don't forget your red notebook!",
       },
     ],
@@ -193,7 +193,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Professeur",
-        voiceProfile: "male_uk",
+        voiceProfile: "male_us",
         text: "Welcome to the chess club! We meet in room twelve every Wednesday after school. Beginners are always welcome.",
       },
     ],
@@ -221,8 +221,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Entrée au musée",
     context: "Un visiteur demande l'heure de fermeture à l'accueil.",
     lines: [
-      { speaker: "Sam", voiceProfile: "male_uk", text: "Excuse me, what time does the museum close today?" },
-      { speaker: "Guide", voiceProfile: "female_uk", text: "We close at six p.m. And tickets for students are free today!" },
+      { speaker: "Sam", voiceProfile: "male_us", text: "Excuse me, what time does the museum close today?" },
+      { speaker: "Guide", voiceProfile: "female_us", text: "We close at six p.m. And tickets for students are free today!" },
     ],
     questions: [
       {
@@ -250,7 +250,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Météo",
-        voiceProfile: "female_uk",
+        voiceProfile: "female_us",
         text: "Good morning! In York it will be sunny and warm this morning, with light rain later tonight.",
       },
     ],
@@ -278,8 +278,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Sac oublié dans le bus",
     context: "Sam décrit son sac au bureau des objets trouvés.",
     lines: [
-      { speaker: "Agent", voiceProfile: "male_uk", text: "What does your school bag look like?" },
-      { speaker: "Sam", voiceProfile: "male_uk", text: "It's dark blue with a yellow star on the front pocket. My keys are inside." },
+      { speaker: "Agente", voiceProfile: "female_us", text: "What does your school bag look like?" },
+      { speaker: "Sam", voiceProfile: "male_us", text: "It's dark blue with a yellow star on the front pocket. My keys are inside." },
     ],
     questions: [
       {
@@ -305,8 +305,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Dans la rue",
     context: "Maya demande son chemin dans la rue.",
     lines: [
-      { speaker: "Maya", voiceProfile: "female_uk", text: "Excuse me, how do I get to the bookshop?" },
-      { speaker: "Passant", voiceProfile: "male_uk", text: "Go straight ahead for two minutes, then turn left opposite the post office." },
+      { speaker: "Maya", voiceProfile: "female_us", text: "Excuse me, how do I get to the bookshop?" },
+      { speaker: "Passant", voiceProfile: "male_us", text: "Go straight ahead for two minutes, then turn left opposite the post office." },
     ],
     questions: [
       {
@@ -334,9 +334,9 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Réserver deux places",
     context: "Dialogue au guichet du cinéma.",
     lines: [
-      { speaker: "Maya", voiceProfile: "female_uk", text: "Hi! Are there any seats left for the seven thirty film?" },
-      { speaker: "Guichet", voiceProfile: "male_uk", text: "Only two seats in row C, near the front. Or you can wait for the nine o'clock show." },
-      { speaker: "Maya", voiceProfile: "female_uk", text: "We'll take row C, please. Nine o'clock is too late for us." },
+      { speaker: "Maya", voiceProfile: "female_us", text: "Hi! Are there any seats left for the seven thirty film?" },
+      { speaker: "Guichet", voiceProfile: "male_us", text: "Only two seats in row C, near the front. Or you can wait for the nine o'clock show." },
+      { speaker: "Maya", voiceProfile: "female_us", text: "We'll take row C, please. Nine o'clock is too late for us." },
     ],
     questions: [
       {
@@ -364,7 +364,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Professeur",
-        voiceProfile: "female_uk",
+        voiceProfile: "female_us",
         text: "Please listen carefully. Our coach leaves at eight forty-five sharp. Bring a packed lunch, because the museum café is closed for repairs this week.",
       },
     ],
@@ -394,7 +394,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Annonce",
-        voiceProfile: "female_uk",
+        voiceProfile: "female_us",
         text: "Passengers on flight B A four two six to Edinburgh: boarding is delayed by twenty minutes. Please proceed to gate eighteen.",
       },
     ],
@@ -422,8 +422,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Recette de pancakes",
     context: "Sam explique à Maya comment préparer la pâte.",
     lines: [
-      { speaker: "Maya", voiceProfile: "female_uk", text: "Should I put the sugar in before the milk?" },
-      { speaker: "Sam", voiceProfile: "male_uk", text: "No, mix the flour and eggs first, then slowly pour in the milk while stirring." },
+      { speaker: "Maya", voiceProfile: "female_us", text: "Should I put the sugar in before the milk?" },
+      { speaker: "Sam", voiceProfile: "male_us", text: "No, mix the flour and eggs first, then slowly pour in the milk while stirring." },
     ],
     questions: [
       {
@@ -451,7 +451,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Secrétaire",
-        voiceProfile: "female_uk",
+        voiceProfile: "female_us",
         text: "Hello, this is Green Street Clinic. Doctor Patel has an urgent meeting on Thursday morning, so could we move your appointment to Friday at eleven fifteen?",
       },
     ],
@@ -481,7 +481,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Coach",
-        voiceProfile: "male_uk",
+        voiceProfile: "male_us",
         text: "Because the outdoor court is completely flooded, today's basketball practice is moved to the main sports hall. Wear clean indoor trainers!",
       },
     ],
@@ -509,8 +509,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Échanger une taille",
     context: "Conversation dans une boutique de vêtements.",
     lines: [
-      { speaker: "Client", voiceProfile: "male_uk", text: "I bought this jacket yesterday, but the sleeves are a bit too short. Do you have a medium?" },
-      { speaker: "Vendeur", voiceProfile: "male_uk", text: "Let me check. Yes, we have one medium left in navy blue, though black is sold out." },
+      { speaker: "Client", voiceProfile: "male_us", text: "I bought this jacket yesterday, but the sleeves are a bit too short. Do you have a medium?" },
+      { speaker: "Vendeuse", voiceProfile: "female_us", text: "Let me check. Yes, we have one medium left in navy blue, though black is sold out." },
     ],
     questions: [
       {
@@ -525,7 +525,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
         prompt: "En quelle couleur reste-t-il une veste taille M ?",
         options: ["En noir", "En bleu marine", "En noir et en bleu marine", "Dans aucune couleur"],
         correctIndex: 1,
-        explanation: "Le vendeur explique que la taille M reste en bleu marine (« navy blue »), mais que le noir est épuisé.",
+        explanation: "La vendeuse explique que la taille M reste en bleu marine (« navy blue »), mais que le noir est épuisé.",
       },
     ],
   },
@@ -538,7 +538,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Animateur",
-        voiceProfile: "male_uk",
+        voiceProfile: "male_us",
         text: "Come down to Market Square this Sunday between ten and four! Expect local food stalls, live jazz music, and free face painting for children.",
       },
     ],
@@ -570,7 +570,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Station",
-        voiceProfile: "female_uk",
+        voiceProfile: "female_us",
         text: "Service update: there is no Central Line service between Liverpool Street and Holborn due to signal maintenance. Please use the Circle Line or local bus twenty-five.",
       },
     ],
@@ -598,8 +598,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Règlement du concours d'écriture",
     context: "Maya résume les conditions à Sam.",
     lines: [
-      { speaker: "Sam", voiceProfile: "male_uk", text: "How long can our short story be for the school contest?" },
-      { speaker: "Maya", voiceProfile: "female_uk", text: "Between five hundred and eight hundred words. And we must email it as a PDF before Friday midnight, not hand it in on paper." },
+      { speaker: "Sam", voiceProfile: "male_us", text: "How long can our short story be for the school contest?" },
+      { speaker: "Maya", voiceProfile: "female_us", text: "Between five hundred and eight hundred words. And we must email it as a PDF before Friday midnight, not hand it in on paper." },
     ],
     questions: [
       {
@@ -627,7 +627,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Livreur",
-        voiceProfile: "male_uk",
+        voiceProfile: "male_us",
         text: "Hello, I tried to deliver your parcel at two p.m., but nobody answered. I left it safely with your next-door neighbour at number forty-two, not behind the bins.",
       },
     ],
@@ -655,8 +655,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Réservation d'auberge",
     context: "Accueil téléphonique d'une auberge de jeunesse.",
     lines: [
-      { speaker: "Voyageur", voiceProfile: "male_uk", text: "Does our room rate include breakfast and luggage storage after check-out?" },
-      { speaker: "Réception", voiceProfile: "female_uk", text: "Luggage storage is completely free after check-out, though breakfast costs an extra seven pounds per person." },
+      { speaker: "Voyageur", voiceProfile: "male_us", text: "Does our room rate include breakfast and luggage storage after check-out?" },
+      { speaker: "Réception", voiceProfile: "female_us", text: "Luggage storage is completely free after check-out, though breakfast costs an extra seven pounds per person." },
     ],
     questions: [
       {
@@ -682,8 +682,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Partage des tâches",
     context: "Deux élèves organisent leur exposé de sciences.",
     lines: [
-      { speaker: "Sam", voiceProfile: "male_uk", text: "I've already drawn the diagrams for solar power, so could you prepare the slides on wind turbines?" },
-      { speaker: "Maya", voiceProfile: "female_uk", text: "Deal! I'll finish them tonight and send you the link so we can rehearse tomorrow before lunch." },
+      { speaker: "Sam", voiceProfile: "male_us", text: "I've already drawn the diagrams for solar power, so could you prepare the slides on wind turbines?" },
+      { speaker: "Maya", voiceProfile: "female_us", text: "Deal! I'll finish them tonight and send you the link so we can rehearse tomorrow before lunch." },
     ],
     questions: [
       {
@@ -711,7 +711,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Pharmacien",
-        voiceProfile: "male_uk",
+        voiceProfile: "male_us",
         text: "Take one tablet after meals, up to three times a day, and drink plenty of water. Avoid driving if you feel sleepy.",
       },
     ],
@@ -741,7 +741,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Mécanicien",
-        voiceProfile: "male_uk",
+        voiceProfile: "male_us",
         text: "Hi Sam, your bike's brakes are fixed, though the back tyre had a nail in it and needed replacing. Your bike will be ready for collection after three thirty.",
       },
     ],
@@ -771,7 +771,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Présentatrice",
-        voiceProfile: "female_uk",
+        voiceProfile: "female_us",
         text: "Welcome back to Youth Voices! In today's episode, we visit a zero-waste canteen in Bristol that cut food waste by half in six months.",
       },
     ],
@@ -801,8 +801,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Bilan après un entretien",
     context: "Maya discute de son entretien pour un job d'été.",
     lines: [
-      { speaker: "Sam", voiceProfile: "male_uk", text: "How did your interview at the bookshop go?" },
-      { speaker: "Maya", voiceProfile: "female_uk", text: "I was nervous at first, especially about working on Saturdays, yet they seemed impressed that I speak both French and English." },
+      { speaker: "Sam", voiceProfile: "male_us", text: "How did your interview at the bookshop go?" },
+      { speaker: "Maya", voiceProfile: "female_us", text: "I was nervous at first, especially about working on Saturdays, yet they seemed impressed that I speak both French and English." },
     ],
     questions: [
       {
@@ -830,7 +830,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Responsable",
-        voiceProfile: "male_uk",
+        voiceProfile: "male_us",
         text: "Thank you all for turning up despite the chilly wind. Please keep glass bottles in the blue crates rather than the black bags so our recycling truck can process them safely.",
       },
     ],
@@ -860,7 +860,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Élève",
-        voiceProfile: "male_uk",
+        voiceProfile: "male_us",
         text: "On my first day in Manchester, the northern accent caught me completely off guard, even though I had watched British films for months. By the third day, however, everything started clicking.",
       },
     ],
@@ -890,7 +890,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Technicien",
-        voiceProfile: "female_uk",
+        voiceProfile: "female_us",
         text: "Please note that library computers will restart automatically at ten p.m. tonight to install a security patch. Make sure you back up any unsaved essays beforehand.",
       },
     ],
@@ -918,8 +918,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Avis après la pièce",
     context: "Deux amis sortent d'un théâtre du West End.",
     lines: [
-      { speaker: "Maya", voiceProfile: "female_uk", text: "What did you make of the second half?" },
-      { speaker: "Sam", voiceProfile: "male_uk", text: "Honestly, the lighting and costumes were brilliant, though the plot dragged slightly before the final twist." },
+      { speaker: "Maya", voiceProfile: "female_us", text: "What did you make of the second half?" },
+      { speaker: "Sam", voiceProfile: "male_us", text: "Honestly, the lighting and costumes were brilliant, though the plot dragged slightly before the final twist." },
     ],
     questions: [
       {
@@ -947,7 +947,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Port",
-        voiceProfile: "male_uk",
+        voiceProfile: "male_us",
         text: "Due to rough seas in the Channel, the four o'clock crossing to Calais has been cancelled. All foot passengers are automatically transferred to the six fifteen vessel.",
       },
     ],
@@ -975,8 +975,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Club de lecture",
     context: "Choix du prochain roman du mois.",
     lines: [
-      { speaker: "Sam", voiceProfile: "male_uk", text: "Should we pick the sci-fi novel or the historical mystery for November?" },
-      { speaker: "Maya", voiceProfile: "female_uk", text: "Let's go with the mystery. Several members found last month's sci-fi book a bit heavy going, and this one is half the length." },
+      { speaker: "Sam", voiceProfile: "male_us", text: "Should we pick the sci-fi novel or the historical mystery for November?" },
+      { speaker: "Maya", voiceProfile: "female_us", text: "Let's go with the mystery. Several members found last month's sci-fi book a bit heavy going, and this one is half the length." },
     ],
     questions: [
       {
@@ -1004,7 +1004,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Professeur",
-        voiceProfile: "female_uk",
+        voiceProfile: "female_us",
         text: "Hi, I have to attend a rehearsal on Monday afternoon, so could we switch your lesson to Wednesday at five, just for next week? Let me know if that clashes with your swimming training.",
       },
     ],
@@ -1036,7 +1036,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Journaliste",
-        voiceProfile: "female_uk",
+        voiceProfile: "female_us",
         text: "While banning phones during breaks boosted face-to-face chat in a pilot school, teachers pointed out that older pupils still need controlled access for digital research in class.",
       },
     ],
@@ -1066,7 +1066,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Reporter",
-        voiceProfile: "male_uk",
+        voiceProfile: "male_us",
         text: "Rather than paving over disused car parks, the city council turned three sites into pocket parks, cutting street temperatures by up to three degrees during last summer's heatwave.",
       },
     ],
@@ -1096,7 +1096,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Fondatrice",
-        voiceProfile: "female_uk",
+        voiceProfile: "female_us",
         text: "When we launched our repair café, we assumed only retired engineers would volunteer. In fact, teenagers have been our keenest learners, eager to swap disposable habits for hands-on skills.",
       },
     ],
@@ -1126,7 +1126,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Examinateur",
-        voiceProfile: "male_uk",
+        voiceProfile: "male_us",
         text: "Students often rush their answers because silence feels awkward. Pausing for two seconds to organise your ideas actually shows far stronger fluency than speaking at top speed.",
       },
     ],
@@ -1156,7 +1156,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Chroniqueur",
-        voiceProfile: "female_uk",
+        voiceProfile: "female_us",
         text: "Although off-peak tickets look remarkably cheap on paper, commuters travelling before nine thirty still end up paying nearly double unless they book an advance single weeks ahead.",
       },
     ],
@@ -1186,7 +1186,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Guide",
-        voiceProfile: "male_uk",
+        voiceProfile: "male_us",
         text: "Contrary to popular myth, breaking intercepted codes was rarely a sudden flash of genius. It relied on painstaking teamwork, cross-checking thousands of weather broadcasts day after day.",
       },
     ],
@@ -1216,7 +1216,7 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     lines: [
       {
         speaker: "Chercheuse",
-        voiceProfile: "female_uk",
+        voiceProfile: "female_us",
         text: "Participants who reviewed new vocabulary for just ten minutes right before sleeping recalled significantly more words the next morning than those who revised for twice as long at noon.",
       },
     ],
@@ -1244,8 +1244,8 @@ export const ECHO_SIGNAL_SCENARIOS: readonly EchoScenario[] = [
     title: "Changement de salle imprévu",
     context: "Conversation rapide entre Maya et Sam devant le bâtiment B.",
     lines: [
-      { speaker: "Sam", voiceProfile: "male_uk", text: "Wait, weren't we supposed to present in room two-oh-four? Nobody's here!" },
-      { speaker: "Maya", voiceProfile: "female_uk", text: "Check the notice on the door: the projector broke down an hour ago, so they moved us downstairs to the language lab instead." },
+      { speaker: "Sam", voiceProfile: "male_us", text: "Wait, weren't we supposed to present in room two-oh-four? Nobody's here!" },
+      { speaker: "Maya", voiceProfile: "female_us", text: "Check the notice on the door: the projector broke down an hour ago, so they moved us downstairs to the language lab instead." },
     ],
     questions: [
       {
@@ -1314,9 +1314,8 @@ export function computeEchoQuestionPoints({
   if (!correct) return 0;
   const cfg = DIFFICULTY_CONFIG[difficulty];
   const streakBonus = Math.min(cfg.maxStreakSteps, Math.max(0, newStreak - 1)) * cfg.streakStep;
-  const listenBonus = !silentMode && playsUsed <= 1 ? cfg.firstListenBonus : 0;
-  const silentMultiplier = silentMode ? 0.65 : 1;
-  return Math.round((cfg.basePoints + streakBonus + listenBonus) * silentMultiplier);
+  const listenBonus = !silentMode && playsUsed === 1 ? cfg.firstListenBonus : 0;
+  return cfg.basePoints + streakBonus + listenBonus;
 }
 
 export function maxEchoSignalScore(difficulty: EchoDifficulty, correctAnswers: number): number {

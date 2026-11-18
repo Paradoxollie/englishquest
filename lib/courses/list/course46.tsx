@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -7,32 +8,17 @@ export const course46: LessonContent = {
     objective: "Utiliser have something done pour parler d'un service, d'une intervention ou d'un événement subi.",
     sections: [
         {
-            title: "0. La structure causative",
+            title: "Au salon de coiffure",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Avec <strong>have something done</strong>, on dit qu'une action est faite{" "}
-                        <strong>par quelqu'un d'autre</strong>, souvent pour nous, sur nous ou sur nos affaires.
-                    </p>
-
-                    <div className="rounded-xl border border-slate-700 bg-slate-900 p-6">
-                        <p className="mb-4 text-center text-sm font-bold uppercase tracking-[0.18em] text-cyan-300">
-                            Formule
-                        </p>
-                        <p className="text-center font-mono text-xl text-white">
-                            have + object + past participle
-                        </p>
-                        <div className="mt-5 rounded-lg bg-black/30 p-4 text-center">
-                            <p className="text-white">
-                                I <strong className="text-cyan-400">had</strong> my hair{" "}
-                                <strong className="text-emerald-400">cut</strong>.
-                            </p>
-                            <p className="mt-2 text-sm italic text-slate-400">
-                                Je ne me suis pas coupé les cheveux moi-même : quelqu'un l'a fait.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "I had my hair cut yesterday.", meaning: "Quelqu’un m’a coupé les cheveux." },
+                  { english: "I cut my hair myself yesterday.", meaning: "J’ai tenu les ciseaux moi-même." },
+                  { english: "I’m having my phone repaired today.", meaning: "Je confie la réparation de mon téléphone à quelqu’un." },
+                ]}
+              >
+                Le coiffeur t’a coupé les cheveux. En anglais, tu peux mettre l’accent sur le service reçu avec have + objet + participe passé.
+              </LessonExamples>
             )
         },
         {
@@ -141,7 +127,7 @@ export const course46: LessonContent = {
             )
         },
         {
-            title: "Quiz complet",
+            title: "Quiz · Dire ce qu’on fait faire",
             content: (
                 <Quiz
                     questions={[
@@ -168,10 +154,10 @@ export const course46: LessonContent = {
                         },
                         {
                             id: 4,
-                            question: "Which sentence means a professional did the work?",
-                            options: ["I cut my hair.", "I had my hair cut."],
+                            question: "Le salon a fait la coupe. Quelle phrase met explicitement l’accent sur le service reçu ?",
+                            options: ["I cut my own hair.", "I had my hair cut at the salon.", "I cut the stylist’s hair."],
                             correctAnswer: 1,
-                            explanation: "I had my hair cut montre qu'une autre personne s'en est chargée.",
+                            explanation: "Have my hair cut présente les cheveux comme l’objet du service.",
                         },
                         {
                             id: 5,
@@ -196,10 +182,10 @@ export const course46: LessonContent = {
                         },
                         {
                             id: 8,
-                            question: "This structure is often used for ...",
-                            options: ["general truths only", "services and interventions"],
-                            correctAnswer: 1,
-                            explanation: "Have something done est très fréquent pour les services, réparations et rendez-vous.",
+                            question: "Une voyageuse dit « I had my passport stolen ». Que lui est-il arrivé ?",
+                            options: ["Elle a été victime d’un vol.", "Elle a commandé un nouveau passeport.", "Elle a volé le passeport de quelqu’un."],
+                            correctAnswer: 0,
+                            explanation: "La structure peut aussi décrire un événement subi.",
                         },
                         {
                             id: 9,

@@ -5,11 +5,9 @@ import { recordGrammarRushPractice, type PracticeResult } from "@/lib/courses/pr
 import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 import { checkAndGrantDailyBonus } from "@/lib/profile/daily-challenge";
 import { isValidRushResult } from "@/lib/games/grammar-rush";
-import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
-import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { gamePerformance } from "@/lib/profile/economy";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { consumeGameSession } from "@/lib/games/game-session-server";
+import { gameAuthFailure, interruptedGameSave, saveGameScore } from "@/lib/games/score-settlement";
 import { checkGrammarRush } from "@/lib/games/score-plausibility";
 
 const SLUG = "grammar-rush";
@@ -26,6 +24,7 @@ export async function submitGrammarRushScore(params: {
   sessionId?: string | null;
 }): Promise<{
   success: boolean;
+  retryable?: boolean;
   error?: string;
   rewards?: {
     xpEarned: number;
@@ -56,61 +55,24 @@ export async function submitGrammarRushScore(params: {
   try {
     const supabase = await createSupabaseServerClient();
     const {
-      data: { user },
+      data: { user }, error: userError,
     } = await supabase.auth.getUser();
-    if (!user) {
-      return { success: false, error: "Connecte-toi pour enregistrer ton score." };
+    if (userError || !user) {
+      return gameAuthFailure(userError);
     }
-    const gameSession = await consumeGameSession({ sessionId: params.sessionId, userId: user.id, slug: SLUG, claimedDurationMs: durationMs });
-    if (!gameSession.ok) {
-      return { success: false, error: gameSession.error };
-    }
-
-    const admin = createSupabaseAdminClient();
-    const { data: game, error: gameError } = await admin.from("games").select("id").eq("slug", SLUG).maybeSingle();
-    if (gameError) throw gameError;
-    if (!game) {
-      return { success: false, error: "Le jeu n'est pas encore déclaré dans la base (migration 2026-10-10_04)." };
-    }
-
-    const [personalBestResult, globalBestResult] = await Promise.all([
-      admin.from("game_scores").select("score").eq("user_id", user.id).eq("game_id", game.id).order("score", { ascending: false }).limit(1).maybeSingle(),
-      admin.from("game_scores").select("score").eq("game_id", game.id).order("score", { ascending: false }).limit(1).maybeSingle(),
-    ]);
-    if (personalBestResult.error) throw personalBestResult.error;
-    if (globalBestResult.error) throw globalBestResult.error;
-    const personalBest = personalBestResult.data;
-    const globalBest = globalBestResult.data;
-    const isNewPersonalBest = score > (personalBest?.score ?? 0);
-    const isNewGlobalBest = score > (globalBest?.score ?? 0);
-
-    const playsToday = await countPlaysToday(admin, user.id, game.id);
-    const rewards = computeGameRewards({
-      performance: gamePerformance.grammarRush(correct),
-      difficulty: DIFFICULTY,
-      playsToday,
-      isNewPersonalBest,
-      isNewGlobalBest,
+    const saved = await saveGameScore({
+      userId: user.id, slug: "grammar-rush", sessionId: params.sessionId,
+      score, maxScore: attempts, durationMs,
+      difficulty: DIFFICULTY, performance: gamePerformance.grammarRush(correct),
+      recordEligible: score > 0,
+      focus: { course: params.focusCourseId ?? null, correct: params.focusCorrect ?? 0 },
     });
-
-    const { error: insertError } = await admin.from("game_scores").insert({
-      user_id: user.id,
-      game_id: game.id,
-      score,
-      max_score: attempts,
-      duration_ms: durationMs,
-      difficulty: DIFFICULTY,
-    });
-    if (insertError) {
-      console.error("grammar-rush insert", insertError);
-      return { success: false, error: "Le score n'a pas pu être enregistré." };
-    }
-
-    const balances = await grantProfileRewards(admin, user.id, { xp: rewards.xpEarned, gold: rewards.goldEarned });
+    if (!saved.ok) return { success: false, error: saved.error, retryable: saved.retryable };
+    const { rewards, playsToday, isNewPersonalBest, isNewGlobalBest } = saved.receipt;
     const dailyChallenge = await checkAndGrantDailyBonus(user.id, SLUG, {
-      eligible: rewards.xpEarned > 0,
+      eligible: rewards.xpEarned > 0, earnedAt: saved.receipt.savedAt,
     });
-    const courseCompleted = await autoCompleteCourseMissionForGame(user.id, SLUG, score);
+    const courseCompleted = saved.receipt.replayed ? null : await autoCompleteCourseMissionForGame(user.id, SLUG, score);
     // Étoile d'entraînement : seulement quand la partie était ouverte sur un cours.
     const practice =
       params.focusCourseId != null
@@ -122,7 +84,7 @@ export async function submitGrammarRushScore(params: {
           })
         : null;
     const newBadges = await syncBadgesSafely(user.id);
-    const gameNewLevel = balances.level > balances.previousLevel ? balances.level : 0;
+    const gameNewLevel = saved.receipt.level > saved.receipt.previousLevel ? saved.receipt.level : 0;
     const mergedNewLevel = Math.max(gameNewLevel, dailyChallenge.newLevel ?? 0) || undefined;
 
     return {
@@ -144,6 +106,6 @@ export async function submitGrammarRushScore(params: {
     };
   } catch (error) {
     console.error("submitGrammarRushScore", error);
-    return { success: false, error: "Une erreur est survenue." };
+    return interruptedGameSave;
   }
 }

@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -7,71 +8,30 @@ export const course31: LessonContent = {
     objective: "Apprendre à créer des phrases avec 'SI' pour le futur.",
     sections: [
         {
-            title: "1. Le Concept Simple (Action ➔ Réaction)",
+            title: "Une éventualité et sa suite",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Pour parler du futur avec "SI" (If), l'anglais a une logique stricte.
-                        <br />On imagine une <strong>Condition</strong> (le déclencheur) et un <strong>Résultat</strong> (la conséquence).
-                    </p>
-
-                    <div className="bg-slate-900 p-6 rounded-xl border border-slate-700 shadow-lg">
-                        <p className="text-center text-indigo-300 font-bold mb-4">LA FORMULE MAGIQUE</p>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-center text-center font-mono text-lg">
-                            <div className="bg-slate-800 p-3 rounded-lg text-emerald-400">
-                                IF + PRÉSENT
-                                <div className="text-xs text-slate-500 mt-1">(La Condition)</div>
-                            </div>
-                            <div className="text-white font-bold">➔</div>
-                            <div className="bg-slate-800 p-3 rounded-lg text-blue-400">
-                                WILL + VERBE
-                                <div className="text-xs text-slate-500 mt-1">(Le Résultat)</div>
-                            </div>
-                        </div>
-
-                        <div className="mt-6 text-center">
-                            <p className="text-white text-xl">"If it <strong className="text-emerald-400">rains</strong>, I <strong className="text-blue-400">will stay</strong> home."</p>
-                            <p className="text-sm text-slate-400 italic mt-2">
-                                (S'il pleut, je resterai à la maison.)
-                            </p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "If it rains tomorrow, we’ll stay inside.", meaning: "Tu annonces ce que vous ferez." },
+                  { english: "If it rains, take a coat.", meaning: "Tu donnes une consigne." },
+                  { english: "You can call me if you get lost.", meaning: "Tu proposes une possibilité." },
+                ]}
+              >
+                Le premier conditionnel permet d’envisager une situation future que l’on considère possible. Dans la proposition avec if, le présent simple est courant.
+              </LessonExamples>
             )
         },
         {
-            title: "2. Le Piège à Éviter (Danger !)",
+            title: "Changer l’ordre des propositions",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        C'est exactement <strong>comme en français</strong> !
-                        <br />Vous connaissez la règle : <em className="text-yellow-400">"Les SI n'aiment pas les RAI"</em>.
-                        <br />(On ne dit pas "Si je <s>partirai</s>", on dit "Si je <strong>pars</strong>").
-                    </p>
-
-                    <div className="bg-red-900/10 border border-red-500 p-6 rounded-xl">
-                        <div className="flex items-center gap-3 mb-4">
-                            <span className="text-2xl">⛔</span>
-                            <h4 className="text-red-400 font-bold uppercase">La Règle d'Or</h4>
-                        </div>
-                        <p className="text-white text-lg mb-4">
-                            En anglais, c'est PAREIL : Pas de <strong>WILL</strong> juste après <strong>IF</strong>.
-                        </p>
-                        <div className="space-y-2 bg-black/30 p-4 rounded-lg">
-                            <div className="flex gap-2">
-                                <span className="text-red-500">❌</span>
-                                <span className="line-through text-slate-400">If I will go...</span>
-                            </div>
-                            <div className="flex gap-2">
-                                <span className="text-emerald-400">✅</span>
-                                <span className="text-white">If I <strong className="text-emerald-400">go</strong>...</span>
-                            </div>
-                        </div>
-                        <p className="mt-4 text-sm text-red-300 italic">
-                            Astuce : Si le mot "Si" (If) est là, le futur (Will) est interdit dans cette partie de la phrase.
-                        </p>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "If we miss the train, we’ll walk.", meaning: "On entend d’abord la condition." },
+                  { english: "We’ll walk if we miss the train.", meaning: "On entend d’abord la décision." },
+                ]}
+              >
+                La condition peut être placée avant ou après la conséquence. À l’écrit, on met généralement une virgule après la condition lorsqu’elle arrive en tête.
+              </LessonExamples>
             )
         },
         {
@@ -127,7 +87,7 @@ export const course31: LessonContent = {
             )
         },
         {
-            title: "Quiz Complet",
+            title: "Quiz · Envisager une conséquence",
             content: (
                 <Quiz
                     questions={[
@@ -140,7 +100,7 @@ export const course31: LessonContent = {
                         },
                         {
                             id: 2,
-                            question: "I ___ happy if you come.",
+                            question: "Tu parles de ta réaction demain. I ___ happy if you come to the party.",
                             options: ["am", "will be"],
                             correctAnswer: 1,
                             explanation: "Ici c'est le RÉSULTAT (la conséquence). Donc on utilise le FUTUR (will be).",
@@ -175,14 +135,14 @@ export const course31: LessonContent = {
                         },
                         {
                             id: 7,
-                            question: "If it rains, we ___ inside.",
-                            options: ["stay", "will stay"],
-                            correctAnswer: 1,
-                            explanation: "Conséquence future classique : Will stay.",
+                            question: "Demain, si la pluie commence, quel conseil pourras-tu donner ?",
+                            options: ["If it rains, take a coat.", "If it rains, took a coat.", "If rains, take a coat."],
+                            correctAnswer: 0,
+                            explanation: "La consigne se formule à l’impératif dans la proposition principale.",
                         },
                         {
                             id: 8,
-                            question: "What ___ if you lose your keys?",
+                            question: "Tu demandes à Sam ce qu’il fera demain dans ce cas précis. What ___ if you lose your keys?",
                             options: ["will you do", "do you do"],
                             correctAnswer: 0,
                             explanation: "Question sur une conséquence future spécifique : Will you do?",

@@ -80,21 +80,21 @@
     {
       "id": "x11",
       "type": "order",
-      "answers": ["We would have won if Lucie had played."],
+      "answers": ["We would have won if Lucie had played.", "If Lucie had played we would have won."],
       "translation": "Nous aurions gagné si Lucie avait joué.",
       "explanation": "Quand la partie avec if vient en second, pas de virgule. Résultat : would have + participe passé, condition : had + participe passé."
     },
     {
       "id": "x12",
       "type": "order",
-      "answers": ["I wouldn't have failed if I had revised."],
+      "answers": ["I wouldn't have failed if I had revised.", "If I had revised I wouldn't have failed."],
       "translation": "Je n'aurais pas échoué si j'avais révisé.",
       "explanation": "Le résultat négatif se construit avec wouldn't have + participe passé. Après if, on garde le past perfect."
     },
     {
       "id": "x13",
       "type": "order",
-      "answers": ["Would you have gone if they had invited you?"],
+      "answers": ["Would you have gone if they had invited you?", "If they had invited you would you have gone?"],
       "translation": "Est-ce que tu y serais allé s'ils t'avaient invité ?",
       "explanation": "Dans la question, would passe devant le sujet : Would you have + participe passé ?"
     }

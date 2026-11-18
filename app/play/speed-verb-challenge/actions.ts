@@ -1,6 +1,5 @@
 "use server";
-import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
-import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
+import { gamePerformance } from "@/lib/profile/economy";
 import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
 import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 
@@ -14,9 +13,8 @@ import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
  */
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Difficulty } from "@/lib/profile/leveling";
-import { consumeGameSession } from "@/lib/games/game-session-server";
+import { gameAuthFailure, interruptedGameSave, saveGameScore } from "@/lib/games/score-settlement";
 import { checkSpeedVerb } from "@/lib/games/score-plausibility";
 
 /**
@@ -58,6 +56,7 @@ export async function submitSpeedVerbScore(params: {
   sessionId?: string | null;
 }): Promise<{
   success: boolean;
+  retryable?: boolean;
   error?: string;
   rewards?: {
     xpEarned: number;
@@ -96,7 +95,6 @@ export async function submitSpeedVerbScore(params: {
       return { success: false, error: "Score Speed Verb Challenge invraisemblable" };
     }
     const supabase = await createSupabaseServerClient();
-    const adminClient = createSupabaseAdminClient();
 
     // Get current user
     const {
@@ -105,116 +103,27 @@ export async function submitSpeedVerbScore(params: {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      return {
-        success: false,
-        error: "User not authenticated",
-      };
+      return gameAuthFailure(userError);
     }
 
-    const gameSession = await consumeGameSession({
-      sessionId: params.sessionId,
-      userId: user.id,
-      slug: "speed-verb-challenge",
-      claimedDurationMs: params.durationMs,
+    const difficulty = ({ 1: "easy", 2: "medium", 3: "hard" } as const)[params.difficulty];
+    const saved = await saveGameScore({
+      userId: user.id, slug: "speed-verb-challenge", sessionId: params.sessionId,
+      score: params.score, maxScore: params.totalRounds, durationMs: params.durationMs,
+      difficulty, performance: gamePerformance.speedVerb(params.correctCount, difficulty),
+      recordEligible: params.score > 0,
     });
-    if (!gameSession.ok) {
-      return { success: false, error: gameSession.error };
-    }
-
-    // Get the Speed Verb Challenge game ID
-    const { data: game, error: gameError } = await adminClient
-      .from("games")
-      .select("id")
-      .eq("slug", "speed-verb-challenge")
-      .maybeSingle();
-
-    if (gameError || !game) {
-      return {
-        success: false,
-        error: "Game not found",
-      };
-    }
-
-    // Map difficulty number to string
-    const difficultyMap: Record<1 | 2 | 3, Difficulty> = {
-      1: "easy",
-      2: "medium",
-      3: "hard",
-    };
-    const difficulty = difficultyMap[params.difficulty];
-
-    // Get user's current personal best score for this difficulty
-    const { data: personalBest } = await adminClient
-      .from("game_scores")
-      .select("id, score")
-      .eq("user_id", user.id)
-      .eq("game_id", game.id)
-      .eq("difficulty", difficulty)
-      .order("score", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    const currentPersonalBest = personalBest?.score ?? 0;
-    // IMPORTANT: We compare and save the TOTAL SCORE (with streak bonuses), not just correctCount
-    // The score includes bonuses from streaks, making it the true measure of performance
-    const isNewPersonalBest = params.score > currentPersonalBest;
-
-    // Check if this is a new global best score for this difficulty
-    const { data: globalTopScore } = await adminClient
-      .from("game_scores")
-      .select("score")
-      .eq("game_id", game.id)
-      .eq("difficulty", difficulty)
-      .order("score", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    const currentGlobalBest = globalTopScore?.score ?? 0;
-    // Compare total scores (with bonuses) for global best, not just correctCount
-    const isNewGlobalBest = params.score > currentGlobalBest;
-
-    // Calculate rewards (always calculate, even if not saving)
-    const playsToday = await countPlaysToday(adminClient, user.id, game.id);
-    const rewards = computeGameRewards({
-      performance: gamePerformance.speedVerb(params.correctCount, difficulty),
-      difficulty,
-      playsToday,
-      isNewPersonalBest,
-      isNewGlobalBest,
-    });
-
-    const { error: insertError } = await adminClient
-      .from("game_scores")
-      .insert({
-        user_id: user.id,
-        game_id: game.id,
-        score: params.score, // Total score with streak bonuses (this is what matters for leaderboards)
-        max_score: params.totalRounds,
-        duration_ms: params.durationMs,
-        difficulty: difficulty,
-      });
-
-    if (insertError) {
-      console.error("Error inserting game score:", insertError);
-      return {
-        success: false,
-        error: "Failed to save score",
-      };
-    }
-
-
-    const granted = await grantProfileRewards(adminClient, user.id, {
-      xp: rewards.xpEarned, gold: rewards.goldEarned,
-    });
+    if (!saved.ok) return { success: false, error: saved.error, retryable: saved.retryable };
+    const { rewards, playsToday, isNewPersonalBest, isNewGlobalBest } = saved.receipt;
 
     // Check and grant Daily Challenge bonus
     const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
     const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "speed-verb-challenge", {
-      eligible: rewards.xpEarned > 0,
+      eligible: rewards.xpEarned > 0, earnedAt: saved.receipt.savedAt,
     });
-    const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "speed-verb-challenge", params.score);
+    const courseCompleted = saved.receipt.replayed ? null : await autoCompleteCourseMissionForGame(user.id, "speed-verb-challenge", params.score);
     const newBadges = await syncBadgesSafely(user.id);
-    const gameNewLevel = granted.level > granted.previousLevel ? granted.level : 0;
+    const gameNewLevel = saved.receipt.level > saved.receipt.previousLevel ? saved.receipt.level : 0;
     const mergedNewLevel = Math.max(gameNewLevel, dailyChallengeResult.newLevel ?? 0) || undefined;
 
     return {
@@ -232,13 +141,10 @@ export async function submitSpeedVerbScore(params: {
       newBadges,
       isNewPersonalBest,
       isNewGlobalBest,
-      personalBest: isNewPersonalBest ? params.score : currentPersonalBest,
+      personalBest: isNewPersonalBest ? params.score : (saved.receipt.previousBest ?? 0),
     };
   } catch (error) {
     console.error("Error in submitSpeedVerbScore:", error);
-    return {
-      success: false,
-      error: "An unexpected error occurred",
-    };
+    return interruptedGameSave;
   }
 }

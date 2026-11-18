@@ -4,7 +4,7 @@
     {
       "id": "x1",
       "type": "mcq",
-      "question": "Complète : Look at Jade's face! She ___ cry.",
+      "question": "Décris la prédiction qui repose sur le visage de Jade avec be going to. She ___ cry.",
       "options": ["will", "goes to", "is going", "is going to"],
       "correctAnswer": 3,
       "explanation": "Tu vois un signe sur son visage : la prédiction repose sur une preuve visible, donc be going to."
@@ -12,7 +12,7 @@
     {
       "id": "x2",
       "type": "mcq",
-      "question": "Complète : In 2050, I think people ___ live on the Moon.",
+      "question": "Exprime ce pronostic personnel avec will. I think people ___ live on the Moon.",
       "options": ["will to", "are", "will", "wills"],
       "correctAnswer": 2,
       "explanation": "Prédiction basée sur une opinion (I think), sans preuve visible : will + base verbale."
@@ -28,7 +28,7 @@
     {
       "id": "x4",
       "type": "mcq",
-      "question": "Complète : Oh, you're vegetarian? OK, I ___ cook pasta then.",
+      "question": "Tu viens d’apprendre que ton invité est végétarien. Propose une solution immédiate avec will. I ___ cook pasta then.",
       "options": ["will", "am going to", "am", "going to"],
       "correctAnswer": 0,
       "explanation": "Tu viens d'apprendre l'information et tu changes d'avis sur le moment : will."

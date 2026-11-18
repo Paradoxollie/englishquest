@@ -153,7 +153,17 @@ test("Flashback remembers a displayed word after a mistake", () => {
   const repeat = memory.nextRound(secondResult, () => 0.99);
   assert.equal(repeat.currentWord.english, first.currentWord.english);
   assert.equal(repeat.isNew, false);
-  assert.equal(memory.submitDecision(repeat, true).lastDecisionCorrect, true);
+  const meaning = memory.submitDecision(repeat, true);
+  assert.equal(meaning.phase, "meaning");
+  assert.equal(meaning.score, repeat.score);
+  assert.equal(new Set(meaning.meaningChoices).size, 3);
+  assert.ok(meaning.meaningChoices.includes(repeat.currentWord.french));
+  assert.equal(memory.submitDecision(meaning, true), meaning);
+  assert.equal(memory.submitMeaning(meaning, "absent"), meaning);
+  assert.equal(memory.submitMeaning(meaning, repeat.currentWord.french).lastDecisionCorrect, true);
+  const distractor = meaning.meaningChoices.find(text => text !== repeat.currentWord.french);
+  assert.equal(memory.submitMeaning(meaning, distractor).score, repeat.score);
+  assert.equal(memory.submitTimeout(meaning).strikes, repeat.strikes + 1);
 });
 test("Flashback rejects duplicate decisions and premature round advancement", () => {
   const idle = memory.createGameState(() => 0);
@@ -184,7 +194,8 @@ test("Flashback shows levelled words with their meaning and favours the player's
     let state = memory.startGame(memory.createGameState(rng, pool, level));
     const shownLevels = [state.currentWord.level];
     for (let i = 0; i < 60; i += 1) {
-      state = memory.submitDecision(state, !state.isNew);
+      state = memory.submitDecision(state, !state.isNew, rng);
+      if (state.phase === "meaning") state = memory.submitMeaning(state, state.currentWord.french);
       state = memory.nextRound(state, rng);
       if (state.isNew) shownLevels.push(state.currentWord.level);
     }
@@ -202,7 +213,8 @@ test("Flashback remains consistent over 500 rounds including vocabulary exhausti
   for (let i = 0; i < 500; i += 1) {
     assert.equal(state.isNew, !seen.has(state.currentWord.english));
     seen.add(state.currentWord.english);
-    state = memory.submitDecision(state, !state.isNew);
+    state = memory.submitDecision(state, !state.isNew, rng);
+    if (state.phase === "meaning") state = memory.submitMeaning(state, state.currentWord.french);
     assert.equal(new Set(state.seenWords.map((word) => word.english)).size, state.seenWords.length);
     state = memory.nextRound(state, () => 0); // Force new words until exhausted.
   }

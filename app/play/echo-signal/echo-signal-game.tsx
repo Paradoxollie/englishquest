@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { playDialogueOrSpeak, playSoundEffect, stopAllGameAudio } from "@/lib/games/audio";
+import { playDialogueOrSpeak, playSoundEffect, setRecordingRate, stopAllGameAudio } from "@/lib/games/audio";
 import {
   computeEchoQuestionPoints,
   ECHO_SIGNAL_CLIPS_PER_RUN,
@@ -42,11 +42,13 @@ export function EchoSignalGame({
   missionTarget,
   suggestedLevel,
   audioMap = {},
+  lineStarts = {},
 }: {
   isLoggedIn: boolean;
   missionTarget: number | null;
   suggestedLevel: GameLevel | null;
   audioMap?: Record<string, string>;
+  lineStarts?: Record<string, number[]>;
 }) {
   const voiceStatus = useEnglishVoiceStatus();
   const noVoice = voiceStatus === "unsupported" || voiceStatus === "no-english";
@@ -54,8 +56,8 @@ export function EchoSignalGame({
   const [difficulty, setDifficulty] = useState<EchoDifficulty>(2);
   const [level, setLevel] = useState<GameLevel>(suggestedLevel ?? DEFAULT_GAME_LEVEL);
   const [silentChoice, setSilentChoice] = useState(false);
-  // Sans voix anglaise, le jeu passe tout seul en mode lecture (dialogue écrit).
-  const silentMode = silentChoice || noVoice;
+  const [textScenario, setTextScenario] = useState<string | null>(null);
+  const [audioNotice, setAudioNotice] = useState("");
 
   const [missions, setMissions] = useState<EchoScenario[]>([]);
   const [clipIndex, setClipIndex] = useState(0);
@@ -106,6 +108,9 @@ export function EchoSignalGame({
   }, [clearTimers]);
 
   const currentMission = missions[clipIndex] ?? null;
+  const silentMode = silentChoice || (!!currentMission && (
+    textScenario === currentMission.id || (noVoice && !audioMap[currentMission.id])
+  ));
   const currentQuestion = currentMission?.questions[qIndex] ?? null;
   const diffConfig = getEchoDifficultyConfig(difficulty);
   const questionsPerClip = currentMission?.questions.length ?? 2;
@@ -114,19 +119,31 @@ export function EchoSignalGame({
 
   const playScenario = useCallback(
     (scenario: EchoScenario, rate: number) => {
+      setAudioNotice("");
       setIsPlayingAudio(true);
       playDialogueOrSpeak({
         mp3Url: audioMap[scenario.id],
         lines: scenario.lines,
+        lineStarts: lineStarts[scenario.id],
         rate,
         onLineChange: setActiveSpeakerIndex,
         onEnded: () => {
           setIsPlayingAudio(false);
           setActiveSpeakerIndex(null);
+          setPlaysUsed((used) => used + 1);
+        },
+        onError: (reason) => {
+          setIsPlayingAudio(false);
+          setActiveSpeakerIndex(null);
+          if (reason === "blocked") setAudioNotice("Appuie sur Écouter le message pour lancer la lecture.");
+          else {
+            setTextScenario(scenario.id);
+            setAudioNotice("La lecture audio a échoué. Le texte du message est disponible pour répondre.");
+          }
         },
       });
     },
-    [audioMap]
+    [audioMap, lineStarts]
   );
 
   const stopScenario = useCallback(() => {
@@ -135,7 +152,7 @@ export function EchoSignalGame({
     setActiveSpeakerIndex(null);
   }, []);
 
-  /** Bouton de lecture : relance (et compte une écoute) ou arrête sans rien décompter. */
+  // Only a completed playback consumes an attempt.
   const togglePlay = useCallback(() => {
     if (!currentMission || silentMode) return;
     if (isPlayingAudio) {
@@ -143,7 +160,6 @@ export function EchoSignalGame({
       return;
     }
     if (playsUsed >= diffConfig.maxPlays) return;
-    setPlaysUsed((prev) => prev + 1);
     playScenario(currentMission, speedRate);
   }, [currentMission, diffConfig.maxPlays, isPlayingAudio, playScenario, playsUsed, silentMode, speedRate, stopScenario]);
 
@@ -163,15 +179,15 @@ export function EchoSignalGame({
       setSubmitStatus("saving");
       const rawDurationMs = Math.max(1000, Math.round(performance.now() - startedAtRef.current));
       void (async () => {
-        const { sessionId, durationMs } = await gameSession.finish(rawDurationMs);
-        const res = await submitEchoSignalScore({
+        const { sessionId, durationMs, save } = await gameSession.finish(rawDurationMs);
+        const res = await save(() => submitEchoSignalScore({
           difficulty: finalDiff,
           score: finalScore,
           correctCount: finalCorrect,
           totalQuestions: finalTotalQuestions,
           durationMs,
           sessionId,
-        });
+        }));
         if (!res.success) {
           setRewardError(res.error ?? "Impossible d'enregistrer le score.");
           setSubmitStatus("error");
@@ -191,13 +207,16 @@ export function EchoSignalGame({
     setMissions(picked);
     setClipIndex(0);
     setQIndex(0);
-    setPlaysUsed(silentMode ? 0 : 1);
+    setPlaysUsed(0);
+    setTextScenario(null);
+    setAudioNotice("");
+    setPlayingReview(null);
     setSpeedRate(1);
     setIsPlayingAudio(false);
     setActiveSpeakerIndex(null);
     setSelectedChoice(null);
     setLastAnswerCorrect(null);
-    setShowTranscript(silentMode);
+    setShowTranscript(false);
     setScore(0);
     setStreak(0);
     setBestStreak(0);
@@ -210,8 +229,8 @@ export function EchoSignalGame({
     setPhase("playing");
     startedAtRef.current = performance.now();
     gameSession.begin();
-    if (picked[0] && !silentMode) playScenario(picked[0], 1);
-  }, [clearTimers, gameSession, level, playScenario, silentMode]);
+    if (picked[0] && !silentChoice) playScenario(picked[0], 1);
+  }, [clearTimers, gameSession, level, playScenario, silentChoice]);
 
   const moveNext = useCallback(() => {
     clearTimers();
@@ -231,12 +250,14 @@ export function EchoSignalGame({
     stopScenario();
     setClipIndex(nextClip);
     setQIndex(0);
-    setPlaysUsed(silentMode ? 0 : 1);
+    setPlaysUsed(0);
+    setTextScenario(null);
+    setAudioNotice("");
     setSelectedChoice(null);
     setLastAnswerCorrect(null);
-    setShowTranscript(silentMode);
+    setShowTranscript(false);
     setPhase("playing");
-    if (!silentMode) later(() => playScenario(missions[nextClip], speedRate), 200);
+    if (!silentChoice) playScenario(missions[nextClip], speedRate);
   }, [
     clearTimers,
     clipIndex,
@@ -244,12 +265,11 @@ export function EchoSignalGame({
     currentMission,
     difficulty,
     finishMatch,
-    later,
     missions,
     playScenario,
     qIndex,
     score,
-    silentMode,
+    silentChoice,
     speedRate,
     stopScenario,
     totalQuestions,
@@ -257,7 +277,7 @@ export function EchoSignalGame({
 
   const chooseOption = useCallback(
     (optionIndex: number) => {
-      if (phase !== "playing" || !currentMission || !currentQuestion) return;
+      if (phase !== "playing" || !currentMission || !currentQuestion || (!silentMode && (!playsUsed || isPlayingAudio))) return;
       const correct = optionIndex === currentQuestion.correctIndex;
       const nextStreak = correct ? streak + 1 : 0;
       const points = computeEchoQuestionPoints({ difficulty, correct, playsUsed, newStreak: nextStreak, silentMode });
@@ -289,7 +309,7 @@ export function EchoSignalGame({
         continueRef.current?.focus({ preventScroll: true });
       }, 60);
     },
-    [currentMission, currentQuestion, difficulty, later, phase, playsUsed, qIndex, silentMode, streak]
+    [currentMission, currentQuestion, difficulty, isPlayingAudio, later, phase, playsUsed, qIndex, silentMode, streak]
   );
 
   useEffect(() => {
@@ -308,12 +328,7 @@ export function EchoSignalGame({
     setPhase("start");
   };
 
-  const voiceNotice = noVoice ? (
-    <p className="eq-game-notice" role="status">
-      Ton navigateur n&apos;a pas de voix anglaise : le jeu passe en mode lecture (dialogue écrit, score à 65 %).
-      Pour l&apos;écoute, essaie Edge ou Chrome.
-    </p>
-  ) : null;
+  const hasAudio = Object.keys(audioMap).length > 0 || !noVoice;
 
   if (phase === "start") {
     return (
@@ -323,13 +338,13 @@ export function EchoSignalGame({
         rules={[
           "4 messages, 2 questions chacun : heures, lieux, prix, raisons, intentions.",
           "Facile : 3 écoutes et vitesse lente. Moyen : 2 écoutes. Difficile : une seule écoute.",
-          "Après chaque réponse, tu lis l'explication ; le texte du message s'affiche après sa 2e question.",
+          "Lis l’explication après chaque réponse. En mode écoute, comprendre le message dès la première écoute complète rapporte un bonus.",
         ]}
         startLabel="Capter les signaux"
         onStart={startGame}
       >
         <div className="space-y-4">
-          {voiceNotice}
+          {!hasAudio && <p className="eq-game-notice">L’audio est indisponible sur cet appareil. Tu peux lire les messages et gagner les points de compréhension.</p>}
           <div className="eq-game-options" role="radiogroup" aria-label="Difficulté">
             {([1, 2, 3] as EchoDifficulty[]).map((item) => {
               const cfg = getEchoDifficultyConfig(item);
@@ -349,7 +364,7 @@ export function EchoSignalGame({
             })}
           </div>
           <LevelPicker value={level} onChange={setLevel} suggested={suggestedLevel} label="Niveau de compréhension" />
-          {!noVoice ? (
+          {hasAudio ? (
             <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold">
               <input
                 type="checkbox"
@@ -357,7 +372,7 @@ export function EchoSignalGame({
                 onChange={(e) => setSilentChoice(e.target.checked)}
                 className="h-4 w-4 accent-[var(--cyan)]"
               />
-              <span>Mode lecture, sans écouteurs (dialogue écrit · score à 65 %)</span>
+              <span>Mode lecture, sans écouteurs</span>
             </label>
           ) : null}
         </div>
@@ -381,10 +396,12 @@ export function EchoSignalGame({
         ]}
         rewards={rewards}
         rewardStatus={submitStatus}
+        retryScore={gameSession.retryScore}
         rewardError={rewardError}
         missionReached={missionReached}
-        onReplay={() => setPhase("start")}
+        onReplay={quitToStart}
       >
+        {audioNotice && <p className="eq-game-notice" role="status">{audioNotice}</p>}
         {missions.length > 0 ? (
           <div className="space-y-3">
             <h4 className="eq-h3">Les messages et tes réponses</h4>
@@ -395,7 +412,7 @@ export function EchoSignalGame({
                   <li key={missionItem.id}>
                     <div className="eq-echo-review-head">
                       <b>{missionItem.title}</b>
-                      {!silentMode ? (
+                      {audioMap[missionItem.id] || !noVoice ? (
                         <button
                           type="button"
                           className="eq-btn eq-btn-ghost eq-btn-sm"
@@ -406,11 +423,17 @@ export function EchoSignalGame({
                               return;
                             }
                             setPlayingReview(missionItem.id);
+                            setAudioNotice("");
                             playDialogueOrSpeak({
                               mp3Url: audioMap[missionItem.id],
                               lines: missionItem.lines,
+                              lineStarts: lineStarts[missionItem.id],
                               rate: 1,
                               onEnded: () => setPlayingReview(null),
+                              onError: () => {
+                                setPlayingReview(null);
+                                setAudioNotice("Le message audio est indisponible. Sa transcription est disponible dans le bilan.");
+                              },
                             });
                           }}
                         >
@@ -465,7 +488,7 @@ export function EchoSignalGame({
       </GameHud>
 
       <div className={`eq-game-stage eq-echo-stage ${phase === "feedback" ? (lastAnswerCorrect ? "is-right" : "is-wrong") : ""}`}>
-        {voiceNotice}
+        {audioNotice && <p className="eq-game-notice" role="status">{audioNotice}</p>}
         <div className="eq-echo-radio">
           <div className="eq-echo-radio-head">
             <div>
@@ -501,6 +524,8 @@ export function EchoSignalGame({
               >
                 {isPlayingAudio
                   ? "Arrêter"
+                  : playsUsed === 0
+                    ? "Écouter le message"
                   : replaysLeft > 0
                     ? `Réécouter (${replaysLeft} restante${replaysLeft > 1 ? "s" : ""})`
                     : "Écoutes utilisées"}
@@ -508,17 +533,28 @@ export function EchoSignalGame({
               {diffConfig.allowSlowSpeed ? (
                 <button
                   type="button"
-                  onClick={() => setSpeedRate((r) => (r === 1 ? 0.8 : 1))}
+                  onClick={() => {
+                    const nextRate = speedRate === 1 ? 0.8 : 1;
+                    setSpeedRate(nextRate);
+                    if (isPlayingAudio && !setRecordingRate(nextRate)) playScenario(currentMission, nextRate);
+                  }}
                   className="eq-btn eq-btn-ghost eq-btn-sm"
                   aria-pressed={speedRate !== 1}
                 >
                   {speedRate === 1 ? "Vitesse normale" : "Vitesse lente"}
                 </button>
               ) : null}
+              {phase === "playing" && (
+                <button type="button" className="eq-btn eq-btn-ghost eq-btn-sm" onClick={() => {
+                  stopScenario();
+                  setTextScenario(currentMission.id);
+                  setAudioNotice("");
+                }}>Lire ce message</button>
+              )}
             </div>
           ) : null}
 
-          {showTranscript ? (
+          {silentMode || showTranscript ? (
             <div className="eq-echo-transcript" lang="en">
               {currentMission.lines.map((line, index) => (
                 <p key={`${line.speaker}-${index}`} className={activeSpeakerIndex === index ? "is-active-line" : ""}>
@@ -543,7 +579,7 @@ export function EchoSignalGame({
                   key={option}
                   type="button"
                   data-testid="game-choice"
-                  disabled={phase !== "playing"}
+                  disabled={phase !== "playing" || (!silentMode && (playsUsed === 0 || isPlayingAudio))}
                   onClick={() => chooseOption(idx)}
                   className={`eq-game-choice ${stateClass}`}
                 >

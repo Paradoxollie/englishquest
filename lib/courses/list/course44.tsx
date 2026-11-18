@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -7,31 +8,17 @@ export const course44: LessonContent = {
     objective: "Montrer clairement qu'une action s'est produite avant un autre moment passé.",
     sections: [
         {
-            title: "0. Le past perfect en une image",
+            title: "Es-tu arrivé à temps ?",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Le <strong>past perfect</strong> sert à parler d'un passé encore plus ancien qu'un autre point
-                        de référence déjà passé. C'est le temps de l'<strong>avant déjà terminé</strong>.
-                    </p>
-
-                    <div className="rounded-xl border border-slate-700 bg-slate-900 p-6">
-                        <p className="mb-4 text-center text-sm font-bold uppercase tracking-[0.18em] text-purple-300">
-                            Formule
-                        </p>
-                        <p className="text-center font-mono text-xl text-white">
-                            had + past participle
-                        </p>
-                        <div className="mt-5 rounded-lg bg-black/30 p-4 text-center">
-                            <p className="text-white">
-                                When I arrived, the film <strong className="text-purple-400">had already started</strong>.
-                            </p>
-                            <p className="mt-2 text-sm italic text-slate-400">
-                                Mon arrivée = repère passé. Le début du film = encore avant.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "When I arrived, they left.", meaning: "1. J’arrive. 2. Ils partent. Les actions se suivent." },
+                  { english: "When I arrived, they had left.", meaning: "1. Ils partent. 2. J’arrive. À mon arrivée, ils sont déjà partis." },
+                ]}
+                note={"Had + participe passé situe ici le départ avant un autre moment passé."}
+              >
+                Sam ouvre la porte et se demande s’il a croisé ses amis. Une petite différence de temps change l’ordre des événements.
+              </LessonExamples>
             )
         },
         {
@@ -136,16 +123,16 @@ export const course44: LessonContent = {
             )
         },
         {
-            title: "Quiz complet",
+            title: "Quiz · Remettre deux événements dans l’ordre",
             content: (
                 <Quiz
                     questions={[
                         {
                             id: 1,
-                            question: "When we arrived, the concert ___.",
-                            options: ["started after us", "had started"],
-                            correctAnswer: 1,
-                            explanation: "Le concert avait déjà commencé avant notre arrivée.",
+                            question: "Nous sommes entrés pendant la deuxième chanson. When we arrived, the concert ___.",
+                            options: ["had already started", "would start the next day", "has yet to start"],
+                            correctAnswer: 0,
+                            explanation: "Le début du concert précède notre arrivée.",
                         },
                         {
                             id: 2,
@@ -198,13 +185,13 @@ export const course44: LessonContent = {
                         },
                         {
                             id: 9,
-                            question: "Which sentence is best if the keys were forgotten before leaving home?",
+                            question: "Quel récit emploie le past perfect pour situer l’oubli avant l’arrivée à la porte ?",
                             options: [
                                 "I forgot my keys and I couldn't get in.",
                                 "I couldn't get in because I had forgotten my keys."
                             ],
                             correctAnswer: 1,
-                            explanation: "Le past perfect clarifie bien la cause déjà antérieure.",
+                            explanation: "L’explication avec had forgotten indique explicitement l’antériorité. Les deux événements pourraient aussi se raconter au prétérit dans l’ordre.",
                         },
                         {
                             id: 10,

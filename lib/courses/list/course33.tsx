@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -42,7 +43,7 @@ export const course33: LessonContent = {
                     </p>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                        <div className="bg-slate-800 p-4 rounded-xl border border-slate-600 opacity-60">
+                        <div className="bg-slate-800 p-4 rounded-xl border border-slate-600">
                             <h4 className="text-slate-400 font-bold uppercase text-xs mb-2">VOIX ACTIVE (Classique)</h4>
                             <p className="text-white text-lg">"Somebody <strong className="text-emerald-400">cleans</strong> the office."</p>
                             <p className="text-xs text-slate-500 italic mt-1">(Quelqu'un nettoie le bureau.)</p>
@@ -108,26 +109,20 @@ export const course33: LessonContent = {
             )
         },
         {
-            title: "3. Dire 'PAR' qui (By...)",
+            title: "Quand est-il utile de nommer l’auteur ?",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Si vous voulez absolument dire qui a fait l'action, utilisez le petit mot magique <strong>BY</strong>.
-                    </p>
-
-                    <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-yellow-500">
-                        <p className="text-white text-lg">"The telephone was invented <strong className="text-yellow-400">by</strong> Alexander Graham Bell."</p>
-                        <p className="text-xs text-slate-400 mt-1 italic">Le téléphone a été inventé PAR Alexander Graham Bell.</p>
-                    </div>
-
-                    <p className="text-slate-400 text-sm mt-4">
-                        Attention : 80% du temps, on n'utilise PAS "by". On utilise le passif justement parce qu'on ne sait pas qui l'a fait, ou parce que ce n'est pas important.
-                    </p>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "The mural was painted last summer.", meaning: "La légende date la fresque." },
+                  { english: "The mural was painted by local artists.", meaning: "Cette autre légende donne le mérite aux artistes du quartier." },
+                ]}
+              >
+                Au passif, by introduit la personne ou l’organisation qui fait l’action. Tu peux laisser cette précision de côté quand elle apporte peu à l’interlocuteur.
+              </LessonExamples>
             )
         },
         {
-            title: "Quiz Passif",
+            title: "Quiz · Choisir la voix passive",
             content: (
                 <Quiz
                     questions={[
@@ -140,7 +135,7 @@ export const course33: LessonContent = {
                         },
                         {
                             id: 2,
-                            question: "English ___ spoken all over the world.",
+                            question: "Décris la situation actuelle. English ___ spoken in many countries.",
                             options: ["is", "was"],
                             correctAnswer: 0,
                             explanation: "C'est une vérité générale (Présent). Donc IS spoken.",
@@ -189,10 +184,10 @@ export const course33: LessonContent = {
                         },
                         {
                             id: 9,
-                            question: "Someone cleans the room. (Transformez au passif)",
-                            options: ["The room is cleaned.", "The room cleans."],
+                            question: "Quel message de l’hôtel met la chambre au premier plan et indique une routine ?",
+                            options: ["The room is cleaned every morning.", "The room cleans every morning.", "The guests are cleaning their room now."],
                             correctAnswer: 0,
-                            explanation: "La salle ne nettoie pas, elle EST nettoyée.",
+                            explanation: "The room reçoit l’action. Is cleaned décrit ici une routine.",
                         },
                         {
                             id: 10,

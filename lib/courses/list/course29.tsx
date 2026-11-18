@@ -1,129 +1,53 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
 export const course29: LessonContent = {
     courseNumber: 29,
     title: "Incertitude : May, Might & Maybe",
-    objective: "Maîtriser toutes les nuances du doute et de la politesse.",
+    objective: "Exprimer une possibilité avec may ou might, un doute avec maybe et une permission avec may.",
     sections: [
         {
-            title: "1. Le Spectre de la Probabilité",
+            title: "Exprimer un degré de certitude",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        En anglais, l&apos;incertitude n&apos;est pas binaire. C&apos;est une échelle précise.
-                        <br />Plus vous descendez dans l&apos;échelle, moins vous êtes sûr de vous.
-                    </p>
-
-                    <div className="space-y-4">
-                        <div className="relative">
-                            <div className="absolute left-6 top-0 bottom-0 w-1 bg-gradient-to-b from-emerald-500 via-amber-500 to-indigo-500 opacity-50"></div>
-
-                            <div className="flex items-center gap-6 mb-6">
-                                <div className="w-12 h-12 rounded-full bg-slate-900 border-2 border-emerald-500 flex items-center justify-center font-bold text-white z-10">90%</div>
-                                <div className="flex-1 bg-slate-800 p-4 rounded-lg">
-                                    <h5 className="text-emerald-400 font-bold text-sm uppercase">WILL / IS GOING TO</h5>
-                                    <p className="text-white italic">"It will rain."</p>
-                                    <p className="text-xs text-slate-400">Quasi-certitude.</p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-6 mb-6">
-                                <div className="w-12 h-12 rounded-full bg-slate-900 border-2 border-amber-500 flex items-center justify-center font-bold text-white z-10">50%</div>
-                                <div className="flex-1 bg-slate-800 p-4 rounded-lg transition-transform hover:scale-[1.02]">
-                                    <h5 className="text-amber-400 font-bold text-sm uppercase">MAY</h5>
-                                    <p className="text-white italic">"It may rain."</p>
-                                    <p className="text-xs text-slate-400">C&apos;est une possibilité réelle et sérieuse. (50/50)</p>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center gap-6">
-                                <div className="w-12 h-12 rounded-full bg-slate-900 border-2 border-indigo-500 flex items-center justify-center font-bold text-white z-10">30%</div>
-                                <div className="flex-1 bg-slate-800 p-4 rounded-lg transition-transform hover:scale-[1.02]">
-                                    <h5 className="text-indigo-400 font-bold text-sm uppercase">MIGHT</h5>
-                                    <p className="text-white italic">"It might rain."</p>
-                                    <p className="text-xs text-slate-400">C&apos;est une possibilité lointaine, hypothétique. "Ça se pourrait..."</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "It may rain. It might rain.", meaning: "Dans les deux cas, la pluie est possible." },
+                  { english: "I’m sure it’ll rain soon.", meaning: "I’m sure rend la confiance du locuteur explicite." },
+                ]}
+              >
+                May, might et could peuvent tous introduire une possibilité. Le contexte et l’intonation comptent. Ces modaux ne correspondent pas à des pourcentages fixes.
+              </LessonExamples>
             )
         },
         {
-            title: "2. Le Piège Orthographique : MAYBE",
+            title: "Maybe ou may be ?",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        C&apos;est l&apos;erreur classique des francophones. Ne confondez jamais l&apos;adverbe (en un mot) et le verbe (en deux mots).
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-slate-900 p-5 rounded-xl border-t-8 border-purple-500 shadow-xl">
-                            <h4 className="text-purple-400 font-bold text-lg mb-2">MAYBE (Adverbe)</h4>
-                            <p className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-4">"PEUT-ÊTRE"</p>
-
-                            <ul className="text-sm space-y-3 text-slate-300">
-                                <li>&bull; Se place souvent en <strong>début de phrase</strong>.</li>
-                                <li>&bull; Ne remplace PAS le verbe.</li>
-                            </ul>
-                            <div className="mt-4 bg-purple-900/20 p-3 rounded border border-purple-500/30">
-                                <p className="text-white font-medium">"<strong className="text-purple-400">Maybe</strong> he is sick."</p>
-                                <p className="text-xs text-slate-400 mt-1">Notez qu&apos;il y a le verbe 'is' après.</p>
-                            </div>
-                        </div>
-
-                        <div className="bg-slate-900 p-5 rounded-xl border-t-8 border-cyan-500 shadow-xl">
-                            <h4 className="text-cyan-400 font-bold text-lg mb-2">MAY BE (Verbe Modal)</h4>
-                            <p className="text-xs text-slate-400 uppercase font-bold tracking-widest mb-4">"IL SE PEUT QU'IL SOIT"</p>
-
-                            <ul className="text-sm space-y-3 text-slate-300">
-                                <li>&bull; C&apos;est l&apos;auxiliaire <strong>MAY</strong> + le verbe <strong>BE</strong>.</li>
-                                <li>&bull; C&apos;est le verbe de la phrase.</li>
-                            </ul>
-                            <div className="mt-4 bg-cyan-900/20 p-3 rounded border border-cyan-500/30">
-                                <p className="text-white font-medium">"He <strong className="text-cyan-400">may be</strong> sick."</p>
-                                <p className="text-xs text-slate-400 mt-1">Ici, 'may be' remplace 'is' avec une nuance de doute.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "Maybe he is ill.", meaning: "Peut-être qu’il est malade. La phrase contient déjà is." },
+                  { english: "He may be ill.", meaning: "Il se peut qu’il soit malade. Be est ici le verbe après may." },
+                ]}
+              >
+                Maybe, en un mot, se comporte comme un adverbe. May be, en deux mots, réunit le modal may et le verbe be.
+              </LessonExamples>
             )
         },
         {
-            title: "3. La Politesse Extrême : MAY I ?",
+            title: "Demander une permission",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Outre la probabilité, <strong>MAY</strong> a une fonction sociale unique : c&apos;est le summum de la politesse pour demander une permission.
-                    </p>
-
-                    <div className="bg-slate-800 p-4 rounded border-l-4 border-emerald-500 flex flex-col gap-4">
-                        <div className="flex justify-between items-center text-sm border-b border-slate-700 pb-2">
-                            <span className="text-slate-400">Informel / Standard</span>
-                            <span className="text-white font-bold">"Can I come in?"</span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm border-b border-slate-700 pb-2">
-                            <span className="text-slate-400">Poli</span>
-                            <span className="text-white font-bold">"Could I come in?"</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <span className="text-emerald-400 font-bold uppercase text-xs">Très Formel / Respectueux</span>
-                                <p className="text-xs text-slate-500">Utilisé avec un professeur, un client, un supérieur.</p>
-                            </div>
-                            <span className="text-emerald-400 font-bold text-lg">"May I come in?"</span>
-                        </div>
-                    </div>
-
-                    <div className="bg-black/30 p-4 rounded text-sm text-slate-400 italic text-center">
-                        Note : "Might I" existe mais est archaïque et presque jamais utilisé aujourd'hui.
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "May I leave early today?", meaning: "Tu demandes l’autorisation de partir plus tôt." },
+                  { english: "Can I borrow your pen?", meaning: "Tu demandes un stylo à un ami." },
+                ]}
+              >
+                May I…? est une façon polie, assez formelle, de demander une permission. Can I…? est très courant dans la conversation.
+              </LessonExamples>
             )
         },
         {
-            title: "Quiz Complet",
+            title: "Quiz · Exprimer un doute",
             content: (
                 <Quiz
                     questions={[
@@ -164,14 +88,14 @@ export const course29: LessonContent = {
                         },
                         {
                             id: 6,
-                            question: "I'm not sure about my holidays. I ___ go to Spain.",
+                            question: "Je considère l’Espagne comme une possibilité parmi d’autres. Choisis le modal de possibilité. I ___ go to Spain.",
                             options: ["will", "may"],
                             correctAnswer: 1,
                             explanation: "Incertitude = May (ou Might). Will est une certitude.",
                         },
                         {
                             id: 7,
-                            question: "You ___ leave the table now.",
+                            question: "Le parent donne explicitement la permission. You ___ leave the table now.",
                             options: ["may", "might"],
                             correctAnswer: 0,
                             explanation: "Donner la permission (formalité/autorité) = You may leave.",

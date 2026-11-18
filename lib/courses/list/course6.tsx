@@ -1,7 +1,6 @@
-import { LessonContent, LessonSection, PlaceholderContent } from "@/lib/courses/types";
+import { LessonExamples } from "@/components/courses/lesson-examples";
+import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
-import { AlertIcon, InfoIcon, ArrowRightIcon } from "@/components/ui/icons";
-import { ReactNode } from "react";
 
 export const course6: LessonContent = {
   courseNumber: 6,
@@ -9,31 +8,16 @@ export const course6: LessonContent = {
   objective: "Maîtriser la mécanique du NON (et le piège de Never).",
   sections: [
     {
-      title: "Introduction : La Règle de l'Auxiliaire Obligatoire",
+      title: "Dire non avec le bon verbe",
       content: (
-        <div className="space-y-6">
-          <div className="relative bg-slate-900/60 rounded-xl p-6 border-l-4 border-slate-500 shadow-2xl backdrop-blur-sm">
-            <div className="flex flex-col gap-2">
-              <h3 className="text-xl text-slate-100 font-bold uppercase tracking-wider">La Logique Mécanique</h3>
-              <p className="text-lg text-slate-300 leading-relaxed text-balance">
-                En anglais, la négation <span className="text-red-400 font-mono font-bold">NOT</span> n'est pas un simple mot qu'on ajoute. C'est une <span className="text-white font-bold">opération grammaticale</span> qui nécessite obligatoirement un <span className="text-indigo-400 font-bold">Auxiliaire</span>.
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 flex flex-col items-center">
-            <p className="text-slate-400 mb-4 text-xs uppercase tracking-widest font-bold">La Formule Universelle</p>
-            <div className="flex items-center gap-3 text-xl md:text-3xl font-mono bg-black/30 p-4 rounded-lg border border-slate-600">
-              <span className="text-indigo-400 font-bold">AUXILIAIRE</span>
-              <span className="text-slate-500">+</span>
-              <span className="text-red-500 font-black">NOT</span>
-            </div>
-            <p className="text-slate-400 text-sm mt-4 text-center max-w-md">
-              Sans Auxiliaire, impossible de construire une phrase négative correcte. <br />
-              <span className="text-red-500/80 italic text-xs">(Ex. : "I live not" n'existe pas)</span>
-            </p>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "She isn’t at work.", meaning: "Elle n’est pas au travail." },
+            { english: "She doesn’t work on Sundays.", meaning: "Elle ne travaille pas le dimanche." },
+          ]}
+        >
+          Pour une phrase négative, repère d’abord le verbe. Avec be ou can, ajoute not. Avec la plupart des autres verbes au présent simple, utilise don’t ou doesn’t.
+        </LessonExamples>
       )
     },
     {
@@ -184,35 +168,16 @@ export const course6: LessonContent = {
       )
     },
     {
-      title: "L'Exception : L'Adverbe de Fréquence (Never)",
+      title: "Never suffit à exprimer « jamais »",
       content: (
-        <div className="space-y-6">
-          <div className="relative bg-slate-900/60 rounded-xl p-6 border-l-4 border-slate-500 shadow-2xl backdrop-blur-sm">
-            <div className="flex items-center gap-3 mb-2">
-              <h3 className="text-slate-100 font-bold text-xl">Never : L'Exception Logique</h3>
-            </div>
-            <p className="text-lg text-slate-300 leading-relaxed font-medium text-balance">
-              Le mot <span className="text-white font-black border-b-2 border-white">NEVER</span> n'est pas une négation grammaticale (comme NOT). C'est un <span className="text-emerald-400 font-bold">adverbe de temps</span> (comme Always, Often).
-            </p>
-            <p className="text-slate-400 mt-2">
-              Conséquence : Il se place simplement devant le verbe. Il ne déclenche pas l'utilisation d'un auxiliaire.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-slate-800 p-4 rounded-xl border border-red-500/30 opacity-75">
-              <p className="text-red-400 font-bold uppercase text-xs mb-2">Double Négation (Incorrect)</p>
-              <p className="text-white font-mono text-lg line-through decoration-red-500 decoration-2">She <span className="text-red-400">doesn't</span> never smoke.</p>
-              <p className="text-red-400/80 text-xs mt-1">Redondant et grammaticalement faux.</p>
-            </div>
-
-            <div className="bg-emerald-900/20 p-4 rounded-xl border border-emerald-500/50">
-              <p className="text-emerald-400 font-bold uppercase text-xs mb-2">Structure Correcte</p>
-              <p className="text-white font-mono text-lg">She <span className="text-white font-black underline decoration-emerald-500">never</span> smoke<span className="text-emerald-400 font-black">s</span>.</p>
-              <p className="text-emerald-300 text-xs mt-1">Le verbe garde sa conjugaison normale (3e pers.).</p>
-            </div>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "My grandmother never uses her phone at dinner.", meaning: "Ma grand-mère n’utilise jamais son téléphone pendant le dîner." },
+            { english: "She is never late.", meaning: "Avec be, never vient ici après is." },
+          ]}
+        >
+          Never est un adverbe de fréquence à sens négatif. En anglais standard, il donne déjà un sens négatif à la phrase.
+        </LessonExamples>
       )
     },
     {
@@ -281,17 +246,17 @@ export const course6: LessonContent = {
       )
     },
     {
-      title: "Validation des Connaissances",
+      title: "Quiz · Former une négation",
       content: (
         <Quiz
-          title="Mission : Zéro Tolérance"
+          title="Teste la négation"
           questions={[
             {
               id: 1,
               question: "I ___ like spinach.",
               options: ["no", "don't", "doesn't", "not"],
               correctAnswer: 1,
-              explanation: "Sujet 'I' + Verbe faible 'like' ➔ Bodyguard DON'T.",
+              explanation: "Avec I et un verbe comme like, utilise don’t pour former la négation au présent.",
             },
             {
               id: 2,
@@ -305,21 +270,21 @@ export const course6: LessonContent = {
               question: "He ___ play tennis anymore.",
               options: ["doesn't", "don't", "isn't", "not"],
               correctAnswer: 0,
-              explanation: "Sujet 'He' (3e pers.) + Verbe 'play'. ➔ Bodyguard DOESN'T.",
+              explanation: "Avec he, la négation se forme avec doesn’t. Play garde sa base.",
             },
             {
               id: 4,
               question: "They ___ speak Spanish.",
               options: ["aren't", "don't", "doesn't", "no"],
               correctAnswer: 1,
-              explanation: "Sujet 'They' + Verbe 'speak'. ➔ Bodyguard DON'T.",
+              explanation: "Avec they, utilise don’t devant speak.",
             },
             {
               id: 5,
-              question: "Attention ! She ___ eats meat.",
+              question: "Elle ne mange jamais de viande. She ___ eats meat.",
               options: ["doesn't", "never", "don't", "no"],
               correctAnswer: 1,
-              explanation: "Regardez le verbe : 'Eats' a encore son S ! Donc pas de Bodyguard. C'est le Ninja NEVER.",
+              explanation: "Never exprime déjà la négation. Le verbe eats garde le -s de la troisième personne.",
             },
             {
               id: 6,

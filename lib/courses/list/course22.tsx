@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -7,63 +8,29 @@ export const course22: LessonContent = {
     objective: "Parler de ses expériences de vie avec le Present Perfect et revenir au Past Simple dès qu'un moment précis est donné.",
     sections: [
         {
-            title: "1. Le Concept : Le Bilan de Vie",
+            title: "Faire le bilan d’une expérience",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Ici, on ne regarde pas le résultat immédiat, mais <strong className="text-emerald-400">l&apos;expérience accumulée</strong> jusqu&apos;à aujourd&apos;hui.
-                        Pensez-y comme une "Checklist de vie".
-                    </p>
-
-                    <div className="bg-slate-900 p-6 rounded-lg border-l-4 border-purple-500">
-                        <h4 className="text-purple-400 font-bold mb-4 text-lg">LE TEMPS NON DÉFINI</h4>
-                        <p className="text-slate-300 mb-4">
-                            La période de temps est : <strong className="text-white">"De votre naissance à maintenant"</strong>.
-                            Tant que vous êtes vivant, la période n&apos;est pas finie, donc on utilise le Present Perfect.
-                        </p>
-
-                        <div className="space-y-3">
-                            <div className="flex items-center gap-3">
-                                <span className="text-2xl">🇯🇵</span>
-                                <p className="text-white text-lg">"I <strong className="text-purple-400">have been</strong> to Japan."</p>
-                            </div>
-                            <p className="text-slate-400 text-sm ml-10">(= Dans ma vie, j&apos;y suis allé au moins une fois. Peu importe quand.)</p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "I’ve been to Japan twice.", meaning: "Deux visites font partie de ton expérience." },
+                  { english: "I went there with my brother in 2019.", meaning: "Tu situes maintenant un voyage précis." },
+                ]}
+              >
+                Avec have ou has suivi du participe passé, tu peux dire ce que tu as déjà fait au cours d’une période qui va jusqu’à maintenant.
+              </LessonExamples>
             )
         },
         {
-            title: "2. La Règle d'Or : Details Switch",
+            title: "Relancer la conversation",
             content: (
-                <div className="space-y-6">
-                    <div className="bg-red-900/20 p-4 rounded border border-red-500/50">
-                        <h4 className="text-red-400 font-bold mb-2 uppercase flex items-center gap-2">
-                            <span>⚠️</span> RÈGLE DE PRÉCISION
-                        </h4>
-                        <p className="text-slate-300 mb-4">
-                            C'est l'erreur numéro 1. Dès que vous donnez un <strong className="text-white">DÉTAIL</strong> (Quand ? Où exactement ? Comment ?), vous basculez obligatoirement au <strong className="text-amber-400">PAST SIMPLE</strong>.
-                        </p>
-
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="bg-slate-900 p-3 rounded border border-slate-700">
-                                    <p className="text-xs text-slate-400 uppercase font-bold mb-1">1. L&apos;annonce (Expérience)</p>
-                                    <p className="text-emerald-300 font-medium">"I <strong className="text-white">have been</strong> to Japan."</p>
-                                </div>
-                                <div className="bg-slate-900 p-3 rounded border border-slate-700">
-                                    <p className="text-xs text-slate-400 uppercase font-bold mb-1">2. Le détail (Passé fini)</p>
-                                    <p className="text-amber-300 font-medium">"I <strong className="text-white">went</strong> there in 2010."</p>
-                                </div>
-                            </div>
-
-                            <div className="bg-black/30 p-3 rounded text-sm italic text-slate-400">
-                                <p>A: "Have you seen 'Titanic'?" <span className="text-emerald-500">(Bilan)</span></p>
-                                <p>B: "Yes, I saw it last week." <span className="text-amber-500">(Détail temps)</span></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "I’ve eaten sushi in Tokyo twice.", meaning: "Tu fais le bilan d’une expérience dans un lieu précis." },
+                  { english: "When did you last go? I went there last Friday.", meaning: "La relance situe une visite sur le calendrier." },
+                ]}
+              >
+                Le present perfect peut inclure un lieu ou une fréquence. Un repère passé terminé, comme last Friday, appelle normalement le prétérit pour raconter cet épisode.
+              </LessonExamples>
             )
         },
         {
@@ -95,45 +62,16 @@ export const course22: LessonContent = {
             )
         },
         {
-            title: "4. Nuance Critique : GONE vs BEEN",
+            title: "Been to et gone to",
             content: (
-                <div className="space-y-6">
-                    <div className="bg-amber-900/20 p-4 rounded border border-amber-500/50">
-                        <h4 className="text-amber-400 font-bold mb-2 uppercase flex items-center gap-2">
-                            <span>✈️</span> PIÈGE CLASSIQUE
-                        </h4>
-                        <p className="text-slate-300 text-sm mb-4">
-                            Le verbe "TO GO" a deux participes passés avec des sens très différents.
-                        </p>
-
-                        <div className="grid grid-cols-1 gap-4">
-                            <div className="bg-slate-900 p-3 rounded flex items-start gap-3">
-                                <div className="bg-slate-800 p-2 rounded text-2xl">🏃</div>
-                                <div>
-                                    <strong className="text-amber-400 block mb-1">GONE (Parti sans revenir)</strong>
-                                    <p className="text-white italic">"Jim is on holiday. He <strong className="text-amber-400">has gone</strong> to Spain."</p>
-                                    <p className="text-xs text-slate-400 mt-1">➔ IL EST EN ESPAGNE MAINTENANT. Il n&apos;est pas ici.</p>
-                                </div>
-                            </div>
-
-                            <div className="bg-slate-900 p-3 rounded flex items-start gap-3">
-                                <div className="bg-slate-800 p-2 rounded text-2xl">🏡</div>
-                                <div>
-                                    <strong className="text-emerald-400 block mb-1">BEEN (Allé et revenu)</strong>
-                                    <p className="text-white italic">"Jane is back home. She <strong className="text-emerald-400">has been</strong> to Spain."</p>
-                                    <p className="text-xs text-slate-400 mt-1">➔ ELLE EST ICI. Le voyage est fini, c&apos;est un souvenir/expérience.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-4 p-3 bg-slate-800 rounded text-center">
-                            <p className="text-white text-sm">
-                                Pour dire "J&apos;ai été à Paris" (expérience), on dit toujours : <br />
-                                <span className="text-emerald-400 font-bold text-lg">"I HAVE BEEN TO..."</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "Have you ever been to Dublin?", meaning: "On demande si le voyage fait partie de ton expérience." },
+                  { english: "Sam has gone to the shops. He’ll be back at six.", meaning: "Sam est parti et on attend encore son retour." },
+                ]}
+              >
+                Have been to évoque une visite ou une expérience. Have gone to indique souvent que la personne est partie et se trouve encore en déplacement.
+              </LessonExamples>
             )
         },
         {
@@ -161,7 +99,7 @@ export const course22: LessonContent = {
             )
         },
         {
-            title: "Quiz : Life Experience",
+            title: "Quiz · Parler d’une expérience",
             content: (
                 <Quiz
                     questions={[
@@ -223,17 +161,17 @@ export const course22: LessonContent = {
                         },
                         {
                             id: 9,
-                            question: "She ___ to China three times.",
+                            question: "Fais le bilan de ses voyages jusqu’à aujourd’hui. She ___ to China three times.",
                             options: ["has been", "was"],
                             correctAnswer: 0,
                             explanation: "Expérience répétée dans une vie non terminée (elle est toujours vivante) = Present Perfect.",
                         },
                         {
                             id: 10,
-                            question: "I haven't seen that movie.",
-                            options: ["Correct", "Wrong"],
+                            question: "« Have you ever watched a play in English? » Quelle relance situe une représentation passée ?",
+                            options: ["When did you see it?", "When have you saw it?", "When you did see it?"],
                             correctAnswer: 0,
-                            explanation: "Phrase correcte. Bilan présent : je ne l'ai pas vu.",
+                            explanation: "La relance demande la date d’une représentation précise.",
                         },
                     ]}
                 />

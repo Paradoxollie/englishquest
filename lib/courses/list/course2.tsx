@@ -1,138 +1,37 @@
-import { LessonContent, LessonSection, PlaceholderContent } from "@/lib/courses/types";
+import { LessonExamples } from "@/components/courses/lesson-examples";
+import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
-import { AlertIcon, InfoIcon, ArrowRightIcon } from "@/components/ui/icons";
-import { ReactNode } from "react";
 
 export const course2: LessonContent = {
   courseNumber: 2,
   title: "L'Action en direct (Present Continuous)",
-  objective: "Décrire ce qui se passe maintenant.",
+  objective: "Décrire une action en cours et une situation temporaire autour du présent.",
   sections: [
     {
-      title: "Introduction",
+      title: "Maintenant et ces jours-ci",
       content: (
-        <div className="space-y-6">
-          <div className="relative bg-slate-900/60 rounded-xl p-6 border-l-4 border-indigo-500 shadow-2xl backdrop-blur-sm">
-            <p className="text-lg md:text-xl text-slate-100 leading-relaxed font-medium text-balance">
-              Le <span className="text-cyan-400 font-bold">Present Continuous</span> est le temps du <span className="text-white font-bold uppercase tracking-wider">DIRECT</span>. C'est l'équivalent précis de "être en train de".
-            </p>
-
-            <div className="mt-6 bg-slate-800/40 rounded-xl p-5 border border-slate-700/50">
-              <div className="flex items-center gap-3 mb-3">
-                <span className="bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider border border-amber-500/30">Le grand piège du français</span>
-              </div>
-              <p className="text-slate-300 leading-relaxed text-balance">
-                En français, <span className="text-white italic">"Je mange"</span> peut vouloir dire deux choses très différentes :
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div className="bg-cyan-950/30 p-3 rounded-lg border border-cyan-500/30 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-16 h-16 bg-cyan-500/10 rounded-full blur-xl -mr-8 -mt-8"></div>
-                  <p className="text-cyan-200 text-sm mb-1">Sens 1 : L'action actuelle</p>
-                  <p className="text-white font-bold">"Je mange (maintenant)."</p>
-                  <p className="text-cyan-400 text-xs mt-1 font-mono">Present Continuous (I am eating)</p>
-                </div>
-                <div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700">
-                  <p className="text-slate-400 text-sm mb-1">Sens 2 : L'habitude</p>
-                  <p className="text-white font-medium">"Je mange à 8h."</p>
-                  <p className="text-red-400 text-xs mt-1 font-mono">Present Simple (I eat)</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "I’m reading your message now.", meaning: "Tu as le message sous les yeux." },
+            { english: "I’m reading a long novel this month.", meaning: "Le livre t’occupe ce mois-ci. Il peut être fermé en ce moment." },
+          ]}
+        >
+          En français, « je lis » peut désigner ce que tu fais à cet instant ou le livre qui t’occupe ces jours-ci. Dans les deux situations, l’anglais peut employer le présent continu.
+        </LessonExamples>
       ),
     },
     {
-      title: "1. La Formule Magique (Formation)",
+      title: "Former le présent continu",
       content: (
-        <div className="space-y-8">
-          <div>
-            <p className="text-slate-200 text-lg leading-relaxed text-balance mb-6">
-              Pourquoi cette formule bizarre ? Décortiquons la logique pour ne plus jamais l'oublier :
-            </p>
-
-            {/* Decoder Logic */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              <div className="bg-slate-800/40 border-2 border-dashed border-indigo-500/30 rounded-xl p-5 flex flex-col items-center text-center relative">
-                <div className="absolute -top-3 bg-slate-900 px-3 text-indigo-400 font-bold uppercase text-xs tracking-widest border border-indigo-500/30 rounded-full">L'Ancre</div>
-                <span className="text-4xl font-black text-indigo-400 mb-2">BE</span>
-                <p className="text-slate-300 text-sm">"Je suis..."</p>
-                <p className="text-slate-400 text-xs mt-2 italic">Il connecte le sujet au moment présent.</p>
-              </div>
-
-              <div className="bg-slate-800/40 border-2 border-dashed border-cyan-500/30 rounded-xl p-5 flex flex-col items-center text-center relative">
-                <div className="absolute -top-3 bg-slate-900 px-3 text-cyan-400 font-bold uppercase text-xs tracking-widest border border-cyan-500/30 rounded-full">L'Action</div>
-                <span className="text-4xl font-black text-cyan-400 mb-2">ING</span>
-                <p className="text-slate-300 text-sm">"...vivant / en cours"</p>
-                <p className="text-slate-400 text-xs mt-2 italic">Il transforme le verbe en une activité active.</p>
-              </div>
-            </div>
-
-            <div className="bg-indigo-900/20 border border-indigo-500/30 rounded-lg p-4 text-center">
-              <p className="text-indigo-200 font-medium">
-                <span className="text-white font-bold">I am working</span> = Littéralement "Je suis (actuellement) travaillant".
-              </p>
-            </div>
-          </div>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center" aria-hidden="true">
-              <div className="w-full border-t border-slate-700"></div>
-            </div>
-            <div className="relative flex justify-center">
-              <span className="bg-slate-900 px-3 text-base font-semibold leading-6 text-slate-200">La Chronologie du Direct</span>
-            </div>
-          </div>
-
-          {/* Timeline Visual */}
-          <div className="bg-slate-950/50 p-6 rounded-xl border border-slate-800 flex flex-col items-center relative overflow-hidden">
-            {/* Line */}
-            <div className="w-full h-1 bg-gradient-to-r from-slate-800 via-cyan-500 to-slate-800 rounded-full mb-2 opacity-50"></div>
-
-            {/* Points */}
-            <div className="flex justify-between w-full max-w-md relative z-10 px-4">
-              <div className="flex flex-col items-center opacity-50">
-                <div className="w-3 h-3 bg-slate-600 rounded-full mb-2"></div>
-                <span className="text-xs text-slate-500 uppercase tracking-wider">Passé</span>
-              </div>
-
-              <div className="flex flex-col items-center relative">
-                {/* Pulsing Effect */}
-                <span className="absolute -top-1 w-6 h-6 bg-cyan-500/30 rounded-full animate-ping"></span>
-                <div className="w-4 h-4 bg-cyan-400 rounded-full mb-2 shadow-[0_0_15px_rgba(34,211,238,0.8)] border-2 border-white"></div>
-                <span className="text-sm text-cyan-400 font-bold uppercase tracking-widest">NOW</span>
-              </div>
-
-              <div className="flex flex-col items-center opacity-50">
-                <div className="w-3 h-3 bg-slate-600 rounded-full mb-2"></div>
-                <span className="text-xs text-slate-500 uppercase tracking-wider">Futur</span>
-              </div>
-            </div>
-
-            <p className="mt-6 text-center text-slate-300 text-sm max-w-lg">
-              On utilise <span className="text-cyan-400 font-bold">BE + ING</span> uniquement quand l'action traverse <strong className="text-white">ce point précis</strong> (NOW). Si c'est une habitude (tous les jours), c'est STOP, on change de temps !
-            </p>
-          </div>
-
-          <p className="text-slate-200 text-lg leading-relaxed text-balance pt-4">
-            Voici la formule sacrée à appliquer :
-          </p>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { type: "Affirmation (+)", formula: "I am working", color: "cyan" },
-              { type: "Négation (-)", formula: "I am NOT working", color: "red" },
-              { type: "Question (?)", formula: "Am I working?", color: "emerald" }
-            ].map((item, idx) => (
-              <div key={idx} className={`h-full bg-slate-800/60 border border-${item.color}-500/30 rounded-xl p-6 hover:border-${item.color}-500 transition-all duration-300 group shadow-lg flex flex-col items-center text-center`}>
-                <div className={`text-${item.color}-400 text-xs font-bold uppercase tracking-widest mb-3 border-b border-${item.color}-500/30 pb-1 w-full`}>{item.type}</div>
-                <div className="bg-slate-900/40 rounded-lg p-4 w-full flex-1 flex items-center justify-center">
-                  <span className="text-white font-black text-xl md:text-2xl tracking-wide text-balance leading-tight">{item.formula}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "I am working. She is working. We are working.", meaning: "Avec I, on emploie am. Avec she, is. Avec we, are." },
+            { english: "Are you working today?", meaning: "Tu travailles aujourd’hui ?" },
+            { english: "My friends aren’t working this week.", meaning: "Mes amis ne travaillent pas cette semaine." },
+          ]}
+        >
+          Accorde be avec le sujet, puis ajoute le verbe en -ing. Pour poser une question, place la forme de be devant le sujet.
+        </LessonExamples>
       ),
     },
     {
@@ -184,49 +83,20 @@ export const course2: LessonContent = {
       ),
     },
     {
-      title: "Point de Vigilance : Les Verbes de Cœur et d'Esprit",
+      title: "Un état ou une activité",
       content: (
-        <div className="space-y-6">
-          <div className="bg-gradient-to-br from-red-950/80 to-slate-900 border-l-4 border-red-500 rounded-r-xl shadow-2xl p-6 md:p-8 flex flex-col md:flex-row gap-6 relative overflow-visible group">
-
-            <div className="shrink-0 flex items-start md:pt-1">
-              <div className="bg-red-600 p-3 rounded-xl shadow-lg shadow-red-900/20 group-hover:scale-110 transition-transform duration-300 ring-4 ring-red-600/20">
-                <AlertIcon className="w-8 h-8 text-white" />
-              </div>
-            </div>
-
-            <div className="flex-1">
-              <h4 className="font-bold text-white text-2xl mb-3 tracking-tight">Interdit aux Sentiments 🚫</h4>
-              <p className="text-slate-300 text-lg leading-relaxed mb-6 text-balance">
-                En anglais, on ne met <strong className="text-red-400 uppercase">JAMAIS</strong> de "-ing" aux verbes qui décrivent ce que vous ressentez, pensez ou possédez. Ce sont des états, pas des actions actives.
-              </p>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="bg-red-500/10 border border-red-500/20 p-4 rounded-lg">
-                  <p className="text-red-400 font-bold text-xs uppercase mb-2">Ne dites jamais</p>
-                  <ul className="space-y-2 font-mono text-sm text-slate-400">
-                    <li className="line-through decoration-red-500/50 opacity-70">I am liking this movie.</li>
-                    <li className="line-through decoration-red-500/50 opacity-70">I am understanding now.</li>
-                    <li className="line-through decoration-red-500/50 opacity-70">He is having a car.</li>
-                  </ul>
-                </div>
-
-                <div className="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-lg">
-                  <p className="text-emerald-400 font-bold text-xs uppercase mb-2">Dites simplement</p>
-                  <ul className="space-y-2 font-medium text-white">
-                    <li className="flex items-center gap-2">I <span className="text-cyan-400 font-bold">like</span> this movie.</li>
-                    <li className="flex items-center gap-2">I <span className="text-cyan-400 font-bold">understand</span> now.</li>
-                    <li className="flex items-center gap-2">He <span className="text-cyan-400 font-bold">has</span> a car.</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "I think this book is great.", meaning: "Tu donnes ton avis." },
+            { english: "I’m thinking about the ending.", meaning: "Tu es en pleine réflexion sur la fin du livre." },
+          ]}
+        >
+          Les verbes d’état comme know, want et believe se rencontrent généralement au présent simple dans leur sens habituel. Certains verbes changent de sens selon la situation.
+        </LessonExamples>
       ),
     },
     {
-      title: "Validation des Connaissances",
+      title: "Quiz · Décrire une action en cours",
       content: (
         <Quiz
           title="Mission : Le Direct"
@@ -240,7 +110,7 @@ export const course2: LessonContent = {
             },
             {
               id: 2,
-              question: "Complétez : Look! She ___ (watch) TV right now.",
+              question: "Complète : Look! She ___ (watch) TV right now.",
               options: ["is watching", "are watching", "watches", "is watch"],
               correctAnswer: 0,
               explanation: "Look! et right now : action en cours. She (3e pers.) + is + watching.",
@@ -254,7 +124,7 @@ export const course2: LessonContent = {
             },
             {
               id: 4,
-              question: "Choisissez la forme correcte :",
+              question: "Choisis la forme correcte :",
               options: ["We are makeing a cake", "We are making a cake", "We is making a cake", "We making a cake"],
               correctAnswer: 1,
               explanation: "Make finit par E. On enlève le E avant d'ajouter ING ➔ Making. Et We 'are'.",
@@ -275,7 +145,7 @@ export const course2: LessonContent = {
             },
             {
               id: 7,
-              question: "Négation : Ils ne travaillent pas.",
+              question: "Au téléphone, tu précises qu’ils ne sont pas en train de travailler. Quelle phrase convient ?",
               options: ["They not working", "They aren't working", "They don't working", "They isn't working"],
               correctAnswer: 1,
               explanation: "They are not ➔ They aren't working.",

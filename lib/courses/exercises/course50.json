@@ -94,7 +94,7 @@
     {
       "id": "x13",
       "type": "order",
-      "answers": ["I have to go back to the dentist next week."],
+      "answers": ["I have to go back to the dentist next week.", "Next week I have to go back to the dentist."],
       "translation": "Je dois retourner chez le dentiste la semaine prochaine.",
       "explanation": "Go back = retourner. La préposition to introduit ensuite le lieu."
     }

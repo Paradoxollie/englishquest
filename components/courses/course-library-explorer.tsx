@@ -31,7 +31,7 @@ function statusLabel(entry: CourseRoadmapEntry, isRecommended: boolean, isAuthen
     return { text: "Mission en cours", className: "eq-chip-gold" };
   }
   if (isRecommended) {
-    return { text: isAuthenticated ? "Prochaine mission" : "Commence ici", className: "eq-chip-gold-soft" };
+    return { text: isAuthenticated || entry.courseId > 1 ? "Prochaine mission" : "Commence ici", className: "eq-chip-gold-soft" };
   }
   return null;
 }

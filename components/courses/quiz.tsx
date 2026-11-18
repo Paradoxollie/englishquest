@@ -99,6 +99,8 @@ export function Quiz({ questions }: QuizProps) {
   const [combo, setCombo] = useState(0);
   const [maxCombo, setMaxCombo] = useState(0);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [saveState, setSaveState] = useState<"idle" | "saving" | "saved" | "failed" | "blocked">("idle");
+  const [saveRetry, setSaveRetry] = useState(0);
   const [animationKey, setAnimationKey] = useState(0);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const hasSubmittedResultRef = useRef(false);
@@ -152,7 +154,16 @@ export function Quiz({ questions }: QuizProps) {
 
     hasSubmittedResultRef.current = true;
 
-    if (!mission?.isAuthenticated) {
+    if (!mission) return;
+    const attempt = attemptRef.current;
+    if (!mission.isAuthenticated) {
+      if (!isCourseQuizScorePassing(score, deck.length)) return;
+      setSaveState("saving");
+      void mission.keepGuestQuiz([...answersRef.current]).then((result) => {
+        if (attempt === attemptRef.current) setSaveState(result);
+      }).catch(() => {
+        if (attempt === attemptRef.current) setSaveState("failed");
+      });
       return;
     }
 
@@ -161,20 +172,22 @@ export function Quiz({ questions }: QuizProps) {
       return;
     }
 
-    const attempt = attemptRef.current;
+    setSaveState("saving");
     void (async () => {
       try {
         const outcome = await mission.submitQuizResult([...answersRef.current]);
         if (attempt !== attemptRef.current) return;
         if (!outcome) {
+          setSaveState("failed");
           setSyncMessage("Le score n'a pas pu être enregistré. Réessaie dans un instant.");
           return;
         }
         const updatedState = outcome.missionState;
+        setSaveState("saved");
         if (outcome.courseCompleted) {
           const { xp, gold, newLevel } = outcome.courseCompleted;
           setSyncMessage(
-            `Mission validée : +${xp} XP et +${gold} or${newLevel ? `, niveau ${newLevel} atteint` : ""}. Le cours suivant est ouvert sur la carte.`
+            `Mission validée. +${xp} XP et +${gold} or${newLevel ? `, niveau ${newLevel} atteint` : ""}. ${mission.courseNumber === 50 ? "Tu as atteint la dernière mission." : "Le cours suivant est ouvert sur la carte."}`
           );
           return;
         }
@@ -185,11 +198,12 @@ export function Quiz({ questions }: QuizProps) {
         setSyncMessage("Score enregistré. Il faut 80 % pour valider : tu peux refaire le quiz, les exercices changent.");
       } catch {
         if (attempt === attemptRef.current) {
+          setSaveState("failed");
           setSyncMessage("Le score n'a pas pu être enregistré. Réessaie dans un instant.");
         }
       }
     })();
-  }, [mission, showResult]);
+  }, [deck.length, mission, saveRetry, score, showResult]);
 
   /** Enregistre une réponse une seule fois par exercice, même sur des clics très rapides. */
   const settle = (entry: DeckEntry, answer: ExerciseAnswer) => {
@@ -268,6 +282,7 @@ export function Quiz({ questions }: QuizProps) {
     setCombo(0);
     setMaxCombo(0);
     setSyncMessage(null);
+    setSaveState("idle");
     hasSubmittedResultRef.current = false;
   };
 
@@ -284,7 +299,7 @@ export function Quiz({ questions }: QuizProps) {
     const passed = isCourseQuizScorePassing(score, total);
 
     return (
-      <div ref={containerRef} className="eq-quiz eq-quiz-result eq-slam" data-testid="quiz-result">
+      <div id="quiz" ref={containerRef} className="eq-quiz eq-quiz-result eq-slam" data-testid="quiz-result">
         <div className="eq-quiz-result-head">
           <Mascot pose={passed ? "duo-victoire" : "sam-oups"} size={110} />
           <Burst color={passed ? "yellow" : "white"} size={170} rotate={-8} className="eq-pop-in">
@@ -303,13 +318,39 @@ export function Quiz({ questions }: QuizProps) {
             : `${accuracy} %. Il faut 80 % pour valider. Relis la section qui coince, puis recommence : les exercices changent à chaque essai.`}
           {maxCombo >= 5 ? ` Meilleure série : ${maxCombo} bonnes réponses d'affilée.` : ""}
         </p>
-        {syncMessage ? <p className="eq-quiz-sync">{syncMessage}</p> : null}
+        {syncMessage ? <p className="eq-quiz-sync" role="status">{syncMessage}</p> : null}
+        {passed && mission && !mission.isAuthenticated ? (
+          <p className="eq-quiz-sync" role="status">
+            {saveState === "saved" ? "Ta réussite est gardée sur cet appareil. Avec un compte, tu pourras aussi la retrouver ailleurs."
+              : saveState === "blocked" ? "Le navigateur bloque la sauvegarde sur cet appareil. Tu peux continuer ou te connecter pour garder tes prochaines réussites."
+              : saveState === "failed" ? "La sauvegarde a échoué. Tu peux la réessayer avec les mêmes réponses."
+              : "Enregistrement de ta réussite…"}
+          </p>
+        ) : null}
         <div className="eq-quiz-actions">
+          {saveState === "failed" ? (
+            <button type="button" className="eq-btn eq-btn-primary" onClick={() => {
+              hasSubmittedResultRef.current = false;
+              setSaveRetry((value) => value + 1);
+            }}>Réessayer la sauvegarde</button>
+          ) : null}
+          {passed && mission && !mission.isAuthenticated && saveState !== "saving" && saveState !== "idle" ? (
+            <>
+              {mission.courseNumber < 50 ? (
+                <Link href={`/cours/${mission.courseNumber + 1}`} className="eq-btn eq-btn-gold">
+                  Continuer vers la mission {mission.courseNumber + 1}
+                </Link>
+              ) : null}
+              <Link href="/auth/signup?next=/quest" className="eq-btn eq-btn-ghost">
+                {saveState === "saved" ? "Garder ma progression avec un compte" : "Créer un compte"}
+              </Link>
+            </>
+          ) : null}
           <button type="button" onClick={restart} className="eq-btn eq-btn-ghost">
             Refaire le quiz
           </button>
-          {passed ? (
-            <Link href="/quest" className="eq-btn eq-btn-gold">
+          {passed && (!mission || mission.isAuthenticated || (saveState !== "idle" && saveState !== "saving")) ? (
+            <Link href="/quest" className={mission && !mission.isAuthenticated && mission.courseNumber < 50 ? "eq-btn eq-btn-ghost" : "eq-btn eq-btn-gold"}>
               Retour à la carte
             </Link>
           ) : null}
@@ -321,7 +362,7 @@ export function Quiz({ questions }: QuizProps) {
   const kindLabel = item.type === "gap" ? "Complète la phrase" : item.type === "order" ? "Remets les mots dans l'ordre" : null;
 
   return (
-    <div ref={containerRef} className="eq-quiz" data-testid="quiz">
+    <div id="quiz" ref={containerRef} className="eq-quiz" data-testid="quiz">
       <div className="eq-quiz-head">
         <span>
           Question {currentQuestion + 1} sur {total}

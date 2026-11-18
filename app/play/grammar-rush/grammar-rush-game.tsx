@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { MistakePractice } from "@/components/play/mistake-practice";
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -274,8 +275,8 @@ export function GrammarRushGame({
     setRewardError(null);
     gameSession
       .finish(Math.min(GRAMMAR_RUSH_TIME_MS, Math.max(0, performance.now() - startedAtRef.current)))
-      .then(({ sessionId, durationMs }) =>
-        submitGrammarRushScore({
+      .then(({ sessionId, durationMs, save }) =>
+        save(() => submitGrammarRushScore({
           score: final.score,
           correct: final.correct,
           attempts: final.attempts,
@@ -283,7 +284,7 @@ export function GrammarRushGame({
           sessionId,
           focusCourseId,
           focusCorrect: countFocusCorrect(final, focusCourseId),
-        })
+        }))
       )
       .then((result) => {
         if (run !== runRef.current) return;
@@ -341,12 +342,15 @@ export function GrammarRushGame({
         ]}
         rewards={rewards}
         rewardStatus={submitStatus}
+        retryScore={gameSession.retryScore}
         rewardError={rewardError}
         missionReached={missionTarget != null ? state.score >= missionTarget : null}
         onReplay={quit}
       >
         {state.missed.length > 0 ? (
-          <div>
+          <MistakePractice items={state.missed.map(question => ({
+            id: question.id, prompt: question.question, answers: [question.options[question.correctAnswer]], choices: question.options,
+          }))}>
             <p className="eq-kicker">À revoir ({state.missed.length})</p>
             <div className="eq-game-review-scroll">
               <ul className="eq-game-review">
@@ -363,7 +367,7 @@ export function GrammarRushGame({
                 ))}
               </ul>
             </div>
-          </div>
+          </MistakePractice>
         ) : (
           <p className="eq-game-end-note">
             {state.attempts > 0

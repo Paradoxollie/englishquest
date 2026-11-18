@@ -32,7 +32,9 @@ const vocabulary = new Map(engine('flashTranslation').VOCABULARY.map(w => [w.fre
 const verbs = engine('speed-verb-challenge').VERBS;
 const freeWords = require('../../lib/games/words/wordfall-words.json').freeModeWords;
 const base = process.argv[2] || 'http://127.0.0.1:3000';
-const out = path.join(root, 'output/playwright/audit-2026-10-13');
+const out = process.env.GAME_AUDIT_OUTPUT || path.join(root, 'output/playwright/audit-jeux');
+const wordfallTranslations = require('../../lib/games/words/wordfall-words.json').manualWords.translations;
+const grammarBank = require('../../lib/placement/questions.json');
 fs.mkdirSync(out, { recursive: true });
 const report = { base, checks: [], errors: [], screenshots: [] };
 let browser;
@@ -65,7 +67,7 @@ async function open(page, slug) {
 async function start(page) { await page.locator('[data-testid="game-start"]:visible').click(); }
 async function shot(page, name) {
   const file = path.join(out, name + '.png');
-  await page.screenshot({ path: file, fullPage: true });
+  await page.screenshot({ path: file, fullPage: true, animations: 'disabled' });
   report.screenshots.push(file);
 }
 async function tick(page, milliseconds) {
@@ -96,6 +98,11 @@ async function readyChoices(page) {
       await page.waitForTimeout(200);
       assert.equal(await page.locator('.eq-game-play').count(), 1, slug + ' starts');
       await shot(page, slug + '-mobile-playing');
+      await page.setViewportSize({ width: 320, height: 540 });
+      assert.equal(await page.evaluate(() => {
+        const main = document.querySelector('.eq-game-main');
+        return main.scrollWidth > main.clientWidth + 1;
+      }), false, slug + ' controls fit a narrow phone');
       await page.setViewportSize({ width: 1440, height: 1000 });
       await shot(page, slug + '-desktop-playing');
     }
@@ -133,11 +140,13 @@ async function readyChoices(page) {
     await open(page, 'flash-translation');
     await page.clock.install();
     await start(page);
+    let missedWord;
     for (let index = 0; index < 10; index++) {
       await readyChoices(page);
       const french = (await page.getByTestId('game-prompt').innerText()).trim();
       const english = vocabulary.get(french);
       assert.ok(english, french);
+      if (index === 0) missedWord = { french, english };
       const choices = await page.getByTestId('game-choice').allTextContents();
       const right = choices.findIndex(text => text.replace(/^[1-4]\s*/, '').trim() === english);
       assert.ok(right >= 0, 'correct translation present');
@@ -149,6 +158,25 @@ async function readyChoices(page) {
     assert.match(await page.getByTestId('game-end').innerText(), /1 erreur/);
     assert.ok(parseFloat((await page.locator('.eq-game-end-score').innerText()).replace(',', '.')) >= 5);
     await shot(page, 'flash-translation-ended');
+    await page.getByRole('button', { name: 'Reprendre mes erreurs' }).click();
+    const practice = page.getByTestId('mistake-practice');
+    assert.equal(await practice.getByRole('heading').innerText(), missedWord.french);
+    assert.equal(await practice.getByRole('textbox').inputValue(), '');
+    await page.setViewportSize({ width: 375, height: 540 });
+    await practice.getByRole('textbox').fill('xyz');
+    await practice.getByRole('textbox').press('Enter');
+    await practice.getByRole('status').filter({ hasText: missedWord.english }).waitFor();
+    await practice.getByRole('button', { name: 'Voir mon bilan de révision' }).click();
+    await page.getByRole('button', { name: 'Reprendre les réponses manquées' }).click();
+    assert.equal(await practice.getByRole('heading').innerText(), missedWord.french);
+    assert.equal(await practice.getByRole('textbox').inputValue(), '');
+    assert.equal(await practice.getByRole('button', { name: missedWord.english, exact: true }).count(), 0);
+    await shot(page, 'flash-translation-recall-narrow');
+    await practice.getByRole('textbox').fill(missedWord.english);
+    await practice.getByRole('button', { name: 'Vérifier' }).click();
+    await practice.getByText(/Retrouvé !/).waitFor();
+    await practice.getByRole('button', { name: 'Voir mon bilan de révision' }).click();
+    await page.getByRole('heading', { name: 'Révision terminée' }).waitFor();
     await page.getByRole('button', { name: 'Rejouer', exact: true }).click();
     assert.equal(await page.getByTestId('game-end').count(), 0);
   });
@@ -162,7 +190,7 @@ async function readyChoices(page) {
       const word = (await page.getByTestId('game-prompt').innerText()).trim();
       await page.getByTestId(seen.has(word) ? 'choice-new' : 'choice-seen').click();
       seen.add(word);
-      await tick(page, 1800);
+      await tick(page, 2300);
     }
     await page.getByTestId('game-end').waitFor();
     assert.ok((await page.locator('.eq-game-review').innerText()).includes(first), 'wrong first word is remembered');
@@ -172,6 +200,33 @@ async function readyChoices(page) {
     assert.equal(await stat(page, 'Erreurs'), '0 / 3');
     await page.getByTestId('choice-new').click();
     assert.equal(await stat(page, 'Score'), '1');
+  });
+  await scenario('flashback-repeated-word-meaning-on-mobile', async page => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await open(page, 'flashback');
+    await page.clock.install();
+    await page.evaluate(() => { Math.random = () => 0.87; });
+    await start(page);
+    for (let i = 0; i < 2; i++) {
+      assert.equal(await page.locator('.eq-game-prompt-meaning').count(), 0, 'meaning is not revealed while recalling');
+      await page.getByTestId('choice-new').click();
+      await page.locator('.eq-game-prompt-meaning').waitFor();
+      await tick(page, 2300);
+    }
+    await page.getByTestId('choice-seen').click();
+    assert.equal(await stat(page, 'Score'), '2', 'recognition alone did not score');
+    const word = (await page.getByTestId('game-prompt').innerText()).trim();
+    const correct = [...vocabulary].find(([,english]) => english.toLowerCase() === word.toLowerCase())[0];
+    const choices = await page.getByTestId('meaning-choice').locator('span').allTextContents();
+    assert.equal(new Set(choices).size, 3);
+    await shot(page, 'flashback-meaning-mobile');
+    await page.keyboard.press('Escape');
+    const frozen = await stat(page, 'Temps');
+    await tick(page, 19000);
+    assert.equal(await stat(page, 'Temps'), frozen);
+    await page.keyboard.press('Escape');
+    await page.getByTestId('meaning-choice').nth(choices.indexOf(correct)).click();
+    assert.equal(await stat(page, 'Score'), '3');
   });
   for (const [difficulty, fields] of [['Facile', 1], ['Moyen', 2], ['Difficile', 3]]) {
     await scenario('speed-verb-' + difficulty, async page => {
@@ -189,12 +244,26 @@ async function readyChoices(page) {
       await page.getByTestId('game-submit').click();
       assert.equal(await stat(page, 'Série'), '1');
       await tick(page, 1800);
+      const skipped = (await page.getByTestId('game-prompt').innerText()).trim();
       await page.getByRole('button', { name: 'Passer', exact: true }).click();
       assert.equal(await stat(page, 'Série'), '0');
       await tick(page, 100000);
       await page.getByTestId('game-end').waitFor();
       assert.match(await page.getByTestId('game-end').innerText(), /2/);
       await shot(page, 'speed-verb-' + difficulty + '-ended');
+      await page.getByRole('button', { name: 'Reprendre mes erreurs' }).click();
+      const practice = page.getByTestId('mistake-practice');
+      assert.equal((await practice.getByRole('heading').innerText()).toLowerCase(), skipped.toLowerCase());
+      const verb = verbs.find(v => v.base.toLowerCase() === skipped.toLowerCase());
+      const solutions = { 'Prétérit': verb.pastSimple[0], 'Participe passé': verb.pastParticiple[0], 'Traduction française': verb.translations[0] };
+      for (let i = 0; i < fields; i++) {
+        const label = (await practice.locator('label span').innerText()).trim();
+        await practice.getByRole('textbox').fill(solutions[label]);
+        await practice.getByRole('button', { name: 'Vérifier' }).click();
+        await practice.getByText(/Retrouvé !/).waitFor();
+        await practice.getByRole('button', { name: /Continuer la révision|Voir mon bilan de révision/ }).click();
+      }
+      await page.getByRole('heading', { name: 'Révision terminée' }).waitFor();
     });
   }
   await scenario('grammar-feedback-timeout-replay', async page => {
@@ -203,7 +272,11 @@ async function readyChoices(page) {
     await start(page);
     const prompt = await page.locator('.eq-game-prompt').innerText();
     const options = await page.getByTestId('game-choice').allTextContents();
-    await page.getByTestId('game-choice').first().click();
+    const labels = await page.getByTestId('game-choice').locator('span').allTextContents();
+    const item = grammarBank.find(q => q.question === prompt && q.options.every(o => labels.includes(o)));
+    assert.ok(item, prompt);
+    const right = item.options[item.correctAnswer];
+    await page.getByTestId('game-choice').nth(labels.findIndex(label => label !== right)).click();
     assert.equal(await page.locator('.eq-game-prompt').innerText(), prompt);
     assert.deepEqual(await page.getByTestId('game-choice').allTextContents(), options);
     await tick(page, 1700);
@@ -211,6 +284,12 @@ async function readyChoices(page) {
     await tick(page, 61000);
     await page.getByTestId('game-end').waitFor();
     await shot(page, 'grammar-rush-ended');
+    await page.getByRole('button', { name: 'Reprendre mes erreurs' }).click();
+    const practice = page.getByTestId('mistake-practice');
+    assert.equal(await practice.getByRole('heading').innerText(), prompt);
+    await practice.getByRole('button', { name: right, exact: true }).click();
+    await practice.getByRole('button', { name: 'Voir mon bilan de révision' }).click();
+    await page.getByRole('heading', { name: 'Révision terminée' }).waitFor();
     await page.getByRole('button', { name: 'Rejouer', exact: true }).click();
     await start(page);
     assert.equal(await stat(page, 'Score'), '0');
@@ -227,17 +306,63 @@ async function readyChoices(page) {
       assert.equal(await page.getByTestId('game-end').count(), 0, 'incomplete guess remains playable');
       await tick(page, 91000);
       await page.getByTestId('game-end').waitFor();
+      await page.getByRole('button', { name: 'Utiliser ce mot dans une phrase' }).click();
+      const target = await page.getByTestId('enigma-reveal').locator('.eq-enigma-meaning b').innerText();
+      const sentence = 'I wrote a story about ' + target.toLowerCase() + '.';
+      await page.getByTestId('enigma-sentence').fill(sentence);
+      await page.getByRole('button', { name: 'Garder dans le bilan' }).click();
+      await page.getByText(sentence, { exact: true }).waitFor();
       await shot(page, 'enigma-' + letters + '-ended');
     });
   }
+  await scenario('enigma-keyboard-sentence-and-next-word-mobile', async page => {
+    await page.setViewportSize({ width: 320, height: 540 });
+    await open(page, 'enigma-scroll');
+    await page.getByRole('radio', { name: /^4 lettres/ }).click();
+    await page.evaluate(() => { Math.random = () => 0; });
+    await page.clock.install();
+    await start(page);
+    const expected = engine('enigma-scroll-targets').pickEnigmaTargetWord(4, 1, new Set(), () => 0);
+    const hint = page.getByRole('button', { name: 'Indice FR' });
+    await hint.focus();
+    await page.keyboard.press('Enter');
+    await page.getByRole('button', { name: /Indice.*livre/i }).waitFor();
+    await page.keyboard.type(expected.toLowerCase());
+    await page.keyboard.press('Enter');
+    await page.getByTestId('next-word').waitFor();
+    assert.equal(await page.getByRole('gridcell', { name: /bien placée/ }).count(), 4);
+    const points = await stat(page, 'Score');
+    await page.getByRole('button', { name: 'Utiliser ce mot dans une phrase' }).click();
+    const field = page.getByTestId('enigma-sentence');
+    await field.fill('A sentence without the target.');
+    await field.press('Enter');
+    await page.getByRole('status').filter({ hasText: /ajoute au moins un autre mot/ }).waitFor();
+    const sentence = 'I packed this ' + expected.toLowerCase() + ' for the trip.';
+    await field.fill(sentence);
+    await field.press('Enter');
+    await page.getByText(sentence, { exact: true }).waitFor();
+    assert.equal(await stat(page, 'Score'), points);
+    await shot(page, 'enigma-narrow-win-and-sentence');
+    await page.getByTestId('next-word').click();
+    await tick(page, 91000);
+    await page.getByTestId('game-end').waitFor();
+    await page.getByText(sentence, { exact: true }).waitFor();
+    await page.getByRole('button', { name: 'Modifier ma phrase' }).click();
+    assert.equal(await page.getByTestId('enigma-sentence').inputValue(), sentence);
+  });
   await scenario('wordfall-exact-pause-miss-replay', async page => {
     await open(page, 'wordfall');
     await start(page);
     await page.locator('.eq-fall-card').first().waitFor();
     const card = page.locator('.eq-fall-card').first();
-    const english = await card.locator('b').innerText();
-    const french = await card.locator('span').innerText();
-    await page.getByTestId('wordfall-input').fill(english + ' ' + french);
+    const french = (await card.locator('b').innerText()).trim().toLowerCase();
+    const english = Object.keys(wordfallTranslations).find(word => wordfallTranslations[word].toLowerCase().split(',')[0] === french);
+    assert.ok(english, french);
+    await page.getByTestId('wordfall-input').fill(english[0]);
+    assert.equal(await page.locator('.eq-fall-card.is-targeted').count(), 0, 'partial letters do not reveal a French cue’s spelling');
+    await page.getByRole('button', { name: 'Indice', exact: true }).click();
+    await page.getByRole('status').filter({ hasText: /commence par|une seule lettre/ }).waitFor();
+    await page.getByTestId('wordfall-input').fill(english);
     await page.getByTestId('wordfall-input').press('Enter');
     assert.ok(Number((await stat(page, 'Score')).replace(/\s/g, '')) > 0, 'exact answer scores');
     await page.keyboard.press('Escape');
@@ -278,17 +403,33 @@ async function readyChoices(page) {
   await scenario('space-pause-resume-controls', async page => {
     await open(page, 'space-lex');
     await start(page);
+    assert.match(await page.getByTestId('mission-example').innerText(), /exemple de cible/i);
     await page.keyboard.press('Escape');
     await page.getByRole('button', { name: 'Reprendre', exact: true }).first().waitFor();
     await page.keyboard.press('Escape');
     await page.getByRole('button', { name: 'Pause (Échap)', exact: true }).waitFor();
-    await page.keyboard.press('Space');
-    await page.keyboard.press('Space');
+    await page.getByRole('button', { name: 'Passer', exact: true }).click();
+    const initialX = await page.evaluate(() => JSON.parse(window.render_game_to_text()).shipX);
     await page.keyboard.down('ArrowRight');
-    await page.waitForTimeout(250);
-    await page.keyboard.press('Escape');
+    await page.waitForFunction(x => JSON.parse(window.render_game_to_text()).shipX > x, initialX);
     await page.keyboard.up('ArrowRight');
     await page.keyboard.press('Escape');
+    const frozenX = await page.evaluate(() => JSON.parse(window.render_game_to_text()).shipX);
+    await page.waitForTimeout(150);
+    assert.equal(await page.evaluate(() => JSON.parse(window.render_game_to_text()).shipX), frozenX);
+    await page.keyboard.press('Escape');
+    report.frameTiming = await page.evaluate(() => new Promise(done => {
+      const samples = [];
+      let last;
+      function frame(time) {
+        if (last !== undefined) samples.push(time - last);
+        last = time;
+        if (samples.length < 90) return requestAnimationFrame(frame);
+        samples.sort((a, b) => a - b);
+        done({ game: 'space-lex', frames: samples.length, medianMs: Math.round(samples[45]), p95Ms: Math.round(samples[85]) });
+      }
+      requestAnimationFrame(frame);
+    }));
     await shot(page, 'space-controls');
   });
   await scenario('general-pages-all-course-levels', async (page, errors) => {

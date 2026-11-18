@@ -94,7 +94,7 @@
     {
       "id": "x13",
       "type": "order",
-      "answers": ["Were your parents working yesterday afternoon?"],
+      "answers": ["Were your parents working yesterday afternoon?", "Yesterday afternoon were your parents working?"],
       "translation": "Est-ce que tes parents travaillaient hier après-midi ?",
       "explanation": "Question au past continuous : were avant le sujet (your parents = they), puis le verbe en -ing."
     }

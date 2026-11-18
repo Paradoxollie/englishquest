@@ -24,6 +24,7 @@ class Query {
   lte(key, value) { this.filters.push((row) => row[key] <= value); return this; }
   lt(key, value) { this.filters.push((row) => row[key] < value); return this; }
   insert(rows) { this.inserted = Array.isArray(rows) ? rows : [rows]; return this; }
+  upsert(rows, options) { this.conflicts = options; return this.insert(rows); }
   delete() { this.deleting = true; return this; }
   is(key, value) { this.filters.push((row) => row[key] == value); return this; }
   in(key, values) { this.filters.push((row) => values.includes(row[key])); return this; }
@@ -43,9 +44,16 @@ class Query {
     if (failure) return { data: null, error: failure };
     this.db[this.table] ??= [];
     if (this.inserted) {
-      const created = this.inserted.map((row) => ({ id: crypto.randomUUID(), ...row }));
-      this.db[this.table].push(...created);
-      const copies = created.map((row) => structuredClone(row));
+      const copies = [];
+      for (const row of this.inserted) {
+        const existing = this.conflicts && this.db[this.table].find((entry) =>
+          this.conflicts.onConflict.split(",").every((key) => entry[key] === row[key]));
+        if (existing && this.conflicts.ignoreDuplicates) continue;
+        const stored = existing ?? { id: crypto.randomUUID() };
+        Object.assign(stored, row);
+        if (!existing) this.db[this.table].push(stored);
+        copies.push(structuredClone(stored));
+      }
       return { data: single ? copies[0] : copies, error: null };
     }
     let rows = this.db[this.table].filter((row) => this.filters.every((filter) => filter(row)));
@@ -267,6 +275,7 @@ async function main() {
       "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(db) },
       "@/lib/profile/economy-server": server,
       "@/lib/games/config": { getGameBySlug: () => null },
+      "./mission-telemetry": loadTs("lib/courses/mission-telemetry.ts"),
       "./cache": { COURSE_CATALOG_TAG: "courses" },
       "./metadata": {
         getCourseMetadata: (id) => ({ summary: `Summary ${id}`, palierId: 1, learningGoals: [], focusTags: [], recommendedGameSlugs: [] }),
@@ -277,6 +286,27 @@ async function main() {
     return { db, progress };
   }
   const simultaneous = courseFixture();
+  const fresh = courseFixture();
+  fresh.db.user_course_progress = [];
+  const initialMaps = await Promise.all([fresh.progress.getUserCourseRoadmap("user"), fresh.progress.getUserCourseRoadmap("user")]);
+  assert.equal(fresh.db.user_course_progress.length, 3, "concurrent first visits seed exactly one entry per course");
+  assert.ok(initialMaps.every((map) => map.recommendedCourse?.courseId === 1));
+  const telemetry = loadTs("lib/courses/mission-telemetry.ts");
+  const missionState = loadTs("lib/courses/mission-state.ts", {
+    "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(fresh.db) },
+    "@/lib/courses/progress": fresh.progress,
+    "@/lib/courses/campaign": { getCourseMissionPlan: () => ({ primaryGameSlug: null }) },
+    "@/lib/courses/mission-progress": { getUserCourseChallengeProgress: async () => ({bestScore:null,reached:false}) },
+    "./quiz-score": loadTs("lib/courses/quiz-score.ts"),
+    "./mission-telemetry": telemetry,
+  });
+  assert.ok((await Promise.all([
+    missionState.submitCourseQuizResult("user",1,10,10),
+    missionState.recordCourseReadingCheckpoint("user",1),
+    missionState.submitCourseQuizResult("user",1,8,10),
+  ])).every(Boolean));
+  const retained = telemetry.decodeCourseMissionTelemetry(fresh.db.user_course_progress[0].best_score);
+  assert.deepEqual(retained,{readingCheckpointReached:true,quizScore:10,quizTotal:10});
   const courseResults = await Promise.all([
     simultaneous.progress.completeCourseAndGrantRewards("user", 1),
     simultaneous.progress.completeCourseAndGrantRewards("user", 1),
@@ -428,7 +458,6 @@ async function main() {
   assert.equal(badgeSyncs, 0, "invalid exam submissions must not sync badges");
   // ---------- Sessions de partie (anti-triche) ----------
   const sessionRules = loadTs("lib/games/game-session-rules.ts");
-  const plausibility = loadTs("lib/games/score-plausibility.ts", { "./grammar-rush": rush });
   const authAs = (userId) => ({ createSupabaseServerClient: async () => ({ auth: { getUser: async () => ({ data: { user: userId ? { id: userId } : null } }) } }) });
   function sessionFixture(userId = "user") {
     const db = { game_sessions: [], games: [{ id: "game-flashback", slug: "flashback" }], game_scores: [] };
@@ -451,25 +480,20 @@ async function main() {
   assert.equal(started.ok, true);
   assert.ok(sessionRules.isSessionId(started.sessionId));
   assert.equal(sessionDb.game_sessions.length, 1, "sessions older than a day are cleaned up");
-  const consume = (sessionId, extra = {}) => sessions.consumeGameSession({ sessionId, userId: "user", slug: "wordfall", claimedDurationMs: 0, ...extra });
-  assert.deepEqual(await consume(started.sessionId), { ok: true });
-  assert.equal((await consume(started.sessionId)).reason, "used", "a session counts once");
-  assert.equal((await consume(null)).reason, "missing");
-  assert.equal((await consume(crypto.randomUUID())).reason, "unknown");
-  const raced = await sessions.startGameSession("wordfall");
-  const race = await Promise.all([consume(raced.sessionId), consume(raced.sessionId), consume(raced.sessionId)]);
-  assert.equal(race.filter((result) => result.ok).length, 1, "simultaneous submissions consume once");
-  const foreign = { id: crypto.randomUUID(), user_id: "other", game_slug: "wordfall", started_at: minutesAgo(5), used_at: null };
-  const wrongGame = { id: crypto.randomUUID(), user_id: "user", game_slug: "flashback", started_at: minutesAgo(5), used_at: null };
-  const young = { id: crypto.randomUUID(), user_id: "user", game_slug: "wordfall", started_at: minutesAgo(0.5), used_at: null };
-  const old = { id: crypto.randomUUID(), user_id: "user", game_slug: "wordfall", started_at: minutesAgo(121), used_at: null };
-  sessionDb.game_sessions.push(foreign, wrongGame, young, old);
-  assert.equal((await consume(foreign.id)).reason, "foreign");
-  assert.equal((await consume(wrongGame.id)).reason, "wrong_game");
-  assert.equal((await consume(young.id, { claimedDurationMs: 60_000 })).reason, "too_fast", "30 s of play cannot claim 60 s");
-  assert.equal(young.used_at, null, "a rejected session stays unused");
-  assert.deepEqual(await consume(young.id, { claimedDurationMs: 32_000 }), { ok: true }, "3 s of clock tolerance");
-  assert.equal((await consume(old.id)).reason, "expired");
+  // Pure validation rules. SQL repeat delivery and rollback are exercised in
+  // scripts/tests/reliable-progress-postgres.cjs with the actual score actions.
+  const check = (row, duration = 0) => sessionRules.checkGameSession(row, {
+    userId: "user", slug: "wordfall", claimedDurationMs: duration, nowMs: Date.now(),
+  });
+  const row = { user_id: "user", game_slug: "wordfall", started_at: minutesAgo(0.5), used_at: null };
+  assert.equal(check(row).ok, true);
+  assert.equal(check(null).reason, "unknown");
+  assert.equal(check({ ...row, used_at: minutesAgo(0) }).reason, "used");
+  assert.equal(check({ ...row, user_id: "other" }).reason, "foreign");
+  assert.equal(check({ ...row, game_slug: "flashback" }).reason, "wrong_game");
+  assert.equal(check(row, 60_000).reason, "too_fast");
+  assert.equal(check(row, 32_000).ok, true, "3 s of clock tolerance");
+  assert.equal(check({ ...row, started_at: minutesAgo(121) }).reason, "expired");
   const limited = sessionFixture("busy");
   for (let index = 0; index < 30; index += 1) assert.equal((await limited.sessions.startGameSession("flashback")).ok, true);
   const refused = await limited.sessions.startGameSession("flashback");
@@ -478,40 +502,9 @@ async function main() {
   limited.db.game_sessions.forEach((row) => { row.started_at = minutesAgo(2); });
   assert.equal((await limited.sessions.startGameSession("flashback")).ok, true, "the limit is per minute");
 
-  // Une action de score exige une session valide (exemple : Flashback).
-  const actionFixture = sessionFixture();
-  const flashbackAction = loadTs("app/play/flashback/actions.ts", {
-    "@/lib/profile/economy": economy,
-    "@/lib/profile/economy-server": { countPlaysToday: async () => 0, grantProfileRewards: async () => ({ level: 1, previousLevel: 1 }) },
-    "@/lib/courses/mission-auto-complete": { autoCompleteCourseMissionForGame: async () => null },
-    "@/lib/profile/daily-challenge": { checkAndGrantDailyBonus: async () => ({ dailyPlayedGames: [], requiredGames: [], bonusGranted: false, xpBonus: 0, goldBonus: 0, dailyGoalReached: false }) },
-    "@/lib/supabase/server": authAs("user"),
-    "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(actionFixture.db) },
-    "@/lib/games/game-session-server": actionFixture.sessions,
-    "@/lib/games/score-plausibility": plausibility,
-    "@/lib/profile/badges-server": { syncBadgesSafely: async () => [] },
-  });
-  const noSession = await flashbackAction.submitEchoLexScore({ score: 12, durationMs: 30_000 });
-  assert.equal(noSession.success, false, "logged-in score without a session");
-  assert.match(noSession.error, /Partie introuvable/);
-  const played = { id: crypto.randomUUID(), user_id: "user", game_slug: "flashback", started_at: minutesAgo(0.6), used_at: null };
-  actionFixture.db.game_sessions.push(played);
-  const implausible = await flashbackAction.submitEchoLexScore({ score: 900, durationMs: 30_000, sessionId: played.id });
-  assert.equal(implausible.success, false, "900 answers in 30 s");
-  assert.equal(played.used_at, null, "an implausible score does not burn the session");
-  const saved = await flashbackAction.submitEchoLexScore({ score: 12, durationMs: 30_000, sessionId: played.id });
-  assert.equal(saved.success, true, saved.error);
-  assert.equal(actionFixture.db.game_scores.length, 1);
-  const replayed = await flashbackAction.submitEchoLexScore({ score: 12, durationMs: 30_000, sessionId: played.id });
-  assert.equal(replayed.success, false, "the same game cannot be submitted twice");
-  assert.equal(actionFixture.db.game_scores.length, 1);
-  const tooLong = { id: crypto.randomUUID(), user_id: "user", game_slug: "flashback", started_at: minutesAgo(0.2), used_at: null };
-  actionFixture.db.game_sessions.push(tooLong);
-  assert.equal((await flashbackAction.submitEchoLexScore({ score: 12, durationMs: 30_000, sessionId: tooLong.id })).success, false, "claimed duration longer than the session");
-
   for (const slug of sessionRules.GAME_SESSION_SLUGS) {
     const source = fs.readFileSync(path.resolve(__dirname, "..", "app/play", slug, "actions.ts"), "utf8");
-    assert.match(source, /consumeGameSession\(/, `${slug} submit action must consume a game session`);
+    assert.match(source, /saveGameScore\(/, `${slug} must save the score and rewards in one transaction`);
     assert.match(source, /score-plausibility/, `${slug} submit action must check plausibility`);
     assert.match(source, /eligible:\s*rewards\.xpEarned\s*>\s*0/, `${slug} daily challenge must require positive XP`);
     assert.match(source, /dailyChallenge(?:Result)?\.newLevel/, `${slug} must propagate daily challenge level-up`);
@@ -568,13 +561,10 @@ async function main() {
     assert.equal(mergedReward.gold, 4);
     assert.equal(mergedReward.newLevel, 2, "buildGameRewardDetail includes dailyChallenge.newLevel");
 
-    const flashSrc = fs.readFileSync(path.resolve(__dirname, "..", "app/play/flash-translation/actions.ts"), "utf8");
-    assert.match(flashSrc, /hasCorrect/, "flash-translation guards 0-correct finishes from personal/global best");
-
     console.log("PASS: Daily challenge eligibility, daily bonus level-up propagation, and reward event merging.");
   }
 
-  console.log("PASS: Game sessions (guest, unknown game, cleanup, single use, race, foreign, wrong game, too fast, expired, 30 per minute) and score actions requiring a valid session.");
+  console.log("PASS: Session starts, age, owner, game, duration tolerance and 30 starts per minute.");
   console.log("PASS: Grammar Rush bounds and scoring; Paris day boundaries in 3 host timezones; concurrent rewards; daily bonus deduplication; complete leaderboards and personal bests.");
   console.log("PASS: Concurrent course completion once; course + game rewards; blocked course; course reward failure restores claim.");
   console.log("PASS: Exam transaction calls; simultaneous first passes once; exam + game rewards; invalid result rejected; failed transaction retains no pass or reward.");

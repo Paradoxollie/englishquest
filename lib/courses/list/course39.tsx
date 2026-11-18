@@ -1,90 +1,56 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
 export const course39: LessonContent = {
     courseNumber: 39,
     title: "Gérondif ou Infinitif (1) : Verbes + -ING",
-    objective: "Maîtriser les verbes suivis obligatoirement du Gérondif.",
+    objective: "Construire enjoy, mind ou avoid avec -ing et distinguer les deux sens de stop.",
     sections: [
         {
-            title: "0. Définition Technique",
+            title: "Nommer une activité",
             content: (
-                <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 mb-6">
-                    <p className="text-slate-400 text-sm mb-2 uppercase font-bold tracking-wider">Le Gérondif (Gerund) :</p>
-                    <p className="text-slate-300 text-sm">
-                        En grammaire anglaise, le Gérondif est un verbe terminé par <strong>-ING</strong> qui fonctionne comme un <strong>NOM</strong> (et non plus comme un verbe d'action progressive).
-                    </p>
-                    <div className="mt-4 bg-slate-900 p-3 rounded text-center font-mono text-white">
-                        "I like <span className="text-emerald-400 font-bold">swimming</span>."
-                    </div>
-                    <p className="text-center text-xs text-slate-500 mt-1">Ici, 'swimming' est l'objet direct, comme 'chocolate'.</p>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "I enjoy swimming.", meaning: "Je prends plaisir à nager." },
+                  { english: "Swimming helps me relax.", meaning: "L’activité est ici le sujet de la phrase." },
+                ]}
+              >
+                La forme en -ing peut désigner une activité. La construction dépend du premier verbe.
+              </LessonExamples>
             )
         },
         {
-            title: "1. La Liste des Verbes + -ING (Mémorisation)",
+            title: "Le verbe change la construction",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Certains verbes exigent <strong>impérativement</strong> que le verbe suivant soit au gérondif. Utiliser "TO" est une erreur grave.
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-emerald-500">
-                            <h4 className="font-bold text-white mb-2">ENJOY (Apprécier)</h4>
-                            <p className="text-slate-300">✅ I enjoy <strong>reading</strong>.</p>
-                            <p className="text-red-400/60 line-through text-xs">❌ I enjoy to read.</p>
-                        </div>
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-emerald-500">
-                            <h4 className="font-bold text-white mb-2">STOP / FINISH (Arrêter/Finir)</h4>
-                            <p className="text-slate-300">✅ She finished <strong>eating</strong>.</p>
-                            <p className="text-red-400/60 line-through text-xs">❌ She finished to eat.</p>
-                        </div>
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-emerald-500">
-                            <h4 className="font-bold text-white mb-2">MIND (Se soucier / Ça dérange)</h4>
-                            <p className="text-slate-300">✅ I don't mind <strong>waiting</strong>.</p>
-                            <p className="text-red-400/60 line-through text-xs">❌ I don't mind to wait.</p>
-                        </div>
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-emerald-500">
-                            <h4 className="font-bold text-white mb-2">SUGGEST (Suggérer)</h4>
-                            <p className="text-slate-300">✅ She suggested <strong>going</strong> to the cinema.</p>
-                            <p className="text-red-400/60 line-through text-xs">❌ She suggested to go.</p>
-                        </div>
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-emerald-500">
-                            <h4 className="font-bold text-white mb-2">AVOID (Éviter)</h4>
-                            <p className="text-slate-300">✅ Avoid <strong>driving</strong> fast.</p>
-                            <p className="text-red-400/60 line-through text-xs">❌ Avoid to drive.</p>
-                        </div>
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-emerald-500">
-                            <h4 className="font-bold text-white mb-2">KEEP (Continuer à)</h4>
-                            <p className="text-slate-300">✅ Keep <strong>working</strong>!</p>
-                            <p className="text-red-400/60 line-through text-xs">❌ Keep to work.</p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "I enjoy cooking. Would you mind waiting?", meaning: "Après enjoy et mind, utilise -ing." },
+                  { english: "He stopped smoking.", meaning: "Il a arrêté de fumer." },
+                  { english: "He stopped to smoke.", meaning: "Il s’est arrêté pour fumer." },
+                ]}
+                note={"On dit aussi She suggested taking a break ou She suggested that we take a break."}
+              >
+                Enjoy, mind, finish, avoid, keep et suggest acceptent un complément en -ing. Stop fonctionne aussi avec un infinitif de but, ce qui change le sens.
+              </LessonExamples>
             )
         },
         {
-            title: "2. Après une Préposition",
+            title: "Après une préposition",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Règle absolue : Si un verbe suit une préposition (at, in, on, of, about, with, without...), il se met <strong>TOUJOURS</strong> en -ING.
-                    </p>
-
-                    <div className="bg-slate-900 border border-slate-700 p-4 rounded-xl">
-                        <ul className="space-y-3 text-white">
-                            <li>• He is good <strong className="text-yellow-400">at</strong> learn<strong className="text-emerald-400">ing</strong> languages.</li>
-                            <li>• I am interested <strong className="text-yellow-400">in</strong> buy<strong className="text-emerald-400">ing</strong> it.</li>
-                            <li>• Thanks <strong className="text-yellow-400">for</strong> com<strong className="text-emerald-400">ing</strong>.</li>
-                            <li>• Without <strong className="text-yellow-400">saying</strong> goodbye.</li>
-                        </ul>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "She’s good at learning languages.", meaning: "Elle est douée pour apprendre les langues." },
+                  { english: "Thanks for coming.", meaning: "Merci d’être venu ou venue." },
+                  { english: "He left without saying goodbye.", meaning: "Il est parti sans dire au revoir." },
+                ]}
+              >
+                Une activité placée directement après une préposition comme at, in, for ou without prend généralement la forme en -ing.
+              </LessonExamples>
             )
         },
         {
-            title: "Exercices de Mémorisation listée",
+            title: "Quiz · Choisir le complément en -ing",
             content: (
                 <Quiz
                     questions={[
@@ -93,42 +59,42 @@ export const course39: LessonContent = {
                             question: "I enjoy ___ football.",
                             options: ["to play", "playing"],
                             correctAnswer: 1,
-                            explanation: "ENJOY est toujours suivi de -ING.",
+                            explanation: "Enjoy se construit ici avec un verbe en -ing.",
                         },
                         {
                             id: 2,
                             question: "Would you mind ___ the window?",
                             options: ["to close", "closing"],
                             correctAnswer: 1,
-                            explanation: "MIND est toujours suivi de -ING.",
+                            explanation: "Dans Would you mind + activité, le verbe prend -ing.",
                         },
                         {
                             id: 3,
-                            question: "He stopped ___ 5 years ago.",
-                            options: ["to smoke", "smoking"],
+                            question: "Il a arrêté de fumer il y a cinq ans et n’a plus touché une cigarette. He stopped ___ five years ago.",
+                            options: ["to smoke", "smoking", "smoke"],
                             correctAnswer: 1,
-                            explanation: "STOP + ING = Arrêter une activité (Arrêter de fumer).",
+                            explanation: "Stop smoking signifie cesser de fumer. Stop to smoke signifie faire une pause pour fumer.",
                         },
                         {
                             id: 4,
                             question: "She is afraid of ___.",
                             options: ["flying", "to fly"],
                             correctAnswer: 0,
-                            explanation: "OF est une préposition ➔ Verbe + ING obligatoire.",
+                            explanation: "Of est ici une préposition et flying nomme l’activité qui lui fait peur.",
                         },
                         {
                             id: 5,
                             question: "I suggest ___ a break.",
                             options: ["to take", "taking"],
                             correctAnswer: 1,
-                            explanation: "SUGGEST est toujours suivi de -ING.",
+                            explanation: "On peut dire I suggest taking a break ou I suggest that we take a break.",
                         },
                         {
                             id: 6,
                             question: "Have you finished ___ your homework?",
                             options: ["doing", "to do"],
                             correctAnswer: 0,
-                            explanation: "FINISH est toujours suivi de -ING.",
+                            explanation: "Pour dire quelle activité est terminée après finish, utilise -ing.",
                         },
                         {
                             id: 7,
@@ -139,17 +105,17 @@ export const course39: LessonContent = {
                         },
                         {
                             id: 8,
-                            question: "Keep ___!",
-                            options: ["smiling", "to smile"],
+                            question: "En pleine randonnée, Sam s’est arrêté pour prendre une photo. Quelle phrase raconte cette pause ?",
+                            options: ["He stopped to take a photo.", "He stopped taking photos.", "He stopped take a photo."],
                             correctAnswer: 0,
-                            explanation: "KEEP (dans le sens continuer) + ING.",
+                            explanation: "To take indique le but de l’arrêt.",
                         },
                         {
                             id: 9,
                             question: "We avoided ___ him.",
                             options: ["to meet", "meeting"],
                             correctAnswer: 1,
-                            explanation: "AVOID est toujours suivi de -ING.",
+                            explanation: "Après avoid, meeting him désigne la rencontre qu’on a évitée.",
                         },
                         {
                             id: 10,

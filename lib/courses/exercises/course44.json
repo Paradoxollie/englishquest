@@ -80,21 +80,21 @@
     {
       "id": "x11",
       "type": "order",
-      "answers": ["The match had already started when I turned on the TV."],
+      "answers": ["The match had already started when I turned on the TV.", "When I turned on the TV the match had already started."],
       "translation": "Le match avait déjà commencé quand j'ai allumé la télé.",
       "explanation": "L'action la plus ancienne prend le past perfect (had started), le repère le past simple (turned on)."
     },
     {
       "id": "x12",
       "type": "order",
-      "answers": ["She had never been abroad before that trip."],
+      "answers": ["She had never been abroad before that trip.", "Before that trip she had never been abroad."],
       "translation": "Elle n'était jamais allée à l'étranger avant ce voyage.",
       "explanation": "Never se place entre had et le participe passé : had never been."
     },
     {
       "id": "x13",
       "type": "order",
-      "answers": ["Had you finished your homework before dinner?"],
+      "answers": ["Had you finished your homework before dinner?", "Before dinner had you finished your homework?"],
       "translation": "Avais-tu fini tes devoirs avant le dîner ?",
       "explanation": "Question au past perfect : Had + sujet + participe passé ?"
     }

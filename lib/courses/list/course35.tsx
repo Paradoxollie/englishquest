@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -29,62 +30,30 @@ export const course35: LessonContent = {
             )
         },
         {
-            title: "1. La Règle du 'Pas en Arrière' (The Step Back)",
+            title: "Rapporter plus tard ou confirmer ce qui reste vrai",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Quand on répète ce que quelqu'un a dit dans le passé, on doit décaler le temps du verbe <strong>D'UN PAS EN ARRIÈRE</strong> vers le passé.
-                    </p>
-
-                    <div className="bg-slate-900 p-6 rounded-xl border border-indigo-500 relative">
-                        <div className="flex flex-col md:flex-row items-center gap-8 justify-center">
-
-                            <div className="text-center md:w-1/3">
-                                <div className="bg-white text-black p-3 rounded-t-xl rounded-br-xl mb-2 relative">
-                                    <span className="text-xs font-bold uppercase text-slate-500 block mb-1">DIRECT</span>
-                                    "I <strong className="text-indigo-600">am</strong> tired."
-                                </div>
-                                <p className="text-sm text-slate-400">Tom (Hier)</p>
-                            </div>
-
-                            <div className="text-2xl text-slate-500">➔</div>
-
-                            <div className="text-center md:w-1/3">
-                                <div className="bg-indigo-900 text-white p-3 rounded-xl mb-2 border border-indigo-500">
-                                    <span className="text-xs font-bold uppercase text-indigo-300 block mb-1">INDIRECT (Gossip)</span>
-                                    He said he <strong className="text-indigo-400">was</strong> tired.
-                                </div>
-                                <div className="text-sm text-slate-400">Vous (Aujourd'hui)</div>
-                            </div>
-
-                        </div>
-                        <div className="mt-6 text-center bg-black/20 p-2 rounded">
-                            <p className="text-white font-mono">AM / IS / ARE <span className="text-slate-500">➔</span> WAS / WERE</p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "Yesterday he said he was ill. Today he’s back at work.", meaning: "Le récit replace la maladie dans le passé." },
+                  { english: "Maya said she lives in York.", meaning: "La personne qui rapporte l’adresse la présente comme actuelle." },
+                  { english: "Maya said she lived in York.", meaning: "Le décalage des temps est possible, même si Maya y habite encore." },
+                ]}
+              >
+                Après said ou told au passé, on décale souvent le temps du verbe. On peut garder le présent si l’information est toujours valable. Le passé rapporté seul ne précise pas si la situation a changé.
+              </LessonExamples>
             )
         },
         {
-            title: "2. Les Changements de Personnes",
+            title: "Adapter les pronoms",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Attention aux miroirs ! Si Tom dit "JE suis fatigué", vous ne dites pas "JE suis fatigué" (sinon c'est vous !).
-                        <br />Vous dites : "IL a dit qu'IL était fatigué".
-                    </p>
-
-                    <div className="grid grid-cols-2 gap-4 text-sm md:text-base">
-                        <div className="bg-slate-800 p-3 rounded border-l-4 border-emerald-500">
-                            <p className="font-bold text-white">Direct</p>
-                            <p className="text-slate-300">"<strong>I</strong> like <strong>my</strong> car."</p>
-                        </div>
-                        <div className="bg-slate-800 p-3 rounded border-l-4 border-blue-500">
-                            <p className="font-bold text-white">Indirect</p>
-                            <p className="text-slate-300">He said <strong>he</strong> liked <strong>his</strong> car.</p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "Tom said, “I like my car.”", meaning: "Dans sa bouche, I et my renvoient à Tom." },
+                  { english: "Tom said he liked his car.", meaning: "La personne qui raconte parle maintenant de Tom." },
+                ]}
+              >
+                Identifie la personne qui parle, celle à qui elle parle et les personnes qu’elle désigne. Change les pronoms quand le point de vue change.
+              </LessonExamples>
             )
         },
         {
@@ -119,23 +88,23 @@ export const course35: LessonContent = {
             )
         },
         {
-            title: "Quiz Gossip",
+            title: "Quiz · Rapporter des paroles",
             content: (
                 <Quiz
                     questions={[
                         {
                             id: 1,
-                            question: "Tom: 'I am sick.' ➔ He said he ___ sick.",
+                            question: "Tom était malade lundi, il est guéri. Raconte lundi. He said he ___ sick that day.",
                             options: ["is", "was"],
                             correctAnswer: 1,
-                            explanation: "Step Back : Am (Présent) devient Was (Passé).",
+                            explanation: "Le moment raconté est terminé. Was correspond à la maladie de lundi.",
                         },
                         {
                             id: 2,
-                            question: "Sarah: 'I have a new car.' ➔ She said she ___ a new car.",
-                            options: ["had", "has"],
+                            question: "Sarah habite toujours York. Quelles paroles rapportent correctement cette information ?",
+                            options: ["She said she lives in York. / She said she lived in York.", "She said she live in York. / She says she living there.", "She said me she lives in York."],
                             correctAnswer: 0,
-                            explanation: "Step Back : Have (Présent) devient Had (Passé).",
+                            explanation: "Le présent souligne que l’information reste vraie. Le décalage au passé est aussi possible.",
                         },
                         {
                             id: 3,
@@ -153,17 +122,17 @@ export const course35: LessonContent = {
                         },
                         {
                             id: 5,
-                            question: "Paul: 'I will call you.' ➔ He said he ___ call me.",
+                            question: "Paul avait promis un appel hier. Le moment prévu est passé. He said he ___ call me that evening.",
                             options: ["would", "will"],
                             correctAnswer: 0,
-                            explanation: "Le passé de WILL est WOULD.",
+                            explanation: "Le futur vu depuis un moment passé se rapporte avec would.",
                         },
                         {
                             id: 6,
-                            question: "Anna: 'I can swim.' ➔ She said she ___ swim.",
+                            question: "Anna a dit « I can swim ». Rapporte ses paroles en appliquant le décalage au passé. She said she ___ swim.",
                             options: ["can", "could"],
                             correctAnswer: 1,
-                            explanation: "Le passé de CAN est COULD.",
+                            explanation: "Avec le décalage demandé, can devient could. Can reste possible pour affirmer sa capacité actuelle.",
                         },
                         {
                             id: 7,
@@ -174,10 +143,10 @@ export const course35: LessonContent = {
                         },
                         {
                             id: 8,
-                            question: "'I want to go.' ➔ She said she ___ to go.",
+                            question: "Elle voulait partir hier et elle est depuis partie. She said she ___ to go.",
                             options: ["wants", "wanted"],
                             correctAnswer: 1,
-                            explanation: "Want (Présent) devient Wanted (Passé).",
+                            explanation: "Wanted situe ce souhait hier.",
                         },
                         {
                             id: 9,
@@ -188,10 +157,10 @@ export const course35: LessonContent = {
                         },
                         {
                             id: 10,
-                            question: "'I am working.' ➔ She said she ___ working.",
+                            question: "Maya travaillait à huit heures hier. Rapporte ce qu’elle a dit à ce moment-là. She said she ___ working at eight.",
                             options: ["was", "is"],
                             correctAnswer: 0,
-                            explanation: "Am working (Présent continu) devient Was working (Passé continu).",
+                            explanation: "Was working situe l’activité à huit heures hier.",
                         }
                     ]}
                 />

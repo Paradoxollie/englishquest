@@ -1,3 +1,4 @@
+import { getGuestScores } from "@/lib/courses/guest-progress-server";
 import Link from "next/link";
 import { PageHead } from "@/components/comic/page-head";
 import { GameCard } from "@/components/play/game-card";
@@ -24,7 +25,7 @@ export default async function PlayPage() {
     games.map((game) => [game.slug, getGameLeaderboardMeta(game.slug).scoreOrder])
   );
   const [roadmap, bestBySlug] = await Promise.all([
-    user ? getCachedUserCourseRoadmap(user.id) : Promise.resolve(buildGuestCourseRoadmap()),
+    user ? getCachedUserCourseRoadmap(user.id) : getGuestScores().then(buildGuestCourseRoadmap),
     user ? getUserBestScoresBySlug(user.id, scoreOrderBySlug).catch(() => ({} as Record<string, number>)) : Promise.resolve({} as Record<string, number>),
   ]);
   const activeCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
@@ -32,7 +33,7 @@ export default async function PlayPage() {
   let missionGameSlug: string | null = null;
   let missionLabel: string | null = null;
 
-  if (isLoggedIn && activeCourse) {
+  if ((isLoggedIn || roadmap.completedCount > 0) && activeCourse) {
     const plan = getCourseMissionPlan(activeCourse);
     missionGameSlug = plan.primaryGameSlug;
     missionLabel = plan.gameChallengeCompact;

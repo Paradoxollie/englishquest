@@ -75,7 +75,7 @@
       "type": "gap",
       "prompt": "Don't ___! You can do it! (abandonner)",
       "answers": ["give up", "quit"],
-      "explanation": "Give up = abandonner. Le sens ne se devine pas mot à mot : il faut l'apprendre en bloc."
+      "explanation": "Give up et quit sont deux réponses naturelles. La tournure à deux mots travaillée ici est give up."
     },
     {
       "id": "x11",

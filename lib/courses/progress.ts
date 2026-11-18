@@ -4,6 +4,7 @@ import { getGameBySlug } from "@/lib/games/config";
 import { COURSE_CATALOG_TAG } from "./cache";
 import { getCourseMetadata, getCourseRewardProfile } from "./metadata";
 import { getCourseById, paliers, type CourseType } from "./data";
+import { encodeCourseMissionTelemetry } from "./mission-telemetry";
 
 export type CourseStatus = "locked" | "unlocked" | "in_progress" | "completed";
 
@@ -179,7 +180,7 @@ async function ensureUserProgressRows(
 
     const { error: insertError } = await adminClient
       .from("user_course_progress")
-      .insert(initialRows);
+      .upsert(initialRows, { onConflict: "user_id,course_id", ignoreDuplicates: true });
 
     if (insertError) {
       throw insertError;
@@ -197,7 +198,7 @@ async function ensureUserProgressRows(
     if (missingRows.length > 0) {
       const { error: insertError } = await adminClient
         .from("user_course_progress")
-        .insert(missingRows);
+        .upsert(missingRows, { onConflict: "user_id,course_id", ignoreDuplicates: true });
 
       if (insertError) {
         throw insertError;
@@ -256,6 +257,7 @@ async function ensureUserProgressRows(
           .from("user_course_progress")
           .update({ status: update.status })
           .eq("id", update.id)
+          .eq("status", "locked")
       )
     );
   }
@@ -301,7 +303,7 @@ function buildRoadmapEntries(
 }
 
 function getCurrentPalierSummary(entries: CourseRoadmapEntry[], focusCourse: CourseRoadmapEntry | null) {
-  const palierId = focusCourse?.palierId ?? entries[0]?.palierId;
+  const palierId = focusCourse?.palierId ?? entries[entries.length - 1]?.palierId;
   if (!palierId) {
     return null;
   }
@@ -353,13 +355,17 @@ function buildStudyPlan(
   return steps.slice(0, 3);
 }
 
-export function buildGuestCourseRoadmap(): CourseRoadmap {
+export function buildGuestCourseRoadmap(scores = new Map<number, number>()): CourseRoadmap {
   const entries = buildRoadmapEntries([], new Map());
-  const recommendedCourse =
-    entries.find((entry) => entry.status === "in_progress") ??
-    entries.find((entry) => entry.status === "unlocked") ??
-    entries[0] ??
-    null;
+  for (const entry of entries) {
+    const score = scores.get(entry.courseId);
+    if (score === undefined) continue;
+    entry.status = "completed";
+    entry.missionTelemetry = encodeCourseMissionTelemetry({ readingCheckpointReached: true, quizScore: score, quizTotal: 10 });
+  }
+  const recommendedCourse = entries.find((entry) => entry.status !== "completed") ?? null;
+  if (recommendedCourse) recommendedCourse.status = "unlocked";
+  const completedCount = entries.filter((entry) => entry.status === "completed").length;
   const nextCourse =
     recommendedCourse ? entries.find((entry) => entry.courseId === recommendedCourse.courseId + 1) ?? null : null;
   const reviewCourse = null;
@@ -370,9 +376,9 @@ export function buildGuestCourseRoadmap(): CourseRoadmap {
     recommendedCourse,
     nextCourse,
     reviewCourse,
-    completedCount: 0,
+    completedCount,
     totalCourses: entries.length,
-    completionRate: 0,
+    completionRate: Math.round(100 * completedCount / entries.length),
     currentPalier: getCurrentPalierSummary(entries, recommendedCourse),
     recommendedGameSlugs: recommendedCourse?.recommendedGameSlugs ?? [],
     studyPlan: [],
@@ -486,13 +492,15 @@ export async function updateCourseProgressStatus(userId: string, courseNumber: n
       status,
       completed_at: status === "completed" ? new Date().toISOString() : progressEntry.completed_at,
     })
-    .eq("id", progressEntry.id);
+    .eq("id", progressEntry.id)
+    .eq("status", progressEntry.status);
 
   if (status === "completed" && nextProgress && nextProgress.status === "locked") {
     await adminClient
       .from("user_course_progress")
       .update({ status: "unlocked" })
-      .eq("id", nextProgress.id);
+      .eq("id", nextProgress.id)
+      .eq("status", "locked");
   }
 }
 
@@ -554,10 +562,12 @@ export async function launchCourseMission(userId: string, courseNumber: number) 
     return;
   }
 
-  await adminClient
+  const { error: launchError } = await adminClient
     .from("user_course_progress")
     .update({ status: "in_progress" })
-    .eq("id", targetProgress.id);
+    .eq("id", targetProgress.id)
+    .in("status", ["locked", "unlocked"]);
+  if (launchError) throw launchError;
 }
 
 export async function completeCourseAndGrantRewards(userId: string, courseNumber: number) {

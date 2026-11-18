@@ -3362,11 +3362,11 @@ h4 {
 }
 
 .eq-quiz-verdict.is-right {
-  color: #1f8f5c;
+  color: var(--pro-success);
 }
 
 .eq-quiz-verdict.is-wrong {
-  color: #c43d3d;
+  color: var(--pro-error);
 }
 
 .eq-quiz-explanation,
@@ -3445,7 +3445,7 @@ h4 {
 
 .cahier .lesson-section-content .text-slate-500,
 .cahier .lesson-section-content .text-slate-600 {
-  color: #6f7b94;
+  color: var(--pro-muted);
 }
 
 .cahier .lesson-section-content .bg-slate-800,
@@ -3556,7 +3556,7 @@ h4 {
 .cahier .lesson-section-content .text-emerald-500,
 .cahier .lesson-section-content .text-green-400,
 .cahier .lesson-section-content .text-green-300 {
-  color: #1f8f5c;
+  color: var(--pro-success);
 }
 
 .cahier .lesson-section-content .text-red-400,
@@ -3565,7 +3565,7 @@ h4 {
 .cahier .lesson-section-content .text-red-500,
 .cahier .lesson-section-content .text-rose-400,
 .cahier .lesson-section-content .text-rose-300 {
-  color: #c43d3d;
+  color: var(--pro-error);
 }
 
 .cahier .lesson-section-content .text-amber-400,
@@ -3576,7 +3576,7 @@ h4 {
 .cahier .lesson-section-content .text-yellow-300,
 .cahier .lesson-section-content .text-orange-400,
 .cahier .lesson-section-content .text-orange-300 {
-  color: #a86f0b;
+  color: var(--pro-gold-text);
 }
 
 .cahier .lesson-section-content .text-cyan-400,

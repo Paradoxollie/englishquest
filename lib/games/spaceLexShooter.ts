@@ -830,6 +830,10 @@ function getTargetWords(mission: Mission): string[] {
   return getCategoryWords(mission);
 }
 
+export function getMissionExample(mission: Mission | null): string | null {
+  return mission ? getTargetWords(mission)[0] ?? null : null;
+}
+
 /**
  * Check if a word is a target for the current mission
  */

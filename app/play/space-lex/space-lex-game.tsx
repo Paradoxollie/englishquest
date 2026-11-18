@@ -29,6 +29,7 @@ import {
   updateExplosions,
   updateFeedbackMessages,
   updateWaveLifecycle,
+  getMissionExample,
   spawnPowerUpIfNeeded,
   updatePowerUps,
   collectPowerUp,
@@ -729,8 +730,8 @@ export function SpaceLexGame({
 
     gameSession
       .finish(performance.now() - startedAtRef.current)
-      .then(({ sessionId, durationMs }) =>
-        submitLexiconBlasterScore({
+      .then(({ sessionId, durationMs, save }) =>
+        save(() => submitLexiconBlasterScore({
           score: gameState.score,
           wave: gameState.waveNumber,
           maxCombo: gameState.maxCombo,
@@ -738,7 +739,7 @@ export function SpaceLexGame({
           wordsMissed: gameState.missedWords.length,
           durationMs,
           sessionId,
-        })
+        }))
       )
       .then((res) => {
         if (currentSession !== sessionRef.current) return;
@@ -868,6 +869,7 @@ export function SpaceLexGame({
         ]}
         rewards={scoreResult}
         rewardStatus={submitStatus}
+        retryScore={gameSession.retryScore}
         rewardError={rewardError}
         missionReached={missionTarget !== null ? gameState.score >= missionTarget : null}
         onReplay={handleStartGame}
@@ -930,6 +932,7 @@ export function SpaceLexGame({
   const bossPct = gameState.boss
     ? Math.max(0, Math.round((gameState.boss.hp / gameState.boss.maxHp) * 100))
     : 0;
+  const example = getMissionExample(gameState.mission);
   const currentDialogueLine =
     gameState.currentDialogue?.lines[gameState.dialogueIndex] ?? null;
 
@@ -956,6 +959,7 @@ export function SpaceLexGame({
           <strong className="eq-space-mission-title">
             {gameState.mission?.label ?? "Préparation de mission"}
           </strong>
+          {example && <span className="eq-space-mission-kicker" data-testid="mission-example">Exemple de cible · <b lang="en">{example}</b></span>}
           <div className="eq-space-wave-progress">
             <span>
               {gameState.waveProgress}/{gameState.waveTarget} cibles
@@ -1176,6 +1180,7 @@ export function SpaceLexGame({
               <div className="eq-space-overlay-card">
                 <p className="eq-kicker">{currentDialogueLine.speaker}</p>
                 <p className="eq-space-dialogue-text">{currentDialogueLine.text}</p>
+                {example && <p className="eq-space-overlay-sub">{gameState.mission?.label} · <b lang="en">{example}</b></p>}
                 {currentDialogueLine.subtitle ? (
                   <p className="eq-space-overlay-sub">{currentDialogueLine.subtitle}</p>
                 ) : null}
@@ -1210,6 +1215,16 @@ export function SpaceLexGame({
             </motion.div>
           )}
         </AnimatePresence>
+
+        {!currentDialogueLine && (gameState.waveStatus === "intro" || gameState.waveStatus === "boss_intro") && (
+          <div className="eq-space-overlay pointer-events-none" role="status">
+            <div className="eq-space-overlay-card">
+              <p className="eq-kicker">Vague {gameState.waveNumber}</p>
+              <p className="eq-space-dialogue-text">{gameState.mission?.label}</p>
+              {example && <p className="eq-space-overlay-sub">Une bonne cible est <b lang="en">{example}</b>.</p>}
+            </div>
+          </div>
+        )}
 
         {/* Wave Cleared Banner */}
         <AnimatePresence>

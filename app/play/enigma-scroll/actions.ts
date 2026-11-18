@@ -1,6 +1,5 @@
 "use server";
-import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
-import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
+import { gamePerformance } from "@/lib/profile/economy";
 import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
 import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 
@@ -14,11 +13,10 @@ import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
  */
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import {
   mapWordLengthToDifficulty,
 } from "@/lib/profile/enigma-scroll-rewards";
-import { consumeGameSession } from "@/lib/games/game-session-server";
+import { gameAuthFailure, interruptedGameSave, saveGameScore } from "@/lib/games/score-settlement";
 import { checkEnigmaScroll } from "@/lib/games/score-plausibility";
 
 /**
@@ -39,6 +37,7 @@ export async function submitEnigmaScrollScore(params: {
   sessionId?: string | null;
 }): Promise<{
   success: boolean;
+  retryable?: boolean;
   error?: string;
   rewards?: {
     xpEarned: number;
@@ -73,7 +72,6 @@ export async function submitEnigmaScrollScore(params: {
       return { success: false, error: "Score Enigma Scroll invraisemblable" };
     }
     const supabase = await createSupabaseServerClient();
-    const adminClient = createSupabaseAdminClient();
 
     // Get current user
     const {
@@ -82,108 +80,26 @@ export async function submitEnigmaScrollScore(params: {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      return {
-        success: false,
-        error: "User not authenticated",
-      };
+      return gameAuthFailure(userError);
     }
 
-    const gameSession = await consumeGameSession({
-      sessionId: params.sessionId,
-      userId: user.id,
-      slug: "enigma-scroll",
-      claimedDurationMs: params.durationMs,
+    const saved = await saveGameScore({
+      userId: user.id, slug: "enigma-scroll", sessionId: params.sessionId,
+      score: params.totalScore, maxScore: params.wordsFound, durationMs: params.durationMs,
+      difficulty: mapWordLengthToDifficulty(params.wordLength), performance: gamePerformance.enigmaScroll(params.wordsFound),
+      recordEligible: params.totalScore > 0,
     });
-    if (!gameSession.ok) {
-      return { success: false, error: gameSession.error };
-    }
-
-    // Get the Enigma Scroll game ID
-    const { data: game, error: gameError } = await adminClient
-      .from("games")
-      .select("id")
-      .eq("slug", "enigma-scroll")
-      .maybeSingle();
-
-    if (gameError || !game) {
-      return {
-        success: false,
-        error: "Game not found. Please ensure the game is registered in Supabase.",
-      };
-    }
-
-    // Map word length to difficulty
-    const difficulty = mapWordLengthToDifficulty(params.wordLength);
-
-    // Get user's current personal best for this difficulty
-    const { data: personalBest } = await adminClient
-      .from("game_scores")
-      .select("id, score")
-      .eq("user_id", user.id)
-      .eq("game_id", game.id)
-      .eq("difficulty", difficulty)
-      .order("score", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    const isNewPersonalBest = !personalBest || params.totalScore > personalBest.score;
-
-    // Get global best score for this difficulty
-    const { data: globalTopScore } = await adminClient
-      .from("game_scores")
-      .select("score")
-      .eq("game_id", game.id)
-      .eq("difficulty", difficulty)
-      .order("score", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    const currentGlobalBest = globalTopScore?.score ?? 0;
-    const isNewGlobalBest = params.totalScore > currentGlobalBest;
-
-    // Calculate rewards
-    const playsToday = await countPlaysToday(adminClient, user.id, game.id);
-    const rewards = computeGameRewards({
-      performance: gamePerformance.enigmaScroll(params.wordsFound),
-      difficulty,
-      playsToday,
-      isNewPersonalBest,
-      isNewGlobalBest,
-    });
-
-    const { error: insertError } = await adminClient
-      .from("game_scores")
-      .insert({
-        user_id: user.id,
-        game_id: game.id,
-        score: params.totalScore,
-        max_score: params.wordsFound, // Store words found as max_score
-        duration_ms: params.durationMs,
-        difficulty: difficulty,
-      });
-
-    if (insertError) {
-      console.error("Error inserting game score:", insertError);
-      return {
-        success: false,
-        error: "Failed to save score",
-      };
-    }
-
-
-    const updatedProfile = await grantProfileRewards(adminClient, user.id, {
-      xp: rewards.xpEarned,
-      gold: rewards.goldEarned,
-    });
+    if (!saved.ok) return { success: false, error: saved.error, retryable: saved.retryable };
+    const { rewards, playsToday, isNewPersonalBest, isNewGlobalBest } = saved.receipt;
 
     // Check and grant Daily Challenge bonus (seulement si au moins un mot trouvé)
     const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
     const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "enigma-scroll", {
-      eligible: rewards.xpEarned > 0,
+      eligible: rewards.xpEarned > 0, earnedAt: saved.receipt.savedAt,
     });
-    const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "enigma-scroll", params.totalScore);
+    const courseCompleted = saved.receipt.replayed ? null : await autoCompleteCourseMissionForGame(user.id, "enigma-scroll", params.totalScore);
     const newBadges = await syncBadgesSafely(user.id);
-    const gameNewLevel = updatedProfile.level > updatedProfile.previousLevel ? updatedProfile.level : 0;
+    const gameNewLevel = saved.receipt.level > saved.receipt.previousLevel ? saved.receipt.level : 0;
     const mergedNewLevel = Math.max(gameNewLevel, dailyChallengeResult.newLevel ?? 0) || undefined;
 
     return {
@@ -201,13 +117,10 @@ export async function submitEnigmaScrollScore(params: {
       newBadges,
       isNewPersonalBest,
       isNewGlobalBest,
-      personalBest: personalBest?.score ?? null,
+      personalBest: saved.receipt.previousBest,
     };
   } catch (error) {
     console.error("Error submitting Enigma Scroll score:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
+    return interruptedGameSave;
   }
 }

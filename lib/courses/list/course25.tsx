@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -7,115 +8,47 @@ export const course25: LessonContent = {
     objective: "Poser la question 'Depuis quand / Combien de temps'.",
     sections: [
         {
-            title: "1. La Question Universelle",
+            title: "Demander une durée",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Pour demander "Depuis combien de temps" ou "Depuis quand", l&apos;anglais n&apos;utilise <strong className="text-red-400">JAMAIS</strong> le present simple.
-                        Il utilise <strong className="text-emerald-400">HOW LONG + PRESENT PERFECT</strong>.
-                    </p>
-
-                    <div className="bg-slate-900 p-6 rounded-lg border-l-4 border-cyan-500">
-                        <div className="flex flex-col gap-4">
-                            <div className="flex items-center gap-2">
-                                <span className="text-2xl">❓</span>
-                                <h4 className="text-cyan-400 font-bold text-lg">HOW LONG HAVE YOU...?</h4>
-                            </div>
-
-                            <div className="bg-black/30 p-3 rounded space-y-2">
-                                <p className="text-white">"How long <strong className="text-cyan-400">have you been</strong> here?"</p>
-                                <p className="text-xs text-slate-500">(Depuis combien de temps es-tu là / Ça fait combien de temps que tu es là ?)</p>
-                            </div>
-
-                            <div className="bg-black/30 p-3 rounded space-y-2">
-                                <p className="text-white">"How long <strong className="text-cyan-400">have you been waiting</strong>?"</p>
-                                <p className="text-xs text-slate-500">(Ça fait combien de temps que tu attends ?)</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "How long have you been waiting?", meaning: "Depuis combien de temps attends-tu ?" },
+                  { english: "How long does the film last?", meaning: "Combien de temps dure le film ?" },
+                  { english: "How long did you stay?", meaning: "Combien de temps es-tu resté ?" },
+                ]}
+              >
+                Pour une situation commencée auparavant et toujours en cours, how long se construit souvent avec le present perfect. Une question de durée peut aussi concerner un horaire ou un séjour terminé.
+              </LessonExamples>
             )
         },
         {
-            title: "2. Les Verbes d'État (State Verbs)",
+            title: "Quand le verbe exprime un état",
             content: (
-                <div className="space-y-6">
-                    <div className="bg-red-900/20 p-4 rounded border border-red-500/50">
-                        <h4 className="text-red-400 font-bold mb-3 flex items-center gap-2">
-                            <span>⛔</span> LA LISTE NOIRE
-                        </h4>
-                        <p className="text-slate-300 mb-4 text-sm">
-                            Certains verbes expriment un <strong className="text-white">ÉTAT MENTAL</strong> ou une <strong className="text-white">POSSESSION</strong>, pas une action. Ils ne peuvent PHYSIQUEMENT pas être continus.
-                            <br /><span className="italic text-slate-400">On ne peut pas être "en train de savoir" ou "en train de connaître". Soit on sait, soit on ne sait pas.</span>
-                        </p>
-
-                        <div className="space-y-3 bg-black/40 p-4 rounded text-sm">
-                            <ul className="text-slate-300 grid grid-cols-2 gap-2 font-mono">
-                                <li>&bull; Know (Connaître)</li>
-                                <li>&bull; Have (Posséder)</li>
-                                <li>&bull; Like / Love</li>
-                                <li>&bull; Be (Être)</li>
-                                <li>&bull; Believe (Croire)</li>
-                                <li>&bull; Belong (Appartenir)</li>
-                            </ul>
-                        </div>
-
-                        <div className="mt-4 space-y-4">
-                            <div className="bg-slate-800 p-3 rounded border-l-2 border-emerald-500">
-                                <p className="text-xs text-emerald-400 font-bold mb-1">CORRECT (SIMPLE)</p>
-                                <p className="text-white">"How long <strong className="text-emerald-400">have you known</strong> him?"</p>
-                            </div>
-                            <div className="bg-slate-800 p-3 rounded border-l-2 border-red-500 opacity-75">
-                                <p className="text-xs text-red-400 font-bold mb-1">HORREUR ABSOLUE</p>
-                                <p className="text-slate-400 line-through">"How long <strong className="text-red-500">have you been knowing</strong> him?"</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "How long have you known Maya?", meaning: "Know décrit ici une relation." },
+                  { english: "How long have you had that bike?", meaning: "Have décrit ici la possession." },
+                ]}
+              >
+                Si le verbe décrit une connaissance ou une possession, la forme simple est habituelle. Regarde le sens du verbe dans ta phrase.
+              </LessonExamples>
             )
         },
         {
-            title: "3. L'Exception : LIVE & WORK",
+            title: "Deux façons de raconter sa durée",
             content: (
-                <div className="space-y-6">
-                    <div className="bg-emerald-900/20 p-4 rounded border border-emerald-500/50">
-                        <h4 className="text-emerald-400 font-bold mb-2 flex items-center gap-2">
-                            <span>🌟</span> LES VERBES FLEXIBLES
-                        </h4>
-                        <p className="text-slate-300 text-sm mb-4">
-                            Deux verbes sont spéciaux. Pour <strong>LIVE</strong> (habiter) et <strong>WORK</strong> (travailler), vous pouvez utiliser les deux formes sans réelle différence de sens pour des actions longues.
-                        </p>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="bg-black/30 p-3 rounded">
-                                <p className="text-white font-medium">"I have lived here for 10 years."</p>
-                                <p className="text-xs text-emerald-500">PERFECT</p>
-                            </div>
-                            <div className="bg-black/30 p-3 rounded">
-                                <p className="text-white font-medium">"I have been living here for 10 years."</p>
-                                <p className="text-xs text-emerald-500">PERFECT TOO</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-slate-800 p-4 rounded border-t-4 border-amber-500 mt-6">
-                        <h4 className="text-amber-400 font-bold mb-2">RAPPEL : How long vs When</h4>
-                        <ul className="space-y-2 text-sm">
-                            <li className="flex items-center gap-2">
-                                <span className="text-amber-400 font-bold">WHEN...?</span>
-                                <span className="text-slate-300">➔ Cherche une date. <span className="text-slate-500">(Past Simple)</span></span>
-                            </li>
-                            <li className="flex items-center gap-2">
-                                <span className="text-cyan-400 font-bold">HOW LONG...?</span>
-                                <span className="text-slate-300">➔ Cherche une durée. <span className="text-slate-500">(Present Perfect)</span></span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "I’ve lived here for ten years.", meaning: "Je donne un fait sur mon lieu de vie." },
+                  { english: "I’ve been living here for ten years.", meaning: "Je regarde la période passée ici." },
+                ]}
+              >
+                Avec live et work, on rencontre souvent les deux formes. La forme continue met plus volontiers l’accent sur la durée ou sur l’activité en cours.
+              </LessonExamples>
             )
         },
         {
-            title: "Quiz : How Long...",
+            title: "Quiz · Demander depuis combien de temps",
             content: (
                 <Quiz
                     questions={[

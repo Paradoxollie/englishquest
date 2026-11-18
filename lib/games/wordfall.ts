@@ -10,6 +10,7 @@
  * and the level below (30 %), as tagged in wordfall-words.json (manualWords.levels).
  */
 
+import { translationAnswers } from "./translation-recall";
 import { isGameLevel, pickOneByLevel, type GameLevel } from "./levels";
 
 export type WordfallMode = "exact" | "free";
@@ -129,10 +130,6 @@ function normalizeForAnswerComparison(value: string): string {
     .replace(/-/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-}
-
-function collapsePunctuationAndSpaces(value: string): string {
-  return normalizeForAnswerComparison(value).replace(/['\s]+/g, "");
 }
 
 /**
@@ -534,8 +531,8 @@ export function spawnFallingWord(
     return {
       id: `word-${Date.now()}-${Math.random()}`,
       text: word, // English word (what player must type)
-      displayText: word, // English word (what is displayed and falls)
-      translation: translation, // French translation (for information only)
+      displayText: translation,
+      translation,
       x: lane.x,
       lane: lane.lane,
       y: 0,
@@ -582,48 +579,16 @@ export function hasReachedBottom(word: FallingWord): boolean {
   return word.y >= 100;
 }
 
-/**
- * Validate word input for exact mode
- * Now requires both English word and French translation
- * Format: "ENGLISH FRENCH" (space-separated, no slash needed)
- */
-export function validateExactWord(
-  input: string,
-  targetWord: string,
-  targetTranslation: string
-): { valid: boolean; reason?: string } {
-  const trimmed = input.trim();
-  
-  const parts = trimmed.replace(/-/g, " ").split(/\s+/).filter(p => p.trim().length > 0);
-  const targetEnglishParts = targetWord.trim().replace(/-/g, " ").split(/\s+/).filter(p => p.trim().length > 0);
-  
-  if (parts.length <= targetEnglishParts.length) {
-    return { valid: false, reason: "Tape le mot anglais complet puis sa traduction française." };
+/** Recall an English word for the French prompt. */
+export function validateExactWord(input: string, targetWord: string, targetTranslation: string): { valid: boolean; reason?: string } {
+  const given = normalizeForAnswerComparison(input);
+  if (given && translationAnswers(targetWord).some(answer => given === normalizeForAnswerComparison(answer))) return { valid: true };
+  // Some French prompts have several English equivalents in the same dictionary.
+  const alternative = getTranslation(input.trim().replace(/\s+/g, " ").toUpperCase());
+  if (alternative && alternative.normalize("NFC").toLowerCase() === targetTranslation.normalize("NFC").toLowerCase()) {
+    return { valid: true };
   }
-  
-  const englishInput = parts.slice(0, targetEnglishParts.length).join(' ');
-  const frenchInput = parts.slice(targetEnglishParts.length).join(' ');
-  
-  const normalizedEnglish = englishInput.toUpperCase().replace(/\s+/g, " ").trim();
-  const normalizedTargetEnglish = targetEnglishParts.join(' ').toUpperCase().replace(/\s+/g, " ").trim();
-  
-  // Check English word
-  if (normalizedEnglish !== normalizedTargetEnglish) {
-    return { valid: false, reason: "Le mot anglais ne correspond pas." };
-  }
-  
-  // Clean the target translation (remove parentheses, slashes, take first part)
-  const cleanedTargetFr = cleanTranslationForDisplay(targetTranslation);
-  const normalizedInputFr = normalizeForAnswerComparison(frenchInput);
-  const normalizedTargetFr = normalizeForAnswerComparison(cleanedTargetFr);
-  const collapsedMatch =
-    collapsePunctuationAndSpaces(frenchInput) === collapsePunctuationAndSpaces(cleanedTargetFr);
-  
-  if (normalizedInputFr !== normalizedTargetFr && !collapsedMatch) {
-    return { valid: false, reason: `La traduction attendue était « ${cleanedTargetFr} ».` };
-  }
-  
-  return { valid: true };
+  return { valid: false, reason: "Essaie une autre traduction anglaise pour un bloc visible." };
 }
 
 /**
@@ -714,7 +679,7 @@ export function processWordInput(
   for (const activeWord of activeWords) {
     if (state.mode === "exact") {
       if (!activeWord.translation) {
-        reason = reason || "Translation missing";
+        reason = reason || "La traduction de ce bloc est indisponible.";
         continue;
       }
 
@@ -724,9 +689,7 @@ export function processWordInput(
         break;
       }
 
-      if (!reason || validation.reason !== "Le mot anglais ne correspond pas.") {
-        reason = validation.reason;
-      }
+      reason = validation.reason;
     } else {
       const validation = validateFreeWord(input, activeWord.displayText, state.usedWords);
       if (validation.valid) {

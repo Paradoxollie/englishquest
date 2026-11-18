@@ -9,7 +9,7 @@ import { FlashbackGame } from "./flashback-game";
 
 export const metadata: Metadata = {
   title: "Flashback",
-  description: "Un mot anglais, sa traduction : nouveau ou déjà vu ? Un jeu de mémoire de travail qui fait entrer le vocabulaire.",
+  description: "Reconnais les mots anglais déjà rencontrés et retrouve leur traduction quand ils reviennent.",
 };
 
 export const dynamic = "force-dynamic";

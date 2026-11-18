@@ -34,8 +34,8 @@ export function buildMissionSummary(params: {
       quizLabel: "Quiz à 80 %",
       gameDone: false,
       gameLabel,
-      note: "Tu peux lire tous les cours sans compte. Avec un compte, chaque quiz réussi valide la mission, fait avancer ton pion et rapporte de l'expérience.",
-      cta: { href: `/cours/${entry.courseId}`, label: `Lire le cours ${entry.courseId}`, tone: "gold" },
+      note: "Ta carte garde les quiz réussis sur cet appareil. Connecte-toi pour retrouver ta progression ailleurs.",
+      cta: { href: `/cours/${entry.courseId}`, label: `Continuer vers la mission ${entry.courseId}`, tone: "gold" },
       secondary: null,
     };
   }
@@ -49,7 +49,9 @@ export function buildMissionSummary(params: {
       ? `Quiz ${state.quizScore} / ${state.quizTotal}`
       : "Quiz à 80 %";
 
-  let note = "Lis le cours, puis réussis le quiz à 80 % : la mission est validée et la suivante s'ouvre.";
+  let note = entry.courseId === 50
+    ? "Lis le cours et réussis le quiz à 80 % pour valider la dernière mission."
+    : "Lis le cours et réussis le quiz à 80 % pour ouvrir la mission suivante.";
   let cta: MissionSummary["cta"] = {
     href: `/cours/${entry.courseId}`,
     label: entry.status === "unlocked" ? "Commencer la mission" : "Continuer le cours",

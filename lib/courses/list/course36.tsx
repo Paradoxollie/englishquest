@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -29,62 +30,29 @@ export const course36: LessonContent = {
             )
         },
         {
-            title: "1. Le Retour à l'Ordre Affirmatif (S-V)",
+            title: "Retrouver l’ordre sujet + verbe",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Règle fondamentale : Une question rapportée <strong>N'EST PLUS UNE QUESTION</strong> grammaticalement. C'est une affirmation.
-                        <br />Conséquence : On doit annuler l'inversion et remettre le Sujet avant le Verbe.
-                    </p>
-
-                    <div className="bg-slate-900 p-6 rounded-xl border border-blue-500 relative">
-                        <div className="mb-6 pb-6 border-b border-slate-700">
-                            <p className="text-xs font-bold uppercase text-slate-500 mb-2">QUESTION DIRECTE (Inversion V-S)</p>
-                            <div className="flex items-center gap-2 text-xl font-mono">
-                                <span className="text-slate-400">"Where</span>
-                                <span className="text-red-400 font-bold border-b border-red-400 px-1">are</span>
-                                <span className="text-blue-400 font-bold border-b border-blue-400 px-1">you</span>
-                                <span className="text-slate-400">?"</span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <p className="text-xs font-bold uppercase text-slate-500 mb-2">QUESTION RAPPORTÉE (Ordre S-V)</p>
-                            <p className="text-xl font-mono text-white mb-2">He asked where <span className="text-blue-400 font-bold border-b-2 border-blue-400 px-1">I</span> <span className="text-red-400 font-bold border-b-2 border-red-400 px-1">was</span>.</p>
-                            <ul className="text-sm text-slate-300 list-disc list-inside mt-3">
-                                <li>Plus de point d'interrogation.</li>
-                                <li>Le Sujet (I) repasse devant le Verbe (Was).</li>
-                                <li>La concordance des temps s'applique (Are ➔ Was).</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "He asked where she lives.", meaning: "Tu racontes ce que quelqu’un a demandé. La phrase se termine par un point." },
+                  { english: "Do you know where she lives?", meaning: "Tu poses toi-même une question polie. La phrase se termine par un point d’interrogation." },
+                ]}
+              >
+                Dans la question rapportée, le sujet vient devant le verbe. La ponctuation finale dépend de la phrase complète.
+              </LessonExamples>
             )
         },
         {
-            title: "2. Les Questions Fermées (Yes/No) : L'ajout de IF",
+            title: "Rapporter une question fermée",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Si la question directe ne commence pas par un mot interrogatif (Where, What...), elle appelle une réponse par Oui ou Non.
-                        <br />Pour rapporter ce type de question, on doit insérer <strong>IF</strong> (Si).
-                    </p>
-
-                    <div className="grid grid-cols-1 gap-4">
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-emerald-500">
-                            <p className="text-slate-400 text-xs uppercase font-bold mb-1">DIRECT</p>
-                            <p className="text-white text-lg">"<strong>Are</strong> you happy?"</p>
-                        </div>
-
-                        <div className="flex justify-center text-2xl text-slate-500">⬇</div>
-
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-indigo-500">
-                            <p className="text-slate-400 text-xs uppercase font-bold mb-1">INDIRECT</p>
-                            <p className="text-white text-lg">He asked <strong className="text-yellow-400 px-2 bg-yellow-400/10 rounded">if</strong> I was happy.</p>
-                            <p className="text-xs text-slate-400 mt-2 italic">Note : L'inversion disparaît aussi (Are you ➔ I was).</p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "Are they ready?", meaning: "La question directe s’adresse au groupe." },
+                  { english: "He asked if they were ready. He asked whether they were ready.", meaning: "Les deux mots introduisent la même question rapportée." },
+                ]}
+              >
+                Pour rapporter une question à laquelle on pourrait répondre yes ou no, emploie if ou whether, puis le sujet et le verbe.
+              </LessonExamples>
             )
         },
         {
@@ -105,7 +73,7 @@ export const course36: LessonContent = {
             )
         },
         {
-            title: "Exercices de Rigueur",
+            title: "Quiz · Rapporter une question",
             content: (
                 <Quiz
                     questions={[
@@ -132,10 +100,10 @@ export const course36: LessonContent = {
                         },
                         {
                             id: 4,
-                            question: "DIRECT: 'Can you swim?' ➔ INDIRECT: He asked if I ___ swim.",
+                            question: "Dans ce récit au passé, applique le décalage des temps. He asked if I ___ swim.",
                             options: ["can", "could"],
                             correctAnswer: 1,
-                            explanation: "Concordance des temps : CAN devient COULD.",
+                            explanation: "Dans le décalage demandé, can devient could.",
                         },
                         {
                             id: 5,
@@ -153,10 +121,10 @@ export const course36: LessonContent = {
                         },
                         {
                             id: 7,
-                            question: "DIRECT: 'Will you come?' ➔ He asked if I ___ come.",
+                            question: "Le concert d’hier est fini. Avant le concert, il m’a demandé si je viendrais. He asked if I ___ come.",
                             options: ["would", "will"],
                             correctAnswer: 0,
-                            explanation: "Concordance : WILL devient WOULD.",
+                            explanation: "Would rapporte ce qui était encore futur à ce moment-là.",
                         },
                         {
                             id: 8,
@@ -167,10 +135,10 @@ export const course36: LessonContent = {
                         },
                         {
                             id: 9,
-                            question: "He asked me where I was going. (Correct ?)",
-                            options: ["Oui", "Non"],
+                            question: "Tu demandes poliment une adresse. Quelle question peux-tu poser ?",
+                            options: ["Do you know where she lives?", "Do you know where does she live?", "Do you know she where lives?"],
                             correctAnswer: 0,
-                            explanation: "Correct. Ordre S-V respecté (I was going).",
+                            explanation: "L’ensemble est une question, et where she lives garde l’ordre sujet + verbe.",
                         },
                         {
                             id: 10,

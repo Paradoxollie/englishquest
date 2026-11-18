@@ -1,7 +1,6 @@
-import { LessonContent, LessonSection, PlaceholderContent } from "@/lib/courses/types";
+import { LessonExamples } from "@/components/courses/lesson-examples";
+import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
-import { AlertIcon, InfoIcon, ArrowRightIcon } from "@/components/ui/icons";
-import { ReactNode } from "react";
 
 export const course7: LessonContent = {
   courseNumber: 7,
@@ -12,93 +11,31 @@ export const course7: LessonContent = {
   objective: "Comprendre la logique et le contexte de la possession.",
   sections: [
     {
-      title: "Introduction : Le Rôle du Sujet",
+      title: "À qui appartient l’objet ?",
       content: (
-        <div className="space-y-6">
-          <div className="bg-slate-900/40 p-4 rounded-lg border-l-4 border-indigo-500">
-            <p className="text-slate-200 text-lg">
-              <strong>Pourquoi commencer ici ?</strong><br />
-              Pour exprimer la possession ("Sa voiture"), il faut d'abord identifier <strong>L'ACTEUR</strong> ("Il" ou "Elle"). Sans identifier le sujet, vous ne pouvez pas choisir le bon possessif.
-            </p>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-300 border border-slate-700">
-              <thead className="bg-slate-800 text-slate-200 uppercase font-bold">
-                <tr>
-                  <th className="p-3 border-b border-slate-700">L'Acteur (Sujet)</th>
-                  <th className="p-3 border-b border-slate-700">Désigne...</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-700 bg-slate-900/40 font-mono">
-                <tr><td className="p-3"><span className="text-white font-bold">I</span></td><td className="p-3">Moi-même (Je)</td></tr>
-                <tr><td className="p-3"><span className="text-white font-bold">You</span></td><td className="p-3">Toi ou Vous (L'interlocuteur)</td></tr>
-                <tr><td className="p-3"><span className="text-white font-bold">He</span></td><td className="p-3">Un Homme (Il)</td></tr>
-                <tr><td className="p-3"><span className="text-white font-bold">She</span></td><td className="p-3">Une Femme (Elle)</td></tr>
-                <tr><td className="p-3"><span className="text-white font-bold">It</span></td><td className="p-3">Une Chose / Un Animal</td></tr>
-                <tr><td className="p-3"><span className="text-white font-bold">We</span></td><td className="p-3">Nous (Groupe incluant Moi)</td></tr>
-                <tr><td className="p-3"><span className="text-white font-bold">They</span></td><td className="p-3">Eux (Groupe externe)</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "Maya has a bag. Her bag is red.", meaning: "Her renvoie à Maya." },
+            { english: "Sam has a bag. His bag is blue.", meaning: "His renvoie à Sam." },
+            { english: "Someone left their bag here.", meaning: "Their peut reprendre une seule personne dont on ignore le genre." },
+          ]}
+        >
+          En français, « son » peut désigner le sac de Maya aussi bien que celui de Sam. En anglais, le possessif indique à qui appartient le sac.
+        </LessonExamples>
       )
     },
     {
-      title: "Partie 1 : Les Adjectifs Possessifs (Déterminants)",
+      title: "Un possessif devant le nom",
       content: (
-        <div className="space-y-6">
-          <div className="space-y-4">
-            <h4 className="text-white font-bold border-b border-slate-700 pb-1">1. Usage & Contexte</h4>
-            <p className="text-slate-300">
-              <strong>À quoi ça sert ?</strong> À introduire un objet en précisant son propriétaire.<br />
-              <strong>Quand l'utiliser ?</strong> Quand vous nommez l'objet juste après. Il fonctionne comme un article (Le/La/Un/Une).
-            </p>
-            <p className="bg-slate-900 p-3 rounded text-emerald-400 font-mono text-center">
-              C'est <span className="text-white underline decoration-emerald-500">ma</span> voiture. = It is <span className="text-white underline decoration-emerald-500">my</span> car.
-            </p>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm text-slate-300 border border-slate-700 mt-2">
-              <thead className="bg-slate-800 text-slate-200 uppercase font-bold">
-                <tr>
-                  <th className="p-3 border-b border-slate-700">Sujet</th>
-                  <th className="p-3 border-b border-slate-700">Adjectif Possessif</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-700 bg-slate-900/40 font-mono">
-                <tr><td className="p-3">I (Je)</td><td className="p-3 text-emerald-400 font-bold">My <span className="text-slate-500 font-normal text-xs">(Mon/Ma/Mes)</span></td></tr>
-                <tr><td className="p-3">You (Tu)</td><td className="p-3 text-emerald-400 font-bold">Your <span className="text-slate-500 font-normal text-xs">(Ton/Ta/Tes)</span></td></tr>
-                <tr><td className="p-3">He (Il)</td><td className="p-3 text-emerald-400 font-bold">His <span className="text-slate-500 font-normal text-xs">(Son/Sa/Ses - Homme)</span></td></tr>
-                <tr><td className="p-3">She (Elle)</td><td className="p-3 text-emerald-400 font-bold">Her <span className="text-slate-500 font-normal text-xs">(Son/Sa/Ses - Femme)</span></td></tr>
-                <tr><td className="p-3">It (Chose)</td><td className="p-3 text-emerald-400 font-bold">Its <span className="text-slate-500 font-normal text-xs">(Son/Sa/Ses - Chose)</span></td></tr>
-                <tr><td className="p-3">We (Nous)</td><td className="p-3 text-emerald-400 font-bold">Our <span className="text-slate-500 font-normal text-xs">(Notre/Nos)</span></td></tr>
-                <tr><td className="p-3">They (Eux)</td><td className="p-3 text-emerald-400 font-bold">Their <span className="text-slate-500 font-normal text-xs">(Leur/Leurs)</span></td></tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div className="bg-slate-800 p-6 rounded-xl border border-slate-600 mt-4">
-            <h4 className="text-white font-bold uppercase mb-4 border-b border-slate-600 pb-2">
-              Point Critique : La Règle du Genre
-            </h4>
-            <p className="text-slate-300 text-sm mb-4">
-              En anglais, l'adjectif possessif s'accorde avec le <strong>possesseur</strong>, et non avec l'objet possédé.
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <p className="text-white font-bold">Si le propriétaire est un HOMME (He)</p>
-                <p className="text-emerald-400 font-mono text-lg">➔ HIS House</p>
-                <p className="text-xs text-slate-500">Même si 'maison' est féminin en français, on s'en fiche. C'est À LUI.</p>
-              </div>
-              <div className="space-y-2">
-                <p className="text-white font-bold">Si le propriétaire est une FEMME (She)</p>
-                <p className="text-purple-400 font-mono text-lg">➔ HER House</p>
-                <p className="text-xs text-slate-500">C'est À ELLE.</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "My bag, your bag, his bag, her bag.", meaning: "Mon sac, ton sac, son sac à lui ou son sac à elle." },
+            { english: "Our keys, their keys, its key.", meaning: "Nos clés, leurs clés, la clé de l’objet dont on parle." },
+            { english: "Her brother has her ticket.", meaning: "Her ticket est le billet de la personne désignée par her." },
+          ]}
+        >
+          Choisis le possessif d’après la personne qui possède l’objet. Le nom qui suit peut être au singulier ou au pluriel.
+        </LessonExamples>
       )
     },
     {
@@ -175,41 +112,21 @@ export const course7: LessonContent = {
       )
     },
     {
-      title: "Partie 4 : Distinctions Techniques (Whose & Its)",
+      title: "Whose, its et it’s",
       content: (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* WHOSE */}
-            <div className="space-y-2">
-              <h4 className="text-white font-bold border-b border-slate-700 pb-1">1. WHOSE (L'interrogateur)</h4>
-              <p className="text-slate-300 text-sm">
-                Sert à poser la question sur le propriétaire. Ne confondez pas avec "Who's" (Qui est).
-              </p>
-              <p className="text-emerald-400 font-mono text-sm bg-slate-900 p-2 rounded">
-                "<strong>Whose</strong> keys are these?" (À qui sont ces clés ?)
-              </p>
-            </div>
-
-            {/* ITS vs IT'S */}
-            <div className="space-y-2">
-              <h4 className="text-white font-bold border-b border-slate-700 pb-1">2. ITS vs IT'S</h4>
-              <ul className="text-sm space-y-2 text-slate-300">
-                <li>
-                  <span className="text-emerald-400 font-bold">Its</span> : "Son/Sa" (pour un objet). <br />
-                  <span className="text-xs text-slate-500">"The phone and <span className="text-white bg-red-500/20 px-1 rounded">its</span> screen."</span>
-                </li>
-                <li>
-                  <span className="text-red-400 font-bold">It's</span> : "It IS" (C'est). <br />
-                  <span className="text-xs text-slate-500">"It's expensive."</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "Whose scarf is this? It’s mine.", meaning: "À qui est cette écharpe ? Elle est à moi." },
+            { english: "The shop changed its name.", meaning: "Le magasin a changé de nom. Its accompagne name." },
+            { english: "It’s cold. It’s been a long day.", meaning: "It is cold. It has been a long day." },
+          ]}
+        >
+          Whose demande à qui appartient quelque chose. Its indique une possession. L’apostrophe de it’s signale une contraction, dont le sens apparaît dans la suite de la phrase.
+        </LessonExamples>
       )
     },
     {
-      title: "Validation des Connaissances",
+      title: "Quiz · Dire à qui appartient un objet",
       content: (
         <Quiz
           title="Évaluation de Maîtrise"
@@ -258,10 +175,10 @@ export const course7: LessonContent = {
             },
             {
               id: 7,
-              question: "Look at the dog! ___ ears are huge.",
-              options: ["It's", "Its", "His", "Her"],
+              question: "Le fabricant parle du robot qu’il a construit. « The robot can move ___ arms. » Choisis le possessif de it.",
+              options: ["It’s", "Its", "It", "Its’"],
               correctAnswer: 1,
-              explanation: "Possessif animal ➔ ITS.",
+              explanation: "Its est le déterminant possessif correspondant à it.",
             },
             {
               id: 8,

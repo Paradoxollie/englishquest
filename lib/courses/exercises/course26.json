@@ -94,7 +94,7 @@
     {
       "id": "x13",
       "type": "order",
-      "answers": ["Did you watch the match last night?"],
+      "answers": ["Did you watch the match last night?", "Last night did you watch the match?"],
       "translation": "Tu as regardé le match hier soir ?",
       "explanation": "Last night est terminé : Past Simple, même si le français utilise le passé composé. Question avec did + base verbale."
     }

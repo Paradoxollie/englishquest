@@ -124,7 +124,7 @@ export const course49: LessonContent = {
             )
         },
         {
-            title: "Quiz complet",
+            title: "Quiz · Comprendre un verbe à particule",
             content: (
                 <Quiz
                     questions={[
@@ -165,10 +165,10 @@ export const course49: LessonContent = {
                         },
                         {
                             id: 6,
-                            question: "The best way to learn phrasal verbs is ...",
-                            options: ["particle by particle only", "as complete chunks in context"],
-                            correctAnswer: 1,
-                            explanation: "Le sens dépend du groupe entier et du contexte.",
+                            question: "À la réception, un client dit « Could you look after my bag? » Que demande-t-il ?",
+                            options: ["De garder son sac.", "De chercher un sac qu’il a perdu.", "De lui donner le prix du sac."],
+                            correctAnswer: 0,
+                            explanation: "Look after signifie s’occuper de quelqu’un ou de quelque chose.",
                         },
                         {
                             id: 7,
@@ -186,10 +186,10 @@ export const course49: LessonContent = {
                         },
                         {
                             id: 9,
-                            question: "Phrasal verbs should often be memorized ...",
-                            options: ["with example sentences", "as isolated particles only"],
+                            question: "La musique est forte. Tu désignes la radio par it. Quelle demande convient ?",
+                            options: ["Could you turn it down?", "Could you turn down it?", "Could you turn it after?"],
                             correctAnswer: 0,
-                            explanation: "Les phrases d'exemple aident à fixer sens, registre et ordre des mots.",
+                            explanation: "Avec un pronom objet, place it entre turn et down.",
                         },
                         {
                             id: 10,

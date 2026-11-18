@@ -21,7 +21,6 @@ import {
   GameHud,
   GameStart,
   HudStat,
-  SpeakButton,
   mapScoreResultToRewards,
   type RewardSummary,
 } from "@/components/play/game-screens";
@@ -52,8 +51,8 @@ export function SpellStrikeGame({
   const [difficulty, setDifficulty] = useState<SpellDifficulty>(2);
   const [level, setLevel] = useState<GameLevel>(suggestedLevel ?? DEFAULT_GAME_LEVEL);
   const [silentChoice, setSilentChoice] = useState(false);
-  // Sans voix anglaise dans le navigateur, le jeu passe tout seul en mode écrit.
-  const silentMode = silentChoice || noVoice;
+  const [textEntry, setTextEntry] = useState<string | null>(null);
+  const [audioNotice, setAudioNotice] = useState("");
 
   const [rounds, setRounds] = useState<SpellEntry[]>([]);
   const [roundIndex, setRoundIndex] = useState(0);
@@ -100,34 +99,50 @@ export function SpellStrikeGame({
 
   const currentEntry = rounds[roundIndex] ?? null;
   const diffConfig = getSpellDifficultyConfig(difficulty);
+  const silentMode = silentChoice || (!!currentEntry && (
+    textEntry === currentEntry.id || (noVoice && !audioMap[currentEntry.id] && !audioMap[`${currentEntry.id}-sentence`])
+  ));
 
   const playWord = useCallback(
     (entryItem: SpellEntry, slow = false) => {
-      if (silentMode) return;
+      setAudioNotice("");
       setSpeakingKind("word");
       playClipOrSpeak({
         mp3Url: audioMap[entryItem.id],
         text: entryItem.word,
-        rate: slow ? 0.72 : 0.92,
-        voiceProfile: "female_uk",
-        onEnded: () => setSpeakingKind(null),
+        rate: slow ? 0.8 : 1,
+        voiceProfile: "female_us",
+        onEnded: () => { setSpeakingKind(null); setTextEntry(null); },
+        onError: (reason) => {
+          setSpeakingKind(null);
+          if (reason === "blocked") setAudioNotice("Appuie sur Écouter le mot pour lancer la dictée.");
+          else {
+            setTextEntry(entryItem.id);
+            setAudioNotice("La dictée est indisponible pour ce mot. Tu peux utiliser la phonétique ou réessayer l’écoute.");
+          }
+        },
       });
     },
-    [audioMap, silentMode]
+    [audioMap]
   );
 
   const playSentence = useCallback(
     (entryItem: SpellEntry) => {
-      if (silentMode) return;
+      setAudioNotice("");
       setSpeakingKind("sentence");
       playClipOrSpeak({
+        mp3Url: audioMap[`${entryItem.id}-sentence`],
         text: entryItem.sentenceSpoken,
-        rate: 0.9,
-        voiceProfile: "female_uk",
+        rate: 1,
+        voiceProfile: "female_us",
         onEnded: () => setSpeakingKind(null),
+        onError: () => {
+          setSpeakingKind(null);
+          setAudioNotice("La phrase audio est indisponible. Tu peux la lire ci-dessous et réécouter le mot.");
+        },
       });
     },
-    [silentMode]
+    [audioMap]
   );
 
   const finishMatch = useCallback(
@@ -146,15 +161,15 @@ export function SpellStrikeGame({
       setSubmitStatus("saving");
       const rawDurationMs = Math.max(1000, Math.round(performance.now() - startedAtRef.current));
       void (async () => {
-        const { sessionId, durationMs } = await gameSession.finish(rawDurationMs);
-        const res = await submitSpellStrikeScore({
+        const { sessionId, durationMs, save } = await gameSession.finish(rawDurationMs);
+        const res = await save(() => submitSpellStrikeScore({
           difficulty: finalDifficulty,
           score: finalScore,
           correctCount: finalCorrect,
           totalRounds: finalTotal,
           durationMs,
           sessionId,
-        });
+        }));
         if (!res.success) {
           setRewardError(res.error ?? "Impossible d'enregistrer le score.");
           setSubmitStatus("error");
@@ -182,6 +197,9 @@ export function SpellStrikeGame({
     setResults([]);
     setLastResult(null);
     setRewards(null);
+    setAudioNotice("");
+    setTextEntry(null);
+    setSpeakingKind(null);
     setRewardError(null);
     setSubmitStatus("idle");
     submittedRef.current = false;
@@ -189,9 +207,9 @@ export function SpellStrikeGame({
     startedAtRef.current = performance.now();
     roundStartedAtRef.current = performance.now();
     gameSession.begin();
-    if (deck[0] && !silentMode) playWord(deck[0]);
+    if (deck[0] && !silentChoice) playWord(deck[0]);
     later(() => inputRef.current?.focus(), 60);
-  }, [clearTimers, gameSession, later, level, playWord, silentMode]);
+  }, [clearTimers, gameSession, later, level, playWord, silentChoice]);
 
   const goToNext = useCallback(() => {
     clearTimers();
@@ -201,14 +219,18 @@ export function SpellStrikeGame({
       return;
     }
     setRoundIndex(nextIndex);
+    stopAllGameAudio();
+    setAudioNotice("");
+    setTextEntry(null);
+    setSpeakingKind(null);
     setTyped("");
     setUsedHint(false);
     setLastResult(null);
     setPhase("playing");
     roundStartedAtRef.current = performance.now();
-    if (!silentMode) later(() => playWord(rounds[nextIndex]), 150);
+    if (!silentChoice) playWord(rounds[nextIndex]);
     later(() => inputRef.current?.focus(), 50);
-  }, [clearTimers, correctCount, difficulty, finishMatch, later, playWord, roundIndex, rounds, score, silentMode]);
+  }, [clearTimers, correctCount, difficulty, finishMatch, later, playWord, roundIndex, rounds, score, silentChoice]);
 
   const submitCurrent = useCallback(
     (skipped = false) => {
@@ -272,12 +294,7 @@ export function SpellStrikeGame({
     setPhase("start");
   };
 
-  const voiceNotice = noVoice ? (
-    <p className="eq-game-notice" role="status">
-      Ton navigateur n&apos;a pas de voix anglaise : le jeu passe en mode écrit (sens, phrase et phonétique). Pour
-      la dictée, essaie Edge ou Chrome.
-    </p>
-  ) : null;
+  const hasAudio = Object.keys(audioMap).length > 0 || !noVoice;
 
   if (phase === "start") {
     return (
@@ -293,7 +310,7 @@ export function SpellStrikeGame({
         onStart={startGame}
       >
         <div className="space-y-4">
-          {voiceNotice}
+          {!hasAudio && <p className="eq-game-notice">La dictée est indisponible sur cet appareil. Tu peux jouer avec la phrase et la phonétique.</p>}
           <div className="eq-game-options" role="radiogroup" aria-label="Difficulté">
             {([1, 2, 3] as SpellDifficulty[]).map((item) => {
               const cfg = getSpellDifficultyConfig(item);
@@ -313,7 +330,7 @@ export function SpellStrikeGame({
             })}
           </div>
           <LevelPicker value={level} onChange={setLevel} suggested={suggestedLevel} label="Niveau de vocabulaire" />
-          {!noVoice ? (
+          {hasAudio ? (
             <label className="flex cursor-pointer items-center gap-2.5 text-sm font-semibold">
               <input
                 type="checkbox"
@@ -347,10 +364,12 @@ export function SpellStrikeGame({
         ]}
         rewards={rewards}
         rewardStatus={submitStatus}
+        retryScore={gameSession.retryScore}
         rewardError={rewardError}
         missionReached={missionReached}
-        onReplay={() => setPhase("start")}
+        onReplay={quitToStart}
       >
+        {audioNotice && <p className="eq-game-notice" role="status">{audioNotice}</p>}
         {missed.length > 0 ? (
           <div className="space-y-2">
             <h4 className="eq-h3">À revoir ({missed.length})</h4>
@@ -364,6 +383,9 @@ export function SpellStrikeGame({
                         {item.entry.phonetic} · {item.entry.french}
                       </span>
                     </p>
+                    {item.entry.accept?.length ? (
+                      <p>Autre orthographe acceptée · <span lang="en">{item.entry.accept.join(", ")}</span></p>
+                    ) : null}
                     <p className="eq-spell-review-given">
                       {item.given ? (
                         <>
@@ -376,7 +398,10 @@ export function SpellStrikeGame({
                     </p>
                     <p className="eq-spell-review-rule">{item.entry.hint}</p>
                   </div>
-                  <SpeakButton text={item.entry.word} label="Écouter" />
+                  {(audioMap[item.entry.id] || !noVoice) && (
+                    <button type="button" className="eq-btn eq-btn-ghost eq-btn-sm" onClick={() => playWord(item.entry)}
+                      aria-label={`Réécouter ${item.entry.word}`}>Réécouter</button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -385,7 +410,7 @@ export function SpellStrikeGame({
         {solved.length > 0 ? (
           <p className="eq-spell-solved">
             <b>Réussis :</b>{" "}
-            <span lang="en">{solved.map((item) => item.entry.word).join(", ")}</span>
+            <span lang="en">{solved.map((item) => item.given).join(", ")}</span>
           </p>
         ) : null}
       </GameEnd>
@@ -395,9 +420,11 @@ export function SpellStrikeGame({
   if (!currentEntry) return null;
 
   const showMeaning = diffConfig.showMeaning && shouldShowSpellMeaning(currentEntry);
-  const lettersCount = currentEntry.word.length;
+  const lengths = [currentEntry.word, ...(currentEntry.accept ?? [])].map(word => word.length);
+  const shortest = Math.min(...lengths);
+  const longest = Math.max(...lengths);
   const typedChars = typed.trim().split("");
-  const slotCount = diffConfig.showLetterCount ? lettersCount : Math.max(typedChars.length, 1);
+  const slotCount = diffConfig.showLetterCount ? Math.max(shortest, typedChars.length) : Math.max(typedChars.length, 1);
   const inFeedback = phase === "feedback" && lastResult !== null;
 
   return (
@@ -410,7 +437,7 @@ export function SpellStrikeGame({
       </GameHud>
 
       <div className={`eq-game-stage eq-spell-stage ${inFeedback ? (lastResult.correct ? "is-right" : "is-wrong") : ""}`}>
-        {voiceNotice}
+        {audioNotice && <p className="eq-game-notice" role="status">{audioNotice}</p>}
         <div className="eq-spell-audio-bar">
           <div className="eq-spell-audio-actions">
             {!silentMode ? (
@@ -437,14 +464,21 @@ export function SpellStrikeGame({
                 </button>
               </>
             ) : (
-              <span className="eq-chip eq-chip-cyan">Phonétique : {currentEntry.phonetic}</span>
+              <>
+                <span className="eq-chip eq-chip-cyan">Phonétique · {currentEntry.phonetic}</span>
+                {!silentChoice && (audioMap[currentEntry.id] || !noVoice) && (
+                  <button type="button" onClick={() => playWord(currentEntry)} className="eq-btn eq-btn-ghost eq-btn-sm">Réessayer l’écoute</button>
+                )}
+              </>
             )}
           </div>
-          {diffConfig.showLetterCount ? <span className="eq-chip eq-chip-gold">{lettersCount} lettres</span> : null}
+          {diffConfig.showLetterCount ? <span className="eq-chip eq-chip-gold">
+            {shortest === longest ? shortest : `${shortest} ou ${longest}`} lettres
+          </span> : null}
         </div>
 
         <div className="eq-spell-prompt">
-          {showMeaning || silentMode ? (
+          {showMeaning || (silentMode && shouldShowSpellMeaning(currentEntry)) ? (
             <p className="text-sm font-semibold text-[var(--gold)]">Sens : {currentEntry.french}</p>
           ) : null}
           <p className="text-base font-medium leading-relaxed sm:text-lg" data-testid="game-prompt" lang="en">
@@ -489,6 +523,7 @@ export function SpellStrikeGame({
               autoCapitalize="none"
               autoCorrect="off"
               spellCheck={false}
+              maxLength={Math.max(24, longest + 8)}
               readOnly={phase !== "playing"}
               value={typed}
               onChange={(e) => setTyped(e.target.value)}
@@ -516,7 +551,7 @@ export function SpellStrikeGame({
           <div className={`eq-spell-feedback ${lastResult.correct ? "is-right" : "is-wrong"}`} role="status">
             {lastResult.correct ? (
               <p>
-                Bravo : <b lang="en">{lastResult.entry.word}</b> · +{lastResult.points} pts
+                Bravo · <b lang="en">{lastResult.given}</b> · +{lastResult.points} pts
               </p>
             ) : (
               <>
@@ -544,7 +579,7 @@ export function SpellStrikeGame({
                   ) : (
                     "Il fallait "
                   )}
-                  <b lang="en">{lastResult.entry.word}</b> ({lastResult.entry.phonetic}).
+                  <b lang="en">{[lastResult.entry.word, ...(lastResult.entry.accept ?? [])].join(" / ")}</b> ({lastResult.entry.phonetic}).
                 </p>
                 <p className="eq-spell-feedback-rule">À retenir : {lastResult.entry.hint}</p>
                 <div className="eq-spell-controls">

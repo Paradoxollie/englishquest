@@ -1,31 +1,25 @@
-import { LessonContent, LessonSection, PlaceholderContent } from "@/lib/courses/types";
+import { LessonExamples } from "@/components/courses/lesson-examples";
+import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
-import { AlertIcon, InfoIcon, ArrowRightIcon } from "@/components/ui/icons";
-import { ReactNode } from "react";
+import { AlertIcon } from "@/components/ui/icons";
 
 export const course1: LessonContent = {
   courseNumber: 1,
   title: "Être et Avoir (Les Fondamentaux)",
-  objective: "Maîtriser les deux verbes auxiliaires essentiels de l'anglais : To Be et To Have.",
+  objective: "Te présenter, dire ton âge et décrire ce que tu possèdes avec be et have.",
   sections: [
     {
-      title: "Introduction",
+      title: "Te présenter en deux phrases",
       content: (
-        <div className="space-y-6">
-          <div className="relative bg-slate-900/60 rounded-xl p-6 border-l-4 border-indigo-500 shadow-2xl backdrop-blur-sm">
-            <p className="text-lg md:text-xl text-slate-100 leading-relaxed font-medium text-balance">
-              Pour construire des phrases correctes, la maîtrise de <span className="whitespace-nowrap inline-block"><span className="text-cyan-400 font-bold px-2 py-0.5 bg-cyan-950/40 rounded border border-cyan-500/30">To Be</span> (Être)</span> et de <span className="whitespace-nowrap inline-block"><span className="text-emerald-400 font-bold px-2 py-0.5 bg-emerald-950/40 rounded border border-emerald-500/30">To Have</span> (Avoir)</span> est un prérequis absolu.
-            </p>
-            <div className="mt-4 flex items-start gap-4 bg-indigo-500/10 p-4 rounded-lg border border-indigo-500/20">
-              <div className="bg-indigo-500/20 p-2 rounded-full shrink-0">
-                <InfoIcon className="w-5 h-5 text-indigo-300" />
-              </div>
-              <p className="text-slate-300 italic text-sm md:text-base leading-relaxed text-balance">
-                <strong className="text-indigo-300 not-italic">Pourquoi c'est vital ?</strong> Ces verbes sont les fondations des temps complexes. Une erreur ici vous suivra longtemps si elle n'est pas corrigée dès maintenant.
-              </p>
-            </div>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "I’m Maya. I’m eleven.", meaning: "Je m’appelle Maya. J’ai onze ans." },
+            { english: "I’m cold. I’ve got a scarf.", meaning: "J’ai froid. J’ai une écharpe." },
+          ]}
+          note={"Dans I’m, l’apostrophe marque la forme courte de I am. Dans I’ve got, elle marque celle de I have."}
+        >
+          Maya accueille un visiteur. Pour dire qui elle est, comment elle se sent ou quel âge elle a, elle utilise be. Pour parler de ce qu’elle possède, elle utilise have.
+        </LessonExamples>
       ),
     },
     {
@@ -152,8 +146,8 @@ export const course1: LessonContent = {
                 <div className="bg-red-500/10 border border-red-500/20 p-5 rounded-xl">
                   <p className="text-red-400 font-bold text-xs uppercase tracking-wider mb-3">À ne pas dire 🚫</p>
                   <ul className="space-y-3 font-mono text-sm text-slate-400">
-                    <li className="line-through decoration-red-500/50 flex items-center gap-2"><span className="opacity-50">I have</span> 20 years old.</li>
-                    <li className="line-through decoration-red-500/50 flex items-center gap-2"><span className="opacity-50">I have</span> cold.</li>
+                    <li className="line-through decoration-red-500/50" lang="en">I have 20 years old.</li>
+                    <li className="line-through decoration-red-500/50" lang="en">I have cold.</li>
                   </ul>
                 </div>
 
@@ -171,7 +165,7 @@ export const course1: LessonContent = {
       ),
     },
     {
-      title: "Validation des Connaissances",
+      title: "Quiz · Se présenter avec be et have",
       content: (
         <Quiz
           title="Mission Validation"
@@ -185,7 +179,7 @@ export const course1: LessonContent = {
             },
             {
               id: 2,
-              question: "Complétez la phrase : My sister ___ got a new car.",
+              question: "Complète la phrase : My sister ___ got a new car.",
               options: ["have", "is", "has", "are"],
               correctAnswer: 2,
               explanation: "C'est une possession. À la 3ème personne du singulier (She), 'Have' devient 'Has'.",
@@ -199,7 +193,7 @@ export const course1: LessonContent = {
             },
             {
               id: 4,
-              question: "Traduisez : 'Ils sont contents' (They = ils, happy = contents / heureux)",
+              question: "Traduis : 'Ils sont contents' (They = ils, happy = contents / heureux)",
               options: ["They have happy", "They is happy", "They are happy", "They am happy"],
               correctAnswer: 2,
               explanation: "Le sujet est pluriel ('They'). La forme correcte du verbe Être est 'are'.",
@@ -213,7 +207,7 @@ export const course1: LessonContent = {
             },
             {
               id: 6,
-              question: "Complétez : We ___ a big house.",
+              question: "Complète : We ___ a big house.",
               options: ["are", "is", "have got", "has got"],
               correctAnswer: 2,
               explanation: "Nous 'possédons' une maison. Le sujet 'We' demande 'have got'.",
@@ -241,10 +235,10 @@ export const course1: LessonContent = {
             },
             {
               id: 10,
-              question: "Le verbe 'To Be' est-il régulier ?",
-              options: ["Oui, toujours", "Non, c'est le plus irrégulier", "Seulement au présent", "L'anglais n'a pas de verbes"],
+              question: "Maya se présente. Quelle phrase donne à la fois son âge et ce qu’elle possède ?",
+              options: ["I have twelve and I am a bicycle.", "I am twelve and I have a bicycle.", "I am twelve and I am a bicycle."],
               correctAnswer: 1,
-              explanation: "To Be (Am/Is/Are) est le verbe le plus irrégulier et changeant de la langue anglaise !",
+              explanation: "Be sert à donner l’âge. Have sert à exprimer la possession.",
             },
           ]}
         />

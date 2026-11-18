@@ -1,6 +1,7 @@
 "use server";
 
 import { getSafeNextPath } from "@/lib/navigation/safe-next";
+import { transferGuestScores } from "@/lib/courses/guest-progress-server";
 import { applyPlacement } from "@/lib/placement/placement";
 import { readPlacementToken } from "@/lib/placement/placement-token";
 
@@ -197,10 +198,10 @@ export async function signUpAction(
               xp: 0,
               gold: WELCOME_GOLD,
               level: 1,
-            });
+            }, { onConflict: "id", ignoreDuplicates: true });
 
           if (profileError) {
-            console.error("Failed to create profile with admin API:", profileError);
+            console.error("Failed to create profile with admin API", profileError.code);
             // Supprime l'utilisateur créé car le profil n'a pas pu être créé
             await adminClient.auth.admin.deleteUser(adminData.user.id);
             
@@ -230,7 +231,11 @@ export async function signUpAction(
     return { error: "Le compte a été créé mais la session n'a pas pu s'ouvrir. Essaie de te connecter." };
   }
 
-  // Crée/maJ le profil lié avec l'email utilisé pour l'authentification (peut être réel ou fantôme)
+  if (data.user?.identities?.length === 0) {
+    return { success: "Tu peux maintenant te connecter avec ton compte." };
+  }
+
+  // Le déclencheur crée normalement le profil et lui attribue son or de départ.
   try {
     const adminClient = createSupabaseAdminClient();
 
@@ -240,7 +245,7 @@ export async function signUpAction(
     // Vérifie d'abord si le username existe déjà (pour un autre utilisateur)
     const { data: existingProfile } = await adminClient
       .from("profiles")
-      .select("id, username")
+      .select("id")
       .eq("username", normalizedUsername)
       .maybeSingle();
 
@@ -257,9 +262,8 @@ export async function signUpAction(
       };
     }
 
-    // Si le profil existe déjà (créé par le trigger), on le met à jour
-    // Sinon, on le crée
-    const { data: profileData, error: profileError } = await adminClient
+    // Conserve le solde et le rôle d'un profil qui existe déjà.
+    const { error: profileError } = await adminClient
       .from("profiles")
       .upsert(
         {
@@ -272,19 +276,12 @@ export async function signUpAction(
           level: 1,
         },
         {
-          onConflict: "id",
+          onConflict: "id", ignoreDuplicates: true,
         }
-      )
-      .select()
-      .single();
+      );
 
     if (profileError) {
-      console.error("Failed to create/update profile:", {
-        code: profileError.code,
-        message: profileError.message,
-        details: profileError.details,
-        hint: profileError.hint,
-      });
+      console.error("Failed to create profile", profileError.code);
 
       // Gestion spécifique des erreurs
       if (profileError.code === "23505") {
@@ -307,7 +304,7 @@ export async function signUpAction(
       };
     }
 
-    console.log("Profile created successfully for user:", userId, profileData);
+
   } catch (error) {
     console.error("Unexpected error creating profile:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
@@ -330,7 +327,8 @@ export async function signUpAction(
 
   // Retour prévu (lien de classe /rejoindre?code=...) : si la session est déjà
   // ouverte, on y va directement ; sinon le formulaire propose de se connecter.
-  const next = getSafeNextPath(formData.get("next"));
+  const transfer = data.session ? await transferGuestScores(userId).catch(() => -1) : 0;
+  const next = getSafeNextPath(formData.get("next")) ?? (transfer !== 0 ? "/quest" : null);
   if (next && data.session) {
     revalidatePath("/", "layout");
     redirect(next);
@@ -416,7 +414,7 @@ export async function loginAction(
     };
   }
 
-  console.log("Session created successfully after login:", session.user.id);
+
 
   // Si la connexion réussit mais qu'il n'y a pas de profil, on le crée maintenant
   if (signInData.user?.id && !loginValue.includes("@")) {
@@ -438,7 +436,7 @@ export async function loginAction(
           xp: 0,
           gold: WELCOME_GOLD,
           level: 1,
-        });
+        }, { onConflict: "id", ignoreDuplicates: true });
       }
     } catch (profileCreateError) {
       // On continue même si la création du profil échoue
@@ -446,12 +444,14 @@ export async function loginAction(
     }
   }
 
+  const transfer = await transferGuestScores(session.user.id).catch(() => -1);
+
   // Revalide les pages pour s'assurer que les cookies sont synchronisés
   revalidatePath("/", "layout");
   revalidatePath("/profile", "layout");
   
   // Redirige vers la page demandée avant la connexion (lien de classe), sinon l'accueil.
-  redirect(getSafeNextPath(formData.get("next")) ?? "/");
+  redirect(getSafeNextPath(formData.get("next")) ?? (transfer !== 0 ? "/quest" : "/"));
 }
 
 /**

@@ -164,14 +164,14 @@ export function getDailyChallengeState(
 export async function checkAndGrantDailyBonus(
   userId: string,
   gameSlug: string,
-  options: { eligible?: boolean } = {}
+  options: { eligible?: boolean; earnedAt?: string } = {}
 ): Promise<DailyChallengeResult> {
   const adminClient = createSupabaseAdminClient();
   const now = new Date();
   const today = formatDateKey(now);
   const yesterday = getYesterdayDateKey(now);
 
-  if (options.eligible === false) {
+  if (options.eligible === false || (options.earnedAt && formatDateKey(new Date(options.earnedAt)) !== today)) {
     const { data: profile } = await adminClient
       .from("profiles")
       .select("daily_played_games, last_game_date, last_daily_bonus_date, xp, gold, level, daily_streak")

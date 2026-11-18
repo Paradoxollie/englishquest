@@ -36,7 +36,7 @@ export function parseLessonSectionTitle(title: string, index: number): ParsedLes
     remainingTitle = numberedMatch[2].trim();
   }
 
-  const titleMatch = remainingTitle.match(/^(.*?)\s*\((.*)\)\s*$/);
+  const titleMatch = remainingTitle.match(/^(.*?)\s*\(([^()]*)\)\s*$/);
   const mainTitle = titleMatch ? titleMatch[1].trim() : remainingTitle;
   const subTitle = titleMatch ? titleMatch[2].trim() : null;
 
@@ -78,18 +78,23 @@ interface LessonSectionProps {
 function LessonSection({ title, children, className = "", sectionIndex = 0, id }: LessonSectionProps) {
   const parsed = parseLessonSectionTitle(title, sectionIndex);
   const anchorId = id ?? createLessonSectionId(title, sectionIndex);
-  const isQuiz = /quiz|validation/i.test(title);
 
   return (
-    <section id={isQuiz ? "quiz" : anchorId} className={`eq-lesson-section ${className}`}>
-      {isQuiz ? <span id={anchorId} /> : null}
+    <section id={anchorId} className={`eq-lesson-section ${className}`}>
       <header className="eq-lesson-section-head">
         <h2>
           {parsed.mainTitle}
           {parsed.subTitle ? <span className="eq-lesson-section-sub">{parsed.subTitle}</span> : null}
         </h2>
       </header>
-      <div className="lesson-section-content">{children}</div>
+      {/^Pour aller plus loin/i.test(parsed.mainTitle) ? (
+        <details className="eq-lesson-extra">
+          <summary>Lire l’approfondissement</summary>
+          <div className="lesson-section-content">{children}</div>
+        </details>
+      ) : (
+        <div className="lesson-section-content">{children}</div>
+      )}
     </section>
   );
 }
@@ -115,7 +120,7 @@ export function LessonLayout({
   topBar,
   children,
 }: LessonLayoutProps) {
-  const match = title.match(/^(.*?)\s*\((.*)\)\s*$/);
+  const match = title.match(/^(.*?)\s*\(([^()]*)\)\s*$/);
   const main = match ? match[1] : title;
   const sub = match ? match[2] : null;
 

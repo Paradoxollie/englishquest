@@ -1,3 +1,4 @@
+import { getGuestScores } from "@/lib/courses/guest-progress-server";
 import Link from "next/link";
 import { PageHead } from "@/components/comic/page-head";
 import { CourseLibraryExplorer } from "@/components/courses/course-library-explorer";
@@ -9,13 +10,13 @@ import { getServerUser } from "@/lib/supabase/auth-cache";
 export const metadata = {
   title: "Les cours",
   description:
-    "50 cours d'anglais du niveau A1 au niveau B1+ : une notion par cours, des exemples, un quiz de dix questions. Lecture libre, progression avec un compte.",
+    "50 cours d'anglais du niveau A1 au niveau B1+, avec des exemples et un quiz de dix questions par mission. Commence sans compte et retrouve ta progression sur cet appareil.",
 };
 
 export default async function TousLesCoursPage() {
   const user = await getServerUser();
   const isLoggedIn = Boolean(user);
-  const roadmap = user ? await getCachedUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
+  const roadmap = user ? await getCachedUserCourseRoadmap(user.id) : buildGuestCourseRoadmap(await getGuestScores());
   const recommendedCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
   const missionPlans = await getResolvedCourseMissionPlans(roadmap.entries);
 
@@ -27,7 +28,7 @@ export default async function TousLesCoursPage() {
           questions. Tout est en accès libre.
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-3">
-          {isLoggedIn && recommendedCourse ? (
+          {(isLoggedIn || roadmap.completedCount > 0) && recommendedCourse ? (
             <>
               <Link href={`/cours/${recommendedCourse.courseId}`} className="eq-btn eq-btn-primary">
                 Reprendre le cours {recommendedCourse.courseId}
@@ -36,6 +37,8 @@ export default async function TousLesCoursPage() {
                 {roadmap.completedCount} / {roadmap.totalCourses} validés
               </span>
             </>
+          ) : roadmap.completedCount === roadmap.totalCourses ? (
+            <Link href="/quest" className="eq-text-link">Revoir ma carte des 50 missions validées</Link>
           ) : (
             <Link href="/test-de-niveau" className="eq-text-link">
               Tu ne sais pas par où commencer ? Teste ton niveau

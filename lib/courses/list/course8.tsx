@@ -1,7 +1,6 @@
-import { LessonContent, LessonSection, PlaceholderContent } from "@/lib/courses/types";
+import { LessonExamples } from "@/components/courses/lesson-examples";
+import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
-import { AlertIcon, InfoIcon, ArrowRightIcon } from "@/components/ui/icons";
-import { ReactNode } from "react";
 
 export const course8: LessonContent = {
   courseNumber: 8,
@@ -12,21 +11,16 @@ export const course8: LessonContent = {
   objective: "Maîtriser la distinction entre 'Il y a' et 'C'est'.",
   sections: [
     {
-      title: "Introduction : Le Piège du 'Il y a'",
+      title: "Présenter ce qu’on voit",
       content: (
-        <div className="space-y-6">
-          <div className="bg-slate-900/40 p-4 rounded-lg border-l-4 border-amber-500">
-            <div className="text-slate-200 text-lg">
-              <strong>Le Problème :</strong> En français, "Il y a" est une expression "poubelle" qui fait tout (Singulier, Pluriel, Indénombrable).
-              <br /><br />
-              En anglais, c'est de la chirurgie :
-              <ul className="list-disc pl-5 mt-2 space-y-1">
-                <li>Vous devez scanner la <strong>quantité</strong> avant de parler.</li>
-                <li>Vous devez scanner la <strong>nature</strong> (comptable ou non).</li>
-              </ul>
-            </div>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "What’s outside? There’s a car.", meaning: "Tu annonces la présence d’une voiture." },
+            { english: "What’s that in the picture? It’s a car.", meaning: "Tu identifies l’objet montré." },
+          ]}
+        >
+          Un personnage découvre quelque chose, puis l’autre l’identifie ou le décrit. Le contexte indique si tu introduis un élément ou si tu parles d’un élément déjà repéré.
+        </LessonExamples>
       )
     },
     {
@@ -62,96 +56,51 @@ export const course8: LessonContent = {
       )
     },
     {
-      title: "Partie 2 : Le Pluriel & La Règle de Proximité",
+      title: "Présenter plusieurs objets",
       content: (
-        <div className="space-y-6">
-          <div className="space-y-4">
-            <h4 className="text-white font-bold border-b border-slate-700 pb-1">1. Le Pluriel Standard</h4>
-            <p className="text-slate-300">
-              Pour <strong>2 choses ou plus</strong>. Attention : "There's" (singulier) est souvent entendu à l'oral pour du pluriel, mais c'est une <strong>faute</strong> à l'écrit.
-            </p>
-            <p className="bg-slate-900 p-3 rounded text-amber-400 font-mono text-center">
-              <span className="text-white">There are</span> two solutions.
-            </p>
-          </div>
-
-          <div className="bg-slate-800 p-6 rounded-xl border border-blue-500/30 mt-4">
-            <h4 className="text-blue-400 font-bold uppercase mb-2 text-sm flex items-center gap-2">
-              <span className="text-xl">⚡</span> Niveau Avancé : La Règle de Proximité
-            </h4>
-            <p className="text-slate-300 text-sm mb-4">
-              Que faire si vous avez une liste mixte ? (Un stylo ET deux livres).
-              La règle est simple : <strong>L'anglais s'accorde avec le PREMIER élément de la liste.</strong>
-            </p>
-            <div className="space-y-3 font-mono text-sm">
-              <div className="flex justify-between items-center bg-slate-900 p-2 rounded">
-                <span><span className="text-emerald-400 font-bold">There IS</span> a pen and two books.</span>
-                <span className="text-xs text-slate-500">(1er objet = Singulier ➔ IS)</span>
-              </div>
-              <div className="flex justify-between items-center bg-slate-900 p-2 rounded">
-                <span><span className="text-amber-400 font-bold">There ARE</span> two books and a pen.</span>
-                <span className="text-xs text-slate-500">(1er objet = Pluriel ➔ ARE)</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "There are two books on the desk.", meaning: "Two books est au pluriel." },
+            { english: "There are two books and a pen on the desk.", meaning: "La liste commence par le groupe pluriel." },
+            { english: "There’s a pen and two books on the desk.", meaning: "C’est une tournure courante dans la conversation." },
+          ]}
+        >
+          Avec un nom pluriel, emploie there are. Pour une liste, on entend souvent un accord avec le premier élément. Commencer par le groupe pluriel est une solution simple à l’écrit.
+        </LessonExamples>
       )
     },
     {
-      title: "Partie 3 : La Séquence Logique (Existence ➔ Description)",
+      title: "Présenter puis décrire",
       content: (
-        <div className="space-y-6">
-          <p className="text-slate-200 text-lg">
-            C'est la clé de la maîtrise. Ne confondez jamais l'Introduction (There is) et la Description (It is).
-          </p>
-
-          <div className="relative pl-8 border-l-2 border-slate-700 space-y-8">
-            {/* EXISTENCE */}
-            <div className="relative">
-              <div className="absolute -left-[41px] top-0 bg-emerald-500 text-white font-bold w-8 h-8 rounded-full flex items-center justify-center">1</div>
-              <h4 className="text-emerald-400 font-bold uppercase mb-1">Introduction (Inconnu)</h4>
-              <p className="text-slate-400 text-sm mb-2">L'objet n'est pas encore dans la conversation. On le fait apparaître.</p>
-              <p className="font-mono text-white bg-slate-900 p-2 rounded inline-block">
-                "Look! <span className="text-emerald-400 font-bold">There is</span> a car."
-              </p>
-            </div>
-
-            {/* DESCRIPTION */}
-            <div className="relative">
-              <div className="absolute -left-[41px] top-0 bg-amber-500 text-white font-bold w-8 h-8 rounded-full flex items-center justify-center">2</div>
-              <h4 className="text-amber-400 font-bold uppercase mb-1">Description (Connu)</h4>
-              <p className="text-slate-400 text-sm mb-2">L'objet est maintenant "sur la table". On peut le qualifier.</p>
-              <p className="font-mono text-white bg-slate-900 p-2 rounded inline-block">
-                "<span className="text-amber-400 font-bold">It is</span> red."
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-red-500/10 p-4 rounded text-center border border-red-500/30 text-red-200 text-sm italic mt-4">
-            "There is red" ou "It is a car" (dans ce contexte) sont des erreurs de logique pure.
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "There’s a car outside. It’s red.", meaning: "Tu introduis la voiture, puis tu en donnes la couleur." },
+            { english: "There are two bikes outside. They’re blue.", meaning: "Au pluriel, tu reprends les vélos avec they." },
+          ]}
+        >
+          Une fois l’objet présenté, un pronom permet de continuer à en parler.
+        </LessonExamples>
       )
     },
     {
-      title: "Validation des Connaissances",
+      title: "Quiz · Décrire ce qu’il y a",
       content: (
         <Quiz
           title="Existence vs Description"
           questions={[
             {
               id: 1,
-              question: "___ a new student in the class.",
+              question: "Tu annonces la présence d’une nouvelle personne. Complète avec la tournure qui veut dire « il y a ». ___ a new student here.",
               options: ["There is", "It is", "There are", "He is"],
               correctAnswer: 0,
               explanation: "Introduction d'une nouvelle personne (Singulier) ➔ THERE IS.",
             },
             {
               id: 2,
-              question: "List: ___ a laptop and two phones.",
-              options: ["There is", "There are", "It is", "They are"],
+              question: "Une seule chose est posée devant toi. ___ a laptop on the table.",
+              options: ["There is", "There are", "They are"],
               correctAnswer: 0,
-              explanation: "Règle de Proximité : Le premier élément est 'a laptop' (Singulier) ➔ THERE IS.",
+              explanation: "A laptop est un groupe nominal singulier. La tournure d’existence est there is.",
             },
             {
               id: 3,

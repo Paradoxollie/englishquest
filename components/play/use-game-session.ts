@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { startGameSession } from "@/lib/games/game-session-server";
 import { SESSION_CLOCK_TOLERANCE_MS, type GameSessionSlug } from "@/lib/games/game-session-rules";
 
@@ -9,6 +9,7 @@ type PendingSession = {
   /** Moment (horloge du navigateur) où le serveur a répondu. */
   resolvedAt: number | null;
 };
+type SaveResult = { success: boolean; retryable?: boolean };
 
 /**
  * Session de partie côté serveur, pour les joueurs connectés uniquement.
@@ -19,14 +20,21 @@ type PendingSession = {
  */
 export function useGameSession(slug: GameSessionSlug, isLoggedIn: boolean) {
   const pendingRef = useRef<PendingSession | null>(null);
+  const generation = useRef(0);
+  const [retryScore, setRetryScore] = useState<(() => void) | null>(null);
+  useEffect(() => () => { generation.current += 1; }, []);
 
   const begin = useCallback(() => {
+    generation.current += 1;
+    setRetryScore(null);
     if (!isLoggedIn) {
       pendingRef.current = null;
       return;
     }
     const pending: PendingSession = { promise: Promise.resolve(null), resolvedAt: null };
-    pending.promise = startGameSession(slug)
+    const open = () => startGameSession(slug).catch(() => ({ ok: false as const, retryable: true }));
+    pending.promise = open()
+      .then((result) => !result.ok && result.retryable ? open() : result)
       .then((result) => {
         pending.resolvedAt = performance.now();
         return result.ok ? result.sessionId : null;
@@ -38,27 +46,59 @@ export function useGameSession(slug: GameSessionSlug, isLoggedIn: boolean) {
     pendingRef.current = pending;
   }, [slug, isLoggedIn]);
 
-  /**
-   * Identifiant de la session en cours et durée à annoncer. La durée est
-   * bornée par le temps écoulé depuis la réponse du serveur : un démarrage
-   * lent ne fait pas refuser un score honnête.
-   */
+  /** Abandon de la partie : la session reste inutilisée et périmera. */
+  const cancel = useCallback(() => {
+    generation.current += 1;
+    setRetryScore(null);
+    pendingRef.current = null;
+  }, []);
+
+  // Reuse the captured session and duration after a lost response. Only the
+  // original promise delivers rewards or refreshes the leaderboard.
+  const saveForRun = useCallback(<T extends SaveResult>(run: number, send: () => Promise<T>): Promise<T> => {
+    return new Promise<T>((resolve) => {
+      const attempt = async (automatic: boolean) => {
+        if (run === generation.current) setRetryScore(null);
+        try {
+          const result = await send();
+          if (result.success || !result.retryable) {
+            if (run === generation.current) resolve(result);
+            return;
+          }
+        } catch {
+          // A lost response may follow a committed transaction.
+        }
+        if (automatic) {
+          window.setTimeout(() => void attempt(false), 600);
+        } else if (run === generation.current) {
+          let used = false;
+          setRetryScore(() => () => {
+            if (used || run !== generation.current) return;
+            used = true;
+            void attempt(false);
+          });
+        }
+      };
+      void attempt(true);
+    });
+  }, []);
+
+  // Capture the finished round before waiting for its start request. A quick
+  // replay may begin in the meantime and must get its own feedback and retry.
   const finish = useCallback(async (durationMs: number) => {
+    const run = generation.current;
     const pending = pendingRef.current;
     pendingRef.current = null;
     const sessionId = pending ? await pending.promise : null;
-    const safeDuration = Math.max(0, Math.round(Number.isFinite(durationMs) ? durationMs : 0));
-    if (!pending || pending.resolvedAt === null) {
-      return { sessionId, durationMs: safeDuration };
-    }
-    const sinceServer = performance.now() - pending.resolvedAt + SESSION_CLOCK_TOLERANCE_MS - 500;
-    return { sessionId, durationMs: Math.max(0, Math.min(safeDuration, Math.round(sinceServer))) };
-  }, []);
+    const duration = Math.max(0, Math.round(Number.isFinite(durationMs) ? durationMs : 0));
+    const elapsed = pending?.resolvedAt == null
+      ? duration : Math.round(performance.now() - pending.resolvedAt + SESSION_CLOCK_TOLERANCE_MS - 500);
+    return {
+      sessionId,
+      durationMs: Math.max(0, Math.min(duration, elapsed)),
+      save: <T extends SaveResult>(send: () => Promise<T>) => saveForRun(run, send),
+    };
+  }, [saveForRun]);
 
-  /** Abandon de la partie : la session reste inutilisée et périmera. */
-  const cancel = useCallback(() => {
-    pendingRef.current = null;
-  }, []);
-
-  return { begin, finish, cancel };
+  return useMemo(() => ({ begin, finish, cancel, retryScore }), [begin, finish, cancel, retryScore]);
 }

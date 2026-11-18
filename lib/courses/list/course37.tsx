@@ -1,115 +1,68 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
 export const course37: LessonContent = {
     courseNumber: 37,
     title: "Les Propositions Relatives (1) : Who / Which",
-    objective: "Identifier l'antécédent pour choisir le bon pronom relatif.",
+    objective: "Préciser de qui ou de quoi tu parles avec who, which et that.",
     sections: [
         {
-            title: "0. Vocabulaire Technique",
+            title: "Identifier quelqu’un",
             content: (
-                <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 mb-6">
-                    <p className="text-slate-400 text-sm mb-2 uppercase font-bold tracking-wider">Concepts Clés :</p>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <div className="flex flex-col">
-                            <span className="text-white font-bold">Relative Pronoun</span>
-                            <span className="text-slate-500 text-sm">Pronom Relatif (Que/Qui)</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-white font-bold">Antecedent</span>
-                            <span className="text-slate-500 text-sm">Le mot avant (La Cible)</span>
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-white font-bold">Clause</span>
-                            <span className="text-slate-500 text-sm">Proposition (Phrase)</span>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "That’s the woman who found my keys.", meaning: "C’est la femme qui a retrouvé mes clés. Who renvoie à the woman." },
+                  { english: "This is the key which opens the gate.", meaning: "C’est la clé qui ouvre le portail. Which renvoie à the key." },
+                ]}
+              >
+                Une relative apporte une précision sur un nom. Le pronom relatif relie cette précision au reste de la phrase.
+              </LessonExamples>
             )
         },
         {
-            title: "1. La Règle de l'Antécédent",
+            title: "À quel nom renvoie le pronom ?",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Pour choisir entre <strong>WHO</strong> et <strong>WHICH</strong>, vous devez analyser un seul mot : l'<strong>Antécédent</strong>.
-                        <br />C'est le nom qui se trouve juste avant le pronom relatif.
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-slate-800 p-6 rounded-xl border-l-4 border-blue-500">
-                            <h4 className="text-blue-400 font-bold uppercase mb-2">SI L'ANTÉCÉDENT EST HUMAIN</h4>
-                            <p className="text-3xl font-black text-white mb-2">WHO</p>
-                            <p className="text-slate-400 text-sm">Ex: The man <strong className="text-white">who</strong> called.</p>
-                        </div>
-
-                        <div className="bg-slate-800 p-6 rounded-xl border-l-4 border-emerald-500">
-                            <h4 className="text-emerald-400 font-bold uppercase mb-2">SI C'EST UNE CHOSE / UN ANIMAL</h4>
-                            <p className="text-3xl font-black text-white mb-2">WHICH</p>
-                            <p className="text-slate-400 text-sm">Ex: The car <strong className="text-white">which</strong> is red.</p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "The woman who called is my aunt.", meaning: "Who reprend the woman et fait l’action de téléphoner." },
+                  { english: "The phone which rang is mine.", meaning: "Which reprend the phone." },
+                ]}
+              >
+                Repère le nom que la relative décrit. Dans les exemples qui suivent, who renvoie à une personne et which à un objet.
+              </LessonExamples>
             )
         },
         {
-            title: "2. Le Cas Particulier : THAT",
+            title: "Choisir that, who ou which",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Le pronom <strong>THAT</strong> est un "Joker". Dans les propositions déterminatives (qui sont essentielles au sens), il peut remplacer à la fois WHO et WHICH.
-                    </p>
-
-                    <div className="bg-slate-900 p-4 rounded-lg border border-slate-700 space-y-3">
-                        <div className="flex items-center gap-3">
-                            <span className="text-green-400 font-bold">✓</span>
-                            <p className="text-slate-300">The man <strong className="text-white">who</strong> called.</p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <span className="text-green-400 font-bold">✓</span>
-                            <p className="text-slate-300">The man <strong className="text-white">that</strong> called.</p>
-                        </div>
-                        <div className="w-full h-px bg-slate-700 my-2"></div>
-                        <div className="flex items-center gap-3">
-                            <span className="text-green-400 font-bold">✓</span>
-                            <p className="text-slate-300">The car <strong className="text-white">which</strong> fits.</p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <span className="text-green-400 font-bold">✓</span>
-                            <p className="text-slate-300">The car <strong className="text-white">that</strong> fits.</p>
-                        </div>
-                    </div>
-                    <p className="text-xs text-slate-500 italic">Attention : Dans ce cours, nous nous concentrons d'abord sur la distinction stricte WHO vs WHICH.</p>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "The bike that won the race is blue.", meaning: "Which est également possible ici." },
+                  { english: "My sister, who lives in York, is here.", meaning: "Who introduit une précision entre virgules." },
+                  { english: "The dogs who work with the rescue team are well trained.", meaning: "Who se rencontre également pour des animaux, notamment quand on les individualise." },
+                ]}
+              >
+                Dans une relative qui identifie la personne ou la chose, that peut remplacer who ou which. Une information ajoutée entre virgules suit une autre construction.
+              </LessonExamples>
             )
         },
         {
-            title: "3. Analyse Structurelle",
+            title: "Lire la phrase entière",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Regardez toujours à gauche du trou. C'est là que se trouve la réponse.
-                    </p>
-
-                    <div className="bg-black/30 p-4 rounded text-center">
-                        <p className="text-lg text-slate-400">
-                            The <span className="text-white font-bold underline decoration-indigo-500 decoration-4">doctor</span> [ ___ ] lives here.
-                        </p>
-                        <p className="mt-2 text-sm text-indigo-400"> Doctor = Personne ➔ WHO</p>
-                    </div>
-
-                    <div className="bg-black/30 p-4 rounded text-center">
-                        <p className="text-lg text-slate-400">
-                            The <span className="text-white font-bold underline decoration-emerald-500 decoration-4">book</span> [ ___ ] is on the table.
-                        </p>
-                        <p className="mt-2 text-sm text-emerald-400"> Book = Objet ➔ WHICH</p>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "The doctor who lives here works nights.", meaning: "Who est le sujet de lives. Le verbe principal est works." },
+                  { english: "The book which you recommended is on the table.", meaning: "Which reprend the book. You est le sujet de recommended." },
+                  { english: "The book you recommended is on the table.", meaning: "Quand le pronom est complément dans une relative qui identifie le nom, on peut souvent l’omettre." },
+                ]}
+              >
+                Repère le nom que la relative décrit, puis la place qui manque dans cette relative.
+              </LessonExamples>
             )
         },
         {
-            title: "Exercices d'Identification",
+            title: "Quiz · Préciser de qui ou de quoi on parle",
             content: (
                 <Quiz
                     questions={[
@@ -150,10 +103,10 @@ export const course37: LessonContent = {
                         },
                         {
                             id: 6,
-                            question: "The dog ___ bit me ran away.",
-                            options: ["who", "which"],
+                            question: "Tu décris un objet. The chair ___ broke yesterday is in the garage.",
+                            options: ["who", "which", "where"],
                             correctAnswer: 1,
-                            explanation: "Antécédent : 'The dog' (Animal) ➔ WHICH.",
+                            explanation: "Which peut être sujet d’une relative qui décrit une chose.",
                         },
                         {
                             id: 7,

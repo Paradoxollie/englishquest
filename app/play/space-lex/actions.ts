@@ -1,6 +1,5 @@
 "use server";
-import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
-import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
+import { gamePerformance } from "@/lib/profile/economy";
 import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
 import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 
@@ -16,8 +15,7 @@ import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
  */
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { consumeGameSession } from "@/lib/games/game-session-server";
+import { gameAuthFailure, interruptedGameSave, saveGameScore } from "@/lib/games/score-settlement";
 import { checkLexiconBlaster } from "@/lib/games/score-plausibility";
 
 // Default difficulty for all Lexicon Blaster scores (no difficulty selection in this game)
@@ -43,6 +41,7 @@ export async function submitLexiconBlasterScore(params: {
     sessionId?: string | null;
 }): Promise<{
     success: boolean;
+    retryable?: boolean;
     error?: string;
     rewards?: {
         xpEarned: number;
@@ -78,7 +77,6 @@ export async function submitLexiconBlasterScore(params: {
             return { success: false, error: "Score Space Lex invraisemblable" };
         }
         const supabase = await createSupabaseServerClient();
-        const adminClient = createSupabaseAdminClient();
 
         // Get current user
         const {
@@ -87,105 +85,26 @@ export async function submitLexiconBlasterScore(params: {
         } = await supabase.auth.getUser();
 
         if (userError || !user) {
-            return {
-                success: false,
-                error: "User not authenticated",
-            };
+            return gameAuthFailure(userError);
         }
 
-        const gameSession = await consumeGameSession({
-            sessionId: params.sessionId,
-            userId: user.id,
-            slug: "space-lex",
-            claimedDurationMs: params.durationMs,
+        const saved = await saveGameScore({
+          userId: user.id, slug: "space-lex", sessionId: params.sessionId,
+          score: params.score, maxScore: params.wave, durationMs: params.durationMs,
+          difficulty: DEFAULT_DIFFICULTY, performance: gamePerformance.lexiconBlaster(params.wordsMastered, params.wave),
+          recordEligible: params.score > 0,
         });
-        if (!gameSession.ok) {
-            return { success: false, error: gameSession.error };
-        }
-
-        // Get the Lexicon Blaster game ID
-        const { data: game, error: gameError } = await adminClient
-            .from("games")
-            .select("id")
-            .eq("slug", "space-lex")
-            .maybeSingle();
-
-        if (gameError || !game) {
-            console.error("Game not found:", gameError);
-            return {
-                success: false,
-                error: "Game not found in database. Please run the SQL migration.",
-            };
-        }
-
-        // Get user's current personal best score (no difficulty filter - global for this game)
-        const { data: personalBest } = await adminClient
-            .from("game_scores")
-            .select("id, score")
-            .eq("user_id", user.id)
-            .eq("game_id", game.id)
-            .order("score", { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-        const currentPersonalBest = personalBest?.score ?? 0;
-        const isNewPersonalBest = params.score > currentPersonalBest;
-
-        // Check if this is a new global best score (no difficulty filter)
-        const { data: globalTopScore } = await adminClient
-            .from("game_scores")
-            .select("score")
-            .eq("game_id", game.id)
-            .order("score", { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-        const currentGlobalBest = globalTopScore?.score ?? 0;
-        const isNewGlobalBest = params.score > currentGlobalBest;
-
-        // Calculate rewards
-        const playsToday = await countPlaysToday(adminClient, user.id, game.id);
-        const rewards = computeGameRewards({
-            performance: gamePerformance.lexiconBlaster(params.wordsMastered, params.wave),
-            difficulty: DEFAULT_DIFFICULTY,
-            playsToday,
-            isNewPersonalBest,
-            isNewGlobalBest,
-        });
-
-        const { error: insertError } = await adminClient
-            .from("game_scores")
-            .insert({
-                user_id: user.id,
-                game_id: game.id,
-                score: params.score,
-                max_score: params.wave, // Use max_score to store wave reached
-                duration_ms: params.durationMs,
-                difficulty: DEFAULT_DIFFICULTY, // Always use default difficulty
-            });
-
-        if (insertError) {
-            console.error("Error inserting game score:", insertError);
-            return {
-                success: false,
-                error: "Failed to save score",
-            };
-        }
-
-
-        const updatedProfile = await grantProfileRewards(adminClient, user.id, {
-            xp: rewards.xpEarned,
-            gold: rewards.goldEarned,
-        });
+        if (!saved.ok) return { success: false, error: saved.error, retryable: saved.retryable };
+        const { rewards, playsToday, isNewPersonalBest, isNewGlobalBest } = saved.receipt;
 
         // Check and grant Daily Challenge bonus
         const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
         const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "space-lex", {
-            eligible: rewards.xpEarned > 0,
+            eligible: rewards.xpEarned > 0, earnedAt: saved.receipt.savedAt,
         });
-        const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "space-lex", params.score);
+        const courseCompleted = saved.receipt.replayed ? null : await autoCompleteCourseMissionForGame(user.id, "space-lex", params.score);
         const newBadges = await syncBadgesSafely(user.id);
-        const gameNewLevel = updatedProfile.level > updatedProfile.previousLevel ? updatedProfile.level : 0;
+        const gameNewLevel = saved.receipt.level > saved.receipt.previousLevel ? saved.receipt.level : 0;
         const mergedNewLevel = Math.max(gameNewLevel, dailyChallengeResult.newLevel ?? 0) || undefined;
 
         return {
@@ -203,13 +122,10 @@ export async function submitLexiconBlasterScore(params: {
             newBadges,
             isNewPersonalBest,
             isNewGlobalBest,
-            personalBest: isNewPersonalBest ? params.score : currentPersonalBest,
+            personalBest: isNewPersonalBest ? params.score : (saved.receipt.previousBest ?? 0),
         };
     } catch (error) {
         console.error("Error in submitLexiconBlasterScore:", error);
-        return {
-            success: false,
-            error: "An unexpected error occurred",
-        };
+        return interruptedGameSave;
     }
 }

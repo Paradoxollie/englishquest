@@ -9,7 +9,7 @@ import { WordfallGame } from "./wordfall-game";
 
 export const metadata: Metadata = {
   title: "Wordfall",
-  description: "Des mots tombent, tape la bonne réponse avant la zone rouge. Vocabulaire anglais-français ou mot libre.",
+  description: "Traduis les blocs français en anglais avant la zone rouge ou cherche un mot anglais à partir d’une initiale.",
 };
 
 export const dynamic = "force-dynamic";

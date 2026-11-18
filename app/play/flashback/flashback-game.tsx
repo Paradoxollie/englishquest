@@ -9,6 +9,7 @@ import {
   nextRound,
   startGame,
   submitDecision,
+  submitMeaning,
   submitTimeout,
   type GameState,
 } from "@/lib/games/echoLex";
@@ -30,7 +31,8 @@ import { DEFAULT_GAME_LEVEL, getGameLevelLabel, type GameLevel } from "@/lib/gam
 import { submitEchoLexScore } from "./actions";
 
 const ROUND_MS = 5000;
-const RESULT_MS = 700;
+const MEANING_MS = 8000;
+const RESULT_MS = 1900;
 const MAX_STRIKES = 3;
 
 type SubmitStatus = "idle" | "saving" | "saved" | "error" | "guest";
@@ -140,7 +142,8 @@ export function FlashbackGame({
     if (pausedRef.current) {
       pausedRef.current = false;
       setPaused(false);
-      roundStartedAtRef.current = performance.now() - (ROUND_MS - timeLeftRef.current);
+      const duration = current.phase === "meaning" ? MEANING_MS : ROUND_MS;
+      roundStartedAtRef.current = performance.now() - (duration - timeLeftRef.current);
       if (current.phase === "result") {
         scheduleNextRound();
       }
@@ -149,8 +152,9 @@ export function FlashbackGame({
         clearTimeout(nextTimerRef.current);
         nextTimerRef.current = null;
       }
-      if (current.phase === "playing") {
-        const remaining = Math.max(0, ROUND_MS - (performance.now() - roundStartedAtRef.current));
+      if (current.phase === "playing" || current.phase === "meaning") {
+        const duration = current.phase === "meaning" ? MEANING_MS : ROUND_MS;
+        const remaining = Math.max(0, duration - (performance.now() - roundStartedAtRef.current));
         timeLeftRef.current = remaining;
         setTimeLeft(remaining);
       }
@@ -159,73 +163,53 @@ export function FlashbackGame({
     }
   }, [scheduleNextRound, started]);
 
-  const decide = useCallback(
-    (saysSeen: boolean) => {
-      const current = stateRef.current;
-      if (!current || current.phase !== "playing" || pausedRef.current) return;
-      const result = submitDecision(current, saysSeen);
-      stateRef.current = result;
-      setState(result);
-      setTimedOutRound(false);
-      setRounds((count) => count + 1);
-
-      if (result.lastDecisionCorrect) {
-        const nextCombo = comboRef.current + 1;
-        comboRef.current = nextCombo;
-        setCombo(nextCombo);
-        setBestCombo((best) => Math.max(best, nextCombo));
-        playSoundEffect(nextCombo > 0 && nextCombo % 5 === 0 ? "combo" : "correct");
-      } else {
-        comboRef.current = 0;
-        setCombo(0);
-        playSoundEffect("wrong");
-        setMissed((list) =>
-          list.includes(current.currentWord.english) ? list : [...list, current.currentWord.english]
-        );
-      }
-
-      if (result.phase !== "gameOver") {
-        scheduleNextRound();
-      }
-    },
-    [scheduleNextRound]
-  );
-
-  const handleTimeout = useCallback(() => {
+  const resolve = useCallback((choice: boolean | string | null) => {
     const current = stateRef.current;
-    if (!current || current.phase !== "playing" || pausedRef.current) return;
-    const result = submitTimeout(current);
-    stateRef.current = result;
-    setState(result);
-    setTimedOutRound(true);
-    setRounds((count) => count + 1);
-    comboRef.current = 0;
-    setCombo(0);
-    playSoundEffect("wrong");
-    setMissed((list) =>
-      list.includes(current.currentWord.english) ? list : [...list, current.currentWord.english]
-    );
-    if (result.phase !== "gameOver") {
-      scheduleNextRound();
+    if (!current || pausedRef.current || (current.phase !== "playing" && current.phase !== "meaning")) return;
+    const now = performance.now();
+    const duration = current.phase === "meaning" ? MEANING_MS : ROUND_MS;
+    const timedOut = choice === null || now - roundStartedAtRef.current >= duration;
+    const next = timedOut ? submitTimeout(current)
+      : typeof choice === "string" ? submitMeaning(current, choice) : submitDecision(current, choice);
+    if (next === current) return;
+    stateRef.current = next;
+    setState(next);
+    setTimedOutRound(timedOut);
+    if (next.phase === "meaning") {
+      roundStartedAtRef.current = now;
+      timeLeftRef.current = MEANING_MS;
+      setTimeLeft(MEANING_MS);
+      return;
     }
+    setRounds(count => count + 1);
+    const streak = next.lastDecisionCorrect ? comboRef.current + 1 : 0;
+    comboRef.current = streak;
+    setCombo(streak);
+    setBestCombo(best => Math.max(best, streak));
+    playSoundEffect(streak === 0 ? "wrong" : streak % 5 === 0 ? "combo" : "correct");
+    if (!next.lastDecisionCorrect) {
+      setMissed(list => list.includes(current.currentWord.english) ? list : [...list, current.currentWord.english]);
+    }
+    if (next.phase === "result") scheduleNextRound();
   }, [scheduleNextRound]);
 
   /* Compte à rebours par mot */
   useEffect(() => {
-    if (!started || !state || state.phase !== "playing" || paused) return;
+    if (!started || !state || (state.phase !== "playing" && state.phase !== "meaning") || paused) return;
+    const duration = state.phase === "meaning" ? MEANING_MS : ROUND_MS;
     const interval = setInterval(() => {
-      const left = ROUND_MS - (performance.now() - roundStartedAtRef.current);
+      const left = duration - (performance.now() - roundStartedAtRef.current);
       if (left <= 0) {
         timeLeftRef.current = 0;
         setTimeLeft(0);
-        handleTimeout();
+        resolve(null);
       } else {
         timeLeftRef.current = left;
         setTimeLeft(left);
       }
     }, 80);
     return () => clearInterval(interval);
-  }, [started, state, paused, handleTimeout]);
+  }, [started, state, paused, resolve]);
 
   /* Flèches gauche (nouveau), droite (déjà vu), Échap (Pause) */
   useEffect(() => {
@@ -237,18 +221,25 @@ export function FlashbackGame({
         togglePause();
         return;
       }
-      if (pausedRef.current || stateRef.current?.phase !== "playing") return;
+      if (pausedRef.current) return;
+      const current = stateRef.current;
+      if (current?.phase === "meaning") {
+        const choice = current.meaningChoices[Number(event.key) - 1];
+        if (choice) { event.preventDefault(); resolve(choice); }
+        return;
+      }
+      if (current?.phase !== "playing") return;
       if (event.key === "ArrowLeft") {
         event.preventDefault();
-        decide(false);
+        resolve(false);
       } else if (event.key === "ArrowRight") {
         event.preventDefault();
-        decide(true);
+        resolve(true);
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [started, state, decide, togglePause]);
+  }, [started, state, resolve, togglePause]);
 
   /* Enregistrement */
   useEffect(() => {
@@ -264,8 +255,8 @@ export function FlashbackGame({
     const session = sessionRef.current;
     gameSession
       .finish(performance.now() - startedAtRef.current)
-      .then(({ sessionId, durationMs }) =>
-        submitEchoLexScore({ score: state.score, durationMs, sessionId })
+      .then(({ sessionId, durationMs, save }) =>
+        save(() => submitEchoLexScore({ score: state.score, durationMs, sessionId }))
       )
       .then((result) => {
         if (session !== sessionRef.current) return;
@@ -286,11 +277,11 @@ export function FlashbackGame({
     return (
       <GameStart
         title="Flashback · Mémoire"
-        intro="Des mots anglais défilent avec leur traduction. Pour chacun, indique s'il est nouveau ou s'il est déjà apparu dans la partie."
+        intro="Un mot apparaît. Indique si tu l’as déjà vu et découvre son sens. Quand il revient, retrouve aussi sa traduction."
         rules={[
-          "5 secondes par mot : sans réponse, le chrono compte une erreur.",
+          "Tu as 5 secondes pour reconnaître le mot et 8 secondes pour en retrouver le sens quand il revient.",
           "Trois erreurs et la partie s'arrête. Le score est le nombre de bonnes réponses.",
-          "Au clavier : flèche gauche pour Nouveau, flèche droite pour Déjà vu.",
+          "Au clavier, utilise les flèches pour reconnaître un mot et les touches 1 à 3 pour choisir son sens.",
           missionTarget
             ? `Objectif de mission : ${missionTarget} bonnes réponses.`
             : "Tous les mots vus sont listés à la fin avec audio pour réviser.",
@@ -308,7 +299,7 @@ export function FlashbackGame({
         gameSlug="flashback"
         title="Trois erreurs"
         score={state.score}
-        scoreLabel="mots reconnus"
+        scoreLabel="mots validés"
         lines={[
           `${rounds} réponses`,
           `Meilleure série : ${bestCombo}`,
@@ -316,6 +307,7 @@ export function FlashbackGame({
         ]}
         rewards={rewards}
         rewardStatus={submitStatus}
+        retryScore={gameSession.retryScore}
         rewardError={rewardError}
         missionReached={missionTarget != null ? state.score >= missionTarget : null}
         onReplay={start}
@@ -327,17 +319,13 @@ export function FlashbackGame({
               <li key={word.english} className={missed.includes(word.english) ? "is-hard" : ""}>
                 <div>
                   <b lang="en">{word.english}</b>
-                  <span> · {word.french}</span>
+                  <span> · {word.french}{missed.includes(word.english) ? " · à revoir" : ""}</span>
                 </div>
                 <SpeakButton text={word.english} label="Audio" />
               </li>
             ))}
           </ul>
-          {missed.length > 0 ? (
-            <p className="eq-game-end-note">
-              Les mots marqués d&apos;un trait rouge t&apos;ont piégé : écoute-les avant de rejouer.
-            </p>
-          ) : null}
+
         </div>
         <div>
           <button type="button" className="eq-btn eq-btn-ghost" onClick={quit}>
@@ -368,12 +356,12 @@ export function FlashbackGame({
           tone={timeLow ? "coral" : "cyan"}
         />
       </GameHud>
-      <TimeBar percent={(timeLeft / ROUND_MS) * 100} low={timeLow} />
+      <TimeBar percent={(timeLeft / (state.phase === "meaning" || state.meaningChoices.length ? MEANING_MS : ROUND_MS)) * 100} low={timeLow} />
 
       <div className={`eq-game-stage eq-card-stage ${tone}`} data-testid="game-stage">
         <div className="eq-card-top">
-          <p className="eq-game-prompt-kicker">
-            {"Ce mot, tu l'as déjà vu dans cette partie\u00a0?"}
+          <p className="eq-game-prompt-kicker" aria-live="polite">
+            {state.phase === "meaning" ? "Quel est son sens en français ?" : "As-tu déjà vu ce mot dans cette partie ?"}
           </p>
           <div className="flex items-center gap-2">
             <SpeakButton text={state.currentWord.english} label="Prononcer" />
@@ -383,35 +371,30 @@ export function FlashbackGame({
           </div>
         </div>
 
-        <p className="eq-game-prompt" data-testid="game-prompt" lang="en">
+        <p className="eq-game-prompt" data-testid="game-prompt" lang="en" aria-live="polite" aria-atomic="true">
           {state.currentWord.english}
         </p>
-        <p className="eq-game-prompt-sub eq-game-prompt-meaning" lang="fr">
-          {state.currentWord.french}
-        </p>
+        {showingResult && <p className="eq-game-prompt-sub eq-game-prompt-meaning" lang="fr">{state.currentWord.french}</p>}
 
-        <div className="eq-game-choices eq-game-choices-duo">
-          <button
-            type="button"
-            className={`eq-game-choice ${showingResult ? (state.isNew ? "is-correct" : "is-dim") : ""}`}
-            onClick={() => decide(false)}
-            disabled={showingResult || paused}
-            data-testid="choice-new"
-          >
-            <kbd>←</kbd>
-            <span>Nouveau</span>
-          </button>
-          <button
-            type="button"
-            className={`eq-game-choice ${showingResult ? (!state.isNew ? "is-correct" : "is-dim") : ""}`}
-            onClick={() => decide(true)}
-            disabled={showingResult || paused}
-            data-testid="choice-seen"
-          >
-            <kbd>→</kbd>
-            <span>Déjà vu</span>
-          </button>
-        </div>
+        {state.phase === "meaning" ? (
+          <div className="eq-game-choices" role="group" aria-label="Traductions possibles">
+            {state.meaningChoices.map((choice, index) => (
+              <button type="button" key={choice} className="eq-game-choice" data-testid="meaning-choice" disabled={paused}
+                onClick={() => resolve(choice)}><kbd>{index + 1}</kbd><span>{choice}</span></button>
+            ))}
+          </div>
+        ) : (
+          <div className="eq-game-choices eq-game-choices-duo">
+            <button type="button" className={`eq-game-choice ${showingResult && state.isNew ? "is-correct" : ""}`}
+              onClick={() => resolve(false)} disabled={showingResult || paused} data-testid="choice-new">
+              <kbd>←</kbd><span>Nouveau</span>
+            </button>
+            <button type="button" className={`eq-game-choice ${showingResult && !state.isNew ? "is-correct" : ""}`}
+              onClick={() => resolve(true)} disabled={showingResult || paused} data-testid="choice-seen">
+              <kbd>→</kbd><span>Déjà vu</span>
+            </button>
+          </div>
+        )}
 
         <div className="eq-card-feedback-slot">
           {showingResult ? (
@@ -422,8 +405,10 @@ export function FlashbackGame({
               {state.lastDecisionCorrect
                 ? `Exact ! ${state.currentWord.english} : ${state.currentWord.french}.`
                 : timedOutRound
-                  ? `Temps écoulé · ce mot était ${state.isNew ? "nouveau" : "déjà vu"}.`
-                  : state.isNew
+                  ? `Temps écoulé. ${state.currentWord.english} signifie « ${state.currentWord.french} ».`
+                  : state.meaningChoices.length
+                    ? `Pour ce mot, retiens « ${state.currentWord.french} ».`
+                    : state.isNew
                     ? "Raté : c'était la première fois qu'il apparaissait."
                     : "Raté : ce mot était déjà passé dans la partie."}
             </p>

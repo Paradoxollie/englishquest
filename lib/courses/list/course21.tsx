@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -40,143 +41,71 @@ export const course21: LessonContent = {
             )
         },
         {
-            title: "2. Le Concept : Résultat Présent",
+            title: "Ce que l’on sait maintenant",
             content: (
-                <div className="space-y-6">
-                    <div className="bg-blue-900/20 p-4 rounded border border-blue-500/50">
-                        <h4 className="text-blue-400 font-bold mb-2 uppercase flex items-center gap-2">
-                            <span>💡</span> LA LOGIQUE RIGOUREUSE
-                        </h4>
-                        <p className="text-slate-300">
-                            On utilise le Present Perfect quand une action passée a une <strong className="text-white">conséquence visible maintenant</strong>. On ne s&apos;intéresse pas à "Quand" c&apos;est arrivé, mais à l&apos;état actuel.
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4">
-                        <div className="bg-slate-900 p-4 rounded border-l-4 border-emerald-500">
-                            <p className="text-slate-400 text-xs mb-1">Situation A : Je cherche mes clés.</p>
-                            <h4 className="text-white font-medium text-lg">"I <strong className="text-emerald-400">have lost</strong> my keys."</h4>
-                            <p className="text-emerald-400 text-sm mt-1">➔ RÉSULTAT ACTUEL : Je ne les ai pas, je ne peux pas rentrer.</p>
-                        </div>
-
-                        <div className="bg-slate-900 p-4 rounded border-l-4 border-slate-600 opacity-75">
-                            <p className="text-slate-400 text-xs mb-1">Situation B : Raconter une histoire (Past Simple).</p>
-                            <h4 className="text-white font-medium text-lg">"I <strong className="text-slate-400">lost</strong> my keys yesterday."</h4>
-                            <p className="text-slate-400 text-sm mt-1">➔ C&apos;est du passé. Peut-être que je les ai retrouvées depuis. On se fiche du résultat présent.</p>
-                        </div>
-                    </div>
-
-                    {/* New Breaking News Section */}
-                    <div className="bg-slate-800 p-4 rounded border border-slate-700 mt-4">
-                        <h4 className="text-slate-200 font-bold mb-3 flex items-center gap-2">
-                            <span>📰</span> EXEMPLE TYPIQUE : BREAKING NEWS
-                        </h4>
-                        <p className="text-sm text-slate-300 mb-2">
-                            Les titres de journaux utilisent le Present Perfect pour le fait récent, puis le Past Simple pour les détails.
-                        </p>
-                        <div className="bg-black/40 p-3 rounded text-sm font-mono">
-                            <p className="text-white border-b border-slate-700 pb-2 mb-2">
-                                TITRE : "The President <strong className="text-emerald-400">has signed</strong> the treaty."
-                            </p>
-                            <p className="text-slate-400">
-                                DÉTAIL : "He <strong className="text-amber-400">signed</strong> it at 10 AM this morning."
-                            </p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "I’ve lost my keys. Can you open the door?", meaning: "Les clés manquent maintenant." },
+                  { english: "I lost my keys on Tuesday and found them on Wednesday.", meaning: "Tu racontes deux événements datés." },
+                ]}
+              >
+                Le present perfect relie un événement antérieur au moment présent. Demande-toi ce que la personne veut communiquer à son interlocuteur.
+              </LessonExamples>
             )
         },
         {
-            title: "3. Les Boosters : Just, Already, Yet",
+            title: "Just, already et yet",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Ces trois adverbes modulent le résultat. Leur place dans la phrase est <strong className="text-white">stricte</strong>.
-                    </p>
-
-                    <div className="space-y-4">
-                        <div className="bg-slate-900 p-4 rounded border-l-4 border-cyan-500">
-                            <div className="flex justify-between items-center mb-2">
-                                <h4 className="text-cyan-400 font-bold">JUST (À l&apos;instant)</h4>
-                                <span className="text-xs bg-cyan-900 text-cyan-300 px-2 py-1 rounded">Positif</span>
-                            </div>
-                            <p className="text-xs text-slate-400 font-mono mb-2 bg-black/30 p-1 inline-block rounded">PLACE : ENTRE HAVE ET V3</p>
-                            <p className="text-slate-300 text-sm mb-2">L&apos;action vient tout juste de se finir.</p>
-                            <p className="text-white italic">"Don&apos;t eat the cake. I <strong className="text-cyan-400">have just made</strong> it."</p>
-                        </div>
-
-                        <div className="bg-slate-900 p-4 rounded border-l-4 border-green-500">
-                            <div className="flex justify-between items-center mb-2">
-                                <h4 className="text-green-400 font-bold">ALREADY (Déjà)</h4>
-                                <span className="text-xs bg-green-900 text-green-300 px-2 py-1 rounded">Positif</span>
-                            </div>
-                            <p className="text-xs text-slate-400 font-mono mb-2 bg-black/30 p-1 inline-block rounded">PLACE : ENTRE HAVE ET V3</p>
-                            <p className="text-slate-300 text-sm mb-2">C&apos;est fait (souvent plus tôt que prévu).</p>
-                            <div className="flex flex-col gap-1 mt-2">
-                                <p className="text-white italic">"Don&apos;t tell him. He <strong className="text-green-400">has already heard</strong> the news."</p>
-                            </div>
-                        </div>
-
-                        <div className="bg-slate-900 p-4 rounded border-l-4 border-orange-500">
-                            <div className="flex justify-between items-center mb-2">
-                                <h4 className="text-orange-400 font-bold">YET (Encore / Déjà)</h4>
-                                <span className="text-xs bg-orange-900 text-orange-300 px-2 py-1 rounded">Négatif / Question</span>
-                            </div>
-                            <p className="text-xs text-slate-400 font-mono mb-2 bg-black/30 p-1 inline-block rounded">PLACE : TOUJOURS À LA FIN</p>
-                            <ul className="list-disc ml-5 text-sm text-white italic space-y-2 mt-2">
-                                <li>
-                                    <span className="text-slate-400 not-italic mr-2">Négatif (Pas encore) :</span>
-                                    "I haven&apos;t finished <strong className="text-orange-400">yet</strong>."
-                                </li>
-                                <li>
-                                    <span className="text-slate-400 not-italic mr-2">Question (Déjà ?) :</span>
-                                    "Have you finished <strong className="text-orange-400">yet</strong>?"
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "She’s just called.", meaning: "Elle vient de téléphoner." },
+                  { english: "We’ve already seen this film. We’ve seen this film already.", meaning: "Les deux ordres sont naturels." },
+                  { english: "Has he called yet? He hasn’t called yet.", meaning: "Tu attends toujours l’appel ou tu vérifies s’il a eu lieu." },
+                ]}
+              >
+                Just se place souvent après have ou has. Already peut se mettre à cet endroit ou en fin de phrase. Yet arrive fréquemment en fin de question ou de négation.
+              </LessonExamples>
             )
         },
         {
-            title: "Quiz : Result & Keywords",
+            title: "Quiz · Expliquer un résultat présent",
             content: (
                 <Quiz
                     questions={[
                         {
                             id: 1,
-                            question: "Where is Tom? He ___ to the shops.",
-                            options: ["went", "has gone"],
-                            correctAnswer: 1,
-                            explanation: "On cherche Tom MAINTENANT. 'He has gone' signifie qu'il est là-bas en ce moment.",
+                            question: "Tom est encore au magasin. Choisis la forme du present perfect. He ___ to the shops.",
+                            options: ["has gone", "has went", "have gone"],
+                            correctAnswer: 0,
+                            explanation: "Avec he, emploie has et le participe passé gone.",
                         },
                         {
                             id: 2,
-                            question: "I ___ my homework. Can I watch TV?",
-                            options: ["have done", "did"],
+                            question: "Exprime le résultat au present perfect. I ___ my homework. Can I go out?",
+                            options: ["have done", "have did", "am done"],
                             correctAnswer: 0,
-                            explanation: "Le résultat compte : le travail est fait, donc je peux regarder la télé maintenant.",
+                            explanation: "Have est suivi du participe passé done.",
                         },
                         {
                             id: 3,
-                            question: "Would you like a coffee? No thanks, I ___ one.",
-                            options: ["just had", "have just had"],
-                            correctAnswer: 1,
-                            explanation: "Action très récente avec conséquence immédiate (je n'en veux plus). JUST s'utilise avec le Present Perfect.",
+                            question: "Utilise le present perfect avec just. No coffee for me, thanks. I ___ one.",
+                            options: ["have just had", "have just have", "am just having had"],
+                            correctAnswer: 0,
+                            explanation: "Have just had est la forme attendue ici. Just had s’entend aussi, notamment en anglais américain.",
                         },
                         {
                             id: 4,
-                            question: "Don't pay the bill. I ___ paid it.",
-                            options: ["have already", "already have"],
+                            question: "Don’t pay the bill. I ___ paid it. Choisis une construction correcte.",
+                            options: ["have already", "has already", "am already"],
                             correctAnswer: 0,
-                            explanation: "L'ordre des mots : HAVE + ALREADY + PARTICIPE PASSÉ.",
+                            explanation: "Avec I, on peut dire I have already paid it ou I have paid it already.",
                         },
                         {
                             id: 5,
-                            question: "Has the postman come ___?",
-                            options: ["yet", "just", "already"],
+                            question: "Tu demandes si le courrier est enfin arrivé, sans exprimer de surprise. Has the post arrived ___?",
+                            options: ["yet", "ever", "still"],
                             correctAnswer: 0,
-                            explanation: "Dans une question pour savoir si c'est fait 'maintenant/déjà', on utilise YET à la fin.",
+                            explanation: "Dans cette question, yet signifie « jusque-là ».",
                         },
                         {
                             id: 6,
@@ -194,10 +123,10 @@ export const course21: LessonContent = {
                         },
                         {
                             id: 8,
-                            question: "Look! Someone ___ that window.",
-                            options: ["broke", "has broken"],
-                            correctAnswer: 1,
-                            explanation: "'Look!' attire l'attention sur le résultat visible maintenant (la fenêtre est cassée).",
+                            question: "La vitre est cassée. Complète au present perfect. Someone ___ the window.",
+                            options: ["has broken", "has broke", "have broken"],
+                            correctAnswer: 0,
+                            explanation: "Someone prend has et le participe passé de break est broken.",
                         },
                         {
                             id: 9,

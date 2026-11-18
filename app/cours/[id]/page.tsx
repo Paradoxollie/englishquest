@@ -1,5 +1,7 @@
+import { getGuestScores } from "@/lib/courses/guest-progress-server";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import {
   LessonLayout,
@@ -19,6 +21,7 @@ import { buildGuestCourseRoadmap } from "@/lib/courses/progress";
 import { getCachedUserCourseRoadmap } from "@/lib/courses/roadmap-cache";
 import { getUserCoursePractice } from "@/lib/courses/practice-server";
 import { getCourseExtraExercises } from "@/lib/courses/exercises-server";
+import { lessonPrompts } from "@/lib/courses/lesson-prompts";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 
 interface CoursePageProps {
@@ -71,7 +74,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
   }
 
   const user = await getServerUser();
-  const roadmap = user ? await getCachedUserCourseRoadmap(user.id) : buildGuestCourseRoadmap();
+  const roadmap = user ? await getCachedUserCourseRoadmap(user.id) : buildGuestCourseRoadmap(await getGuestScores());
   const roadmapEntry = roadmap.entries.find((entry) => entry.courseId === courseId) ?? null;
   const nextEntry = roadmap.entries.find((entry) => entry.courseId === courseId + 1) ?? null;
   const palier = getPalierForCourse(courseId);
@@ -114,6 +117,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
   }
 
   const chapterLabel = `Chapitre ${chapter.id} · ${chapter.name}`;
+  const prompt = lessonPrompts[courseId];
   const mission = roadmapEntry ? missionPlan ?? getCourseMissionPlan(roadmapEntry) : null;
 
   return (
@@ -149,14 +153,23 @@ export default async function CoursePage({ params }: CoursePageProps) {
         }
       >
         {lesson.sections.map((section, index) => (
-          <LessonSection
-            key={sectionAnchors[index]?.id ?? index}
-            id={sectionAnchors[index]?.id}
-            sectionIndex={index}
-            title={section.title}
-          >
-            {section.content}
-          </LessonSection>
+          <Fragment key={sectionAnchors[index]?.id ?? index}>
+            <LessonSection id={sectionAnchors[index]?.id} sectionIndex={index} title={section.title}>
+              {section.content}
+            </LessonSection>
+            {index === 0 && prompt ? (
+              <aside className="eq-lesson-practice" aria-label="À toi de jouer">
+                <h3>À toi de jouer</h3>
+                <p>{prompt.situation}</p>
+                <details>
+                  <summary>Voir une réponse possible</summary>
+                  <p lang="en">{prompt.answer}</p>
+                  <p>{prompt.explanation}</p>
+                  {courseId === 48 ? <Link href="/cours/13">Revoir used to et be used to</Link> : null}
+                </details>
+              </aside>
+            ) : null}
+          </Fragment>
         ))}
         <nav className="eq-lesson-nav" aria-label="Cours voisins">
           {courseId > 1 ? (

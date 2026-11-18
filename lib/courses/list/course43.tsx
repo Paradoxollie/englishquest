@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -77,111 +78,61 @@ export const course43: LessonContent = {
             )
         },
         {
-            title: "2. Future perfect : action déjà terminée avant un repère futur",
+            title: "Faire le point depuis un repère futur",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Le <strong>future perfect</strong> regarde le futur comme si on était déjà arrivé à un point
-                        plus loin. On parle alors d'une action qui sera finie <strong>avant</strong> ce repère.
-                    </p>
-
-                    <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
-                        <div className="space-y-3 text-white">
-                            <p>
-                                By 10 o'clock, they <strong className="text-emerald-400">will have landed</strong>.
-                            </p>
-                            <p>
-                                By the end of the month, I <strong className="text-emerald-400">will have worked</strong> here for six years.
-                            </p>
-                            <p>
-                                Do you think she <strong className="text-emerald-400">will have seen</strong> the message by then?
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-2 text-sm">
-                        <div className="rounded-xl border-l-4 border-emerald-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Marqueurs fréquents</h4>
-                            <p className="text-slate-300">by, by then, by the time, before, by next week</p>
-                        </div>
-                        <div className="rounded-xl border-l-4 border-cyan-500 bg-slate-800 p-4">
-                            <h4 className="mb-2 font-bold text-white">Idée centrale</h4>
-                            <p className="text-slate-300">
-                                On regarde en arrière depuis un point futur.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "By ten, they will have landed.", meaning: "À dix heures, l’atterrissage aura déjà eu lieu." },
+                  { english: "By June, I will have worked here for six years.", meaning: "En juin, six ans se seront écoulés. Le travail pourra se poursuivre ensuite." },
+                ]}
+              >
+                Will have + participe passé permet de regarder en arrière depuis un moment futur. On peut annoncer un résultat acquis ou une durée atteinte à ce moment-là.
+              </LessonExamples>
             )
         },
         {
-            title: "3. Bien choisir entre les deux",
+            title: "At nine ou by nine ?",
             content: (
-                <div className="space-y-6">
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div className="rounded-xl border border-cyan-500/50 bg-cyan-950/20 p-5">
-                            <h4 className="mb-3 font-bold uppercase text-cyan-300">Action en cours</h4>
-                            <p className="text-white">
-                                At 9 p.m., I <strong>will be writing</strong> my essay.
-                            </p>
-                            <p className="mt-2 text-sm text-slate-300">
-                                À 21 h, l'action sera en train de se faire.
-                            </p>
-                        </div>
-                        <div className="rounded-xl border border-emerald-500/50 bg-emerald-950/20 p-5">
-                            <h4 className="mb-3 font-bold uppercase text-emerald-300">Action terminée</h4>
-                            <p className="text-white">
-                                By 9 p.m., I <strong>will have written</strong> my essay.
-                            </p>
-                            <p className="mt-2 text-sm text-slate-300">
-                                À 21 h, l'action sera déjà terminée.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
-                        <p className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-purple-300">
-                            Extension utile
-                        </p>
-                        <p className="text-slate-200">
-                            Pour insister sur la <strong>durée</strong>, on peut rencontrer le{" "}
-                            <strong>future perfect continuous</strong> :
-                            <em className="text-white"> By June, I will have been working here for ten years.</em>
-                            Ici, l'idée clé est la longueur de l'activité, pas juste son achèvement.
-                        </p>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "At nine I’ll be writing my essay.", meaning: "À neuf heures, la rédaction est en cours." },
+                  { english: "By nine I’ll have written my essay.", meaning: "La rédaction sera prête au plus tard à neuf heures." },
+                  { english: "By June I’ll have been working here for ten years.", meaning: "Tu mets en avant dix années d’activité." },
+                ]}
+              >
+                At fixe le moment où l’on observe la scène. By fixe une limite. Le futur antérieur continu peut aussi servir à souligner une durée accumulée.
+              </LessonExamples>
             )
         },
         {
-            title: "Quiz complet",
+            title: "Quiz · Se projeter dans l’avenir",
             content: (
                 <Quiz
                     questions={[
                         {
                             id: 1,
-                            question: "This time tomorrow, we ___ over the Alps.",
+                            question: "À cette heure-ci demain, nous serons en plein vol au-dessus des Alpes. We ___ over the Alps.",
                             options: ["will have flown", "will be flying"],
                             correctAnswer: 1,
                             explanation: "On imagine l'action en cours à un moment précis du futur.",
                         },
                         {
                             id: 2,
-                            question: "By Friday, I ___ the report.",
+                            question: "Vendredi à neuf heures, le rapport sera déjà terminé. By then I ___ the report.",
                             options: ["will be finishing", "will have finished"],
                             correctAnswer: 1,
                             explanation: "By Friday indique une action terminée avant ce repère.",
                         },
                         {
                             id: 3,
-                            question: "At 8 p.m., she ___ her clients.",
+                            question: "Le rendez-vous dure de 19 h 30 à 20 h 30. À 20 h, la réunion sera en cours. She ___ her clients.",
                             options: ["will have met", "will be meeting"],
                             correctAnswer: 1,
                             explanation: "À 20 h, la réunion sera en cours.",
                         },
                         {
                             id: 4,
-                            question: "Do you think they ___ there by midnight?",
+                            question: "Tu demandes si le trajet sera terminé à minuit. Do you think they ___ there by midnight?",
                             options: ["will have got", "will be getting"],
                             correctAnswer: 0,
                             explanation: "On vise un résultat atteint avant minuit.",
@@ -209,20 +160,17 @@ export const course43: LessonContent = {
                         },
                         {
                             id: 8,
-                            question: "By the time you arrive, I ___ everything.",
+                            question: "Tout sera prêt avant ton arrivée. By the time you arrive, I ___ everything.",
                             options: ["will be preparing", "will have prepared"],
                             correctAnswer: 1,
                             explanation: "By the time annonce une action achevée avant ton arrivée.",
                         },
                         {
                             id: 9,
-                            question: "Which sentence means the essay is already complete at 9 p.m.?",
-                            options: [
-                                "At 9 p.m., I will be writing my essay.",
-                                "By 9 p.m., I will have written my essay.",
-                            ],
-                            correctAnswer: 1,
-                            explanation: "By + heure future + future perfect = travail déjà terminé.",
+                            question: "Tu veux lire sa rédaction dès 21 heures. Quelle réponse promet un texte prêt à ce moment-là ?",
+                            options: ["By nine I’ll have written it.", "At nine I’ll be writing it.", "I’ll start writing it at nine."],
+                            correctAnswer: 0,
+                            explanation: "Le futur antérieur situe la fin de la rédaction avant ou au plus tard à neuf heures.",
                         },
                         {
                             id: 10,

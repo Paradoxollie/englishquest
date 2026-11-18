@@ -8,7 +8,7 @@ type CourseTableOfContentsProps = {
 };
 
 function cleanTitle(title: string) {
-  return title.replace(/^\d+\.\s*/, "").replace(/\s*\(.*\)\s*$/, "");
+  return title.replace(/^\d+\.\s*/, "").replace(/\s*\([^()]*\)\s*$/, "");
 }
 
 export function CourseTableOfContents({ sections, estimatedMinutes }: CourseTableOfContentsProps) {

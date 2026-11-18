@@ -1,6 +1,5 @@
 "use server";
-import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
-import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
+import { gamePerformance } from "@/lib/profile/economy";
 import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
 import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 
@@ -15,7 +14,7 @@ import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { consumeGameSession } from "@/lib/games/game-session-server";
+import { gameAuthFailure, interruptedGameSave, saveGameScore } from "@/lib/games/score-settlement";
 import { checkFlashTranslation } from "@/lib/games/score-plausibility";
 import type { ShopItem } from "@/types/shop";
 
@@ -144,6 +143,7 @@ export async function submitFlashTranslationScore(params: {
     sessionId?: string | null;
 }): Promise<{
     success: boolean;
+    retryable?: boolean;
     error?: string;
     rewards?: {
         xpEarned: number;
@@ -181,7 +181,6 @@ export async function submitFlashTranslationScore(params: {
         }
 
         const supabase = await createSupabaseServerClient();
-        const adminClient = createSupabaseAdminClient();
 
         // Get current user
         const {
@@ -190,107 +189,26 @@ export async function submitFlashTranslationScore(params: {
         } = await supabase.auth.getUser();
 
         if (userError || !user) {
-            return {
-                success: false,
-                error: "User not authenticated",
-            };
+            return gameAuthFailure(userError);
         }
 
-        const gameSession = await consumeGameSession({
-            sessionId: params.sessionId,
-            userId: user.id,
-            slug: "flash-translation",
-            claimedDurationMs: session.durationMs,
+        const saved = await saveGameScore({
+          userId: user.id, slug: "flash-translation", sessionId: params.sessionId,
+          score: session.totalTimeMs, maxScore: session.roundsCompleted, durationMs: session.durationMs,
+          difficulty: "medium", performance: gamePerformance.flashTranslation(session.roundsCompleted - session.wrongAnswers, session.roundsCompleted),
+          recordEligible: session.wrongAnswers < session.roundsCompleted,
         });
-        if (!gameSession.ok) {
-            return { success: false, error: gameSession.error };
-        }
-
-        // Get the Flash Translation game ID
-        const { data: game, error: gameError } = await adminClient
-            .from("games")
-            .select("id")
-            .eq("slug", "flash-translation")
-            .maybeSingle();
-
-        if (gameError || !game) {
-            return {
-                success: false,
-                error: "Game not found",
-            };
-        }
-
-        // Get user's current personal best score (lowest time)
-        const { data: personalBest } = await adminClient
-            .from("game_scores")
-            .select("id, score")
-            .eq("user_id", user.id)
-            .eq("game_id", game.id)
-            .order("score", { ascending: true }) // Lower is better
-            .limit(1)
-            .maybeSingle();
-
-        const hasCorrect = session.wrongAnswers < session.roundsCompleted;
-        const currentPersonalBest = personalBest?.score ?? Infinity;
-        const isNewPersonalBest = hasCorrect && session.totalTimeMs < currentPersonalBest;
-
-        // Check if this is a new global best score (lowest time)
-        const { data: globalTopScore } = await adminClient
-            .from("game_scores")
-            .select("score")
-            .eq("game_id", game.id)
-            .order("score", { ascending: true }) // Lower is better
-            .limit(1)
-            .maybeSingle();
-
-        const currentGlobalBest = globalTopScore?.score ?? Infinity;
-        const isNewGlobalBest = hasCorrect && session.totalTimeMs < currentGlobalBest;
-
-        // Calculate rewards
-        const playsToday = await countPlaysToday(adminClient, user.id, game.id);
-        const rewards = computeGameRewards({
-            performance: gamePerformance.flashTranslation(
-                Math.max(0, session.roundsCompleted - session.wrongAnswers),
-                session.roundsCompleted
-            ),
-            difficulty: "medium",
-            playsToday,
-            isNewPersonalBest,
-            isNewGlobalBest,
-        });
-
-        const { error: insertError } = await adminClient
-            .from("game_scores")
-            .insert({
-                user_id: user.id,
-                game_id: game.id,
-                score: session.totalTimeMs, // Lower is better
-                max_score: session.roundsCompleted,
-                duration_ms: session.durationMs,
-                difficulty: "medium", // Default difficulty for this game
-            });
-
-        if (insertError) {
-            console.error("Error inserting game score:", insertError);
-            return {
-                success: false,
-                error: "Failed to save score",
-            };
-        }
-
-
-        const granted = await grantProfileRewards(adminClient, user.id, {
-            xp: rewards.xpEarned, gold: rewards.goldEarned,
-        });
+        if (!saved.ok) return { success: false, error: saved.error, retryable: saved.retryable };
+        const { rewards, playsToday, isNewPersonalBest, isNewGlobalBest } = saved.receipt;
 
         // Check and grant Daily Challenge bonus
         const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
         const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "flash-translation", {
-            eligible: rewards.xpEarned > 0,
+            eligible: rewards.xpEarned > 0, earnedAt: saved.receipt.savedAt,
         });
-        const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "flash-translation", session.totalTimeMs);
+        const courseCompleted = saved.receipt.replayed ? null : await autoCompleteCourseMissionForGame(user.id, "flash-translation", session.totalTimeMs);
         const newBadges = await syncBadgesSafely(user.id);
-        const gameNewLevel = granted.level > granted.previousLevel ? granted.level : 0;
+        const gameNewLevel = saved.receipt.level > saved.receipt.previousLevel ? saved.receipt.level : 0;
         const mergedNewLevel = Math.max(gameNewLevel, dailyChallengeResult.newLevel ?? 0) || undefined;
 
         return {
@@ -308,14 +226,11 @@ export async function submitFlashTranslationScore(params: {
             newBadges,
             isNewPersonalBest,
             isNewGlobalBest,
-            personalBest: isNewPersonalBest ? session.totalTimeMs : currentPersonalBest,
+            personalBest: isNewPersonalBest ? session.totalTimeMs : (saved.receipt.previousBest ?? Infinity),
         };
     } catch (error) {
         console.error("Error in submitFlashTranslationScore:", error);
-        return {
-            success: false,
-            error: "An unexpected error occurred",
-        };
+        return interruptedGameSave;
     }
 }
 

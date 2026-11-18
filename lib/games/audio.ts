@@ -15,6 +15,7 @@ let cachedMuted: boolean | null = null;
 let activeAudioElement: HTMLAudioElement | null = null;
 let activePlaybackToken = 0;
 let activeTimers: number[] = [];
+let activeCleanup: (() => void) | null = null;
 
 function clearPendingTimers() {
   if (typeof window === "undefined") return;
@@ -60,6 +61,8 @@ export function isSoundMuted(): boolean {
 
 export function stopAllGameAudio() {
   activePlaybackToken += 1;
+  activeCleanup?.();
+  activeCleanup = null;
   clearPendingTimers();
   if (activeAudioElement) {
     try {
@@ -161,7 +164,14 @@ export function playSoundEffect(effect: "correct" | "wrong" | "combo" | "victory
  * ------------------------------------------------------------------------- */
 
 export function canSpeakEnglish(): boolean {
-  return typeof window !== "undefined" && "speechSynthesis" in window;
+  return typeof window !== "undefined" && !!window.speechSynthesis;
+}
+
+/** Recorded speech can change speed without restarting the message. */
+export function setRecordingRate(rate: number) {
+  if (!activeAudioElement) return false;
+  activeAudioElement.playbackRate = rate;
+  return true;
 }
 
 export type EnglishVoiceStatus = "loading" | "ok" | "no-english" | "unsupported";
@@ -230,11 +240,11 @@ function voiceGender(voice: SpeechSynthesisVoice): "female" | "male" | null {
   return null;
 }
 
-type SelectedVoice = { voice: SpeechSynthesisVoice | undefined; lang: string; pitch: number };
+type SelectedVoice = { voice: SpeechSynthesisVoice | undefined; lang: string };
 
 /**
  * Choisit la meilleure voix anglaise pour un profil : bon genre, bon accent
- * (britannique par défaut), voix « Natural » en priorité, et si possible une
+ * (américain par défaut), voix « Natural » en priorité, et si possible une
  * voix différente de celles déjà prises par les autres personnages.
  */
 function selectEnglishVoice(
@@ -242,7 +252,7 @@ function selectEnglishVoice(
   profile: VoiceProfile | undefined,
   taken: ReadonlySet<SpeechSynthesisVoice> = new Set()
 ): SelectedVoice {
-  const prefersUS = profile === "female_us" || profile === "male_us";
+  const prefersUS = !profile || profile.endsWith("_us");
   const wanted: "female" | "male" | null = profile
     ? profile.startsWith("female")
       ? "female"
@@ -251,7 +261,7 @@ function selectEnglishVoice(
   const pool = englishVoices(voices);
   const fallbackLang = prefersUS ? "en-US" : "en-GB";
   if (pool.length === 0) {
-    return { voice: undefined, lang: fallbackLang, pitch: 1 };
+    return { voice: undefined, lang: fallbackLang };
   }
 
   const regionOf = (voice: SpeechSynthesisVoice) => {
@@ -268,253 +278,206 @@ function selectEnglishVoice(
   };
 
   const chosen = [...pool].sort((a, b) => score(b) - score(a))[0];
-  const chosenGender = voiceGender(chosen);
-  // Voix au genre inconnu ou déjà prise : on module la hauteur pour distinguer les personnages.
-  let pitch = 1;
-  if (wanted && chosenGender !== wanted) pitch = wanted === "male" ? 0.82 : 1.15;
-  else if (taken.has(chosen)) pitch = wanted === "male" ? 0.88 : 1.1;
-  return { voice: chosen, lang: chosen.lang || fallbackLang, pitch };
+  return { voice: chosen, lang: chosen.lang || fallbackLang };
 }
 
-function speakNow(
-  text: string,
-  options: { rate?: number; pitch?: number; voiceProfile?: VoiceProfile; onEnded?: () => void }
+type PlaybackError = "unavailable" | "blocked";
+type PlaybackOptions = {
+  rate?: number;
+  pitch?: number;
+  onEnded?: () => void;
+  onError?: (reason: PlaybackError) => void;
+};
+
+type LineOptions = PlaybackOptions & { onLineChange?: (index: number | null) => void };
+
+function waitForEnglishVoices(
+  token: number,
+  ready: (voices: SpeechSynthesisVoice[]) => void,
+  failed: () => void
 ) {
-  const cleaned = text.replace(/\s+/g, " ").trim();
-  if (!cleaned) {
-    options.onEnded?.();
-    return;
-  }
-  try {
-    const token = ++activePlaybackToken;
-    clearPendingTimers();
-    const synth = window.speechSynthesis;
-    synth.cancel();
-    const utterance = new SpeechSynthesisUtterance(cleaned);
-    const { voice, lang, pitch } = selectEnglishVoice(refreshVoices(), options.voiceProfile);
-    utterance.lang = lang;
-    utterance.rate = options.rate ?? 0.96;
-    utterance.pitch = options.pitch ?? pitch;
-    if (voice) utterance.voice = voice;
+  if (!canSpeakEnglish()) return failed();
+  const initial = refreshVoices();
+  if (initial.length) return englishVoices(initial).length ? ready(initial) : failed();
 
-    let settled = false;
-    const finish = () => {
-      if (settled) return;
-      settled = true;
-      clearPendingTimers();
-      if (token === activePlaybackToken) options.onEnded?.();
-    };
-    utterance.onend = finish;
-    utterance.onerror = finish;
-    // Garde-fou si le navigateur ne déclenche jamais onend (mobiles, navigateurs sans affichage).
-    const estimatedMs = Math.max(1800, Math.min(20000, Math.round(((cleaned.length / 10) * 1000) / Math.max(0.6, utterance.rate)) + 1600));
-    activeTimers.push(window.setTimeout(finish, estimatedMs));
-    synth.speak(utterance);
-  } catch {
-    options.onEnded?.();
-  }
+  let done = false;
+  const finish = () => {
+    if (done || activePlaybackToken !== token) return;
+    done = true;
+    detach();
+    clearPendingTimers();
+    const voices = refreshVoices();
+    if (englishVoices(voices).length) ready(voices);
+    else failed();
+  };
+  const detach = subscribeToVoices(finish);
+  activeCleanup = detach;
+  activeTimers.push(window.setTimeout(finish, 1500));
 }
 
-/** Attend (au plus ~1,2 s) que le navigateur fournisse ses voix, puis exécute `run`. */
-function whenVoicesReady(run: () => void) {
-  if (refreshVoices().length > 0) {
-    run();
-    return;
-  }
-  let done = false;
-  const go = () => {
-    if (done) return;
-    done = true;
-    unsubscribe();
-    run();
+function playLines(token: number, lines: readonly DialogueAudioLine[], options: LineOptions) {
+  const failed = (reason: PlaybackError = "unavailable") => {
+    if (token !== activePlaybackToken) return;
+    activeCleanup?.();
+    activeCleanup = null;
+    clearPendingTimers();
+    options.onLineChange?.(null);
+    options.onError?.(reason);
   };
-  const unsubscribe = subscribeToVoices(go);
-  activeTimers.push(window.setTimeout(go, 1200));
+  waitForEnglishVoices(token, (voices) => {
+    const cast = new Map<string, SelectedVoice>();
+    const taken = new Set<SpeechSynthesisVoice>();
+    for (const line of lines) {
+      if (cast.has(line.speaker)) continue;
+      const voice = selectEnglishVoice(voices, line.voiceProfile, taken);
+      cast.set(line.speaker, voice);
+      if (voice.voice) taken.add(voice.voice);
+    }
+    function playLine(index: number) {
+      if (token !== activePlaybackToken) return;
+      const line = lines[index];
+      if (!line) {
+        options.onLineChange?.(null);
+        options.onEnded?.();
+        return;
+      }
+      const selection = cast.get(line.speaker);
+      try {
+        const utterance = new SpeechSynthesisUtterance(line.text);
+        utterance.voice = selection?.voice ?? null;
+        utterance.lang = selection?.lang ?? "en-US";
+        utterance.rate = options.rate ?? 1;
+        utterance.pitch = options.pitch ?? 1;
+        let done = false;
+        function finish(error?: PlaybackError) {
+          if (done || token !== activePlaybackToken) return;
+          done = true;
+          clearPendingTimers();
+          activeCleanup?.();
+          activeCleanup = null;
+          if (error) {
+            try { window.speechSynthesis.cancel(); } catch { /* already stopped */ }
+            failed(error);
+            return;
+          }
+          if (index + 1 < lines.length) {
+            activeTimers.push(window.setTimeout(() => playLine(index + 1), 260));
+          } else {
+            options.onLineChange?.(null);
+            options.onEnded?.();
+          }
+        }
+        activeCleanup = () => {
+          utterance.onstart = null;
+          utterance.onend = null;
+          utterance.onerror = null;
+        };
+        utterance.onstart = () => options.onLineChange?.(index);
+        utterance.onend = () => finish();
+        utterance.onerror = event => finish(event?.error === "not-allowed" ? "blocked" : "unavailable");
+        const timeout = Math.max(8000, (line.text.length / (8 * utterance.rate)) * 1000 + 6000);
+        activeTimers.push(window.setTimeout(() => finish("unavailable"), timeout));
+        window.speechSynthesis.speak(utterance);
+      } catch (error) {
+        failed(error instanceof Error && error.name === "NotAllowedError" ? "blocked" : "unavailable");
+      }
+    }
+    playLine(0);
+  }, failed);
+}
+
+function playSpeech(
+  mp3Url: string | null | undefined,
+  lines: readonly DialogueAudioLine[],
+  options: LineOptions,
+  lineStarts?: readonly number[]
+): "mp3" | "tts" | "muted" {
+  stopAllGameAudio();
+  const token = activePlaybackToken;
+  if (!lines.length || !lines.some(line => line.text.trim())) {
+    options.onError?.("unavailable");
+    return "muted";
+  }
+  const fallback = () => playLines(token, lines, options);
+  if (!mp3Url || typeof Audio === "undefined") {
+    fallback();
+    return canSpeakEnglish() ? "tts" : "muted";
+  }
+
+  try {
+    const player = new Audio(mp3Url);
+    activeAudioElement = player;
+    player.playbackRate = options.rate ?? 1;
+    player.preservesPitch = true;
+    let settled = false;
+    let lastLine = -1;
+    function settle(result: "ended" | "blocked" | "error") {
+      if (settled || token !== activePlaybackToken) return;
+      settled = true;
+      activeCleanup?.();
+      activeCleanup = null;
+      clearPendingTimers();
+      activeAudioElement = null;
+      player.pause();
+      options.onLineChange?.(null);
+      if (result === "ended") options.onEnded?.();
+      else if (result === "blocked") options.onError?.("blocked");
+      else fallback();
+    }
+    const monitor = () => {
+      if (token !== activePlaybackToken || settled) return;
+      clearPendingTimers();
+      activeTimers.push(window.setTimeout(() => settle("error"), 10000));
+      // Without actual cues, only a single-speaker recording has a known speaker.
+      const index = lineStarts?.length === lines.length
+        ? Math.max(0, lineStarts.filter(start => start <= player.currentTime).length - 1)
+        : lines.length === 1 ? 0 : -1;
+      if (lastLine !== index) {
+        lastLine = index;
+        options.onLineChange?.(index >= 0 ? index : null);
+      }
+    };
+    activeCleanup = () => {
+      player.onended = null;
+      player.onerror = null;
+      player.ontimeupdate = null;
+      player.onplaying = null;
+    };
+    player.onended = () => settle("ended");
+    player.onerror = () => settle("error");
+    player.onplaying = monitor;
+    player.ontimeupdate = monitor;
+    activeTimers.push(window.setTimeout(() => settle("error"), 10000));
+    try {
+      void player.play()?.catch((error: Error) => settle(error.name === "NotAllowedError" ? "blocked" : "error"));
+    } catch (error) {
+      settle(error instanceof Error && error.name === "NotAllowedError" ? "blocked" : "error");
+    }
+    return "mp3";
+  } catch {
+    fallback();
+    return canSpeakEnglish() ? "tts" : "muted";
+  }
 }
 
 export function speakEnglish(
-  text: string,
-  options?: { rate?: number; pitch?: number; voiceProfile?: VoiceProfile; onEnded?: () => void }
+  text: string, options: PlaybackOptions & { voiceProfile?: VoiceProfile } = {}
 ) {
-  if (!canSpeakEnglish()) {
-    options?.onEnded?.();
-    return;
-  }
-  whenVoicesReady(() => speakNow(text, options ?? {}));
+  return playClipOrSpeak({ text, ...options });
 }
 
-/**
- * Lit un fichier MP3 statique s'il est disponible sur le serveur, sinon
- * bascule proprement sur la synthèse vocale anglaise.
- */
 export function playClipOrSpeak({
-  mp3Url,
-  text,
-  rate = 0.96,
-  voiceProfile,
-  onEnded,
-}: {
-  mp3Url?: string | null;
-  text: string;
-  rate?: number;
-  voiceProfile?: VoiceProfile;
-  onEnded?: () => void;
-}): "mp3" | "tts" | "muted" {
-  if (mp3Url && typeof Audio !== "undefined") {
-    stopAllGameAudio();
-    const token = ++activePlaybackToken;
-    const audio = new Audio(mp3Url);
-    audio.playbackRate = rate;
-    activeAudioElement = audio;
-
-    const cleanup = () => {
-      if (activeAudioElement === audio) activeAudioElement = null;
-      if (token === activePlaybackToken) onEnded?.();
-    };
-    const fallback = () => {
-      if (activeAudioElement === audio) activeAudioElement = null;
-      if (token === activePlaybackToken) speakEnglish(text, { rate, voiceProfile, onEnded });
-    };
-
-    audio.addEventListener("ended", cleanup, { once: true });
-    audio.addEventListener("error", fallback, { once: true });
-    void audio.play().catch(fallback);
-    return "mp3";
-  }
-
-  if (!canSpeakEnglish()) {
-    onEnded?.();
-    return "muted";
-  }
-  speakEnglish(text, { rate, voiceProfile, onEnded });
-  return "tts";
+  mp3Url, text, voiceProfile, ...options
+}: PlaybackOptions & { mp3Url?: string | null; text: string; voiceProfile?: VoiceProfile }) {
+  return playSpeech(mp3Url, [{ speaker: "Voice", text, voiceProfile }], options);
 }
 
-/**
- * Lit un dialogue ou une annonce : le MP3 complet s'il existe dans
- * `public/audio/echo-signal/`, sinon les répliques une à une, avec une voix
- * différente par personnage dès que le navigateur en propose plusieurs.
- */
 export function playDialogueOrSpeak({
-  mp3Url,
-  lines,
-  rate = 0.96,
-  onLineChange,
-  onEnded,
-}: {
+  mp3Url, lines, lineStarts, ...options
+}: LineOptions & {
   mp3Url?: string | null;
   lines: readonly DialogueAudioLine[];
-  rate?: number;
-  onLineChange?: (index: number | null) => void;
-  onEnded?: () => void;
-}): "mp3" | "tts" | "muted" {
-  if (lines.length === 0) {
-    onLineChange?.(null);
-    onEnded?.();
-    return "muted";
-  }
-
-  if (mp3Url && typeof Audio !== "undefined") {
-    stopAllGameAudio();
-    const token = ++activePlaybackToken;
-    const audio = new Audio(mp3Url);
-    audio.playbackRate = rate;
-    activeAudioElement = audio;
-    onLineChange?.(0);
-
-    audio.addEventListener("timeupdate", () => {
-      if (token !== activePlaybackToken || !audio.duration || !Number.isFinite(audio.duration)) return;
-      const ratio = audio.currentTime / audio.duration;
-      onLineChange?.(Math.min(lines.length - 1, Math.floor(ratio * lines.length)));
-    });
-
-    const finishMp3 = () => {
-      if (activeAudioElement === audio) activeAudioElement = null;
-      if (token === activePlaybackToken) {
-        onLineChange?.(null);
-        onEnded?.();
-      }
-    };
-    const fallback = () => {
-      if (activeAudioElement === audio) activeAudioElement = null;
-      if (token === activePlaybackToken) whenVoicesReady(() => runSequentialTts(token));
-    };
-
-    audio.addEventListener("ended", finishMp3, { once: true });
-    audio.addEventListener("error", fallback, { once: true });
-    void audio.play().catch(fallback);
-    return "mp3";
-  }
-
-  if (!canSpeakEnglish()) {
-    onLineChange?.(null);
-    onEnded?.();
-    return "muted";
-  }
-
-  stopAllGameAudio();
-  const token = ++activePlaybackToken;
-  whenVoicesReady(() => runSequentialTts(token));
-  return "tts";
-
-  function runSequentialTts(runToken: number) {
-    if (runToken !== activePlaybackToken) return;
-    const synth = window.speechSynthesis;
-    synth.cancel();
-    const voices = refreshVoices();
-
-    // Une voix par personnage, choisie une fois pour tout le dialogue.
-    const castBySpeaker = new Map<string, SelectedVoice>();
-    const taken = new Set<SpeechSynthesisVoice>();
-    for (const line of lines) {
-      const key = `${line.speaker}|${line.voiceProfile ?? ""}`;
-      if (castBySpeaker.has(key)) continue;
-      const selected = selectEnglishVoice(voices, line.voiceProfile, taken);
-      castBySpeaker.set(key, selected);
-      if (selected.voice) taken.add(selected.voice);
-    }
-
-    const playIndex = (index: number) => {
-      if (runToken !== activePlaybackToken) return;
-      if (index >= lines.length) {
-        onLineChange?.(null);
-        onEnded?.();
-        return;
-      }
-
-      const line = lines[index];
-      onLineChange?.(index);
-      const cleaned = line.text.replace(/\s+/g, " ").trim();
-      if (!cleaned) {
-        playIndex(index + 1);
-        return;
-      }
-
-      try {
-        const utterance = new SpeechSynthesisUtterance(cleaned);
-        const cast = castBySpeaker.get(`${line.speaker}|${line.voiceProfile ?? ""}`);
-        utterance.lang = cast?.lang ?? "en-GB";
-        utterance.rate = rate;
-        utterance.pitch = cast?.pitch ?? 1;
-        if (cast?.voice) utterance.voice = cast.voice;
-
-        let settled = false;
-        const advance = () => {
-          if (settled || runToken !== activePlaybackToken) return;
-          settled = true;
-          activeTimers.push(window.setTimeout(() => playIndex(index + 1), 260));
-        };
-        utterance.onend = advance;
-        utterance.onerror = advance;
-        const safetyMs = Math.max(1800, Math.min(20000, Math.round(((cleaned.length / 10) * 1000) / Math.max(0.6, rate)) + 1500));
-        activeTimers.push(window.setTimeout(advance, safetyMs));
-        synth.speak(utterance);
-      } catch {
-        onLineChange?.(null);
-        onEnded?.();
-      }
-    };
-
-    playIndex(0);
-  }
+  lineStarts?: readonly number[];
+}) {
+  return playSpeech(mp3Url, lines, options, lineStarts);
 }

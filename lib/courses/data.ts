@@ -48,9 +48,9 @@ export const paliers: Palier[] = [
     level: "A2 - Élémentaire",
     courses: [
       { id: 11, title: "Le Past Simple (Prétérit)", type: "grammar" },
-      { id: 12, title: "Le Past Continuous (Imparfait)", type: "grammar" },
+      { id: 12, title: "Une action en cours dans le passé (Past Continuous)", type: "grammar" },
       { id: 13, title: "Used to / Didn't use to", type: "grammar" },
-      { id: 14, title: "Le Futur Proche (Going to)", type: "grammar" },
+      { id: 14, title: "Intentions et prévisions (Be going to)", type: "grammar" },
       { id: 15, title: "La Capacité (Can / Could / Be able to)", type: "grammar" },
       { id: 16, title: "L'Obligation (Must / Have to)", type: "grammar" },
       { id: 17, title: "Conseil (Should / Ought to)", type: "grammar" },

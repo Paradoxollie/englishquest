@@ -1,7 +1,7 @@
 # English Quest
 
 Site gratuit d'apprentissage de l'anglais par le jeu, créé par Pierre Marienne, professeur
-d'anglais. Parcours de cours avec quiz, sept mini-jeux, progression par XP et or, boutique
+d'anglais. Parcours de 50 cours avec quiz, neuf mini-jeux, progression par XP et or, boutique
 d'avatars, classements.
 
 Production : https://englishquest-omega.vercel.app

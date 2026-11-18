@@ -1,3 +1,5 @@
+import { GuestMissionTransfer } from "@/components/quest/guest-mission-transfer";
+import { getGuestScores } from "@/lib/courses/guest-progress-server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { resolveArt } from "@/lib/art-server";
@@ -6,6 +8,8 @@ import { getResolvedCourseMissionPlans } from "@/lib/courses/campaign-server";
 import { chapters, getCourseShortName } from "@/lib/courses/chapters";
 import { lessons } from "@/lib/courses/lessons";
 import { getUserCourseMissionState } from "@/lib/courses/mission-state";
+import { decodeCourseMissionTelemetry } from "@/lib/courses/mission-telemetry";
+import { isCourseQuizScorePassing } from "@/lib/courses/quiz-score";
 import { buildMissionSummary } from "@/lib/courses/mission-summary";
 import {
   buildGuestCourseRoadmap,
@@ -69,28 +73,31 @@ async function resolveRoadmap(userId: string): Promise<{
   roadmap: CourseRoadmap;
   justCompleted: CourseRoadmapEntry | null;
 }> {
-  const roadmap = await getCachedUserCourseRoadmap(userId);
-  const active = roadmap.currentCourse;
-  if (!active || active.status !== "in_progress") {
-    return { roadmap, justCompleted: null };
+  let roadmap = await getCachedUserCourseRoadmap(userId);
+  let justCompleted: CourseRoadmapEntry | null = null;
+  // A guest may already have passed a later quiz before opening its prerequisite.
+  for (let index = 0; index < roadmap.entries.length; index += 1) {
+    const entry = roadmap.entries[index];
+    if (entry.status !== "unlocked" && entry.status !== "in_progress") continue;
+    const proof = decodeCourseMissionTelemetry(entry.missionTelemetry);
+    if (!isCourseQuizScorePassing(proof.quizScore, proof.quizTotal)) continue;
+    const result = await completeCourseAndGrantRewards(userId, entry.courseId);
+    if (result.rewards.xp || result.rewards.gold) justCompleted = entry;
+    roadmap = await getUserCourseRoadmap(userId);
   }
-  const state = await getUserCourseMissionState(userId, active);
-  if (!state.readyToComplete) {
-    return { roadmap, justCompleted: null };
-  }
-  await completeCourseAndGrantRewards(userId, active.courseId);
-  return { roadmap: await getUserCourseRoadmap(userId), justCompleted: active };
+  return { roadmap, justCompleted };
 }
 
 export default async function QuestPage() {
   const user = await getServerUser();
   const isLoggedIn = Boolean(user);
+  const guestScores = await getGuestScores();
 
   const { roadmap, justCompleted } = user
     ? await resolveRoadmap(user.id)
-    : { roadmap: buildGuestCourseRoadmap(), justCompleted: null };
+    : { roadmap: buildGuestCourseRoadmap(guestScores), justCompleted: null };
 
-  const currentCourse = roadmap.currentCourse ?? roadmap.recommendedCourse ?? roadmap.entries[0] ?? null;
+  const currentCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
   const fallbackName = user?.user_metadata?.username ?? (user?.email ? user.email.split("@")[0] : undefined);
 
   const [missionPlans, player, missionState, placement, examRecords, practice] = await Promise.all([
@@ -172,6 +179,7 @@ export default async function QuestPage() {
 
   return (
     <div className="eq-quest">
+      {isLoggedIn && guestScores.size > 0 ? <GuestMissionTransfer /> : null}
       <section className="eq-quest-head">
         <div className="eq-container eq-quest-head-row">
           <div className="grid justify-items-start gap-4">
@@ -195,7 +203,7 @@ export default async function QuestPage() {
             </div>
           </div>
           <div className="eq-quest-next eq-slam eq-slam-4">
-            <span className="eq-caption">Prochaine mission</span>
+            <span className="eq-caption">{currentCourse ? "Prochaine mission" : "Parcours terminé"}</span>
             <p>
               {currentCourse ? (
                 <>
@@ -222,8 +230,8 @@ export default async function QuestPage() {
                 </Link>
               ) : null}
               {!isLoggedIn ? (
-                <Link href="/auth/signup" className="eq-text-link">
-                  Créer un compte
+                <Link href="/auth/signup?next=/quest" className="eq-text-link">
+                  {guestScores.size > 0 ? "Garder ma progression avec un compte" : "Créer un compte"}
                 </Link>
               ) : null}
             </div>
@@ -235,7 +243,8 @@ export default async function QuestPage() {
         <div className="eq-container">
           <div className="eq-quest-toast eq-pop" role="status">
             <b>Mission {justCompleted.courseId} validée.</b> {lessons[justCompleted.courseId]?.title ?? justCompleted.title} :
-            {" "}+{justCompleted.rewardXp} XP et +{justCompleted.rewardGold} or. La mission suivante est ouverte.
+            {" "}+{justCompleted.rewardXp} XP et +{justCompleted.rewardGold} or.
+            {justCompleted.courseId === 50 ? " Tu as atteint la dernière mission." : " La mission suivante est ouverte."}
           </div>
         </div>
       ) : null}

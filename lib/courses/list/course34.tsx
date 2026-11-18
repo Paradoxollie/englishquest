@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -89,45 +90,21 @@ export const course34: LessonContent = {
             )
         },
         {
-            title: "3. Tableau de Comparaison Ultime",
+            title: "Deux messages du réparateur",
             content: (
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse rounded-lg overflow-hidden">
-                        <thead>
-                            <tr className="bg-slate-800 text-slate-300">
-                                <th className="p-3">Temps</th>
-                                <th className="p-3">Structure</th>
-                                <th className="p-3">Exemple</th>
-                            </tr>
-                        </thead>
-                        <tbody className="text-slate-200 text-sm">
-                            <tr className="bg-slate-900/50 border-b border-slate-700">
-                                <td className="p-3 font-bold text-white">Present Simple</td>
-                                <td className="p-3">am/is/are + done</td>
-                                <td className="p-3">It <strong className="text-white">is cleaned</strong>. (Habitude)</td>
-                            </tr>
-                            <tr className="bg-slate-900/80 border-b border-slate-700">
-                                <td className="p-3 font-bold text-blue-300">Present Continuous</td>
-                                <td className="p-3">am/is/are <strong className="text-blue-400">being</strong> + done</td>
-                                <td className="p-3">It <strong className="text-blue-400">is being cleaned</strong>. (Maintenant)</td>
-                            </tr>
-                            <tr className="bg-slate-900/50 border-b border-slate-700">
-                                <td className="p-3 font-bold text-emerald-300">Present Perfect</td>
-                                <td className="p-3">has/have <strong className="text-emerald-400">been</strong> + done</td>
-                                <td className="p-3">It <strong className="text-emerald-400">has been cleaned</strong>. (Fini)</td>
-                            </tr>
-                            <tr className="bg-slate-900/80">
-                                <td className="p-3 font-bold text-purple-300">Past Simple</td>
-                                <td className="p-3">was/were + done</td>
-                                <td className="p-3">It <strong className="text-purple-400">was cleaned</strong>. (Hier)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "Your phone is being repaired.", meaning: "La réparation est en cours." },
+                  { english: "Your phone has been repaired. It’s ready to collect.", meaning: "Le téléphone peut être récupéré." },
+                  { english: "Your phones have been repaired.", meaning: "Avec le sujet pluriel phones, on emploie have." },
+                ]}
+              >
+                Le premier message décrit le travail en cours. Le deuxième, envoyé plus tard, annonce que l’intervention a abouti.
+              </LessonExamples>
             )
         },
         {
-            title: "Quiz Expert",
+            title: "Quiz · Situer une action au passif",
             content: (
                 <Quiz
                     questions={[
@@ -168,7 +145,7 @@ export const course34: LessonContent = {
                         },
                         {
                             id: 6,
-                            question: "Football ___ played in most countries.",
+                            question: "Décris une pratique générale, sans référence à un match en cours. Football ___ played in many countries.",
                             options: ["is", "is being"],
                             correctAnswer: 0,
                             explanation: "C'est une vérité générale/habitude ➔ IS (Simple).",
@@ -196,10 +173,10 @@ export const course34: LessonContent = {
                         },
                         {
                             id: 10,
-                            question: "All the tickets have been ___.",
-                            options: ["sold", "sell"],
+                            question: "Les places ont toutes été vendues. Quel message peut afficher le guichet ?",
+                            options: ["All the tickets have been sold.", "All the tickets are being sold right now.", "Tickets will go on sale tomorrow."],
                             correctAnswer: 0,
-                            explanation: "Have been + Participe Passé (Sold).",
+                            explanation: "Have been sold présente le résultat.",
                         }
                     ]}
                 />

@@ -1,7 +1,6 @@
-import { LessonContent, LessonSection, PlaceholderContent } from "@/lib/courses/types";
+import { LessonExamples } from "@/components/courses/lesson-examples";
+import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
-import { AlertIcon, InfoIcon, ArrowRightIcon } from "@/components/ui/icons";
-import { ReactNode } from "react";
 
 export const course19: LessonContent = {
   courseNumber: 19,
@@ -68,75 +67,29 @@ export const course19: LessonContent = {
       )
     },
     {
-      title: "3. MUCH (Pour les Indénombrables)",
+      title: "Much pour une quantité",
       content: (
-        <div className="space-y-6">
-          <p className="text-slate-300">
-            Pour dire "Beaucoup de" avec du singulier (Indénombrables), on utilise <span className="font-bold text-purple-400">MUCH</span>.
-          </p>
-
-          <div className="bg-red-900/30 p-4 rounded border border-red-500/50">
-            <h4 className="text-red-400 font-bold mb-2 uppercase flex items-center gap-2">
-              <span>⚠️</span> LE PIÈGE MORTEL
-            </h4>
-            <p className="text-slate-200 mb-2">
-              <strong>MUCH</strong> est interdit dans les phrases affirmatives (Positives) !
-            </p>
-            <p className="text-sm text-slate-300">
-              Il est réservé strictement aux :
-              <br />1. Phrases Négatives (-)
-              <br />2. Questions (?)
-            </p>
-          </div>
-
-          <div className="bg-slate-800 p-3 rounded border border-yellow-500/30 mt-2">
-            <strong className="text-yellow-400 text-xs uppercase mb-1 block">EXCEPTION IMPORTANTE :</strong>
-            <p className="text-sm text-slate-300">
-              <strong>MUCH</strong> est autorisé en positif S'IL est accompagné de <strong className="text-white">TOO</strong> (trop) ou <strong className="text-white">SO</strong> (tellement).
-            </p>
-            <ul className="text-xs text-slate-400 mt-1 list-disc ml-4">
-              <li>"I ate <strong>too much</strong> cake." (J'ai mangé trop de gâteau). <span className="text-green-400">OK</span></li>
-              <li>"Thank you <strong>so much</strong>." (Merci tellement/beaucoup). <span className="text-green-400">OK</span></li>
-            </ul>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 mt-4 text-sm">
-            <div className="bg-black/20 p-3 rounded">
-              <p className="text-slate-500 mb-1">Négatif (-) : <span className="text-green-400">Correct</span></p>
-              <p className="text-white">"I don't have <strong>much</strong> time."</p>
-            </div>
-            <div className="bg-black/20 p-3 rounded">
-              <p className="text-slate-500 mb-1">Question (?) : <span className="text-green-400">Correct</span></p>
-              <p className="text-white">"Do you have <strong>much</strong> money?"</p>
-            </div>
-            <div className="bg-black/20 p-3 rounded border border-red-500/30">
-              <p className="text-slate-500 mb-1">Affirmatif (+) : <span className="text-red-400 font-bold">INTERDIT</span></p>
-              <p className="text-red-300 line-through">"I have much money."</p>
-              <p className="text-slate-400 italic">➔ Voir section suivante pour la solution.</p>
-            </div>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "How much time do we have? We don’t have much time.", meaning: "Tu demandes quelle durée reste disponible." },
+            { english: "Much work remains.", meaning: "Formulation fréquente dans un rapport ou un registre soutenu." },
+          ]}
+        >
+          Much accompagne un nom indénombrable. On le rencontre souvent dans les questions et les négations, ainsi que dans l’écrit soutenu.
+        </LessonExamples>
       )
     },
     {
-      title: "4. Le Joker : A LOT OF",
+      title: "A lot of dans la conversation",
       content: (
-        <div className="space-y-6">
-          <p className="text-slate-300">
-            C'est le sauveur universel. Il remplace <strong className="text-purple-400">MUCH</strong> dans les phrases affirmatives (+).
-          </p>
-          <div className="bg-slate-900 p-4 rounded-lg border-l-4 border-yellow-500">
-            <h4 className="text-yellow-400 font-bold mb-2">La Règle d'Or en Affirmatif (+)</h4>
-            <p className="text-slate-200 mb-3">
-              Si la phrase est positive, utilisez toujours <strong className="text-yellow-400">A LOT OF</strong> (ou <em>Lots of</em>).
-            </p>
-            <ul className="space-y-2 text-sm text-slate-300">
-              <li>"I have <strong className="text-yellow-400">a lot of</strong> money." (Pas "Much")</li>
-              <li>"She drinks <strong className="text-yellow-400">a lot of</strong> water." (Pas "Much")</li>
-              <li>"We have <strong className="text-yellow-400">a lot of</strong> problems." (Fonctionne aussi avec Many)</li>
-            </ul>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "We have a lot of time.", meaning: "On a beaucoup de temps." },
+            { english: "She has a lot of friends.", meaning: "Elle a beaucoup d’amis." },
+          ]}
+        >
+          A lot of convient aux noms pluriels et aux indénombrables. C’est une façon courante d’exprimer une grande quantité à l’oral.
+        </LessonExamples>
       )
     },
     {
@@ -160,7 +113,7 @@ export const course19: LessonContent = {
       )
     },
     {
-      title: "Quiz : Much, Many ou A lot of ?",
+      title: "Quiz · Demander combien",
       content: (
         <Quiz
           questions={[
@@ -187,10 +140,10 @@ export const course19: LessonContent = {
             },
             {
               id: 4,
-              question: "Phrase Correcte : I have ___ time.",
+              question: "À l’oral, quelle expression est la plus courante pour dire « J’ai beaucoup de temps » ? I have ___ time.",
               options: ["much", "many", "a lot of"],
               correctAnswer: 2,
-              explanation: "PIÈGE ! Phrase affirmative (+). 'Much' est interdit. On doit utiliser 'A lot of'.",
+              explanation: "A lot of est courant dans la conversation. Much se rencontre aussi dans des emplois plus soutenus.",
             },
             {
               id: 5,

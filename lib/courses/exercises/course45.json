@@ -4,7 +4,7 @@
     {
       "id": "x1",
       "type": "mcq",
-      "question": "Complète : The streets are completely wet this morning. It ___ during the night.",
+      "question": "Les rues sont trempées. Ta seule explication plausible est la pluie. It ___ during the night.",
       "options": ["can't have rained", "must have rained", "should have rained", "must rained"],
       "correctAnswer": 1,
       "explanation": "L'indice est fort : on est presque sûr. Déduction sur le passé : must have + participe passé."

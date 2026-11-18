@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -80,46 +81,22 @@ export const course50: LessonContent = {
             )
         },
         {
-            title: "3. Les bons réflexes pour les réutiliser",
+            title: "Le trajet de Maya et Sam",
             content: (
-                <div className="space-y-6">
-                    <div className="rounded-xl border border-amber-500/50 bg-amber-950/20 p-5">
-                        <p className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-amber-300">
-                            Trois réflexes utiles
-                        </p>
-                        <ul className="space-y-3 text-slate-200">
-                            <li>Mémorise le sens principal avant les sens secondaires.</li>
-                            <li>Apprends si le verbe est séparable ou non.</li>
-                            <li>Associe toujours le phrasal verb à une situation concrète.</li>
-                        </ul>
-                    </div>
-
-                    <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
-                        <div className="space-y-3 text-slate-200">
-                            <p>
-                                Can you <strong>fill in</strong> this form?
-                            </p>
-                            <p>
-                                We need to <strong>deal with</strong> this problem today.
-                            </p>
-                            <p>
-                                I finally <strong>found out</strong> why the app was crashing.
-                            </p>
-                            <p>
-                                Please <strong>carry on</strong> with your presentation.
-                            </p>
-                        </div>
-                    </div>
-
-                    <p className="text-slate-300">
-                        Plus ton exposition est variée, plus ces verbes deviennent naturels. Le but n'est pas de tous
-                        les connaître, mais de rendre automatiques les plus rentables.
-                    </p>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "Can you pick me up at the station?", meaning: "Maya demande qu’on vienne la chercher." },
+                  { english: "Could you drop me off at the theatre?", meaning: "Elle indique ensuite où elle veut descendre." },
+                  { english: "We’ve run out of petrol. Let’s find a station.", meaning: "Un imprévu change le trajet." },
+                ]}
+                note={"Pour raconter ta propre version, change le point de départ, la destination et ce qui vient à manquer."}
+              >
+                Le téléphone de Maya vibre. Lis les trois messages dans l’ordre et imagine ce que Sam doit faire.
+              </LessonExamples>
             )
         },
         {
-            title: "Quiz complet",
+            title: "Quiz · Placer le complément d’un verbe à particule",
             content: (
                 <Quiz
                     questions={[
@@ -174,10 +151,10 @@ export const course50: LessonContent = {
                         },
                         {
                             id: 8,
-                            question: "Pick up can mean ...",
-                            options: ["refuse an invitation", "collect or lift"],
-                            correctAnswer: 1,
-                            explanation: "Pick up est très polyvalent, mais l'idée de prendre ou récupérer reste centrale.",
+                            question: "« I’ll pick you up at six outside the station. » Que proposes-tu ?",
+                            options: ["Venir chercher la personne.", "La déposer à la gare avant six heures.", "Lui faire remplir un document."],
+                            correctAnswer: 0,
+                            explanation: "Dans ce trajet, pick someone up signifie venir chercher quelqu’un.",
                         },
                         {
                             id: 9,
@@ -188,10 +165,10 @@ export const course50: LessonContent = {
                         },
                         {
                             id: 10,
-                            question: "The best strategy with essential phrasal verbs is ...",
-                            options: ["memorize random long lists without examples", "learn a core set deeply in context"],
-                            correctAnswer: 1,
-                            explanation: "Un petit noyau solide vaut mieux qu'une longue liste oubliée.",
+                            question: "Le réservoir est vide, Maya doit prévenir Sam. Quel message envoie-t-elle ?",
+                            options: ["We’ve run out of petrol.", "We’ve put on petrol.", "We’ve looked after petrol."],
+                            correctAnswer: 0,
+                            explanation: "Run out of signifie que la réserve est épuisée.",
                         }
                     ]}
                 />

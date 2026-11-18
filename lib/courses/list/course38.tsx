@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -27,45 +28,17 @@ export const course38: LessonContent = {
             )
         },
         {
-            title: "1. La Règle d'Or : Le Test du Sujet",
+            title: "Quand peut-on omettre le pronom ?",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        En anglais, vous pouvez supprimer le pronom relatif (Who, That, Which) <strong>UNIQUEMENT</strong> s'il est suivi d'un nouveau Sujet + Verbe.
-                    </p>
-
-                    <div className="bg-slate-900 p-6 rounded-xl border border-emerald-500 relative">
-                        <h4 className="text-emerald-400 font-bold uppercase mb-4 text-center">OMISSION AUTORISÉE (Pronoms Objets)</h4>
-
-                        <div className="text-center space-y-4">
-                            <p className="text-xl text-white">"The movie <span className="text-slate-500 line-through decoration-2 decoration-red-500 text-sm mx-1">(that)</span> <strong className="text-emerald-400 border-b border-emerald-400">we saw</strong> was good."</p>
-
-                            <div className="bg-emerald-900/20 p-3 rounded text-left text-sm text-emerald-200">
-                                <p><strong>Analyse :</strong></p>
-                                <ul className="list-disc list-inside">
-                                    <li>Après le pronom, avons-nous un sujet ? <strong>OUI (We)</strong>.</li>
-                                    <li>Conclusion : Le pronom est un Objet. On peut l'enlever.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-slate-900 p-6 rounded-xl border border-red-500 relative mt-6">
-                        <h4 className="text-red-400 font-bold uppercase mb-4 text-center">OMISSION INTERDITE (Pronoms Sujets)</h4>
-
-                        <div className="text-center space-y-4">
-                            <p className="text-xl text-white">"The man <strong className="text-red-400 border-b-2 border-red-400">who</strong> <span className="text-slate-400 decoration-slate-500">called</span> is here."</p>
-
-                            <div className="bg-red-900/20 p-3 rounded text-left text-sm text-red-200">
-                                <p><strong>Analyse :</strong></p>
-                                <ul className="list-disc list-inside">
-                                    <li>Après le pronom, avons-nous un sujet ? <strong>NON</strong>. C'est directement le verbe (Called).</li>
-                                    <li>Conclusion : Le pronom est le Sujet. Il est <strong>OBLIGATOIRE</strong>.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "The cake (that) I made is ready.", meaning: "I fait l’action. Le gâteau est l’objet de made." },
+                  { english: "The friend who called is here.", meaning: "Who fait l’action de téléphoner." },
+                  { english: "My bike, which I bought last year, is already broken.", meaning: "La précision entre virgules garde which." },
+                ]}
+              >
+                Dans une relative qui identifie le nom, un pronom objet peut être omis. Un pronom sujet reste nécessaire. Dans une relative entre virgules qui ajoute simplement une précision, conserve le pronom.
+              </LessonExamples>
             )
         },
         {
@@ -92,7 +65,7 @@ export const course38: LessonContent = {
             )
         },
         {
-            title: "Exercices de Structure",
+            title: "Quiz · Reconnaître le pronom facultatif",
             content: (
                 <Quiz
                     questions={[
@@ -161,10 +134,10 @@ export const course38: LessonContent = {
                         },
                         {
                             id: 10,
-                            question: "The song ___ you are listening to is great.",
-                            options: ["- (Rien)", "who"],
+                            question: "Quel message ajoute correctement une précision entre virgules sur un vélo déjà identifié ?",
+                            options: ["My bike, which I bought last year, is blue.", "My bike, I bought last year, is blue.", "My bike, that I bought last year, is blue."],
                             correctAnswer: 0,
-                            explanation: "Pronom objet (suivi de 'you are'). Omission possible.",
+                            explanation: "Which reste exprimé dans cette relative qui ajoute une précision.",
                         }
                     ]}
                 />

@@ -54,10 +54,10 @@ check("Wordfall retains used words beyond five catches", () => {
   assert.equal(wordfall.validateFreeWord("APPLE", "A", state.usedWords).valid, false);
 });
 
-check("Wordfall accepts expressions, accents and typographic apostrophes", () => {
-  assert.equal(wordfall.validateExactWord("  DUE   TO à cause de ", "DUE TO", "à cause de").valid, true);
-  assert.equal(wordfall.validateExactWord("SUMMER ete", "SUMMER", "été").valid, true);
-  assert.equal(wordfall.validateExactWord("TODAY aujourd’hui", "TODAY", "aujourd'hui").valid, true);
+check("Wordfall recalls English from the French cue, including expressions and curly apostrophes", () => {
+  assert.equal(wordfall.validateExactWord("  DUE   TO ", "DUE TO", "à cause de").valid, true);
+  assert.equal(wordfall.validateExactWord("l’été", "SUMMER", "été").valid, false);
+  assert.equal(wordfall.validateExactWord("I’m", "I'M", "je suis").valid, true);
 });
 
 check("Wordfall only spawns letters with an unused valid answer", () => {
@@ -176,15 +176,19 @@ check("Wordfall caught words are not dropped again while others remain", () => {
   let state = wordfall.startGame(wordfall.createGameState({ mode: "exact", vocabLevel: 2 }));
   const word = wordfall.spawnFallingWord(state, { mode: "exact" });
   state = { ...state, activeWords: [word], activeWord: word };
-  const result = wordfall.processWordInput(state, `${word.text} ${word.translation}`);
+  assert.equal(word.displayText, word.translation);
+  const result = wordfall.processWordInput(state, word.text);
   assert.equal(result.success, true);
   assert.ok(result.newState.usedWords.includes(word.text));
   assert.equal(wordfall.startGame({ ...result.newState, gameOver: true }).vocabLevel, 2, "replay keeps the level");
 });
 
-check("Wordfall accepts oe typed for the ligature", () => {
-  assert.equal(wordfall.validateExactWord("SISTER soeur", "SISTER", "sœur").valid, true);
-  assert.equal(wordfall.validateExactWord("EGG oeuf", "EGG", "œuf").valid, true);
+check("Wordfall accepts other English answers with the same French cue", () => {
+  wordfall.initializeDictionary({ HOME: "maison", HOUSE: "maison", HORSE: "cheval", SURE: "sûr", ON: "sur" });
+  assert.equal(wordfall.validateExactWord("house", "HOME", "maison").valid, true);
+  assert.equal(wordfall.validateExactWord("horse", "HOME", "maison").valid, false);
+  assert.equal(wordfall.validateExactWord("neighbor", "NEIGHBOUR", "voisin").valid, true);
+  assert.equal(wordfall.validateExactWord("on", "SURE", "sûr").valid, false);
 });
 
 function playingState() {
@@ -350,15 +354,15 @@ check("Wordfall normalizes hyphens and apostrophes and scales active word cap", 
     levels: { "ICE-CREAM": 1, "TODAY": 1, "APPLE": 1 },
   });
   const start = wordfall.startGame(wordfall.createGameState({ mode: "exact" }));
-  const card = { id: "ice", text: "ICE-CREAM", displayText: "ICE-CREAM", translation: "crème glacée", x: 50, lane: 1, y: 20, speed: 8.5 };
-  const hit = wordfall.processWordInput({ ...start, activeWords: [card], activeWord: card }, "ice cream creme glacee");
+  const card = { id: "ice", text: "ICE-CREAM", displayText: "crème glacée", translation: "crème glacée", x: 50, lane: 1, y: 20, speed: 8.5 };
+  const hit = wordfall.processWordInput({ ...start, activeWords: [card], activeWord: card }, "ice cream");
   assert.equal(hit.success, true);
   assert.equal(hit.matchedWord.id, "ice");
-  const apostropheCard = { id: "today", text: "TODAY", displayText: "TODAY", translation: "aujourd'hui", x: 50, lane: 1, y: 20, speed: 8.5 };
-  const hit2 = wordfall.processWordInput({ ...start, activeWords: [apostropheCard], activeWord: apostropheCard }, "today aujourdhui");
+  const apostropheCard = { id: "today", text: "TODAY", displayText: "aujourd'hui", translation: "aujourd'hui", x: 50, lane: 1, y: 20, speed: 8.5 };
+  const hit2 = wordfall.processWordInput({ ...start, activeWords: [apostropheCard], activeWord: apostropheCard }, "today");
   assert.equal(hit2.success, true);
   assert.equal(wordfall.getWordfallMaxActiveWords({ ...start, level: 1 }), 1);
-  // Un seul mot à la fois jusqu'au niveau 3 : l'élève tape l'anglais et le français.
+  // At beginner levels only one cue falls at a time.
   assert.equal(wordfall.getWordfallMaxActiveWords({ ...start, level: 3 }), 1);
   assert.equal(wordfall.getWordfallMaxActiveWords({ ...start, level: 4 }), 2);
   assert.equal(wordfall.getWordfallMaxActiveWords({ ...start, level: 7 }), 3);

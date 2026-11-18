@@ -87,7 +87,7 @@
     {
       "id": "x12",
       "type": "order",
-      "answers": ["Does Chloé play tennis on Saturdays?"],
+      "answers": ["Does Chloé play tennis on Saturdays?", "On Saturdays does Chloé play tennis?"],
       "translation": "Est-ce que Chloé joue au tennis le samedi ?",
       "explanation": "On Saturdays indique une habitude : present simple. Question à la 3e personne : Does + sujet + base verbale."
     },

@@ -1,7 +1,6 @@
-import { LessonContent, LessonSection, PlaceholderContent } from "@/lib/courses/types";
+import { LessonExamples } from "@/components/courses/lesson-examples";
+import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
-import { AlertIcon, InfoIcon, ArrowRightIcon } from "@/components/ui/icons";
-import { ReactNode } from "react";
 
 export const course16: LessonContent = {
   courseNumber: 16,
@@ -9,128 +8,47 @@ export const course16: LessonContent = {
   description: "La loi interne vs la loi externe.",
   icon: "👮",
   difficulty: "Difficile",
-  objective: "Distinguer l'obligation personnelle (Must) de l'obligation imposée (Have to) et maîtriser l'interdiction.",
+  objective: "Exprimer une obligation, une interdiction ou une absence d’obligation.",
   sections: [
     {
-      title: "Introduction : Le Chef, c'est qui ?",
+      title: "Parler d’une obligation",
       content: (
-        <div className="space-y-6">
-          <div className="bg-slate-900/50 p-6 rounded-xl border-l-4 border-red-600">
-            <p className="text-lg text-slate-100 leading-relaxed font-medium">
-              Pour dire "Je dois", l'anglais fait une distinction psychologique que le français ignore :
-              <br />
-              <strong className="text-white">Est-ce que l'ordre vient de VOUS ou de l'EXTÉRIEUR ?</strong>
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-            <div className="bg-slate-800 p-4 rounded-lg flex flex-col items-center text-center border-t-4 border-purple-500">
-              <span className="text-4xl mb-2">🧠</span>
-              <p className="text-purple-400 font-bold uppercase">MUST (Interne)</p>
-              <p className="text-slate-400 text-sm mt-1">Je me l'impose à moi-même. C'est mon sentiment.</p>
-              <p className="text-white font-mono mt-2 text-sm bg-slate-900 p-2 rounded">"I <span className="text-purple-400">must</span> call mom."</p>
-              <p className="text-xs text-slate-500 mt-1">(Je pense que c'est nécessaire).</p>
-            </div>
-            <div className="bg-slate-800 p-4 rounded-lg flex flex-col items-center text-center border-t-4 border-orange-500">
-              <span className="text-4xl mb-2">📜</span>
-              <p className="text-orange-400 font-bold uppercase">HAVE TO (Externe)</p>
-              <p className="text-slate-400 text-sm mt-1">C'est la règle, la loi, ou la situation qui m'oblige.</p>
-              <p className="text-white font-mono mt-2 text-sm bg-slate-900 p-2 rounded">"I <span className="text-orange-400">have to</span> wear a tie."</p>
-              <p className="text-xs text-slate-500 mt-1">(C'est le règlement au travail).</p>
-            </div>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "Passengers must wear seat belts.", meaning: "Formulation courante sur un panneau." },
+            { english: "We have to wear seat belts.", meaning: "Une personne explique la règle." },
+            { english: "I must remember my ticket.", meaning: "Je me rappelle à moi-même quelque chose d’important." },
+          ]}
+        >
+          Must et have to expriment tous deux une nécessité. Le point de vue et le registre orientent le choix. Un règlement peut employer must directement.
+        </LessonExamples>
       )
     },
     {
-      title: "1. Le Piège du Temps (MUST est défectif)",
+      title: "Une obligation aujourd’hui, hier ou demain",
       content: (
-        <div className="space-y-6">
-          <p className="text-slate-200">
-            <strong className="text-purple-400">MUST</strong> est un modal "diva". Il refuse de travailler au passé ou au futur.
-            <br />
-            Dès qu'on sort du présent, il démissionne et laisse la place à <strong className="text-orange-400">HAVE TO</strong>.
-          </p>
-
-          <div className="bg-slate-900 rounded-lg overflow-x-auto border border-slate-700 mt-4">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-800 text-slate-200">
-                <tr>
-                  <th className="p-3 text-left">Temps</th>
-                  <th className="p-3 text-left">Verbe utilisé</th>
-                  <th className="p-3 text-left">Exemple</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-700">
-                <tr className="bg-purple-900/10">
-                  <td className="p-3 font-bold text-slate-400">Présent</td>
-                  <td className="p-3 text-purple-400 font-bold">Must / Have to</td>
-                  <td className="p-3 text-white">I <span className="text-purple-400">must</span> go.</td>
-                </tr>
-                <tr className="bg-red-900/10">
-                  <td className="p-3 font-bold text-slate-400">Passé</td>
-                  <td className="p-3 text-orange-400 font-bold">HAD TO</td>
-                  <td className="p-3 text-white">I <span className="text-orange-400">had to</span> go yesterday. <span className="text-xs text-red-500 ml-1">(Must impossible)</span></td>
-                </tr>
-                <tr className="bg-blue-900/10">
-                  <td className="p-3 font-bold text-slate-400">Futur</td>
-                  <td className="p-3 text-orange-400 font-bold">WILL HAVE TO</td>
-                  <td className="p-3 text-white">I <span className="text-orange-400">will have to</span> go.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div className="bg-amber-900/20 border-l-4 border-amber-500 p-3 rounded-r mt-2">
-            <p className="text-amber-200 text-sm">
-              <strong>Rappel :</strong> "He has to" (3e personne) prend un S. "Must" est invariable.
-            </p>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "You must call me tomorrow.", meaning: "L’obligation porte sur demain." },
+            { english: "I had to leave early yesterday.", meaning: "L’obligation se situait hier." },
+            { english: "We’ll have to leave before six.", meaning: "L’horaire nous imposera de partir tôt." },
+          ]}
+        >
+          Must peut viser l’avenir avec un repère comme tomorrow. Pour raconter une obligation passée, emploie had to. Pour annoncer ce que les circonstances imposeront, will have to est disponible.
+        </LessonExamples>
       )
     },
     {
-      title: "2. Le Sherlock Holmes (Déduction Logique)",
+      title: "Déduire à partir d’un indice",
       content: (
-        <div className="space-y-6">
-          <div className="bg-indigo-900/40 p-5 rounded-xl border-l-4 border-indigo-500">
-            <h3 className="text-indigo-300 font-bold text-lg mb-2 flex items-center gap-2">
-              <span className="text-2xl">🕵️‍♂️</span> Must pour la Logique (99% Sûr)
-            </h3>
-            <p className="text-slate-200">
-              Parfois, <strong className="text-purple-400">MUST</strong> ne veut pas dire "Il faut", mais "C'est sûrement vrai".
-              <br />
-              On l'utilise quand on a une preuve évidente.
-            </p>
-            <div className="mt-4 bg-slate-900 p-3 rounded text-sm font-mono text-white">
-              "You worked 12 hours? You <span className="text-purple-400 font-bold">must be</span> tired."
-              <br />
-              <span className="text-slate-500 text-xs italic">(Logique : Tu dois être fatigué.)</span>
-            </div>
-          </div>
-
-          <div className="bg-red-900/20 p-5 rounded-xl border-l-4 border-red-500">
-            <h3 className="text-red-400 font-bold text-lg mb-2 flex items-center gap-2">
-              <span className="text-2xl">⚡</span> Le Piège de la Déduction Négative
-            </h3>
-            <p className="text-slate-200 mb-2">
-              Si vous êtes sûr que c'est <strong>faux</strong>, n'utilisez jamais "mustn't".
-              <br />
-              Utilisez <strong className="text-red-400">CAN'T</strong>.
-            </p>
-            <ul className="space-y-2 text-sm">
-              <li className="flex gap-2">
-                <span className="text-red-500">❌</span>
-                <span className="text-slate-400 line-through">"It mustn't be true."</span>
-              </li>
-              <li className="flex gap-2">
-                <span className="text-emerald-500">✅</span>
-                <span className="text-white">"It <strong className="text-red-400">can't</strong> be true."</span>
-                <span className="text-slate-500 text-xs self-center">(Ça ne peut pas être vrai).</span>
-              </li>
-            </ul>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "You worked all night. You must be tired.", meaning: "Tu déduis la fatigue à partir de la nuit de travail." },
+            { english: "That can’t be Maya. She’s abroad.", meaning: "Tu disposes d’un indice qui exclut cette personne." },
+          ]}
+        >
+          Must exprime aussi une conclusion que les indices rendent très plausible. Avec can’t, tu juges une explication impossible.
+        </LessonExamples>
       )
     },
     {
@@ -186,7 +104,7 @@ export const course16: LessonContent = {
       )
     },
     {
-      title: "Validation des Connaissances",
+      title: "Quiz · Distinguer obligation et interdiction",
       content: (
         <Quiz
           title="Le Juge de l'Obligation"
@@ -200,10 +118,10 @@ export const course16: LessonContent = {
             },
             {
               id: 2,
-              question: "Look at his Ferrari. He ___ be rich!",
-              options: ["must", "has to", "can", "mustn't"],
-              correctAnswer: 0,
-              explanation: "DÉDUCTION LOGIQUE (Sherlock). Ce n'est pas une obligation, c'est une quasi-certitude. ➔ HE MUST BE RICH.",
+              question: "Il bâille après sa nuit de travail. Complète « He ___ be tired » avec le modal qui exprime une forte déduction.",
+              options: ["might", "must", "shouldn’t", "can’t"],
+              correctAnswer: 1,
+              explanation: "Must exprime ici la conclusion que tu tires des indices.",
             },
             {
               id: 3,
@@ -235,17 +153,17 @@ export const course16: LessonContent = {
             },
             {
               id: 7,
-              question: "Passengers ___ wear seat belts. (Panneau officiel)",
-              options: ["have to", "must", "can", "will"],
+              question: "Sur un panneau, choisis le modal qui exprime une obligation. Passengers ___ wear seat belts.",
+              options: ["might", "must", "may", "could"],
               correctAnswer: 1,
-              explanation: "Instruction écrite/règlement officiel. Sur les panneaux, MUST est utilisé pour l'autorité directe.",
+              explanation: "Must exprime l’obligation. Have to serait également naturel dans une phrase qui explique le règlement.",
             },
             {
               id: 8,
-              question: "Tomorrow, I ___ get up early.",
+              question: "Tu anticipes ce que ton nouvel horaire va t’imposer. Tomorrow I ___ get up early.",
               options: ["must to", "will must", "will have to", "had to"],
               correctAnswer: 2,
-              explanation: "Futur. Must n'a pas de forme future (jamais 'will must'). WILL HAVE TO.",
+              explanation: "Will have to annonce une obligation future. You must get up early tomorrow est également naturel.",
             },
             {
               id: 9,
@@ -256,10 +174,10 @@ export const course16: LessonContent = {
             },
             {
               id: 10,
-              question: "I have a toothache. I ___ see a dentist. (C'est moi qui le décide).",
-              options: ["have to", "must", "can", "don't have to"],
+              question: "Que signifie « You don’t have to come tomorrow » ?",
+              options: ["Ta présence est interdite.", "Ta présence est facultative.", "Ta présence est obligatoire."],
               correctAnswer: 1,
-              explanation: "Obligation interne (Ressenti personnel). MUST.",
+              explanation: "Don’t have to laisse le choix. Mustn’t exprimerait une interdiction.",
             },
           ]}
         />

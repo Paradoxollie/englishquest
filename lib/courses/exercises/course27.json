@@ -4,7 +4,7 @@
     {
       "id": "x1",
       "type": "mcq",
-      "question": "Ton amie te dit : « I haven't got a pen! » Tu lui proposes de lui en prêter un. Que dis-tu ?",
+      "question": "Ton amie n’a plus de stylo. Fais une offre spontanée en utilisant will.",
       "options": ["I'm going to lend you one.", "I lend you one.", "I'll lend you one.", "I'm lending you one."],
       "correctAnswer": 2,
       "explanation": "Tu proposes ton aide sur le moment : will. Attention, « je vais » ne se traduit pas toujours par going to."
@@ -20,7 +20,7 @@
     {
       "id": "x3",
       "type": "mcq",
-      "question": "Complète : Why have you bought two tickets? - Because I ___ take my sister to a concert.",
+      "question": "Les billets sont achetés. Annonce ton intention avec be going to. I ___ take my sister to a concert.",
       "options": ["will", "am going to", "go to", "am going"],
       "correctAnswer": 1,
       "explanation": "Les billets prouvent que le projet existait déjà avant la conversation : be going to."
@@ -36,10 +36,10 @@
     {
       "id": "x5",
       "type": "mcq",
-      "question": "Dans quelle situation utilise-t-on going to ?",
+      "question": "Dans quelle situation going to présente-t-il clairement une intention ?",
       "options": ["Tu proposes ton aide à quelqu'un.", "Tu fais une promesse.", "Tu parles d'un projet déjà organisé.", "Tu décides sur le moment."],
       "correctAnswer": 2,
-      "explanation": "Going to sert à parler d'un projet décidé avant de parler. Pour une offre, une promesse ou une décision sur le moment, on utilise will."
+      "explanation": "Going to peut présenter une intention déjà formée. L’organisation peut être encore à venir."
     },
     {
       "id": "x6",

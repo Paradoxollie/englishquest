@@ -78,7 +78,7 @@ export const games: GameConfig[] = [
     slug: "wordfall",
     name: "Wordfall",
     description:
-      "Tape les mots qui tombent avant qu'ils ne touchent le sol. En mode libre, trouve autant de mots valides que possible.",
+      "Traduis les blocs français en anglais avant qu’ils ne touchent le sol. En mode libre, trouve un mot pour chaque initiale.",
     difficulty: "easy",
     tags: ["Vocabulaire", "Saisie", "Vitesse"],
     icon: "WF",
@@ -114,7 +114,7 @@ export const games: GameConfig[] = [
     slug: "flashback",
     name: "Flashback",
     description:
-      "Mémorise les mots, puis repère ceux que tu as déjà vus. Un entraînement court pour la reconnaissance.",
+      "Repère les mots déjà vus et retrouve leur sens quand ils reviennent.",
     difficulty: "medium",
     tags: ["Vocabulaire", "Mémoire", "Apprentissage"],
     icon: "FB",

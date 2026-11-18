@@ -1,7 +1,6 @@
-import { LessonContent, LessonSection, PlaceholderContent } from "@/lib/courses/types";
+import { LessonExamples } from "@/components/courses/lesson-examples";
+import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
-import { AlertIcon, InfoIcon, ArrowRightIcon } from "@/components/ui/icons";
-import { ReactNode } from "react";
 
 export const course11: LessonContent = {
   courseNumber: 11,
@@ -12,79 +11,34 @@ export const course11: LessonContent = {
   objective: "Raconter des faits passés datés et terminés.",
   sections: [
     {
-      title: "Introduction : La Boîte Fermée",
+      title: "Situer un événement passé",
       content: (
-        <div className="space-y-6">
-          <div className="bg-slate-900/50 p-6 rounded-xl border-l-4 border-indigo-500">
-            <p className="text-lg text-slate-100 leading-relaxed font-medium">
-              Le Past Simple sert à parler d'événements qui sont <strong>complètement terminés</strong>. Il n'y a plus aucun lien avec le présent.
-              <br /><br />
-              C'est comme une boîte fermée et rangée dans le grenier. L'histoire est finie.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div className="bg-slate-800 p-4 rounded-lg flex flex-col items-center text-center">
-              <span className="text-4xl mb-2">✂️</span>
-              <p className="text-white font-bold">La Rupture</p>
-              <p className="text-slate-400 text-sm mt-1">On coupe le lien avec "Maintenant".</p>
-            </div>
-            <div className="bg-slate-800 p-4 rounded-lg flex flex-col items-center text-center">
-              <span className="text-4xl mb-2">📅</span>
-              <p className="text-white font-bold">La Date</p>
-              <p className="text-slate-400 text-sm mt-1">Souvent accompagné de "Yesterday", "In 1999", "Last week".</p>
-            </div>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "I broke my arm yesterday.", meaning: "L’accident s’est passé hier. Mon bras peut encore être plâtré." },
+            { english: "We went to Brighton last weekend.", meaning: "Le récit porte sur le week-end dernier." },
+          ]}
+        >
+          Le prétérit présente un fait à un moment passé. Ses conséquences peuvent durer jusqu’à aujourd’hui.
+        </LessonExamples>
       )
     },
     {
-      title: "Partie 1 : Les Réguliers (+ED) et le Piège de Prononciation",
+      title: "Entendre la terminaison -ed",
       content: (
-        <div className="space-y-6">
-          <p className="text-slate-200">
-            Pour 80% des verbes, il suffit d'ajouter <strong className="text-emerald-400">-ED</strong> à la fin.
-            <br />
-            <span className="font-mono text-slate-400">Work ➔ Worked | Play ➔ Played</span>
-          </p>
-
-          <div className="bg-red-900/20 border-l-4 border-red-500 p-4 rounded-r-xl">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xl">🚨</span>
-              <h4 className="text-red-400 font-bold uppercase">Le Piège Mortel : La Prononciation</h4>
-            </div>
-            <p className="text-slate-300 text-sm">
-              Les francophones ont tendance à prononcer le "E" de "-ed" (ex: "Work-euh-d"). <strong className="text-white">C'EST INTERDIT !</strong>
-              <br />
-              Le "E" est muet dans 90% des cas. On passe directement de la racine au "D/T".
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono text-sm">
-            <div className="bg-slate-800 p-3 rounded border-t-4 border-emerald-500">
-              <p className="text-emerald-400 font-bold mb-1">Son /T/ (Sourd)</p>
-              <p className="text-slate-400 text-xs mb-2">Après K, P, S, SH, CH, F</p>
-              <p className="text-white">Work<span className="text-emerald-400">ed</span> ➔ "Work-T"</p>
-              <p className="text-white">Stop<span className="text-emerald-400">ped</span> ➔ "Stop-T"</p>
-            </div>
-            <div className="bg-slate-800 p-3 rounded border-t-4 border-amber-500">
-              <p className="text-amber-400 font-bold mb-1">Son /D/ (Vibrant)</p>
-              <p className="text-slate-400 text-xs mb-2">Après voyelles et sons doux</p>
-              <p className="text-white">Play<span className="text-amber-400">ed</span> ➔ "Play-D"</p>
-              <p className="text-white">Live<span className="text-amber-400">d</span> ➔ "Live-D"</p>
-            </div>
-            <div className="bg-slate-800 p-3 rounded border-t-4 border-purple-500">
-              <p className="text-purple-400 font-bold mb-1">Son /ID/ (L'Exception)</p>
-              <p className="text-slate-400 text-xs mb-2">Seulement après T ou D</p>
-              <p className="text-white">Want<span className="text-purple-400">ed</span> ➔ "Want-Id"</p>
-              <p className="text-white">Decid<span className="text-purple-400">ed</span> ➔ "Decid-Id"</p>
-            </div>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "I worked. I watched.", meaning: "Après un son sourd comme /k/ ou /tʃ/, on entend /t/." },
+            { english: "We played. We lived.", meaning: "Après une voyelle ou un son voisé comme /v/, on entend /d/." },
+            { english: "She wanted it. He needed it.", meaning: "Après /t/ ou /d/, on entend /ɪd/." },
+          ]}
+        >
+          Les verbes réguliers prennent -ed. À l’oral, écoute le dernier son de la base verbale. Après /t/ ou /d/, la terminaison ajoute une syllabe.
+        </LessonExamples>
       )
     },
     {
-      title: "Partie 2 : La Liste Noire (Les Irréguliers)",
+      title: "Quelques verbes irréguliers",
       content: (
         <div className="space-y-6">
           <p className="text-slate-200">
@@ -166,7 +120,7 @@ export const course11: LessonContent = {
       )
     },
     {
-      title: "Validation des Connaissances",
+      title: "Quiz · Raconter un événement passé",
       content: (
         <Quiz
           title="Past Simple Master"

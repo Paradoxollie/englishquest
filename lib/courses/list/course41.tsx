@@ -152,7 +152,7 @@ export const course41: LessonContent = {
             )
         },
         {
-            title: "Quiz complet",
+            title: "Quiz · Imaginer un autre passé",
             content: (
                 <Quiz
                     questions={[
@@ -186,10 +186,10 @@ export const course41: LessonContent = {
                         },
                         {
                             id: 5,
-                            question: "They ___ on time if they had left earlier.",
+                            question: "Le concert est terminé. Ils sont arrivés après le début. They ___ on time if they had left earlier.",
                             options: ["would arrive", "would have arrived"],
                             correctAnswer: 1,
-                            explanation: "Le third conditional parle d'un résultat passé : would have arrived.",
+                            explanation: "L’arrivée imaginaire se situe à un moment passé et terminé.",
                         },
                         {
                             id: 6,
@@ -224,10 +224,10 @@ export const course41: LessonContent = {
                         },
                         {
                             id: 10,
-                            question: "Le third conditional sert surtout à parler de ...",
-                            options: ["faits généraux", "situations passées imaginaires"],
-                            correctAnswer: 1,
-                            explanation: "Il sert à imaginer un autre passé et un autre résultat.",
+                            question: "« If you’d sent me the address, I could have joined you. » Quelle est la situation réelle ?",
+                            options: ["Je n’ai pas reçu l’adresse à temps.", "J’ai rejoint le groupe plus tôt.", "Je demande l’adresse pour la semaine prochaine."],
+                            correctAnswer: 0,
+                            explanation: "La condition imagine maintenant un passé différent.",
                         }
                     ]}
                 />

@@ -1,11 +1,13 @@
 "use client";
 
+import { MistakePractice } from "@/components/play/mistake-practice";
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   VERB_POOLS,
   verbsForDifficulty,
+  matchesVerbTranslation,
   createInitialGameState,
   startNewRound,
   submitAnswer,
@@ -476,8 +478,8 @@ export function SpeedVerbGame({
     };
     gameSession
       .finish(performance.now() - startedAtRef.current)
-      .then(({ sessionId, durationMs }) =>
-        submitSpeedVerbScore({ ...final, durationMs, sessionId })
+      .then(({ sessionId, durationMs, save }) =>
+        save(() => submitSpeedVerbScore({ ...final, durationMs, sessionId }))
       )
       .then((result) => {
         if (session !== sessionRef.current) return;
@@ -533,6 +535,20 @@ export function SpeedVerbGame({
   /* ---------- fin de partie ---------- */
 
   if (phase === "ended" && state) {
+    const practice = missed.flatMap(verb => {
+      const fields = [
+        { key: "pastSimple", label: "Prétérit", answers: verb.pastSimple },
+        { key: "pastParticiple", label: "Participe passé", answers: verb.pastParticiple },
+        { key: "translation", label: "Traduction française", answers: verb.translations },
+      ] as const;
+      return fields.filter(field => verb.required[field.key]).flatMap(field => {
+        const matches = (input: string) => field.key === "translation"
+          ? matchesVerbTranslation(verb.translations, input)
+          : field.answers.some(form => form.toLowerCase() === input.trim().toLowerCase());
+        if (verb.reason === "incorrect" && matches(verb.userAnswer[field.key] ?? "")) return [];
+        return [{ id: verb.base + "-" + field.key, prompt: verb.base, label: field.label, answers: field.answers, matches }];
+      });
+    });
     const accuracy = stats.attempts > 0 ? Math.round((stats.correct / stats.attempts) * 100) : 0;
     return (
       <GameEnd
@@ -547,12 +563,13 @@ export function SpeedVerbGame({
         ]}
         rewards={rewards}
         rewardStatus={submitStatus}
+        retryScore={gameSession.retryScore}
         rewardError={rewardError}
         missionReached={missionTarget != null ? state.score >= missionTarget : null}
         onReplay={() => setPhase("start")}
       >
         {missed.length > 0 ? (
-          <div>
+          <MistakePractice items={practice}>
             <p className="eq-kicker">Carnet de révision ({missed.length})</p>
             <div className="eq-game-review-scroll">
               <ul className="eq-game-review">
@@ -594,9 +611,9 @@ export function SpeedVerbGame({
                 ))}
               </ul>
             </div>
-          </div>
+          </MistakePractice>
         ) : (
-          <p className="eq-game-end-note">Aucun verbe manqué. Sans faute !</p>
+          <p className="eq-game-end-note">{stats.attempts ? "Tous les verbes joués ont été réussis." : "Aucun verbe joué dans cette partie."}</p>
         )}
       </GameEnd>
     );

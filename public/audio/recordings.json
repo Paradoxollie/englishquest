@@ -1,0 +1,446 @@
+{
+  "revision": "9a1deaeaf04c",
+  "sourceDigest": "bbeaf0e17b7b644614a9f58780e18f38fe124d1f536ead42bbead9924035be8c",
+  "accent": "american",
+  "words": [
+    "friend",
+    "school",
+    "orange",
+    "teacher",
+    "apple",
+    "window",
+    "yellow",
+    "morning",
+    "brother",
+    "bicycle",
+    "cheese",
+    "please",
+    "because",
+    "listen",
+    "write",
+    "bottle",
+    "summer",
+    "dinner",
+    "happy",
+    "people",
+    "purple",
+    "little",
+    "sister",
+    "family",
+    "animal",
+    "pencil",
+    "monday",
+    "guitar",
+    "bread",
+    "cloud",
+    "always",
+    "already",
+    "beautiful",
+    "between",
+    "country",
+    "different",
+    "evening",
+    "favourite",
+    "foreign",
+    "hospital",
+    "island",
+    "kitchen",
+    "language",
+    "minute",
+    "mountain",
+    "neighbour",
+    "question",
+    "remember",
+    "saturday",
+    "surprise",
+    "together",
+    "tomorrow",
+    "umbrella",
+    "usually",
+    "weather",
+    "wednesday",
+    "yesterday",
+    "breakfast",
+    "chocolate",
+    "daughter",
+    "accident",
+    "actually",
+    "address",
+    "advantage",
+    "attention",
+    "believe",
+    "calendar",
+    "character",
+    "decision",
+    "describe",
+    "disappear",
+    "education",
+    "enough",
+    "especially",
+    "exercise",
+    "explain",
+    "famous",
+    "february",
+    "knowledge",
+    "library",
+    "medicine",
+    "necessary",
+    "opinion",
+    "possible",
+    "promise",
+    "receive",
+    "scissors",
+    "separate",
+    "straight",
+    "through",
+    "achieve",
+    "appearance",
+    "argument",
+    "available",
+    "beginning",
+    "business",
+    "carefully",
+    "challenge",
+    "colleague",
+    "comfortable",
+    "definitely",
+    "embarrass",
+    "environment",
+    "experience",
+    "government",
+    "immediate",
+    "independent",
+    "journalist",
+    "opportunity",
+    "particular",
+    "persuade",
+    "privilege",
+    "pronounce",
+    "recommend",
+    "reference",
+    "responsible",
+    "restaurant",
+    "schedule",
+    "significant",
+    "successful",
+    "accommodate",
+    "acknowledgement",
+    "atmosphere",
+    "conscience",
+    "convenient",
+    "disappoint",
+    "enthusiastic",
+    "existence",
+    "extraordinary",
+    "fascinating",
+    "fluorescent",
+    "guaranteed",
+    "harassment",
+    "indispensable",
+    "maintenance",
+    "millennium",
+    "mischievous",
+    "noticeable",
+    "occurrence",
+    "parliament",
+    "perseverance",
+    "phenomenon",
+    "possession",
+    "questionnaire",
+    "rhythm",
+    "sacrifice",
+    "receipt",
+    "temperature",
+    "unbelievable",
+    "vacuum"
+  ],
+  "sentences": [
+    "friend",
+    "school",
+    "orange",
+    "teacher",
+    "apple",
+    "window",
+    "yellow",
+    "morning",
+    "brother",
+    "bicycle",
+    "cheese",
+    "please",
+    "because",
+    "listen",
+    "write",
+    "bottle",
+    "summer",
+    "dinner",
+    "happy",
+    "people",
+    "purple",
+    "little",
+    "sister",
+    "family",
+    "animal",
+    "pencil",
+    "monday",
+    "guitar",
+    "bread",
+    "cloud",
+    "always",
+    "already",
+    "beautiful",
+    "between",
+    "country",
+    "different",
+    "evening",
+    "favourite",
+    "foreign",
+    "hospital",
+    "island",
+    "kitchen",
+    "language",
+    "minute",
+    "mountain",
+    "neighbour",
+    "question",
+    "remember",
+    "saturday",
+    "surprise",
+    "together",
+    "tomorrow",
+    "umbrella",
+    "usually",
+    "weather",
+    "wednesday",
+    "yesterday",
+    "breakfast",
+    "chocolate",
+    "daughter",
+    "accident",
+    "actually",
+    "address",
+    "advantage",
+    "attention",
+    "believe",
+    "calendar",
+    "character",
+    "decision",
+    "describe",
+    "disappear",
+    "education",
+    "enough",
+    "especially",
+    "exercise",
+    "explain",
+    "famous",
+    "february",
+    "knowledge",
+    "library",
+    "medicine",
+    "necessary",
+    "opinion",
+    "possible",
+    "promise",
+    "receive",
+    "scissors",
+    "separate",
+    "straight",
+    "through",
+    "achieve",
+    "appearance",
+    "argument",
+    "available",
+    "beginning",
+    "business",
+    "carefully",
+    "challenge",
+    "colleague",
+    "comfortable",
+    "definitely",
+    "embarrass",
+    "environment",
+    "experience",
+    "government",
+    "immediate",
+    "independent",
+    "journalist",
+    "opportunity",
+    "particular",
+    "persuade",
+    "privilege",
+    "pronounce",
+    "recommend",
+    "reference",
+    "responsible",
+    "restaurant",
+    "schedule",
+    "significant",
+    "successful",
+    "accommodate",
+    "acknowledgement",
+    "atmosphere",
+    "conscience",
+    "convenient",
+    "disappoint",
+    "enthusiastic",
+    "existence",
+    "extraordinary",
+    "fascinating",
+    "fluorescent",
+    "guaranteed",
+    "harassment",
+    "indispensable",
+    "maintenance",
+    "millennium",
+    "mischievous",
+    "noticeable",
+    "occurrence",
+    "parliament",
+    "perseverance",
+    "phenomenon",
+    "possession",
+    "questionnaire",
+    "rhythm",
+    "sacrifice",
+    "receipt",
+    "temperature",
+    "unbelievable",
+    "vacuum"
+  ],
+  "dialogues": {
+    "l1-kings-cross-train": [
+      0
+    ],
+    "l1-cafe-order": [
+      0,
+      4.855
+    ],
+    "l1-maya-homework-call": [
+      0
+    ],
+    "l1-school-club": [
+      0
+    ],
+    "l1-museum-ticket": [
+      0,
+      3.91
+    ],
+    "l1-weekend-weather": [
+      0
+    ],
+    "l1-lost-bag": [
+      0.0,
+      1.922
+    ],
+    "l1-directions-park": [
+      0,
+      2.693
+    ],
+    "l2-cinema-booking": [
+      0,
+      3.353,
+      9.246
+    ],
+    "l2-school-trip": [
+      0
+    ],
+    "l2-airport-gate": [
+      0.0
+    ],
+    "l2-cooking-recipe": [
+      0,
+      2.289
+    ],
+    "l2-dentist-reschedule": [
+      0
+    ],
+    "l2-sport-rain": [
+      0
+    ],
+    "l2-shoe-shop": [
+      0.0,
+      5.87
+    ],
+    "l2-radio-festival": [
+      0
+    ],
+    "l3-tube-maintenance": [
+      0.0
+    ],
+    "l3-library-deadline": [
+      0,
+      3.627
+    ],
+    "l3-lost-parcel": [
+      0
+    ],
+    "l3-hotel-booking": [
+      0,
+      4.941
+    ],
+    "l3-science-project": [
+      0,
+      6.994
+    ],
+    "l3-pharmacy-advice": [
+      0
+    ],
+    "l3-bike-repair": [
+      0
+    ],
+    "l3-podcast-intro": [
+      0
+    ],
+    "l4-interview-feedback": [
+      0,
+      2.623
+    ],
+    "l4-volunteer-briefing": [
+      0
+    ],
+    "l4-exchange-programme": [
+      0
+    ],
+    "l4-tech-announcement": [
+      0
+    ],
+    "l4-theatre-review": [
+      0,
+      2.106
+    ],
+    "l4-ferry-delay": [
+      0
+    ],
+    "l4-book-club": [
+      0,
+      4.688
+    ],
+    "l4-music-lesson": [
+      0
+    ],
+    "l5-podcast-debate": [
+      0
+    ],
+    "l5-news-urban-trees": [
+      0
+    ],
+    "l5-startup-pitch": [
+      0
+    ],
+    "l5-exam-strategy": [
+      0
+    ],
+    "l5-rail-policy": [
+      0
+    ],
+    "l5-museum-audio": [
+      0
+    ],
+    "l5-sleep-study": [
+      0
+    ],
+    "l5-dialogue-misunderstanding": [
+      0,
+      4.81
+    ]
+  }
+}

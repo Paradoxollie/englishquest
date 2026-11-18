@@ -25,6 +25,7 @@ function isPerfectQuiz(state: CourseMissionState | null | undefined) {
 }
 
 type CourseMissionContextValue = {
+  keepGuestQuiz: (answers: CourseQuizAnswer[]) => Promise<"saved" | "blocked" | "failed">;
   courseNumber: number;
   isAuthenticated: boolean;
   isMissionTrackingEnabled: boolean;
@@ -159,6 +160,12 @@ export function CourseMissionProvider({
   return (
     <CourseMissionContext.Provider
       value={{
+        keepGuestQuiz: async (answers) => {
+          const { keepGuestQuizAction, confirmGuestQuizAction } = await import("@/app/cours/actions");
+          const score = await keepGuestQuizAction(courseNumber, answers);
+          if (!score) return "failed";
+          return await confirmGuestQuizAction(courseNumber, score) ? "saved" : "blocked";
+        },
         courseNumber,
         isAuthenticated,
         isMissionTrackingEnabled,

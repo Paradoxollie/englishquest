@@ -1,5 +1,5 @@
 /* Opt-in live test: creates one email-confirmed disposable account, exercises
- * the actual seven score actions, then deletes ONLY its returned Auth user ID.
+ * the actual score actions, then deletes ONLY its returned Auth user ID.
  * Credentials are generated in memory and never written or logged.
  */
 const assert = require("node:assert/strict");
@@ -45,8 +45,6 @@ const stubs = {
   "@/lib/courses/practice-server": { recordGrammarRushPractice: async () => null },
   "next/cache": { revalidatePath: () => {} },
   "server-only": {},
-  // Sessions de partie : vérifiées hors ligne par scripts/test-game-backend.cjs.
-  "@/lib/games/game-session-server": { consumeGameSession: async () => ({ ok: true }) },
 };
 function loadSource(filename) {
   if (cache.has(filename)) return cache.get(filename).exports;
@@ -79,6 +77,8 @@ const scenarios = [
   { slug: "flash-translation", action: "submitFlashTranslationScore", params: { totalTimeMs: 30_000, averageReactionTimeMs: 3_000, wrongAnswers: 0, roundsCompleted: 10, durationMs: 40_000 }, score: 30_000, maxScore: 10, durationMs: 40_000, difficulty: "medium" },
   { slug: "speed-verb-challenge", action: "submitSpeedVerbScore", params: { difficulty: 1, score: 4, correctCount: 2, totalRounds: 2, durationMs: 30_000 }, score: 4, maxScore: 2, durationMs: 30_000, difficulty: "easy" },
   { slug: "grammar-rush", action: "submitGrammarRushScore", params: { score: 31, correct: 2, attempts: 2, durationMs: 60_000 }, score: 31, maxScore: 2, durationMs: 60_000, difficulty: "medium" },
+  { slug: "spell-strike", action: "submitSpellStrikeScore", params: { difficulty: 1, score: 100, correctCount: 1, totalRounds: 10, durationMs: 30_000 }, score: 100, maxScore: 1, durationMs: 30_000, difficulty: "easy" },
+  { slug: "echo-signal", action: "submitEchoSignalScore", params: { difficulty: 1, score: 100, correctCount: 1, totalQuestions: 8, durationMs: 30_000 }, score: 100, maxScore: 1, durationMs: 30_000, difficulty: "easy" },
 ];
 
 async function browserCheck(email, password) {
@@ -157,10 +157,21 @@ console.log = console.warn = console.error = console.info = () => {};
     let xp = baseline.data.xp ?? 0;
     let gold = baseline.data.gold ?? 0;
 
+    const sessionBySlug = new Map();
+    if (!nativeOnly) {
+      phase = "start_game_sessions";
+      const { startGameSession } = loadSource(path.join(root, "lib/games/game-session-server.ts"));
+      for (const scenario of scenarios) {
+        const started = await startGameSession(scenario.slug);
+        assert.ok(started.ok);
+        sessionBySlug.set(scenario.slug, started.sessionId);
+      }
+      await new Promise((resolve) => setTimeout(resolve, Math.max(...scenarios.map((s) => s.durationMs))));
+    }
     for (const scenario of nativeOnly ? [] : scenarios) {
       phase = `submit_${scenario.slug}`;
       const actions = loadSource(path.join(root, "app", "play", scenario.slug, "actions.ts"));
-      const result = await actions[scenario.action](scenario.params);
+      const result = await actions[scenario.action]({ ...scenario.params, sessionId: sessionBySlug.get(scenario.slug) });
       assert.equal(result.success, true, `Score action failed for ${scenario.slug}`);
       const game = await admin.from("games").select("id").eq("slug", scenario.slug).single();
       assert.equal(game.error, null);
@@ -231,7 +242,7 @@ console.log = console.warn = console.error = console.info = () => {};
       }
     }
     Object.assign(console, originalConsole);
-    results.success = !failure && results.games.length === (nativeOnly ? 0 : 7) && results.cleanup.accountAbsent === true;
+    results.success = !failure && results.games.length === (nativeOnly ? 0 : scenarios.length) && results.cleanup.accountAbsent === true;
     fs.writeFileSync(resultPath, JSON.stringify(results, null, 2));
     report(results);
   }

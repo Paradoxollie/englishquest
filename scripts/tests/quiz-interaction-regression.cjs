@@ -196,5 +196,39 @@ async function test(name, run) { await run(); cases += 1; console.log(`PASS ${na
     assert.deepEqual(sent.find((a) => a.id === "x7"), { id: "x7", text: " IS " });
     assert.deepEqual(sent.find((a) => a.id === "x11"), { id: "x11", text: "She is very happy today." });
   });
+  await test("Guest can retry the original answers and continue to the next mission", async () => {
+    const calls = [];
+    const h = harness(questions.slice(0,1), {
+      isAuthenticated:false, courseNumber:1,
+      keepGuestQuiz: async (answers) => {
+        calls.push(answers);
+        if (calls.length === 1) throw new Error("offline");
+        return "saved";
+      },
+    });
+    option(h.render())();
+    button(h.render(), "Voir le résultat")();
+    h.render(); h.effects().forEach((effect) => effect());
+    await new Promise((resolve) => setImmediate(resolve));
+    button(h.render(), "Réessayer la sauvegarde")();
+    h.render(); h.effects().forEach((effect) => effect());
+    await new Promise((resolve) => setImmediate(resolve));
+    const done = h.render();
+    assert.deepEqual(calls[0], calls[1]);
+    assert.match(content(done), /gardée sur cet appareil/);
+    assert.ok(find(done, (n) => n.type === "a" && n.props.href === "/cours/2"));
+    assert.ok(find(done, (n) => n.type === "a" && n.props.href === "/auth/signup?next=/quest"));
+  });
+  await test("The last guest mission reports blocked storage and returns to the map", async () => {
+    const h = harness(questions.slice(0,1), { isAuthenticated:false, courseNumber:50, keepGuestQuiz:async () => "blocked" });
+    option(h.render())();
+    button(h.render(), "Voir le résultat")();
+    h.render(); h.effects().forEach((effect) => effect());
+    await new Promise((resolve) => setImmediate(resolve));
+    const done = h.render();
+    assert.match(content(done), /bloque la sauvegarde/);
+    assert.ok(find(done, (n) => n.type === "a" && n.props.href === "/quest"));
+    assert.equal(find(done, (n) => n.type === "a" && n.props.href === "/cours/51"),null);
+  });
   console.log(`\n${cases} Quiz interaction regression cases passed.`);
 })().catch((error) => { console.error(error); process.exitCode = 1; });

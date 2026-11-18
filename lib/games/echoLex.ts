@@ -2,8 +2,8 @@
  * Echo Lex (Flashback) - Core Game Logic
  *
  * A memory game where players must decide if they've seen a word before.
- * The English word is always shown with its French translation, so every
- * round is also a vocabulary round. Words come from the player's level
+ * The French meaning is revealed after classification. Recognised repeats
+ * earn one point only after their meaning is recalled. Words come from the player's level
  * (about 70 %) and the level below (30 %), from the Flash Translation list.
  */
 
@@ -22,7 +22,8 @@ export interface GameState {
     seenWords: WordPair[];
     currentWord: WordPair;
     isNew: boolean; // Whether the current word is actually new
-    phase: "idle" | "playing" | "result" | "gameOver";
+    phase: "idle" | "playing" | "meaning" | "result" | "gameOver";
+    meaningChoices: string[];
     lastDecisionCorrect: boolean | null;
     /** Mots disponibles pour la partie. */
     pool: WordPair[];
@@ -62,6 +63,7 @@ export function createGameState(
         currentWord: firstWord,
         isNew: true,
         phase: "idle",
+        meaningChoices: [],
         lastDecisionCorrect: null,
         pool,
         level,
@@ -103,7 +105,7 @@ export function nextRound(state: GameState, rng: () => number = Math.random): Ga
         if (candidates.length === 0) {
             // Pool exhausted: pick any word that isn't the current one; it is then a word already seen.
             const fallbackPool = state.pool.filter(v => v.english !== state.currentWord.english);
-            nextWord = fallbackPool[Math.floor(rng() * fallbackPool.length)];
+            nextWord = fallbackPool[Math.floor(rng() * fallbackPool.length)] ?? state.currentWord;
             isNew = !state.seenWords.some(s => s.english === nextWord.english);
         } else {
             nextWord = pickNewWord(candidates, state.level, rng);
@@ -114,60 +116,66 @@ export function nextRound(state: GameState, rng: () => number = Math.random): Ga
     return {
         ...state,
         currentWord: nextWord,
+        meaningChoices: [],
         isNew,
         phase: "playing",
         lastDecisionCorrect: null,
     };
 }
 
-export function submitDecision(state: GameState, saysIsSeen: boolean): GameState {
-    if (state.phase !== "playing") return state;
-    const isCorrect = saysIsSeen === !state.isNew;
-
-    let newScore = state.score;
-    let newStrikes = state.strikes;
-    let newPhase: GameState["phase"] = "result";
-    // A word has been seen even when the player misclassified it.
-    const newSeenWords = state.seenWords.some(word => word.english === state.currentWord.english)
-        ? state.seenWords
-        : [...state.seenWords, state.currentWord];
-
-    if (isCorrect) {
-        newScore += 1;
-    } else {
-        newStrikes += 1;
-        if (newStrikes >= 3) {
-            newPhase = "gameOver";
-        }
-    }
-
+function finishRound(state: GameState, correct: boolean): GameState {
+    const strikes = state.strikes + (correct ? 0 : 1);
+    const seenWords = state.seenWords.some(word => word.english === state.currentWord.english)
+        ? state.seenWords : [...state.seenWords, state.currentWord];
     return {
-        ...state,
-        score: newScore,
-        strikes: newStrikes,
-        phase: newPhase,
-        lastDecisionCorrect: isCorrect,
-        seenWords: newSeenWords,
+        ...state, seenWords, strikes, score: state.score + (correct ? 1 : 0),
+        phase: strikes >= 3 ? "gameOver" : "result", lastDecisionCorrect: correct,
     };
 }
 
-/**
- * Temps écoulé sans réponse : compte toujours comme une erreur (aucun point gratuit),
- * mémorise le mot affiché et termine la partie à 3 erreurs.
- */
-export function submitTimeout(state: GameState): GameState {
-    if (state.phase !== "playing") return state;
-    const newStrikes = state.strikes + 1;
-    const newPhase: GameState["phase"] = newStrikes >= 3 ? "gameOver" : "result";
-    const newSeenWords = state.seenWords.some(word => word.english === state.currentWord.english)
-        ? state.seenWords
-        : [...state.seenWords, state.currentWord];
+function meaningChoices(state: GameState, rng: () => number): string[] {
+    const correct = state.currentWord.french;
+    const candidates = [...new Set(state.pool.filter(word => word.english !== state.currentWord.english)
+        .map(word => word.french))].filter(meaning => meaning !== correct);
+    // A tiny custom pool may have fewer than two distinct distractors.
+    if (candidates.length < 2) {
+        for (const word of FLASHBACK_WORDS) {
+            if (word.english !== state.currentWord.english && word.french !== correct && !candidates.includes(word.french)) {
+                candidates.push(word.french);
+            }
+            if (candidates.length === 2) break;
+        }
+    }
+    const entry = VOCABULARY.find(word => word.english === state.currentWord.english && word.french === correct);
+    const related = entry?.distractors
+        .map(english => FLASHBACK_WORDS.find(word => word.english === english)?.french)
+        .filter((meaning): meaning is string => Boolean(meaning && candidates.includes(meaning))) ?? [];
+    const learned = state.seenWords.map(word => word.french).filter(meaning => candidates.includes(meaning));
+    const preferred = [...new Set([...related, ...learned])];
+    const choices: string[] = [];
+    while (preferred.length && choices.length < 2) {
+        const [choice] = preferred.splice(Math.floor(rng() * preferred.length), 1);
+        choices.push(choice);
+        candidates.splice(candidates.indexOf(choice), 1);
+    }
+    while (choices.length < 2 && candidates.length) {
+        choices.push(candidates.splice(Math.floor(rng() * candidates.length), 1)[0]);
+    }
+    choices.splice(Math.floor(rng() * (choices.length + 1)), 0, correct);
+    return choices;
+}
 
-    return {
-        ...state,
-        strikes: newStrikes,
-        phase: newPhase,
-        lastDecisionCorrect: false,
-        seenWords: newSeenWords,
-    };
+export function submitDecision(state: GameState, saysIsSeen: boolean, rng: () => number = Math.random): GameState {
+    if (state.phase !== "playing") return state;
+    if (saysIsSeen && !state.isNew) return { ...state, phase: "meaning", meaningChoices: meaningChoices(state, rng) };
+    return finishRound(state, !saysIsSeen && state.isNew);
+}
+
+export function submitMeaning(state: GameState, choice: string): GameState {
+    if (state.phase !== "meaning" || !state.meaningChoices.includes(choice)) return state;
+    return finishRound(state, choice === state.currentWord.french);
+}
+
+export function submitTimeout(state: GameState): GameState {
+    return state.phase === "playing" || state.phase === "meaning" ? finishRound(state, false) : state;
 }

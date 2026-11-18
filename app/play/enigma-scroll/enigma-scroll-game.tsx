@@ -1,5 +1,6 @@
 "use client";
 
+import { EnigmaWordNotes } from "@/components/play/enigma-word-notes";
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -44,6 +45,11 @@ type KeyboardLayout = "azerty" | "qwerty";
 type SubmitStatus = "idle" | "saving" | "saved" | "error" | "guest";
 type Dictionary = "loading" | "ready" | "fallback";
 
+const TILE_FEEDBACK = {
+  correct: { label: "bien placée", mark: "✓" },
+  present: { label: "présente ailleurs", mark: "↔" },
+  absent: { label: "absente", mark: "×" },
+};
 const ROUND_SECONDS = 90;
 const DICTIONARY_TIMEOUT_MS = 10_000;
 const LAYOUT_STORAGE_KEY = "eq:enigmaKeyboardLayout";
@@ -159,6 +165,7 @@ export function EnigmaScrollGame({
   const [shakeRow, setShakeRow] = useState<number | null>(null);
   const [lastPoints, setLastPoints] = useState(0);
   const [found, setFound] = useState<string[]>([]);
+  const [notes, setNotes] = useState<Record<string, string>>({});
   const [rewards, setRewards] = useState<RewardSummary | null>(null);
   const [rewardError, setRewardError] = useState<string | null>(null);
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>("idle");
@@ -170,6 +177,7 @@ export function EnigmaScrollGame({
   const submittedRef = useRef(false);
   const sessionRef = useRef(0);
   const shakeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
   const gameSession = useGameSession("enigma-scroll", isLoggedIn);
 
   useGameFocusMode(phase === "playing" || phase === "won");
@@ -233,6 +241,7 @@ export function EnigmaScrollGame({
     setMessage(null);
     setLastPoints(0);
     setFound([]);
+    setNotes({});
     setRewards(null);
     setRewardError(null);
     setSubmitStatus("idle");
@@ -375,6 +384,7 @@ export function EnigmaScrollGame({
         return;
       }
       if (phase === "won") {
+        if (event.target instanceof HTMLElement && event.target.closest("input, textarea, button, summary")) return;
         if (event.key === "Enter" && !event.repeat) {
           event.preventDefault();
           nextWord();
@@ -383,6 +393,7 @@ export function EnigmaScrollGame({
       }
       if (paused) return;
       if (event.key === "Enter") {
+        if (event.target instanceof HTMLElement && event.target.closest("button, a, summary")) return;
         event.preventDefault();
         submit();
       } else if (event.key === "Backspace") {
@@ -390,6 +401,7 @@ export function EnigmaScrollGame({
         backspace();
       } else if (/^[a-zA-Z]$/.test(event.key)) {
         event.preventDefault();
+        if (event.target !== gridRef.current) gridRef.current?.focus({ preventScroll: true });
         typeLetter(event.key.toUpperCase());
       }
     };
@@ -458,8 +470,8 @@ export function EnigmaScrollGame({
     };
     gameSession
       .finish(Date.now() - startedAtRef.current)
-      .then(({ sessionId, durationMs }) =>
-        submitEnigmaScrollScore({ ...final, durationMs, sessionId })
+      .then(({ sessionId, durationMs, save }) =>
+        save(() => submitEnigmaScrollScore({ ...final, durationMs, sessionId }))
       )
       .then((result) => {
         if (session !== sessionRef.current) return;
@@ -481,7 +493,7 @@ export function EnigmaScrollGame({
     return (
       <GameStart
         title="Enigma Scroll"
-        intro={`Un mot anglais secret de ${length} lettres et ${attemptsForLength} essais pour le déchiffrer. Vert = bien placé, doré = présent ailleurs, gris = absent.`}
+        intro={`Un mot anglais secret de ${length} lettres et ${attemptsForLength} essais pour le déchiffrer. Une lettre verte ✓ est bien placée, une lettre dorée ↔ est présente ailleurs et une lettre grise × est absente.`}
         rules={[
           "90 secondes par mot. Chaque mot trouvé rapporte des points et lance le suivant.",
           "Trouver vite rapporte un bonus de temps ; les séries montent le multiplicateur jusqu'à x2,5.",
@@ -528,6 +540,11 @@ export function EnigmaScrollGame({
     return null;
   }
 
+  function wordNotes(word: string) {
+    return <EnigmaWordNotes key={word} word={word} french={getEnigmaTranslation(word)} saved={notes[word] ?? ""}
+      onSave={sentence => setNotes(current => ({ ...current, [word]: sentence }))} />;
+  }
+
   if (phase === "ended") {
     const missedWord = state.isWin ? null : state.targetWord;
     return (
@@ -543,6 +560,7 @@ export function EnigmaScrollGame({
         ]}
         rewards={rewards}
         rewardStatus={submitStatus}
+        retryScore={gameSession.retryScore}
         rewardError={rewardError}
         missionReached={missionTarget != null ? state.totalScore >= missionTarget : null}
         onReplay={() => {
@@ -557,6 +575,7 @@ export function EnigmaScrollGame({
               <WordMeaning word={missedWord} />
               <SpeakButton text={missedWord} label="Écouter" />
             </div>
+            {wordNotes(missedWord)}
           </div>
         ) : null}
         {found.length > 0 ? (
@@ -571,6 +590,7 @@ export function EnigmaScrollGame({
                       {getEnigmaTranslation(word) ? (
                         <span lang="fr"> · {getEnigmaTranslation(word)}</span>
                       ) : null}
+                      {wordNotes(word)}
                     </div>
                     <SpeakButton text={word} label="Audio" />
                   </li>
@@ -646,7 +666,9 @@ export function EnigmaScrollGame({
           className="eq-grid"
           style={{ ["--cols" as string]: state.config.wordLength }}
           role="grid"
-          aria-label="Grille"
+          ref={gridRef}
+          tabIndex={-1}
+          aria-label="Grille des propositions"
         >
           {state.rows.map((row, rowIndex) => {
             const isActiveRow = rowIndex === state.currentAttemptIndex && !row.isSubmitted;
@@ -664,11 +686,13 @@ export function EnigmaScrollGame({
                     isActiveRow &&
                     cellIndex === Math.min(activeCursor, state.config.wordLength - 1) &&
                     !cell.letter;
+                  const feedback = cell.status === "empty" ? null : TILE_FEEDBACK[cell.status];
                   return (
                     <span
                       key={cellIndex}
                       role="gridcell"
-                      className={`eq-grid-cell is-${cell.status} ${
+                      aria-label={`Colonne ${cellIndex + 1}, ${cell.letter || "vide"}${feedback ? ", " + feedback.label : ""}`}
+                      className={`eq-grid-cell relative is-${cell.status} ${
                         cell.letter ? "has-letter" : ""
                       } ${isCursor ? "is-cursor" : ""}`}
                       style={
@@ -678,6 +702,7 @@ export function EnigmaScrollGame({
                       }
                     >
                       {cell.letter}
+                      {feedback && <small aria-hidden="true" className="absolute bottom-0.5 right-0.5 text-[0.56rem] leading-none">{feedback.mark}</small>}
                     </span>
                   );
                 })}
@@ -695,7 +720,7 @@ export function EnigmaScrollGame({
         </div>
 
         {phase === "won" ? (
-          <div className="eq-game-feedback is-right eq-enigma-won" role="status">
+          <div className="eq-game-feedback is-right eq-enigma-won">
             <div className="eq-enigma-won-head">
               <div>
                 <p>Trouvé ! + {lastPoints} points</p>
@@ -703,6 +728,7 @@ export function EnigmaScrollGame({
               </div>
               <SpeakButton text={state.targetWord} label="Prononcer" />
             </div>
+            {wordNotes(state.targetWord)}
             <div className="eq-game-actions">
               <button
                 type="button"
@@ -746,6 +772,7 @@ export function EnigmaScrollGame({
                     key={letter}
                     type="button"
                     className={`eq-key ${keys[letter] ? `is-${keys[letter]}` : ""}`}
+                    aria-label={keys[letter] && keys[letter] !== "empty" ? `${letter}, ${TILE_FEEDBACK[keys[letter]].label}` : undefined}
                     onClick={() => typeLetter(letter)}
                   >
                     {letter}

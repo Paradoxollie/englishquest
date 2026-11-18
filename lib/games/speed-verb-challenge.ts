@@ -100,7 +100,7 @@ function includesNormalized(haystack: string[], needle: string | null): boolean 
   return haystack.some(opt => opt.trim().toLowerCase() === target);
 }
 
-function includesTranslation(translations: string[], answer: string | null): boolean {
+export function matchesVerbTranslation(translations: string[], answer: string | null): boolean {
   if (!answer) return false;
   const normalizeFrench = (value: string) => value
     .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -207,7 +207,7 @@ export function submitAnswer(
   // Validate per required fields
   const psOk = required.pastSimple ? includesNormalized(currentVerb.pastSimple, userPS) : true;
   const ppOk = required.pastParticiple ? includesNormalized(currentVerb.pastParticiple, userPP) : true;
-  const trOk = required.translation ? includesTranslation(currentVerb.translations, userTR) : true;
+  const trOk = required.translation ? matchesVerbTranslation(currentVerb.translations, userTR) : true;
 
   const isCorrect = psOk && ppOk && trOk;
 

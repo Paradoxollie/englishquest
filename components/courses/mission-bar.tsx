@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCourseMission } from "@/components/courses/course-mission-provider";
 import { MissionStarsRow } from "@/components/rewards/mission-stars";
 import type { CourseMissionPlan } from "@/lib/courses/campaign";
-import { isCoursePlacementSkip } from "@/lib/courses/mission-telemetry";
+import { decodeCourseMissionTelemetry, isCoursePlacementSkip } from "@/lib/courses/mission-telemetry";
 import { getCoursePracticeHref } from "@/lib/courses/practice";
 import type { CourseRoadmapEntry } from "@/lib/courses/progress";
 import { computeMissionStars, getMissionStars } from "@/lib/courses/stars";
@@ -54,13 +54,15 @@ export function MissionBar({ entry, mission, chapterLabel, nextEntry, practiceBe
   const readingState: StepState = readingDone ? "done" : "now";
   const quizState: StepState = quizDone ? "done" : readingDone ? "now" : "todo";
 
-  const quizLabel =
-    state?.quizScore != null && state.quizTotal ? `Quiz ${state.quizScore} / ${state.quizTotal}` : "Quiz à 80 %";
+  const quiz = state?.quizTotal ? state : decodeCourseMissionTelemetry(entry.missionTelemetry);
+  const quizLabel = quiz.quizTotal ? `Quiz ${quiz.quizScore} / ${quiz.quizTotal}` : "Quiz à 80 %";
   const practiceHref = mission.primaryGameSlug ? getCoursePracticeHref(entry.courseId) : null;
 
   let note: string;
   if (!isAuthenticated) {
-    note = "Lecture libre. Avec un compte, ce cours devient une mission : le quiz réussi la valide et rapporte de l'expérience.";
+    note = completed
+      ? "Ta réussite est gardée sur cet appareil. Tu peux revoir la notion ou poursuivre ton aventure."
+      : "Tu peux avancer sans compte. Réussis le quiz pour garder cette mission sur cet appareil.";
   } else if (completed) {
     note = nextEntry
       ? `Mission validée. La suivante t'attend : cours ${nextEntry.courseId}.`
@@ -89,7 +91,7 @@ export function MissionBar({ entry, mission, chapterLabel, nextEntry, practiceBe
           </ol>
           {isAuthenticated ? <MissionStarsRow stars={stars} className="eq-mission-stars" /> : null}
           <p className="eq-mission-reward">
-            {completed ? "Récompense reçue" : `+ ${entry.rewardXp} XP, + ${entry.rewardGold} or à la validation`}
+            {isAuthenticated && completed ? "Récompense reçue" : `${entry.rewardXp} XP et ${entry.rewardGold} or ${isAuthenticated ? "à la validation" : "avec un compte"}`}
           </p>
         </div>
         <div className="eq-mission-note">

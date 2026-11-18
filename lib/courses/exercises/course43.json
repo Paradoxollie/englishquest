@@ -36,7 +36,7 @@
     {
       "id": "x5",
       "type": "mcq",
-      "question": "Complète : This time next year, Maya ___ in Canada. She's so excited!",
+      "question": "Elle sera en plein semestre au Canada à cette période l’an prochain. This time next year, Maya ___ in Canada.",
       "options": ["will have studied", "studies", "will be studying", "is studied"],
       "correctAnswer": 2,
       "explanation": "This time next year renvoie à un moment précis du futur où l'action sera en cours : will be + verbe en -ing."
@@ -80,21 +80,21 @@
     {
       "id": "x11",
       "type": "order",
-      "answers": ["I will have left by the time you arrive."],
+      "answers": ["I will have left by the time you arrive.", "By the time you arrive I will have left."],
       "translation": "Je serai déjà parti quand tu arriveras.",
       "explanation": "Future perfect : will have + participe passé. Après by the time, le verbe reste au présent."
     },
     {
       "id": "x12",
       "type": "order",
-      "answers": ["I will be taking my exam this time tomorrow."],
+      "answers": ["I will be taking my exam this time tomorrow.", "This time tomorrow I will be taking my exam."],
       "translation": "Demain à la même heure, je serai en train de passer mon examen.",
       "explanation": "Action en cours à un moment précis du futur : will be + verbe en -ing."
     },
     {
       "id": "x13",
       "type": "order",
-      "answers": ["Will you have finished your project by Friday?"],
+      "answers": ["Will you have finished your project by Friday?", "By Friday will you have finished your project?"],
       "translation": "Auras-tu fini ton projet d'ici vendredi ?",
       "explanation": "Dans la question, will passe devant le sujet : Will you have + participe passé ?"
     }

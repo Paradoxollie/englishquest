@@ -60,8 +60,10 @@ export function isGapAnswerCorrect(item: GapItem, text: string) {
 }
 
 export function isOrderAnswerCorrect(item: OrderItem, text: string) {
-  const given = normalizeAnswer(text);
-  return given.length > 0 && item.answers.some((answer) => normalizeAnswer(answer) === given);
+  // Une virgule reste attachée à sa tuile quand le complément change de place.
+  const words = (value: string) => normalizeAnswer(value.replace(/,/g, " "));
+  const given = words(text);
+  return given.length > 0 && item.answers.some((answer) => words(answer) === given);
 }
 
 /** Mots à remettre dans l'ordre, tirés de la première phrase acceptée. */

@@ -59,9 +59,9 @@
     {
       "id": "x8",
       "type": "gap",
-      "prompt": "This is the jacket ___ I bought in London.",
+      "prompt": "Écris un pronom relatif. This is the jacket ___ I bought in London.",
       "answers": ["which", "that"],
-      "explanation": "L'antécédent est the jacket, une chose : which. That est aussi possible."
+      "explanation": "Which et that conviennent. Dans une phrase libre, on pourrait aussi omettre le pronom objet."
     },
     {
       "id": "x9",

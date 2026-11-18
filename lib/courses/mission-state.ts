@@ -98,18 +98,22 @@ async function updateCourseMissionTelemetry(
     return null;
   }
 
-  const current = decodeCourseMissionTelemetry(entry.missionTelemetry);
-  const next = updater(current);
   const adminClient = createSupabaseAdminClient();
-
-  await adminClient
-    .from("user_course_progress")
-    .update({
-      best_score: encodeCourseMissionTelemetry(next),
-    })
-    .eq("id", entry.progressId);
-
-  return refreshMissionState(userId, courseNumber);
+  // A reading checkpoint or a second tab must not overwrite a better quiz.
+  let previous = entry.missionTelemetry;
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const next = encodeCourseMissionTelemetry(updater(decodeCourseMissionTelemetry(previous)));
+    if (next === previous) return refreshMissionState(userId, courseNumber);
+    let update = adminClient.from("user_course_progress").update({ best_score: next }).eq("id", entry.progressId);
+    update = previous == null ? update.is("best_score", null) : update.eq("best_score", previous);
+    const { data, error } = await update.select("id").maybeSingle();
+    if (error) throw error;
+    if (data) return refreshMissionState(userId, courseNumber);
+    const latest = await adminClient.from("user_course_progress").select("best_score").eq("id", entry.progressId).single();
+    if (latest.error) throw latest.error;
+    previous = latest.data.best_score;
+  }
+  throw new Error("La progression vient de changer. Réessaie la sauvegarde.");
 }
 
 export async function getUserCourseMissionState(

@@ -368,6 +368,7 @@ export function GameEnd({
   rewards,
   rewardStatus,
   rewardError,
+  retryScore,
   missionReached,
   gameSlug,
   ratio,
@@ -381,6 +382,7 @@ export function GameEnd({
   rewards: RewardSummary | null;
   rewardStatus?: "idle" | "saving" | "saved" | "error" | "guest";
   rewardError?: string | null;
+  retryScore?: (() => void) | null;
   missionReached?: boolean | null;
   gameSlug?: string;
   /** Part de bonnes réponses (0 à 1) : règle le message de fin (« Bien joué », « Pas mal », « Continue »). */
@@ -427,6 +429,10 @@ export function GameEnd({
           <Link href="/auth/signup" className="eq-text-link">
             Créer un compte
           </Link>
+        </p>
+      ) : rewardStatus === "saving" && retryScore ? (
+        <p className="eq-game-end-note is-error" role="status">
+          La connexion a été interrompue. <button type="button" className="eq-text-link" onClick={retryScore}>Réessayer la sauvegarde</button>
         </p>
       ) : rewardStatus === "saving" ? (
         <p className="eq-game-end-note">Enregistrement du score…</p>

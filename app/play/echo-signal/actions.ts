@@ -3,13 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
 import { echoDifficultyToDb, type EchoDifficulty } from "@/lib/games/echoSignal";
-import { consumeGameSession } from "@/lib/games/game-session-server";
+import { gameAuthFailure, interruptedGameSave, saveGameScore } from "@/lib/games/score-settlement";
 import { checkEchoSignal } from "@/lib/games/score-plausibility";
 import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 import { checkAndGrantDailyBonus } from "@/lib/profile/daily-challenge";
-import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
-import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { gamePerformance } from "@/lib/profile/economy";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const SLUG = "echo-signal";
@@ -23,6 +21,7 @@ export async function submitEchoSignalScore(params: {
   sessionId?: string | null;
 }): Promise<{
   success: boolean;
+  retryable?: boolean;
   error?: string;
   rewards?: {
     xpEarned: number;
@@ -46,7 +45,7 @@ export async function submitEchoSignalScore(params: {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      return { success: false, error: "Tu dois être connecté pour enregistrer ton score." };
+      return gameAuthFailure(userError);
     }
 
     const { difficulty, score, correctCount, totalQuestions, durationMs } = params;
@@ -55,86 +54,21 @@ export async function submitEchoSignalScore(params: {
       return { success: false, error: "Score invalide." };
     }
 
-    const sessionCheck = await consumeGameSession({
-      sessionId: params.sessionId,
-      userId: user.id,
-      slug: SLUG,
-      claimedDurationMs: durationMs,
+    const saved = await saveGameScore({
+      userId: user.id, slug: "echo-signal", sessionId: params.sessionId,
+      score, maxScore: correctCount, durationMs,
+      difficulty: echoDifficultyToDb(difficulty), performance: gamePerformance.echoSignal(correctCount, totalQuestions),
+      recordEligible: score > 0 && correctCount > 0,
     });
-    if (!sessionCheck.ok) {
-      return { success: false, error: sessionCheck.error };
-    }
-
-    const dbDifficulty = echoDifficultyToDb(difficulty);
-    const adminClient = createSupabaseAdminClient();
-    const { data: game } = await adminClient
-      .from("games")
-      .select("id")
-      .eq("slug", SLUG)
-      .maybeSingle();
-
-    if (!game) {
-      return { success: false, error: "Jeu introuvable." };
-    }
-
-    const [{ data: personalBest }, { data: globalTop }, playsToday] = await Promise.all([
-      adminClient
-        .from("game_scores")
-        .select("score")
-        .eq("user_id", user.id)
-        .eq("game_id", game.id)
-        .eq("difficulty", dbDifficulty)
-        .order("score", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      adminClient
-        .from("game_scores")
-        .select("score")
-        .eq("game_id", game.id)
-        .eq("difficulty", dbDifficulty)
-        .order("score", { ascending: false })
-        .limit(1)
-        .maybeSingle(),
-      countPlaysToday(adminClient, user.id, game.id),
-    ]);
-
-    const { error: insertError } = await adminClient.from("game_scores").insert({
-      user_id: user.id,
-      game_id: game.id,
-      score,
-      max_score: correctCount,
-      duration_ms: durationMs,
-      difficulty: dbDifficulty,
-    });
-
-    if (insertError) {
-      console.error("submitEchoSignalScore insertError", insertError);
-      return { success: false, error: "Impossible d'enregistrer le score." };
-    }
-
-    const hasScore = score > 0 && correctCount > 0;
-    const isNewPersonalBest = hasScore && (!personalBest || score > personalBest.score);
-    const isNewGlobalBest = hasScore && (!globalTop || score > globalTop.score);
-
-    const rewards = computeGameRewards({
-      performance: gamePerformance.echoSignal(correctCount, totalQuestions),
-      difficulty: dbDifficulty,
-      playsToday,
-      isNewPersonalBest,
-      isNewGlobalBest,
-    });
-
-    const balances = await grantProfileRewards(adminClient, user.id, {
-      xp: rewards.xpEarned,
-      gold: rewards.goldEarned,
-    });
+    if (!saved.ok) return { success: false, error: saved.error, retryable: saved.retryable };
+    const { rewards, playsToday, isNewPersonalBest, isNewGlobalBest } = saved.receipt;
 
     const dailyChallenge = await checkAndGrantDailyBonus(user.id, SLUG, {
-      eligible: rewards.xpEarned > 0,
+      eligible: rewards.xpEarned > 0, earnedAt: saved.receipt.savedAt,
     });
-    const courseCompleted = await autoCompleteCourseMissionForGame(user.id, SLUG, score);
+    const courseCompleted = saved.receipt.replayed ? null : await autoCompleteCourseMissionForGame(user.id, SLUG, score);
     const newBadges = await syncBadgesSafely(user.id);
-    const gameNewLevel = balances.level > balances.previousLevel ? balances.level : 0;
+    const gameNewLevel = saved.receipt.level > saved.receipt.previousLevel ? saved.receipt.level : 0;
     const mergedNewLevel = Math.max(gameNewLevel, dailyChallenge.newLevel ?? 0) || undefined;
 
     revalidatePath(`/play/${SLUG}`);
@@ -162,6 +96,6 @@ export async function submitEchoSignalScore(params: {
     };
   } catch (error) {
     console.error("submitEchoSignalScore", error);
-    return { success: false, error: "Une erreur est survenue." };
+    return interruptedGameSave;
   }
 }

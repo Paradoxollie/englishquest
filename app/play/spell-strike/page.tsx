@@ -33,7 +33,7 @@ export default async function SpellStrikePage() {
   ]);
   const audioMap = resolveAudioMap(
     "spell-strike",
-    SPELL_STRIKE_WORDS.map((entry) => entry.id)
+    SPELL_STRIKE_WORDS.flatMap((entry) => [entry.id, `${entry.id}-sentence`])
   );
 
   return (

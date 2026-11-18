@@ -80,14 +80,14 @@
     {
       "id": "x11",
       "type": "order",
-      "answers": ["She had her nose pierced last summer."],
+      "answers": ["She had her nose pierced last summer.", "Last summer she had her nose pierced."],
       "translation": "Elle s'est fait percer le nez l'été dernier.",
       "explanation": "Have + objet + participe passé : l'objet (her nose) se place entre had et le participe passé."
     },
     {
       "id": "x12",
       "type": "order",
-      "answers": ["We are having our flat painted next week."],
+      "answers": ["We are having our flat painted next week.", "Next week we are having our flat painted."],
       "translation": "Nous faisons repeindre notre appartement la semaine prochaine.",
       "explanation": "Le present continuous sur have exprime un projet organisé. Ensuite viennent l'objet et le participe passé."
     },

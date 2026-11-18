@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -80,38 +81,17 @@ export const course45: LessonContent = {
             )
         },
         {
-            title: "2. Can't have, couldn't have, et ce qu'il ne faut pas mélanger",
+            title: "Conclusion, attente ou reproche",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Quand quelque chose semble impossible, on utilise <strong>can't have</strong> ou{" "}
-                        <strong>couldn't have</strong>.
-                    </p>
-
-                    <div className="rounded-xl border border-rose-500/50 bg-rose-950/20 p-5">
-                        <div className="space-y-3 text-white">
-                            <p>She can't have driven there. Her car keys are still here.</p>
-                            <p>It couldn't have been Tom. He was in Madrid yesterday.</p>
-                        </div>
-                    </div>
-
-                    <div className="rounded-xl border border-slate-700 bg-slate-900 p-5">
-                        <p className="mb-3 text-sm font-bold uppercase tracking-[0.18em] text-amber-300">
-                            Ne pas confondre
-                        </p>
-                        <ul className="space-y-3 text-slate-200">
-                            <li>
-                                <strong>should have</strong> = critique ou conseil rétrospectif, pas déduction
-                            </li>
-                            <li>
-                                <strong>could have</strong> peut aussi parler d'une possibilité non réalisée, selon le contexte
-                            </li>
-                            <li>
-                                <strong>mustn't have</strong> n'est pas la forme standard pour la déduction passée négative
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "It can’t have been Maya. She was in Madrid.", meaning: "Sa présence ailleurs contredit l’hypothèse." },
+                  { english: "You should have called. I was waiting.", meaning: "Le locuteur reproche l’absence d’appel." },
+                  { english: "The train should have arrived by now.", meaning: "D’après l’horaire, on s’attend à ce que le train soit arrivé." },
+                ]}
+              >
+                Can’t have et couldn’t have permettent d’écarter une explication selon les indices disponibles. Should have peut exprimer un reproche ou une attente raisonnable. Le contexte permet de les distinguer.
+              </LessonExamples>
             )
         },
         {
@@ -148,7 +128,7 @@ export const course45: LessonContent = {
             )
         },
         {
-            title: "Quiz complet",
+            title: "Quiz · Déduire ce qui a dû se passer",
             content: (
                 <Quiz
                     questions={[
@@ -175,10 +155,10 @@ export const course45: LessonContent = {
                         },
                         {
                             id: 4,
-                            question: "The thief ___ had a key. The lock wasn't damaged.",
-                            options: ["should have", "must have"],
+                            question: "La serrure est intacte. Le témoin conclut que le voleur avait forcément une clé. The thief ___ had a key.",
+                            options: ["might have", "must have", "ought to"],
                             correctAnswer: 1,
-                            explanation: "Must have exprime une déduction forte.",
+                            explanation: "Must have exprime la forte déduction que le témoin formule.",
                         },
                         {
                             id: 5,
@@ -189,10 +169,10 @@ export const course45: LessonContent = {
                         },
                         {
                             id: 6,
-                            question: "Which one expresses criticism, not deduction?",
-                            options: ["She should have called.", "She must have called."],
+                            question: "Quelle phrase exprime un reproche dans ce contexte ?",
+                            options: ["You should have called. I waited an hour for you.", "Your train should have arrived by now, according to the timetable.", "You might have left your phone at home."],
                             correctAnswer: 0,
-                            explanation: "Should have critique une action manquante ; ce n'est pas une déduction.",
+                            explanation: "Dans la première phrase, la personne reproche à son interlocuteur de ne pas avoir appelé.",
                         },
                         {
                             id: 7,
@@ -203,10 +183,10 @@ export const course45: LessonContent = {
                         },
                         {
                             id: 8,
-                            question: "We have milk in the fridge. Mo ___ some yesterday.",
-                            options: ["must have bought", "couldn't have bought"],
-                            correctAnswer: 0,
-                            explanation: "C'est l'explication la plus logique au vu du résultat présent.",
+                            question: "Seul Mo a fait les courses hier. Son ticket indique du lait et la bouteille est dans le frigo. Mo ___ the milk yesterday.",
+                            options: ["can’t have bought", "must have bought", "might buy tomorrow"],
+                            correctAnswer: 1,
+                            explanation: "Les indices concordent et désignent Mo. Must have bought formule une forte déduction.",
                         },
                         {
                             id: 9,

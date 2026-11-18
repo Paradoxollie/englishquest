@@ -94,9 +94,9 @@
     {
       "id": "x13",
       "type": "order",
-      "answers": ["They are very happy today."],
+      "answers": ["They are very happy today.", "Today they are very happy."],
       "translation": "Ils sont très contents aujourd'hui.",
-      "explanation": "They + are. Very se place juste avant l'adjectif."
+      "explanation": "Very précède happy. Today peut ouvrir la phrase ou venir à la fin."
     }
   ]
 }

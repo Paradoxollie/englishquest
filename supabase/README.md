@@ -26,6 +26,26 @@ maintient actif.
   Valeurs d'avant sauvegardées dans `output/backups/2026-11-15-avant-migrations.md` (hors dépôt).
 - `archive/` : les 39 scripts historiques de 2025-2026, déjà exécutés, à ne pas relancer.
 
+## Sauvegarde des parties et des missions invitées
+
+Appliquer `migrations/20261118195018_reliable_game_scores_and_guest_progress.sql` avant
+de publier la version qui reprend les missions invitées. Cette migration utilise les
+sessions de partie du 16 octobre et la fonction de validation des cours du 13 octobre.
+
+Une partie enregistrée ajoute son score, son gain et son reçu dans la même transaction.
+Un nouvel envoi de la même partie retrouve le reçu initial. Les anciennes sessions
+déjà utilisées gardent leur état. L'inscription utilise les 30 pièces de bienvenue
+définies en base. Le solde des comptes existants est conservé.
+
+Le serveur corrige les quiz invités et conserve sur l'appareil une preuve signée
+pendant 180 jours. À la connexion, la base importe les résultats vérifiés, conserve
+la meilleure note de chaque mission et attribue les récompenses dans l'ordre du
+parcours. Le bilan d'audience compte les visites et les visiteurs distincts en base.
+Ces trois fonctions sont appelables uniquement avec le rôle du serveur.
+
+`npm test` exécute leurs essais sur un PostgreSQL en mémoire. Pour relancer
+uniquement les essais de cette migration, utiliser `node scripts/tests/reliable-progress-postgres.cjs`.
+
 ## Tables utilisées par le code
 
 `profiles`, `games`, `game_scores`, `courses`, `user_course_progress`, `chapter_exams`,

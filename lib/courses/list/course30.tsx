@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -7,28 +8,17 @@ export const course30: LessonContent = {
     objective: "Exprimer l'excès, la suffisance et les conséquences.",
     sections: [
         {
-            title: "1. La Logique Négative de TOO",
+            title: "Très cher ou trop cher ?",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Attention : <strong>TOO</strong> n&apos;est pas synonyme de "Very".
-                        <br />"Very" augmente l&apos;intensité. "Too" <strong className="text-red-400">TUE</strong> la possibilité d&apos;action.
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-slate-800 p-5 rounded-lg border border-slate-600">
-                            <h4 className="text-slate-300 font-bold mb-2 uppercase text-sm">VERY (Intensité)</h4>
-                            <p className="text-white italic mb-1">"The coffee is <strong>very</strong> hot."</p>
-                            <p className="text-xs text-emerald-400">➔ C&apos;est chaud, mais je peux le boire. C&apos;est juste une information.</p>
-                        </div>
-                        <div className="bg-slate-800 p-5 rounded-lg border border-red-500/50 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5">BLOCKER</div>
-                            <h4 className="text-red-400 font-bold mb-2 uppercase text-sm">TOO (Blocage)</h4>
-                            <p className="text-white italic mb-1">"The coffee is <strong className="text-red-400">too</strong> hot."</p>
-                            <p className="text-xs text-red-300">➔ C&apos;est brûlant. Je NE PEUX PAS le boire. L&apos;action est bloquée.</p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "The bag was very expensive.", meaning: "Tu insistes sur son prix." },
+                  { english: "The bag was too expensive for my budget.", meaning: "Le prix dépasse le budget prévu." },
+                  { english: "It was too expensive, but I bought it anyway.", meaning: "Tu peux décider de dépasser ta limite." },
+                ]}
+              >
+                Very renforce une description. Too indique que le prix, la quantité ou l’intensité dépasse une limite dans la situation.
+              </LessonExamples>
             )
         },
         {
@@ -121,16 +111,16 @@ export const course30: LessonContent = {
             )
         },
         {
-            title: "Quiz de Précision",
+            title: "Quiz · Dire ce qui suffit",
             content: (
                 <Quiz
                     questions={[
                         {
                             id: 1,
-                            question: "I can't drink this tea. It is ___ sweet.",
+                            question: "Tu veux dire que le sucre dépasse ce que tu supportes. This tea is ___ sweet for me to drink.",
                             options: ["very", "too"],
                             correctAnswer: 1,
-                            explanation: "Le fait de ne pas pouvoir le boire indique un blocage/excès négatif = Too.",
+                            explanation: "Too exprime ici une quantité de sucre excessive.",
                         },
                         {
                             id: 2,

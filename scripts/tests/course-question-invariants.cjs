@@ -131,6 +131,17 @@ assert.equal(gradeCourseQuiz(1, mixed.map((a) => a.id === gap.id ? { id: a.id, c
 assert.equal(gradeCourseQuiz(1, mixed.map((a) => a.id === order.id ? { ...a, text: "x".repeat(201) } : a)), null, "Text length is bounded");
 assert.equal(gradeCourseQuiz(1, [...mixed.slice(0, 9), { id: "x99", choice: 0 }]), null, "Unknown exercise refused");
 assert.equal(check.normalizeAnswer(" Isn’t  it? "), "isn't it");
+for (const [course, id, accepted, rejected] of [
+  [1, "x13", "Today, they are very happy.", "They happy are very today."],
+  [41, "x11", "If Lucie had played, we would have won.", "If had Lucie played, we would have won."],
+  [47, "x11", "Although it was cloudy, we went to the beach.", "Although cloudy was it, we went to the beach."],
+  [50, "x12", "We set the tent up near the lake.", "We the tent set up near the lake."],
+]) {
+  const items = JSON.parse(fs.readFileSync(path.join(root, `lib/courses/exercises/course${course}.json`), "utf8")).items;
+  const item = items.find((exercise) => exercise.id === id);
+  assert.equal(check.isOrderAnswerCorrect(item, accepted), true, `Course ${course} accepts a valid alternative`);
+  assert.equal(check.isOrderAnswerCorrect(item, rejected), false, `Course ${course} checks the order`);
+}
 assert.equal(check.displayToken("She", 0), "she");
 assert.equal(check.displayToken("Tom", 0), "Tom");
 assert.equal(check.displayToken("I", 0), "I");

@@ -1,7 +1,6 @@
-import { LessonContent, LessonSection, PlaceholderContent } from "@/lib/courses/types";
+import { LessonExamples } from "@/components/courses/lesson-examples";
+import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
-import { AlertIcon, InfoIcon, ArrowRightIcon } from "@/components/ui/icons";
-import { ReactNode } from "react";
 
 export const course18: LessonContent = {
   courseNumber: 18,
@@ -25,64 +24,17 @@ export const course18: LessonContent = {
       )
     },
     {
-      title: "1. Comparatif de Supériorité (+)",
+      title: "Comparer deux choses",
       content: (
-        <div className="space-y-6">
-          <p className="text-slate-300">
-            La règle dépend de la longueur de l'adjectif (nombre de syllabes).
-          </p>
-
-          <div className="bg-slate-900 p-4 rounded-lg border-l-4 border-emerald-500">
-            <h4 className="text-emerald-400 font-bold mb-2">A. Adjectifs Courts (1 syllabe, ou 2 syllabes en -Y)</h4>
-            <p className="text-slate-200 mb-3">
-              Pour ces adjectifs, on ajoute simplement <span className="font-bold text-white">-ER</span> à la fin du mot.
-            </p>
-            <ul className="space-y-4 text-sm text-slate-300">
-              <li className="bg-black/20 p-2 rounded">
-                <p className="mb-1">Pour <strong>Tall</strong> (Grand), on écrit <span className="text-emerald-400 font-bold">Taller</span> (Plus grand).</p>
-                <p className="text-white italic">"My brother is <span className="text-emerald-400 font-bold">taller</span> <span className="text-yellow-400 font-bold">than</span> me."</p>
-              </li>
-              <li className="bg-black/20 p-2 rounded">
-                <p className="mb-1">Pour <strong>Fast</strong> (Rapide), on écrit <span className="text-emerald-400 font-bold">Faster</span> (Plus rapide).</p>
-                <p className="text-white italic">"A plane is <span className="text-emerald-400 font-bold">faster</span> <span className="text-yellow-400 font-bold">than</span> a car."</p>
-              </li>
-            </ul>
-          </div>
-
-          <div className="bg-slate-900 p-4 rounded-lg border-l-4 border-blue-500">
-            <h4 className="text-blue-400 font-bold mb-2">B. Adjectifs Longs (2 syllabes ou plus, sauf en -Y)</h4>
-            <p className="text-slate-200 mb-3">
-              L'adjectif est trop long pour être modifié. On ajoute <span className="font-bold text-white">MORE</span> devant l'adjectif.
-            </p>
-            <ul className="space-y-4 text-sm text-slate-300">
-              <li className="bg-black/20 p-2 rounded">
-                <p className="mb-1">Pour <strong>Modern</strong> (Moderne), on dit <span className="text-blue-400 font-bold">More modern</span> (Plus moderne).</p>
-                <p className="text-white italic">"London is <span className="text-blue-400 font-bold">more modern</span> <span className="text-yellow-400 font-bold">than</span> Oxford."</p>
-              </li>
-              <li className="bg-black/20 p-2 rounded">
-                <p className="mb-1">Pour <strong>Expensive</strong> (Cher), on dit <span className="text-blue-400 font-bold">More expensive</span> (Plus cher).</p>
-                <p className="text-white italic">"This hotel is <span className="text-blue-400 font-bold">more expensive</span> <span className="text-yellow-400 font-bold">than</span> the hostel."</p>
-              </li>
-            </ul>
-          </div>
-
-          <div className="bg-slate-800 p-4 rounded-lg border border-slate-600">
-            <h4 className="text-white font-bold mb-2 text-sm uppercase">Règles Orthographiques Précises :</h4>
-            <ul className="text-xs text-slate-300 space-y-2">
-              <li><strong className="text-yellow-400">Règle CVC :</strong> Si l'adjectif finit par Consonne-Voyelle-Consonne, on double la dernière lettre.<br />Ex: Pour <strong>Big</strong>, on écrit <span className="underline">Bi<strong>gg</strong>er</span>.</li>
-              <li><strong className="text-yellow-400">Règle du Y :</strong> Si l'adjectif finit par Y, le Y se transforme en <strong className="text-white">I</strong>.<br />Ex: Pour <strong>Happy</strong>, on écrit <span className="underline">Happ<strong>i</strong>er</span>.</li>
-            </ul>
-          </div>
-
-          <div className="bg-red-900/40 p-3 rounded text-center">
-            <p className="text-red-300 text-sm font-bold mb-1">LES 3 IRRÉGULIERS À CONNAÎTRE :</p>
-            <div className="flex justify-center gap-6 text-sm">
-              <span>Good ➔ <strong>Better</strong></span>
-              <span>Bad ➔ <strong>Worse</strong></span>
-              <span>Far ➔ <strong>Further</strong></span>
-            </div>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "This bag is bigger than mine.", meaning: "Big double le g devant -er." },
+            { english: "This route is more interesting.", meaning: "Avec interesting, utilise more." },
+            { english: "She’s cleverer than me. She’s more clever than me.", meaning: "Les deux comparatifs existent avec clever. Happy donne happier." },
+          ]}
+        >
+          Beaucoup d’adjectifs courts prennent -er. Les adjectifs longs emploient généralement more. Pour certains adjectifs de deux syllabes, deux formes existent.
+        </LessonExamples>
       )
     },
     {
@@ -139,70 +91,22 @@ export const course18: LessonContent = {
       )
     },
     {
-      title: "4. Le Superlatif (Extrême)",
+      title: "Choisir dans un groupe",
       content: (
-        <div className="space-y-6">
-          <p className="text-slate-300">
-            Le superlatif désigne l'élément <strong>numéro 1</strong> d'un groupe. L'article <span className="text-yellow-400 font-bold">"THE"</span> est absolument OBLIGATOIRE car l'élément est unique.
-          </p>
-
-          <div className="overflow-x-auto mb-4">
-          <table className="w-full text-left text-sm text-slate-300 border-collapse">
-            <thead>
-              <tr className="border-b border-slate-600 text-slate-400">
-                <th className="py-2">Type d'Adjectif</th>
-                <th className="py-2">Construction</th>
-                <th className="py-2">Exemple Complet</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-700">
-              <tr>
-                <td className="py-3 font-semibold text-emerald-400">Adjectifs Courts</td>
-                <td className="py-3"><span className="text-yellow-400">THE</span> ... -EST</td>
-                <td className="py-3">"Jupiter is <strong>the bigg<span className="text-emerald-400">est</span></strong> planet."</td>
-              </tr>
-              <tr>
-                <td className="py-3 font-semibold text-blue-400">Adjectifs Longs</td>
-                <td className="py-3"><span className="text-yellow-400">THE MOST</span> ...</td>
-                <td className="py-3">"It is <strong>the most</strong> boring movie."</td>
-              </tr>
-              <tr>
-                <td className="py-3 font-semibold text-yellow-400">Adjectifs en -Y</td>
-                <td className="py-3"><span className="text-yellow-400">THE</span> ...-IEST</td>
-                <td className="py-3">"He is <strong>the happ<span className="text-yellow-400">iest</span></strong> man."</td>
-              </tr>
-              <tr>
-                <td className="py-3 font-semibold text-red-400">Adj. Irréguliers</td>
-                <td className="py-3">THE BEST / WORST</td>
-                <td className="py-3">"You are <strong>the best</strong> friend."</td>
-              </tr>
-            </tbody>
-          </table>
-          </div>
-
-          <div className="bg-slate-900 p-4 rounded border-l-4 border-purple-500">
-            <h4 className="text-purple-400 font-bold mb-2">La Précision du Contexte (IN vs OF)</h4>
-            <p className="text-slate-200 text-sm mb-3">
-              Après un superlatif, on précise souvent le groupe ou le lieu.
-            </p>
-            <ul className="space-y-2 text-sm text-slate-300">
-              <li>
-                <strong className="text-white">IN</strong> + LIEU / GROUPE :
-                <span className="italic block pl-4 text-slate-400">"The highest mountain <strong>in</strong> the world." (Pas "of the world")</span>
-                <span className="italic block pl-4 text-slate-400">"The best student <strong>in</strong> the class."</span>
-              </li>
-              <li>
-                <strong className="text-white">OF</strong> + PÉRIODE DE TEMPS :
-                <span className="italic block pl-4 text-slate-400">"The happiest day <strong>of</strong> my life."</span>
-                <span className="italic block pl-4 text-slate-400">"The hottest day <strong>of</strong> the year."</span>
-              </li>
-            </ul>
-          </div>
-        </div>
+        <LessonExamples
+          examples={[
+            { english: "This is the quietest room in the hotel.", meaning: "C’est la chambre la plus calme de l’hôtel." },
+            { english: "Maya is my best friend.", meaning: "Le possessif my détermine friend." },
+            { english: "That’s our most expensive ticket.", meaning: "Our accompagne ici le groupe nominal." },
+          ]}
+          note={"Good donne better puis best. Bad donne worse puis worst."}
+        >
+          Le superlatif situe une personne ou une chose dans un groupe. On rencontre souvent the et aussi un possessif comme my ou our.
+        </LessonExamples>
       )
     },
     {
-      title: "Validation des Connaissances",
+      title: "Quiz · Comparer deux options",
       content: (
         <Quiz
           title="Grammaire Comparative"
@@ -223,10 +127,10 @@ export const course18: LessonContent = {
             },
             {
               id: 3,
-              question: "Superlatif : Good",
-              options: ["The goodest", "The best", "Best", "The most good"],
+              question: "Complète avec le superlatif de good. She’s my ___ friend.",
+              options: ["goodest", "best", "the best", "better"],
               correctAnswer: 1,
-              explanation: "Irrégulier. Good -> The BEST. L'article THE est obligatoire.",
+              explanation: "My détermine déjà friend. On dit my best friend.",
             },
             {
               id: 4,
@@ -258,10 +162,10 @@ export const course18: LessonContent = {
             },
             {
               id: 8,
-              question: "Superlatif : Expensive",
-              options: ["The expensivest", "The most expensive", "Most expensive", "The more expensive"],
+              question: "Un seul billet coûte plus que tous les autres. This is ___ ticket on sale.",
+              options: ["the expensivest", "the most expensive", "more expensive", "the more expensive"],
               correctAnswer: 1,
-              explanation: "Adjectif long -> THE MOST expensive.",
+              explanation: "On situe un billet dans tout le groupe avec the most expensive.",
             },
             {
               id: 9,

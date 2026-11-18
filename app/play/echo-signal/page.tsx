@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
-import { resolveAudioMap } from "@/lib/games/audio-manifest-server";
+import { dialogueLineStarts, resolveAudioMap } from "@/lib/games/audio-manifest-server";
 import { getGameBySlug } from "@/lib/games/config";
 import { ECHO_SIGNAL_SCENARIOS } from "@/lib/games/echoSignal";
 import { getPlayerGameLevel } from "@/lib/games/player-level-server";
@@ -48,6 +48,7 @@ export default async function EchoSignalPage() {
         missionTarget={mission && mission.quizPassed && !mission.alreadyReached ? mission.scoreTarget : null}
         suggestedLevel={suggestedLevel}
         audioMap={audioMap}
+        lineStarts={dialogueLineStarts}
       />
     </GameShell>
   );

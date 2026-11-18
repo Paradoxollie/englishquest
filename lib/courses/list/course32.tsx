@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -33,26 +34,16 @@ export const course32: LessonContent = {
             )
         },
         {
-            title: "1. Le Monde du Rêve",
+            title: "Imaginer une possibilité",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Le <strong>Second Conditional</strong> sert à parler de choses qui ne sont <strong>PAS RÉELLES</strong> maintenant.
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-slate-900 border border-slate-700 p-4 rounded-lg opacity-50">
-                            <h4 className="text-slate-500 font-bold uppercase text-xs mb-2">RÉALITÉ (First Conditional)</h4>
-                            <p className="text-white">"If I have time..."</p>
-                            <p className="text-xs text-slate-500 italic">(Si j'ai du temps ➔ C'est possible que ça arrive.)</p>
-                        </div>
-                        <div className="bg-slate-800 border-2 border-purple-500 p-4 rounded-lg shadow-[0_0_15px_rgba(168,85,247,0.3)]">
-                            <h4 className="text-purple-400 font-bold uppercase text-xs mb-2">RÊVE (Second Conditional)</h4>
-                            <p className="text-white text-lg">"If I <strong className="text-purple-400">had</strong> time..."</p>
-                            <p className="text-xs text-slate-400 italic">(Si j'avais du temps ➔ Mais je n'en ai pas. Je rêve.)</p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "If I lived by the sea, I’d swim every day.", meaning: "Aujourd’hui, j’habite ailleurs." },
+                  { english: "If I won tomorrow, I’d celebrate.", meaning: "La victoire reste possible. Je l’imagine." },
+                ]}
+              >
+                Le deuxième conditionnel présente une hypothèse avec une certaine distance. Elle peut être contraire à la situation actuelle ou simplement jugée peu probable.
+              </LessonExamples>
             )
         },
         {
@@ -99,34 +90,16 @@ export const course32: LessonContent = {
             )
         },
         {
-            title: "3. L'Exception : 'If I WERE...'",
+            title: "If I were et if I was",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Avec le verbe <strong>TO BE</strong>, il y a une règle spéciale pour l'imaginaire.
-                        <br />On utilise <strong>WERE</strong> pour tout le monde (Je, Tu, Il, Elle...).
-                    </p>
-
-                    <div className="flex flex-col gap-4">
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-yellow-500">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h4 className="text-yellow-400 font-bold mb-1">SI J'ÉTAIS TOI...</h4>
-                                    <p className="text-white text-lg">"If I <strong>were</strong> you..."</p>
-                                </div>
-                                <div className="text-right">
-                                    <span className="text-xs bg-yellow-900 text-yellow-200 px-2 py-1 rounded">TRÈS COURANT</span>
-                                </div>
-                            </div>
-                            <p className="text-xs text-slate-400 mt-2 italic">On l'utilise tout le temps pour donner des conseils.</p>
-                        </div>
-
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-slate-500">
-                            <h4 className="text-slate-400 font-bold mb-1">SI ELLE ÉTAIT ICI...</h4>
-                            <p className="text-white text-lg">"If she <strong>were</strong> here..." (et pas <s>was</s>)</p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "If I were you, I’d take the earlier train.", meaning: "Tu te mets à la place de ton interlocuteur." },
+                  { english: "If she were here, she’d know. If she was here, she’d know.", meaning: "Dans cet exemple d’hypothèse, les deux formes se rencontrent." },
+                ]}
+              >
+                Dans une hypothèse, were est la forme courante en registre soigné avec I, he, she et it. On entend aussi was dans la conversation. If I were you est une tournure très fréquente pour conseiller.
+              </LessonExamples>
             )
         },
         {
@@ -150,16 +123,16 @@ export const course32: LessonContent = {
             )
         },
         {
-            title: "Quiz Imaginaire",
+            title: "Quiz · Imaginer une autre situation",
             content: (
                 <Quiz
                     questions={[
                         {
                             id: 1,
-                            question: "If I ___ rich, I would help everyone.",
+                            question: "Dans une hypothèse, choisis la forme traditionnelle de registre soigné. If I ___ rich, I would help everyone.",
                             options: ["was", "were"],
                             correctAnswer: 1,
-                            explanation: "Dans le second conditional, 'were' est la forme la plus sûre et la plus soignée avec tous les sujets.",
+                            explanation: "Were est la forme visée en registre soigné. Was existe aussi à l’oral.",
                         },
                         {
                             id: 2,
@@ -205,10 +178,10 @@ export const course32: LessonContent = {
                         },
                         {
                             id: 8,
-                            question: "I wouldn't buy this car if I ___ you.",
-                            options: ["was", "were"],
-                            correctAnswer: 1,
-                            explanation: "Avec 'If I were you', on garde 'were' : c'est l'expression correcte pour donner un conseil.",
+                            question: "Tu conseilles ton ami. Quelle expression toute faite emploie-t-on habituellement ?",
+                            options: ["If I were you, I’d wait.", "If I am you, I’d wait.", "If I had you, I’d wait."],
+                            correctAnswer: 0,
+                            explanation: "If I were you signifie « à ta place ».",
                         },
                         {
                             id: 9,

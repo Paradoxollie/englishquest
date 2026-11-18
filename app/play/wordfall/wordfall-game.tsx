@@ -55,12 +55,12 @@ const MODES: Record<
 > = {
   exact: {
     label: "Vocabulaire",
-    detail: "Le mot anglais et sa traduction descendent. Tape les deux avant la zone rouge.",
-    placeholder: "book livre",
-    hint: "Tape le mot anglais suivi de sa traduction française.",
+    detail: "Un mot français descend. Retrouve sa traduction anglaise avant la zone rouge.",
+    placeholder: "Ta réponse en anglais",
+    hint: "Traduction anglaise",
     rules: [
-      "Tape d'abord le mot anglais affiché, puis sa traduction française (ex. : book livre).",
-      "Les accents, tirets et apostrophes sont tolérés ; le bloc ciblé s'illumine en direct.",
+      "Si le bloc affiche « livre », tape book puis valide avec Entrée.",
+      "Un indice dévoile l’initiale ou la longueur du mot que tu cherches.",
     ],
   },
   free: {
@@ -446,7 +446,7 @@ export function WordfallGame({
         recordReview(
           matched,
           "caught",
-          current.mode === "free" ? input.trim().toUpperCase() : matched.text
+          input.trim().toUpperCase()
         );
       }
 
@@ -486,7 +486,7 @@ export function WordfallGame({
         lives: current.lives,
         level: current.level,
         streak: current.streak,
-        words: visibleWords(current).map((word) => ({ text: word.text, translation: word.translation, x: word.x, y: word.y })),
+        words: visibleWords(current).map((word) => ({ text: word.displayText, x: word.x, y: word.y })),
         input,
       });
     };
@@ -518,7 +518,7 @@ export function WordfallGame({
     const final = { mode: state.mode, score: state.score, wordsCompleted: state.wordsCompleted };
     gameSession
       .finish(performance.now() - startedAtRef.current)
-      .then(({ sessionId, durationMs }) => submitWordfallScore({ ...final, durationMs, sessionId }))
+      .then(({ sessionId, durationMs, save }) => save(() => submitWordfallScore({ ...final, durationMs, sessionId })))
       .then((result) => {
         if (session !== sessionRef.current) return;
         if (!result.success) {
@@ -536,21 +536,17 @@ export function WordfallGame({
 
   const copy = MODES[mode];
 
-  /* Ciblage visuel en temps réel : quel bloc correspond à la frappe en cours */
-  const normalizedTyped = input.trim().toUpperCase();
-  const matchingWord = words.find((w) => {
-    if (!normalizedTyped) return false;
-    if (mode === "exact") {
-      const targetUpper = w.text.toUpperCase();
-      return normalizedTyped.startsWith(targetUpper) || targetUpper.startsWith(normalizedTyped);
-    }
-    return normalizedTyped[0] === w.displayText.toUpperCase();
-  });
+  // In free mode the displayed initial identifies a block. A vocabulary prompt
+  // keeps its spelling hidden until the player submits an English translation.
+  const initial = input.trim()[0]?.toUpperCase();
+  const matchingWord = mode === "free" && initial
+    ? words.find(word => word.displayText.toUpperCase() === initial)
+    : undefined;
   const lowestWord = words.reduce<FallingWord | null>(
     (lowest, w) => (!lowest || w.y > lowest.y ? w : lowest),
     null
   );
-  const speakTarget = matchingWord ?? lowestWord ?? words[0];
+  const focusWord = matchingWord ?? lowestWord;
 
   /* ---------- démarrage ---------- */
 
@@ -618,6 +614,7 @@ export function WordfallGame({
         ]}
         rewards={rewards}
         rewardStatus={submitStatus}
+        retryScore={gameSession.retryScore}
         rewardError={submitError}
         missionReached={missionTarget != null ? state.score >= missionTarget : null}
         onReplay={() => reset(mode)}
@@ -680,8 +677,7 @@ export function WordfallGame({
           {words.map((word) => {
             const top = 4 + Math.min(1, Math.max(0, word.y) / 100) * 68;
             const progress = Math.max(0, 100 - word.y);
-            const charCount = word.text.replace(/\s+/g, "").length;
-            const isLong = charCount > 9 || word.text.includes(" ");
+            const isLong = word.displayText.length > 9 || word.displayText.includes(" ");
             const inDanger = word.y >= 72;
             const isTargeted = matchingWord?.id === word.id;
             const cefr = mode === "exact" ? getCefrCode(word.text) : null;
@@ -696,8 +692,7 @@ export function WordfallGame({
                 }}
               >
                 {cefr ? <em className="eq-fall-cefr">{cefr}</em> : null}
-                <b className={isLong ? "is-long" : ""}>{word.text}</b>
-                {mode === "exact" && word.translation ? <span>{cleanTranslation(word.translation)}</span> : null}
+                <b className={isLong ? "is-long" : ""} lang={mode === "exact" ? "fr" : "en"}>{word.displayText}</b>
                 {mode === "free" ? <span>Commence par {word.text}</span> : null}
                 <i style={{ width: `${progress}%` }} />
               </div>
@@ -752,10 +747,15 @@ export function WordfallGame({
               <button type="submit" className="eq-btn eq-btn-gold" disabled={paused || !input.trim()}>
                 Valider
               </button>
-              {mode === "exact" && speakTarget ? (
-                <span onClickCapture={() => focusInputSoon(40)}>
-                  <SpeakButton text={speakTarget.text} />
-                </span>
+              {mode === "exact" && focusWord ? (
+                <button type="button" className="eq-btn eq-btn-ghost" disabled={paused} onClick={() => {
+                  const target = focusWord.text.toLowerCase();
+                  const clue = target.length > 1
+                    ? `commence par « ${target[0]} » et compte ${target.replace(/[^a-z]/g, "").length} lettres`
+                    : "se traduit par une seule lettre";
+                  say("ok", `« ${focusWord.displayText} » ${clue}.`, 3200);
+                  focusInputSoon(0);
+                }}>Indice</button>
               ) : null}
               <button type="button" className="eq-btn eq-btn-ghost" onClick={togglePause}>
                 {paused ? "Reprendre" : "Pause (Échap)"}
@@ -770,10 +770,10 @@ export function WordfallGame({
               </p>
             ) : (
               <p className="eq-fall-idle-tip">
-                {speakTarget
+                {focusWord
                   ? mode === "exact"
-                    ? `Cible active : « ${speakTarget.text} »${words.length > 1 ? ` · ${words.length} blocs à l'écran` : ""}`
-                    : `Lettre ciblée : ${speakTarget.displayText} · 3 à 20 lettres`
+                    ? `À traduire : « ${focusWord.displayText} »${words.length > 1 ? ` · ${words.length} blocs à l'écran` : ""}`
+                    : `Lettre ciblée : ${focusWord.displayText} · 3 à 20 lettres`
                   : "Préparation du prochain bloc…"}
               </p>
             )}

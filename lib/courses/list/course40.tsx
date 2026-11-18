@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -7,55 +8,30 @@ export const course40: LessonContent = {
     objective: "Maîtriser les verbes suivis obligatoirement de l'Infinitif Complet (To + Verbe).",
     sections: [
         {
-            title: "0. Définition Technique",
+            title: "L’infinitif avec to",
             content: (
-                <div className="bg-slate-800 p-4 rounded-lg border border-slate-600 mb-6">
-                    <p className="text-slate-400 text-sm mb-2 uppercase font-bold tracking-wider">L'Infinitif Complet (To-Infinitive) :</p>
-                    <p className="text-slate-300 text-sm">
-                        La structure <strong>TO + VERBE</strong> indique souvent un <strong>but</strong>, une <strong>intention</strong> ou une <strong>projection vers le futur</strong> par rapport au premier verbe.
-                    </p>
-                    <div className="mt-4 bg-slate-900 p-3 rounded text-center font-mono text-white">
-                        "I want <span className="text-blue-400 font-bold">to go</span>."
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "I want to be here.", meaning: "Je souhaite être ici maintenant." },
+                  { english: "I hope to see you tomorrow.", meaning: "L’espoir concerne demain." },
+                ]}
+              >
+                Après certains verbes, une base verbale précédée de to complète le sens. Le contexte donne le moment de l’action.
+              </LessonExamples>
             )
         },
         {
-            title: "1. La Liste des Verbes + TO (Intention / Futur)",
+            title: "Associer le verbe à sa construction",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        Ces verbes expriment une volonté ou une planification. L'action qui suit n'est pas encore réalisée (elle est "à faire").
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-blue-500">
-                            <h4 className="font-bold text-white mb-2">WANT (Vouloir)</h4>
-                            <p className="text-slate-300">✅ I want <strong>to sleep</strong>.</p>
-                            <p className="text-slate-500 text-xs italic">Je veux (maintenant) ➔ Dormir (futur proche).</p>
-                        </div>
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-blue-500">
-                            <h4 className="font-bold text-white mb-2">DECIDE (Décider)</h4>
-                            <p className="text-slate-300">✅ We decided <strong>to leave</strong>.</p>
-                        </div>
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-blue-500">
-                            <h4 className="font-bold text-white mb-2">HOPE (Espérer)</h4>
-                            <p className="text-slate-300">✅ I hope <strong>to see</strong> you.</p>
-                        </div>
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-blue-500">
-                            <h4 className="font-bold text-white mb-2">PLAN (Prévoir)</h4>
-                            <p className="text-slate-300">✅ They plan <strong>to move</strong> to London.</p>
-                        </div>
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-blue-500">
-                            <h4 className="font-bold text-white mb-2">PROMISE (Promettre)</h4>
-                            <p className="text-slate-300">✅ He promised <strong>to help</strong>.</p>
-                        </div>
-                        <div className="bg-slate-800 p-4 rounded-lg border-l-4 border-blue-500">
-                            <h4 className="font-bold text-white mb-2">OFFER (Proposer de faire)</h4>
-                            <p className="text-slate-300">✅ She offered <strong>to carry</strong> my bag.</p>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "She decided to walk. We hope to arrive by six.", meaning: "Décision et espoir." },
+                  { english: "He promised to call. She offered to help.", meaning: "Promesse et proposition d’aide." },
+                  { english: "I plan to stay. I plan on staying.", meaning: "Plan accepte aussi on suivi de -ing." },
+                ]}
+              >
+                Want, decide, hope, promise et offer peuvent introduire to + verbe. Mémorise la construction avec un exemple du quotidien.
+              </LessonExamples>
             )
         },
         {
@@ -79,7 +55,7 @@ export const course40: LessonContent = {
             )
         },
         {
-            title: "Exercices de Pattern",
+            title: "Quiz · Choisir le complément à l’infinitif",
             content: (
                 <Quiz
                     questions={[
@@ -120,10 +96,10 @@ export const course40: LessonContent = {
                         },
                         {
                             id: 6,
-                            question: "Don't forget ___ the door!",
+                            question: "Tu rappelles une tâche à faire avant de sortir. Don’t forget ___ the door when you leave.",
                             options: ["locking", "to lock"],
                             correctAnswer: 1,
-                            explanation: "Forget TO do = Oublier de faire (la tâche).",
+                            explanation: "Forget to lock vise l’action qu’il reste à accomplir.",
                         },
                         {
                             id: 7,
@@ -148,10 +124,10 @@ export const course40: LessonContent = {
                         },
                         {
                             id: 10,
-                            question: "They agreed ___ us.",
-                            options: ["to pay", "paying"],
+                            question: "Choisis la demande qu’un ami peut réellement t’adresser. « Elle m’a demandé d’attendre. »",
+                            options: ["She asked me to wait.", "She asked that me wait.", "She asked me waiting."],
                             correctAnswer: 0,
-                            explanation: "AGREE + TO (Accord pour faire).",
+                            explanation: "Ask + personne + to + base verbale exprime la demande.",
                         }
                     ]}
                 />

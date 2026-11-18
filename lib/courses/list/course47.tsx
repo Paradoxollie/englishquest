@@ -131,7 +131,7 @@ export const course47: LessonContent = {
             )
         },
         {
-            title: "Quiz complet",
+            title: "Quiz · Exprimer une opposition",
             content: (
                 <Quiz
                     questions={[
@@ -175,10 +175,10 @@ export const course47: LessonContent = {
                         },
                         {
                             id: 6,
-                            question: "Even though means ...",
-                            options: ["exactly the same register as a noun", "a stronger contrast"],
-                            correctAnswer: 1,
-                            explanation: "Even though renforce souvent l'idée de contraste.",
+                            question: "« Even though the path was flooded, we got home. » Quel effet produit even though ?",
+                            options: ["Le retour est surprenant vu l’état du chemin.", "Le chemin inondé explique la rapidité du retour.", "La phrase donne une condition pour rentrer demain."],
+                            correctAnswer: 0,
+                            explanation: "Even though souligne le contraste entre la difficulté et le résultat.",
                         },
                         {
                             id: 7,
@@ -206,10 +206,10 @@ export const course47: LessonContent = {
                         },
                         {
                             id: 10,
-                            question: "After despite, the safest structure is ...",
-                            options: ["subject + verb only", "noun, pronoun or -ing"],
-                            correctAnswer: 1,
-                            explanation: "C'est la règle de base à mémoriser.",
+                            question: "Transforme « Although she was tired, she finished » en gardant le même sens.",
+                            options: ["Despite being tired, she finished.", "Despite she was tired, she finished.", "Because she was tired, she finished."],
+                            correctAnswer: 0,
+                            explanation: "Despite introduit ici le groupe being tired.",
                         }
                     ]}
                 />

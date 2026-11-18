@@ -20,10 +20,10 @@
     {
       "id": "x3",
       "type": "mcq",
-      "question": "Complète : I ___ three chapters of my book today.",
+      "question": "Tu as terminé trois chapitres aujourd’hui. Quel bilan annonces-tu ? I ___ three chapters of my book today.",
       "options": ["have been reading", "have read", "has read", "have been read"],
       "correctAnswer": 1,
-      "explanation": "Avec une quantité précise (three chapters), on utilise le Present Perfect simple : have read."
+      "explanation": "Have read fait le bilan des chapitres terminés. Une activité répétée peut elle aussi avoir une quantité au continu."
     },
     {
       "id": "x4",

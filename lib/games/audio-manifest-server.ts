@@ -1,8 +1,16 @@
 import "server-only";
 import fs from "node:fs";
 import path from "node:path";
+import recordings from "@/public/audio/recordings.json";
 
 const cache = new Map<string, boolean>();
+const packagedClips = new Set([
+  ...recordings.words.map(id => `/audio/spell-strike/${id}.mp3`),
+  ...recordings.sentences.map(id => `/audio/spell-strike/${id}-sentence.mp3`),
+  ...Object.keys(recordings.dialogues).map(id => `/audio/echo-signal/${id}.mp3`),
+]);
+
+export const dialogueLineStarts: Record<string, number[]> = recordings.dialogues;
 
 /**
  * Retourne le chemin public d'un extrait MP3 s'il existe dans `public/`,
@@ -13,6 +21,8 @@ export function resolveAudioAsset(publicPath: string | null | undefined): string
   if (!publicPath) {
     return null;
   }
+  // Static hosting can serve public assets independently of the server's filesystem.
+  if (packagedClips.has(publicPath)) return `${publicPath}?v=${recordings.revision}`;
   const known = cache.get(publicPath);
   if (known !== undefined) {
     return known ? publicPath : null;

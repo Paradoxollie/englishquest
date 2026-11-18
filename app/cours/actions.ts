@@ -15,6 +15,33 @@ import {
   submitCourseQuizResult,
 } from "@/lib/courses/mission-state";
 import { syncBadgesSafely } from "@/lib/profile/badges-server";
+import { getGuestScores, keepGradedGuestScore, transferGuestScores } from "@/lib/courses/guest-progress-server";
+import { isCourseQuizScorePassing } from "@/lib/courses/quiz-score";
+
+export async function keepGuestQuizAction(course: number, answers: CourseQuizAnswer[]) {
+  const result = gradeCourseQuiz(course, answers);
+  if (!result || !isCourseQuizScorePassing(result.score, result.total)) return false;
+  await keepGradedGuestScore(course, result.score);
+  revalidateCourseSurfaces(course);
+  return result.score;
+}
+
+export async function confirmGuestQuizAction(course: number, minimumScore = 8) {
+  return ((await getGuestScores()).get(course) ?? 0) >= minimumScore;
+}
+
+export async function transferGuestQuizzesAction() {
+  const userId = await getAuthenticatedUserId();
+  if (!userId) return { success: false };
+  try {
+    await transferGuestScores(userId);
+    revalidatePath("/quest");
+    revalidatePath("/home");
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
+}
 
 async function getAuthenticatedUserId() {
   const supabase = await createSupabaseServerClient();

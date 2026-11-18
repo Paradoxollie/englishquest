@@ -103,7 +103,7 @@ export default async function PublicHomePage({
             <span>chapitres, du niveau A1 au niveau B1+</span>
           </li>
           <li>
-            <b>7</b>
+            <b>{games.length}</b>
             <span>jeux pour s&apos;entraîner</span>
           </li>
           <li>

@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -117,56 +118,22 @@ export const course42: LessonContent = {
             )
         },
         {
-            title: "3. Wish + would, et la différence avec hope",
+            title: "Wish, hope et la volonté",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        <strong>wish + would</strong> sert surtout à montrer une irritation ou un désir de changement.
-                        Pour une attente normale dans le futur, on utilise plutôt <strong>hope</strong>.
-                    </p>
-
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <div className="rounded-xl border border-emerald-500/50 bg-emerald-950/20 p-5">
-                            <h4 className="mb-3 font-bold uppercase text-emerald-300">Correct</h4>
-                            <ul className="space-y-2 text-slate-200">
-                                <li>I wish you would answer my messages.</li>
-                                <li>I hope the weather is nice tomorrow.</li>
-                                <li>I hope they didn't miss the train.</li>
-                            </ul>
-                        </div>
-
-                        <div className="rounded-xl border border-red-500/50 bg-red-950/20 p-5">
-                            <h4 className="mb-3 font-bold uppercase text-red-300">À éviter</h4>
-                            <ul className="space-y-2 text-slate-200">
-                                <li className="line-through">I wish the weather is nice tomorrow.</li>
-                                <li className="line-through">I wish they didn't miss the train.</li>
-                                <li className="line-through">I wish to pass my exam tomorrow.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <p className="text-slate-300">
-                        En pratique :
-                    </p>
-                    <ul className="space-y-3 text-slate-200">
-                        <li>
-                            <strong>wish + past simple</strong> : présent irréel
-                        </li>
-                        <li>
-                            <strong>wish + past perfect</strong> : regret sur le passé
-                        </li>
-                        <li>
-                            <strong>wish + would</strong> : irritation ou changement attendu
-                        </li>
-                        <li>
-                            <strong>hope</strong> : souhait réaliste
-                        </li>
-                    </ul>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "I hope I pass my exam tomorrow.", meaning: "J’espère réussir mon examen demain." },
+                  { english: "I wish you would turn the music down.", meaning: "J’aimerais que tu baisses la musique." },
+                  { english: "I wish to speak to the manager.", meaning: "Je souhaite parler au responsable. La formule est soutenue." },
+                ]}
+                note={"I wish to pass my exam tomorrow est grammatical comme expression de volonté. Pour exprimer l’espoir de réussir, I hope I pass est plus naturel."}
+              >
+                Pour un résultat futur espéré, emploie hope. Wish + would demande souvent un changement de comportement. Dans un registre soutenu, wish to peut exprimer une volonté.
+              </LessonExamples>
             )
         },
         {
-            title: "Quiz complet",
+            title: "Quiz · Exprimer un souhait ou un regret",
             content: (
                 <Quiz
                     questions={[
@@ -207,7 +174,7 @@ export const course42: LessonContent = {
                         },
                         {
                             id: 6,
-                            question: "I wish I ___ that email before sending it.",
+                            question: "L’e-mail est parti. Tu regrettes de l’avoir envoyé sans le relire. I wish I ___ it before sending it.",
                             options: ["read", "had read"],
                             correctAnswer: 1,
                             explanation: "Action passée regrettée : had read.",
@@ -228,10 +195,10 @@ export const course42: LessonContent = {
                         },
                         {
                             id: 9,
-                            question: "If only I ___ more careful!",
-                            options: ["am", "had been"],
-                            correctAnswer: 1,
-                            explanation: "If only suit la même logique que wish ici : regret sur le passé.",
+                            question: "Le vase est déjà cassé. Quel regret exprime la personne qui l’a laissé tomber ?",
+                            options: ["If only I had been more careful!", "I hope it will arrive tomorrow.", "I wish to order another one."],
+                            correctAnswer: 0,
+                            explanation: "Had been exprime un regret à propos du passé.",
                         },
                         {
                             id: 10,

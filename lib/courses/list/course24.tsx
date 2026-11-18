@@ -1,3 +1,4 @@
+import { LessonExamples } from "@/components/courses/lesson-examples";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -27,89 +28,43 @@ export const course24: LessonContent = {
             )
         },
         {
-            title: "2. La Preuve Physique (Side Effects)",
+            title: "Une activité et ses traces",
             content: (
-                <div className="space-y-6">
-                    <p className="text-slate-300">
-                        C&apos;est le secret des natifs. Si vous voyez une <strong className="text-white">trace physique</strong> d&apos;une activité récente, utilisez le Continuous.
-                        Jouez au détective.
-                    </p>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-slate-900 p-4 rounded border-t-4 border-indigo-500">
-                            <div className="flex justify-between items-start mb-2">
-                                <h4 className="text-indigo-400 font-bold">L&apos;ACTIVITÉ (Effort)</h4>
-                                <span className="text-2xl">🥵</span>
-                            </div>
-                            <p className="text-white italic mb-2">"You are out of breath. <br /><strong>Have you been running?</strong>"</p>
-                            <p className="text-xs text-slate-400">INDICE : L&apos;essoufflement. On s&apos;intéresse à l&apos;effort fourni.</p>
-                        </div>
-
-                        <div className="bg-slate-900 p-4 rounded border-t-4 border-indigo-500">
-                            <div className="flex justify-between items-start mb-2">
-                                <h4 className="text-indigo-400 font-bold">L&apos;ACTIVITÉ (Saleté)</h4>
-                                <span className="text-2xl">👐</span>
-                            </div>
-                            <p className="text-white italic mb-2">"Your hands are dirty. <br /><strong>Have you been repairing the car?</strong>"</p>
-                            <p className="text-xs text-slate-400">INDICE : La graisse. On ne sait pas si la voiture marche, mais on voit l&apos;activité.</p>
-                        </div>
-                    </div>
-
-                    <div className="mt-4 bg-slate-800 p-4 rounded border-l-4 border-pink-500">
-                        <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
-                            <div>
-                                <h4 className="text-pink-400 font-bold mb-1">VS SIMPLE (Le Résultat Fini)</h4>
-                                <p className="text-white font-medium">"The car is ready. I <strong className="text-emerald-400">have repaired</strong> it."</p>
-                                <p className="text-xs text-slate-400 mt-1">Ici, pas de mains sales. Juste une voiture qui marche. C&apos;est l&apos;accomplissement.</p>
-                            </div>
-                            <span className="text-4xl">✅</span>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "It’s been raining. The ground is wet.", meaning: "Il a pu cesser de pleuvoir." },
+                  { english: "I’ve been working since eight. Can we take a break?", meaning: "La personne décrit l’activité qui l’occupe." },
+                ]}
+              >
+                Le present perfect continu peut décrire une activité qui continue ou qui vient de s’arrêter. Les traces qu’elle laisse expliquent souvent pourquoi on en parle.
+              </LessonExamples>
             )
         },
         {
-            title: "3. La Règle de la Quantité",
+            title: "Compter un résultat ou décrire une activité",
             content: (
-                <div className="space-y-6">
-                    <div className="bg-blue-900/20 p-4 rounded border border-blue-500/50">
-                        <h4 className="text-blue-400 font-bold mb-3 uppercase flex items-center gap-2">
-                            <span>🔢</span> RÈGLE CRITIQUE
-                        </h4>
-                        <p className="text-slate-300">
-                            Dès que vous dites <strong className="text-white">COMBIEN</strong> (Quantité, Nombre de fois), vous basculez obligatoirement au <strong className="text-emerald-400">SIMPLE</strong>.
-                            Le Continuous refuse les quantités finies car il implique que ce n&apos;est pas "fini".
-                        </p>
-
-                        <div className="mt-4 space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="bg-black/40 p-3 rounded border-l-2 border-indigo-500">
-                                    <p className="text-indigo-300 font-bold text-xs mb-1">DURÉE (HOW LONG)</p>
-                                    <p className="text-white">"He has been drinking tea."</p>
-                                    <p className="text-xs text-slate-500 mt-1">(Activité de boire)</p>
-                                </div>
-                                <div className="bg-black/40 p-3 rounded border-l-2 border-emerald-500">
-                                    <p className="text-emerald-300 font-bold text-xs mb-1">QUANTITÉ (HOW MUCH)</p>
-                                    <p className="text-white">"He has drunk <strong className="text-emerald-400">3 cups</strong> of tea."</p>
-                                    <p className="text-xs text-slate-500 mt-1">(Résultat : 3 tasses vides)</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+              <LessonExamples
+                examples={[
+                  { english: "I’ve been running five kilometres every morning.", meaning: "La distance décrit chaque sortie d’une habitude répétée." },
+                  { english: "I’ve run five kilometres today.", meaning: "Tu annonces le total parcouru aujourd’hui." },
+                  { english: "I’ve written three emails. I’ve been writing emails all morning.", meaning: "La première phrase compte les messages terminés. La seconde décrit l’activité." },
+                ]}
+              >
+                Une quantité est possible dans les deux formes. Le choix dépend de ce que tu veux mettre au premier plan.
+              </LessonExamples>
             )
         },
         {
-            title: "Quiz : Continuous or Simple?",
+            title: "Quiz · Décrire une activité récente",
             content: (
                 <Quiz
                     questions={[
                         {
                             id: 1,
-                            question: "You are out of breath. ___ you ___?",
-                            options: ["Have / run", "Have / been running"],
-                            correctAnswer: 1,
-                            explanation: "Indice physique (essoufflé) = Activité récente = Continuous.",
+                            question: "Ton ami est essoufflé. Tu lui demandes quelle activité l’occupait. ___ you ___?",
+                            options: ["Have / been running", "Has / running", "Are / been running"],
+                            correctAnswer: 0,
+                            explanation: "Le present perfect continu demande la cause de son essoufflement.",
                         },
                         {
                             id: 2,
@@ -127,24 +82,24 @@ export const course24: LessonContent = {
                         },
                         {
                             id: 4,
-                            question: "I ___ all afternoon. I'm tired.",
-                            options: ["have been working", "have worked"],
+                            question: "Insiste sur l’activité qui explique ta fatigue. I ___ all afternoon.",
+                            options: ["have been working", "have been work", "am been working"],
                             correctAnswer: 0,
-                            explanation: "Insistance sur la durée et la fatigue (effet secondaire) = Continuous.",
+                            explanation: "Have been + -ing rend compte de l’activité.",
                         },
                         {
                             id: 5,
-                            question: "He ___ ten emails today.",
-                            options: ["has been writing", "has written"],
-                            correctAnswer: 1,
-                            explanation: "Quantité précisée (DIX emails) = Résultat = Simple.",
+                            question: "Le compteur affiche dix messages envoyés. Quel résultat annonces-tu ?",
+                            options: ["I’ve written ten emails.", "I’ve been writing an email.", "I’ll write ten emails."],
+                            correctAnswer: 0,
+                            explanation: "Le premier énoncé annonce le total effectivement atteint.",
                         },
                         {
                             id: 6,
-                            question: "Why are your clothes dirty? I ___ in the garden.",
-                            options: ["have worked", "have been working"],
-                            correctAnswer: 1,
-                            explanation: "Les vêtements sales sont la preuve de l'activité = Continuous.",
+                            question: "Tes vêtements sont terreux. Choisis la forme continue correcte. I ___ in the garden.",
+                            options: ["have been working", "have working", "have been worked"],
+                            correctAnswer: 0,
+                            explanation: "Le sol sur les vêtements est un indice de l’activité récente.",
                         },
                         {
                             id: 7,
@@ -169,7 +124,7 @@ export const course24: LessonContent = {
                         },
                         {
                             id: 10,
-                            question: "Sorry I'm late. ___ you ___ long?",
+                            question: "Demande la durée de l’attente avec le present perfect continu. ___ you ___ long?",
                             options: ["Have / waited", "Have / been waiting"],
                             correctAnswer: 1,
                             explanation: "Question classique sur la durée de l'attente = Continuous.",

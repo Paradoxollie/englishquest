@@ -1,6 +1,5 @@
 "use server";
-import { computeGameRewards, gamePerformance } from "@/lib/profile/economy";
-import { countPlaysToday, grantProfileRewards } from "@/lib/profile/economy-server";
+import { gamePerformance } from "@/lib/profile/economy";
 import { autoCompleteCourseMissionForGame } from "@/lib/courses/mission-auto-complete";
 import { syncBadgesSafely } from "@/lib/profile/badges-server";
 
@@ -10,7 +9,7 @@ import { syncBadgesSafely } from "@/lib/profile/badges-server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { consumeGameSession } from "@/lib/games/game-session-server";
+import { gameAuthFailure, interruptedGameSave, saveGameScore } from "@/lib/games/score-settlement";
 import { checkFlashback } from "@/lib/games/score-plausibility";
 
 const DEFAULT_DIFFICULTY = "medium" as const;
@@ -62,7 +61,6 @@ export async function submitEchoLexScore(params: {
             return { success: false, error: "Score Flashback invraisemblable" };
         }
         const supabase = await createSupabaseServerClient();
-        const adminClient = createSupabaseAdminClient();
 
         const {
             data: { user },
@@ -70,84 +68,26 @@ export async function submitEchoLexScore(params: {
         } = await supabase.auth.getUser();
 
         if (userError || !user) {
-            return { success: false, error: "User not authenticated" };
+            return gameAuthFailure(userError);
         }
 
-        const gameSession = await consumeGameSession({
-            sessionId: params.sessionId,
-            userId: user.id,
-            slug: "flashback",
-            claimedDurationMs: params.durationMs,
+        const saved = await saveGameScore({
+          userId: user.id, slug: "flashback", sessionId: params.sessionId,
+          score: params.score, maxScore: null, durationMs: params.durationMs,
+          difficulty: DEFAULT_DIFFICULTY, performance: gamePerformance.flashback(params.score),
+          recordEligible: params.score > 0,
         });
-        if (!gameSession.ok) {
-            return { success: false, error: gameSession.error };
-        }
-
-        // Get the Echo Lex game ID
-        const game = await resolveFlashbackGameId(adminClient);
-
-        if (!game) {
-            return { success: false, error: "Game not found" };
-        }
-
-        // Check FB and GB
-        const { data: personalBest } = await adminClient
-            .from("game_scores")
-            .select("id, score")
-            .eq("user_id", user.id)
-            .eq("game_id", game.id)
-            .order("score", { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-        const currentPB = personalBest?.score ?? 0;
-        const isNewPB = params.score > currentPB;
-
-        const { data: globalTopScore } = await adminClient
-            .from("game_scores")
-            .select("score")
-            .eq("game_id", game.id)
-            .order("score", { ascending: false })
-            .limit(1)
-            .maybeSingle();
-
-        const currentGB = globalTopScore?.score ?? 0;
-        const isNewGB = params.score > currentGB;
-
-        const playsToday = await countPlaysToday(adminClient, user.id, game.id);
-        const rewards = computeGameRewards({
-            performance: gamePerformance.flashback(params.score),
-            difficulty: DEFAULT_DIFFICULTY,
-            playsToday,
-            isNewPersonalBest: isNewPB,
-            isNewGlobalBest: isNewGB,
-        });
-
-        const { error: insertError } = await adminClient.from("game_scores").insert({
-            user_id: user.id,
-            game_id: game.id,
-            score: params.score,
-            duration_ms: params.durationMs,
-            difficulty: DEFAULT_DIFFICULTY,
-        });
-        if (insertError) {
-            console.error("Error inserting Flashback score:", insertError);
-            return { success: false, error: "Failed to save score" };
-        }
-
-
-        const granted = await grantProfileRewards(adminClient, user.id, {
-            xp: rewards.xpEarned, gold: rewards.goldEarned,
-        });
+        if (!saved.ok) return { success: false, error: saved.error, retryable: saved.retryable };
+        const { rewards, playsToday, isNewPersonalBest, isNewGlobalBest } = saved.receipt;
 
         // Daily Challenge
         const { checkAndGrantDailyBonus } = await import("@/lib/profile/daily-challenge");
         const dailyChallengeResult = await checkAndGrantDailyBonus(user.id, "flashback", {
-            eligible: rewards.xpEarned > 0,
+            eligible: rewards.xpEarned > 0, earnedAt: saved.receipt.savedAt,
         });
-        const courseCompleted = await autoCompleteCourseMissionForGame(user.id, "flashback", params.score);
+        const courseCompleted = saved.receipt.replayed ? null : await autoCompleteCourseMissionForGame(user.id, "flashback", params.score);
         const newBadges = await syncBadgesSafely(user.id);
-        const gameNewLevel = granted.level > granted.previousLevel ? granted.level : 0;
+        const gameNewLevel = saved.receipt.level > saved.receipt.previousLevel ? saved.receipt.level : 0;
         const mergedNewLevel = Math.max(gameNewLevel, dailyChallengeResult.newLevel ?? 0) || undefined;
 
         return {
@@ -160,15 +100,15 @@ export async function submitEchoLexScore(params: {
                 breakdown: rewards.breakdown,
                 playsUsedToday: playsToday + 1,
             },
-            isNewPersonalBest: isNewPB,
-            isNewGlobalBest: isNewGB,
+            isNewPersonalBest,
+            isNewGlobalBest,
             dailyChallenge: dailyChallengeResult,
             courseCompleted,
             newBadges,
         };
     } catch (error) {
         console.error("Error in submitEchoLexScore:", error);
-        return { success: false, error: "An unexpected error occurred" };
+        return interruptedGameSave;
     }
 }
 

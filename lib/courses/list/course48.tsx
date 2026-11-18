@@ -121,7 +121,7 @@ export const course48: LessonContent = {
             )
         },
         {
-            title: "Quiz complet",
+            title: "Quiz · Parler d’une activité après une préposition",
             content: (
                 <Quiz
                     questions={[
@@ -190,10 +190,10 @@ export const course48: LessonContent = {
                         },
                         {
                             id: 10,
-                            question: "After a preposition, the safest pattern is ...",
-                            options: ["to + base verb", "verb-ing"],
-                            correctAnswer: 1,
-                            explanation: "C'est la règle centrale du cours.",
+                            question: "Tu réponds à une invitation. Quelle formule termine naturellement ton message ?",
+                            options: ["I’m looking forward to seeing you.", "I’m looking forward to see you.", "I looking forward seeing you."],
+                            correctAnswer: 0,
+                            explanation: "Le to de look forward to est une préposition. Seeing peut donc le suivre.",
                         }
                     ]}
                 />

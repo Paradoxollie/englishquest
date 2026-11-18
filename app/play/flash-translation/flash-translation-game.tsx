@@ -1,5 +1,7 @@
 "use client";
 
+import { translationAnswers } from "@/lib/games/translation-recall";
+import { MistakePractice } from "@/components/play/mistake-practice";
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -287,15 +289,15 @@ export function FlashTranslationGame({
     const session = sessionRef.current;
     gameSession
       .finish(performance.now() - startedAtRef.current)
-      .then(({ sessionId, durationMs }) =>
-        submitFlashTranslationScore({
+      .then(({ sessionId, durationMs, save }) =>
+        save(() => submitFlashTranslationScore({
           totalTimeMs: getFinalScore(state),
           averageReactionTimeMs: getAverageReactionTime(state),
           wrongAnswers: state.wrongAnswers,
           roundsCompleted: completedRounds(state),
           durationMs,
           sessionId,
-        })
+        }))
       )
       .then((result) => {
         if (session !== sessionRef.current) return;
@@ -348,12 +350,15 @@ export function FlashTranslationGame({
         ]}
         rewards={rewards}
         rewardStatus={submitStatus}
+        retryScore={gameSession.retryScore}
         rewardError={rewardError}
         missionReached={missionTarget != null ? total <= missionTarget : null}
         onReplay={start}
       >
         {state.wrongAnswers > 0 ? (
-          <div>
+          <MistakePractice items={state.rounds.filter(round => round.isCorrect === false).map(({ wordPair }) => ({
+            id: wordPair.english, prompt: wordPair.french, answers: translationAnswers(wordPair.english),
+          }))}>
             <p className="eq-kicker">À revoir ({state.wrongAnswers})</p>
             <div className="eq-game-review-scroll">
               <ul className="eq-game-review">
@@ -370,7 +375,7 @@ export function FlashTranslationGame({
                   ))}
               </ul>
             </div>
-          </div>
+          </MistakePractice>
         ) : (
           <p className="eq-game-end-note">Zéro faute ! Super temps de réaction.</p>
         )}
