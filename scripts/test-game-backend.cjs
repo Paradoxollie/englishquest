@@ -206,7 +206,11 @@ async function main() {
   const scores = Array.from({ length: 1200 }, (_, index) => ({ id: `a-${index}`, user_id: "a", game_id: "game", score: 100, difficulty: "easy", max_score: 10 }));
   scores.push({ id: "b", user_id: "b", game_id: "game", score: 90, difficulty: "easy", max_score: 9 });
   const leaderboardDb = { games: [{ id: "game", slug: "grammar-rush" }], game_scores: scores, profiles: [{ id: "a", username: "Alice" }, { id: "b", username: "Bob" }], user_equipped_items: [] };
-  const leaderboard = loadTs("lib/games/leaderboard-service.ts", { "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(leaderboardDb) } });
+  const shopVisibility = loadTs("lib/shop/visibility.ts");
+  const leaderboard = loadTs("lib/games/leaderboard-service.ts", {
+    "@/lib/shop/visibility": shopVisibility,
+    "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(leaderboardDb) },
+  });
   const board = await leaderboard.getGameLeaderboards({ slug: "grammar-rush", buckets: [{ key: "all" }], rowLimit: 500 });
   assert.equal(board.all.length, 2, "a prolific player must not hide other players");
   assert.equal(board.all[0].games_played, 1200);
@@ -232,6 +236,7 @@ async function main() {
     user_equipped_items: [],
   };
   const rankLb = loadTs("lib/games/leaderboard-service.ts", {
+    "@/lib/shop/visibility": shopVisibility,
     "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(rankDb) },
   });
   const standings = await rankLb.getGameStandings({
@@ -256,6 +261,7 @@ async function main() {
     ],
   };
   const ascLb = loadTs("lib/games/leaderboard-service.ts", {
+    "@/lib/shop/visibility": shopVisibility,
     "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(ascDb) },
   });
   const bestMap = await ascLb.getUserBestScoresBySlug("u1", { "flash-translation": "asc", "spell-strike": "desc" });

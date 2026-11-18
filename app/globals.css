@@ -572,7 +572,7 @@ h4 {
 .eq-header-row {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 10px;
   height: 64px;
 }
 
@@ -604,9 +604,8 @@ h4 {
 }
 
 .eq-nav {
-  display: none;
+  display: var(--header-nav-display, none);
   gap: 2px;
-  margin-left: 10px;
 }
 
 .eq-nav-link {
@@ -630,9 +629,9 @@ h4 {
 }
 
 .eq-header-actions {
-  display: none;
+  display: var(--header-nav-display, none);
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   margin-left: auto;
 }
 
@@ -669,6 +668,30 @@ h4 {
 .eq-profile-link .eq-ring::after {
   inset: 3px;
   font-size: 0.7rem;
+}
+
+.eq-ring-portrait {
+  position: absolute;
+  z-index: 1;
+  inset: 3px;
+  width: calc(100% - 6px);
+  height: calc(100% - 6px);
+  object-fit: cover;
+  object-position: center 35%;
+  border-radius: 50%;
+}
+
+.eq-profile-shortcut {
+  display: grid;
+  place-items: center;
+  min-width: 38px;
+  min-height: 42px;
+  border-radius: 50%;
+}
+
+.eq-profile-shortcut .eq-ring {
+  width: 34px;
+  height: 34px;
 }
 
 .eq-profile-name {
@@ -729,6 +752,13 @@ h4 {
   background: var(--ink);
 }
 
+.eq-mobile-menu:not([hidden]) {
+  display: var(--header-mobile-display, block);
+  max-height: calc(100dvh - 64px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .eq-mobile-nav {
   display: flex;
   flex-direction: column;
@@ -754,14 +784,21 @@ h4 {
   padding-top: 14px;
 }
 
-@media (min-width: 900px) {
-  .eq-nav,
-  .eq-header-actions {
-    display: flex;
+@media (min-width: 1200px) {
+  /* Les comptes du personnel disposent de deux entrées supplémentaires. */
+  .eq-header:not([data-staff]) {
+    --header-nav-display: flex;
+    --header-mobile-display: none;
   }
-  .eq-burger,
-  .eq-mobile-menu {
-    display: none;
+}
+
+@media (min-width: 1400px) {
+  .eq-header[data-staff] {
+    --header-nav-display: flex;
+    --header-mobile-display: none;
+  }
+  .eq-header[data-staff] .eq-header-row {
+    max-width: 1400px;
   }
 }
 
@@ -2275,7 +2312,7 @@ h4 {
   width: 76px;
   height: 92px;
   object-fit: contain;
-  filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.55));
+  filter: drop-shadow(0 2px 4px #080d18) drop-shadow(0 0 6px rgba(206, 234, 255, 0.34));
 }
 
 .eq-space-ship-svg {

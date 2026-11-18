@@ -18,6 +18,8 @@ import { DAILY_CHALLENGE_REWARD, WELCOME_GOLD, getDailyStreakMultiplier, getLeve
 import { getWeeklyLeague } from "@/lib/profile/league-server";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { chooseRewardGoal, describeRewardGoal } from "@/lib/shop/reward-preview";
+import { getHomeCollectionChoices } from "@/lib/shop/reward-preview-server";
 
 /** Le bonus de bienvenue s'affiche pendant les 24 premières heures, avant toute mission jouée. */
 const WELCOME_WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -50,10 +52,10 @@ export default async function HomePage() {
   }
 
   const adminClient = createSupabaseAdminClient();
-  const [{ data: profile }, roadmap, placement, practice, badges, league] = await Promise.all([
+  const [{ data: profile }, roadmap, placement, practice, badges, league, collection] = await Promise.all([
     adminClient
       .from("profiles")
-      .select("username, xp, gold, daily_played_games, daily_streak, last_game_date, last_daily_bonus_date, created_at")
+      .select("username, xp, gold, level, daily_played_games, daily_streak, last_game_date, last_daily_bonus_date, created_at")
       .eq("id", user.id)
       .maybeSingle(),
     getCachedUserCourseRoadmap(user.id),
@@ -62,12 +64,15 @@ export default async function HomePage() {
     // Rattrape les badges gagnés hors des parties (test de niveau, mission validée depuis la carte).
     loadBadgesWithSync(user.id),
     getWeeklyLeague(user.id, { limit: 1, withProfiles: false }),
+    getHomeCollectionChoices(user.id),
   ]);
 
   const username = profile?.username ?? user.user_metadata?.username ?? user.email?.split("@")[0] ?? "Joueur";
   const xp = profile?.xp ?? 0;
   const gold = profile?.gold ?? 0;
   const level = getLevelProgress(xp);
+  const collectionLevel = profile?.level ?? level.level;
+  const goal = collection ? chooseRewardGoal(collection.items, collection.ownedIds, collectionLevel, gold) : null;
   const daily = getDailyChallengeState(profile);
   const streakMultiplier = getDailyStreakMultiplier(daily.dailyStreak);
   const dailyXp = Math.round(DAILY_CHALLENGE_REWARD.xp * streakMultiplier);
@@ -107,6 +112,7 @@ export default async function HomePage() {
         userId={user.id}
         xp={xp}
         gold={gold}
+        collectionGoal={goal ? { item: goal, status: describeRewardGoal(goal, collectionLevel, xp, gold) } : null}
         level={level}
         completedCount={roadmap.completedCount}
         totalCourses={roadmap.totalCourses}

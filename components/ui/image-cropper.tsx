@@ -1,10 +1,5 @@
 "use client";
 
-/**
- * Image Cropper Component - Permet de cropper une image en format portrait
- * Style WhatsApp pour sélectionner la zone à afficher
- */
-
 import { useState, useCallback } from "react";
 import Cropper from "react-easy-crop";
 import type { Area, Point } from "react-easy-crop";
@@ -13,14 +8,16 @@ interface ImageCropperProps {
   image: string;
   onCropComplete: (croppedImage: string) => void;
   onCancel: () => void;
-  aspectRatio?: number; // Ratio largeur/hauteur (ex: 2/3 pour portrait)
+  aspectRatio?: number;
+  outputWidth?: number;
 }
 
 export function ImageCropper({
   image,
   onCropComplete,
   onCancel,
-  aspectRatio = 2 / 3, // Format portrait par défaut
+  aspectRatio = 2 / 3,
+  outputWidth = 400,
 }: ImageCropperProps) {
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -59,9 +56,7 @@ export function ImageCropper({
       throw new Error("No 2d context");
     }
 
-    // Taille de sortie en format portrait (ratio 2:3)
-    const outputWidth = 400;
-    const outputHeight = 600;
+    const outputHeight = Math.round(outputWidth / aspectRatio);
 
     canvas.width = outputWidth;
     canvas.height = outputHeight;
@@ -84,8 +79,6 @@ export function ImageCropper({
     );
 
     return new Promise((resolve, reject) => {
-      // Use PNG to preserve quality and avoid black background issues
-      // PNG supports transparency if needed, but we use white background above
       canvas.toBlob(
         (blob) => {
           if (!blob) {
@@ -95,8 +88,8 @@ export function ImageCropper({
           const url = URL.createObjectURL(blob);
           resolve(url);
         },
-        "image/png", // Changed from JPEG to PNG for better quality
-        0.95
+        "image/webp",
+        0.92
       );
     });
   };
@@ -150,10 +143,11 @@ export function ImageCropper({
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-bold mb-2">
+              <label htmlFor="shop-image-zoom" className="block text-sm font-bold mb-2">
                 Zoom : {Math.round(zoom * 100)}%
               </label>
               <input
+                id="shop-image-zoom"
                 type="range"
                 min={1}
                 max={3}

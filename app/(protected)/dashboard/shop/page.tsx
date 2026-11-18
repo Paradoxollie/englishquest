@@ -26,7 +26,7 @@ export default async function ShopManagementPage() {
   return (
     <div>
       <PageHead caption="Administration" title="Gestion de la boutique">
-        Gérez les avatars, titres, arrière-plans et skins de vaisseau disponibles dans la boutique.
+        Gérez les portraits, décors, vaisseaux et titres du vestiaire. Chaque pièce peut rejoindre un album ou être réservée à ses propriétaires.
       </PageHead>
 
       <div className="eq-container eq-section">

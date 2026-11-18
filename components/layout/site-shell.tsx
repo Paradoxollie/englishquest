@@ -27,6 +27,7 @@ export function SiteShell({
           <nav className="eq-footer-links" aria-label="Pied de page">
             <Link href="/tous-les-cours">Cours</Link>
             <Link href="/play">Jeux</Link>
+            <Link href="/collection">Collection</Link>
             <Link href="/leaderboard">Classements</Link>
             <Link href="/quest">Aventure</Link>
             <Link href="/about">À propos</Link>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Mascot } from "@/components/comic/mascot";
 import { GameCard } from "@/components/play/game-card";
+import { CollectionInvitation } from "@/components/rewards/collection-invitation";
 import { ART } from "@/lib/art";
 import { resolveArt } from "@/lib/art-server";
 import { chapters } from "@/lib/courses/chapters";
@@ -139,6 +140,8 @@ export default async function PublicHomePage({
           </ol>
         </div>
       </section>
+
+      <CollectionInvitation />
 
       <section className="eq-section-pro" aria-labelledby="home-path">
         <div className="eq-container">

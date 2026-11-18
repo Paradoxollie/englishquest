@@ -14,12 +14,12 @@ import { getLevelProgress } from "@/lib/profile/economy";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Profile } from "@/types/profile";
-import type { ShopItem, UserEquippedItems } from "@/types/shop";
-import { AvatarDisplay } from "./avatar-display";
-import { CustomizationDisplay } from "./customization-display";
+import { AvatarDisplay, TitleDisplay } from "./avatar-display";
 import { DeleteAccountForm } from "./delete-account-form";
+import { loadProfileCollection } from "./shop/collection-data";
 import { ShopSection } from "./shop/shop-section";
-import { TitleDisplay } from "./title-display";
+import { ProfileGold, WardrobeProvider } from "./shop/wardrobe-state";
+import "./collection-profile.css";
 
 export const metadata: Metadata = { title: "Profil" };
 
@@ -37,7 +37,7 @@ function relatedCourse(row: CourseProgressRow) {
 }
 
 const roleLabels: Record<string, string> = {
-  student: "Élève",
+  student: "Membre",
   teacher: "Professeur",
   admin: "Administrateur",
 };
@@ -45,7 +45,7 @@ const roleLabels: Record<string, string> = {
 export default async function ProfilePage({
   searchParams,
 }: {
-  searchParams: Promise<{ motdepasse?: string }>;
+  searchParams: Promise<{ motdepasse?: string; objet?: string }>;
 }) {
   const params = await searchParams;
   const user = await getServerUser();
@@ -74,7 +74,7 @@ export default async function ProfilePage({
     gameCatalog.map((game) => [game.slug, getGameLeaderboardMeta(game.slug).scoreOrder])
   );
 
-  const [bestBySlug, { data: courseProgress }, { count: gamesPlayed }, badges, { data: equippedData }] = await Promise.all([
+  const [bestBySlug, { data: courseProgress }, { count: gamesPlayed }, badges, collection] = await Promise.all([
     getUserBestScoresBySlug(user.id, scoreOrderBySlug),
     adminClient
       .from("user_course_progress")
@@ -84,33 +84,9 @@ export default async function ProfilePage({
     adminClient.from("game_scores").select("id", { count: "exact", head: true }).eq("user_id", user.id),
     // Rattrape les badges déjà mérités avant de les afficher.
     loadBadgesWithSync(user.id),
-    adminClient
-      .from("user_equipped_items")
-      .select(`
-        *,
-        equipped_avatar:shop_items!equipped_avatar_id(*),
-        equipped_title:shop_items!equipped_title_id(*),
-        equipped_background:shop_items!equipped_background_id(*)
-      `)
-      .eq("user_id", user.id)
-      .maybeSingle(),
+    loadProfileCollection(user.id),
   ]);
   const userIsAdmin = profile.role === "admin";
-  const initialEquipped: UserEquippedItems | null = equippedData
-    ? ({
-        ...equippedData,
-        equipped_avatar: Array.isArray(equippedData.equipped_avatar)
-          ? equippedData.equipped_avatar[0] ?? null
-          : equippedData.equipped_avatar ?? null,
-        equipped_title: Array.isArray(equippedData.equipped_title)
-          ? equippedData.equipped_title[0] ?? null
-          : equippedData.equipped_title ?? null,
-        equipped_background: Array.isArray(equippedData.equipped_background)
-          ? equippedData.equipped_background[0] ?? null
-          : equippedData.equipped_background ?? null,
-      } as UserEquippedItems)
-    : null;
-  const initialTitle = (initialEquipped?.equipped_title as ShopItem | null | undefined) ?? null;
 
   const progressRows = (courseProgress ?? []) as CourseProgressRow[];
   const completedCourses = progressRows.filter((row) => row.status === "completed").length;
@@ -125,29 +101,35 @@ export default async function ProfilePage({
       scoreLabel: formatLeaderboardScore(getGameLeaderboardMeta(game.slug).format, bestBySlug[game.slug]),
     }));
 
-  const level = getLevelProgress(profile.xp);
+  const progress = getLevelProgress(profile.xp);
+  const level = profile.level ?? progress.level;
+  const standardProgress = level === progress.level;
   const memberSince = new Date(profile.created_at).toLocaleDateString("fr-FR", { year: "numeric", month: "long" });
 
   return (
+    <WardrobeProvider collection={collection} gold={profile.gold} level={level} xp={profile.xp} username={profile.username} userId={user.id}>
     <div className="eq-container eq-section eq-profile">
       <header className="eq-profile-head">
-        <AvatarDisplay userId={user.id} username={profile.username} size="lg" initialEquipped={initialEquipped} />
+        <AvatarDisplay />
         <div className="eq-profile-identity">
           <span className="eq-caption">{roleLabels[profile.role] ?? profile.role}</span>
           <h1 className="eq-h1">{profile.username}</h1>
-          <TitleDisplay userId={user.id} initialTitle={initialTitle} />
+          <TitleDisplay />
           <p className="eq-muted">Membre depuis {memberSince}</p>
+          <a href="#boutique" className="wardrobe-text-link">Personnaliser ma carte</a>
         </div>
         <div className="eq-profile-level">
-          <span className="eq-ring eq-ring-lg" data-level={level.level} style={{ "--p": level.percent } as React.CSSProperties} aria-hidden="true" />
+          <span className="eq-ring eq-ring-lg" data-level={level} style={{ "--p": standardProgress ? progress.percent : 0 } as React.CSSProperties} aria-hidden="true" />
           <div>
-            <b>Niveau {level.level}</b>
-            <span className="eq-bar eq-bar-cyan" aria-hidden="true">
-              <i style={{ width: `${level.percent}%` }} />
-            </span>
-            <small>
-              {level.xpIntoLevel} / {level.xpForLevel} XP · {level.xpToNext} XP avant le niveau {level.level + 1}
-            </small>
+            <b>Niveau {level}</b>
+            {standardProgress ? (
+              <>
+                <span className="eq-bar eq-bar-cyan" aria-hidden="true">
+                  <i style={{ width: `${progress.percent}%` }} />
+                </span>
+                <small>{progress.xpIntoLevel} / {progress.xpForLevel} XP · {progress.xpToNext} XP avant le niveau {level + 1}</small>
+              </>
+            ) : <small>{profile.xp.toLocaleString("fr-FR")} XP au total</small>}
           </div>
         </div>
       </header>
@@ -159,7 +141,7 @@ export default async function ProfilePage({
         </div>
         <div className="is-gold">
           <dt>Or</dt>
-          <dd>{profile.gold}</dd>
+          <dd><ProfileGold /></dd>
         </div>
         <div className="is-missions">
           <dt>Missions validées</dt>
@@ -223,38 +205,11 @@ export default async function ProfilePage({
         </section>
       </div>
 
+      <ShopSection key={params.objet ?? ""} initialKey={params.objet} />
       <BadgesSection earned={badges.all} stats={badges.stats} />
       {badges.newlyEarned.length > 0 ? <RewardOnMount detail={{ badges: badges.newlyEarned }} /> : null}
 
       <ClassJoinCard userId={user.id} />
-      <section className="eq-profile-section eq-section-divider" aria-labelledby="profile-look">
-        <div className="eq-section-head">
-          <div>
-            <span className="eq-caption">Apparence</span>
-            <h2 id="profile-look" className="eq-h2">
-              Avatar, titre, fond et vaisseau
-            </h2>
-          </div>
-        </div>
-        <CustomizationDisplay userId={user.id} username={profile.username} />
-      </section>
-
-      <section className="eq-profile-section eq-section-divider" id="boutique" aria-labelledby="profile-shop">
-        <div className="eq-section-head">
-          <div>
-            <span className="eq-caption">Boutique</span>
-            <h2 id="profile-shop" className="eq-h2">
-              Dépense ton or
-            </h2>
-          </div>
-          <span className="eq-chip eq-chip-gold">{profile.gold} or</span>
-        </div>
-        <p className="eq-muted eq-profile-shop-note">
-          L&apos;or est rare : il vient des missions validées, des records et du défi du jour. Certains objets demandent aussi un
-          niveau minimum.
-        </p>
-        <ShopSection userLevel={level.level} userGold={profile.gold} userId={user.id} />
-      </section>
 
       <section className="eq-card eq-profile-account" aria-labelledby="profile-account">
         <span className="eq-caption">Compte</span>
@@ -294,5 +249,6 @@ export default async function ProfilePage({
         </div>
       </section>
     </div>
+    </WardrobeProvider>
   );
 }

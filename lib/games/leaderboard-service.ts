@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { leaderboardItem } from "@/lib/shop/visibility";
 import type { Difficulty } from "@/lib/profile/leveling";
 import type { ShopItem } from "@/types/shop";
 
@@ -53,10 +54,6 @@ function createEmptyResult<TKey extends string>(
   }
 
   return result;
-}
-
-function firstItem(item: ShopItem | ShopItem[] | null | undefined): ShopItem | null {
-  return Array.isArray(item) ? item[0] ?? null : item ?? null;
 }
 
 function isBetterScore(nextScore: number, currentScore: number, order: ScoreOrder) {
@@ -203,9 +200,9 @@ async function computeBucketRanking<TKey extends string>({
 
   for (const item of (equippedItems || []) as EquippedItemRow[]) {
     equippedMap.set(item.user_id, {
-      avatar: firstItem(item.equipped_avatar),
-      background: firstItem(item.equipped_background),
-      title: firstItem(item.equipped_title),
+      avatar: leaderboardItem(item.equipped_avatar),
+      background: leaderboardItem(item.equipped_background),
+      title: leaderboardItem(item.equipped_title),
     });
   }
 

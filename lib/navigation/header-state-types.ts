@@ -15,6 +15,7 @@ export type HeaderFocusGame = {
 export type HeaderState = {
   isAuthenticated: boolean;
   username: string | null;
+  avatarUrl: string | null;
   role: ProfileRole | null;
   completionRate: number;
   canAccessDashboard: boolean;
@@ -26,6 +27,7 @@ export type HeaderState = {
 export const guestHeaderState: HeaderState = {
   isAuthenticated: false,
   username: null,
+  avatarUrl: null,
   role: null,
   completionRate: 0,
   canAccessDashboard: false,

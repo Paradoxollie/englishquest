@@ -3,6 +3,7 @@ import "server-only";
 import { getNextParisWeekStart, getParisWeekStart } from "@/lib/profile/economy-server";
 import { LEAGUE_SIZE, formatLeagueReset, shapeLeagueRows, type LeagueStanding, type WeeklyLeagueRow } from "@/lib/profile/league";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { leaderboardItem } from "@/lib/shop/visibility";
 import type { ShopItem } from "@/types/shop";
 
 export type LeagueEntry = LeagueStanding & {
@@ -30,10 +31,6 @@ type EquippedRow = {
   equipped_background?: ShopItem | ShopItem[] | null;
   equipped_title?: ShopItem | ShopItem[] | null;
 };
-
-function firstItem(item: ShopItem | ShopItem[] | null | undefined): ShopItem | null {
-  return Array.isArray(item) ? item[0] ?? null : item ?? null;
-}
 
 function isMissingFunction(error: { code?: string; message?: string } | null) {
   return Boolean(error && (error.code === "PGRST202" || error.code === "42883" || error.code === "42P01"));
@@ -109,9 +106,9 @@ export async function getWeeklyLeague(
       return {
         ...standing,
         username: profiles.get(standing.userId) ?? "Joueur",
-        avatar: firstItem(items?.equipped_avatar),
-        background: firstItem(items?.equipped_background),
-        title: firstItem(items?.equipped_title),
+        avatar: leaderboardItem(items?.equipped_avatar),
+        background: leaderboardItem(items?.equipped_background),
+        title: leaderboardItem(items?.equipped_title),
       };
     };
 

@@ -1,8 +1,8 @@
 # English Quest
 
 Site gratuit d'apprentissage de l'anglais par le jeu, créé par Pierre Marienne, professeur
-d'anglais. Parcours de 50 cours avec quiz, neuf mini-jeux, progression par XP et or, boutique
-d'avatars, classements.
+d'anglais. Parcours de 50 cours avec quiz, neuf mini-jeux, progression par XP et or,
+quatre albums illustrés de Maya et Sam et classements.
 
 Production : https://englishquest-omega.vercel.app
 
@@ -58,6 +58,7 @@ en invité et enregistre ses captures dans `output/playwright/audit-2026-10-13/`
 | `lib/courses/` | Les 50 cours (`list/course1..50.tsx`), catalogue, métadonnées, progression, missions |
 | `lib/games/` | Moteurs de jeu (logique pure, testable) et listes de mots |
 | `lib/profile/` | XP, niveaux, récompenses, défi du jour |
+| `lib/shop/` | Albums, progression du vestiaire et prochains objectifs |
 | `lib/supabase/` | Clients Supabase navigateur, serveur et admin |
 | `supabase/migrations/` | Scripts SQL à exécuter, dans l'ordre |
 | `supabase/archive/` | Scripts historiques, déjà exécutés, à ne pas relancer |

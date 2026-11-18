@@ -46,6 +46,16 @@ Ces trois fonctions sont appelables uniquement avec le rôle du serveur.
 `npm test` exécute leurs essais sur un PostgreSQL en mémoire. Pour relancer
 uniquement les essais de cette migration, utiliser `node scripts/tests/reliable-progress-postgres.cjs`.
 
+## Albums du vestiaire
+
+La migration `illustrated_reward_collections` introduit quatre albums et 23 pièces.
+Elle archive les anciens modèles officiels et enregistre les objets déjà portés
+dans l’inventaire de leur propriétaire. Un achat débite l’or, enregistre la pièce
+et attribue les titres des albums terminés dans la même transaction. Les titres
+acquis restent disponibles si le contenu d’un album change. L’interface
+`/dashboard/shop` permet de rattacher une pièce à un album ou de l’archiver.
+Les essais de ces règles s’exécutent avec `node scripts/tests/collection-shop-postgres.cjs`.
+
 ## Tables utilisées par le code
 
 `profiles`, `games`, `game_scores`, `courses`, `user_course_progress`, `chapter_exams`,

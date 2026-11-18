@@ -491,6 +491,7 @@ function inDays(days) {
   await test("Return paths after login stay on the site", async () => {
     assert.equal(safeNext.getSafeNextPath("/rejoindre?code=KM47RT"), "/rejoindre?code=KM47RT");
     assert.equal(safeNext.getSafeNextPath("/teachers"), "/teachers");
+    assert.equal(safeNext.getSafeNextPath("/profile?objet=eq_depart_maya#boutique"), "/profile?objet=eq_depart_maya#boutique");
     for (const bad of [
       "//evil.example",
       "https://evil.example/x",

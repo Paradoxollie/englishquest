@@ -16,6 +16,10 @@ export interface ShopItem {
   image_url: string | null;
   color_theme: string | null;
   is_active: boolean;
+  is_public?: boolean;
+  owner_user_id?: string | null;
+  collection_key?: string | null;
+  is_collection_reward?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -48,6 +52,7 @@ export interface ShopPurchaseResult {
   error?: string;
   newGold?: number;
   purchasedItem?: ShopItem;
+  unlockedTitles?: Array<Pick<ShopItem, "id" | "item_key" | "name">>;
 }
 
 export interface EquipItemResult {

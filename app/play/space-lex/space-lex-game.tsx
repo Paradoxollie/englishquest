@@ -325,6 +325,9 @@ export function SpaceLexGame({
         .select("image_url")
         .eq("item_type", "ship_skin")
         .eq("is_active", true)
+        .eq("is_public", true)
+        .eq("price_gold", 0)
+        .eq("required_level", 1)
         .order("display_order")
         .limit(1)
         .maybeSingle();

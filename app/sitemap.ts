@@ -14,6 +14,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/auth/login",
     "/auth/signup",
     "/play",
+    "/collection",
     "/quest",
     "/tous-les-cours",
     "/test-de-niveau",
@@ -32,7 +33,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     return {
       url: `${BASE_URL}${route}`,
-      lastModified: LAST_MODIFIED,
+      ...(route === "/collection" ? {} : { lastModified: LAST_MODIFIED }),
       changeFrequency,
       priority,
     };

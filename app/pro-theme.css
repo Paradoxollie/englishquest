@@ -442,6 +442,12 @@ html[data-theme="dark"] .eq-text-link {
   content: none !important;
 }
 
+@media (max-width: 359px) {
+  .eq-header .eq-header-row { gap: 6px; padding-inline: 12px; }
+  .eq-header .eq-brand { gap: 6px; }
+  .eq-header .eq-brand-text { font-size: 1rem !important; }
+}
+
 .eq-nav-link {
   font-family: var(--font-body) !important;
   font-size: 0.94rem !important;
@@ -449,7 +455,7 @@ html[data-theme="dark"] .eq-text-link {
   letter-spacing: 0 !important;
   text-transform: none !important;
   color: var(--pro-muted) !important;
-  padding: 8px 12px !important;
+  padding: 8px 9px !important;
   border: 0 !important;
   border-radius: 8px !important;
   box-shadow: none !important;

@@ -1,0 +1,104 @@
+.collection-page {
+  padding-block: clamp(1.1rem, 3.5vw, 3rem) 4rem;
+  color: var(--pro-text);
+}
+.collection-cover {
+  display: grid;
+  grid-template-columns: minmax(16rem, .77fr) minmax(0, 1.23fr);
+  align-items: stretch;
+  overflow: hidden;
+  background: var(--pro-surface);
+  border: 2px solid var(--pro-border-strong);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 var(--pro-ink-frame);
+}
+.collection-intro {
+  align-self: center;
+  padding: clamp(1.35rem, 3.2vw, 3.1rem);
+}
+.collection-intro h1, .collection-section-heading h2, .collection-volume-title h2, .collection-item-details h3, .collection-pieces-heading {
+  font-family: var(--font-display);
+  line-height: 1.12;
+  font-weight: 700;
+  letter-spacing: -.045em;
+  text-wrap: balance;
+}
+.collection-intro h1 { font-size: clamp(2.25rem, 3.65vw, 3.3rem); }
+.collection-intro h1 span { display: block; color: var(--pro-info); }
+.collection-intro > p { margin-block: .95rem 1.45rem; font-size: clamp(1rem, 1.35vw, 1.16rem); line-height: 1.6; color: var(--pro-muted); }
+.collection-cover-actions { display: flex; align-items: center; gap: .7rem 1.05rem; flex-wrap: wrap; }
+.collection-text-link { color: var(--pro-info); text-underline-offset: .2em; text-decoration: underline; font-weight: 650; padding-block: .55rem; }
+.collection-cover-art { width: 100%; height: 100%; object-fit: cover; border-inline-start: 2px solid var(--pro-border-strong); }
+.collection-albums { padding-top: clamp(2rem, 3.7vw, 3.3rem); scroll-margin-top: 5rem; }
+.collection-section-heading, .collection-volume-title { display: flex; align-items: baseline; flex-wrap: wrap; justify-content: space-between; gap: .45rem 1.1rem; }
+.collection-section-heading h2, .collection-volume-title h2 { font-size: clamp(1.45rem, 2.7vw, 2.15rem); }
+.collection-section-heading p, .collection-volume-title p { color: var(--pro-muted); line-height: 1.5; }
+.collection-album-nav { display: grid; grid-template-columns: repeat(4,minmax(0, 1fr)); gap: .75rem; margin-block: 1rem 1.6rem; }
+.collection-album-nav a {
+  display: flex; align-items: center; gap: .65rem; padding: .36rem; min-height: 3.4rem;
+  border: 2px solid var(--pro-border); border-radius: .6rem; color: var(--pro-text); background: var(--pro-surface);
+  font-family: var(--font-display); font-weight: 650; font-size: clamp(.86rem, 1.35vw, 1.01rem); line-height: 1.25;
+}
+.collection-album-nav a[aria-current="page"] { border-color: var(--pro-info); box-shadow: inset 0 -2px var(--pro-info); color: var(--pro-info); background: var(--pro-info-soft); }
+.collection-album-nav img { width: 30%; max-width: 4.4rem; aspect-ratio: 1.5; object-fit: cover; border-radius: .25rem; }
+.collection-volume { background: var(--pro-surface); border: 1.5px solid var(--pro-border); border-radius: .9rem; padding: clamp(.9rem, 2.25vw, 2rem); }
+.collection-volume-title { align-items: center; }
+.collection-volume-title h2 { margin-bottom: .3rem; }
+.collection-progress { font-size: .86rem; font-weight: 700; }
+.collection-fitting { display: grid; grid-template-columns: minmax(0,1.24fr) minmax(15rem,.76fr); align-items: stretch; margin-block: 1.2rem 1.4rem; border-radius: .65rem; overflow: hidden; background: var(--pro-surface-2); border: 1px solid var(--pro-border); }
+.collection-scene { position: relative; isolation: isolate; aspect-ratio: 1.97; min-height: 13rem; margin: 0; overflow: hidden; background: #192843; }
+.collection-scene-backdrop { object-fit: cover; }
+.collection-scene-portrait { position: absolute; left: 5%; bottom: 17%; width: clamp(4.9rem,24%,9rem); aspect-ratio: 1; overflow: hidden; border: .25rem solid #fff4d4; border-radius: 50%; box-shadow: 0 0 0 2px #172033, 3px 4px #172033; }
+.collection-scene-portrait img { object-fit: cover; }
+.collection-scene-title { position: absolute; bottom: 6%; left: 5%; max-width: 85%; border: 2px solid #172033; padding: .3rem .75rem; border-radius: 3px; background: #ffcf48; color: #172033; font-weight: 800; font-family: var(--font-display); }
+.collection-scene figcaption { position: absolute; top: .65rem; right: .65rem; font-size: .76rem; font-weight: 650; background: #101e34; color: #fff; border: 1px solid #9aa5b9; border-radius: 99px; padding: .22rem .6rem; }
+.collection-scene.is-flight, .piece-ship_skin .collection-thumbnail { background-color: #131f38; background-image: radial-gradient(circle at 28% 22%,#f7daa3 1px,transparent 2px), radial-gradient(circle at 75% 61%,#a9c7de 1px,transparent 2px), radial-gradient(ellipse at 42% 85%,#264562,transparent 64%); background-size: 5.4rem 4.6rem,3.6rem 5rem,cover; }
+.collection-flight-sprite { position: absolute; width: 28%; height: 70%; top: 15%; left: 36%; }
+.collection-flight-sprite img, .piece-ship_skin .collection-thumbnail img { object-fit: contain; }
+.collection-item-details { align-content: center; padding: clamp(1rem,2.2vw,2.15rem); }
+.collection-item-details h3 { font-size: clamp(1.4rem,2.5vw,2rem); margin-block: .28rem .55rem; }
+.collection-item-details > p:not(.collection-kicker) { color: var(--pro-muted); line-height: 1.5; }
+.collection-kicker, .collection-piece-copy small { color: var(--pro-muted); font-size: .78rem; font-weight: 650; }
+.collection-condition { display: block; margin: .85rem 0; color: var(--pro-gold-text); }
+.collection-item-details .eq-btn { max-width: 100%; text-align: center; }
+html[data-theme="dark"] .collection-item-details .eq-btn-primary { --pro-primary: #2454b7; --pro-primary-hover: #1b479f; }
+.collection-pieces-heading { font-size: 1.12rem; margin-block: 0 .7rem; }
+.collection-piece-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(115px,1fr)); gap: .55rem; }
+.collection-piece { min-width: 0; display: flex; flex-direction: column; overflow: hidden; text-align: left; background: var(--pro-surface); border: 2px solid var(--pro-border); border-radius: .55rem; cursor: pointer; color: var(--pro-text); }
+.collection-piece:hover, .collection-album-nav a:hover { border-color: var(--pro-info); }
+.collection-piece[aria-pressed="true"] { background: var(--pro-info-soft); border-color: var(--pro-info); box-shadow: inset 0 -2px var(--pro-info); }
+.collection-thumbnail { position: relative; display: grid; place-items: center; width: 100%; aspect-ratio: 1.65; background: var(--pro-surface-2); overflow: hidden; }
+.collection-thumbnail img { object-fit: cover; object-position: center 33%; }
+.piece-ship_skin .collection-thumbnail img { padding: .32rem; object-position: center; }
+.piece-title .collection-thumbnail { background-color: #26374d; background-image: repeating-linear-gradient(-48deg,transparent 0 8px,#33475a 9px 10px); }
+.piece-title .collection-thumbnail.is-trophy { background-color: #503d14; background-image: repeating-linear-gradient(-48deg,transparent 0 8px,#705823 9px 10px); }
+.collection-nameplate { max-width: 92%; border: 1.5px solid #172033; border-radius: 3px; padding: .3rem .4rem; text-align: center; color: #172033; background: #fff3d0; font-family: var(--font-display); font-weight: 700; font-size: clamp(.73rem,1vw,.9rem); line-height: 1.2; }
+.is-trophy .collection-nameplate { background: #ffcf48; }
+.collection-piece-copy { display: grid; align-content: start; gap: .12rem; padding: .55rem .6rem .7rem; }
+.collection-piece-copy b { font-size: .88rem; line-height: 1.28; }
+.collection-piece[aria-pressed="true"] .collection-piece-copy b { color: var(--pro-info); }
+.collection-unavailable { padding: 2rem 0; }
+.collection-page :where(a,button):focus-visible { outline: 3px solid var(--pro-info); outline-offset: 3px; }
+@media (max-width: 850px) {
+  .collection-album-nav { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .collection-piece-grid { grid-template-columns: repeat(3,minmax(0,1fr)); }
+}
+@media (max-width: 700px) {
+  .collection-cover,.collection-fitting { grid-template-columns: minmax(0,1fr); }
+  .collection-fitting { scroll-margin-top: 5rem; }
+  .collection-cover-art { order: -1; aspect-ratio: 2.12; border: 0; border-bottom: 2px solid var(--pro-border-strong); }
+  .collection-intro { padding: 1.15rem 1.2rem 1.35rem; }
+  .collection-intro h1 { max-width: none; font-size: clamp(1.85rem,6.8vw,2.5rem); }
+  .collection-intro h1 span { display: inline; }
+  .collection-intro > p { margin: .65rem 0 .9rem; }
+  .collection-section-heading p { font-size: .95rem; }
+  .collection-album-nav { gap: .5rem; }
+  .collection-scene { width: 100%; min-height: clamp(8rem,43vw,22rem); }
+}
+@media (max-width: 440px) {
+  .collection-piece-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .collection-album-nav a { gap: .4rem; }
+  .collection-album-nav img { width: 28%; }
+  .collection-volume { padding: .72rem; }
+  .collection-cover-actions .eq-btn { padding-inline: .9rem; }
+}

@@ -1,338 +1,51 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { isCustomItemKey } from "@/lib/shop/visibility";
-import type { EquipItemResult, ShopPurchaseResult } from "@/types/shop";
+import type { EquipItemResult, ShopItemType, ShopPurchaseResult } from "@/types/shop";
 
-type PurchaseRpcResult = {
-  success?: boolean;
-  error?: string;
-  newGold?: number;
-};
-
-function isMissingPurchaseRpc(error: { message?: string; code?: string } | null): boolean {
-  if (!error) {
-    return false;
-  }
-
-  return (
-    error.code === "42883" ||
-    error.message?.includes("purchase_shop_item") === true ||
-    error.message?.includes("Could not find the function") === true
-  );
+async function currentUserId() {
+  const client = await createSupabaseServerClient();
+  const { data } = await client.auth.getUser();
+  return data.user?.id;
 }
 
-export async function purchaseShopItemAction(
-  shopItemId: string
-): Promise<ShopPurchaseResult> {
+export async function purchaseShopItemAction(shopItemId: string): Promise<ShopPurchaseResult> {
   try {
-    const supabase = await createSupabaseServerClient();
-    const adminClient = createSupabaseAdminClient();
+    const userId = await currentUserId();
+    if (!userId) return { success: false, error: "Connecte-toi pour acheter cette pièce." };
 
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return {
-        success: false,
-        error: "User not authenticated",
-      };
-    }
-
-    const { data: shopItem, error: itemError } = await adminClient
-      .from("shop_items")
-      .select("*")
-      .eq("id", shopItemId)
-      .eq("is_active", true)
-      .maybeSingle();
-
-    if (itemError || !shopItem) {
-      return {
-        success: false,
-        error: "Objet introuvable ou indisponible",
-      };
-    }
-
-    if (isCustomItemKey(shopItem.item_key)) {
-      return {
-        success: false,
-        error: "Cet objet personnalisé n'est pas disponible à l'achat.",
-      };
-    }
-
-    const { data: profile, error: profileError } = await adminClient
-      .from("profiles")
-      .select("level, gold")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (profileError || !profile) {
-      return {
-        success: false,
-        error: "Profile not found",
-      };
-    }
-
-    const { data: existingItem } = await adminClient
-      .from("user_items")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("shop_item_id", shopItemId)
-      .maybeSingle();
-
-    if (existingItem) {
-      return {
-        success: false,
-        error: "Tu possèdes déjà cet objet",
-      };
-    }
-
-    if (profile.level < shopItem.required_level) {
-      return {
-        success: false,
-        error: `Niveau ${shopItem.required_level} requis (vous etes niveau ${profile.level})`,
-      };
-    }
-
-    if (profile.gold < shopItem.price_gold) {
-      return {
-        success: false,
-        error: `Pas assez d'or. Necessaire: ${shopItem.price_gold}, Vous avez: ${profile.gold}`,
-      };
-    }
-
-    const { data: rpcPurchase, error: rpcError } = await adminClient.rpc(
-      "purchase_shop_item",
-      {
-        p_user_id: user.id,
-        p_shop_item_id: shopItemId,
-      }
-    );
-
-    if (!rpcError && rpcPurchase && typeof rpcPurchase === "object") {
-      const purchaseResult = rpcPurchase as PurchaseRpcResult;
-
-      if (purchaseResult.success) {
-        return {
-          success: true,
-          newGold:
-            typeof purchaseResult.newGold === "number"
-              ? purchaseResult.newGold
-              : profile.gold - shopItem.price_gold,
-          purchasedItem: shopItem as any,
-        };
-      }
-
-      if (purchaseResult.error) {
-        return {
-          success: false,
-          error: purchaseResult.error,
-        };
-      }
-    } else if (rpcError && !isMissingPurchaseRpc(rpcError)) {
-      console.error("purchase_shop_item RPC failed:", rpcError);
-      return {
-        success: false,
-        error: "Erreur lors de l'achat de l'item",
-      };
-    }
-
-    const newGold = profile.gold - shopItem.price_gold;
-
-    const { data: updatedProfiles, error: updateGoldError } = await adminClient
-      .from("profiles")
-      .update({
-        gold: newGold,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", user.id)
-      .eq("gold", profile.gold)
-      .select("id");
-
-    if (updateGoldError) {
-      return {
-        success: false,
-        error: "Erreur lors de la mise a jour de l'or",
-      };
-    }
-
-    if (!updatedProfiles?.length) {
-      return {
-        success: false,
-        error: "Votre solde a change. Rechargez la page et recommencez.",
-      };
-    }
-
-    const { error: insertItemError } = await adminClient.from("user_items").insert({
-      user_id: user.id,
-      shop_item_id: shopItemId,
-      price_paid: shopItem.price_gold,
+    const { data, error } = await createSupabaseAdminClient().rpc("purchase_shop_item", {
+      p_user_id: userId, p_shop_item_id: shopItemId,
     });
-
-    if (insertItemError) {
-      await adminClient
-        .from("profiles")
-        .update({
-          gold: profile.gold,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", user.id)
-        .eq("gold", newGold);
-
-      return {
-        success: false,
-        error:
-          insertItemError.code === "23505"
-            ? "Tu possèdes déjà cet objet."
-            : "Erreur lors de l'achat de l'item",
-      };
+    if (error || !data) {
+      console.error("Achat de collection indisponible", error?.code);
+      return { success: false, error: "L’achat n’a pas pu être confirmé. Tu peux réessayer." };
     }
-
-    return {
-      success: true,
-      newGold,
-      purchasedItem: shopItem as any,
-    };
-  } catch (error) {
-    console.error("Error in purchaseShopItemAction:", error);
-    return {
-      success: false,
-      error: "Une erreur inattendue s'est produite",
-    };
+    const receipt: ShopPurchaseResult = data;
+    if (receipt.success) revalidatePath("/profile");
+    return receipt;
+  } catch {
+    return { success: false, error: "Impossible de confirmer l’achat pour le moment. Tu peux réessayer." };
   }
 }
 
-export async function equipItemAction(
-  shopItemId: string | null,
-  itemType: "avatar" | "title" | "background" | "ship_skin"
-): Promise<EquipItemResult> {
+export async function equipItemAction(shopItemId: string | null, itemType: ShopItemType): Promise<EquipItemResult> {
   try {
-    const supabase = await createSupabaseServerClient();
-    const adminClient = createSupabaseAdminClient();
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
-    if (userError || !user) {
-      return {
-        success: false,
-        error: "User not authenticated",
-      };
+    const userId = await currentUserId();
+    if (!userId) return { success: false, error: "Connecte-toi pour modifier ta tenue." };
+    const { data, error } = await createSupabaseAdminClient().rpc("equip_shop_item", {
+      p_user_id: userId, p_shop_item_id: shopItemId, p_item_type: itemType,
+    });
+    if (error || !data) {
+      console.error("Équipement de collection indisponible", error?.code);
+      return { success: false, error: "L’équipement n’a pas pu être confirmé. Tu peux réessayer." };
     }
-
-    if (shopItemId !== null && shopItemId !== undefined) {
-      const { data: shopItem, error: shopItemError } = await adminClient
-        .from("shop_items")
-        .select("item_type, item_key, price_gold, is_active")
-        .eq("id", shopItemId)
-        .maybeSingle();
-
-      if (shopItemError || !shopItem) {
-        return {
-          success: false,
-          error: "Objet introuvable",
-        };
-      }
-
-      if (!shopItem.is_active) {
-        return {
-          success: false,
-          error: "Cet objet n'est plus disponible",
-        };
-      }
-
-      if (shopItem.item_type !== itemType) {
-        return {
-          success: false,
-          error: "Type d'objet incorrect",
-        };
-      }
-
-      if (shopItem.price_gold > 0 || isCustomItemKey(shopItem.item_key)) {
-        const { data: userItem, error: userItemError } = await adminClient
-          .from("user_items")
-          .select("id")
-          .eq("user_id", user.id)
-          .eq("shop_item_id", shopItemId)
-          .maybeSingle();
-
-        if (userItemError) {
-          return {
-            success: false,
-            error: "Impossible de vérifier la possession de l'objet",
-          };
-        }
-
-        if (!userItem) {
-          return {
-            success: false,
-            error: "Vous ne possédez pas cet objet",
-          };
-        }
-      }
-    }
-
-    const { data: equippedItems } = await adminClient
-      .from("user_equipped_items")
-      .select("*")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    const updateField =
-      itemType === "avatar"
-        ? "equipped_avatar_id"
-        : itemType === "title"
-          ? "equipped_title_id"
-          : itemType === "ship_skin"
-            ? "equipped_ship_skin_id"
-            : "equipped_background_id";
-
-    const updateData: Record<string, string | null> = {
-      [updateField]: shopItemId,
-      updated_at: new Date().toISOString(),
-    };
-
-    if (equippedItems) {
-      const { error: updateError } = await adminClient
-        .from("user_equipped_items")
-        .update(updateData)
-        .eq("user_id", user.id);
-
-      if (updateError) {
-        return {
-          success: false,
-          error: `Erreur lors de l'equipement: ${updateError.message || "Erreur inconnue"}`,
-        };
-      }
-    } else if (shopItemId !== null && shopItemId !== undefined) {
-      const { error: insertError } = await adminClient
-        .from("user_equipped_items")
-        .insert({
-          user_id: user.id,
-          [updateField]: shopItemId,
-        });
-
-      if (insertError) {
-        return {
-          success: false,
-          error: `Erreur lors de l'equipement: ${insertError.message || "Erreur inconnue"}`,
-        };
-      }
-    }
-
-    return {
-      success: true,
-    };
-  } catch (error) {
-    console.error("Error in equipItemAction:", error);
-    return {
-      success: false,
-      error: "Une erreur inattendue s'est produite",
-    };
+    const receipt: EquipItemResult = data;
+    if (receipt.success) revalidatePath("/profile");
+    return receipt;
+  } catch {
+    return { success: false, error: "Impossible de confirmer ce changement pour le moment. Tu peux réessayer." };
   }
 }

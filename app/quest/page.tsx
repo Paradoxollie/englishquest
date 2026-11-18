@@ -25,6 +25,7 @@ import { getMissionStars, STARS_PER_MISSION, sumStars } from "@/lib/courses/star
 import { getChapterExamReward, getLevelProgress } from "@/lib/profile/economy";
 import { EXAM_QUESTION_COUNT, examStatus, getUserChapterExams } from "@/lib/exams/exams";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getEquippedPortraitUrl } from "@/lib/shop/equipped-portrait";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 
 export const metadata: Metadata = {
@@ -47,20 +48,15 @@ async function getPlayerSummary(userId: string, fallbackName: string | undefined
   const name = fallbackName ?? "Joueur";
   try {
     const adminClient = createSupabaseAdminClient();
-    const [{ data: profile }, { data: equipped }] = await Promise.all([
+    const [{ data: profile }, avatarUrl] = await Promise.all([
       adminClient.from("profiles").select("username, xp, gold").eq("id", userId).maybeSingle(),
-      adminClient
-        .from("user_equipped_items")
-        .select("equipped_avatar:shop_items!equipped_avatar_id(image_url)")
-        .eq("user_id", userId)
-        .maybeSingle(),
+      getEquippedPortraitUrl(adminClient, userId),
     ]);
-    const avatar = Array.isArray(equipped?.equipped_avatar) ? equipped.equipped_avatar[0] : equipped?.equipped_avatar;
     const username = profile?.username ?? name;
     return {
       username,
       initial: username.charAt(0).toUpperCase(),
-      avatarUrl: avatar?.image_url ?? null,
+      avatarUrl,
       xp: profile?.xp ?? 0,
       gold: profile?.gold ?? 0,
     };
@@ -245,6 +241,7 @@ export default async function QuestPage() {
             <b>Mission {justCompleted.courseId} validée.</b> {lessons[justCompleted.courseId]?.title ?? justCompleted.title} :
             {" "}+{justCompleted.rewardXp} XP et +{justCompleted.rewardGold} or.
             {justCompleted.courseId === 50 ? " Tu as atteint la dernière mission." : " La mission suivante est ouverte."}
+            {" "}<Link href="/profile#boutique" className="eq-text-link">Voir ma collection</Link>
           </div>
         </div>
       ) : null}

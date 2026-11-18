@@ -376,7 +376,7 @@ body {
 }
 
 .eq-mobile-controls {
-  display: inline-flex;
+  display: var(--header-mobile-display, inline-flex);
   align-items: center;
   gap: 8px;
   margin-left: auto;
@@ -387,12 +387,6 @@ body {
   border: 1.5px solid var(--ink-rule);
   background: var(--ink-2);
   border-radius: var(--radius-sm);
-}
-
-@media (min-width: 900px) {
-  .eq-mobile-controls {
-    display: none;
-  }
 }
 
 .eq-burger-bar {

@@ -433,6 +433,40 @@ const chapterDefinitions = [1, 2, 3, 4, 5].map((id) => ({ id, courseIds: Array.f
     assert.equal(short.best, 6, "the best result is kept");
   });
 
+  await test("Rankings display original and archived official outfits and keep personal uploads in the wardrobe", () => {
+    const { leaderboardItem } = loadSource("lib/shop/visibility.ts");
+    const archive = { item_key: "avatar_warrior", is_public:false };
+    assert.equal(leaderboardItem([archive]),archive);
+    assert.equal(leaderboardItem([{ item_key: "custom_private" }]),null);
+    assert.equal(leaderboardItem({ item_key: "avatar_name", owner_user_id: "player" }),null);
+    assert.equal(leaderboardItem([]),null);
+  });
+
+  await test("Collection goals reflect earned levels, available gold and already owned pieces", () => {
+    const { chooseRewardGoal, describeRewardGoal, chooseLevelUnlock, wardrobeItemHref } = loadSource("lib/shop/reward-preview.ts");
+    const atom = (id, level, price, extra = {}) => ({
+      id, item_key: id, item_type: "avatar", name: id, image_url: "/art/test.webp",
+      price_gold: price, required_level: level, display_order: level, ...extra,
+    });
+    const starter = atom("maya", 1, 20);
+    const newLook = atom("sam", 3, 40);
+    const next = atom("fusee", 4, 50);
+    const title = atom("oeil", 3, 0, { item_type: "title", image_url: null });
+    const choices = [next, starter, title, newLook];
+    assert.equal(chooseRewardGoal(choices, new Set(), 3, 45), newLook);
+    assert.equal(chooseRewardGoal(choices, new Set(), 3, 25), starter);
+    assert.equal(chooseRewardGoal(choices, new Set([starter.id]), 3, 10), newLook);
+    assert.equal(chooseRewardGoal(choices, new Set([starter.id, newLook.id]), 3, 80), next);
+    assert.equal(chooseRewardGoal(choices, new Set([starter.id, newLook.id, next.id]), 9, 100), null);
+    assert.equal(describeRewardGoal(newLook, 2, 365, 30), "Encore 35 XP et 10 pièces d’or pour cet objet.");
+    assert.equal(describeRewardGoal(newLook, 3, 0, 40), "Tu peux l’acquérir dès maintenant.");
+    assert.equal(describeRewardGoal(newLook, 2, 500, 40), "Cet objet se débloque au niveau 3.");
+    assert.equal(describeRewardGoal(newLook, 2, 23, 30), "Niveau 3 requis. Il te manque aussi 10 pièces d’or.");
+    assert.equal(chooseLevelUnlock([newLook, title]), title);
+    assert.equal(chooseLevelUnlock([]), null);
+    assert.equal(wardrobeItemHref("sam"), "/profile?objet=sam#boutique");
+  });
+
   await test("New accounts receive the welcome gold everywhere a profile is created", () => {
     assert.equal(economy.WELCOME_GOLD, 30);
     for (const file of ["app/(public)/auth/actions.ts", "app/(protected)/layout.tsx"]) {

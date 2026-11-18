@@ -14,6 +14,7 @@ for (const script of [
   'scripts/tests/exercise-invariants.cjs',
   'scripts/tests/auth-pagination-regression.cjs',
   'scripts/tests/rewards-regression.cjs',
+  'scripts/tests/collection-shop-postgres.cjs',
   'scripts/tests/classes-regression.cjs',
 ]) {
   const result = spawnSync(process.execPath, [script], { cwd: root, stdio: 'inherit' });

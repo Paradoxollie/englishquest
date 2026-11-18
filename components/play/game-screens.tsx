@@ -425,7 +425,10 @@ export function GameEnd({
 
       {rewardStatus === "guest" ? (
         <p className="eq-game-end-note">
-          Partie non enregistrée : sans compte, pas d&apos;expérience ni de classement.{" "}
+          Avec un compte, tes prochaines parties peuvent te rapporter de l&apos;XP et des pièces d&apos;or pour ta collection.{" "}
+          <Link href="/collection" className="eq-text-link">
+            Découvrir les récompenses
+          </Link>{" · "}
           <Link href="/auth/signup" className="eq-text-link">
             Créer un compte
           </Link>
@@ -522,7 +525,12 @@ export function GameEnd({
               ) : null}
               {reachedLevel ? (
                 <p className="eq-game-levelup eq-pop" role="status">
-                  <b>Niveau {reachedLevel}</b> atteint. Ton anneau passe au cran suivant.
+                  <b>Niveau {reachedLevel}</b> atteint.
+                </p>
+              ) : null}
+              {totalXp > 0 || totalGold > 0 ? (
+                <p className="eq-game-end-note eq-game-reward-breakdown">
+                  <Link href="/profile#boutique" className="eq-text-link">Voir ma collection</Link>
                 </p>
               ) : null}
               {rewards.newBadges && rewards.newBadges.length > 0 ? (

@@ -1,377 +1,184 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ShopClassArt } from "@/components/ui/game-icons";
-import { GoldIcon } from "@/components/ui/icons";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
-import {
-  buildOwnedItemIdSet,
-  canAutoGrantShopItem,
-  filterVisibleShopItems,
-} from "@/lib/shop/visibility";
-import type { ShopItem, UserEquippedItems, UserItem } from "@/types/shop";
-import { equipItemAction, purchaseShopItemAction } from "./actions";
+import { CheckIcon, GoldIcon } from "@/components/ui/icons";
+import { COLLECTION_ALBUMS, getAlbumProgress, isCollectionItemAvailable } from "@/lib/shop/collection";
+import { formatGold } from "@/lib/shop/format-gold";
+import type { ShopItem, ShopItemType } from "@/types/shop";
+import { ItemArt, PlayerCard } from "./collection-art";
+import { ItemDetails } from "./item-details";
+import { useWardrobe } from "./wardrobe-state";
 
-interface ShopSectionProps {
-  userLevel: number;
-  userGold: number;
-  userId: string;
-}
+const categories = [
+  { type: "avatar", name: "Personnages", slot: "Personnage" },
+  { type: "background", name: "Décors", slot: "Décor" },
+  { type: "title", name: "Titres", slot: "Titre" },
+  { type: "ship_skin", name: "Vaisseaux", slot: "Vaisseau" },
+] as const;
 
-function normalizeEquippedItems(equipped: any): UserEquippedItems {
-  return {
-    ...equipped,
-    equipped_avatar: Array.isArray(equipped.equipped_avatar)
-      ? equipped.equipped_avatar[0]
-      : equipped.equipped_avatar,
-    equipped_title: Array.isArray(equipped.equipped_title)
-      ? equipped.equipped_title[0]
-      : equipped.equipped_title,
-    equipped_background: Array.isArray(equipped.equipped_background)
-      ? equipped.equipped_background[0]
-      : equipped.equipped_background,
-    equipped_ship_skin: Array.isArray(equipped.equipped_ship_skin)
-      ? equipped.equipped_ship_skin[0]
-      : equipped.equipped_ship_skin,
-  };
-}
-
-export function ShopSection({ userLevel, userGold, userId }: ShopSectionProps) {
+export function ShopSection({ initialKey }: { initialKey?: string }) {
+  const state = useWardrobe();
   const router = useRouter();
-  const [shopItems, setShopItems] = useState<ShopItem[]>([]);
-  const [userItems, setUserItems] = useState<UserItem[]>([]);
-  const [equippedItems, setEquippedItems] = useState<UserEquippedItems | null>(null);
-  const [selectedType, setSelectedType] = useState<"avatar" | "title" | "background" | "ship_skin">("avatar");
-  const [loading, setLoading] = useState(true);
-  const [purchasing, setPurchasing] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function loadData() {
-      setLoading(true);
-      const supabase = createSupabaseBrowserClient();
-
-      const [{ data: items }, { data: owned }, { data: equipped }] = await Promise.all([
-        supabase
-          .from("shop_items")
-          .select("*")
-          .eq("is_active", true)
-          .order("display_order"),
-        supabase
-          .from("user_items")
-          .select(
-            `
-              *,
-              shop_items(*)
-            `
-          )
-          .eq("user_id", userId),
-        supabase
-          .from("user_equipped_items")
-          .select(
-            `
-              *,
-              equipped_avatar:shop_items!equipped_avatar_id(*),
-              equipped_title:shop_items!equipped_title_id(*),
-              equipped_background:shop_items!equipped_background_id(*),
-              equipped_ship_skin:shop_items!equipped_ship_skin_id(*)
-            `
-          )
-          .eq("user_id", userId)
-          .maybeSingle(),
-      ]);
-
-      const ownedRows = (owned as UserItem[]) ?? [];
-      const ownedItemIds = buildOwnedItemIdSet(ownedRows);
-
-      setShopItems(
-        filterVisibleShopItems((items as ShopItem[]) ?? [], ownedItemIds)
-      );
-      setUserItems(ownedRows);
-      setEquippedItems(equipped ? normalizeEquippedItems(equipped) : null);
-      setLoading(false);
-    }
-
-    loadData();
-  }, [userId]);
-
-  const handlePurchase = async (item: ShopItem) => {
-    if (purchasing) {
-      return;
-    }
-
-    setPurchasing(item.id);
-    setError(null);
-    setSuccess(null);
-
-    const result = await purchaseShopItemAction(item.id);
-
-    if (result.success) {
-      setSuccess(`${item.name} est à toi. Équipe-le quand tu veux.`);
-
-      const supabase = createSupabaseBrowserClient();
-      const { data: owned } = await supabase
-        .from("user_items")
-        .select(
-          `
-            *,
-            shop_items(*)
-          `
-        )
-        .eq("user_id", userId);
-
-      if (owned) {
-        const transformed = owned.map((row: any) => ({
-          ...row,
-          shop_item: Array.isArray(row.shop_items) ? row.shop_items[0] : row.shop_items,
-        }));
-        setUserItems(transformed as UserItem[]);
-      }
-
-      window.dispatchEvent(new CustomEvent("itemPurchased"));
-      setTimeout(() => {
-        router.refresh();
-      }, 500);
-    } else {
-      setError(result.error || "Erreur lors de l'achat");
-    }
-
-    setPurchasing(null);
-  };
-
-  const handleEquip = async (
-    itemId: string | null,
-    type: "avatar" | "title" | "background" | "ship_skin"
-  ) => {
-    setError(null);
-    setSuccess(null);
-
-    try {
-      const result = await equipItemAction(itemId, type);
-
-      if (result.success) {
-        setSuccess(itemId ? "Objet équipé." : "Objet retiré.");
-
-        const supabase = createSupabaseBrowserClient();
-        const { data: equipped } = await supabase
-          .from("user_equipped_items")
-          .select(
-            `
-              *,
-              equipped_avatar:shop_items!equipped_avatar_id(*),
-              equipped_title:shop_items!equipped_title_id(*),
-              equipped_background:shop_items!equipped_background_id(*),
-              equipped_ship_skin:shop_items!equipped_ship_skin_id(*)
-            `
-          )
-          .eq("user_id", userId)
-          .maybeSingle();
-
-        setEquippedItems(equipped ? normalizeEquippedItems(equipped) : null);
-        window.dispatchEvent(new CustomEvent("itemEquipped"));
-
-        setTimeout(() => {
-          router.refresh();
-        }, 300);
-      } else {
-        setError(result.error || "Erreur lors de l'équipement");
-      }
-    } catch {
-      setError("Une erreur inattendue s'est produite");
-    }
-  };
-
-  const filteredItems = shopItems.filter((item) => item.item_type === selectedType);
-  const ownedItemIds = buildOwnedItemIdSet(
-    userItems as Array<Pick<UserItem, "shop_item_id">>
+  const initialItem = state.items.find(item => item.item_key === initialKey);
+  const [selectedId, setSelectedId] = useState<string | null>(initialItem?.id ?? null);
+  const [type, setType] = useState<ShopItemType | "all">(initialItem?.item_type ?? "avatar");
+  const [albumKey, setAlbumKey] = useState("");
+  const [mine, setMine] = useState(false);
+  const catalogue = useRef<HTMLDivElement>(null);
+  const opener = useRef<HTMLButtonElement | null>(null);
+  const selected = state.items.find(item => item.id === selectedId);
+  const available = (item: ShopItem) => state.outfit[item.item_type]?.id === item.id ||
+    isCollectionItemAvailable(item, state.items, state.ownedIds, state.level);
+  const items = state.items.filter(item =>
+    (!mine || available(item)) && (!albumKey || item.collection_key === albumKey) &&
+    (type === "all" || item.item_type === type)
   );
+  const album = COLLECTION_ALBUMS.find(entry => entry.key === albumKey);
+  const progress = album && getAlbumProgress(state.items, state.ownedIds, state.level, album.key);
+  const catalogueName = type === "all" ? "Tous les objets" : categories.find(c => c.type === type)?.name;
+  const starterCharacters = !state.outfit.avatar && !state.outfit.background && !state.outfit.title
+    ? state.items.filter(item =>
+        (item.item_key === "eq_depart_maya" || item.item_key === "eq_depart_sam") && available(item)
+      )
+    : [];
 
-  const getItemColor = (theme: string | null) => {
-    const colors: Record<string, string> = {
-      emerald: "bg-emerald-500",
-      red: "bg-red-500",
-      blue: "bg-blue-500",
-      purple: "bg-purple-500",
-      green: "bg-green-500",
-      gold: "bg-yellow-500",
-      dark: "bg-slate-800",
-      slate: "bg-slate-600",
-      cyan: "bg-cyan-500",
-    };
-    return colors[theme || "slate"] || "bg-slate-500";
-  };
-
-  if (loading) {
-    return (
-      <div className="eq-card p-8 text-center">
-        <p className="eq-muted">Chargement de la boutique…</p>
-      </div>
-    );
+  function openDetails(id: string, trigger: HTMLButtonElement) {
+    opener.current = trigger;
+    setSelectedId(id);
   }
 
-  const categoryLabels: Record<"avatar" | "title" | "background" | "ship_skin", string> = {
-    avatar: "Avatars",
-    title: "Titres",
-    background: "Arrière-plans",
-    ship_skin: "Vaisseaux Space Lex",
-  };
+  function closeDetails() {
+    setSelectedId(null);
+    const trigger = opener.current;
+    opener.current = null;
+    requestAnimationFrame(() => (trigger?.isConnected ? trigger : catalogue.current)?.focus({ preventScroll: true }));
+  }
+
+  function showCategory(nextType: ShopItemType | "all", album = "") {
+    setType(nextType);
+    setAlbumKey(album);
+    setMine(false);
+    setSelectedId(null);
+    opener.current = null;
+    requestAnimationFrame(() => catalogue.current?.focus());
+  }
 
   return (
-    <div className="space-y-6" style={{ position: "relative", zIndex: 1 }}>
-      {error && (
-        <div className="rounded-[var(--radius)] border border-[var(--coral)] bg-[var(--coral-soft)] p-4 text-sm font-bold text-[var(--coral)]">
-          {error}
+    <section id="boutique" className="wardrobe" aria-labelledby="profile-look">
+      <div className="wardrobe-heading">
+        <div>
+          <h2 id="profile-look" className="eq-h2">Ma collection</h2>
+          <Link href="/collection" className="wardrobe-text-link">Découvrir les albums</Link>
         </div>
-      )}
-      {success && (
-        <div className="rounded-[var(--radius)] border border-[var(--mint)] bg-[var(--mint-soft)] p-4 text-sm font-bold text-[var(--mint)]">
-          {success}
+        <div className="wardrobe-wallet">
+          <span><GoldIcon /> <b>{formatGold(state.gold)}</b></span>
+          <span>Niveau {state.level}</span>
         </div>
-      )}
+      </div>
 
-      <div className="eq-card p-4">
-        <div className="flex flex-wrap gap-2.5">
-          {(["avatar", "title", "background", "ship_skin"] as const).map((type) => (
-            <button
-              key={type}
-              type="button"
-              onClick={() => setSelectedType(type)}
-              className={`eq-btn eq-btn-sm ${
-                selectedType === type ? "eq-btn-primary" : "eq-btn-ghost"
-              }`}
-            >
-              {categoryLabels[type]}
-            </button>
+      <div className="wardrobe-equipped">
+        {starterCharacters.length > 0 ? (
+          <div className="wardrobe-starters">
+            <h3>Choisis ton personnage</h3>
+            <div>
+              {starterCharacters.map(item => (
+                <button type="button" key={item.id} aria-haspopup="dialog" aria-label={`Essayer ${item.name}`}
+                  onClick={event => openDetails(item.id, event.currentTarget)}>
+                  <ItemArt item={item} eager />
+                  <strong>{item.name}</strong>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : <PlayerCard outfit={state.outfit} username={state.username} />}
+        <div className="wardrobe-loadout">
+          <h3>Mon équipement</h3>
+          <div className="wardrobe-slots">
+            {categories.map(({ type, slot }) => {
+              const item = state.outfit[type];
+              return (
+                <button key={type} type="button" className="wardrobe-slot"
+                  aria-label={item ? `${slot} équipé, ${item.name}. Voir l’objet` : `Choisir un ${slot.toLowerCase()}`}
+                  aria-haspopup={item ? "dialog" : undefined}
+                  onClick={event => item ? openDetails(item.id, event.currentTarget) : showCategory(type)}>
+                  <span>{slot}</span><strong>{item?.name ?? "Choisir"}</strong>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div className="wardrobe-catalog" ref={catalogue} tabIndex={-1} aria-label="Catalogue du vestiaire">
+        <div className="wardrobe-filters">
+          <div className="wardrobe-scope" role="group" aria-label="Objets à afficher">
+            <button type="button" aria-pressed={!mine} onClick={() => setMine(false)}>Boutique</button>
+            <button type="button" aria-pressed={mine} onClick={() => setMine(true)}>Mes objets</button>
+          </div>
+          <label className="wardrobe-album-filter">
+            <span>Album</span>
+            <select value={albumKey} onChange={event => setAlbumKey(event.target.value)}>
+              <option value="">Tous les albums</option>
+              {COLLECTION_ALBUMS.map(entry => <option key={entry.key} value={entry.key}>{entry.name}</option>)}
+            </select>
+          </label>
+        </div>
+        <div className="wardrobe-categories" role="group" aria-label="Catégorie">
+          <button type="button" aria-pressed={type === "all"} onClick={() => setType("all")}>Tout</button>
+          {categories.map(entry => (
+            <button type="button" key={entry.type} aria-pressed={type === entry.type} onClick={() => setType(entry.type)}>{entry.name}</button>
           ))}
         </div>
+        {album && progress && (
+          <div className="wardrobe-album-progress">
+            <strong>{album.name}</strong>
+            <span>{progress.owned} / {progress.total} pièces obtenues</span>
+            <progress aria-label={`Progression dans ${album.name}`} value={progress.owned} max={progress.total || 1} />
+          </div>
+        )}
+        {state.unavailable ? (
+          <div className="wardrobe-empty" role="alert">
+            <p>Le vestiaire n’a pas pu charger toutes tes pièces.</p>
+            <button type="button" onClick={() => router.refresh()} className="wardrobe-text-link">Réessayer</button>
+          </div>
+        ) : items.length === 0 ? (
+          <div className="wardrobe-empty" role="status">
+            <p>{mine ? "Tu n’as pas encore de pièce dans cette sélection." : "Aucune pièce dans cette sélection."}</p>
+            <button type="button" onClick={() => showCategory("all")} className="wardrobe-text-link">Voir tous les objets</button>
+          </div>
+        ) : (
+          <ul className="wardrobe-grid" aria-label={`${catalogueName}, ${items.length} objets`}>
+            {items.map(item => {
+              const equipped = state.outfit[item.item_type]?.id === item.id;
+              const obtained = available(item);
+              const priceVisible = !obtained && !item.is_collection_reward && item.price_gold > 0;
+              const status = equipped ? "Équipé" : obtained ? "Obtenu" : item.is_collection_reward ? "Album complet requis" : priceVisible ? formatGold(item.price_gold) : "Offert";
+              return (
+                <li key={item.id}>
+                  <button type="button" className="wardrobe-tile" onClick={event => openDetails(item.id, event.currentTarget)} aria-haspopup="dialog"
+                    aria-label={`${item.name}, ${status}${obtained ? "" : `, niveau ${item.required_level}`}. Voir l’aperçu`}>
+                    <span className={`wardrobe-tile-art is-${item.item_type}`} aria-hidden="true"><ItemArt item={item} /></span>
+                    <span className="wardrobe-tile-info">
+                      <strong>{item.name}</strong>
+                      <span className="wardrobe-tile-meta">
+                        <span className={obtained ? "is-obtained" : "is-price"}>
+                          {obtained && <CheckIcon />}
+                          {priceVisible ? <><GoldIcon />{item.price_gold.toLocaleString("fr-FR")}</> : status}
+                        </span>
+                        {!obtained && !item.is_collection_reward && <span>Niv. {item.required_level}</span>}
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
-
-      {filteredItems.length === 0 ? (
-        <div className="eq-card p-6 text-center">
-          <p className="eq-muted text-sm">Aucun objet disponible dans cette catégorie pour le moment.</p>
-        </div>
-      ) : null}
-
-      <div
-        className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
-        style={{ position: "relative", zIndex: 1 }}
-      >
-        {filteredItems.map((item) => {
-          const isFree = canAutoGrantShopItem(item);
-          const isOwned = ownedItemIds.has(item.id) || isFree;
-          const canAfford = userGold >= item.price_gold;
-          const hasLevel = userLevel >= item.required_level;
-          const canEquip = isOwned && (isFree || hasLevel);
-          const canBuy = hasLevel && canAfford && !isOwned && item.price_gold > 0;
-
-          const isEquipped =
-            (selectedType === "avatar" && equippedItems?.equipped_avatar_id === item.id) ||
-            (selectedType === "title" && equippedItems?.equipped_title_id === item.id) ||
-            (selectedType === "background" && equippedItems?.equipped_background_id === item.id) ||
-            (selectedType === "ship_skin" && equippedItems?.equipped_ship_skin_id === item.id);
-
-          return (
-            <div
-              key={item.id}
-              className={`eq-card flex flex-col justify-between gap-3 ${
-                isEquipped ? "ring-2 ring-[var(--pro-primary)]" : ""
-              }`}
-            >
-              <div className="space-y-3">
-                {item.item_type === "title" && !item.image_url ? (
-                  // Titre en texte : une plaque avec le titre tel qu'il s'affiche sous le pseudo.
-                  <div className="eq-shop-title-plate" aria-hidden="true">
-                    <span>{item.name}</span>
-                  </div>
-                ) : (
-                <div
-                  className="flex items-center justify-center overflow-hidden rounded-[var(--pro-radius)] border border-[var(--pro-border)] bg-[var(--pro-surface-2)]"
-                  style={{ aspectRatio: "2/3", width: "100%" }}
-                >
-                  {item.image_url ? (
-                    <img
-                      src={addCacheBustingIfSupabase(item.image_url)}
-                      alt={item.name}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : item.item_type === "avatar" || item.item_type === "background" ? (
-                    <ShopClassArt itemKey={item.item_key} itemType={item.item_type} name={item.name} />
-                  ) : item.color_theme ? (
-                    <div className={`h-full w-full ${getItemColor(item.color_theme)}`} />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center">
-                      <span className="text-2xl font-bold text-[var(--fg)]">{item.name.charAt(0)}</span>
-                    </div>
-                  )}
-                </div>
-                )}
-
-                <div>
-                  <h3 className="eq-h3">{item.name}</h3>
-                  {item.description && (
-                    <p className="mt-1 text-sm text-[var(--muted)]">{item.description}</p>
-                  )}
-                </div>
-
-                <div className="space-y-1 text-xs text-[var(--muted)]">
-                  <div className="flex items-center gap-2 font-bold text-[var(--gold)]">
-                    <GoldIcon className="h-4 w-4" />
-                    <span>{item.price_gold} or</span>
-                  </div>
-                  <div>Niveau {item.required_level} requis</div>
-                </div>
-
-                <div
-                  className="flex gap-2"
-                  style={{ pointerEvents: "auto", position: "relative", zIndex: 30 }}
-                >
-                  {canEquip ? (
-                    <button
-                      type="button"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        handleEquip(isEquipped ? null : item.id, selectedType);
-                      }}
-                      className={`eq-btn eq-btn-sm flex-1 ${
-                        isEquipped ? "eq-btn-ghost" : "eq-btn-primary"
-                      }`}
-                    >
-                      {isEquipped ? "Retirer" : "Équiper"}
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        if (!purchasing && canBuy) {
-                          handlePurchase(item);
-                        }
-                      }}
-                      disabled={!canBuy || purchasing === item.id}
-                      className={`eq-btn eq-btn-sm flex-1 ${
-                        canBuy && !purchasing ? "eq-btn-gold" : "eq-btn-ghost opacity-55"
-                      }`}
-                    >
-                      {purchasing === item.id
-                        ? "Achat…"
-                        : !canAfford
-                          ? "Pas assez d'or"
-                          : !hasLevel
-                            ? `Niveau ${item.required_level} requis`
-                            : "Acheter"}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
+      {selected && <ItemDetails key={selected.id} item={selected} onClose={closeDetails}
+        openAlbum={key => showCategory("all", key)} openItem={setSelectedId} />}
+    </section>
   );
 }

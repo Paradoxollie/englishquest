@@ -5,7 +5,10 @@
  */
 
 import { useState, useEffect, useRef } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import NextImage from "next/image";
+import { COLLECTION_ALBUMS } from "@/lib/shop/collection";
+import { isCustomItemKey } from "@/lib/shop/visibility";
+import { formatGold } from "@/lib/shop/format-gold";
 import type { ShopItem } from "@/types/shop";
 import { uploadShopItemImageAction, updateShopItemAction, createShopItemAction, getShopItemsAction } from "./actions";
 import { addCacheBustingIfSupabase } from "@/lib/utils/image-cache";
@@ -17,60 +20,50 @@ export function ShopItemsManager() {
   const [selectedType, setSelectedType] = useState<"avatar" | "title" | "background" | "ship_skin">("avatar");
   const [editingItem, setEditingItem] = useState<ShopItem | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [croppingImage, setCroppingImage] = useState<{ itemId: string; imageUrl: string } | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const editor = useRef<HTMLFormElement>(null);
+  const [revision, setRevision] = useState(0);
 
   useEffect(() => {
-    loadItems();
-  }, [selectedType]);
-
-  async function loadItems() {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      // Use server action to bypass RLS (admin only)
-      const result = await getShopItemsAction(selectedType);
-      
-      if (result.success && result.items) {
-        console.log(`Loaded ${result.items.length} items of type ${selectedType}`);
-        setShopItems(result.items);
-      } else {
-        console.error("Error loading shop items:", result.error);
-        setError(result.error || "Erreur lors du chargement");
+    let current = true;
+    async function loadItems() {
+      setLoading(true);
+      try {
+        const result = await getShopItemsAction(selectedType);
+        if (!current) return;
+        if (!result.success) throw new Error(result.error || "Impossible de charger les pièces.");
+        setShopItems(result.items ?? []);
+      } catch (reason) {
+        if (!current) return;
+        setError(reason instanceof Error ? reason.message : "Impossible de charger les pièces.");
         setShopItems([]);
+      } finally {
+        if (current) setLoading(false);
       }
-    } catch (err) {
-      console.error("Unexpected error loading items:", err);
-      setError("Erreur inattendue lors du chargement");
-      setShopItems([]);
-    } finally {
-      setLoading(false);
     }
-  }
+    void loadItems();
+    return () => { current = false; };
+  }, [selectedType, revision]);
+
+  useEffect(() => {
+    if (editingItem) editor.current?.querySelector<HTMLInputElement>("input[name=name]")?.focus();
+  }, [editingItem]);
 
   const handleFileSelect = (itemId: string, file: File) => {
-    console.log("handleFileSelect called:", { itemId, fileName: file.name, fileSize: file.size, fileType: file.type, selectedType });
-    
     // Only allow upload for avatars, backgrounds, and ship_skins, not titles
     if (selectedType === "title") {
       setError("Les titres ne nécessitent pas d'image, seulement du texte");
       return;
     }
 
-    // Load image to verify it's valid, then show cropper
-    // The cropper will handle the portrait format automatically
     const img = new Image();
     const objectUrl = URL.createObjectURL(file);
     
     img.onload = () => {
-      console.log("Image loaded successfully:", { width: img.width, height: img.height });
-      // No need to check if portrait - cropper will handle it
-      // Show cropper - it will force portrait format (2:3 ratio)
-      console.log("Opening cropper for item:", itemId);
       setCroppingImage({ itemId, imageUrl: objectUrl });
     };
     
@@ -84,9 +77,13 @@ export function ShopItemsManager() {
   };
 
   const handleCropComplete = async (croppedImageUrl: string) => {
-    if (!croppingImage) return;
+    if (!croppingImage) {
+      URL.revokeObjectURL(croppedImageUrl);
+      return;
+    }
 
     setUploading(croppingImage.itemId);
+    setCroppingImage(null);
     setError(null);
     setSuccess(null);
 
@@ -94,15 +91,13 @@ export function ShopItemsManager() {
       // Convert cropped image URL to File
       const response = await fetch(croppedImageUrl);
       const blob = await response.blob();
-      // Use PNG to match the cropper output format
-      const file = new File([blob], "cropped-avatar.png", { type: "image/png" });
+      const file = new File([blob], "illustration.webp", { type: blob.type });
 
       const result = await uploadShopItemImageAction(croppingImage.itemId, file);
-      console.log("Upload result:", result);
 
       if (result.success) {
-        setSuccess("Image uploadée avec succès !");
-        await loadItems();
+        setSuccess("Illustration enregistrée.");
+        setRevision(value => value + 1);
       } else {
         const errorMsg = result.error || "Erreur lors de l'upload";
         setError(errorMsg);
@@ -113,28 +108,22 @@ export function ShopItemsManager() {
       setError("Erreur inattendue lors de l'upload");
     } finally {
       setUploading(null);
-      setCroppingImage(null);
+      URL.revokeObjectURL(croppingImage.imageUrl);
       URL.revokeObjectURL(croppedImageUrl);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
     }
   };
 
   const handleUpdateItem = async (formData: FormData) => {
-    const itemId = formData.get("itemId") as string;
-    console.log("Updating item:", itemId, "FormData:", Object.fromEntries(formData.entries()));
     setError(null);
     setSuccess(null);
 
     try {
       const result = await updateShopItemAction(formData);
-      console.log("Update result:", result);
 
       if (result.success) {
-        setSuccess("Item mis à jour avec succès !");
+        setSuccess("Pièce mise à jour.");
         setEditingItem(null);
-        await loadItems();
+        setRevision(value => value + 1);
       } else {
         const errorMsg = result.error || "Erreur lors de la mise à jour";
         setError(errorMsg);
@@ -154,16 +143,16 @@ export function ShopItemsManager() {
     const result = await createShopItemAction(formData);
 
     if (result.success) {
-      setSuccess("Item créé avec succès !");
+      setSuccess("Pièce créée.");
       setShowCreateForm(false);
-      loadItems();
+      setRevision(value => value + 1);
     } else {
       setError(result.error || "Erreur lors de la création");
     }
   };
 
-  // No need to filter, items are already filtered by selectedType in the query
-  const filteredItems = shopItems;
+  const filteredItems = showArchived ? shopItems : shopItems.filter(item => item.is_active && item.is_public !== false);
+  const imageRatio = selectedType === "background" ? 1.5 : selectedType === "ship_skin" ? 76 / 92 : 1;
 
   return (
     <div className="space-y-6">
@@ -189,6 +178,8 @@ export function ShopItemsManager() {
                 type="button"
                 onClick={() => {
                   setSelectedType(type);
+                  setError(null);
+                  setSuccess(null);
                   setEditingItem(null);
                   setShowCreateForm(false);
                 }}
@@ -196,7 +187,7 @@ export function ShopItemsManager() {
                   selectedType === type ? "eq-btn-primary" : "eq-btn-ghost"
                 }`}
               >
-                {type === "avatar" ? "Avatars" : type === "title" ? "Titres" : type === "background" ? "Arrière-plans" : "Skins de vaisseau"}
+                {type === "avatar" ? "Personnages" : type === "title" ? "Titres" : type === "background" ? "Décors" : "Vaisseaux"}
               </button>
             ))}
           </div>
@@ -208,15 +199,20 @@ export function ShopItemsManager() {
             }}
             className="eq-btn eq-btn-mint eq-btn-sm"
           >
-            + Créer ({selectedType === "avatar" ? "Avatar" : selectedType === "title" ? "Titre" : selectedType === "background" ? "Arrière-plan" : "Skin de vaisseau"})
+            Ajouter une pièce
           </button>
         </div>
       </div>
 
+      <label className="eq-muted inline-flex items-center gap-2 text-sm">
+        <input type="checkbox" checked={showArchived} onChange={event => setShowArchived(event.target.checked)} />
+        Inclure les pièces archivées et privées
+      </label>
+
       {/* Create Form */}
       {showCreateForm && (
         <div className="eq-card p-6">
-          <h3 className="eq-h3 mb-4">Créer un élément ({selectedType})</h3>
+          <h3 className="eq-h3 mb-4">Nouvelle pièce</h3>
           <form
             onSubmit={async (e) => {
               e.preventDefault();
@@ -226,28 +222,28 @@ export function ShopItemsManager() {
             className="space-y-4"
           >
             <div>
-              <label className="block text-sm font-bold mb-1.5">Nom</label>
+              <label htmlFor="shop-field-name" className="block text-sm font-bold mb-1.5">Nom</label>
               <input
                 type="text"
-                name="name"
+                id="shop-field-name" name="name"
                 required
                 className="eq-input w-full px-3.5 py-2.5 text-sm"
               />
             </div>
             <div>
-              <label className="block text-sm font-bold mb-1.5">Description</label>
+              <label htmlFor="shop-field-description" className="block text-sm font-bold mb-1.5">Description</label>
               <textarea
-                name="description"
+                id="shop-field-description" name="description"
                 className="eq-input w-full px-3.5 py-2.5 text-sm"
                 rows={3}
               />
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-bold mb-1.5">Prix (or)</label>
+                <label htmlFor="shop-field-price_gold" className="block text-sm font-bold mb-1.5">Prix (or)</label>
                 <input
                   type="number"
-                  name="price_gold"
+                  id="shop-field-price_gold" name="price_gold"
                   required
                   min="0"
                   defaultValue="0"
@@ -255,10 +251,10 @@ export function ShopItemsManager() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold mb-1.5">Niveau requis</label>
+                <label htmlFor="shop-field-required_level" className="block text-sm font-bold mb-1.5">Niveau requis</label>
                 <input
                   type="number"
-                  name="required_level"
+                  id="shop-field-required_level" name="required_level"
                   required
                   min="1"
                   defaultValue="1"
@@ -266,6 +262,7 @@ export function ShopItemsManager() {
                 />
               </div>
             </div>
+            <AlbumSettings />
             <div className="flex gap-3">
               <button type="submit" className="eq-btn eq-btn-primary">
                 Créer
@@ -299,13 +296,15 @@ export function ShopItemsManager() {
                 ) : (
                   <div
                     className="flex items-center justify-center rounded-[var(--pro-radius)] border border-[var(--pro-border)] bg-[var(--pro-surface-2)] overflow-hidden"
-                    style={{ aspectRatio: "2/3", width: "100%" }}
+                    style={{ aspectRatio: imageRatio, width: "100%", maxHeight: "15rem" }}
                   >
                     {item.image_url ? (
-                      <img
+                      <NextImage
                         src={addCacheBustingIfSupabase(item.image_url)}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
+                        alt=""
+                        unoptimized={!item.image_url.startsWith("/art/collection/")}
+                        width={408} height={Math.round(408 / imageRatio)} sizes="(max-width: 767px) 90vw, 330px"
+                        className={selectedType === "ship_skin" ? "w-full h-full object-contain" : "w-full h-full object-cover"}
                       />
                     ) : item.color_theme ? (
                       <div className={`w-full h-full ${getItemColor(item.color_theme)}`} />
@@ -323,7 +322,8 @@ export function ShopItemsManager() {
                     <p className="eq-muted text-sm mt-1">{item.description}</p>
                   )}
                   <div className="eq-muted mt-2 text-xs space-y-0.5 font-medium">
-                    <div>Prix : {item.price_gold} or</div>
+                    <div>{COLLECTION_ALBUMS.find(album => album.key === item.collection_key)?.name ?? "Hors album"}{item.is_collection_reward ? " · Titre d’album" : ""}{!item.is_active || item.is_public === false ? " · Hors catalogue" : ""}</div>
+                    <div>{formatGold(item.price_gold)}</div>
                     <div>Niveau requis : {item.required_level}</div>
                     <div>Ordre : {item.display_order}</div>
                   </div>
@@ -334,11 +334,11 @@ export function ShopItemsManager() {
                 {selectedType !== "title" && (
                   <div>
                     <input
-                      ref={fileInputRef}
                       type="file"
                       accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
+                        e.currentTarget.value = "";
                         if (file) {
                           handleFileSelect(item.id, file);
                         }
@@ -353,10 +353,10 @@ export function ShopItemsManager() {
                         uploading === item.id || croppingImage ? "eq-btn-ghost opacity-50" : "eq-btn-gold"
                       }`}
                     >
-                      {uploading === item.id ? "Upload…" : croppingImage ? "Traitement…" : "Uploader une image"}
+                      {uploading === item.id ? "Enregistrement…" : croppingImage ? "Recadrage…" : "Changer l’illustration"}
                     </label>
                     {uploading === item.id && (
-                      <p className="eq-muted text-xs mt-1">Upload en cours…</p>
+                      <p className="eq-muted text-xs mt-1">Enregistrement en cours…</p>
                     )}
                   </div>
                 )}
@@ -392,7 +392,7 @@ export function ShopItemsManager() {
               Fermer
             </button>
           </div>
-          <form
+          <form key={editingItem.id} ref={editor}
             onSubmit={async (e) => {
               e.preventDefault();
               const formData = new FormData(e.currentTarget);
@@ -401,20 +401,21 @@ export function ShopItemsManager() {
             className="space-y-4"
           >
             <input type="hidden" name="itemId" value={editingItem.id} />
+            <AlbumSettings item={editingItem} />
             <div>
-              <label className="block text-sm font-bold mb-1.5">Nom</label>
+              <label htmlFor="shop-field-name" className="block text-sm font-bold mb-1.5">Nom</label>
               <input
                 type="text"
-                name="name"
+                id="shop-field-name" name="name"
                 required
                 defaultValue={editingItem.name}
                 className="eq-input w-full px-3.5 py-2.5 text-sm"
               />
             </div>
             <div>
-              <label className="block text-sm font-bold mb-1.5">Description</label>
+              <label htmlFor="shop-field-description" className="block text-sm font-bold mb-1.5">Description</label>
               <textarea
-                name="description"
+                id="shop-field-description" name="description"
                 defaultValue={editingItem.description || ""}
                 className="eq-input w-full px-3.5 py-2.5 text-sm"
                 rows={3}
@@ -422,33 +423,35 @@ export function ShopItemsManager() {
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-bold mb-1.5">Prix (or)</label>
+                <label htmlFor="shop-field-price_gold" className="block text-sm font-bold mb-1.5">Prix (or)</label>
                 <input
                   type="number"
-                  name="price_gold"
+                  id="shop-field-price_gold" name="price_gold"
                   required
                   min="0"
                   defaultValue={editingItem.price_gold}
+                  readOnly={editingItem.is_collection_reward}
                   className="eq-input w-full px-3.5 py-2.5 text-sm"
                 />
               </div>
               <div>
-                <label className="block text-sm font-bold mb-1.5">Niveau requis</label>
+                <label htmlFor="shop-field-required_level" className="block text-sm font-bold mb-1.5">Niveau requis</label>
                 <input
                   type="number"
-                  name="required_level"
+                  id="shop-field-required_level" name="required_level"
                   required
                   min="1"
                   defaultValue={editingItem.required_level}
+                  readOnly={editingItem.is_collection_reward}
                   className="eq-input w-full px-3.5 py-2.5 text-sm"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-bold mb-1.5">Ordre d&apos;affichage</label>
+              <label htmlFor="shop-field-display_order" className="block text-sm font-bold mb-1.5">Ordre d&apos;affichage</label>
               <input
                 type="number"
-                name="display_order"
+                id="shop-field-display_order" name="display_order"
                 required
                 defaultValue={editingItem.display_order}
                 className="eq-input w-full px-3.5 py-2.5 text-sm"
@@ -478,13 +481,37 @@ export function ShopItemsManager() {
           onCancel={() => {
             setCroppingImage(null);
             URL.revokeObjectURL(croppingImage.imageUrl);
-            if (fileInputRef.current) {
-              fileInputRef.current.value = "";
-            }
           }}
-          aspectRatio={2 / 3}
+          aspectRatio={imageRatio}
+          outputWidth={selectedType === "background" ? 760 : selectedType === "ship_skin" ? 252 : 408}
         />
       )}
+    </div>
+  );
+}
+
+function AlbumSettings({ item }: { item?: ShopItem }) {
+  if (item?.owner_user_id || (item && isCustomItemKey(item.item_key))) return null;
+  return (
+    <div className="grid w-full gap-4 sm:grid-cols-2">
+      {item?.is_collection_reward ? (
+        <p className="eq-muted text-sm">Ce titre est offert quand l’album est complet.</p>
+      ) : (
+        <div className="grid gap-1.5 text-sm font-bold">
+          <label htmlFor="shop-album">Album</label>
+          <select id="shop-album" name="collection_key" defaultValue={item?.collection_key ?? ""} className="eq-input px-3 py-2">
+            <option value="">Hors album</option>
+            {COLLECTION_ALBUMS.map(album => <option key={album.key} value={album.key}>{album.name}</option>)}
+          </select>
+        </div>
+      )}
+      <div className="grid gap-1.5 text-sm font-bold">
+        <label htmlFor="shop-visibility">Disponibilité</label>
+        <select id="shop-visibility" name="shop_visibility" defaultValue={item && (item.is_public === false || !item.is_active) ? "archive" : "public"} className="eq-input px-3 py-2">
+          <option value="public">Visible dans le catalogue</option>
+          <option value="archive">Réservée à ses propriétaires</option>
+        </select>
+      </div>
     </div>
   );
 }

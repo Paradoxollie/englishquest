@@ -4,11 +4,24 @@
  * Server Actions for managing shop items (admin only)
  */
 
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { COLLECTION_ALBUMS } from "@/lib/shop/collection";
+import { isCustomItemKey } from "@/lib/shop/visibility";
 import { isAdmin } from "@/lib/auth/roles";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, updateTag } from "next/cache";
 import type { ShopItem } from "@/types/shop";
+
+function albumFromForm(form: FormData) {
+  const key = form.get("collection_key");
+  return COLLECTION_ALBUMS.find(album => album.key === key)?.key ?? null;
+}
+
+function refreshShop() {
+  updateTag("shop-catalogue");
+  revalidatePath("/dashboard/shop");
+  revalidatePath("/profile");
+  revalidatePath("/collection");
+}
 
 export interface ShopItemActionResult {
   success: boolean;
@@ -35,6 +48,7 @@ export async function getShopItemsAction(
       .from("shop_items")
       .select("*")
       .eq("item_type", itemType)
+      .order("is_public", { ascending: false })
       .order("display_order");
 
     if (error) {
@@ -74,9 +88,6 @@ export async function uploadShopItemImageAction(
     }
 
     const adminClient = createSupabaseAdminClient();
-    const supabase = await createSupabaseServerClient();
-
-    console.log("Upload action called - Item ID:", itemId, "File type:", file.type, "File size:", file.size);
 
     // Validate file type
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
@@ -92,7 +103,7 @@ export async function uploadShopItemImageAction(
     if (file.size > maxSize) {
       return {
         success: false,
-        error: "L'image est trop grande. Taille maximum: 5MB.",
+        error: "L’image dépasse la limite de 5 Mo.",
       };
     }
 
@@ -106,7 +117,7 @@ export async function uploadShopItemImageAction(
     if (!shopItem) {
       return {
         success: false,
-        error: "Item introuvable",
+        error: "Pièce introuvable.",
       };
     }
 
@@ -123,30 +134,11 @@ export async function uploadShopItemImageAction(
     const buffer = Buffer.from(arrayBuffer);
 
     // Generate unique filename
-    const fileExt = file.name.split(".").pop();
+    const fileExt = file.type.split("/")[1].replace("jpeg", "jpg");
     const fileName = `${shopItem.item_type}/${itemId}.${fileExt}`;
     const filePath = `shop-items/${fileName}`;
 
-    // Upload to Supabase Storage using admin client to bypass RLS
-    console.log("Uploading to path:", filePath, "Size:", buffer.length, "bytes");
-    
-    // Try to delete existing file first if it exists (to avoid conflicts and save space)
-    try {
-      const { error: deleteError } = await adminClient.storage
-        .from("custom-images")
-        .remove([filePath]);
-      if (deleteError) {
-        // Ignore errors if file doesn't exist - this is normal
-        console.log("No existing file to delete (this is OK)");
-      } else {
-        console.log("Deleted existing file before upload");
-      }
-    } catch (deleteError) {
-      // Ignore errors - file might not exist
-      console.log("Delete attempt completed (file may not have existed)");
-    }
-    
-    const { data: uploadData, error: uploadError } = await adminClient.storage
+    const { error: uploadError } = await adminClient.storage
       .from("custom-images")
       .upload(filePath, buffer, {
         contentType: file.type,
@@ -158,7 +150,6 @@ export async function uploadShopItemImageAction(
       console.error("Upload error details:", {
         message: uploadError.message,
         error: uploadError,
-        statusCode: (uploadError as any).statusCode,
       });
       
       // Provide more specific error messages
@@ -166,7 +157,7 @@ export async function uploadShopItemImageAction(
       
       // Check for common Supabase limits
       if (errorMessage.includes("413") || errorMessage.includes("too large") || errorMessage.includes("File size")) {
-        errorMessage = "Le fichier est trop volumineux. Limite : 50 Mo.";
+        errorMessage = "Le fichier dépasse la limite de 5 Mo.";
       } else if (errorMessage.includes("429") || errorMessage.includes("rate limit") || errorMessage.includes("too many")) {
         errorMessage = "Trop de requêtes. Veuillez patienter quelques instants avant de réessayer.";
       } else if (errorMessage.includes("quota") || errorMessage.includes("storage")) {
@@ -181,7 +172,6 @@ export async function uploadShopItemImageAction(
       };
     }
 
-    console.log("Upload successful:", uploadData);
 
     // Get public URL using admin client with cache busting
     // Add timestamp to force cache refresh
@@ -204,12 +194,11 @@ export async function uploadShopItemImageAction(
     if (updateError) {
       return {
         success: false,
-        error: "Erreur lors de la mise à jour de l'item",
+        error: "La fiche de la pièce n’a pas pu être mise à jour.",
       };
     }
 
-    revalidatePath("/dashboard/shop");
-    revalidatePath("/profile");
+    refreshShop();
 
     return {
       success: true,
@@ -247,15 +236,25 @@ export async function updateShopItemAction(
     const priceGold = parseInt(formData.get("price_gold") as string);
     const requiredLevel = parseInt(formData.get("required_level") as string);
     const displayOrder = parseInt(formData.get("display_order") as string);
+    if (!name.trim() || !Number.isSafeInteger(priceGold) || priceGold < 0 || !Number.isSafeInteger(requiredLevel) || requiredLevel < 1 || !Number.isSafeInteger(displayOrder)) {
+      return { success: false, error: "Vérifie le nom, le prix, le niveau et l’ordre d’affichage." };
+    }
+    const { data: existing } = await adminClient.from("shop_items").select("item_key, owner_user_id, is_collection_reward").eq("id", itemId).maybeSingle();
+    if (!existing) return { success: false, error: "Pièce introuvable." };
+    const editable = !existing.owner_user_id && !isCustomItemKey(existing.item_key);
+    const album = editable && !existing.is_collection_reward && formData.has("collection_key") ? { collection_key: albumFromForm(formData) } : {};
+    const visibility = editable && formData.has("shop_visibility") ? { is_public: formData.get("shop_visibility") === "public", is_active: true } : {};
 
     const { error } = await adminClient
       .from("shop_items")
       .update({
         name,
         description: description || null,
-        price_gold: priceGold,
-        required_level: requiredLevel,
+        price_gold: existing.is_collection_reward ? 0 : priceGold,
+        required_level: existing.is_collection_reward ? 1 : requiredLevel,
         display_order: displayOrder,
+        ...album,
+        ...visibility,
         updated_at: new Date().toISOString(),
       })
       .eq("id", itemId);
@@ -267,8 +266,7 @@ export async function updateShopItemAction(
       };
     }
 
-    revalidatePath("/dashboard/shop");
-    revalidatePath("/profile");
+    refreshShop();
 
     return {
       success: true,
@@ -306,6 +304,9 @@ export async function createShopItemAction(
     const priceGold = parseInt(formData.get("price_gold") as string);
     const requiredLevel = parseInt(formData.get("required_level") as string);
 
+    if (!["avatar", "background", "ship_skin", "title"].includes(itemType) || !name.trim() || !Number.isSafeInteger(priceGold) || priceGold < 0 || !Number.isSafeInteger(requiredLevel) || requiredLevel < 1) {
+      return { success: false, error: "Vérifie la catégorie, le nom, le prix et le niveau." };
+    }
     // Generate unique item_key
     const itemKey = `${itemType}_${name.toLowerCase().replace(/[^a-z0-9]/g, "_")}_${Date.now()}`;
 
@@ -319,6 +320,8 @@ export async function createShopItemAction(
         price_gold: priceGold,
         required_level: requiredLevel,
         display_order: 9999,
+        collection_key: albumFromForm(formData),
+        is_public: formData.get("shop_visibility") !== "archive",
         is_active: true,
       })
       .select()
@@ -332,8 +335,7 @@ export async function createShopItemAction(
       };
     }
 
-    revalidatePath("/dashboard/shop");
-    revalidatePath("/profile");
+    refreshShop();
 
     return {
       success: true,

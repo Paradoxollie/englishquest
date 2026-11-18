@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
 import { logoutAction } from "@/app/(protected)/actions";
@@ -13,6 +14,7 @@ const baseNavLinks = [
   { label: "Aventure", href: "/quest" },
   { label: "Cours", href: "/tous-les-cours" },
   { label: "Jeux", href: "/play" },
+  { label: "Collection", href: "/collection" },
   { label: "Classements", href: "/leaderboard" },
 ];
 
@@ -24,6 +26,20 @@ function isActivePath(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+function ProfileRing({ state }: { state: HeaderState }) {
+  const progress = Math.max(0, Math.min(100, Math.round(state.completionRate)));
+  return (
+    <span className="eq-ring" aria-hidden="true" data-level={state.username?.charAt(0).toUpperCase() || "·"}
+      style={{ ["--p" as string]: progress }}>
+      {state.avatarUrl ? (
+        <Image key={state.avatarUrl} src={state.avatarUrl} width={32} height={32} alt=""
+          className="eq-ring-portrait" unoptimized={!state.avatarUrl.startsWith("/")}
+          onError={(event) => { event.currentTarget.style.visibility = "hidden"; }} />
+      ) : null}
+    </span>
+  );
+}
+
 export function AppHeader() {
   const { user, loading } = useAuth();
   const userId = user?.id ?? null;
@@ -32,21 +48,25 @@ export function AppHeader() {
   const [headerState, setHeaderState] = useState<HeaderState>(guestHeaderState);
   const [headerLoading, setHeaderLoading] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    let ignore = false;
+    let controller: AbortController | null = null;
 
-    async function loadHeaderState() {
+    async function loadHeaderState(refresh = false) {
       if (!userId) {
         setHeaderState(guestHeaderState);
         setHeaderLoading(false);
         return;
       }
 
-      setHeaderLoading(true);
+      controller?.abort();
+      const request = new AbortController();
+      controller = request;
+      if (!refresh) setHeaderLoading(true);
 
       try {
-        const response = await fetch("/api/header-state", { cache: "no-store" });
+        const response = await fetch("/api/header-state", { cache: "no-store", signal: request.signal });
 
         if (!response.ok) {
           throw new Error("Failed to fetch header state");
@@ -54,15 +74,15 @@ export function AppHeader() {
 
         const data = (await response.json()) as HeaderState;
 
-        if (!ignore) {
+        if (!request.signal.aborted) {
           setHeaderState(data);
         }
       } catch {
-        if (!ignore) {
+        if (!refresh && !request.signal.aborted) {
           setHeaderState({ ...guestHeaderState, isAuthenticated: true });
         }
       } finally {
-        if (!ignore) {
+        if (!request.signal.aborted) {
           setHeaderLoading(false);
         }
       }
@@ -71,13 +91,15 @@ export function AppHeader() {
     void loadHeaderState();
 
     const handleRefresh = () => {
-      void loadHeaderState();
+      void loadHeaderState(true);
     };
     window.addEventListener("eq:reward", handleRefresh);
+    window.addEventListener("itemEquipped", handleRefresh);
 
     return () => {
-      ignore = true;
+      controller?.abort();
       window.removeEventListener("eq:reward", handleRefresh);
+      window.removeEventListener("itemEquipped", handleRefresh);
     };
   }, [userId]);
 
@@ -100,10 +122,15 @@ export function AppHeader() {
   ];
 
   const resolvedLoading = loading || (Boolean(user) && headerLoading);
-  const completion = Math.max(0, Math.min(100, Math.round(headerState.completionRate)));
 
   return (
-    <header className="eq-header">
+    <header className="eq-header" data-staff={headerState.canAccessTeachers || headerState.canAccessDashboard || undefined}
+      onKeyDown={(event) => {
+        if (menuOpen && event.key === "Escape") {
+          setMenuOpen(false);
+          menuButton.current?.focus();
+        }
+      }}>
       <div className="eq-container eq-header-row">
         <Link href={user ? "/home" : "/"} className="eq-brand" aria-label="English Quest, accueil">
           <span className="eq-brand-mark" aria-hidden="true">
@@ -158,12 +185,7 @@ export function AppHeader() {
                 Messages
               </Link>
               <Link href="/profile" className="eq-profile-link" title="Mon profil">
-                <span
-                  className="eq-ring"
-                  data-level={headerState.username ? headerState.username.slice(0, 1).toUpperCase() : "·"}
-                  style={{ ["--p" as string]: completion }}
-                  aria-hidden="true"
-                />
+                <ProfileRing state={headerState} />
                 <span className="eq-profile-name">{headerState.username ?? "Profil"}</span>
               </Link>
               <button type="button" onClick={handleLogout} className="eq-btn eq-btn-ghost eq-btn-sm">
@@ -183,8 +205,14 @@ export function AppHeader() {
         </div>
 
         <div className="eq-mobile-controls">
+          {user && !resolvedLoading ? (
+            <Link href="/profile" className="eq-profile-shortcut" aria-label="Mon profil">
+              <ProfileRing state={headerState} />
+            </Link>
+          ) : null}
           <ThemeToggle compact />
           <button
+            ref={menuButton}
             type="button"
             className="eq-burger"
             aria-expanded={menuOpen}
@@ -206,6 +234,7 @@ export function AppHeader() {
               key={link.href}
               href={link.href}
               className="eq-mobile-link"
+              onNavigate={() => setMenuOpen(false)}
               aria-current={isActivePath(pathname, link.href) ? "page" : undefined}
             >
               {link.label}

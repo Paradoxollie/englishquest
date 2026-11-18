@@ -27,6 +27,9 @@ const getDefaultShipSkinImageUrl = unstable_cache(
         .select("image_url")
         .eq("item_type", "ship_skin")
         .eq("is_active", true)
+        .eq("is_public", true)
+        .eq("price_gold", 0)
+        .eq("required_level", 1)
         .order("display_order", { ascending: true })
         .limit(1)
         .maybeSingle();
@@ -35,8 +38,8 @@ const getDefaultShipSkinImageUrl = unstable_cache(
       return null;
     }
   },
-  ["default-ship-skin"],
-  { revalidate: 3600 }
+  ["default-public-starter-ship"],
+  { revalidate: 3600, tags: ["shop-catalogue"] }
 );
 
 async function loadShipSkinImageUrl(userId: string | null): Promise<string | null> {

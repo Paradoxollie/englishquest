@@ -1,17 +1,24 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent } from "react";
 import { BadgeMedal } from "@/components/rewards/badge-medal";
 import { getBadgeDefinition } from "@/lib/profile/badges";
+import { COLLECTION_ALBUMS } from "@/lib/shop/collection";
+import { formatGold } from "@/lib/shop/format-gold";
 import { REWARD_EVENT, normalizeRewardDetail, type RewardBadge } from "@/lib/profile/reward-events";
+import { chooseLevelUnlock, publicRewardPreviews, wardrobeItemHref, type RewardPreview } from "@/lib/shop/reward-preview";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import styles from "./collection-progress.module.css";
 
 /*
  * Célébrations des récompenses, montées une fois dans app/layout.tsx.
  * Écoute l'événement « eq:reward » (lib/profile/reward-events.ts) :
  * - XP et or : petite notification, en bas à droite sur ordinateur, en bas sur téléphone ;
  * - badges et étoiles : notification dédiée ;
- * - passage de niveau : fenêtre centrée avec un bouton « Continuer ».
+ * - passage de niveau : fenêtre centrée avec le nouvel objet et un lien vers le dressing.
  * Les notifications disparaissent après 4 secondes (pause au survol).
  */
 
@@ -27,6 +34,14 @@ type Toast = ToastContent & { id: number };
 
 function gainTitle(xp: number, gold: number) {
   return [xp > 0 ? `+ ${xp} XP` : null, gold > 0 ? `+ ${gold} or` : null].filter(Boolean).join(" · ");
+}
+
+function levelMessage(item: RewardPreview | null) {
+  if (!item) return "Ton nouveau niveau est enregistré sur ton profil.";
+  if (item.price_gold > 0) return "Tu peux maintenant choisir cet objet avec tes pièces d’or.";
+  return item.item_type === "title"
+    ? "Ce titre est à toi. Équipe-le pour l’afficher sous ton pseudo."
+    : "Tu peux maintenant équiper cet objet offert.";
 }
 
 function ToastBody({ toast }: { toast: Toast }) {
@@ -75,9 +90,11 @@ export function RewardCelebrations() {
   const reduceMotion = useReducedMotion();
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [level, setLevel] = useState<number | null>(null);
+  const [preview, setPreview] = useState<{ level: number; item: RewardPreview | null } | null>(null);
   const timersRef = useRef(new Map<number, number>());
   const nextIdRef = useRef(1);
   const continueRef = useRef<HTMLButtonElement>(null);
+  const wardrobeRef = useRef<HTMLAnchorElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
 
   const dismiss = useCallback((id: number) => {
@@ -147,6 +164,26 @@ export function RewardCelebrations() {
   }, []);
 
   const isOpen = level !== null;
+  const unlocked = preview?.level === level ? preview.item : null;
+  const album = unlocked && COLLECTION_ALBUMS.find(entry => entry.key === unlocked.collection_key);
+  const unlockArt = unlocked?.image_url ?? album?.cover;
+
+  useEffect(() => {
+    if (level === null) return;
+    const reached = level;
+    const controller = new AbortController();
+    async function loadUnlock() {
+      const { data, error } = await publicRewardPreviews(createSupabaseBrowserClient())
+        .eq("required_level", reached)
+        .order("display_order").abortSignal(controller.signal);
+      if (!error && !controller.signal.aborted) {
+        setPreview({ level: reached, item: chooseLevelUnlock((data ?? []) as RewardPreview[]) });
+      }
+    }
+    // Une connexion interrompue laisse le lien général vers la collection disponible.
+    void loadUnlock().catch(() => {});
+    return () => controller.abort();
+  }, [level]);
 
   /* Fenêtre de niveau : focus sur « Continuer », Échap ferme, retour du focus ensuite. */
   useEffect(() => {
@@ -154,6 +191,8 @@ export function RewardCelebrations() {
     if (!returnFocusRef.current && document.activeElement instanceof HTMLElement) {
       returnFocusRef.current = document.activeElement;
     }
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const frame = window.requestAnimationFrame(() => continueRef.current?.focus());
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -165,6 +204,7 @@ export function RewardCelebrations() {
     return () => {
       window.cancelAnimationFrame(frame);
       document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = previousOverflow;
     };
   }, [isOpen]);
 
@@ -175,9 +215,12 @@ export function RewardCelebrations() {
     if (target && target.isConnected) target.focus();
   }, [isOpen]);
 
-  // Un seul élément focalisable dans la fenêtre : Tab y reste.
   const trapFocus = (event: ReactKeyboardEvent<HTMLDivElement>) => {
-    if (event.key === "Tab") {
+    if (event.key !== "Tab") return;
+    if (event.shiftKey && document.activeElement === continueRef.current) {
+      event.preventDefault();
+      wardrobeRef.current?.focus();
+    } else if (!event.shiftKey && document.activeElement === wardrobeRef.current) {
       event.preventDefault();
       continueRef.current?.focus();
     }
@@ -232,7 +275,7 @@ export function RewardCelebrations() {
             }}
           >
             <motion.div
-              className="eq-levelup"
+              className={`eq-levelup ${styles.dialog}`}
               role="dialog"
               aria-modal="true"
               aria-labelledby="eq-levelup-title"
@@ -256,13 +299,28 @@ export function RewardCelebrations() {
               <h2 id="eq-levelup-title" className="eq-h2">
                 Niveau {level} atteint
               </h2>
-              <p id="eq-levelup-text" className="eq-levelup-text">
-                Tu passes un cap. Certains objets de la boutique ne s&apos;ouvrent qu&apos;à partir d&apos;un niveau : va voir ce
-                qui t&apos;attend.
-              </p>
-              <button ref={continueRef} type="button" className="eq-btn eq-btn-gold eq-btn-lg" onClick={() => setLevel(null)}>
-                Continuer
-              </button>
+              <div aria-live="polite" aria-atomic="true">
+                <p id="eq-levelup-text" className="eq-levelup-text">{levelMessage(unlocked)}</p>
+                {unlocked ? (
+                  <p className={styles.levelCard}>
+                    {unlockArt ? <Image src={unlockArt} alt="" width={58} height={58} loading="eager" unoptimized={!unlockArt.startsWith("/")} /> : null}
+                    <span>
+                      {album && <small>{album.name}</small>}
+                      <b>{unlocked.name}</b>
+                      {unlocked.price_gold > 0 && <small>{formatGold(unlocked.price_gold)}</small>}
+                    </span>
+                  </p>
+                ) : null}
+              </div>
+              <div className={styles.levelActions}>
+                <button ref={continueRef} type="button" className="eq-btn eq-btn-gold eq-btn-lg" onClick={() => setLevel(null)}>
+                  Continuer
+                </button>
+                <Link ref={wardrobeRef} href={unlocked ? wardrobeItemHref(unlocked.item_key) : "/profile#boutique"}
+                  className="eq-btn eq-btn-ghost" onNavigate={() => { returnFocusRef.current = null; setLevel(null); }}>
+                  {unlocked ? "Voir la récompense" : "Voir ma collection"}
+                </Link>
+              </div>
             </motion.div>
           </motion.div>
         ) : null}

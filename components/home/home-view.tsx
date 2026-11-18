@@ -3,6 +3,7 @@ import Link from "next/link";
 import { HomeClassCard } from "@/components/classes/home-class-card";
 import { GameCard } from "@/components/play/game-card";
 import { BadgeMedal } from "@/components/rewards/badge-medal";
+import { CollectionGoal } from "@/components/rewards/collection-goal";
 import { MissionStarsLegend } from "@/components/rewards/mission-stars";
 import { WelcomeGoldNotice } from "@/components/rewards/welcome-gold-notice";
 import type { Chapter } from "@/lib/courses/chapters";
@@ -16,6 +17,7 @@ import type { getLevelProgress } from "@/lib/profile/economy";
 import { formatRank } from "@/lib/profile/league";
 import { resolveArt } from "@/lib/art-server";
 import { getGamePresentation } from "@/lib/games/presentation";
+import type { RewardPreview } from "@/lib/shop/reward-preview";
 
 type LevelProgress = ReturnType<typeof getLevelProgress>;
 
@@ -25,6 +27,7 @@ type HomeViewProps = {
   userId: string;
   xp: number;
   gold: number;
+  collectionGoal?: { item: RewardPreview; status: string } | null;
   level: LevelProgress;
   completedCount: number;
   totalCourses: number;
@@ -58,6 +61,7 @@ export function HomeView({
   userId,
   xp,
   gold,
+  collectionGoal = null,
   level,
   completedCount,
   totalCourses,
@@ -279,6 +283,7 @@ export function HomeView({
             ) : null}
           </section>
 
+          {collectionGoal ? <CollectionGoal item={collectionGoal.item} status={collectionGoal.status} /> : null}
           {week ? (
             <section className="eq-card eq-home-week" aria-labelledby="home-week">
               <p className="eq-kicker">Ligue de la semaine</p>

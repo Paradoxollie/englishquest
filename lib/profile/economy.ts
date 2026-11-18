@@ -3,7 +3,7 @@
  *
  * Un seul barème pour tout le site, pensé pour tenir sur des années :
  * - l'expérience (XP) récompense les bonnes réponses, jamais le temps passé ;
- * - l'or est rare : il sert à acheter des avatars et des titres ;
+ * - l'or permet de choisir des portraits, des décors et des vaisseaux ;
  * - les parties répétées rapportent de moins en moins dans la journée ;
  * - un record personnel ou global donne un bonus visible mais borné ;
  * - les cours et les missions rapportent plus que les parties, parce que
@@ -18,8 +18,8 @@ import type { Difficulty } from "@/lib/profile/leveling";
 export const XP_PER_LEVEL = 200;
 
 /**
- * Or offert à la création du compte : de quoi acheter un premier titre ou un
- * fond dès la première séance (boutique à partir de 10 or, niveau 1).
+ * Or offert à la création du compte. Les quais de la Tamise (18) ou le portrait
+ * de Maya en enquêtrice (25) sont accessibles dès le niveau 1.
  */
 export const WELCOME_GOLD = 30;
 

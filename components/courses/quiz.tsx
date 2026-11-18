@@ -327,6 +327,13 @@ export function Quiz({ questions }: QuizProps) {
               : "Enregistrement de ta réussite…"}
           </p>
         ) : null}
+        {passed && mission && saveState === "saved" ? (
+          <p className="eq-quiz-sync">
+            <Link href={mission.isAuthenticated ? "/profile#boutique" : "/collection"} className="eq-text-link">
+              {mission.isAuthenticated ? "Voir ma collection" : "Découvrir les récompenses"}
+            </Link>
+          </p>
+        ) : null}
         <div className="eq-quiz-actions">
           {saveState === "failed" ? (
             <button type="button" className="eq-btn eq-btn-primary" onClick={() => {

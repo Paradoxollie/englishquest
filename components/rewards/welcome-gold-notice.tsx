@@ -46,16 +46,15 @@ export function WelcomeGoldNotice({ userId, gold }: { userId: string; gold: numb
       </span>
       <div className="eq-welcome-text">
         <p id="eq-welcome-title" className="eq-h3">
-          Bonus de bienvenue : {gold} or
+          {gold} pièces d&apos;or de bienvenue
         </p>
         <p className="text-sm text-[var(--muted)]">
-          De quoi t&apos;offrir tout de suite un titre ou un fond dans la boutique. Ensuite, l&apos;or vient des missions et du
-          défi du jour.
+          Tu peux les garder pour un personnage ou t&apos;offrir un premier objet. Les missions et le défi du jour te rapportent d&apos;autres pièces.
         </p>
       </div>
       <div className="eq-welcome-actions">
         <Link href="/profile#boutique" className="eq-btn eq-btn-gold eq-btn-sm">
-          Ouvrir la boutique
+          Choisir un objet
         </Link>
         <button type="button" className="eq-btn eq-btn-ghost eq-btn-sm" onClick={dismiss}>
           Plus tard

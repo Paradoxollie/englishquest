@@ -20,7 +20,8 @@ export function getSafeNextPath(value: unknown): string | null {
     if (url.origin !== ORIGIN) return null;
     // Revenir sur une page d'authentification ferait tourner en rond.
     if (url.pathname.startsWith("/auth/")) return null;
-    return `${url.pathname}${url.search}`;
+    const wardrobe = url.pathname === "/profile" && url.hash === "#boutique" ? url.hash : "";
+    return `${url.pathname}${url.search}${wardrobe}`;
   } catch {
     return null;
   }
