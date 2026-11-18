@@ -1714,20 +1714,19 @@ h4 {
   flex-shrink: 0;
 }
 
-.eq-avatar img,
-.eq-avatar i {
+.eq-avatar img {
   display: block;
   width: 78%;
   height: 78%;
   border-radius: 50%;
   object-fit: cover;
-  object-position: center top;
+  object-position: center;
 }
 
-.eq-avatar b {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 0.95rem;
+.eq-avatar:not([data-backdrop]) img {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
 }
 
 /* choix multiples */
@@ -4606,6 +4605,11 @@ h4 {
   min-width: 0;
 }
 
+.eq-board-avatar > .eq-avatar {
+  max-width: 100%;
+  max-height: 100%;
+}
+
 .eq-board-name b {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -5677,6 +5681,16 @@ h4 {
 }
 
 @media (max-width: 420px) {
+  /* Le nom reste lisible entre le visage et la colonne du score. */
+  .eq-board-name b {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.2;
+  }
+
   .eq-league .eq-board-row {
     grid-template-columns: 30px 40px minmax(0, 1fr) auto;
     gap: 10px;

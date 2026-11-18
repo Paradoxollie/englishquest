@@ -205,8 +205,15 @@ async function main() {
 
   const scores = Array.from({ length: 1200 }, (_, index) => ({ id: `a-${index}`, user_id: "a", game_id: "game", score: 100, difficulty: "easy", max_score: 10 }));
   scores.push({ id: "b", user_id: "b", game_id: "game", score: 90, difficulty: "easy", max_score: 9 });
-  const leaderboardDb = { games: [{ id: "game", slug: "grammar-rush" }], game_scores: scores, profiles: [{ id: "a", username: "Alice" }, { id: "b", username: "Bob" }], user_equipped_items: [] };
-  const shopVisibility = loadTs("lib/shop/visibility.ts");
+  const leaderboardDb = {
+    games: [{ id: "game", slug: "grammar-rush" }], game_scores: scores,
+    profiles: [{ id: "a", username: "Alice" }, { id: "b", username: "Bob" }],
+    user_equipped_items: [
+      { user_id: "a", equipped_avatar: { item_type: "avatar", item_key: "avatar_default", image_url: "/old-default.png" } },
+      { user_id: "b", equipped_avatar: { item_type: "avatar", item_key: "custom_private", owner_user_id: "b", image_url: "/personal.jpg" } },
+    ],
+  };
+  const shopVisibility = loadTs("lib/shop/visibility.ts", { "./characters": loadTs("lib/shop/characters.ts") });
   const leaderboard = loadTs("lib/games/leaderboard-service.ts", {
     "@/lib/shop/visibility": shopVisibility,
     "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(leaderboardDb) },
@@ -215,6 +222,9 @@ async function main() {
   assert.equal(board.all.length, 2, "a prolific player must not hide other players");
   assert.equal(board.all[0].games_played, 1200);
   assert.equal(board.all[1].best_score, 90);
+  assert.equal(board.all[0].equipped_avatar.image_url, "/art/personnages/sam-visage.webp");
+  assert.equal(board.all[1].equipped_avatar, null, "a player's own uploaded image stays out of other players' standings");
+  assert.doesNotMatch(JSON.stringify(board), /old-default\.png|personal\.jpg/);
   leaderboardDb.game_scores = Array.from({ length: 2200 }, (_, index) => ({ id: String(index), user_id: "a", game_id: "game", score: index, difficulty: "easy" }));
   const best = await leaderboard.getPersonalBests({ slug: "grammar-rush", userId: "a", buckets: [{ key: "easy", difficulty: "easy" }] });
   assert.equal(best.easy, 2199, "personal best must include scores beyond the old 2000-row cap");

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { MissionStarsLegend, MissionStarsRow } from "@/components/rewards/mission-stars";
+import { CharacterFace } from "@/components/rewards/character-face";
 import type { MissionSummary } from "@/lib/courses/mission-summary";
 import type { CourseStatus } from "@/lib/courses/progress";
 import { describeMissionStars, PRACTICE_STAR_TARGET, type MissionStars } from "@/lib/courses/stars";
@@ -46,7 +47,7 @@ export type MapMission = MissionSummary;
 type AdventureMapProps = {
   chapters: MapChapter[];
   mission: MapMission | null;
-  player: { initial: string; avatarUrl: string | null } | null;
+  playerFaceUrl: string;
   isLoggedIn: boolean;
 };
 
@@ -83,7 +84,7 @@ function statusLabel(node: MapNode) {
   return "À venir";
 }
 
-export function AdventureMap({ chapters, mission, player, isLoggedIn }: AdventureMapProps) {
+export function AdventureMap({ chapters, mission, playerFaceUrl, isLoggedIn }: AdventureMapProps) {
   const currentNode = useMemo(
     () => chapters.flatMap((chapter) => chapter.nodes).find((node) => node.isCurrent) ?? null,
     [chapters]
@@ -193,14 +194,9 @@ export function AdventureMap({ chapters, mission, player, isLoggedIn }: Adventur
                         showStars && node.stars ? `, ${describeMissionStars(node.stars)}` : ""
                       }`}
                     >
-                      {node.isCurrent && player ? (
+                      {node.isCurrent ? (
                         <span className="eq-node-player" aria-hidden="true">
-                          {player.avatarUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={player.avatarUrl} alt="" />
-                          ) : (
-                            player.initial
-                          )}
+                          <CharacterFace src={playerFaceUrl} size={40} />
                         </span>
                       ) : null}
                       <span className="eq-node-face">{node.status === "completed" ? "✓" : node.courseId}</span>

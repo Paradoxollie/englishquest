@@ -19,7 +19,7 @@ export const XP_PER_LEVEL = 200;
 
 /**
  * Or offert à la création du compte. Les quais de la Tamise (18) ou le portrait
- * de Maya en enquêtrice (25) sont accessibles dès le niveau 1.
+ * d’Alma la messagère (25) sont accessibles dès le niveau 1.
  */
 export const WELCOME_GOLD = 30;
 

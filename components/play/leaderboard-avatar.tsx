@@ -1,6 +1,6 @@
 import type { ShopItem } from "@/types/shop";
-
-/* Avatar compact pour les classements : fond équipé, image ou initiale. */
+import { CharacterFace } from "@/components/rewards/character-face";
+import { characterFaceUrl } from "@/lib/shop/characters";
 
 const THEME_COLORS: Record<string, string> = {
   emerald: "#2f9e6b",
@@ -19,18 +19,15 @@ function themeColor(theme: string | null | undefined) {
 }
 
 export function LeaderboardAvatar({
-  username,
   equippedAvatar,
   equippedBackground,
   size = 40,
 }: {
-  username: string;
   equippedAvatar?: ShopItem | null;
   equippedBackground?: ShopItem | null;
   size?: number;
 }) {
   const background = equippedBackground ?? null;
-  const avatar = equippedAvatar ?? null;
   const style: React.CSSProperties = {
     width: size,
     height: size,
@@ -42,17 +39,8 @@ export function LeaderboardAvatar({
   };
 
   return (
-    <span className="eq-avatar" style={style} aria-hidden="true">
-      {avatar?.image_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={avatar.image_url} alt="" />
-      ) : avatar?.color_theme ? (
-        <b style={{ background: themeColor(avatar.color_theme), width: "100%", height: "100%", display: "grid", placeItems: "center", borderRadius: "999px", color: "#fff" }}>
-          {username.charAt(0).toUpperCase()}
-        </b>
-      ) : (
-        <b>{username.charAt(0).toUpperCase()}</b>
-      )}
+    <span className="eq-avatar" style={style} data-backdrop={Boolean(background?.image_url || background?.color_theme) || undefined} aria-hidden="true">
+      <CharacterFace src={characterFaceUrl(equippedAvatar)} size={size} />
     </span>
   );
 }

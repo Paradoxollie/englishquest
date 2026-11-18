@@ -2,7 +2,7 @@
 
 Site gratuit d'apprentissage de l'anglais par le jeu, créé par Pierre Marienne, professeur
 d'anglais. Parcours de 50 cours avec quiz, neuf mini-jeux, progression par XP et or,
-quatre albums illustrés de Maya et Sam et classements.
+quatre albums illustrés, douze personnages à collectionner et classements.
 
 Production : https://englishquest-omega.vercel.app
 

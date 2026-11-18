@@ -1,4 +1,5 @@
 import type { ShopItem } from "@/types/shop";
+import { characterFaceUrl } from "./characters";
 
 export const CUSTOM_ITEM_KEY_PREFIX = "custom_";
 
@@ -6,8 +7,13 @@ export function isCustomItemKey(itemKey: string | null | undefined): boolean {
   return Boolean(itemKey?.startsWith(CUSTOM_ITEM_KEY_PREFIX));
 }
 
-/** Les tenues officielles archivées peuvent toujours être portées en classement. */
+/** Les objets officiels archivés restent visibles quand un joueur les porte. */
 export function leaderboardItem(relation: ShopItem | ShopItem[] | null | undefined): ShopItem | null {
   const item = Array.isArray(relation) ? relation[0] : relation;
-  return item && !item.owner_user_id && !isCustomItemKey(item.item_key) ? item : null;
+  if (!item || item.owner_user_id || isCustomItemKey(item.item_key)) return null;
+  if (item.item_type === "avatar") {
+    const face = characterFaceUrl(item);
+    if (face !== item.image_url) return { ...item, image_url: face };
+  }
+  return item;
 }

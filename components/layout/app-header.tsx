@@ -1,12 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth/auth-provider";
 import { logoutAction } from "@/app/(protected)/actions";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { CharacterFace } from "@/components/rewards/character-face";
 import { guestHeaderState, type HeaderState } from "@/lib/navigation/header-state-types";
 
 const baseNavLinks = [
@@ -29,13 +29,8 @@ function isActivePath(pathname: string, href: string) {
 function ProfileRing({ state }: { state: HeaderState }) {
   const progress = Math.max(0, Math.min(100, Math.round(state.completionRate)));
   return (
-    <span className="eq-ring" aria-hidden="true" data-level={state.username?.charAt(0).toUpperCase() || "·"}
-      style={{ ["--p" as string]: progress }}>
-      {state.avatarUrl ? (
-        <Image key={state.avatarUrl} src={state.avatarUrl} width={32} height={32} alt=""
-          className="eq-ring-portrait" unoptimized={!state.avatarUrl.startsWith("/")}
-          onError={(event) => { event.currentTarget.style.visibility = "hidden"; }} />
-      ) : null}
+    <span className="eq-ring" aria-hidden="true" style={{ ["--p" as string]: progress }}>
+      <CharacterFace src={state.avatarUrl} size={32} className="eq-ring-portrait" />
     </span>
   );
 }
@@ -45,25 +40,20 @@ export function AppHeader() {
   const userId = user?.id ?? null;
   const pathname = usePathname();
   const router = useRouter();
-  const [headerState, setHeaderState] = useState<HeaderState>(guestHeaderState);
-  const [headerLoading, setHeaderLoading] = useState(false);
+  const [accountHeader, setAccountHeader] = useState<{ userId: string; state: HeaderState } | null>(null);
+  const headerState = accountHeader && accountHeader.userId === userId ? accountHeader.state : guestHeaderState;
   const [menuOpen, setMenuOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    if (!userId) return;
+    const account = userId;
     let controller: AbortController | null = null;
 
-    async function loadHeaderState(refresh = false) {
-      if (!userId) {
-        setHeaderState(guestHeaderState);
-        setHeaderLoading(false);
-        return;
-      }
-
+    async function loadHeaderState() {
       controller?.abort();
       const request = new AbortController();
       controller = request;
-      if (!refresh) setHeaderLoading(true);
 
       try {
         const response = await fetch("/api/header-state", { cache: "no-store", signal: request.signal });
@@ -75,15 +65,13 @@ export function AppHeader() {
         const data = (await response.json()) as HeaderState;
 
         if (!request.signal.aborted) {
-          setHeaderState(data);
+          setAccountHeader({ userId: account, state: data });
         }
       } catch {
-        if (!refresh && !request.signal.aborted) {
-          setHeaderState({ ...guestHeaderState, isAuthenticated: true });
-        }
-      } finally {
         if (!request.signal.aborted) {
-          setHeaderLoading(false);
+          setAccountHeader(current => current?.userId === account ? current : {
+            userId: account, state: { ...guestHeaderState, isAuthenticated: true },
+          });
         }
       }
     }
@@ -91,7 +79,7 @@ export function AppHeader() {
     void loadHeaderState();
 
     const handleRefresh = () => {
-      void loadHeaderState(true);
+      void loadHeaderState();
     };
     window.addEventListener("eq:reward", handleRefresh);
     window.addEventListener("itemEquipped", handleRefresh);
@@ -110,6 +98,7 @@ export function AppHeader() {
   const handleLogout = async () => {
     setMenuOpen(false);
     await logoutAction();
+    setAccountHeader(null);
     router.refresh();
   };
 
@@ -121,7 +110,7 @@ export function AppHeader() {
     ...(headerState.canAccessDashboard ? [{ label: "Dashboard", href: "/dashboard" }] : []),
   ];
 
-  const resolvedLoading = loading || (Boolean(user) && headerLoading);
+  const resolvedLoading = loading || Boolean(userId && accountHeader?.userId !== userId);
 
   return (
     <header className="eq-header" data-staff={headerState.canAccessTeachers || headerState.canAccessDashboard || undefined}

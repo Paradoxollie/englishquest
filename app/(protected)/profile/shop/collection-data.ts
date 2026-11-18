@@ -1,5 +1,6 @@
 import "server-only";
 import { isCustomItemKey } from "@/lib/shop/visibility";
+import { starterReplacementKey } from "@/lib/shop/characters";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { ShopItem, ShopItemType } from "@/types/shop";
 
@@ -31,20 +32,28 @@ export async function loadProfileCollection(userId: string): Promise<ProfileColl
     `).eq("user_id", userId).maybeSingle(),
   ]);
   const items = new Map<string, ShopItem>();
+  const byKey = new Map<string, ShopItem>();
   for (const item of catalogue.data ?? []) {
-    if (!isCustomItemKey(item.item_key)) items.set(item.id, item);
+    if (!isCustomItemKey(item.item_key)) {
+      items.set(item.id, item);
+      byKey.set(item.item_key, item);
+    }
   }
-  const ownedIds: string[] = [];
+  function currentEdition(item: ShopItem | null | undefined) {
+    const replacement = starterReplacementKey(item?.item_key);
+    return (replacement && byKey.get(replacement)) || item;
+  }
+  const ownedIds = new Set<string>();
   for (const row of ownership.data ?? []) {
-    const item = joinedItem(row.item);
+    const item = currentEdition(joinedItem(row.item));
     if (item) {
-      ownedIds.push(item.id);
+      ownedIds.add(item.id);
       items.set(item.id, item);
     }
   }
   const equipment: Equipment = { avatar: null, background: null, title: null, ship_skin: null };
   for (const type of Object.keys(equipment) as ShopItemType[]) {
-    const item = joinedItem(worn.data?.[type]);
+    const item = currentEdition(joinedItem(worn.data?.[type]));
     if (item) {
       equipment[type] = item.id;
       items.set(item.id, item);
@@ -55,7 +64,7 @@ export async function loadProfileCollection(userId: string): Promise<ProfileColl
       Number(Boolean(b.collection_key)) - Number(Boolean(a.collection_key)) ||
       a.display_order - b.display_order || a.name.localeCompare(b.name, "fr")
     ),
-    ownedIds,
+    ownedIds: [...ownedIds],
     equipment,
     unavailable: Boolean(catalogue.error || ownership.error || worn.error),
   };

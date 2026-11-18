@@ -16,7 +16,7 @@ function LeagueRow({ entry, isMe }: { entry: LeagueEntry; isMe: boolean }) {
         {entry.rank}
       </span>
       <span className="eq-board-avatar">
-        <LeaderboardAvatar username={entry.username} equippedAvatar={entry.avatar} equippedBackground={entry.background} size={48} />
+        <LeaderboardAvatar equippedAvatar={entry.avatar} equippedBackground={entry.background} size={48} />
       </span>
       <span className="eq-board-name">
         <b>

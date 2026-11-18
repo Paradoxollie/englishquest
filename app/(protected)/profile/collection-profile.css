@@ -46,20 +46,15 @@
   background: var(--pro-surface);
 }
 .wardrobe-starters {
-  display: grid; grid-template-rows: auto minmax(7.5rem, 1fr); min-height: 12rem;
-  background: #14283d; color: #fff8e5;
+  display: flex; flex-wrap: wrap; gap: .42rem;
 }
-.wardrobe-starters h3 { padding: .45rem .85rem; font: 700 .9rem/1.35 var(--font-display); }
-.wardrobe-starters > div { display: grid; grid-auto-columns: 1fr; grid-auto-flow: column; gap: 2px; }
-.wardrobe-starters button { position: relative; overflow: hidden; min-width: 0; text-align: left; }
-.wardrobe-starters button img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 32%; }
-.wardrobe-starters strong {
-  position: absolute; bottom: .45rem; left: .5rem; max-width: calc(100% - 1rem); padding: .2rem .45rem;
-  border: 2px solid var(--card-ink); background: var(--card-paper); color: var(--card-ink);
-  font: 700 .8rem/1.2 var(--font-display); box-shadow: 2px 2px 0 var(--card-ink);
+.wardrobe-starters button {
+  display: inline-flex; align-items: center; gap: .4rem; min-height: 2.55rem; padding: .2rem .55rem .2rem .27rem;
+  border: 1px solid var(--pro-border); border-radius: .5rem; font-size: .83rem; font-weight: 700; color: var(--pro-info);
 }
-.wardrobe-starters button:focus-visible { outline-offset: -4px; z-index: 1; }
-.wardrobe-starters button:hover strong { background: #ffdb73; }
+.wardrobe-starters button:hover { border-color: var(--pro-info); }
+.wardrobe-starters button > span { width: 1.95rem; height: 1.95rem; overflow: hidden; border-radius: .35rem; }
+.wardrobe-starters button img, .wardrobe-starters button svg { width: 100%; height: 100%; object-fit: cover; }
 .wardrobe-pass, .wardrobe-portrait, .wardrobe-flight, .wardrobe-tile-art, .wardrobe-ribbon-art {
   isolation: isolate;
   position: relative;
@@ -76,14 +71,16 @@
   background-image: radial-gradient(#7993a0 1px, transparent 1px), linear-gradient(125deg, #162d41, #356164);
   background-size: 9px 9px, auto;
 }
-.wardrobe-scene img, .wardrobe-scene svg, .wardrobe-pass-character img, .wardrobe-portrait-face img,
-.wardrobe-pass-character > svg, .wardrobe-portrait-face > svg, .wardrobe-tile-art > img, .wardrobe-tile-art > svg {
+.wardrobe-scene.is-print { background: #dfc79a; }
+.wardrobe-scene.is-print img { filter: grayscale(1) sepia(.65) contrast(.72); opacity: .82; }
+.wardrobe-scene img, .wardrobe-scene svg, .wardrobe-portrait-face img,
+.wardrobe-portrait-face > svg, .wardrobe-tile-art > img, .wardrobe-tile-art > svg {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.wardrobe-pass-character, .wardrobe-portrait-face {
+.wardrobe-portrait-face {
   position: absolute;
   overflow: hidden;
   display: grid;
@@ -92,16 +89,6 @@
   background: #f4de9e;
   color: #29241c;
 }
-.wardrobe-pass-character {
-  left: 6%;
-  top: 50%;
-  transform: translateY(-50%);
-  width: min(40%, 15rem);
-  aspect-ratio: 1;
-  border: 3px solid var(--card-ink);
-  box-shadow: 0 0 0 3px var(--card-paper), 4px 5px 0 2px var(--card-ink);
-}
-.wardrobe-pass-character > .wardrobe-pass-brand { width: 62%; height: 62%; }
 .wardrobe-pass-signature {
   position: absolute;
   display: grid;
@@ -109,7 +96,7 @@
   right: 4%;
   bottom: 7%;
   width: fit-content;
-  max-width: 57%;
+  max-width: 42%;
   padding: .4rem .68rem;
   background: var(--card-paper);
   color: var(--card-ink);
@@ -172,10 +159,10 @@ html[data-theme="dark"] .wardrobe-scope [aria-pressed="true"] { background: #245
 }
 .wardrobe-tile-art { aspect-ratio: 4/3; width: 100%; border-bottom: 1.5px solid var(--pro-border-strong); background: var(--pro-surface-2); }
 .wardrobe-tile-art > img, .wardrobe-tile-art > svg, .wardrobe-tile-art > .wardrobe-ribbon-art,
-.wardrobe-flight > img, .wardrobe-scene > img, .wardrobe-pass-character > img, .wardrobe-portrait-face > img {
+.wardrobe-flight > img, .wardrobe-scene > img, .wardrobe-portrait-face > img {
   position: absolute; inset: 0; box-sizing: border-box; min-width: 0; min-height: 0;
 }
-.wardrobe-tile-art.is-avatar img { object-position: 50% 36%; }
+.wardrobe-tile-art.is-avatar { aspect-ratio: 7 / 8; }
 .wardrobe-tile-art.is-ship_skin, .wardrobe-flight {
   background-color: #18273c;
   background-image: radial-gradient(ellipse at 50% 78%, #325473, transparent 70%), radial-gradient(#a1b3be 1px, transparent 1px);
@@ -223,8 +210,7 @@ html[data-theme="dark"] .wardrobe-scope [aria-pressed="true"] { background: #245
 .wardrobe-dialog-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .wardrobe-dialog-art { display: grid; align-items: stretch; min-width: 0; padding: .9rem; background: var(--pro-surface-2); }
 .wardrobe-dialog-art .wardrobe-pass, .wardrobe-flight { aspect-ratio: auto; min-height: 13rem; border-radius: .5rem; }
-.wardrobe-dialog-art .wardrobe-pass-character { width: 55%; top: 41%; left: 8%; }
-.wardrobe-dialog-art .wardrobe-pass-signature { max-width: 85%; }
+.wardrobe-dialog-art .wardrobe-pass { min-height: 15rem; }
 .wardrobe-detail-body { min-width: 0; padding: 1.15rem clamp(1rem, 2vw, 1.5rem); align-self: center; }
 .wardrobe-album-label { color: var(--pro-info); font-size: .78rem; font-weight: 750; }
 .wardrobe-detail-body > h2 { margin: .18rem 0 .5rem; font: 750 clamp(1.4rem, 2.5vw, 2rem)/1.1 var(--font-display); overflow-wrap: anywhere; }
@@ -249,14 +235,12 @@ html[data-theme="dark"] .wardrobe-scope [aria-pressed="true"] { background: #245
 }
 @media (max-width: 650px) {
   .wardrobe-equipped, .wardrobe-dialog-grid { grid-template-columns: 1fr; }
-  .wardrobe-equipped > .wardrobe-pass { aspect-ratio: 2.45; min-height: 8rem; }
-  .wardrobe-pass-character { width: 31%; }
+  .wardrobe-equipped > .wardrobe-pass { aspect-ratio: 1.85; min-height: clamp(9rem, 47vw, 14rem); }
   .wardrobe-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .wardrobe-loadout { padding: .8rem; }
   .wardrobe-dialog-art { padding: .6rem; }
   .wardrobe-dialog-art .wardrobe-pass, .wardrobe-flight { aspect-ratio: 2; width: 100%; min-height: clamp(7.75rem, 45vw, 12rem); }
-  .wardrobe-dialog-art .wardrobe-pass-character { width: 37%; top: 50%; }
-  .wardrobe-dialog-art .wardrobe-pass-signature { max-width: 56%; }
+  .wardrobe-dialog-art .wardrobe-pass { aspect-ratio: 1.7; min-height: clamp(9.5rem, 52vw, 16rem); }
   .wardrobe-flight img { padding: .6rem; }
   .wardrobe-detail-body { padding: .85rem 1rem 1.1rem; }
 }
@@ -268,7 +252,6 @@ html[data-theme="dark"] .wardrobe-scope [aria-pressed="true"] { background: #245
   .wardrobe-scope button { padding-inline: .55rem; font-size: .85rem; }
   .wardrobe-album-filter { display: grid; gap: .15rem; font-size: .77rem; }
   .wardrobe-album-filter select { width: 100%; font-size: .83rem; }
-  .wardrobe-starters { min-height: 10rem; }
   .wardrobe-categories { gap: .3rem; }
   .wardrobe-categories button { font-size: .8rem; padding-inline: .32rem; }
   .wardrobe-tile-info { padding: .5rem; }

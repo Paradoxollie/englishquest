@@ -20,13 +20,23 @@
 }
 
 .invitationArt {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   min-height: 13rem;
   border-inline-end: 2px solid var(--pro-border-strong);
 }
 
-.invitationArt img,
+.invitationBackdrop,
 .goalArt img {
   object-fit: cover;
+}
+
+.invitationBackdrop {
+  filter: brightness(.82);
+}
+
+.invitationFigure {
+  position: relative;
 }
 
 .invitationCopy {
@@ -61,6 +71,11 @@
 .goalArt[data-type="ship_skin"] img {
   object-fit: contain;
   padding: 8%;
+}
+
+.goalArt[data-type="avatar"] img {
+  width: 100%;
+  height: 100%;
 }
 
 .goalCopy {

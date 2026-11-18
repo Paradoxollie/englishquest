@@ -29,6 +29,36 @@
 .collection-cover-actions { display: flex; align-items: center; gap: .7rem 1.05rem; flex-wrap: wrap; }
 .collection-text-link { color: var(--pro-info); text-underline-offset: .2em; text-decoration: underline; font-weight: 650; padding-block: .55rem; }
 .collection-cover-art { width: 100%; height: 100%; object-fit: cover; border-inline-start: 2px solid var(--pro-border-strong); }
+.collection-cover-troupe {
+  position: relative; isolation: isolate; min-height: 17rem; overflow: hidden;
+  border-inline-start: 2px solid var(--pro-border-strong); background: #344b55;
+}
+.collection-cover-setting { z-index: -1; object-fit: cover; }
+.collection-cover-lineup { position: absolute; inset: 4% 2% 0; display: flex; justify-content: center; align-items: end; }
+.collection-cover-lineup > span { position: relative; height: 94%; flex: 1 1 33.33%; min-width: 0; }
+.collection-cover-lineup > span:nth-child(2) { height: 100%; }
+.collection-roster { padding-top: clamp(2rem, 3.7vw, 3.3rem); scroll-margin-top: 5rem; }
+.collection-roster .collection-section-heading { align-items: center; }
+.collection-roster .collection-section-heading p { margin-top: .32rem; }
+.collection-roster-grid {
+  list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: clamp(.55rem, 1.3vw, 1rem); margin: 1rem 0; padding: 0;
+}
+.collection-roster-card {
+  height: 100%; display: flex; flex-direction: column; overflow: hidden; color: var(--pro-text);
+  text-decoration: none; border: 1.5px solid var(--pro-border-strong); border-radius: .65rem;
+  background: var(--pro-surface); box-shadow: 2px 3px 0 var(--pro-ink-frame);
+}
+.collection-roster-card:hover { border-color: var(--pro-info); }
+.collection-roster-card:hover strong { color: var(--pro-info); text-decoration: underline; text-underline-offset: .15em; }
+.collection-roster-art, .collection-character-art {
+  position: relative; display: block; width: 100%; aspect-ratio: 7 / 8;
+  border-bottom: 1.5px solid var(--pro-border-strong); overflow: hidden;
+}
+.collection-roster-copy { display: grid; gap: .35rem; padding: .66rem .72rem .8rem; }
+.collection-roster-copy strong { font: 700 clamp(.98rem,1.5vw,1.22rem)/1.18 var(--font-display); overflow-wrap: anywhere; }
+.collection-roster-copy > span { color: var(--pro-muted); font-size: .82rem; line-height: 1.35; }
+.collection-roster-copy b { color: var(--pro-text); }
 .collection-albums { padding-top: clamp(2rem, 3.7vw, 3.3rem); scroll-margin-top: 5rem; }
 .collection-section-heading, .collection-volume-title { display: flex; align-items: baseline; flex-wrap: wrap; justify-content: space-between; gap: .45rem 1.1rem; }
 .collection-section-heading h2, .collection-volume-title h2 { font-size: clamp(1.45rem, 2.7vw, 2.15rem); }
@@ -45,12 +75,11 @@
 .collection-volume-title { align-items: center; }
 .collection-volume-title h2 { margin-bottom: .3rem; }
 .collection-progress { font-size: .86rem; font-weight: 700; }
-.collection-fitting { display: grid; grid-template-columns: minmax(0,1.24fr) minmax(15rem,.76fr); align-items: stretch; margin-block: 1.2rem 1.4rem; border-radius: .65rem; overflow: hidden; background: var(--pro-surface-2); border: 1px solid var(--pro-border); }
+.collection-fitting { display: grid; grid-template-columns: minmax(0,1.24fr) minmax(15rem,.76fr); align-items: stretch; margin-block: 1.2rem 1.4rem; border-radius: .65rem; overflow: hidden; background: var(--pro-surface-2); border: 1px solid var(--pro-border); scroll-margin-top: 5rem; }
 .collection-scene { position: relative; isolation: isolate; aspect-ratio: 1.97; min-height: 13rem; margin: 0; overflow: hidden; background: #192843; }
+.collection-scene:not(.is-flight) { aspect-ratio: 1.8; }
 .collection-scene-backdrop { object-fit: cover; }
-.collection-scene-portrait { position: absolute; left: 5%; bottom: 17%; width: clamp(4.9rem,24%,9rem); aspect-ratio: 1; overflow: hidden; border: .25rem solid #fff4d4; border-radius: 50%; box-shadow: 0 0 0 2px #172033, 3px 4px #172033; }
-.collection-scene-portrait img { object-fit: cover; }
-.collection-scene-title { position: absolute; bottom: 6%; left: 5%; max-width: 85%; border: 2px solid #172033; padding: .3rem .75rem; border-radius: 3px; background: #ffcf48; color: #172033; font-weight: 800; font-family: var(--font-display); }
+.collection-scene-title { position: absolute; bottom: 6%; right: 4%; max-width: 42%; overflow-wrap: anywhere; border: 2px solid #172033; padding: .3rem .6rem; border-radius: 3px; background: #ffcf48; color: #172033; font: 750 clamp(.79rem,1.4vw,1.05rem)/1.2 var(--font-display); }
 .collection-scene figcaption { position: absolute; top: .65rem; right: .65rem; font-size: .76rem; font-weight: 650; background: #101e34; color: #fff; border: 1px solid #9aa5b9; border-radius: 99px; padding: .22rem .6rem; }
 .collection-scene.is-flight, .piece-ship_skin .collection-thumbnail { background-color: #131f38; background-image: radial-gradient(circle at 28% 22%,#f7daa3 1px,transparent 2px), radial-gradient(circle at 75% 61%,#a9c7de 1px,transparent 2px), radial-gradient(ellipse at 42% 85%,#264562,transparent 64%); background-size: 5.4rem 4.6rem,3.6rem 5rem,cover; }
 .collection-flight-sprite { position: absolute; width: 28%; height: 70%; top: 15%; left: 36%; }
@@ -77,6 +106,11 @@ html[data-theme="dark"] .collection-item-details .eq-btn-primary { --pro-primary
 .collection-piece-copy { display: grid; align-content: start; gap: .12rem; padding: .55rem .6rem .7rem; }
 .collection-piece-copy b { font-size: .88rem; line-height: 1.28; }
 .collection-piece[aria-pressed="true"] .collection-piece-copy b { color: var(--pro-info); }
+.collection-character-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .65rem; margin-bottom: 1.25rem; }
+.collection-piece.collection-character { display: grid; grid-template-columns: minmax(6.5rem,.76fr) minmax(0,1.24fr); align-items: center; }
+.collection-character-art { border-bottom: 0; border-right: 1px solid var(--pro-border); align-self: stretch; }
+.collection-character .collection-piece-copy { gap: .45rem; padding: .9rem; }
+.collection-character .collection-piece-copy b { font: 700 clamp(.99rem,1.45vw,1.18rem)/1.2 var(--font-display); }
 .collection-unavailable { padding: 2rem 0; }
 .collection-page :where(a,button):focus-visible { outline: 3px solid var(--pro-info); outline-offset: 3px; }
 @media (max-width: 850px) {
@@ -87,6 +121,11 @@ html[data-theme="dark"] .collection-item-details .eq-btn-primary { --pro-primary
   .collection-cover,.collection-fitting { grid-template-columns: minmax(0,1fr); }
   .collection-fitting { scroll-margin-top: 5rem; }
   .collection-cover-art { order: -1; aspect-ratio: 2.12; border: 0; border-bottom: 2px solid var(--pro-border-strong); }
+  .collection-cover-troupe { order: -1; min-height: clamp(10.5rem, 47vw, 19rem); border: 0; border-bottom: 2px solid var(--pro-border-strong); }
+  .collection-roster-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .collection-piece.collection-character { display: flex; align-items: stretch; }
+  .collection-character-art { border-right: 0; border-bottom: 1px solid var(--pro-border); }
+  .collection-character .collection-piece-copy { padding: .6rem; }
   .collection-intro { padding: 1.15rem 1.2rem 1.35rem; }
   .collection-intro h1 { max-width: none; font-size: clamp(1.85rem,6.8vw,2.5rem); }
   .collection-intro h1 span { display: inline; }

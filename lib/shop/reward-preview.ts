@@ -11,6 +11,7 @@ export function publicRewardPreviews(db: SupabaseClient) {
   return db.from("shop_items")
     .select("id, item_key, item_type, name, image_url, price_gold, required_level, display_order, collection_key")
     .eq("is_active", true).eq("is_public", true)
+    .is("owner_user_id", null).not("item_key", "like", "custom\\_%")
     .not("collection_key", "is", null).eq("is_collection_reward", false);
 }
 
@@ -18,14 +19,15 @@ export function wardrobeItemHref(itemKey: string) {
   return `/profile?objet=${encodeURIComponent(itemKey)}#boutique`;
 }
 
-/** Un objet à portée du joueur, puis un objectif d'épargne ou de niveau. */
+/** Un personnage à portée du joueur, puis un autre objet abordable ou un objectif d'épargne. */
 export function chooseRewardGoal(items: RewardPreview[], owned: ReadonlySet<string>, level: number, gold: number) {
   const unseen = items.filter((item) => item.image_url && item.price_gold > 0 && !owned.has(item.id));
   const byPrice = (a: RewardPreview, b: RewardPreview) => a.price_gold - b.price_gold || a.display_order - b.display_order;
   const unlocked = unseen.filter((item) => item.required_level <= level).sort(byPrice);
   const affordable = unlocked.filter((item) => item.price_gold <= gold);
   if (affordable.length) {
-    return affordable.sort((a, b) => b.required_level - a.required_level || byPrice(a, b))[0];
+    return affordable.sort((a, b) => Number(b.item_type === "avatar") - Number(a.item_type === "avatar")
+      || b.required_level - a.required_level || byPrice(a, b))[0];
   }
   return unlocked[0] ?? unseen.sort((a, b) => a.required_level - b.required_level || byPrice(a, b))[0] ?? null;
 }
@@ -33,23 +35,26 @@ export function chooseRewardGoal(items: RewardPreview[], owned: ReadonlySet<stri
 export function describeRewardGoal(item: RewardPreview, level: number, xp: number, gold: number) {
   const needsLevel = level < item.required_level;
   const missingGold = Math.max(0, item.price_gold - gold);
+  const character = item.item_type === "avatar";
   // Le vestiaire fait foi si le niveau a été attribué manuellement.
   if (needsLevel && level !== getLevelFromXP(xp)) {
     return missingGold
       ? `Niveau ${item.required_level} requis. Il te manque aussi ${formatGold(missingGold)}.`
-      : `Cet objet se débloque au niveau ${item.required_level}.`;
+      : `${character ? "Ce personnage" : "Cet objet"} se débloque au niveau ${item.required_level}.`;
   }
   const missingXp = needsLevel ? Math.max(0, (item.required_level - 1) * XP_PER_LEVEL - xp) : 0;
   const needed = [
     missingXp > 0 && `${missingXp.toLocaleString("fr-FR")} XP`,
     missingGold > 0 && formatGold(missingGold),
   ].filter(Boolean).join(" et ");
-  return needed ? `Encore ${needed} pour cet objet.` : "Tu peux l’acquérir dès maintenant.";
+  if (needed) return `Encore ${needed} ${character ? "pour recruter ce personnage" : "pour cet objet"}.`;
+  return character ? "Tu peux le recruter dès maintenant." : "Tu peux l’acquérir dès maintenant.";
 }
 
 /** Un titre offert est un déblocage immédiat, même avec une bourse vide. */
 export function chooseLevelUnlock(items: RewardPreview[]) {
   return items.find((item) => item.item_type === "title" && item.price_gold === 0)
+    ?? items.find((item) => item.item_type === "avatar" && item.image_url)
     ?? items.find((item) => item.image_url)
     ?? items[0]
     ?? null;

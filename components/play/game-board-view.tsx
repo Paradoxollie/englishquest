@@ -94,7 +94,6 @@ export function GameBoardView({
               <span className="eq-board-rank">{entry.rank}</span>
               <span className="eq-board-avatar">
                 <LeaderboardAvatar
-                  username={entry.username}
                   equippedAvatar={entry.equipped_avatar}
                   equippedBackground={entry.equipped_background}
                   size={36}

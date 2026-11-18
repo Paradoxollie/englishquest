@@ -4,8 +4,8 @@ import { PlayerPortrait } from "./shop/collection-art";
 import { useWardrobe } from "./shop/wardrobe-state";
 
 export function AvatarDisplay() {
-  const { outfit, username } = useWardrobe();
-  return <PlayerPortrait outfit={outfit} username={username} />;
+  const { outfit } = useWardrobe();
+  return <PlayerPortrait outfit={outfit} />;
 }
 
 export function TitleDisplay() {

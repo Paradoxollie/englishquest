@@ -70,7 +70,9 @@ export function ItemDetails({ item, onClose, openAlbum, openItem }: {
         const titles = result.unlockedTitles ?? [];
         state.purchased([item.id, ...titles.map(title => title.id)], result.newGold ?? Math.max(0, state.gold - item.price_gold));
         setUnlockedTitles(titles);
-        setNotice(`Tu as ajouté « ${item.name} » à ta collection.`);
+        setNotice(item.item_type === "avatar"
+          ? `${item.name.split(",")[0]} a rejoint ton équipe.`
+          : `Tu as ajouté « ${item.name} » à ta collection.`);
       }
     } catch {
       setError("La réponse n’est pas arrivée. Réessaie pour vérifier l’opération.");
@@ -131,7 +133,8 @@ export function ItemDetails({ item, onClose, openAlbum, openItem }: {
           {available || canBuy ? (
             <button type="button" onClick={applyItem} className={`eq-btn ${worn ? "eq-btn-ghost" : available ? "eq-btn-primary" : "eq-btn-gold"} wardrobe-apply`}
               disabled={pending || state.unavailable}>
-              {pending ? "Enregistrement…" : worn ? "Retirer de mon équipement" : available ? "Équiper" : `Acheter pour ${formatGold(item.price_gold)}`}
+              {pending ? "Enregistrement…" : worn ? "Retirer de mon équipement" : available ? "Équiper"
+                : `${item.item_type === "avatar" ? "Recruter" : "Acheter"} pour ${formatGold(item.price_gold)}`}
             </button>
           ) : null}
           <div className="wardrobe-detail-feedback">

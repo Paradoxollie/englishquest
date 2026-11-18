@@ -26,6 +26,7 @@ import { getChapterExamReward, getLevelProgress } from "@/lib/profile/economy";
 import { EXAM_QUESTION_COUNT, examStatus, getUserChapterExams } from "@/lib/exams/exams";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getEquippedPortraitUrl } from "@/lib/shop/equipped-portrait";
+import { DEFAULT_CHARACTER_FACE } from "@/lib/shop/characters";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 
 export const metadata: Metadata = {
@@ -38,8 +39,7 @@ export const dynamic = "force-dynamic";
 
 type PlayerSummary = {
   username: string;
-  initial: string;
-  avatarUrl: string | null;
+  avatarUrl: string;
   xp: number;
   gold: number;
 };
@@ -55,13 +55,12 @@ async function getPlayerSummary(userId: string, fallbackName: string | undefined
     const username = profile?.username ?? name;
     return {
       username,
-      initial: username.charAt(0).toUpperCase(),
       avatarUrl,
       xp: profile?.xp ?? 0,
       gold: profile?.gold ?? 0,
     };
   } catch {
-    return { username: name, initial: name.charAt(0).toUpperCase(), avatarUrl: null, xp: 0, gold: 0 };
+    return { username: name, avatarUrl: DEFAULT_CHARACTER_FACE, xp: 0, gold: 0 };
   }
 }
 
@@ -264,7 +263,7 @@ export default async function QuestPage() {
         <AdventureMap
           chapters={mapChapters}
           mission={mission}
-          player={player ? { initial: player.initial, avatarUrl: player.avatarUrl } : null}
+          playerFaceUrl={player?.avatarUrl ?? DEFAULT_CHARACTER_FACE}
           isLoggedIn={isLoggedIn}
         />
       </div>

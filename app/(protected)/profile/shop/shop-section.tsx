@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { CharacterCardArt } from "@/components/rewards/character-art";
+import { compareCharacterProgression } from "@/lib/shop/characters";
 import { CheckIcon, GoldIcon } from "@/components/ui/icons";
 import { COLLECTION_ALBUMS, getAlbumProgress, isCollectionItemAvailable } from "@/lib/shop/collection";
 import { formatGold } from "@/lib/shop/format-gold";
@@ -35,10 +37,11 @@ export function ShopSection({ initialKey }: { initialKey?: string }) {
     (!mine || available(item)) && (!albumKey || item.collection_key === albumKey) &&
     (type === "all" || item.item_type === type)
   );
+  if (type === "avatar") items.sort(compareCharacterProgression);
   const album = COLLECTION_ALBUMS.find(entry => entry.key === albumKey);
   const progress = album && getAlbumProgress(state.items, state.ownedIds, state.level, album.key);
   const catalogueName = type === "all" ? "Tous les objets" : categories.find(c => c.type === type)?.name;
-  const starterCharacters = !state.outfit.avatar && !state.outfit.background && !state.outfit.title
+  const starterCharacters = !state.outfit.avatar
     ? state.items.filter(item =>
         (item.item_key === "eq_depart_maya" || item.item_key === "eq_depart_sam") && available(item)
       )
@@ -70,7 +73,7 @@ export function ShopSection({ initialKey }: { initialKey?: string }) {
       <div className="wardrobe-heading">
         <div>
           <h2 id="profile-look" className="eq-h2">Ma collection</h2>
-          <Link href="/collection" className="wardrobe-text-link">Découvrir les albums</Link>
+          <Link href="/collection#albums" className="wardrobe-text-link">Découvrir les albums</Link>
         </div>
         <div className="wardrobe-wallet">
           <span><GoldIcon /> <b>{formatGold(state.gold)}</b></span>
@@ -79,20 +82,7 @@ export function ShopSection({ initialKey }: { initialKey?: string }) {
       </div>
 
       <div className="wardrobe-equipped">
-        {starterCharacters.length > 0 ? (
-          <div className="wardrobe-starters">
-            <h3>Choisis ton personnage</h3>
-            <div>
-              {starterCharacters.map(item => (
-                <button type="button" key={item.id} aria-haspopup="dialog" aria-label={`Essayer ${item.name}`}
-                  onClick={event => openDetails(item.id, event.currentTarget)}>
-                  <ItemArt item={item} eager />
-                  <strong>{item.name}</strong>
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : <PlayerCard outfit={state.outfit} username={state.username} />}
+        <PlayerCard outfit={state.outfit} username={state.username} />
         <div className="wardrobe-loadout">
           <h3>Mon équipement</h3>
           <div className="wardrobe-slots">
@@ -103,11 +93,22 @@ export function ShopSection({ initialKey }: { initialKey?: string }) {
                   aria-label={item ? `${slot} équipé, ${item.name}. Voir l’objet` : `Choisir un ${slot.toLowerCase()}`}
                   aria-haspopup={item ? "dialog" : undefined}
                   onClick={event => item ? openDetails(item.id, event.currentTarget) : showCategory(type)}>
-                  <span>{slot}</span><strong>{item?.name ?? "Choisir"}</strong>
+                  <span>{slot}</span><strong>{item?.name ?? (type === "avatar" ? "Maya par défaut" : "Choisir")}</strong>
                 </button>
               );
             })}
           </div>
+          {starterCharacters.length > 0 && (
+            <div className="wardrobe-starters" role="group" aria-label="Essayer un personnage de départ">
+              {starterCharacters.map(item => (
+                <button type="button" key={item.id} aria-haspopup="dialog" aria-label={`Essayer ${item.name}`}
+                  onClick={event => openDetails(item.id, event.currentTarget)}>
+                  <span aria-hidden="true"><ItemArt item={item} eager /></span>
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -159,7 +160,10 @@ export function ShopSection({ initialKey }: { initialKey?: string }) {
                 <li key={item.id}>
                   <button type="button" className="wardrobe-tile" onClick={event => openDetails(item.id, event.currentTarget)} aria-haspopup="dialog"
                     aria-label={`${item.name}, ${status}${obtained ? "" : `, niveau ${item.required_level}`}. Voir l’aperçu`}>
-                    <span className={`wardrobe-tile-art is-${item.item_type}`} aria-hidden="true"><ItemArt item={item} /></span>
+                    <span className={`wardrobe-tile-art is-${item.item_type}`} aria-hidden="true">
+                      {item.item_type === "avatar" ? <CharacterCardArt face={item.image_url} albumKey={item.collection_key}
+                        fallback={<ItemArt item={item} />} /> : <ItemArt item={item} />}
+                    </span>
                     <span className="wardrobe-tile-info">
                       <strong>{item.name}</strong>
                       <span className="wardrobe-tile-meta">

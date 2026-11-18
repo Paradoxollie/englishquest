@@ -435,11 +435,29 @@ const chapterDefinitions = [1, 2, 3, 4, 5].map((id) => ({ id, courseIds: Array.f
 
   await test("Rankings display original and archived official outfits and keep personal uploads in the wardrobe", () => {
     const { leaderboardItem } = loadSource("lib/shop/visibility.ts");
-    const archive = { item_key: "avatar_warrior", is_public:false };
+    const archive = { item_key: "avatar_warrior", item_type: "avatar", is_public:false, image_url: "/art/personnages/guerrier-visage.webp" };
     assert.equal(leaderboardItem([archive]),archive);
+    assert.equal(leaderboardItem({ item_key: "avatar_default", item_type: "avatar", image_url: "/old.png" }).image_url, "/art/personnages/sam-visage.webp");
+    assert.equal(leaderboardItem({ item_key: "avatar_d_faut_femme_1763206735902", item_type: "avatar", image_url: "/old.png" }).image_url, "/art/personnages/maya-visage.webp");
     assert.equal(leaderboardItem([{ item_key: "custom_private" }]),null);
     assert.equal(leaderboardItem({ item_key: "avatar_name", owner_user_id: "player" }),null);
     assert.equal(leaderboardItem([]),null);
+  });
+
+  await test("Personal portraits use the current character, including on accounts with no equipment row", async () => {
+    const { getEquippedPortraitUrl } = loadSource("lib/shop/equipped-portrait.ts");
+    async function ownPortrait(relation) {
+      const read = {
+        from(name) { assert.equal(name, "user_equipped_items"); return this; },
+        select(columns) { assert.match(columns, /item_key,image_url/); return this; },
+        eq(field, id) { assert.deepEqual([field, id], ["user_id", "owner"]); return this; },
+        async maybeSingle() { return { data: relation ? { equipped_avatar: relation } : null }; },
+      };
+      return getEquippedPortraitUrl(read, "owner");
+    }
+    assert.equal(await ownPortrait(null), "/art/personnages/maya-visage.webp");
+    assert.equal(await ownPortrait([{ item_key: "avatar_default", image_url: "/old.png" }]), "/art/personnages/sam-visage.webp");
+    assert.equal(await ownPortrait({ item_key: "custom_own", image_url: "/private/own.webp" }), "/private/own.webp");
   });
 
   await test("Collection goals reflect earned levels, available gold and already owned pieces", () => {
@@ -458,11 +476,15 @@ const chapterDefinitions = [1, 2, 3, 4, 5].map((id) => ({ id, courseIds: Array.f
     assert.equal(chooseRewardGoal(choices, new Set([starter.id]), 3, 10), newLook);
     assert.equal(chooseRewardGoal(choices, new Set([starter.id, newLook.id]), 3, 80), next);
     assert.equal(chooseRewardGoal(choices, new Set([starter.id, newLook.id, next.id]), 9, 100), null);
-    assert.equal(describeRewardGoal(newLook, 2, 365, 30), "Encore 35 XP et 10 pièces d’or pour cet objet.");
-    assert.equal(describeRewardGoal(newLook, 3, 0, 40), "Tu peux l’acquérir dès maintenant.");
-    assert.equal(describeRewardGoal(newLook, 2, 500, 40), "Cet objet se débloque au niveau 3.");
+    const decor = atom("quais", 1, 18, { item_type: "background" });
+    assert.equal(chooseRewardGoal([decor, starter], new Set(), 1, 30), starter);
+    assert.equal(chooseRewardGoal([decor, starter], new Set(), 1, 18), decor);
+    assert.equal(describeRewardGoal(newLook, 2, 365, 30), "Encore 35 XP et 10 pièces d’or pour recruter ce personnage.");
+    assert.equal(describeRewardGoal(newLook, 3, 0, 40), "Tu peux le recruter dès maintenant.");
+    assert.equal(describeRewardGoal(newLook, 2, 500, 40), "Ce personnage se débloque au niveau 3.");
     assert.equal(describeRewardGoal(newLook, 2, 23, 30), "Niveau 3 requis. Il te manque aussi 10 pièces d’or.");
     assert.equal(chooseLevelUnlock([newLook, title]), title);
+    assert.equal(chooseLevelUnlock([decor, newLook]), newLook);
     assert.equal(chooseLevelUnlock([]), null);
     assert.equal(wardrobeItemHref("sam"), "/profile?objet=sam#boutique");
   });

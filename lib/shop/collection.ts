@@ -3,9 +3,9 @@ import { isCustomItemKey } from "./visibility";
 
 export const COLLECTION_ALBUMS = [
   { key: "depart", name: "Les quais de Londres", cover: "/art/collection/decor-quais.webp", description: "Un carnet dans le sac, la Tamise pour point de départ." },
-  { key: "enquete", name: "Le bureau des enquêtes", cover: "/art/collection/decor-archives.webp", description: "Rejoins Maya et Sam aux archives, sur la piste du prochain indice." },
-  { key: "studio", name: "Studio Minuit", cover: "/art/collection/decor-studio.webp", description: "Quand Londres s’endort, l’équipe du studio prend l’antenne." },
-  { key: "aurore", name: "Sous les aurores", cover: "/art/collection/decor-observatoire.webp", description: "Destination le grand Nord, entre ciel polaire et observatoire." },
+  { key: "enquete", name: "Le bureau des enquêtes", cover: "/art/collection/decor-archives.webp", description: "Alma apporte les dépêches, Brune garde les archives et Basile flaire les pistes." },
+  { key: "studio", name: "Studio Minuit", cover: "/art/collection/decor-studio.webp", description: "Juno et K7 réveillent les platines. Du haut des toits, Rowan capte leur émission." },
+  { key: "aurore", name: "Sous les aurores", cover: "/art/collection/decor-observatoire.webp", description: "Au-delà de l’observatoire vivent un dragon de cuivre, un colosse des glaces et une chimère aux ailes de nuit." },
 ] as const;
 
 type Collectible = Pick<ShopItem, "id" | "item_key" | "price_gold" | "required_level" | "is_active" | "is_public" | "collection_key" | "is_collection_reward">;

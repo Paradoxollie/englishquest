@@ -56,6 +56,12 @@ acquis restent disponibles si le contenu d’un album change. L’interface
 `/dashboard/shop` permet de rattacher une pièce à un album ou de l’archiver.
 Les essais de ces règles s’exécutent avec `node scripts/tests/collection-shop-postgres.cjs`.
 
+La migration `character_roster_and_starter_avatars` porte le catalogue à 27 pièces dont
+12 personnages. Le visage carré sert aux classements et la silhouette verticale à l’essayage.
+Les anciens portraits gratuits portés deviennent Maya ou Sam. Les achats du guerrier,
+du ranger et du dragon gardent leurs identifiants, leurs reçus et leur équipement.
+`node scripts/tests/character-roster-postgres.cjs` vérifie également les titres déjà acquis.
+
 ## Tables utilisées par le code
 
 `profiles`, `games`, `game_scores`, `courses`, `user_course_progress`, `chapter_exams`,

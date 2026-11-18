@@ -7,6 +7,8 @@ import { useCallback, useEffect, useRef, useState, type KeyboardEvent as ReactKe
 import { BadgeMedal } from "@/components/rewards/badge-medal";
 import { getBadgeDefinition } from "@/lib/profile/badges";
 import { COLLECTION_ALBUMS } from "@/lib/shop/collection";
+import { characterFaceUrl } from "@/lib/shop/characters";
+import { CharacterFace } from "@/components/rewards/character-face";
 import { formatGold } from "@/lib/shop/format-gold";
 import { REWARD_EVENT, normalizeRewardDetail, type RewardBadge } from "@/lib/profile/reward-events";
 import { chooseLevelUnlock, publicRewardPreviews, wardrobeItemHref, type RewardPreview } from "@/lib/shop/reward-preview";
@@ -38,6 +40,9 @@ function gainTitle(xp: number, gold: number) {
 
 function levelMessage(item: RewardPreview | null) {
   if (!item) return "Ton nouveau niveau est enregistré sur ton profil.";
+  if (item.item_type === "avatar") return item.price_gold > 0
+    ? "Tu peux maintenant recruter ce personnage avec tes pièces d’or."
+    : "Ce personnage peut désormais t’accompagner sur la carte.";
   if (item.price_gold > 0) return "Tu peux maintenant choisir cet objet avec tes pièces d’or.";
   return item.item_type === "title"
     ? "Ce titre est à toi. Équipe-le pour l’afficher sous ton pseudo."
@@ -303,7 +308,8 @@ export function RewardCelebrations() {
                 <p id="eq-levelup-text" className="eq-levelup-text">{levelMessage(unlocked)}</p>
                 {unlocked ? (
                   <p className={styles.levelCard}>
-                    {unlockArt ? <Image src={unlockArt} alt="" width={58} height={58} loading="eager" unoptimized={!unlockArt.startsWith("/")} /> : null}
+                    {unlocked.item_type === "avatar" ? <CharacterFace src={characterFaceUrl(unlocked)} size={58} /> :
+                      unlockArt ? <Image src={unlockArt} alt="" width={58} height={58} loading="eager" unoptimized={!unlockArt.startsWith("/")} /> : null}
                     <span>
                       {album && <small>{album.name}</small>}
                       <b>{unlocked.name}</b>

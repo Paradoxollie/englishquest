@@ -170,7 +170,6 @@ export function GameLeaderboard({
                   <span className="eq-board-rank">{entry.rank}</span>
                   <span className="eq-board-avatar">
                     <LeaderboardAvatar
-                      username={entry.username}
                       equippedAvatar={entry.equipped_avatar ?? null}
                       equippedBackground={entry.equipped_background ?? null}
                       size={48}

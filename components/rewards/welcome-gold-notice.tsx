@@ -49,7 +49,7 @@ export function WelcomeGoldNotice({ userId, gold }: { userId: string; gold: numb
           {gold} pièces d&apos;or de bienvenue
         </p>
         <p className="text-sm text-[var(--muted)]">
-          Tu peux les garder pour un personnage ou t&apos;offrir un premier objet. Les missions et le défi du jour te rapportent d&apos;autres pièces.
+          Choisis qui t’accompagne sur la carte. Tes pièces peuvent servir à recruter un personnage ou à choisir un décor. Les missions et le défi du jour te rapportent d’autres pièces.
         </p>
       </div>
       <div className="eq-welcome-actions">
