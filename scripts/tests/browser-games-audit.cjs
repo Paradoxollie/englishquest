@@ -409,14 +409,19 @@ async function readyChoices(page) {
     await page.keyboard.press('Escape');
     await page.getByRole('button', { name: 'Pause (Échap)', exact: true }).waitFor();
     await page.getByRole('button', { name: 'Passer', exact: true }).click();
-    const initialX = await page.evaluate(() => JSON.parse(window.render_game_to_text()).shipX);
+    const ship = page.locator('.eq-space-ship-anchor');
+    const shipPosition = () => ship.evaluate(element => parseFloat(element.style.left));
+    const initialX = await shipPosition();
     await page.keyboard.down('ArrowRight');
-    await page.waitForFunction(x => JSON.parse(window.render_game_to_text()).shipX > x, initialX);
+    await page.waitForFunction(x => parseFloat(document.querySelector('.eq-space-ship-anchor')?.style.left) > x, initialX);
     await page.keyboard.up('ArrowRight');
     await page.keyboard.press('Escape');
-    const frozenX = await page.evaluate(() => JSON.parse(window.render_game_to_text()).shipX);
+    await page.getByRole('button', { name: 'Reprendre', exact: true }).first().waitFor();
+    const frozenX = await shipPosition();
+    await page.keyboard.down('ArrowLeft');
     await page.waitForTimeout(150);
-    assert.equal(await page.evaluate(() => JSON.parse(window.render_game_to_text()).shipX), frozenX);
+    assert.equal(await shipPosition(), frozenX);
+    await page.keyboard.up('ArrowLeft');
     await page.keyboard.press('Escape');
     report.frameTiming = await page.evaluate(() => new Promise(done => {
       const samples = [];

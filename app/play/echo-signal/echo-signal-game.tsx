@@ -568,7 +568,7 @@ export function EchoSignalGame({
         </div>
 
         <div className="eq-echo-question">
-          <p className="text-base font-bold sm:text-lg">{currentQuestion.prompt}</p>
+          <p className="text-balance text-base font-bold sm:text-lg">{currentQuestion.prompt.replace(/ \?$/, "\u202f?")}</p>
           <div className="eq-game-choices">
             {currentQuestion.options.map((option, idx) => {
               const isSelected = selectedChoice === idx;
