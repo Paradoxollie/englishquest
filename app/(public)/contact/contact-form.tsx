@@ -16,6 +16,7 @@ const inputClass =
 type ContactFormProps = {
   user: User | null;
   profile: Profile;
+  initialSubject?: string;
 };
 
 function SubmitButton() {
@@ -31,7 +32,7 @@ function SubmitButton() {
   );
 }
 
-export function ContactForm({ user, profile }: ContactFormProps) {
+export function ContactForm({ user, profile, initialSubject }: ContactFormProps) {
   const [state, formAction] = useActionState(submitContactMessageAction, {});
   const isAuthenticated = !!user;
 
@@ -79,6 +80,7 @@ export function ContactForm({ user, profile }: ContactFormProps) {
           type="text"
           id="subject"
           name="subject"
+          defaultValue={initialSubject}
           required
           maxLength={120}
           className={inputClass}

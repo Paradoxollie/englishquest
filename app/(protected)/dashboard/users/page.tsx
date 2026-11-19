@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { loginForCurrentPage } from "@/lib/navigation/login-return";
 import { PageHead } from "@/components/comic/page-head";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -26,7 +27,7 @@ export default async function UsersManagementPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login");
+    redirect(await loginForCurrentPage("/dashboard/users"));
   }
 
   if (!(await isAdmin())) {

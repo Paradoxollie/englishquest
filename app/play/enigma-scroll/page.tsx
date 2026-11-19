@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { gameMetadata } from "@/lib/site/metadata";
 import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
@@ -7,14 +7,15 @@ import { getPlayerGameLevel } from "@/lib/games/player-level-server";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 import { EnigmaScrollGame } from "./enigma-scroll-game";
 
-export const metadata: Metadata = {
-  title: "Enigma Scroll",
-  description: "Trouve le mot anglais caché en quelques essais : les lettres se colorent pour te guider, et chaque mot se termine par sa traduction.",
-};
+const SLUG = "enigma-scroll";
+
+export const metadata = gameMetadata(
+  SLUG,
+  "Mot mystère en anglais · Enigma Scroll",
+  "Trouve le mot anglais caché en quelques essais : les lettres se colorent pour te guider, et chaque mot se termine par sa traduction.",
+);
 
 export const dynamic = "force-dynamic";
-
-const SLUG = "enigma-scroll";
 
 export default async function EnigmaScrollPage() {
   const game = getGameBySlug(SLUG);

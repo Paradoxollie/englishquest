@@ -1,3 +1,4 @@
+import { loginForCurrentPage } from "@/lib/navigation/login-return";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { ProjectionCode } from "@/components/classes/projection-code";
@@ -25,7 +26,7 @@ export default async function ClassCodeProjectionPage({ params }: { params: Prom
   const { id } = await params;
   const viewer = await getViewer();
   if (!viewer) {
-    redirect("/auth/login");
+    redirect(await loginForCurrentPage(`/teachers/classe/${encodeURIComponent(id)}/code`));
   }
   if (!isTeacherRole(viewer.role)) {
     return <TeacherOnlyNotice />;

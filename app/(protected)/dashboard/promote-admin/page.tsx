@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { loginForCurrentPage } from "@/lib/navigation/login-return";
 import { PageHead } from "@/components/comic/page-head";
 import { isAdmin } from "@/lib/auth/roles";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -16,7 +17,7 @@ export default async function PromoteAdminPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login");
+    redirect(await loginForCurrentPage("/dashboard/promote-admin"));
   }
 
   const canManageAdmins = await isAdmin();

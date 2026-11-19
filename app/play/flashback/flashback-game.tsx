@@ -50,6 +50,7 @@ export function FlashbackGame({
   const [state, setState] = useState<GameState | null>(null);
   const [started, setStarted] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [selfPaced, setSelfPaced] = useState(false);
   const [timedOutRound, setTimedOutRound] = useState(false);
   const [timeLeft, setTimeLeft] = useState(ROUND_MS);
   const [combo, setCombo] = useState(0);
@@ -82,26 +83,27 @@ export function FlashbackGame({
     };
   }, []);
 
+  const continueRound = useCallback(() => {
+    const current = stateRef.current;
+    if (pausedRef.current || !current || current.phase !== "result") return;
+    const next = nextRound(current);
+    stateRef.current = next;
+    setState(next);
+    setTimedOutRound(false);
+    timeLeftRef.current = ROUND_MS;
+    setTimeLeft(ROUND_MS);
+    roundStartedAtRef.current = performance.now();
+  }, []);
+
   const scheduleNextRound = useCallback(() => {
     if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
-    nextTimerRef.current = setTimeout(() => {
-      if (pausedRef.current) return;
-      const current = stateRef.current;
-      if (!current || current.phase !== "result") return;
-      const next = nextRound(current);
-      stateRef.current = next;
-      setState(next);
-      setTimedOutRound(false);
-      timeLeftRef.current = ROUND_MS;
-      setTimeLeft(ROUND_MS);
-      roundStartedAtRef.current = performance.now();
-    }, RESULT_MS);
-  }, []);
+    if (!selfPaced) nextTimerRef.current = setTimeout(continueRound, RESULT_MS);
+  }, [continueRound, selfPaced]);
 
   const start = useCallback(() => {
     if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
     sessionRef.current += 1;
-    gameSession.begin();
+    if (!selfPaced) gameSession.begin();
     const fresh = startGame(createGameState(Math.random, flashbackWordsForLevel(level), level));
     stateRef.current = fresh;
     setState(fresh);
@@ -122,7 +124,7 @@ export function FlashbackGame({
     submittedRef.current = false;
     startedAtRef.current = performance.now();
     roundStartedAtRef.current = startedAtRef.current;
-  }, [gameSession, level]);
+  }, [gameSession, level, selfPaced]);
 
   /* Abandon : retour à l'écran de départ, rien n'est enregistré. */
   const quit = useCallback(() => {
@@ -246,6 +248,7 @@ export function FlashbackGame({
     if (!state || state.phase !== "gameOver" || submittedRef.current) return;
     submittedRef.current = true;
     playSoundEffect(state.score > 0 ? "victory" : "wrong");
+    if (selfPaced) return;
     if (!isLoggedIn) {
       setSubmitStatus("guest");
       return;
@@ -271,7 +274,7 @@ export function FlashbackGame({
       .catch(() => {
         if (session === sessionRef.current) setSubmitStatus("error");
       });
-  }, [state, isLoggedIn, gameSession]);
+  }, [state, isLoggedIn, gameSession, selfPaced]);
 
   if (!started || !state) {
     return (
@@ -282,13 +285,17 @@ export function FlashbackGame({
           "Tu as 5 secondes pour reconnaître le mot et 8 secondes pour en retrouver le sens quand il revient.",
           "Trois erreurs et la partie s'arrête. Le score est le nombre de bonnes réponses.",
           "Au clavier, utilise les flèches pour reconnaître un mot et les touches 1 à 3 pour choisir son sens.",
-          missionTarget
+          !selfPaced && missionTarget
             ? `Objectif de mission : ${missionTarget} bonnes réponses.`
             : "Tous les mots vus sont listés à la fin avec audio pour réviser.",
         ]}
         onStart={start}
       >
         <LevelPicker value={level} onChange={setLevel} suggested={suggestedLevel} />
+        <label className="flex items-center gap-2 text-sm font-semibold">
+          <input type="checkbox" checked={selfPaced} onChange={event => setSelfPaced(event.target.checked)} />
+          Entraînement avec corrections à mon rythme, hors classement
+        </label>
       </GameStart>
     );
   }
@@ -296,8 +303,8 @@ export function FlashbackGame({
   if (state.phase === "gameOver") {
     return (
       <GameEnd
-        gameSlug="flashback"
-        title="Trois erreurs"
+        gameSlug={selfPaced ? undefined : "flashback"}
+        title={selfPaced ? "Entraînement terminé · hors classement" : "Trois erreurs"}
         score={state.score}
         scoreLabel="mots validés"
         lines={[
@@ -309,7 +316,7 @@ export function FlashbackGame({
         rewardStatus={submitStatus}
         retryScore={gameSession.retryScore}
         rewardError={rewardError}
-        missionReached={missionTarget != null ? state.score >= missionTarget : null}
+        missionReached={!selfPaced && missionTarget != null ? state.score >= missionTarget : null}
         onReplay={start}
       >
         <div>
@@ -414,6 +421,12 @@ export function FlashbackGame({
             </p>
           ) : null}
         </div>
+
+        {selfPaced && showingResult && (
+          <button type="button" className="eq-btn eq-btn-gold" onClick={continueRound} disabled={paused}>
+            Continuer au mot suivant
+          </button>
+        )}
 
         {paused ? (
           <div className="eq-space-overlay">

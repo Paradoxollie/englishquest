@@ -74,7 +74,7 @@
       "id": "x10",
       "type": "gap",
       "prompt": "I couldn't answer the question because I ___ the chapter. (not / read)",
-      "answers": ["hadn't read", "had not read"],
+      "answers": ["hadn't read", "had not read", "'d not read"],
       "explanation": "Cause antérieure au moment passé, à la forme négative : hadn't + participe passé."
     },
     {

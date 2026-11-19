@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { redirect } from "next/navigation";
+import { loginForCurrentPage } from "@/lib/navigation/login-return";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { WELCOME_GOLD } from "@/lib/profile/economy";
@@ -60,13 +61,13 @@ export default async function ProtectedLayout({ children }: ProtectedLayoutProps
   const user = await getServerUser();
 
   if (!user) {
-    redirect("/auth/login");
+    redirect(await loginForCurrentPage());
   }
 
   try {
     await ensureProfile(user.id, user.email ?? null, (user.user_metadata?.username as string | undefined) ?? null);
   } catch {
-    redirect("/auth/login");
+    redirect(await loginForCurrentPage());
   }
 
   return <>{children}</>;

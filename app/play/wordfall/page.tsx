@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { gameMetadata } from "@/lib/site/metadata";
 import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
@@ -7,14 +7,15 @@ import { getPlayerGameLevel } from "@/lib/games/player-level-server";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 import { WordfallGame } from "./wordfall-game";
 
-export const metadata: Metadata = {
-  title: "Wordfall",
-  description: "Traduis les blocs français en anglais avant la zone rouge ou cherche un mot anglais à partir d’une initiale.",
-};
+const SLUG = "wordfall";
+
+export const metadata = gameMetadata(
+  SLUG,
+  "Traduire des mots en anglais · Wordfall",
+  "Traduis les blocs français en anglais avant la zone rouge ou cherche un mot anglais à partir d’une initiale.",
+);
 
 export const dynamic = "force-dynamic";
-
-const SLUG = "wordfall";
 
 export default async function WordfallPage() {
   const game = getGameBySlug(SLUG);

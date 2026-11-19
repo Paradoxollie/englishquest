@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { Burst } from "@/components/comic/burst";
 import { Mascot } from "@/components/comic/mascot";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { ResponsiveDetails } from "@/components/ui/responsive-details";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { games } from "@/lib/games/config";
 import {
   canSpeakEnglish,
   isSoundMuted,
@@ -327,25 +329,19 @@ export function GameStart({
   /** Bouton inactif, par exemple pendant le chargement d'un dictionnaire. */
   startDisabled?: boolean;
 }) {
+  const introId = useId();
+  const introduction = <p id={introId} className="eq-game-start-intro">{intro}</p>;
   return (
     <div className="eq-game-start eq-slam">
-      <div className="eq-game-start-intro">
-        <h2 className="eq-h2">{title}</h2>
-        <p>{intro}</p>
-      </div>
-      <ul className="eq-game-rules">
-        {rules.map((rule) => (
-          <li key={rule}>{rule}</li>
-        ))}
-      </ul>
-      {children}
+      {games.some((game) => game.name === title) ? null : <h2 className="eq-h2">{title}</h2>}
       <button
         type="button"
         onClick={() => {
           onStart();
           if (typeof window !== "undefined") {
             window.requestAnimationFrame(() => {
-              document.querySelector(".eq-game-main")?.scrollIntoView({ block: "start", behavior: "smooth" });
+              const behavior = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+              document.querySelector(".eq-game-main")?.scrollIntoView({ block: "start", behavior });
             });
           }
         }}
@@ -353,9 +349,18 @@ export function GameStart({
         data-testid="game-start"
         disabled={startDisabled}
         aria-busy={startDisabled || undefined}
+        aria-describedby={introId}
       >
         {startLabel}
       </button>
+      {!children ? introduction : null}
+      <ResponsiveDetails className="eq-rules-disclosure" summary="Règles du jeu">
+        {children ? introduction : null}
+        <ul className="eq-game-rules">
+          {rules.map(rule => <li key={rule}>{rule}</li>)}
+        </ul>
+      </ResponsiveDetails>
+      {children}
     </div>
   );
 }

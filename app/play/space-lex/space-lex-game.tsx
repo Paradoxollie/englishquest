@@ -822,12 +822,12 @@ export function SpaceLexGame({
         startLabel="Décoller"
         onStart={handleStartGame}
         rules={[
-          "Souris, tactile ou touches Flèches / Q / D pour piloter le vaisseau.",
-          "Clic ou Espace pour tirer quand tu es aligné (ou active le Tir auto).",
+          isMobile ? "Glisse sur l’aire de jeu ou maintiens les flèches pour déplacer le vaisseau." : "Déplace-toi avec la souris, les flèches ou les touches Q et D.",
+          isMobile ? "Touche une cible pour te diriger vers elle et tirer, ou utilise le bouton Tirer." : "Clique ou appuie sur Espace pour tirer. Tu peux aussi activer le tir automatique.",
           "Chaque vague cible une catégorie : thème, synonyme, famille ou boss.",
           missionTarget
             ? `Objectif de mission : ${missionTarget.toLocaleString("fr-FR")} points.`
-            : "Touche E (ou le bouton EMP) pour nettoyer les distracteurs à 100%.",
+            : isMobile ? "À pleine charge, touche EMP pour éliminer les distracteurs." : "À pleine charge, appuie sur E ou sur le bouton EMP pour éliminer les distracteurs.",
         ]}
       >
         <LevelPicker
@@ -978,7 +978,7 @@ export function SpaceLexGame({
           onClick={handleActivateSuper}
           title={
             superReady
-              ? "Déclencher l'onde EMP (touche E)"
+              ? (isMobile ? "Déclencher l’onde EMP" : "Déclencher l’onde EMP (touche E)")
               : "Charge l'EMP en détruisant les cibles"
           }
         >
@@ -1199,8 +1199,8 @@ export function SpaceLexGame({
                   >
                     {gameState.currentDialogue &&
                     gameState.dialogueIndex + 1 < gameState.currentDialogue.lines.length
-                      ? "Suivant (Espace)"
-                      : "Commencer (Espace)"}
+                      ? (isMobile ? "Suivant" : "Suivant (Espace)")
+                      : (isMobile ? "Commencer" : "Commencer (Espace)")}
                   </button>
                   <button
                     type="button"
@@ -1315,10 +1315,10 @@ export function SpaceLexGame({
             aria-pressed={autoFire}
             onClick={() => setAutoFire((v) => !v)}
           >
-            {autoFire ? "Tir auto : ON" : "Tir manuel (Clic / Espace)"}
+            {autoFire ? "Tir automatique activé" : isMobile ? "Activer le tir automatique" : "Tir manuel (Clic / Espace)"}
           </button>
           <button type="button" className="eq-btn eq-btn-ghost" onClick={handlePauseToggle}>
-            {isPaused ? "Reprendre" : "Pause (Échap)"}
+            {isPaused ? "Reprendre" : isMobile ? "Pause" : "Pause (Échap)"}
           </button>
         </div>
       </div>

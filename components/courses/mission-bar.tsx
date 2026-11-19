@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ResponsiveDetails } from "@/components/ui/responsive-details";
 import { useCourseMission } from "@/components/courses/course-mission-provider";
 import { MissionStarsRow } from "@/components/rewards/mission-stars";
 import type { CourseMissionPlan } from "@/lib/courses/campaign";
@@ -37,6 +38,7 @@ export function MissionBar({ entry, mission, chapterLabel, nextEntry, practiceBe
   const tracking = context?.isMissionTrackingEnabled ?? false;
   const state = context?.missionState ?? null;
   const completed = entry.status === "completed";
+  const placed = isCoursePlacementSkip(entry.missionTelemetry);
   // Étoiles : le meilleur quiz vient de l'état en direct (mis à jour après le quiz).
   const stars = state?.quizTotal
     ? computeMissionStars({
@@ -48,8 +50,8 @@ export function MissionBar({ entry, mission, chapterLabel, nextEntry, practiceBe
       })
     : getMissionStars(entry, practiceBest);
 
-  const readingDone = completed || Boolean(state?.readingCheckpointReached);
-  const quizDone = completed || Boolean(state?.quizPassed);
+  const readingDone = (completed && !placed) || Boolean(state?.readingCheckpointReached);
+  const quizDone = (completed && !placed) || Boolean(state?.quizPassed);
 
   const readingState: StepState = readingDone ? "done" : "now";
   const quizState: StepState = quizDone ? "done" : readingDone ? "now" : "todo";
@@ -59,7 +61,9 @@ export function MissionBar({ entry, mission, chapterLabel, nextEntry, practiceBe
   const practiceHref = mission.primaryGameSlug ? getCoursePracticeHref(entry.courseId) : null;
 
   let note: string;
-  if (!isAuthenticated) {
+  if (placed) {
+    note = "Ton test de niveau a ouvert la suite du parcours. Tu peux revoir ce cours et t’entraîner ici.";
+  } else if (!isAuthenticated) {
     note = completed
       ? "Ta réussite est gardée sur cet appareil. Tu peux revoir la notion ou poursuivre ton aventure."
       : "Tu peux avancer sans compte. Réussis le quiz pour garder cette mission sur cet appareil.";
@@ -80,38 +84,40 @@ export function MissionBar({ entry, mission, chapterLabel, nextEntry, practiceBe
   return (
     <div className="eq-mission-bar">
       <div className="eq-container">
-        <div className="eq-mission-row">
-          <p className="eq-mission-where">
-            <span>{chapterLabel}</span>
-            <b>Mission {entry.courseId}</b>
-          </p>
-          <ol className="eq-mission-steps" aria-label="Étapes de la mission">
-            <Step label="Lire" state={readingState} />
-            <Step label={quizLabel} state={quizState} />
-          </ol>
-          {isAuthenticated ? <MissionStarsRow stars={stars} className="eq-mission-stars" /> : null}
-          <p className="eq-mission-reward">
-            {isAuthenticated && completed ? "Récompense reçue" : `${entry.rewardXp} XP et ${entry.rewardGold} or ${isAuthenticated ? "à la validation" : "avec un compte"}`}
-          </p>
-        </div>
-        <div className="eq-mission-note">
-          <span>{note}</span>
-          <span className="flex flex-wrap gap-2">
-            {practiceHref ? (
-              <Link href={practiceHref} className="eq-btn eq-btn-ghost eq-btn-sm">
-                S&apos;entraîner sur la notion
+        <ResponsiveDetails className="eq-mission-details" summary={`Suivi et liens de la mission ${entry.courseId}`}>
+          <div className="eq-mission-row">
+            <p className="eq-mission-where">
+              <span>{chapterLabel}</span>
+              <b>Mission {entry.courseId}</b>
+            </p>
+            <ol className="eq-mission-steps" aria-label="Étapes de la mission">
+              <Step label="Lire" state={readingState} />
+              <Step label={quizLabel} state={quizState} />
+            </ol>
+            {isAuthenticated ? <MissionStarsRow stars={stars} className="eq-mission-stars" /> : null}
+            <p className="eq-mission-reward">
+              {placed ? "Acquis au test de niveau" : isAuthenticated && completed ? "Récompense reçue" : `${entry.rewardXp} XP et ${entry.rewardGold} or ${isAuthenticated ? "à la validation" : "avec un compte"}`}
+            </p>
+          </div>
+          <div className="eq-mission-note">
+            <span>{note}</span>
+            <span className="flex flex-wrap gap-2">
+              {practiceHref ? (
+                <Link href={practiceHref} className="eq-btn eq-btn-ghost eq-btn-sm">
+                  S&apos;entraîner sur la notion
+                </Link>
+              ) : null}
+              {completed && nextEntry ? (
+                <Link href={`/cours/${nextEntry.courseId}`} className="eq-btn eq-btn-gold eq-btn-sm">
+                  Mission suivante
+                </Link>
+              ) : null}
+              <Link href="/quest" className="eq-btn eq-btn-ghost eq-btn-sm">
+                Voir la carte
               </Link>
-            ) : null}
-            {completed && nextEntry ? (
-              <Link href={`/cours/${nextEntry.courseId}`} className="eq-btn eq-btn-gold eq-btn-sm">
-                Mission suivante
-              </Link>
-            ) : null}
-            <Link href="/quest" className="eq-btn eq-btn-ghost eq-btn-sm">
-              Voir la carte
-            </Link>
-          </span>
-        </div>
+            </span>
+          </div>
+        </ResponsiveDetails>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { gameMetadata } from "@/lib/site/metadata";
 import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { chapters, getChapterForCourse } from "@/lib/courses/chapters";
@@ -10,14 +10,15 @@ import { buildRushPool, buildRushQueue } from "@/lib/games/grammar-rush-server";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 import { GrammarRushGame } from "./grammar-rush-game";
 
-export const metadata: Metadata = {
-  title: "Grammar Rush",
-  description: "Soixante secondes, les questions des cours, quatre propositions : réponds vite et garde la série.",
-};
+const SLUG = "grammar-rush";
+
+export const metadata = gameMetadata(
+  SLUG,
+  "Quiz de grammaire anglaise · Grammar Rush",
+  "Révise la grammaire des cours en répondant aux questions avant la fin du chrono. Enchaîne les bonnes réponses pour améliorer ton score.",
+);
 
 export const dynamic = "force-dynamic";
-
-const SLUG = "grammar-rush";
 const GUEST_MAX_CHAPTER = 2;
 
 export default async function GrammarRushPage({

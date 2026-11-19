@@ -554,6 +554,12 @@ export function Quiz({ questions }: QuizProps) {
           <button type="button" onClick={nextQuestion} className="eq-btn eq-btn-gold">
             {currentQuestion < total - 1 ? "Question suivante" : "Voir le résultat"}
           </button>
+          {mission && (
+            <a className="eq-text-link text-sm" target="_blank" rel="noopener noreferrer"
+              href={`/contact?cours=${mission.courseNumber}&exercice=${encodeURIComponent(item.id)}`}>
+              Signaler cette question<span className="sr-only"> (nouvel onglet)</span>
+            </a>
+          )}
         </div>
       ) : null}
     </div>

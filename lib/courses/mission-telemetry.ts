@@ -16,6 +16,8 @@ const COURSE_MISSION_TELEMETRY_TOTAL_FACTOR = 1_000;
 
 /** Même valeur que PLACEMENT_SKIP_MARK (lib/placement/placement.ts), vérifiée par les tests. */
 export const COURSE_PLACEMENT_SKIP_MARK = 8_000_000;
+/** Lors du positionnement, conserve la note déjà tentée, avec le statut acquis au test. */
+const PLACEMENT_TELEMETRY_OFFSET = 10_000_000;
 
 export type DecodedCourseMissionTelemetry = {
   readingCheckpointReached: boolean;
@@ -30,6 +32,9 @@ export function clampMissionNumber(value: number) {
 export function decodeCourseMissionTelemetry(
   value: number | null | undefined
 ): DecodedCourseMissionTelemetry {
+  if (typeof value === "number" && value >= COURSE_MISSION_TELEMETRY_MAGIC + PLACEMENT_TELEMETRY_OFFSET) {
+    value -= PLACEMENT_TELEMETRY_OFFSET;
+  }
   if (typeof value !== "number" || value < COURSE_MISSION_TELEMETRY_MAGIC) {
     return {
       readingCheckpointReached: false,
@@ -65,5 +70,9 @@ export function encodeCourseMissionTelemetry(
 
 /** Cours validé par le test de niveau, pas joué. */
 export function isCoursePlacementSkip(value: number | null | undefined) {
-  return typeof value === "number" && value === COURSE_PLACEMENT_SKIP_MARK;
+  return typeof value === "number" && (value === COURSE_PLACEMENT_SKIP_MARK || value >= COURSE_MISSION_TELEMETRY_MAGIC + PLACEMENT_TELEMETRY_OFFSET);
+}
+
+export function encodePlacementTelemetry(telemetry: DecodedCourseMissionTelemetry) {
+  return PLACEMENT_TELEMETRY_OFFSET + encodeCourseMissionTelemetry(telemetry);
 }

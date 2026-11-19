@@ -39,6 +39,7 @@ fs.mkdirSync(out, { recursive: true });
 const report = { base, checks: [], errors: [], screenshots: [] };
 let browser;
 async function scenario(name, run) {
+  if (process.env.GAME_AUDIT_FILTER && !new RegExp(process.env.GAME_AUDIT_FILTER).test(name)) return;
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage();
   const errors = [];
@@ -93,10 +94,19 @@ async function readyChoices(page) {
       assert.equal(await page.locator('.eq-game-title').count(), 1);
       await page.setViewportSize({ width: 390, height: 844 });
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, slug + ' mobile overflow');
+      if (slug === 'space-lex') {
+        const rules = await page.locator('.eq-game-main').textContent();
+        assert.match(rules, /maintiens les flèches/);
+        assert.match(rules, /Touche une cible/);
+      }
       await shot(page, slug + '-mobile-start');
       await start(page);
       await page.waitForTimeout(200);
       assert.equal(await page.locator('.eq-game-play').count(), 1, slug + ' starts');
+      if (slug === 'space-lex') {
+        await page.getByRole('button', { name: 'Pause', exact: true }).waitFor();
+        await page.getByRole('button', { name: 'Activer le tir automatique', exact: true }).waitFor();
+      }
       await shot(page, slug + '-mobile-playing');
       await page.setViewportSize({ width: 320, height: 540 });
       assert.equal(await page.evaluate(() => {
@@ -135,6 +145,123 @@ async function readyChoices(page) {
     await page.getByTestId('echo-continue').click();
     await page.getByTestId('game-choice').first().click();
     await page.getByTestId('echo-continue').waitFor();
+  });
+  await scenario('spell-clock-first-delivery-replay-and-fallback', async page => {
+    await page.addInitScript(() => {
+      if (window.speechSynthesis) Object.defineProperty(window.speechSynthesis, 'getVoices', {
+        value: () => [{ name: 'French only', lang: 'fr-FR' }],
+      });
+      window.Audio = class {
+        constructor(src) { this.src = src; this.currentTime = 0; this.duration = 2; }
+        play() { window.testRecording = this; return Promise.resolve(); }
+        pause() {}
+      };
+      document.addEventListener('submit', event => {
+        if (event.target.querySelector('[data-testid="spell-input"]')) window.testSubmittedAt = performance.now();
+      }, true);
+    });
+    await open(page, 'spell-strike');
+    await page.clock.install();
+    await page.evaluate(() => { Math.random = () => 0.314; });
+    await start(page);
+    const spell = engine('spellStrike');
+    const input = page.getByTestId('spell-input');
+    const submit = page.getByTestId('game-submit');
+    const firstDelivery = () => page.evaluate(() => {
+      const player = window.testRecording;
+      const deliveredAt = performance.now();
+      player.currentTime = player.duration;
+      player.onended();
+      return { id: new URL(player.src, location.href).pathname.split('/').pop().replace('.mp3', ''), deliveredAt };
+    });
+    for (const [streak, replay] of [[1, false], [2, true]]) {
+      assert.equal(await input.isEditable(), false);
+      await tick(page, 2500);
+      assert.equal(await submit.isDisabled(), true, 'a delayed load cannot start the answer timer');
+      const delivery = await firstDelivery();
+      assert.equal(await input.isEditable(), true);
+      const word = spell.SPELL_STRIKE_WORDS.find(item => item.id === delivery.id);
+      assert.ok(word, delivery.id);
+      if (replay) {
+        await tick(page, 3000);
+        await page.getByTestId('spell-play-word').click();
+        await tick(page, 1000);
+        await firstDelivery();
+      }
+      await input.fill(word.word);
+      await submit.click();
+      const submittedAt = await page.evaluate(() => window.testSubmittedAt);
+      const expected = spell.computeSpellRoundPoints({
+        difficulty: 2, correct: true, usedHint: false, reactionMs: submittedAt - delivery.deliveredAt, newStreak: streak,
+      });
+      const feedback = await page.locator('.eq-spell-feedback.is-right').innerText();
+      const points = Number(feedback.match(/\+(\d+) pts/)[1]);
+      assert.ok(Math.abs(points - expected) <= 1, feedback + ' expected ' + expected);
+      await tick(page, 1150);
+    }
+    await page.evaluate(() => window.testRecording.onerror());
+    await page.getByText(/^Phonétique ·/).waitFor();
+    assert.equal(await input.isEditable(), true, 'written fallback unlocks the same answer field');
+    await input.fill('test');
+    assert.equal(await submit.isEnabled(), true);
+  });
+  await scenario('echo-recorded-message-pauses-and-resumes-in-place', async page => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await open(page, 'echo-signal');
+    await page.evaluate(() => { Math.random = () => 0.314; });
+    await start(page);
+    const progress = page.getByRole('progressbar', { name: 'Progression du message' });
+    await page.waitForFunction(() => document.querySelector('progress')?.value > 0.3);
+    const control = page.getByTestId('echo-play-btn');
+    assert.equal(await page.getByTestId('game-choice').first().isDisabled(), true);
+    await control.click();
+    assert.match(await control.innerText(), /Reprendre/);
+    const pausedAt = await progress.evaluate(element => element.value);
+    await page.waitForTimeout(450);
+    assert.equal(await progress.evaluate(element => element.value), pausedAt);
+    await shot(page, 'echo-progression-en-pause');
+    await control.click();
+    await page.waitForFunction(time => document.querySelector('progress')?.value > time + 0.15, pausedAt);
+    await page.waitForFunction(() => {
+      const choice = document.querySelector('[data-testid="game-choice"]');
+      return choice && !choice.disabled;
+    }, null, { timeout: 35000 });
+    assert.match(await control.innerText(), /Réécouter \(1 restante\)/);
+  });
+  await scenario('flash-training-pace-and-unranked-results', async page => {
+    await open(page, 'flash-translation');
+    await page.getByLabel(/Entraînement sans attente/).check();
+    await page.clock.install();
+    await start(page);
+    for (let round = 0; round < 10; round++) {
+      // A 1.4–2.8 s ranked delay would leave this button unavailable.
+      const choice = page.getByTestId('game-choice').first();
+      await choice.waitFor({ timeout: 650 });
+      assert.equal(await choice.isEnabled(), true);
+      await choice.click();
+      await tick(page, 1500);
+    }
+    await page.getByTestId('game-end').waitFor();
+    await page.getByTestId('game-end').getByText(/hors classement/).waitFor();
+    assert.equal(await page.getByTestId('game-end').getByRole('link', { name: 'Classement' }).count(), 0);
+    await open(page, 'flashback');
+    await page.getByLabel(/corrections à mon rythme/).check();
+    await start(page);
+    const prompt = page.getByTestId('game-prompt');
+    const word = await prompt.innerText();
+    await page.getByTestId('choice-seen').click();
+    const next = page.getByRole('button', { name: 'Continuer au mot suivant' });
+    await next.waitFor();
+    await page.clock.install();
+    await tick(page, 12000);
+    assert.equal(await prompt.innerText(), word);
+    await next.click();
+    for (let i = 0; i < 2; i++) {
+      await tick(page, 8000);
+      if (i === 0) await next.click();
+    }
+    await page.getByTestId('game-end').getByText(/hors classement/).waitFor();
+    assert.equal(await page.getByTestId('game-end').getByRole('link', { name: 'Classement' }).count(), 0);
   });
   await scenario('flash-translation-full-ten-rounds', async page => {
     await open(page, 'flash-translation');
@@ -235,6 +362,8 @@ async function readyChoices(page) {
       await page.clock.install();
       await start(page);
       assert.equal(await page.locator('.eq-game-field input').count(), fields);
+      assert.deepEqual(await page.locator('.eq-game-field input').evaluateAll(inputs => inputs.map(el => el.placeholder)),
+        ['Prétérit', 'Participe passé', 'Traduction'].slice(0, fields), 'inputs never display a form of the answer');
       const infinitive = (await page.getByTestId('game-prompt').innerText()).trim().toLowerCase();
       const word = verbs.find(v => v.base.toLowerCase() === infinitive);
       assert.ok(word, infinitive);
@@ -459,6 +588,7 @@ async function readyChoices(page) {
       assert.equal(extra.every(msg => msg.includes('status of 404')), true, extra.join('; '));
     }
   });
+  assert.ok(report.checks.length, 'No browser scenarios matched');
   fs.writeFileSync(path.join(out, 'browser-report.json'), JSON.stringify(report, null, 2));
   await browser.close();
   process.exitCode = report.checks.some(check => !check.ok) ? 1 : 0;

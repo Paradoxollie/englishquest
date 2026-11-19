@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { loginForCurrentPage } from "@/lib/navigation/login-return";
 import { PageHead } from "@/components/comic/page-head";
 import { CreateClassForm } from "@/components/classes/create-class-form";
 import { TeacherOnlyNotice } from "@/components/classes/teacher-only-notice";
@@ -49,7 +50,7 @@ function ClassCard({ item, showOwner }: { item: TeacherClassSummary; showOwner: 
 export default async function TeachersPage() {
   const viewer = await getViewer();
   if (!viewer) {
-    redirect("/auth/login");
+    redirect(await loginForCurrentPage("/teachers"));
   }
   if (!isTeacherRole(viewer.role)) {
     return <TeacherOnlyNotice />;

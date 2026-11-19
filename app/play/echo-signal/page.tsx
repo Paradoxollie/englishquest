@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { gameMetadata } from "@/lib/site/metadata";
 import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
@@ -9,15 +9,15 @@ import { getPlayerGameLevel } from "@/lib/games/player-level-server";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 import { EchoSignalGame } from "./echo-signal-game";
 
-export const metadata: Metadata = {
-  title: "Echo Signal",
-  description:
-    "Capte de courtes transmissions radio en anglais (annonces, dialogues, messages) et réponds juste aux questions de compréhension.",
-};
+const SLUG = "echo-signal";
+
+export const metadata = gameMetadata(
+  SLUG,
+  "Compréhension orale en anglais · Echo Signal",
+  "Capte de courtes transmissions radio en anglais (annonces, dialogues, messages) et réponds juste aux questions de compréhension.",
+);
 
 export const dynamic = "force-dynamic";
-
-const SLUG = "echo-signal";
 
 export default async function EchoSignalPage() {
   const game = getGameBySlug(SLUG);

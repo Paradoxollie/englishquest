@@ -1,16 +1,22 @@
-import type { Metadata } from "next";
+import { publicPageMetadata } from "@/lib/site/metadata";
 import { PageHead } from "@/components/comic/page-head";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { ContactForm } from "./contact-form";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
+  path: "/contact",
   title: "Contact",
-  description:
-    "Une question, un bug, un mot de passe oublié ? Écris à Pierre, le professeur qui fait English Quest.",
-};
+  description: "Une question, un bug, un mot de passe oublié ? Écris à Pierre, le professeur qui fait English Quest.",
+});
 
-export default async function ContactPage() {
+export default async function ContactPage({ searchParams }: {
+  searchParams: Promise<{ cours?: string | string[]; exercice?: string | string[] }>;
+}) {
+  const { cours, exercice } = await searchParams;
+  const quizSubject = typeof cours === "string" && /^(?:[1-9]|[1-4][0-9]|50)$/.test(cours)
+    && typeof exercice === "string" && /^x?[0-9]{1,3}$/.test(exercice)
+    ? `Question du cours ${cours} (exercice ${exercice})` : undefined;
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -51,7 +57,7 @@ export default async function ContactPage() {
             ) : null}
           </section>
           <section className="eq-card p-6 md:p-8">
-            <ContactForm user={user} profile={profile} />
+            <ContactForm user={user} profile={profile} initialSubject={quizSubject} />
           </section>
         </div>
       </div>

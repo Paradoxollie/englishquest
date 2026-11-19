@@ -12,7 +12,7 @@ const BANNED = /[—–]/; // tirets longs : style refusé
 const bank = JSON.parse(fs.readFileSync(path.join(root, "lib/placement/questions.json"), "utf8"));
 
 function words(sentence) {
-  return sentence.replace(/[.?!]+$/, "").trim().split(/\s+/);
+  return sentence.replace(/,/g, " ").replace(/[.?!]+$/, "").trim().split(/\s+/);
 }
 function checkText(text, context) {
   assert.equal(typeof text, "string", `${context}: texte attendu`);
@@ -61,7 +61,9 @@ for (let course = 1; course <= 50; course += 1) {
         assert.ok(!answer.includes("___") && answer.length <= 40, `${ctx}: réponse courte attendue`);
       });
     } else {
-      assert.ok(Array.isArray(item.answers) && item.answers.length >= 1 && item.answers.length <= 3, `${ctx}: 1 à 3 phrases acceptées`);
+      assert.ok(Array.isArray(item.answers) && item.answers.length >= 1, `${ctx}: au moins une phrase acceptée`);
+      const distinct = item.answers.map((answer) => words(answer).map((word) => word.toLowerCase()).join(" "));
+      assert.equal(new Set(distinct).size, distinct.length, `${ctx}: chaque variante doit utiliser un ordre distinct`);
       item.answers.forEach((answer, index) => checkText(answer, `${ctx} phrase ${index}`));
       const base = words(item.answers[0]).map((w) => w.toLowerCase()).sort().join(" ");
       assert.ok(words(item.answers[0]).length >= 3 && words(item.answers[0]).length <= 12, `${ctx}: 3 à 12 mots`);

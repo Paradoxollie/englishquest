@@ -1,11 +1,11 @@
-import type { Metadata } from "next";
+import { publicPageMetadata } from "@/lib/site/metadata";
 import Link from "next/link";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
+  path: "/profs",
   title: "Pour les profs",
-  description:
-    "English Quest en classe : une classe avec un code à projeter, le suivi des missions de chaque élève, des devoirs avec date limite. Gratuit, pour les professeurs d'anglais de la 6e à la terminale.",
-};
+  description: "English Quest en classe : une classe avec un code à projeter, le suivi des missions de chaque élève, des devoirs avec date limite. Gratuit, pour les professeurs d'anglais de la 6e à la terminale.",
+});
 
 const features = [
   {

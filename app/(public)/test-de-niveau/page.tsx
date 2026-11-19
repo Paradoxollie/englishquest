@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { publicPageMetadata } from "@/lib/site/metadata";
 import { PageHead } from "@/components/comic/page-head";
 import Link from "next/link";
 import { getUserCourseRoadmap } from "@/lib/courses/progress";
@@ -6,10 +6,11 @@ import { buildPlacementStep, getPlacementStatus } from "@/lib/placement/placemen
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PlacementTest } from "./placement-test";
 
-export const metadata: Metadata = {
-  title: "Test de niveau",
+export const metadata = publicPageMetadata({
+  path: "/test-de-niveau",
+  title: "Test de niveau d’anglais gratuit",
   description: "Teste ton niveau d'anglais en quelques minutes, gratuitement et sans compte : six questions par chapitre, de A1 à B1.",
-};
+});
 
 export const dynamic = "force-dynamic";
 

@@ -24,7 +24,7 @@ function setup(voices, playError) {
   global.SpeechSynthesisUtterance = class { constructor(text) { this.text = text; } };
   global.Audio = class {
     constructor(url) { this.url = url; this.currentTime = 0; recordings.push(this); }
-    play() { return playError ? Promise.reject(playError) : Promise.resolve(); }
+    play() { this.plays = (this.plays || 0) + 1; this.paused = false; return playError ? Promise.reject(playError) : Promise.resolve(); }
     pause() { this.paused = true; }
   };
   const mod = new Module(source, module);
@@ -66,9 +66,40 @@ async function run() {
     assert.equal(recording.playbackRate, 0.8);
     assert.equal(recording.preservesPitch, true);
     a.api.setSoundMuted(true);
-    assert.equal(recording.paused, undefined);
+    assert.equal(recording.paused, false);
     recording.onended();
     assert.deepEqual(a.completions, [true]); assert.deepEqual(a.errors, []); assert.equal(a.timers.size, 0);
+  }
+  {
+    const a = setup();
+    const times = [];
+    a.api.playDialogueOrSpeak({ ...a.options, mp3Url: "/dialogue.mp3", lines,
+      onProgress: (elapsed, duration) => times.push([elapsed, duration]) });
+    const recording = a.recordings[0];
+    recording.duration = 9;
+    recording.currentTime = 2.4;
+    recording.ontimeupdate();
+    assert.deepEqual(times.at(-1), [2.4, 9]);
+    assert.equal(a.api.setRecordingPaused(true), true);
+    assert.equal(recording.paused, true);
+    assert.equal(a.timers.size, 0, "media stall timer stays off during a deliberate pause");
+    assert.deepEqual(a.completions, []);
+    assert.equal(a.api.setRecordingPaused(false), true);
+    assert.equal(recording.paused, false);
+    assert.equal(recording.plays, 2);
+    assert.equal(recording.currentTime, 2.4);
+    assert.equal(a.recordings.length, 1);
+    assert.equal(a.timers.size, 1);
+    const ended = recording.onended;
+    recording.currentTime = 9;
+    ended();
+    const eventCount = times.length;
+    ended();
+    assert.equal(times.length, eventCount);
+    assert.deepEqual(times.at(-1), [9, 9]);
+    assert.deepEqual(a.completions, [true]);
+    assert.equal(a.api.setRecordingPaused(false), false);
+    assert.equal(a.timers.size, 0);
   }
   {
     const a = setup(cast, new Error("media failed"));

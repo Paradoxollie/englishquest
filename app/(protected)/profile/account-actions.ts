@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { loginForCurrentPage } from "@/lib/navigation/login-return";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -37,7 +38,7 @@ export async function deleteOwnAccountAction(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/auth/login");
+    redirect(await loginForCurrentPage("/profile"));
   }
 
   const admin = createSupabaseAdminClient();

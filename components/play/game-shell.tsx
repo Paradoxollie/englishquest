@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { GameConfig } from "@/lib/games/config";
 import { getGamePresentation } from "@/lib/games/presentation";
+import { ResponsiveDetails } from "@/components/ui/responsive-details";
 import { resolveArt } from "@/lib/art-server";
 import type { GameMissionInfo } from "@/lib/courses/mission-for-game";
 
@@ -46,29 +47,19 @@ export function GameShell({ game, mission, isLoggedIn, aside, children }: GameSh
             ) : null}
           </div>
           {mission ? (
-            <div className="eq-game-mission" role="status">
-              <span className="eq-chip eq-chip-gold">Mission {mission.courseId}</span>
-              <span className="eq-game-mission-text">
-                {mission.alreadyReached ? (
-                  <>
-                    Défi validé pour <b>{mission.courseTitle}</b> : continue pour améliorer ton record.
-                  </>
-                ) : mission.quizPassed ? (
-                  <>
-                    Mission <b>{mission.courseTitle}</b> : {mission.challengeLabel} À la clé : +{mission.rewardXp} XP,
-                    +{mission.rewardGold} or.
-                  </>
-                ) : (
-                  <>
-                    Mission <b>{mission.courseTitle}</b> : réussis d&apos;abord le quiz du cours à 80 %. Ensuite :{" "}
-                    {mission.challengeLabel} À la clé : +{mission.rewardXp} XP, +{mission.rewardGold} or.
-                  </>
-                )}
-              </span>
-              <Link href={`/cours/${mission.courseId}`} className="eq-btn eq-btn-ghost eq-btn-sm">
-                Ouvrir le cours
-              </Link>
-            </div>
+            <ResponsiveDetails summary={`Suivi de la mission ${mission.courseId}`} className="eq-mission-details">
+              <div className="eq-game-mission">
+                <span className="eq-chip eq-chip-gold">Mission {mission.courseId}</span>
+                <span className="eq-game-mission-text">
+                  <b>{mission.courseTitle}</b>.{" "}
+                  {mission.quizPassed ? "Quiz réussi." : `Lis le cours et réussis son quiz à 80 % pour gagner ${mission.rewardXp} XP et ${mission.rewardGold} pièces d’or.`}
+                  {mission.alreadyReached ? " Ton objectif de jeu est atteint." : null}
+                </span>
+                <Link href={`/cours/${mission.courseId}`} className="eq-btn eq-btn-ghost eq-btn-sm">
+                  Ouvrir le cours
+                </Link>
+              </div>
+            </ResponsiveDetails>
           ) : !isLoggedIn ? (
             <p className="eq-game-guest">
               Tu joues sans compte : le score ne sera pas enregistré.{" "}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { loginForCurrentPage } from "@/lib/navigation/login-return";
 import { PageHead } from "@/components/comic/page-head";
 import { WeeklyLeagueSection } from "@/components/rewards/weekly-league";
 import { games as gameCatalog } from "@/lib/games/config";
@@ -24,7 +25,7 @@ export default async function LeaderboardPage({
   const user = await getServerUser();
 
   if (!user) {
-    redirect("/auth/login?next=/leaderboard");
+    redirect(await loginForCurrentPage("/leaderboard"));
   }
 
   const requestedSlugRaw = Array.isArray(params.game) ? params.game[0] : params.game;

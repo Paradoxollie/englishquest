@@ -1,6 +1,7 @@
 import { GuestMissionTransfer } from "@/components/quest/guest-mission-transfer";
-import { getGuestScores } from "@/lib/courses/guest-progress-server";
-import type { Metadata } from "next";
+import { getGuestProgress } from "@/lib/courses/guest-progress-server";
+import { RecoverGuestPlacement } from "@/components/quest/recover-guest-placement";
+import { publicPageMetadata } from "@/lib/site/metadata";
 import Link from "next/link";
 import { resolveArt } from "@/lib/art-server";
 import { AdventureMap, type MapChapter, type MapMission } from "@/components/quest/adventure-map";
@@ -29,11 +30,11 @@ import { getEquippedPortraitUrl } from "@/lib/shop/equipped-portrait";
 import { DEFAULT_CHARACTER_FACE } from "@/lib/shop/characters";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 
-export const metadata: Metadata = {
-  title: "Aventure",
-  description:
-    "La carte d'aventure English Quest : 50 missions en 5 chapitres, du niveau débutant au niveau avancé. Un cours, un quiz pour valider, un jeu pour s'entraîner, puis la suite.",
-};
+export const metadata = publicPageMetadata({
+  path: "/quest",
+  title: "L’aventure en anglais en 50 missions",
+  description: "Explore les cinq chapitres d’English Quest, du niveau A1 à B1+. Chaque mission propose une leçon, un quiz et un jeu pour pratiquer.",
+});
 
 export const dynamic = "force-dynamic";
 
@@ -86,11 +87,12 @@ async function resolveRoadmap(userId: string): Promise<{
 export default async function QuestPage() {
   const user = await getServerUser();
   const isLoggedIn = Boolean(user);
-  const guestScores = await getGuestScores();
+  const guest = await getGuestProgress();
+  const hasGuestProgress = guest.scores.size > 0 || guest.placementChapter !== null;
 
   const { roadmap, justCompleted } = user
     ? await resolveRoadmap(user.id)
-    : { roadmap: buildGuestCourseRoadmap(guestScores), justCompleted: null };
+    : { roadmap: buildGuestCourseRoadmap(guest.scores, guest.placementChapter ?? 1), justCompleted: null };
 
   const currentCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
   const fallbackName = user?.user_metadata?.username ?? (user?.email ? user.email.split("@")[0] : undefined);
@@ -171,10 +173,12 @@ export default async function QuestPage() {
 
   const level = player ? getLevelProgress(player.xp) : null;
   const completedPercent = roadmap.totalCourses > 0 ? Math.round((roadmap.completedCount / roadmap.totalCourses) * 100) : 0;
+  const placedCount = roadmap.entries.filter((entry) => isPlacementSkip(entry.missionTelemetry)).length;
 
   return (
     <div className="eq-quest">
-      {isLoggedIn && guestScores.size > 0 ? <GuestMissionTransfer /> : null}
+      {!guest.placementChapter ? <RecoverGuestPlacement /> : null}
+      {isLoggedIn && hasGuestProgress ? <GuestMissionTransfer /> : null}
       <section className="eq-quest-head">
         <div className="eq-container eq-quest-head-row">
           <div className="grid justify-items-start gap-4">
@@ -186,7 +190,7 @@ export default async function QuestPage() {
               <b>
                 {roadmap.completedCount} / {roadmap.totalCourses}
               </b>
-              <span>missions validées</span>
+              <span>{placedCount ? `missions acquises · ${roadmap.completedCount - placedCount} par quiz, ${placedCount} au test de niveau` : "missions validées"}</span>
               <span className="eq-bar eq-bar-mint" aria-hidden="true">
                 <i style={{ width: `${completedPercent}%` }} />
               </span>
@@ -226,7 +230,7 @@ export default async function QuestPage() {
               ) : null}
               {!isLoggedIn ? (
                 <Link href="/auth/signup?next=/quest" className="eq-text-link">
-                  {guestScores.size > 0 ? "Garder ma progression avec un compte" : "Créer un compte"}
+                  {hasGuestProgress ? "Garder ma progression avec un compte" : "Créer un compte"}
                 </Link>
               ) : null}
             </div>

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { publicPageMetadata } from "@/lib/site/metadata";
 import Image from "next/image";
 import Link from "next/link";
 import { CharacterFigure } from "@/components/rewards/character-art";
@@ -19,11 +19,13 @@ const featuredCharacters = {
   aurore: "eq_aurore_zenith",
 };
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
+  path: "/collection",
   title: "Les personnages et les albums d’English Quest",
   description: "Rejoins Maya, Sam et les héros d’English Quest. Découvre les personnages à recruter, les décors et les vaisseaux à gagner dans quatre albums.",
-  alternates: { canonical: "/collection" },
-};
+  image: "/art/collection/couverture.webp",
+  imageAlt: "La couverture des albums à collectionner dans English Quest.",
+});
 
 export default async function CollectionPage({ searchParams }: { searchParams: Promise<{ album?: string; personnage?: string }> }) {
   const [params, user, db] = await Promise.all([searchParams, getServerUser(), createSupabaseServerClient()]);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { playDialogueOrSpeak, playSoundEffect, setRecordingRate, stopAllGameAudio } from "@/lib/games/audio";
+import { playDialogueOrSpeak, playSoundEffect, setRecordingPaused, setRecordingRate, stopAllGameAudio } from "@/lib/games/audio";
 import {
   computeEchoQuestionPoints,
   ECHO_SIGNAL_CLIPS_PER_RUN,
@@ -66,6 +66,8 @@ export function EchoSignalGame({
   const [playsUsed, setPlaysUsed] = useState(0);
   const [speedRate, setSpeedRate] = useState<number>(1);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [audioPaused, setAudioPaused] = useState(false);
+  const [progress, setProgress] = useState<{ elapsed: number; duration: number } | null>(null);
   const [activeSpeakerIndex, setActiveSpeakerIndex] = useState<number | null>(null);
   const [selectedChoice, setSelectedChoice] = useState<number | null>(null);
   const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(null);
@@ -121,19 +123,27 @@ export function EchoSignalGame({
     (scenario: EchoScenario, rate: number) => {
       setAudioNotice("");
       setIsPlayingAudio(true);
+      setAudioPaused(false);
+      setProgress(null);
       playDialogueOrSpeak({
         mp3Url: audioMap[scenario.id],
         lines: scenario.lines,
         lineStarts: lineStarts[scenario.id],
         rate,
         onLineChange: setActiveSpeakerIndex,
+        onProgress: (elapsed, duration) => {
+          setProgress(duration > 0 ? { elapsed, duration } : null);
+        },
         onEnded: () => {
           setIsPlayingAudio(false);
+          setAudioPaused(false);
           setActiveSpeakerIndex(null);
           setPlaysUsed((used) => used + 1);
         },
         onError: (reason) => {
           setIsPlayingAudio(false);
+          setAudioPaused(false);
+          setProgress(null);
           setActiveSpeakerIndex(null);
           if (reason === "blocked") setAudioNotice("Appuie sur Écouter le message pour lancer la lecture.");
           else {
@@ -149,6 +159,8 @@ export function EchoSignalGame({
   const stopScenario = useCallback(() => {
     stopAllGameAudio();
     setIsPlayingAudio(false);
+    setAudioPaused(false);
+    setProgress(null);
     setActiveSpeakerIndex(null);
   }, []);
 
@@ -156,12 +168,16 @@ export function EchoSignalGame({
   const togglePlay = useCallback(() => {
     if (!currentMission || silentMode) return;
     if (isPlayingAudio) {
-      stopScenario();
+      if (progress && setRecordingPaused(!audioPaused)) {
+        setAudioPaused(!audioPaused);
+      } else {
+        stopScenario();
+      }
       return;
     }
     if (playsUsed >= diffConfig.maxPlays) return;
     playScenario(currentMission, speedRate);
-  }, [currentMission, diffConfig.maxPlays, isPlayingAudio, playScenario, playsUsed, silentMode, speedRate, stopScenario]);
+  }, [audioPaused, currentMission, diffConfig.maxPlays, isPlayingAudio, playScenario, playsUsed, progress, silentMode, speedRate, stopScenario]);
 
   const finishMatch = useCallback(
     (finalScore: number, finalCorrect: number, finalTotalQuestions: number, finalDiff: EchoDifficulty) => {
@@ -498,7 +514,7 @@ export function EchoSignalGame({
               </h3>
               <p className="text-xs text-[var(--muted)]">{currentMission.context}</p>
             </div>
-            <div className={`eq-echo-bars ${isPlayingAudio ? "is-playing" : ""}`} aria-hidden="true">
+            <div className={`eq-echo-bars ${isPlayingAudio && !audioPaused ? "is-playing" : ""}`} aria-hidden="true">
               <span />
               <span />
               <span />
@@ -513,6 +529,13 @@ export function EchoSignalGame({
             </p>
           ) : null}
 
+          {!silentMode && progress && (
+            <div className="flex items-center gap-3">
+              <progress className="min-w-0 flex-1" value={progress.elapsed} max={progress.duration}
+                aria-label="Progression du message" />
+              <span className="text-sm tabular-nums">{Math.round(progress.elapsed)} / {Math.round(progress.duration)} s</span>
+            </div>
+          )}
           {!silentMode ? (
             <div className="eq-echo-controls">
               <button
@@ -523,7 +546,7 @@ export function EchoSignalGame({
                 className="eq-btn eq-btn-primary eq-btn-sm"
               >
                 {isPlayingAudio
-                  ? "Arrêter"
+                  ? audioPaused ? "Reprendre l’écoute" : progress ? "Mettre en pause" : "Arrêter"
                   : playsUsed === 0
                     ? "Écouter le message"
                   : replaysLeft > 0

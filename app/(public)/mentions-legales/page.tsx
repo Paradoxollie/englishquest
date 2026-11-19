@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
+import { publicPageMetadata } from "@/lib/site/metadata";
 import Link from "next/link";
 import { PageHead } from "@/components/comic/page-head";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
+  path: "/mentions-legales",
   title: "Mentions légales",
   description: "Éditeur, hébergement et contact du site English Quest.",
-};
+});
 
 export default function LegalNoticePage() {
   return (

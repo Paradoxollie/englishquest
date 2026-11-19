@@ -60,7 +60,7 @@
       "id": "x8",
       "type": "gap",
       "prompt": "I wish I ___ that photo online. Everyone has seen it now. (not / post)",
-      "answers": ["hadn't posted", "had not posted"],
+      "answers": ["hadn't posted", "had not posted", "'d not posted"],
       "explanation": "Regret sur une action passée : wish + past perfect. À la forme négative, hadn't + participe passé."
     },
     {

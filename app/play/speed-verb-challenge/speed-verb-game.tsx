@@ -630,10 +630,10 @@ export function SpeedVerbGame({
   const timePercent = (state.timeLeftMs / TOTAL_TIME_MS) * 100;
   const timeLow = state.timeLeftMs < 10_000;
   const secondsLeft = Math.ceil(state.timeLeftMs / 1000);
-  const fields: { key: keyof AnswerPayload; label: string; placeholder: string }[] = [];
-  if (required.pastSimple) fields.push({ key: "pastSimple", label: "Prétérit", placeholder: "ex. went" });
-  if (required.pastParticiple) fields.push({ key: "pastParticiple", label: "Participe passé", placeholder: "ex. gone" });
-  if (required.translation) fields.push({ key: "translation", label: "Traduction", placeholder: "ex. aller" });
+  const fields: { key: keyof AnswerPayload; label: string }[] = [];
+  if (required.pastSimple) fields.push({ key: "pastSimple", label: "Prétérit" });
+  if (required.pastParticiple) fields.push({ key: "pastParticiple", label: "Participe passé" });
+  if (required.translation) fields.push({ key: "translation", label: "Traduction" });
 
   const stageTone = feedback?.kind === "right" ? "is-right" : feedback ? "is-wrong" : "";
   const speedTier =
@@ -746,7 +746,8 @@ export function SpeedVerbGame({
                   autoCorrect="off"
                   autoCapitalize="none"
                   spellCheck={false}
-                  placeholder={field.placeholder}
+                  enterKeyHint={index + 1 < fields.length ? "next" : "done"}
+                  placeholder={field.label}
                   value={answer[field.key] ?? ""}
                   disabled={Boolean(feedback) || paused}
                   onChange={(event) =>

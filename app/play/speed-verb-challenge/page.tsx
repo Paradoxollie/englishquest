@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { gameMetadata } from "@/lib/site/metadata";
 import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
@@ -6,14 +6,15 @@ import { getGameBySlug } from "@/lib/games/config";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 import { SpeedVerbGame } from "./speed-verb-game";
 
-export const metadata: Metadata = {
-  title: "Speed Verb Challenge",
-  description: "Conjugue les verbes irréguliers anglais contre la montre : prétérit, participe passé, traduction.",
-};
+const SLUG = "speed-verb-challenge";
+
+export const metadata = gameMetadata(
+  SLUG,
+  "Verbes irréguliers anglais · Speed Verb Challenge",
+  "Conjugue les verbes irréguliers anglais contre la montre : prétérit, participe passé, traduction.",
+);
 
 export const dynamic = "force-dynamic";
-
-const SLUG = "speed-verb-challenge";
 
 export default async function SpeedVerbChallengePage() {
   const game = getGameBySlug(SLUG);

@@ -1,5 +1,6 @@
 import { AuthCard } from "@/components/auth/auth-card";
 import { SignupForm } from "@/components/auth/signup-form";
+import { getGuestProgress } from "@/lib/courses/guest-progress-server";
 import { getSafeNextPath, withNextParam } from "@/lib/navigation/safe-next";
 
 export const metadata = {
@@ -8,6 +9,7 @@ export const metadata = {
 
 export default async function SignupPage({ searchParams }: { searchParams: Promise<{ next?: string | string[] }> }) {
   const params = await searchParams;
+  const { placementChapter } = await getGuestProgress();
   // Retour prévu après l'inscription (par exemple /rejoindre?code=... pour une classe).
   const next = getSafeNextPath(Array.isArray(params.next) ? params.next[0] : params.next);
 
@@ -25,7 +27,7 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
       footerLinkLabel="Se connecter"
       footerHref={withNextParam("/auth/login", next)}
     >
-      <SignupForm next={next} />
+      <SignupForm next={next} placementChapter={placementChapter} />
     </AuthCard>
   );
 }

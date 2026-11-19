@@ -74,6 +74,7 @@ export function FlashTranslationGame({
     createIdlePlaceholderState(suggestedLevel ?? DEFAULT_GAME_LEVEL)
   );
   const [paused, setPaused] = useState(false);
+  const [practice, setPractice] = useState(false);
   const [liveAnswerMs, setLiveAnswerMs] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [combo, setCombo] = useState(0);
@@ -123,9 +124,10 @@ export function FlashTranslationGame({
   const start = useCallback(() => {
     clearTimers();
     sessionRef.current += 1;
-    gameSession.begin();
+    if (!practice) gameSession.begin();
     startedAtRef.current = performance.now();
-    const fresh = startGame(createGameState(VOCABULARY, { ...CONFIG, level }));
+    const timing = practice ? { ...CONFIG, minWaitMs: 0, maxWaitMs: 0 } : CONFIG;
+    const fresh = startGame(createGameState(VOCABULARY, { ...timing, level }));
     stateRef.current = fresh;
     setState(fresh);
     setPaused(false);
@@ -141,7 +143,7 @@ export function FlashTranslationGame({
     setSubmitStatus("idle");
     lockRef.current = false;
     submittedRef.current = false;
-  }, [clearTimers, gameSession, level]);
+  }, [clearTimers, gameSession, level, practice]);
 
   /* Abandon : retour à l'écran de départ, rien n'est enregistré. */
   const quit = useCallback(() => {
@@ -280,6 +282,7 @@ export function FlashTranslationGame({
     if (state.phase !== "ended" || submittedRef.current) return;
     submittedRef.current = true;
     playSoundEffect(state.wrongAnswers < state.rounds.length ? "victory" : "wrong");
+    if (practice) return;
     if (!isLoggedIn) {
       setSubmitStatus("guest");
       return;
@@ -312,7 +315,7 @@ export function FlashTranslationGame({
       .catch(() => {
         if (session === sessionRef.current) setSubmitStatus("error");
       });
-  }, [state, isLoggedIn, gameSession]);
+  }, [state, isLoggedIn, gameSession, practice]);
 
   if (!state.started) {
     return (
@@ -322,14 +325,18 @@ export function FlashTranslationGame({
         rules={[
           "10 mots, 4 propositions à chaque fois. Les touches 1 à 4 fonctionnent au clavier.",
           "Chaque erreur ajoute 5 secondes de pénalité à ton temps total.",
-          "Attends le signal : cliquer trop tôt est impossible tant que les choix sont cachés.",
-          missionTarget
+          practice ? "En entraînement, les traductions sont disponibles dès que le mot apparaît." : "Le chronomètre de réaction démarre quand les traductions apparaissent.",
+          !practice && missionTarget
             ? `Objectif de mission : finir en moins de ${seconds(missionTarget)}.`
             : "Garde la série pour un chrono parfait.",
         ]}
         onStart={start}
       >
         <LevelPicker value={level} onChange={setLevel} suggested={suggestedLevel} />
+        <label className="flex items-center gap-2 text-sm font-semibold">
+          <input type="checkbox" checked={practice} onChange={event => setPractice(event.target.checked)} />
+          Entraînement sans attente, hors classement
+        </label>
       </GameStart>
     );
   }
@@ -338,8 +345,8 @@ export function FlashTranslationGame({
     const total = getFinalScore(state);
     return (
       <GameEnd
-        gameSlug="flash-translation"
-        title="Série terminée"
+        gameSlug={practice ? undefined : "flash-translation"}
+        title={practice ? "Entraînement terminé · hors classement" : "Série terminée"}
         score={seconds(total)}
         scoreLabel="au total"
         lines={[
@@ -352,12 +359,12 @@ export function FlashTranslationGame({
         rewardStatus={submitStatus}
         retryScore={gameSession.retryScore}
         rewardError={rewardError}
-        missionReached={missionTarget != null ? total <= missionTarget : null}
+        missionReached={!practice && missionTarget != null ? total <= missionTarget : null}
         onReplay={start}
       >
         {state.wrongAnswers > 0 ? (
           <MistakePractice items={state.rounds.filter(round => round.isCorrect === false).map(({ wordPair }) => ({
-            id: wordPair.english, prompt: wordPair.french, answers: translationAnswers(wordPair.english),
+            id: wordPair.english, prompt: wordPair.french, answers: translationAnswers(wordPair.english, wordPair.french),
           }))}>
             <p className="eq-kicker">À revoir ({state.wrongAnswers})</p>
             <div className="eq-game-review-scroll">

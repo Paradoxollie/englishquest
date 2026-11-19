@@ -1,7 +1,6 @@
-import { getGuestScores } from "@/lib/courses/guest-progress-server";
+import { getGuestRoadmap } from "@/lib/courses/guest-progress-server";
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import {
   LessonLayout,
@@ -17,7 +16,7 @@ import { getCourseMissionPlan } from "@/lib/courses/campaign";
 import { getResolvedCourseMissionPlan } from "@/lib/courses/campaign-server";
 import { getUserCourseMissionState } from "@/lib/courses/mission-state";
 import { getChapterForCourse } from "@/lib/courses/chapters";
-import { buildGuestCourseRoadmap } from "@/lib/courses/progress";
+import { publicPageMetadata } from "@/lib/site/metadata";
 import { getCachedUserCourseRoadmap } from "@/lib/courses/roadmap-cache";
 import { getUserCoursePractice } from "@/lib/courses/practice-server";
 import { getCourseExtraExercises } from "@/lib/courses/exercises-server";
@@ -56,11 +55,14 @@ export async function generateMetadata({ params }: CoursePageProps): Promise<Met
   const description =
     lesson?.objective || `${title}, cours d'anglais English Quest${palier ? ` (${palier.level})` : ""}.`;
 
-  return {
-    title: `Cours ${course.id} : ${title}`,
+  const chapter = getChapterForCourse(course.id);
+  return publicPageMetadata({
+    path: `/cours/${course.id}`,
+    title: course.id === 23 ? "For ou since en anglais ? La règle et le quiz" : `${title} · Cours ${course.id}`,
     description,
-    alternates: { canonical: `/cours/${course.id}` },
-  };
+    image: chapter.artSrc,
+    imageAlt: `Illustration du chapitre « ${chapter.name} » d’English Quest.`,
+  });
 }
 
 export default async function CoursePage({ params }: CoursePageProps) {
@@ -74,7 +76,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
   }
 
   const user = await getServerUser();
-  const roadmap = user ? await getCachedUserCourseRoadmap(user.id) : buildGuestCourseRoadmap(await getGuestScores());
+  const roadmap = user ? await getCachedUserCourseRoadmap(user.id) : await getGuestRoadmap();
   const roadmapEntry = roadmap.entries.find((entry) => entry.courseId === courseId) ?? null;
   const nextEntry = roadmap.entries.find((entry) => entry.courseId === courseId + 1) ?? null;
   const palier = getPalierForCourse(courseId);
@@ -135,6 +137,18 @@ export default async function CoursePage({ params }: CoursePageProps) {
         objective={lesson.objective}
         levelLabel={palier?.level}
         typeLabel={roadmapEntry?.typeLabel}
+        openingPractice={prompt && (
+          <aside className="eq-lesson-practice" aria-label="À toi de jouer">
+            <h2>À toi de jouer</h2>
+            <p>{prompt.situation}</p>
+            <details>
+              <summary>Voir une réponse possible</summary>
+              <p lang="en">{prompt.answer}</p>
+              <p>{prompt.explanation}</p>
+              {courseId === 48 ? <Link href="/cours/13">Revoir used to et be used to</Link> : null}
+            </details>
+          </aside>
+        )}
         topBar={
           roadmapEntry && mission ? (
             <MissionBar
@@ -153,23 +167,9 @@ export default async function CoursePage({ params }: CoursePageProps) {
         }
       >
         {lesson.sections.map((section, index) => (
-          <Fragment key={sectionAnchors[index]?.id ?? index}>
-            <LessonSection id={sectionAnchors[index]?.id} sectionIndex={index} title={section.title}>
-              {section.content}
-            </LessonSection>
-            {index === 0 && prompt ? (
-              <aside className="eq-lesson-practice" aria-label="À toi de jouer">
-                <h3>À toi de jouer</h3>
-                <p>{prompt.situation}</p>
-                <details>
-                  <summary>Voir une réponse possible</summary>
-                  <p lang="en">{prompt.answer}</p>
-                  <p>{prompt.explanation}</p>
-                  {courseId === 48 ? <Link href="/cours/13">Revoir used to et be used to</Link> : null}
-                </details>
-              </aside>
-            ) : null}
-          </Fragment>
+          <LessonSection key={sectionAnchors[index]?.id ?? index} id={sectionAnchors[index]?.id} sectionIndex={index} title={section.title}>
+            {section.content}
+          </LessonSection>
         ))}
         <nav className="eq-lesson-nav" aria-label="Cours voisins">
           {courseId > 1 ? (

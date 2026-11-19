@@ -1,9 +1,8 @@
 "use server";
 
-import { getSafeNextPath } from "@/lib/navigation/safe-next";
-import { transferGuestScores } from "@/lib/courses/guest-progress-server";
-import { applyPlacement } from "@/lib/placement/placement";
-import { readPlacementToken } from "@/lib/placement/placement-token";
+import { getSafeNextPath, withNextParam } from "@/lib/navigation/safe-next";
+import { SITE_URL } from "@/lib/site/config";
+import { keepGuestPlacement, transferGuestScores } from "@/lib/courses/guest-progress-server";
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -112,6 +111,7 @@ export async function signUpAction(
   prevState: AuthFormState,
   formData: FormData
 ): Promise<AuthFormState> {
+  if (formData.has("placement")) await keepGuestPlacement(formData.get("placement"));
   const supabase = await createSupabaseServerClient();
 
   const username = normalizeUsername(formData.get("username"));
@@ -126,6 +126,7 @@ export async function signUpAction(
   // Si l'utilisateur fournit un email valide (contient @), on l'utilise.
   // Sinon, on génère un email "fantôme" avec UUID pour l'unicité
   const effectiveEmail = email && email.includes("@") ? email : generateGhostEmail(username);
+  const requestedDestination = getSafeNextPath(formData.get("next"));
 
   const { data, error } = await supabase.auth.signUp({
     email: effectiveEmail,
@@ -134,9 +135,7 @@ export async function signUpAction(
       // Désactive la vérification d'email pour les emails fantômes
       emailRedirectTo:
         email && email.includes("@")
-          ? `${
-              process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-            }/auth/login`
+          ? new URL(withNextParam("/auth/login", requestedDestination), SITE_URL).href
           : undefined,
       data: {
         username,
@@ -313,28 +312,16 @@ export async function signUpAction(
     };
   }
 
-  // Test de niveau passé avant l'inscription : résultat signé, appliqué maintenant.
-  let success = "Compte créé. Tu peux te connecter.";
-  const placementChapter = readPlacementToken(formData.get("placement"));
-  if (placementChapter && placementChapter > 1) {
-    try {
-      await applyPlacement(userId, placementChapter);
-      success = `Compte créé. Ta carte commence au chapitre ${placementChapter}, comme l'a montré ton test.`;
-    } catch (error) {
-      console.error("Placement after signup failed:", error);
-    }
-  }
-
   // Retour prévu (lien de classe /rejoindre?code=...) : si la session est déjà
   // ouverte, on y va directement ; sinon le formulaire propose de se connecter.
   const transfer = data.session ? await transferGuestScores(userId).catch(() => -1) : 0;
-  const next = getSafeNextPath(formData.get("next")) ?? (transfer !== 0 ? "/quest" : null);
+  const next = requestedDestination ?? (transfer !== 0 ? "/quest" : null);
   if (next && data.session) {
     revalidatePath("/", "layout");
     redirect(next);
   }
 
-  return { success };
+  return { success: "Compte créé. Tu peux te connecter." };
 }
 
 /**

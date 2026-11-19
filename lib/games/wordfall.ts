@@ -582,7 +582,7 @@ export function hasReachedBottom(word: FallingWord): boolean {
 /** Recall an English word for the French prompt. */
 export function validateExactWord(input: string, targetWord: string, targetTranslation: string): { valid: boolean; reason?: string } {
   const given = normalizeForAnswerComparison(input);
-  if (given && translationAnswers(targetWord).some(answer => given === normalizeForAnswerComparison(answer))) return { valid: true };
+  if (given && translationAnswers(targetWord, targetTranslation).some(answer => given === normalizeForAnswerComparison(answer))) return { valid: true };
   // Some French prompts have several English equivalents in the same dictionary.
   const alternative = getTranslation(input.trim().replace(/\s+/g, " ").toUpperCase());
   if (alternative && alternative.normalize("NFC").toLowerCase() === targetTranslation.normalize("NFC").toLowerCase()) {
@@ -670,7 +670,7 @@ export function processWordInput(
   const activeWords = getActiveWords(state);
 
   if (activeWords.length === 0 || state.gameOver || !state.isRunning) {
-    return { success: false, newState: state, reason: "No active word" };
+    return { success: false, newState: state, reason: "Attends le prochain bloc." };
   }
 
   let reason: string | undefined;

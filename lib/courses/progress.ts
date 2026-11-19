@@ -4,7 +4,7 @@ import { getGameBySlug } from "@/lib/games/config";
 import { COURSE_CATALOG_TAG } from "./cache";
 import { getCourseMetadata, getCourseRewardProfile } from "./metadata";
 import { getCourseById, paliers, type CourseType } from "./data";
-import { encodeCourseMissionTelemetry } from "./mission-telemetry";
+import { COURSE_PLACEMENT_SKIP_MARK, encodeCourseMissionTelemetry } from "./mission-telemetry";
 
 export type CourseStatus = "locked" | "unlocked" | "in_progress" | "completed";
 
@@ -355,11 +355,17 @@ function buildStudyPlan(
   return steps.slice(0, 3);
 }
 
-export function buildGuestCourseRoadmap(scores = new Map<number, number>()): CourseRoadmap {
+export function buildGuestCourseRoadmap(scores = new Map<number, number>(), placementChapter = 1): CourseRoadmap {
   const entries = buildRoadmapEntries([], new Map());
   for (const entry of entries) {
     const score = scores.get(entry.courseId);
-    if (score === undefined) continue;
+    if (score === undefined) {
+      if (entry.palierId < placementChapter) {
+        entry.status = "completed";
+        entry.missionTelemetry = COURSE_PLACEMENT_SKIP_MARK;
+      }
+      continue;
+    }
     entry.status = "completed";
     entry.missionTelemetry = encodeCourseMissionTelemetry({ readingCheckpointReached: true, quizScore: score, quizTotal: 10 });
   }

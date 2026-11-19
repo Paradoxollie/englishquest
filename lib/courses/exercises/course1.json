@@ -53,7 +53,7 @@
       "id": "x7",
       "type": "gap",
       "prompt": "My brother ___ fourteen years old.",
-      "answers": ["is"],
+      "answers": ["is", "'s"],
       "explanation": "L'âge se dit avec be. My brother = he, donc is."
     },
     {
@@ -67,7 +67,7 @@
       "id": "x9",
       "type": "gap",
       "prompt": "She ___ got blue eyes.",
-      "answers": ["has"],
+      "answers": ["has", "'s"],
       "explanation": "Avec she, have got devient has got."
     },
     {

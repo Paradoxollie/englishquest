@@ -1,5 +1,6 @@
 import { AuthCard } from "@/components/auth/auth-card";
 import { LoginForm } from "@/components/auth/login-form";
+import { RecoverGuestPlacement } from "@/components/quest/recover-guest-placement";
 import { getSafeNextPath, withNextParam } from "@/lib/navigation/safe-next";
 
 export const metadata = {
@@ -25,6 +26,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       footerHref={withNextParam("/auth/signup", next)}
     >
       <LoginForm next={next} />
+      <RecoverGuestPlacement />
     </AuthCard>
   );
 }

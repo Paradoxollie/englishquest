@@ -1,3 +1,4 @@
+import { loginForCurrentPage } from "@/lib/navigation/login-return";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -39,7 +40,7 @@ export default async function TeacherClassPage({ params, searchParams }: ClassPa
   const [{ id }, query] = await Promise.all([params, searchParams]);
   const viewer = await getViewer();
   if (!viewer) {
-    redirect("/auth/login");
+    redirect(await loginForCurrentPage(`/teachers/classe/${encodeURIComponent(id)}`));
   }
   if (!isTeacherRole(viewer.role)) {
     return <TeacherOnlyNotice />;

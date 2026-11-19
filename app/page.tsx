@@ -5,11 +5,18 @@ import { Mascot } from "@/components/comic/mascot";
 import { GameCard } from "@/components/play/game-card";
 import { CollectionInvitation } from "@/components/rewards/collection-invitation";
 import { ART } from "@/lib/art";
+import { publicPageMetadata } from "@/lib/site/metadata";
 import { resolveArt } from "@/lib/art-server";
 import { chapters } from "@/lib/courses/chapters";
 import { games } from "@/lib/games/config";
 import { getGamePresentation } from "@/lib/games/presentation";
 import { getServerUser } from "@/lib/supabase/auth-cache";
+
+export const metadata = publicPageMetadata({
+  path: "/",
+  title: "Apprendre l’anglais en jouant",
+  description: "Des jeux gratuits, des cours et des quiz pour progresser en anglais du niveau A1 au niveau B1+. Commence sans compte avec une activité de quelques minutes.",
+});
 
 const steps = [
   {
@@ -71,7 +78,10 @@ export default async function PublicHomePage({
               </Link>
             </div>
             <p className="eq-home-note eq-slam eq-slam-4">
-              Gratuit, sans publicité. Pas besoin de compte pour commencer.{" "}
+              Gratuit, sans publicité.{" "}
+              <Link href="/essayer" className="eq-text-link">
+                Essayer un défi sans compte
+              </Link>{" · "}
               <Link href="/auth/login" className="eq-text-link">
                 J&apos;ai déjà un compte
               </Link>
@@ -203,12 +213,11 @@ export default async function PublicHomePage({
             </Link>
           </div>
           <div className="eq-games-grid">
-            {games.map((game, index) => (
+            {games.map((game) => (
               <GameCard
                 key={game.slug}
                 game={game}
                 artSrc={resolveArt(getGamePresentation(game).artworkSrc)}
-                priority={index < 4}
               />
             ))}
           </div>

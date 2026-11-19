@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { gameMetadata } from "@/lib/site/metadata";
 import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
@@ -7,14 +7,15 @@ import { getPlayerGameLevel } from "@/lib/games/player-level-server";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 import { FlashbackGame } from "./flashback-game";
 
-export const metadata: Metadata = {
-  title: "Flashback",
-  description: "Reconnais les mots anglais déjà rencontrés et retrouve leur traduction quand ils reviennent.",
-};
+const SLUG = "flashback";
+
+export const metadata = gameMetadata(
+  SLUG,
+  "Mémoriser du vocabulaire anglais · Flashback",
+  "Reconnais les mots anglais déjà rencontrés et retrouve leur traduction quand ils reviennent.",
+);
 
 export const dynamic = "force-dynamic";
-
-const SLUG = "flashback";
 
 export default async function FlashbackPage() {
   const game = getGameBySlug(SLUG);

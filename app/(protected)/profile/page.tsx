@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { loginForCurrentPage } from "@/lib/navigation/login-return";
 import { logoutAction } from "@/app/(protected)/actions";
 import { BadgesSection } from "@/components/rewards/badges-section";
 import { RewardOnMount } from "@/components/rewards/reward-on-mount";
@@ -51,7 +52,7 @@ export default async function ProfilePage({
   const user = await getServerUser();
 
   if (!user) {
-    redirect("/auth/login");
+    redirect(await loginForCurrentPage("/profile"));
   }
 
   const adminClient = createSupabaseAdminClient();

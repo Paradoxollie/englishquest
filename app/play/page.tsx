@@ -1,10 +1,10 @@
-import { getGuestScores } from "@/lib/courses/guest-progress-server";
+import { publicPageMetadata } from "@/lib/site/metadata";
+import { getGuestRoadmap } from "@/lib/courses/guest-progress-server";
 import Link from "next/link";
 import { PageHead } from "@/components/comic/page-head";
 import { GameCard } from "@/components/play/game-card";
 import { resolveArt } from "@/lib/art-server";
 import { getCourseMissionPlan } from "@/lib/courses/campaign";
-import { buildGuestCourseRoadmap } from "@/lib/courses/progress";
 import { getCachedUserCourseRoadmap } from "@/lib/courses/roadmap-cache";
 import { games } from "@/lib/games/config";
 import { formatLeaderboardScore, getGameLeaderboardMeta } from "@/lib/games/leaderboard-config";
@@ -12,11 +12,11 @@ import { getUserBestScoresBySlug } from "@/lib/games/leaderboard-service";
 import { getGamePresentation } from "@/lib/games/presentation";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 
-export const metadata = {
-  title: "Jeux",
-  description:
-    "Neuf jeux pour s'entraîner en anglais : conjugaison, grammaire, vocabulaire, traduction, mémoire, orthographe et compréhension orale. Parties courtes, scores et classements.",
-};
+export const metadata = publicPageMetadata({
+  path: "/play",
+  title: "Jeux d’anglais gratuits",
+  description: "Neuf jeux pour s'entraîner en anglais : conjugaison, grammaire, vocabulaire, traduction, mémoire, orthographe et compréhension orale. Parties courtes, scores et classements.",
+});
 
 export default async function PlayPage() {
   const user = await getServerUser();
@@ -25,7 +25,7 @@ export default async function PlayPage() {
     games.map((game) => [game.slug, getGameLeaderboardMeta(game.slug).scoreOrder])
   );
   const [roadmap, bestBySlug] = await Promise.all([
-    user ? getCachedUserCourseRoadmap(user.id) : getGuestScores().then(buildGuestCourseRoadmap),
+    user ? getCachedUserCourseRoadmap(user.id) : getGuestRoadmap(),
     user ? getUserBestScoresBySlug(user.id, scoreOrderBySlug).catch(() => ({} as Record<string, number>)) : Promise.resolve({} as Record<string, number>),
   ]);
   const activeCourse = roadmap.currentCourse ?? roadmap.recommendedCourse;
@@ -100,7 +100,7 @@ export default async function PlayPage() {
                 personalBestLabel={bestLabel}
                 highlighted={isMissionGame}
                 artSrc={resolveArt(getGamePresentation(game).artworkSrc)}
-                priority={index < 4}
+                priority={index === 0 && !missionGame}
               />
             );
           })}

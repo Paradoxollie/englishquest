@@ -10,7 +10,7 @@ import { authInitialState } from "@/types/auth";
 const inputClass =
   "w-full rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--ink)] px-4 py-3 text-[0.95rem] text-[var(--fg)] outline-none placeholder:text-[var(--muted-2)] focus:border-[var(--cyan)]";
 
-export function SignupForm({ next = null }: { next?: string | null }) {
+export function SignupForm({ next = null, placementChapter = null }: { next?: string | null; placementChapter?: number | null }) {
   const [state, formAction] = useActionState(signUpAction, authInitialState);
   // Résultat du test de niveau passé sans compte, à appliquer à la nouvelle carte.
   const [placementToken, setPlacementToken] = useState("");
@@ -39,9 +39,9 @@ export function SignupForm({ next = null }: { next?: string | null }) {
     <form action={formAction} className="grid gap-4">
       <input type="hidden" name="placement" value={placementToken} />
       {next ? <input type="hidden" name="next" value={next} /> : null}
-      {placementToken ? (
+      {placementChapter ? (
         <p className="rounded-[var(--radius)] bg-[var(--cyan-soft)] px-4 py-3 text-sm">
-          Ton résultat au test de niveau sera appliqué à ta carte dès la création du compte.
+          Ton test conseille le chapitre {placementChapter}. Tu retrouveras ce point de départ sur ta carte à la connexion.
         </p>
       ) : null}
       <label className="grid gap-1.5">

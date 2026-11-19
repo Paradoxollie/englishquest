@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { loginForCurrentPage } from "@/lib/navigation/login-return";
 import type { ComponentType } from "react";
 import { PageHead } from "@/components/comic/page-head";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -74,7 +75,7 @@ export default async function AdminDashboardPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login");
+    redirect(await loginForCurrentPage("/dashboard"));
   }
 
   const adminClient = createSupabaseAdminClient();

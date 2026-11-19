@@ -1,5 +1,6 @@
 "use client";
 
+import { ResponsiveDetails } from "@/components/ui/responsive-details";
 import { useEffect, useState } from "react";
 
 type CourseTableOfContentsProps = {
@@ -41,22 +42,23 @@ export function CourseTableOfContents({ sections, estimatedMinutes }: CourseTabl
 
   return (
     <nav className="eq-toc" aria-label="Plan du cours">
-      <p className="eq-toc-title">Dans ce cours</p>
-      <ol className="eq-toc-list">
-        {sections.map((section) => (
-          <li key={section.id}>
-            <a href={`#${section.id}`} aria-current={activeId === section.id ? "true" : undefined}>
-              {cleanTitle(section.title)}
-            </a>
-          </li>
-        ))}
-      </ol>
-      {estimatedMinutes ? (
-        <p className="eq-toc-time">
-          <b>{estimatedMinutes} min</b>
-          Lecture et quiz. Tu peux reprendre plus tard.
-        </p>
-      ) : null}
+      <ResponsiveDetails summary="Dans ce cours" className="eq-toc-disclosure">
+        <ol className="eq-toc-list">
+          {sections.map((section) => (
+            <li key={section.id}>
+              <a href={`#${section.id}`} aria-current={activeId === section.id ? "true" : undefined}>
+                {cleanTitle(section.title)}
+              </a>
+            </li>
+          ))}
+        </ol>
+        {estimatedMinutes ? (
+          <p className="eq-toc-time">
+            <b>{estimatedMinutes} min</b>
+            Lecture et quiz. Tu peux reprendre plus tard.
+          </p>
+        ) : null}
+      </ResponsiveDetails>
     </nav>
   );
 }

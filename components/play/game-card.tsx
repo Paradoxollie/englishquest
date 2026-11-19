@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { GamePoster } from "@/components/play/game-poster";
 import type { GameConfig } from "@/lib/games/config";
 import { getGamePresentation } from "@/lib/games/presentation";
 
@@ -59,21 +60,21 @@ export function GameCard({
       <span className="eq-game-skill" aria-hidden="true">
         {presentation.skill}
       </span>
-      <div className="eq-game-poster">
+      <GamePoster priority={priority || !artSrc}>
         {artSrc ? (
           <Image
             src={artSrc}
             alt=""
             fill
             priority={priority}
-            loading="eager"
+            loading={priority ? "eager" : "lazy"}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className="object-cover"
           />
         ) : (
           <div className="eq-game-poster-fallback" aria-hidden="true" />
         )}
-      </div>
+      </GamePoster>
       <div className="eq-game-card-body">
         <h3 className="eq-h3">{game.name}</h3>
         <p className="eq-game-card-hook text-sm text-[var(--muted)]">{presentation.hook}</p>

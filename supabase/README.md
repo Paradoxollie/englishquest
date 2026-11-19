@@ -46,6 +46,16 @@ Ces trois fonctions sont appelables uniquement avec le rôle du serveur.
 `npm test` exécute leurs essais sur un PostgreSQL en mémoire. Pour relancer
 uniquement les essais de cette migration, utiliser `node scripts/tests/reliable-progress-postgres.cjs`.
 
+## Reprise du test de niveau invité
+
+Appliquer `migrations/20261119185629_retain_verified_placement.sql` après la migration
+des scores du 18 novembre et avant de publier le nouveau parcours invité. La fonction
+`apply_verified_placement` est réservée au serveur. Elle enregistre dans une même
+transaction le chapitre conseillé et les quiz invités dont le serveur a vérifié la preuve.
+Si le chapitre 1 est acquis au test et que les quiz des missions 5 et 11 sont réussis,
+seuls ces deux quiz rapportent leurs récompenses. Les notes déjà obtenues restent visibles.
+La suite `node scripts/tests/reliable-progress-postgres.cjs` vérifie ces cas en local.
+
 ## Albums du vestiaire
 
 La migration `illustrated_reward_collections` introduit quatre albums et 23 pièces.

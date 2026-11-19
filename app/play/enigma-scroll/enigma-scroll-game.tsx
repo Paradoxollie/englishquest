@@ -1,6 +1,6 @@
 "use client";
 
-import { EnigmaWordNotes } from "@/components/play/enigma-word-notes";
+import dynamic from "next/dynamic";
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -39,6 +39,8 @@ import { LevelPicker } from "@/components/play/level-picker";
 import { useGameFocusMode } from "@/components/play/use-game-focus-mode";
 import { useGameSession } from "@/components/play/use-game-session";
 import { submitEnigmaScrollScore } from "./actions";
+
+const EnigmaWordNotes = dynamic(() => import("@/components/play/enigma-word-notes").then(module => module.EnigmaWordNotes));
 
 type WordLength = 4 | 5 | 6;
 type KeyboardLayout = "azerty" | "qwerty";

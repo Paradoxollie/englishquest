@@ -148,6 +148,8 @@ html[data-theme="dark"] {
   --pro-primary: #3b82f6;
   --pro-primary-hover: #60a5fa;
   --pro-primary-edge: #1d4ed8;
+  --pro-action-fill: #2454b7;
+  --pro-action-hover: #285dc4;
   --pro-primary-soft: rgba(59, 130, 246, 0.16);
 
   --pro-gold-fill: #f5b81c;
@@ -334,7 +336,7 @@ body {
   font-weight: 700 !important;
   letter-spacing: 0.085em !important;
   text-transform: uppercase !important;
-  color: var(--pro-primary) !important;
+  color: var(--pro-info) !important;
 }
 
 .eq-caption::before {
@@ -351,7 +353,7 @@ body {
 }
 
 .eq-caption-blue {
-  color: var(--pro-primary) !important;
+  color: var(--pro-info) !important;
 }
 
 .eq-kicker {
@@ -375,7 +377,7 @@ body {
 }
 
 .eq-text-link {
-  color: var(--pro-primary) !important;
+  color: var(--pro-info) !important;
   font-weight: 600;
   text-decoration: underline !important;
   text-decoration-color: rgba(30, 78, 216, 0.4) !important;
@@ -575,7 +577,7 @@ html[data-theme="dark"] .eq-theme-toggle-icon {
 /* Bouton principal : bleu royal */
 .eq-btn-primary,
 .eq-btn-cyan {
-  background: var(--pro-primary) !important;
+  background: var(--pro-action-fill, var(--pro-primary)) !important;
   border-color: var(--pro-primary-edge) !important;
   color: #ffffff !important;
   box-shadow: 0 3px 0 var(--pro-primary-edge) !important;
@@ -583,7 +585,7 @@ html[data-theme="dark"] .eq-theme-toggle-icon {
 
 .eq-btn-primary:hover:not(:disabled),
 .eq-btn-cyan:hover:not(:disabled) {
-  background: var(--pro-primary-hover) !important;
+  background: var(--pro-action-hover, var(--pro-primary-hover)) !important;
   box-shadow: 0 4px 0 var(--pro-primary-edge) !important;
 }
 
@@ -625,7 +627,7 @@ html[data-theme="dark"] .eq-btn-ghost {
 .eq-btn-ghost:hover:not(:disabled) {
   background: var(--pro-surface-2) !important;
   border-color: var(--pro-primary) !important;
-  color: var(--pro-primary) !important;
+  color: var(--pro-info) !important;
   box-shadow: 0 4px 0 rgba(30, 78, 216, 0.25) !important;
 }
 
@@ -1160,7 +1162,7 @@ html[data-theme="dark"] .eq-step-pro:nth-child(3) .eq-step-pro-art {
 
 .eq-step-pro:nth-child(2) .eq-step-pro-num {
   background: none;
-  color: var(--pro-primary);
+  color: var(--pro-info);
 }
 
 .eq-step-pro:nth-child(3) .eq-step-pro-num {
@@ -2041,7 +2043,7 @@ html[data-theme="dark"] .eq-node.is-locked {
 }
 
 .eq-game-head .eq-game-sub b {
-  color: var(--pro-primary);
+  color: var(--pro-info);
   font-weight: 700;
 }
 
@@ -2060,7 +2062,7 @@ html[data-theme="dark"] .eq-node.is-locked {
 }
 
 .eq-game-head .eq-game-guest a {
-  color: var(--pro-primary) !important;
+  color: var(--pro-info) !important;
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 4px;
@@ -2095,13 +2097,57 @@ html[data-theme="dark"] .eq-node.is-locked {
 }
 
 .eq-game-start-intro {
-  display: grid;
-  gap: 6px;
-}
-
-.eq-game-start-intro p {
   color: var(--pro-muted);
   line-height: 1.58;
+}
+
+.eq-rules-disclosure summary,
+.eq-mission-details summary,
+.eq-toc-disclosure summary {
+  width: fit-content;
+  max-width: 100%;
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+  color: var(--pro-info);
+  font-weight: 700;
+}
+.eq-rules-disclosure summary:focus-visible,
+.eq-mission-details summary:focus-visible,
+.eq-toc-disclosure summary:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+.eq-rules-disclosure[open] .eq-game-rules { margin-top: .35rem; }
+.eq-mission-details summary { font-size: .85rem; }
+
+@media (min-width: 900px) {
+  .eq-mission-details[open] > summary { display: none; }
+  .cahier .eq-lesson-grid {
+    --toc-width: 220px;
+    --toc-gap: 40px;
+    grid-template-columns: var(--toc-width) minmax(0, 1fr);
+    column-gap: var(--toc-gap);
+  }
+  .cahier .eq-lesson-article { position: relative; grid-column: 2; }
+  .cahier .eq-lesson-aside {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: calc(0px - var(--toc-width) - var(--toc-gap));
+    width: var(--toc-width);
+  }
+}
+@media (max-width: 899px) {
+  .eq-game-head { margin-bottom: 0; }
+  .eq-game-head-body { padding-block: 10px 14px; gap: .55rem; }
+  .eq-game-grid { padding-top: 12px; }
+  .eq-game-start { margin-top: 0; padding: clamp(14px, 4vw, 22px); }
+  .eq-game-start > .eq-btn { justify-self: stretch; }
+  .cahier .eq-lesson-grid { padding-top: .65rem; gap: .65rem; }
+  .cahier .eq-lesson-aside { margin-block: .7rem; }
+  .cahier .eq-lesson-aside .eq-toc {
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
 }
 
 .eq-game-rules {
@@ -2732,7 +2778,7 @@ html .eq-quiz-built[data-state="wrong"] {
 }
 
 .cahier .eq-lesson-kicker {
-  color: var(--pro-primary) !important;
+  color: var(--pro-info) !important;
   font-family: var(--font-body) !important;
   font-size: 0.86rem !important;
   font-weight: 700 !important;
@@ -2773,17 +2819,17 @@ html .eq-quiz-built[data-state="wrong"] {
   padding: 16px !important;
 }
 
-.eq-toc-title {
+.eq-toc-disclosure summary {
   font-family: var(--font-body) !important;
   font-size: 0.84rem !important;
   font-weight: 700 !important;
   letter-spacing: 0.01em !important;
   text-transform: none !important;
-  color: var(--pro-primary) !important;
+  color: var(--pro-info) !important;
 }
 
 .cahier a {
-  color: var(--pro-primary);
+  color: var(--pro-info);
 }
 
 .eq-callout {
@@ -2802,7 +2848,7 @@ html .eq-quiz-built[data-state="wrong"] {
 .cahier .eq-mstep.is-now {
   background: var(--pro-primary-soft) !important;
   border-color: var(--pro-primary) !important;
-  color: var(--pro-primary) !important;
+  color: var(--pro-info) !important;
 }
 
 .cahier .eq-mstep.is-done {
@@ -2829,7 +2875,7 @@ html .eq-quiz-built[data-state="wrong"] {
 
 .cahier .eq-toc-list a[aria-current="true"] {
   border-left-color: var(--pro-primary) !important;
-  color: var(--pro-primary) !important;
+  color: var(--pro-info) !important;
   font-weight: 700;
 }
 
@@ -2852,7 +2898,7 @@ html .eq-quiz-built[data-state="wrong"] {
   .cahier .eq-toc-list a[aria-current="true"] {
     background: var(--pro-primary-soft) !important;
     border-color: var(--pro-primary) !important;
-    color: var(--pro-primary) !important;
+    color: var(--pro-info) !important;
   }
 }
 
@@ -3404,6 +3450,7 @@ html .cahier .lesson-section-content [class*="line-through"] .opacity-50 {
   color: var(--pro-muted);
 }
 .eq-lesson-practice {
+  margin-block: 1rem;
   padding: clamp(1rem, 2vw, 1.4rem);
   border: 1px solid var(--pro-border);
   border-inline-start: 4px solid var(--pro-primary);
@@ -3411,7 +3458,7 @@ html .cahier .lesson-section-content [class*="line-through"] .opacity-50 {
   background: var(--pro-primary-soft);
   color: var(--pro-text);
 }
-.eq-lesson-practice h3 {
+.eq-lesson-practice h2 {
   font-weight: 750;
   margin-block-end: 0.4rem;
 }
@@ -3445,6 +3492,14 @@ html .cahier .lesson-section-content [class*="line-through"] .opacity-50 {
 .eq-lesson-extra summary:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 3px;
+}
+
+@media (max-width: 359px) {
+  .cahier .eq-lesson-grid { padding-inline: 10px; }
+  .cahier .eq-lesson-grid .eq-lesson-article { padding: 14px 12px !important; }
+  .cahier .eq-lesson-title { font-size: 1.8rem !important; }
+  .cahier .eq-lesson-practice { padding: .75rem; margin-block: .75rem; }
+  .cahier .eq-lesson-practice p { line-height: 1.5; }
 }
 
 /* Couleurs de texte lisibles en mode clair dans toutes les 50 leçons */
@@ -3941,7 +3996,7 @@ html[data-theme="dark"] .eq-shop-title-plate span {
   }
 
   .cahier .eq-toc {
-    padding: 12px 14px !important;
+    padding: 2px 14px !important;
   }
 
   .eq-profs-hero {

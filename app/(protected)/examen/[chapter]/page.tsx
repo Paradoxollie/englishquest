@@ -1,3 +1,4 @@
+import { loginForCurrentPage } from "@/lib/navigation/login-return";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -29,7 +30,7 @@ export default async function ChapterExamPage({ params }: { params: Promise<{ ch
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/auth/login");
+    redirect(await loginForCurrentPage(`/examen/${encodeURIComponent(chapterParam)}`));
   }
 
   const chapter = getChapter(chapterId);

@@ -135,12 +135,26 @@ for (const [course, id, accepted, rejected] of [
   [1, "x13", "Today, they are very happy.", "They happy are very today."],
   [41, "x11", "If Lucie had played, we would have won.", "If had Lucie played, we would have won."],
   [47, "x11", "Although it was cloudy, we went to the beach.", "Although cloudy was it, we went to the beach."],
+  [49, "x11", "Turn your phones off, please.", "Turn your off phones, please."],
+  [49, "x11", "Turn off your phones, please.", "Turn off phones your, please."],
+  [49, "x11", "Please turn your phones off.", "Please your phones turn off."],
+  [49, "x11", "Please turn off your phones.", "Please turn your off phones."],
   [50, "x12", "We set the tent up near the lake.", "We the tent set up near the lake."],
 ]) {
   const items = JSON.parse(fs.readFileSync(path.join(root, `lib/courses/exercises/course${course}.json`), "utf8")).items;
   const item = items.find((exercise) => exercise.id === id);
   assert.equal(check.isOrderAnswerCorrect(item, accepted), true, `Course ${course} accepts a valid alternative`);
   assert.equal(check.isOrderAnswerCorrect(item, rejected), false, `Course ${course} checks the order`);
+}
+for (const [course,id,correct,incorrect] of [
+  [1,"x7","’s","’re"], [1,"x9","’s","have"], [34,"x7","’s being recorded","’s been recorded"],
+  [41,"x8","’ve gotten","’d gotten"], [44,"x10","’d not read","’ve not read"],
+]) {
+  const item = JSON.parse(fs.readFileSync(path.join(root,`lib/courses/exercises/course${course}.json`),"utf8")).items.find((q) => q.id === id);
+  assert.equal(check.isGapAnswerCorrect(item,correct),true);
+  assert.equal(check.isGapAnswerCorrect(item,incorrect),false);
+  const native = bank.filter((q) => q.course === course && /^\d+-\d+$/.test(q.id)).slice(0,9);
+  assert.deepEqual(gradeCourseQuiz(course,[...native.map((q) => ({id:q.id.split("-")[1],choice:q.correctAnswer})),{id,text:correct}]),{score:10,total:10});
 }
 assert.equal(check.displayToken("She", 0), "she");
 assert.equal(check.displayToken("Tom", 0), "Tom");
@@ -165,7 +179,7 @@ for (let course = 1; course <= 50; course += 1) {
 console.log("PASS Course quizzes are graded on the server from the answers only, mixed series of 50 courses included.");
 
 process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "test-only-key";
-const { createPlacementToken, readPlacementToken } = loadSource(path.join(root, "lib/placement/placement-token.ts"));
+const { createPlacementToken, readPlacementToken, createPlacementStepToken, readPlacementStepToken } = loadSource(path.join(root, "lib/placement/placement-token.ts"));
 const now = Date.UTC(2026, 9, 15);
 const token = createPlacementToken(3, now);
 assert.equal(readPlacementToken(token, now + 1000), 3, "Signed guest placement is accepted");
@@ -174,6 +188,11 @@ assert.equal(readPlacementToken(`${token}x`, now), null, "Edited signature is re
 assert.equal(readPlacementToken(token, now + 15 * 24 * 3600 * 1000), null, "Old result expires");
 assert.equal(readPlacementToken(createPlacementToken(9, now), now), null, "Unknown chapter is refused");
 assert.equal(readPlacementToken(undefined, now), null);
+const step = createPlacementStepToken(2, now);
+assert.equal(readPlacementStepToken(step, now), 2);
+assert.equal(readPlacementToken(step, now), null, "A step cannot be redeemed as a final placement");
+assert.equal(readPlacementStepToken(token, now), null, "A final result cannot skip test stages");
+assert.equal(readPlacementStepToken(step, now + 14 * 24 * 3600 * 1000), null);
 console.log("PASS Guest placement results are signed, tamper-proof and expire.");
 
 let queueScenarios = 0;

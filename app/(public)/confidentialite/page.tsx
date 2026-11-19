@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
+import { publicPageMetadata } from "@/lib/site/metadata";
 import Link from "next/link";
 import { PageHead } from "@/components/comic/page-head";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
+  path: "/confidentialite",
   title: "Confidentialité",
-  description:
-    "Quelles données English Quest conserve, pourquoi, combien de temps, et comment les consulter ou les supprimer.",
-};
+  description: "Quelles données English Quest conserve, pourquoi, combien de temps, et comment les consulter ou les supprimer.",
+});
 
 export default function PrivacyPage() {
   return (
@@ -21,10 +21,19 @@ export default function PrivacyPage() {
           <section className="mt-0 pt-0 border-t-0">
             <h2 className="eq-h2">Sans compte</h2>
           <p>
-            Tu peux lire tous les cours et jouer à tous les jeux sans t&apos;inscrire. Dans ce cas, aucun
-            score n&apos;est enregistré et aucune donnée personnelle n&apos;est conservée. Le site compte
-            simplement les visites par page, sans identifier qui visite : l&apos;adresse IP n&apos;est pas
-            stockée en clair.
+            Tu peux lire les cours et jouer en invité. Tes scores de jeu restent sur l’écran de fin de partie.
+            Quand tu réussis un quiz de cours, ton navigateur garde le numéro de la mission et ta meilleure note
+            pendant 180 jours au maximum. Le résultat du test de niveau peut également y rester jusqu’à 14 jours
+            pour que la carte et la bibliothèque te proposent le cours conseillé.
+          </p>
+          <p>
+            Ces résultats restent associés à ce navigateur. Quand tu crées un compte ou t’y connectes sur cet appareil,
+            English Quest les vérifie, les rattache à ton parcours et efface leur copie locale après le transfert.
+            Tu peux aussi les effacer dans les réglages de ton navigateur, en supprimant les données du site.
+          </p>
+          <p>
+            Le site compte aussi les pages consultées à partir d’une empreinte du réseau.
+            Le journal des visites ne conserve pas l’adresse IP en clair.
           </p>
         </section>
 
@@ -62,7 +71,7 @@ export default function PrivacyPage() {
         <section>
           <h2 className="eq-h2">Combien de temps</h2>
           <p>
-            Tant que ton compte existe. Un compte inactif depuis trois ans peut être supprimé par
+            Les données du compte sont conservées tant que ton compte existe. Un compte inactif depuis trois ans peut être supprimé par
             l&apos;éditeur. Les messages de contact sont effacés au plus tard un an après la réponse.
           </p>
         </section>
@@ -79,8 +88,9 @@ export default function PrivacyPage() {
         <section>
           <h2 className="eq-h2">Cookies</h2>
           <p>
-            Un seul cookie est posé par le site lui-même : celui qui te garde connecté. Il est indispensable et
-            ne demande pas de consentement. Le site n&apos;affiche aucune publicité et ne dépose aucun cookie publicitaire.
+            Les cookies de connexion te gardent connecté. D’autres cookies servent à retrouver ton point de départ
+            et tes quiz réussis quand tu joues en invité. Si ton navigateur bloque la sauvegarde, tu peux toujours
+            ouvrir le cours conseillé et poursuivre ton parcours. English Quest ne dépose aucun cookie publicitaire.
           </p>
         </section>
 
@@ -102,8 +112,8 @@ export default function PrivacyPage() {
         <section>
           <h2 className="eq-h2">Si tu as moins de 15 ans</h2>
           <p>
-            Le site est fait pour des élèves, et un pseudo suffit pour jouer. Tes parents peuvent demander à
-            tout moment la suppression de ton compte par le formulaire de contact, en indiquant ton pseudo.
+            Tu peux lire les cours et jouer sans compte. Si tu en crées un, tu peux utiliser un pseudo.
+            Tes parents peuvent demander la suppression de ton compte par le formulaire de contact, en indiquant ce pseudo.
           </p>
         </section>
 
@@ -114,7 +124,7 @@ export default function PrivacyPage() {
           </p>
         </section>
 
-        <p className="eq-muted text-sm">Dernière mise à jour : octobre 2026.</p>
+        <p className="eq-muted text-sm">Dernière mise à jour en novembre 2026.</p>
       </article>
       </div>
     </div>

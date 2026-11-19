@@ -424,6 +424,7 @@ async function main() {
 
   let placementWrites = 0;
   const placement = loadTs("lib/placement/placement.ts", {
+    "@/lib/courses/mission-telemetry": telemetry,
     "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(scoped.db) },
     "@/lib/courses/chapters": { chapters: chapterDefinitions },
     "@/lib/courses/progress": { getUserCourseRoadmap: async () => ({ entries: [] }) },
@@ -443,7 +444,12 @@ async function main() {
     "next/cache": { revalidatePath: () => {} },
     "@/lib/supabase/server": auth,
     "@/lib/courses/chapters": { chapters: chapterDefinitions },
-    "@/lib/placement/placement-token": { createPlacementToken: (chapter) => `signed-${chapter}` },
+    "@/lib/placement/placement-token": {
+      createPlacementToken: (chapter) => `signed-${chapter}`,
+      createPlacementStepToken: (chapter) => `next-${chapter}`,
+      readPlacementStepToken: (value) => value?.startsWith("next-") ? Number(value.slice(5)) : null,
+    },
+    "@/lib/courses/guest-progress-server": { keepGuestPlacement: async (value) => Number(value.slice(7)) },
     "@/lib/placement/placement": { ...placement, applyPlacement: async () => { placementWrites += 1; return {}; } },
   });
   const placementAction = loadTs("app/(public)/test-de-niveau/actions.ts", placementMocks(serverAuth));
@@ -452,6 +458,9 @@ async function main() {
   assert.equal(placementWrites, 0, "invalid placement submissions must never advance the curriculum");
   const placementPass = await placementAction.submitPlacementStepAction(1, placementAnswers);
   assert.equal(placementPass.next.chapter, 2);
+  const chapterTwo = Object.fromEntries(questionBank.filter((q) => q.course >= 11 && q.course <= 16 && q.id.endsWith("q0")).map((q) => [q.id,0]));
+  assert.ok("error" in await placementAction.submitPlacementStepAction(2,chapterTwo), "a chapter needs the preceding test result");
+  assert.equal((await placementAction.submitPlacementStepAction(2,chapterTwo,placementPass.nextToken)).next.chapter,3);
   // Visiteur sans compte : résultat signé, aucune écriture avant l'inscription.
   const guestAuth = { createSupabaseServerClient: async () => ({ auth: { getUser: async () => ({ data: { user: null } }) } }) };
   const guestPlacement = loadTs("app/(public)/test-de-niveau/actions.ts", placementMocks(guestAuth));

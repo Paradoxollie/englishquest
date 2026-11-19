@@ -58,6 +58,7 @@ export function SpellStrikeGame({
   const [roundIndex, setRoundIndex] = useState(0);
   const [phase, setPhase] = useState<"start" | "playing" | "feedback" | "ended">("start");
   const [typed, setTyped] = useState("");
+  const [canAnswer, setCanAnswer] = useState(false);
   const [usedHint, setUsedHint] = useState(false);
   const [speakingKind, setSpeakingKind] = useState<"word" | "sentence" | null>(null);
   const [score, setScore] = useState(0);
@@ -73,7 +74,7 @@ export function SpellStrikeGame({
   useRefreshAfterScore(submitStatus);
 
   const startedAtRef = useRef(0);
-  const roundStartedAtRef = useRef(0);
+  const answerStartedAtRef = useRef<number | null>(null);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const submittedRef = useRef(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -103,6 +104,18 @@ export function SpellStrikeGame({
     textEntry === currentEntry.id || (noVoice && !audioMap[currentEntry.id] && !audioMap[`${currentEntry.id}-sentence`])
   ));
 
+  // The first completed recording starts the clock, including a context sentence.
+  const enableAnswer = useCallback(() => {
+    if (answerStartedAtRef.current !== null) return;
+    answerStartedAtRef.current = performance.now();
+    setCanAnswer(true);
+  }, []);
+
+  const showWrittenWord = useCallback((entry: SpellEntry) => {
+    setTextEntry(entry.id);
+    enableAnswer();
+  }, [enableAnswer]);
+
   const playWord = useCallback(
     (entryItem: SpellEntry, slow = false) => {
       setAudioNotice("");
@@ -112,18 +125,22 @@ export function SpellStrikeGame({
         text: entryItem.word,
         rate: slow ? 0.8 : 1,
         voiceProfile: "female_us",
-        onEnded: () => { setSpeakingKind(null); setTextEntry(null); },
+        onEnded: () => {
+          setSpeakingKind(null);
+          setTextEntry(null);
+          enableAnswer();
+        },
         onError: (reason) => {
           setSpeakingKind(null);
           if (reason === "blocked") setAudioNotice("Appuie sur Écouter le mot pour lancer la dictée.");
           else {
-            setTextEntry(entryItem.id);
+            showWrittenWord(entryItem);
             setAudioNotice("La dictée est indisponible pour ce mot. Tu peux utiliser la phonétique ou réessayer l’écoute.");
           }
         },
       });
     },
-    [audioMap]
+    [audioMap, enableAnswer, showWrittenWord]
   );
 
   const playSentence = useCallback(
@@ -135,15 +152,35 @@ export function SpellStrikeGame({
         text: entryItem.sentenceSpoken,
         rate: 1,
         voiceProfile: "female_us",
-        onEnded: () => setSpeakingKind(null),
+        onEnded: () => {
+          setSpeakingKind(null);
+          enableAnswer();
+        },
         onError: () => {
           setSpeakingKind(null);
-          setAudioNotice("La phrase audio est indisponible. Tu peux la lire ci-dessous et réécouter le mot.");
+          if (noVoice && !audioMap[entryItem.id]) {
+            showWrittenWord(entryItem);
+            setAudioNotice("La dictée est indisponible pour ce mot. Tu peux utiliser la phrase écrite et la phonétique.");
+          } else {
+            setAudioNotice("La phrase audio est indisponible. Tu peux la lire ci-dessous et réécouter le mot.");
+          }
         },
       });
     },
-    [audioMap]
+    [audioMap, enableAnswer, noVoice, showWrittenWord]
   );
+
+  const beginDictation = useCallback((entry: SpellEntry) => {
+    answerStartedAtRef.current = null;
+    setCanAnswer(false);
+    if (silentChoice || (noVoice && !audioMap[entry.id] && !audioMap[`${entry.id}-sentence`])) {
+      showWrittenWord(entry);
+    } else if (noVoice && !audioMap[entry.id]) {
+      playSentence(entry);
+    } else {
+      playWord(entry);
+    }
+  }, [audioMap, noVoice, playSentence, playWord, showWrittenWord, silentChoice]);
 
   const finishMatch = useCallback(
     (finalScore: number, finalCorrect: number, finalTotal: number, finalDifficulty: SpellDifficulty) => {
@@ -205,11 +242,10 @@ export function SpellStrikeGame({
     submittedRef.current = false;
     setPhase("playing");
     startedAtRef.current = performance.now();
-    roundStartedAtRef.current = performance.now();
     gameSession.begin();
-    if (deck[0] && !silentChoice) playWord(deck[0]);
+    if (deck[0]) beginDictation(deck[0]);
     later(() => inputRef.current?.focus(), 60);
-  }, [clearTimers, gameSession, later, level, playWord, silentChoice]);
+  }, [beginDictation, clearTimers, gameSession, later, level]);
 
   const goToNext = useCallback(() => {
     clearTimers();
@@ -227,10 +263,9 @@ export function SpellStrikeGame({
     setUsedHint(false);
     setLastResult(null);
     setPhase("playing");
-    roundStartedAtRef.current = performance.now();
-    if (!silentChoice) playWord(rounds[nextIndex]);
+    beginDictation(rounds[nextIndex]);
     later(() => inputRef.current?.focus(), 50);
-  }, [clearTimers, correctCount, difficulty, finishMatch, later, playWord, roundIndex, rounds, score, silentChoice]);
+  }, [beginDictation, clearTimers, correctCount, difficulty, finishMatch, later, roundIndex, rounds, score]);
 
   const submitCurrent = useCallback(
     (skipped = false) => {
@@ -241,7 +276,11 @@ export function SpellStrikeGame({
         return;
       }
 
-      const reactionMs = Math.max(400, Math.round(performance.now() - roundStartedAtRef.current));
+      const answerStart = answerStartedAtRef.current;
+      if (!skipped && answerStart === null) return;
+      stopAllGameAudio();
+      setSpeakingKind(null);
+      const reactionMs = answerStart === null ? 0 : Math.max(400, Math.round(performance.now() - answerStart));
       const issue: SpellAnswerIssue = skipped ? "wrong" : spellAnswerIssue(currentEntry, value);
       const correct = issue === "ok";
       const nextStreak = correct ? streak + 1 : 0;
@@ -267,7 +306,7 @@ export function SpellStrikeGame({
       setPhase("feedback");
       playSoundEffect(correct ? (nextStreak >= 3 ? "combo" : "correct") : "wrong");
 
-      // Réponse juste : on enchaîne. Erreur : l'élève lit la correction et continue quand il veut.
+      // Après une erreur, la correction reste à l’écran jusqu’au mot suivant.
       if (!correct) later(() => continueRef.current?.focus(), 60);
     },
     [currentEntry, difficulty, later, phase, streak, typed, usedHint]
@@ -303,7 +342,7 @@ export function SpellStrikeGame({
         intro="Maya te dicte 10 mots anglais qui piègent souvent les francophones. Écoute le mot, appuie-toi sur la phrase, puis écris-le sans faute."
         rules={[
           "Écoute le mot seul ou dans sa phrase, autant de fois que tu veux, puis tape l'orthographe exacte.",
-          "Les jours et les mois prennent une majuscule : Monday, February.",
+          "Le bonus de rapidité démarre après la première écoute complète. En mode écrit, il démarre à l’affichage des indices.",
           "Après une erreur, tu vois ce que tu as écrit, la bonne orthographe et la règle à retenir.",
         ]}
         startLabel="Lancer Spell Strike"
@@ -438,6 +477,14 @@ export function SpellStrikeGame({
 
       <div className={`eq-game-stage eq-spell-stage ${inFeedback ? (lastResult.correct ? "is-right" : "is-wrong") : ""}`}>
         {audioNotice && <p className="eq-game-notice" role="status">{audioNotice}</p>}
+        {audioNotice && !canAnswer && !silentMode && (
+          <button type="button" className="eq-btn eq-btn-ghost" onClick={() => {
+            stopAllGameAudio();
+            setSpeakingKind(null);
+            setAudioNotice("");
+            showWrittenWord(currentEntry);
+          }}>Utiliser la phonétique pour ce mot</button>
+        )}
         <div className="eq-spell-audio-bar">
           <div className="eq-spell-audio-actions">
             {!silentMode ? (
@@ -509,6 +556,7 @@ export function SpellStrikeGame({
             else submitCurrent(false);
           }}
         >
+          {!canAnswer && !inFeedback && !silentMode && <p className="text-sm" role="status">Tu pourras écrire ta réponse à la fin de la première écoute.</p>}
           <div className="eq-game-field">
             <label htmlFor="spell-strike-input" className="sr-only">
               Orthographe du mot
@@ -524,7 +572,7 @@ export function SpellStrikeGame({
               autoCorrect="off"
               spellCheck={false}
               maxLength={Math.max(24, longest + 8)}
-              readOnly={phase !== "playing"}
+              readOnly={phase !== "playing" || !canAnswer}
               value={typed}
               onChange={(e) => setTyped(e.target.value)}
               placeholder={silentMode ? "Écris le mot anglais…" : "Tape le mot entendu…"}
@@ -532,7 +580,7 @@ export function SpellStrikeGame({
           </div>
           {phase === "playing" ? (
             <div className="eq-spell-controls">
-              <button type="submit" data-testid="game-submit" disabled={!typed.trim()} className="eq-btn eq-btn-gold">
+              <button type="submit" data-testid="game-submit" disabled={!canAnswer || !typed.trim()} className="eq-btn eq-btn-gold">
                 Valider
               </button>
               {diffConfig.allowHint ? (

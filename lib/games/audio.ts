@@ -13,6 +13,7 @@ export type DialogueAudioLine = {
 let audioContext: AudioContext | null = null;
 let cachedMuted: boolean | null = null;
 let activeAudioElement: HTMLAudioElement | null = null;
+let changeRecordingPause: ((pause: boolean) => void) | null = null;
 let activePlaybackToken = 0;
 let activeTimers: number[] = [];
 let activeCleanup: (() => void) | null = null;
@@ -167,6 +168,13 @@ export function canSpeakEnglish(): boolean {
   return typeof window !== "undefined" && !!window.speechSynthesis;
 }
 
+/** Pause the current recording in place. Synthesised speech has no reliable audio cursor. */
+export function setRecordingPaused(paused: boolean): boolean {
+  if (!changeRecordingPause) return false;
+  changeRecordingPause(paused);
+  return true;
+}
+
 /** Recorded speech can change speed without restarting the message. */
 export function setRecordingRate(rate: number) {
   if (!activeAudioElement) return false;
@@ -289,7 +297,10 @@ type PlaybackOptions = {
   onError?: (reason: PlaybackError) => void;
 };
 
-type LineOptions = PlaybackOptions & { onLineChange?: (index: number | null) => void };
+type LineOptions = PlaybackOptions & {
+  onLineChange?: (index: number | null) => void;
+  onProgress?: (elapsed: number, duration: number) => void;
+};
 
 function waitForEnglishVoices(
   token: number,
@@ -398,7 +409,10 @@ function playSpeech(
     options.onError?.("unavailable");
     return "muted";
   }
-  const fallback = () => playLines(token, lines, options);
+  const fallback = () => {
+    options.onProgress?.(0, 0);
+    playLines(token, lines, options);
+  };
   if (!mp3Url || typeof Audio === "undefined") {
     fallback();
     return canSpeakEnglish() ? "tts" : "muted";
@@ -410,6 +424,8 @@ function playSpeech(
     player.playbackRate = options.rate ?? 1;
     player.preservesPitch = true;
     let settled = false;
+    let paused = false;
+    let playAttempt = 0;
     let lastLine = -1;
     function settle(result: "ended" | "blocked" | "error") {
       if (settled || token !== activePlaybackToken) return;
@@ -424,8 +440,15 @@ function playSpeech(
       else if (result === "blocked") options.onError?.("blocked");
       else fallback();
     }
+    const publishProgress = () => {
+      if (settled || token !== activePlaybackToken) return;
+      if (Number.isFinite(player.duration) && player.duration > 0) {
+        options.onProgress?.(player.currentTime, player.duration);
+      }
+    };
     const monitor = () => {
-      if (token !== activePlaybackToken || settled) return;
+      if (token !== activePlaybackToken || settled || paused) return;
+      publishProgress();
       clearPendingTimers();
       activeTimers.push(window.setTimeout(() => settle("error"), 10000));
       // Without actual cues, only a single-speaker recording has a known speaker.
@@ -441,18 +464,39 @@ function playSpeech(
       player.onended = null;
       player.onerror = null;
       player.ontimeupdate = null;
+      player.onloadedmetadata = null;
       player.onplaying = null;
+      changeRecordingPause = null;
     };
-    player.onended = () => settle("ended");
+    player.onended = () => { publishProgress(); settle("ended"); };
+    player.onloadedmetadata = publishProgress;
     player.onerror = () => settle("error");
     player.onplaying = monitor;
     player.ontimeupdate = monitor;
-    activeTimers.push(window.setTimeout(() => settle("error"), 10000));
-    try {
-      void player.play()?.catch((error: Error) => settle(error.name === "NotAllowedError" ? "blocked" : "error"));
-    } catch (error) {
-      settle(error instanceof Error && error.name === "NotAllowedError" ? "blocked" : "error");
-    }
+    const startPlayback = () => {
+      const attempt = ++playAttempt;
+      clearPendingTimers();
+      activeTimers.push(window.setTimeout(() => settle("error"), 10000));
+      const failed = (error: unknown) => {
+        if (attempt === playAttempt && !paused) {
+          settle(error instanceof Error && error.name === "NotAllowedError" ? "blocked" : "error");
+        }
+      };
+      try { void player.play()?.catch(failed); } catch (error) { failed(error); }
+    };
+    changeRecordingPause = (pause) => {
+      if (pause === paused || settled) return;
+      paused = pause;
+      if (pause) {
+        playAttempt++;
+        clearPendingTimers();
+        player.pause();
+        publishProgress();
+      } else {
+        startPlayback();
+      }
+    };
+    startPlayback();
     return "mp3";
   } catch {
     fallback();

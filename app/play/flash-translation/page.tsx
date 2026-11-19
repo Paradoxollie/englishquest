@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { gameMetadata } from "@/lib/site/metadata";
 import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
@@ -7,14 +7,15 @@ import { getPlayerGameLevel } from "@/lib/games/player-level-server";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 import { FlashTranslationGame } from "./flash-translation-game";
 
-export const metadata: Metadata = {
-  title: "Flash Translation",
-  description: "Dix mots français à ton niveau, quatre traductions anglaises à chaque fois : réponds vite, le score est ton temps total.",
-};
+const SLUG = "flash-translation";
+
+export const metadata = gameMetadata(
+  SLUG,
+  "Traduction rapide en anglais · Flash Translation",
+  "Dix mots français à ton niveau, quatre traductions anglaises à chaque fois : réponds vite, le score est ton temps total.",
+);
 
 export const dynamic = "force-dynamic";
-
-const SLUG = "flash-translation";
 
 export default async function FlashTranslationPage() {
   const game = getGameBySlug(SLUG);

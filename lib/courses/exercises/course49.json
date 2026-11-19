@@ -80,7 +80,7 @@
     {
       "id": "x11",
       "type": "order",
-      "answers": ["Please turn off your phones.", "Please turn your phones off."],
+      "answers": ["Please turn off your phones.", "Please turn your phones off.", "Turn off your phones, please.", "Turn your phones off, please."],
       "translation": "Éteignez vos téléphones, s'il vous plaît.",
       "explanation": "Turn off est séparable : avec un nom, la particule peut se placer avant ou après le nom."
     },

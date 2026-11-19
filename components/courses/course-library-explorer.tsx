@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useDeferredValue, useState } from "react";
 import type { CourseRoadmapEntry } from "@/lib/courses/progress";
-import { getCourseMissionPlan } from "@/lib/courses/campaign";
 import type { CourseMissionPlan } from "@/lib/courses/campaign";
 import { paliers } from "@/lib/courses/data";
+import { isCoursePlacementSkip } from "@/lib/courses/mission-telemetry";
+import { courseSearchTerms, findArcadeSearchMatches, matchesCourseSearch } from "@/lib/courses/library-search";
+import { getGamePresentation } from "@/lib/games/presentation";
 
 type CourseLibraryExplorerProps = {
   entries: CourseRoadmapEntry[];
@@ -25,7 +27,7 @@ const levelFilters = [
 
 function statusLabel(entry: CourseRoadmapEntry, isRecommended: boolean, isAuthenticated: boolean) {
   if (entry.status === "completed") {
-    return { text: "Validé", className: "eq-chip-mint" };
+    return { text: isCoursePlacementSkip(entry.missionTelemetry) ? "Acquis au test" : "Validé", className: "eq-chip-mint" };
   }
   if (entry.status === "in_progress") {
     return { text: "Mission en cours", className: "eq-chip-gold" };
@@ -45,19 +47,13 @@ export function CourseLibraryExplorer({
   const [search, setSearch] = useState("");
   const [level, setLevel] = useState("all");
   const deferredSearch = useDeferredValue(search);
-  const normalizedSearch = deferredSearch.trim().toLowerCase();
+  const terms = courseSearchTerms(deferredSearch);
+  const arcadeMatches = findArcadeSearchMatches(terms);
 
-  const filteredEntries = entries.filter((entry) => {
-    const mission = missionPlans[entry.courseId] ?? getCourseMissionPlan(entry);
-    const matchesSearch =
-      normalizedSearch.length === 0 ||
-      entry.title.toLowerCase().includes(normalizedSearch) ||
-      entry.summary.toLowerCase().includes(normalizedSearch) ||
-      mission.objective.toLowerCase().includes(normalizedSearch) ||
-      entry.focusTags.some((tag) => tag.toLowerCase().includes(normalizedSearch));
-    const matchesLevel = level === "all" || String(entry.palierId) === level;
-    return matchesSearch && matchesLevel;
-  });
+  const filteredEntries = entries.filter((entry) =>
+    (level === "all" || String(entry.palierId) === level) &&
+    matchesCourseSearch(entry, missionPlans[entry.courseId]?.objective, terms)
+  );
 
   const grouped = paliers
     .map((palier) => ({
@@ -76,7 +72,7 @@ export function CourseLibraryExplorer({
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Chercher une notion : present perfect, questions, conditionnel…"
+            placeholder="Prétérit, se présenter, verbes irréguliers…"
             className="w-full rounded-[var(--radius)] border border-[var(--line-strong)] bg-[var(--ink-2)] px-4 py-3 text-[0.95rem] text-[var(--fg)] outline-none placeholder:text-[var(--muted-2)] focus:border-[var(--cyan)]"
           />
         </label>
@@ -95,10 +91,27 @@ export function CourseLibraryExplorer({
         </div>
       </div>
 
-      {grouped.length === 0 ? (
+      <p role="status" className="sr-only">
+        {filteredEntries.length} cours{arcadeMatches.length ? ` et ${arcadeMatches.length} jeu${arcadeMatches.length > 1 ? "x" : ""} d’arcade` : ""}.
+      </p>
+      {arcadeMatches.length ? (
+        <section aria-labelledby="library-arcade-heading">
+          <h2 id="library-arcade-heading" className="eq-h2">S’entraîner en jouant</h2>
+          <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+            {arcadeMatches.map((game) => (
+              <li key={game.slug}>
+                <Link href={`/play/${game.slug}`} className="eq-card eq-card-link h-full gap-1 p-4">
+                  <h3 className="eq-h3">{game.name}</h3>
+                  <p className="text-sm leading-relaxed text-[var(--muted)]">{getGamePresentation(game).hook}</p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+      {grouped.length === 0 && !arcadeMatches.length ? (
         <p className="eq-card text-[var(--muted)]">
-          Aucun cours ne correspond à cette recherche. Essaie un autre mot, par exemple le nom
-          d&apos;un temps ou d&apos;un modal.
+          Aucun cours ni jeu ne correspond à ta recherche. Essaie par exemple « prétérit » ou « se présenter ».
         </p>
       ) : null}
 

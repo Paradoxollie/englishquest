@@ -117,6 +117,22 @@ check("Enigma targets: 150+ common words per length, each translated and levelle
   assert.ok(!fs.existsSync(path.join(root, "lib/games/words/enigma-scroll-words.json")), "the 61 000 guesses are no longer bundled");
 });
 
+check("Enigma offers contextual reuse for every beginner and advanced target", () => {
+  const { getEnigmaExample } = loadEngine("lib/games/enigma-examples.ts");
+  const counts = [0, 0, 0, 0, 0, 0];
+  for (const target of Object.values(enigmaTargets.ENIGMA_TARGETS).flat()) {
+    const sentence = getEnigmaExample(target.word.toLowerCase());
+    if (!sentence) {
+      assert.ok(target.level > 1 && target.level < 5, target.word);
+      continue;
+    }
+    assert.match(sentence, new RegExp("\\b" + target.word + "\\b", "i"), target.word);
+    counts[target.level]++;
+  }
+  assert.ok(counts.slice(1).every(count => count >= 30), counts.join(", "));
+  assert.equal(getEnigmaExample("NOT-A-TARGET"), undefined);
+});
+
 check("Enigma client bundle imports no guess list", () => {
   const client = fs.readFileSync(path.join(root, "app/play/enigma-scroll/enigma-scroll-game.tsx"), "utf8");
   assert.ok(!/words\/enigma-scroll-words\.json/.test(client));
@@ -189,6 +205,16 @@ check("Wordfall accepts other English answers with the same French cue", () => {
   assert.equal(wordfall.validateExactWord("horse", "HOME", "maison").valid, false);
   assert.equal(wordfall.validateExactWord("neighbor", "NEIGHBOUR", "voisin").valid, true);
   assert.equal(wordfall.validateExactWord("on", "SURE", "sûr").valid, false);
+  for (const [answer, canonical, french] of [
+    ["bicycle", "BIKE", "vélo"], ["telephone", "PHONE", "téléphone"],
+    ["inexpensive", "CHEAP", "bon marché"], ["present", "GIFT", "cadeau"],
+    ["to purchase", "BUY", "acheter"], ["to drink", "DRINK", "boire"], ["mum", "MOTHER", "mère"],
+  ]) {
+    assert.equal(wordfall.validateExactWord(answer, canonical, french).valid, true, french);
+  }
+  assert.equal(wordfall.validateExactWord("present", "CURRENT", "actuel").valid, false);
+  assert.equal(wordfall.validateExactWord("to hand", "HAND", "main").valid, false);
+  assert.equal(wordfall.validateExactWord("to can", "CAN", "pouvoir").valid, false);
 });
 
 function playingState() {

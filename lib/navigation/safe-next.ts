@@ -5,6 +5,7 @@
  */
 const MAX_NEXT_LENGTH = 300;
 const ORIGIN = "https://englishquest.invalid";
+export const REQUEST_PATH_HEADER = "x-eq-request-path";
 
 export function getSafeNextPath(value: unknown): string | null {
   if (typeof value !== "string") return null;
@@ -19,7 +20,7 @@ export function getSafeNextPath(value: unknown): string | null {
     const url = new URL(candidate, ORIGIN);
     if (url.origin !== ORIGIN) return null;
     // Revenir sur une page d'authentification ferait tourner en rond.
-    if (url.pathname.startsWith("/auth/")) return null;
+    if (url.pathname.startsWith("//") || url.pathname === "/auth" || url.pathname.startsWith("/auth/")) return null;
     const wardrobe = url.pathname === "/profile" && url.hash === "#boutique" ? url.hash : "";
     return `${url.pathname}${url.search}${wardrobe}`;
   } catch {

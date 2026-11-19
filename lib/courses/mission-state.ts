@@ -7,6 +7,8 @@ import {
   clampMissionNumber,
   decodeCourseMissionTelemetry,
   encodeCourseMissionTelemetry,
+  encodePlacementTelemetry,
+  isCoursePlacementSkip,
   type DecodedCourseMissionTelemetry,
 } from "./mission-telemetry";
 export { isCourseQuizScorePassing };
@@ -102,7 +104,9 @@ async function updateCourseMissionTelemetry(
   // A reading checkpoint or a second tab must not overwrite a better quiz.
   let previous = entry.missionTelemetry;
   for (let attempt = 0; attempt < 4; attempt += 1) {
-    const next = encodeCourseMissionTelemetry(updater(decodeCourseMissionTelemetry(previous)));
+    const updated = updater(decodeCourseMissionTelemetry(previous));
+    const next = isCoursePlacementSkip(previous) && !isCourseQuizScorePassing(updated.quizScore, updated.quizTotal)
+      ? encodePlacementTelemetry(updated) : encodeCourseMissionTelemetry(updated);
     if (next === previous) return refreshMissionState(userId, courseNumber);
     let update = adminClient.from("user_course_progress").update({ best_score: next }).eq("id", entry.progressId);
     update = previous == null ? update.is("best_score", null) : update.eq("best_score", previous);

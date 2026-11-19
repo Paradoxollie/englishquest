@@ -53,7 +53,7 @@
       "id": "x7",
       "type": "gap",
       "prompt": "Shh! A podcast ___ in the next room. (record)",
-      "answers": ["is being recorded"],
+      "answers": ["is being recorded", "'s being recorded"],
       "explanation": "L'action est en cours en ce moment : is being + participe passé."
     },
     {
@@ -74,7 +74,7 @@
       "id": "x10",
       "type": "gap",
       "prompt": "At the moment, a new skate park ___ next to the library. (build)",
-      "answers": ["is being built"],
+      "answers": ["is being built", "'s being built"],
       "explanation": "At the moment : action en cours. Au passif, is being + participe passé (built)."
     },
     {

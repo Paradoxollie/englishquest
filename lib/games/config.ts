@@ -42,7 +42,7 @@ export const games: GameConfig[] = [
     slug: "enigma-scroll",
     name: "Enigma Scroll",
     description:
-      "Devine le mot caché en six essais. Chaque lettre bien placée te rapproche de la solution.",
+      "Choisis quatre, cinq ou six lettres, puis déduis le mot anglais en cinq à sept essais.",
     difficulty: "easy",
     tags: ["Vocabulaire", "Jeux de mots"],
     icon: "ES",
@@ -102,7 +102,7 @@ export const games: GameConfig[] = [
     slug: "grammar-rush",
     name: "Grammar Rush",
     description:
-      "Les questions des cours, sous chrono. Soixante secondes, quatre propositions, une série à tenir.",
+      "Les questions des cours, sous chrono. Soixante secondes et deux à quatre propositions par question.",
     difficulty: "medium",
     tags: ["Grammaire", "Quiz", "Vitesse"],
     icon: "GR",

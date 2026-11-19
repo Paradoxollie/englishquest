@@ -1,4 +1,5 @@
 import "server-only";
+import { isCoursePlacementSkip, COURSE_PLACEMENT_SKIP_MARK } from "@/lib/courses/mission-telemetry";
 import { chapters } from "@/lib/courses/chapters";
 import { getUserCourseRoadmap } from "@/lib/courses/progress";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -17,7 +18,7 @@ export const PLACEMENT_PASS_COUNT = 4;
 /** Dernier chapitre testable : réussir le 4 place au chapitre 5. */
 export const PLACEMENT_LAST_TESTED_CHAPTER = 4;
 /** Marqueur dans best_score : cours acquis au test de niveau, pas joué. */
-export const PLACEMENT_SKIP_MARK = 8_000_000;
+export const PLACEMENT_SKIP_MARK = COURSE_PLACEMENT_SKIP_MARK;
 
 type BankQuestion = {
   id: string;
@@ -53,7 +54,7 @@ function shuffle<T>(items: T[]): T[] {
 }
 
 export function isPlacementSkip(bestScore: number | null | undefined) {
-  return typeof bestScore === "number" && bestScore === PLACEMENT_SKIP_MARK;
+  return isCoursePlacementSkip(bestScore);
 }
 
 /** Six questions d'un chapitre, chacune venant d'un cours différent. */
@@ -99,45 +100,18 @@ export function gradePlacementStep(answers: Record<string, number>, chapterId: n
 }
 
 /**
- * Place le joueur au début du chapitre donné : tous les cours des chapitres
- * précédents encore verrouillés passent en « validé » avec le marqueur du
- * test, et le premier cours du chapitre s'ouvre. Ne touche jamais à un cours
- * déjà joué.
+ * Ouvre les chapitres acquis et rattache les vrais quiz invités dans la même
+ * transaction. Les notes antérieures et les récompenses déjà versées sont conservées.
  */
-export async function applyPlacement(userId: string, chapterId: number) {
-  const admin = createSupabaseAdminClient();
-  const roadmap = await getUserCourseRoadmap(userId);
-  const target = chapters.find((item) => item.id === chapterId) ?? chapters[0];
-  const firstCourseId = target.courseIds[0];
-  const now = new Date().toISOString();
-
-  const updates: PromiseLike<unknown>[] = [];
-  for (const entry of roadmap.entries) {
-    if (!entry.progressId) continue;
-    if (entry.courseId < firstCourseId && entry.status !== "completed") {
-      updates.push(
-        admin
-          .from("user_course_progress")
-          .update({ status: "completed", best_score: PLACEMENT_SKIP_MARK, completed_at: now })
-          .eq("id", entry.progressId)
-      );
-    } else if (entry.courseId === firstCourseId && entry.status === "locked") {
-      updates.push(admin.from("user_course_progress").update({ status: "unlocked" }).eq("id", entry.progressId));
-    }
-  }
-  await Promise.all(updates);
-
-  // Mémorise le résultat sur le profil. Colonnes ajoutées par la migration
-  // 2026-10-10_02 ; si elle n'est pas passée, on ignore l'erreur.
-  const { error } = await admin
-    .from("profiles")
-    .update({ placement_chapter: chapterId, placement_at: now })
-    .eq("id", userId);
-  if (error && error.code !== "42703" && !error.message.includes("placement")) {
-    console.error("applyPlacement profile", error);
-  }
-
-  return { chapterId, chapterName: target.name, level: target.level, firstCourseId };
+export async function applyPlacement(userId: string, chapterId: number, results: { course: number; score: number }[] = []) {
+  await getUserCourseRoadmap(userId); // Initialise les 50 entrées du compte avant la transaction.
+  const { data, error } = await createSupabaseAdminClient().rpc("apply_verified_placement", {
+    p_user_id: userId, p_chapter: chapterId, p_results: results,
+  });
+  if (error) throw error;
+  const target = chapters.find((item) => item.id === data);
+  if (!target) throw new Error("Le chapitre conseillé est indisponible.");
+  return { chapterId: target.id, chapterName: target.name, level: target.level, firstCourseId: target.courseIds[0] };
 }
 
 /** Le joueur a-t-il déjà passé le test (ou déjà avancé sur la carte) ? */

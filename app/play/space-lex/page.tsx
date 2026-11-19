@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import { gameMetadata } from "@/lib/site/metadata";
 import { unstable_cache } from "next/cache";
 import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
@@ -9,14 +9,15 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 import { SpaceLexGame } from "./space-lex-game";
 
-export const metadata: Metadata = {
-  title: "Lexicon Blaster",
-  description: "Un shooter spatial où l'on tire sur les bons mots : thèmes, connecteurs, synonymes, et des boss. Consignes en français pour les débutants.",
-};
+const SLUG = "space-lex";
+
+export const metadata = gameMetadata(
+  SLUG,
+  "Vocabulaire anglais dans l’espace · Lexicon Blaster",
+  "Un shooter spatial où l'on tire sur les bons mots : thèmes, connecteurs, synonymes, et des boss. Consignes en français pour les débutants.",
+);
 
 export const dynamic = "force-dynamic";
-
-const SLUG = "space-lex";
 
 const getDefaultShipSkinImageUrl = unstable_cache(
   async (): Promise<string | null> => {

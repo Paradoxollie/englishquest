@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { PLACEMENT_TOKEN_STORAGE_KEY } from "@/lib/placement/placement-storage";
 import type { PlacementStep } from "@/lib/placement/placement";
-import { restartPlacementAction, submitPlacementStepAction, type PlacementStepResult } from "./actions";
+import { confirmGuestPlacementAction, restartPlacementAction, submitPlacementStepAction, type PlacementStepResult } from "./actions";
 
 type Phase = "intro" | "question" | "stepResult" | "done";
 
@@ -27,6 +26,8 @@ export function PlacementTest({
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
   const [passedChapters, setPassedChapters] = useState<number[]>([]);
+  const [stepToken, setStepToken] = useState<string>();
+  const [kept, setKept] = useState(false);
 
   const question = step.questions[index];
 
@@ -48,18 +49,19 @@ export function PlacementTest({
       return;
     }
     startTransition(async () => {
-      const outcome = await submitPlacementStepAction(step.chapter, nextAnswers);
+      const outcome = await submitPlacementStepAction(step.chapter, nextAnswers, stepToken).catch(() => null);
+      if (!outcome) {
+        setError("Le résultat n’a pas pu être enregistré. Réessaie cette réponse.");
+        return;
+      }
       if ("error" in outcome) {
         setError(outcome.error);
         return;
       }
       setResult(outcome);
-      if (outcome.guestToken) {
-        try {
-          window.localStorage.setItem(PLACEMENT_TOKEN_STORAGE_KEY, outcome.guestToken);
-        } catch {
-          // Stockage indisponible (navigation privée) : le résultat s'affiche quand même.
-        }
+      setStepToken(outcome.nextToken);
+      if (outcome.guestToken && outcome.placed) {
+        setKept(await confirmGuestPlacementAction(outcome.placed.chapterId).catch(() => false));
       }
       if (outcome.passed) {
         setPassedChapters((list) => [...list, step.chapter]);
@@ -83,6 +85,7 @@ export function PlacementTest({
         setStep(fresh);
         setResult(null);
         setPassedChapters([]);
+        setStepToken(undefined);
         begin();
       }
     });
@@ -116,19 +119,19 @@ export function PlacementTest({
           Ton point de départ : chapitre {placed.chapterId}, {placed.chapterName} ({placed.level})
         </h2>
         <p className="mt-2 text-[var(--muted)]">
-          {passedChapters.length > 0
+          {result.retainedHigherChapter ? "Ta carte conserve le chapitre atteint lors de ton précédent test. " : passedChapters.length > 0
             ? `Chapitre${passedChapters.length > 1 ? "s" : ""} ${passedChapters.join(", ")} déjà acquis. `
             : "Le chapitre 1 pose les bases dont tout le reste dépend. "}
-          Dernière série : {result.correct} sur {result.total}. Crée ton compte : ta carte s&apos;ouvrira directement à ce
-          chapitre, et chaque mission validée te rapportera de l&apos;expérience et de l&apos;or.
+          Dernière série : {result.correct} sur {result.total}. {kept
+            ? "Ta carte et la bibliothèque gardent ce point de départ sur cet appareil."
+            : "La sauvegarde sur cet appareil est indisponible. Tu peux ouvrir le cours conseillé ci-dessous."}
         </p>
         <div className="eq-home-actions mt-5">
-          <Link href="/auth/signup" className="eq-btn eq-btn-gold">
-            Créer mon compte et garder ce résultat
+          <Link href={`/cours/${placed.firstCourseId}`} className="eq-btn eq-btn-gold">
+            Ouvrir le cours {placed.firstCourseId}
           </Link>
-          <Link href={`/cours/${placed.firstCourseId}`} className="eq-btn eq-btn-ghost">
-            Lire le premier cours
-          </Link>
+          {kept ? <Link href="/quest" className="eq-btn eq-btn-ghost">Voir ma carte</Link> : null}
+          <Link href="/auth/signup?next=/quest" className="eq-text-link">{kept ? "Garder mon résultat avec un compte" : "Créer un compte"}</Link>
         </div>
       </div>
     );
@@ -141,7 +144,7 @@ export function PlacementTest({
         <p className="eq-kicker">Résultat</p>
         <h2 className="eq-h2">Tu commences au chapitre {placed.chapterId} : {placed.chapterName}</h2>
         <p className="mt-2 text-[var(--muted)]">
-          {passedChapters.length > 0
+          {result.retainedHigherChapter ? "Ta carte conserve le chapitre atteint lors de ton précédent test." : passedChapters.length > 0
             ? `Chapitre${passedChapters.length > 1 ? "s" : ""} ${passedChapters.join(", ")} acquis d'office : ${passedChapters.length * 10} missions marquées validées sur la carte, sans récompense (tu les connaissais déjà).`
             : "Le chapitre 1 pose les bases dont tout le reste dépend. On y va dans l'ordre."}{" "}
           Dernière série : {result.correct} sur {result.total}.
@@ -230,7 +233,7 @@ export function PlacementTest({
         >
           {pending ? "Correction…" : index + 1 === step.questions.length ? "Terminer la série" : "Valider"}
         </button>
-        {compact ? (
+        {compact || error ? (
           <button type="button" className="eq-btn eq-btn-ghost" onClick={restart} disabled={pending}>
             Recommencer
           </button>

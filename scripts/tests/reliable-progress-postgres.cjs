@@ -27,6 +27,11 @@ const cookieJar = {
 };
 const admin = {
   async rpc(name, args) {
+    if (name === "apply_verified_placement") {
+      if (importFails) return { error: { code: "TEST" } };
+      const row = await first("select apply_verified_placement($1,$2,$3::jsonb) chapter", [args.p_user_id,args.p_chapter,JSON.stringify(args.p_results)]);
+      return { data:row.chapter,error:null };
+    }
     if (name === "import_guest_quiz_results") {
       if (importFails) return { error: { code: "TEST" } };
       await db.query("select import_guest_quiz_results($1,$2::jsonb)", [args.p_user_id, JSON.stringify(args.p_results)]);
@@ -84,7 +89,7 @@ async function setup() {
   await db.exec(`
     create role anon; create role authenticated; create role service_role bypassrls;
     create schema auth; create table auth.users (id uuid primary key);
-    create table profiles(id uuid primary key, username text, role text default 'student', xp integer default 0,
+    create table profiles(id uuid primary key, username text, role text default 'student', placement_chapter integer, placement_at timestamptz, xp integer default 0,
       gold integer default 0, level integer default 1, updated_at timestamptz default now(), created_at timestamptz default now());
     create table games(id uuid primary key default gen_random_uuid(), slug text unique);
     create table game_scores(id uuid primary key default gen_random_uuid(), user_id uuid references auth.users,
@@ -101,8 +106,9 @@ async function setup() {
   await db.exec(read("supabase/migrations/2026-10-13_02_atomic_course_rewards.sql"));
   await db.exec(migration);
   await db.exec(migration); // A resumed deployment is safe.
+  await db.exec(read("supabase/migrations/20261119185629_retain_verified_placement.sql"));
   await db.exec("grant select,insert,update,delete on all tables in schema public to service_role");
-  for (const row of await query("select oid from pg_proc where proname in ('finish_game_score','import_guest_quiz_results','admin_dashboard_summary')")) {
+  for (const row of await query("select oid from pg_proc where proname in ('finish_game_score','import_guest_quiz_results','admin_dashboard_summary','apply_verified_placement')")) {
     const acl = await first("select has_function_privilege('anon',$1::oid,'execute') a, has_function_privilege('authenticated',$1::oid,'execute') u, has_function_privilege('service_role',$1::oid,'execute') s", [row.oid]);
     assert.deepEqual(acl, { a: false, u: false, s: true });
   }
@@ -275,13 +281,14 @@ async function authTests() {
   const user = { id: otherId, identities: [{}] };
   let session = { user };
   overrides["@/lib/supabase/server"].createSupabaseServerClient = async () => ({ auth: {
-    signUp: async () => ({ data: { user, session }, error: null }),
+    signUp: async ({ options }) => {
+      assert.equal(new URL(options.emailRedirectTo).searchParams.get("next"), "/quest", "confirmation keeps the original destination");
+      return { data: { user, session }, error: null };
+    },
     signInWithPassword: async () => ({ data: { user }, error: null }),
     getSession: async () => ({ data: { session }, error: null }),
   } });
   overrides["next/navigation"].redirect = (location) => { throw Object.assign(new Error("Redirect"), { location }); };
-  overrides["@/lib/placement/placement"] = { applyPlacement: async () => {} };
-  overrides["@/lib/placement/placement-token"] = { readPlacementToken: () => null };
   admin.from = (table) => {
     assert.equal(table, "profiles");
     const q = {
@@ -322,6 +329,46 @@ async function authTests() {
   assert.equal(await courses.confirmGuestQuizAction(2), false);
   await assert.rejects(auth.loginAction({},form),onMap);
   assert.equal((await profile(otherId)).xp,160);
+
+  const guest = load("lib/courses/guest-progress-server.ts");
+  const tokens = load("lib/placement/placement-token.ts");
+  allowCookies = false;
+  await guest.keepGuestPlacement(tokens.createPlacementToken(2));
+  assert.equal((await guest.getGuestProgress()).placementChapter,null,"device declined the placement cookie");
+  allowCookies = true;
+  await pass(5); await pass(11);
+  await guest.keepGuestPlacement(tokens.createPlacementToken(2));
+  assert.equal(await guest.keepGuestPlacement(tokens.createPlacementToken(1)),2,"lower retake preserves the earlier result");
+  await db.query("update user_course_progress set status='in_progress',best_score=10010007 where user_id=$1 and course_id=(select id from courses where course_number=3)",[otherId]);
+  const before = await profile(otherId);
+  importFails = true;
+  await assert.rejects(auth.loginAction({},form),onMap);
+  assert.equal((await guest.getGuestProgress()).placementChapter,2);
+  assert.deepEqual(await profile(otherId),before);
+  importFails = false;
+  await db.exec(`reset role; create function fail_placement_write() returns trigger language plpgsql as $$
+    begin raise exception 'test: unavailable profile write'; end $$;
+    create trigger fail_placement before update of placement_chapter on profiles for each row execute function fail_placement_write();
+    set role service_role;`);
+  await assert.rejects(auth.loginAction({},form),onMap);
+  assert.deepEqual(await profile(otherId),before,"the final write failure rolls back the rewards of both quizzes");
+  assert.equal(await courses.confirmGuestQuizAction(5),true);
+  assert.equal((await guest.getGuestProgress()).placementChapter,2);
+  await db.exec("reset role; drop trigger fail_placement on profiles; set role service_role");
+  await assert.rejects(auth.loginAction({},form),onMap);
+  assert.equal((await profile(otherId)).xp,before.xp+160,"only signed quizzes 5 and 11 pay");
+  assert.equal((await profile(otherId)).gold,before.gold+12);
+  assert.equal((await guest.getGuestProgress()).placementChapter,null);
+  const rows = await query("select course_number,status,best_score from user_course_progress join courses on courses.id=course_id where user_id=$1 order by course_number", [otherId]);
+  assert.deepEqual(rows.slice(0,12).map((r) => r.status),[...Array(11).fill("completed"),"unlocked"]);
+  assert.equal(rows[4].best_score,10010010);
+  assert.equal(rows[9].best_score,8000000);
+  const telemetry = load("lib/courses/mission-telemetry.ts");
+  assert.ok(telemetry.isCoursePlacementSkip(rows[2].best_score));
+  assert.equal(telemetry.decodeCourseMissionTelemetry(rows[2].best_score).quizScore,7);
+  const older = await first("select apply_verified_placement($1,1,'[]') chapter",[otherId]);
+  assert.equal(older.chapter,2);
+  assert.equal((await profile(otherId)).xp,before.xp+160);
 }
 
 async function retryControlsTest() {

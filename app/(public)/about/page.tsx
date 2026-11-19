@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
+import { publicPageMetadata } from "@/lib/site/metadata";
 import Link from "next/link";
 import { PageHead } from "@/components/comic/page-head";
 
-export const metadata: Metadata = {
+export const metadata = publicPageMetadata({
+  path: "/about",
   title: "À propos",
-  description:
-    "English Quest est fait par Pierre Marienne, professeur d'anglais en collège et lycée. Pourquoi ce site, et comment il est construit.",
-};
+  description: "English Quest est fait par Pierre Marienne, professeur d'anglais en collège et lycée. Pourquoi ce site, et comment il est construit.",
+});
 
 export default function AboutPage() {
   return (

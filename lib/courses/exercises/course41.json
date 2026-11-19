@@ -60,14 +60,14 @@
       "id": "x8",
       "type": "gap",
       "prompt": "If Inès had applied, she might ___ the job. (get)",
-      "answers": ["have got", "have gotten"],
+      "answers": ["have got", "have gotten", "'ve got", "'ve gotten"],
       "explanation": "Après might, on ajoute have + participe passé. Might have présente le résultat comme possible, pas certain."
     },
     {
       "id": "x9",
       "type": "gap",
       "prompt": "If I ___ up so late, I wouldn't have been so tired during the exam. (not / stay)",
-      "answers": ["hadn't stayed", "had not stayed"],
+      "answers": ["hadn't stayed", "had not stayed", "'d not stayed"],
       "explanation": "La condition négative se forme avec hadn't + participe passé. En réalité, je me suis couché trop tard."
     },
     {
