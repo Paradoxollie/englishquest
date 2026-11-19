@@ -26,6 +26,9 @@ const bodyFont = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  verification: {
+    google: "jroxI7OCbGgts2E8cT5vi6AqCUxdyeFOeer58B0Uwbs",
+  },
   title: {
     default: "English Quest, apprendre l'anglais en jouant",
     template: "%s | English Quest",
