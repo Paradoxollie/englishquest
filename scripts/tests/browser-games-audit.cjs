@@ -260,6 +260,10 @@ async function readyChoices(page) {
       await tick(page, 8000);
       if (i === 0) await next.click();
     }
+    await page.getByRole('button', { name: 'Voir mon bilan' }).waitFor();
+    await tick(page, 12000);
+    assert.equal(await page.getByTestId('game-end').count(), 0, 'the final correction also waits');
+    await page.getByRole('button', { name: 'Voir mon bilan' }).click();
     await page.getByTestId('game-end').getByText(/hors classement/).waitFor();
     assert.equal(await page.getByTestId('game-end').getByRole('link', { name: 'Classement' }).count(), 0);
   });

@@ -51,6 +51,7 @@ export function FlashbackGame({
   const [started, setStarted] = useState(false);
   const [paused, setPaused] = useState(false);
   const [selfPaced, setSelfPaced] = useState(false);
+  const [lastCorrectionRead, setLastCorrectionRead] = useState(false);
   const [timedOutRound, setTimedOutRound] = useState(false);
   const [timeLeft, setTimeLeft] = useState(ROUND_MS);
   const [combo, setCombo] = useState(0);
@@ -73,7 +74,8 @@ export function FlashbackGame({
   const stateRef = useRef<GameState | null>(null);
   const gameSession = useGameSession("flashback", isLoggedIn);
 
-  const playing = started && state !== null && state.phase !== "gameOver";
+  const lastCorrection = selfPaced && state?.phase === "gameOver" && !lastCorrectionRead;
+  const playing = started && state !== null && (state.phase !== "gameOver" || lastCorrection);
   useGameFocusMode(playing);
 
   useEffect(() => {
@@ -108,6 +110,7 @@ export function FlashbackGame({
     stateRef.current = fresh;
     setState(fresh);
     setStarted(true);
+    setLastCorrectionRead(false);
     setPaused(false);
     pausedRef.current = false;
     setTimedOutRound(false);
@@ -300,7 +303,7 @@ export function FlashbackGame({
     );
   }
 
-  if (state.phase === "gameOver") {
+  if (state.phase === "gameOver" && !lastCorrection) {
     return (
       <GameEnd
         gameSlug={selfPaced ? undefined : "flashback"}
@@ -343,7 +346,7 @@ export function FlashbackGame({
     );
   }
 
-  const showingResult = state.phase === "result";
+  const showingResult = state.phase === "result" || lastCorrection;
   const tone = showingResult ? (state.lastDecisionCorrect ? "is-right" : "is-wrong") : "";
   const timeLow = timeLeft < 1500;
 
@@ -372,9 +375,9 @@ export function FlashbackGame({
           </p>
           <div className="flex items-center gap-2">
             <SpeakButton text={state.currentWord.english} label="Prononcer" />
-            <button type="button" className="eq-btn eq-btn-ghost eq-enigma-mini-btn" onClick={togglePause}>
+            {!lastCorrection && <button type="button" className="eq-btn eq-btn-ghost eq-enigma-mini-btn" onClick={togglePause}>
               {paused ? "Reprendre" : "Pause (Échap)"}
-            </button>
+            </button>}
           </div>
         </div>
 
@@ -423,8 +426,8 @@ export function FlashbackGame({
         </div>
 
         {selfPaced && showingResult && (
-          <button type="button" className="eq-btn eq-btn-gold" onClick={continueRound} disabled={paused}>
-            Continuer au mot suivant
+          <button type="button" className="eq-btn eq-btn-gold" onClick={lastCorrection ? () => setLastCorrectionRead(true) : continueRound} disabled={paused}>
+            {lastCorrection ? "Voir mon bilan" : "Continuer au mot suivant"}
           </button>
         )}
 
