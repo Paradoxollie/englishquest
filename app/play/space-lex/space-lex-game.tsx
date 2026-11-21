@@ -266,6 +266,7 @@ export function SpaceLexGame({
   const lastUpdateRef = useRef<number>(Date.now());
   const pausedAtRef = useRef<number>(0);
   const gameAreaRef = useRef<HTMLDivElement>(null);
+  const wordWidthsRef = useRef(new Map<string, number>());
   const flashTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shakeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const comboTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -285,6 +286,29 @@ export function SpaceLexGame({
   }, [autoFire]);
 
   useGameFocusMode(Boolean(gameState?.isRunning && !gameState.gameOver));
+
+  // Measure on a new word or resize. The whole label stays on screen and a
+  // tap on either end of a long expression uses the same width as the target.
+  const visibleWordIds = gameState?.enemies.map(enemy => enemy.id).join(",");
+  useEffect(() => {
+    const stage = gameAreaRef.current;
+    if (!stage || !visibleWordIds) {
+      wordWidthsRef.current.clear();
+      return;
+    }
+    const labels = Array.from(stage.querySelectorAll<HTMLElement>("[data-enemy-id]"));
+    const measure = () => {
+      if (!stage.clientWidth) return;
+      wordWidthsRef.current = new Map(labels.map(label => [
+        label.dataset.enemyId!, label.offsetWidth / stage.clientWidth,
+      ]));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(stage);
+    labels.forEach(label => observer.observe(label));
+    return () => observer.disconnect();
+  }, [visibleWordIds]);
 
   // Load ship skin only when not injected by server page
   useEffect(() => {
@@ -474,8 +498,8 @@ export function SpaceLexGame({
         next = updatePowerUps(next, clampedDelta);
         next = collectPowerUp(next);
         next = updateBullets(next, clampedDelta);
-        next = updateEnemies(next, clampedDelta);
-        next = checkCollisions(next, next.mission);
+        next = updateEnemies(next, clampedDelta, wordWidthsRef.current);
+        next = checkCollisions(next, next.mission, wordWidthsRef.current);
         next = checkEnemiesReachedBottom(next, next.mission);
         next = spawnEnemiesIfNeeded(next, next.mission);
         next = updateLevel(next);
@@ -824,7 +848,7 @@ export function SpaceLexGame({
         rules={[
           isMobile ? "Glisse sur l’aire de jeu ou maintiens les flèches pour déplacer le vaisseau." : "Déplace-toi avec la souris, les flèches ou les touches Q et D.",
           isMobile ? "Touche une cible pour te diriger vers elle et tirer, ou utilise le bouton Tirer." : "Clique ou appuie sur Espace pour tirer. Tu peux aussi activer le tir automatique.",
-          "Chaque vague cible une catégorie : thème, synonyme, famille ou boss.",
+          "Suis la consigne de la vague. Une cible que tu laisses passer peut revenir quelques mots plus tard.",
           missionTarget
             ? `Objectif de mission : ${missionTarget.toLocaleString("fr-FR")} points.`
             : isMobile ? "À pleine charge, touche EMP pour éliminer les distracteurs." : "À pleine charge, appuie sur E ou sur le bouton EMP pour éliminer les distracteurs.",
@@ -854,10 +878,8 @@ export function SpaceLexGame({
 
   // End screen
   if (gameState.gameOver) {
-    const learnedUnique = Array.from(new Set(gameState.learnedWords));
-    const missedUnique = Array.from(new Set(gameState.missedWords));
-    const total = learnedUnique.length + missedUnique.length;
-    const accuracy = total > 0 ? Math.round((learnedUnique.length / total) * 100) : 0;
+    const learnedUnique = gameState.learnedWords;
+    const missedUnique = gameState.missedWords;
 
     return (
       <GameEnd
@@ -867,7 +889,7 @@ export function SpaceLexGame({
         scoreLabel="points"
         lines={[
           `Vague atteinte : ${gameState.waveNumber}`,
-          `${learnedUnique.length} cible${learnedUnique.length > 1 ? "s" : ""} validée${learnedUnique.length > 1 ? "s" : ""} (${accuracy}% de précision)`,
+          `${learnedUnique.length} ${learnedUnique.length > 1 ? "mots différents reconnus" : "mot reconnu"}`,
           `Meilleur combo : ${gameState.maxCombo}x • Niveau ${getGameLevelLabel(level)}`,
         ]}
         rewards={scoreResult}
@@ -884,8 +906,8 @@ export function SpaceLexGame({
                 <p className="eq-kicker">Cibles validées ({learnedUnique.length})</p>
                 <div className="eq-game-review-scroll">
                   <ul className="eq-game-review">
-                    {learnedUnique.slice(0, 14).map((word, i) => (
-                      <li key={`hit-${word}-${i}`}>
+                    {learnedUnique.map((word) => (
+                      <li key={word}>
                         <div>
                           <b>{word}</b>
                         </div>
@@ -902,8 +924,8 @@ export function SpaceLexGame({
                 <p className="eq-kicker">Mots à revoir ({missedUnique.length})</p>
                 <div className="eq-game-review-scroll">
                   <ul className="eq-game-review">
-                    {missedUnique.slice(0, 14).map((word, i) => (
-                      <li key={`miss-${word}-${i}`} className="is-hard">
+                    {missedUnique.map((word) => (
+                      <li key={word} className="is-hard">
                         <div>
                           <b>{word}</b>
                         </div>
@@ -1071,6 +1093,7 @@ export function SpaceLexGame({
         {gameState.enemies.map((enemy: EnemyWord) => (
           <div
             key={enemy.id}
+            data-enemy-id={enemy.id}
             className="eq-space-word-anchor"
             style={{
               left: `${enemy.x * 100}%`,

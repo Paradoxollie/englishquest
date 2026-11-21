@@ -258,6 +258,17 @@ check("Space Lex wave completion grants the clear bonus once", () => {
   assert.equal(space.checkCollisions(result, null), result);
 });
 
+check("Space Lex keeps long labels inside the board and uses their visible width for a shot", () => {
+  const long = { ...enemy("long-word"), text: "BOARDING PASS", x: 0.08, baseX: 0.08 };
+  const widths = new Map([[long.id, 0.46]]);
+  const state = space.updateEnemies({ ...playingState(), enemies: [long] }, 16, widths);
+  assert.equal(state.enemies[0].x, 0.23);
+  const atEdge = { ...bullet("edge", state.enemies[0].y), x: 0.43 };
+  assert.equal(space.checkCollisions({ ...state, bullets: [atEdge] }, null, widths).score, 10);
+  const outside = { ...atEdge, x: 0.51 };
+  assert.equal(space.checkCollisions({ ...state, bullets: [outside] }, null, widths).score, 0);
+});
+
 check("Space Lex death prevents later bullets from earning more points", () => {
   const result = space.checkCollisions({ ...playingState(), lives: 1, enemies: [enemy("wrong", false), enemy("right")], bullets: [bullet("one"), bullet("two")] }, null);
   assert.equal(result.gameOver, true);
@@ -346,6 +357,96 @@ check("Space Lex word data: no misspelt or duplicated entries, distractors never
     for (let i = 0; i < 400; i += 1) {
       const enemyWord = space.spawnEnemy(playingState(), mission);
       assert.ok(enemyWord.isTarget || !forbidden.includes(enemyWord.text.toLowerCase()), `${theme}: ${enemyWord.text}`);
+    }
+  }
+});
+
+// Walk through both sides of the preview timer, forcing either a target or a decoy.
+function nextLexWord(state, target = true) {
+  const initialRandom = Math.random;
+  try {
+    Math.random = () => target ? 0 : 0.9;
+    const preview = space.spawnEnemiesIfNeeded({ ...state, enemies: [], lastEnemySpawnTime: Date.now() - 2500 }, state.mission);
+    assert.ok(preview.upcomingEnemy);
+    const held = space.spawnEnemiesIfNeeded(preview, state.mission);
+    assert.equal(held.vocabulary, preview.vocabulary);
+    const shown = space.spawnEnemiesIfNeeded({ ...held, upcomingEnemySpawnTime: Date.now() - 1 }, state.mission);
+    assert.equal(shown.enemies[0].text, preview.upcomingEnemy.text);
+    assert.equal(shown.vocabulary, preview.vocabulary);
+    assert.equal(shown.enemies[0].isTarget, target);
+    return shown;
+  } finally {
+    Math.random = initialRandom;
+  }
+}
+
+check("Space Lex guided openings sample a broad family before repeating", () => {
+  for (const level of [1, 2]) assert.equal(space.startGame(space.createGameState(level)).mission.type, "WORD_FAMILY");
+  for (const [theme, words] of Object.entries(space.EASY_WORD_FAMILIES)) {
+    assert.ok(words.length >= 24, theme);
+    const mission = { type: "WORD_FAMILY", theme, easy: true };
+    let state = { ...playingState(), mission };
+    const drawn = [];
+    for (let i = 0; i < words.length; i++) {
+      state = nextLexWord(state);
+      drawn.push(state.enemies[0].text.toLowerCase());
+    }
+    assert.deepEqual([...drawn].sort(), [...words].sort(), theme);
+    const firstOfNextCycle = nextLexWord(state).enemies[0].text.toLowerCase();
+    assert.ok(!drawn.slice(-3).includes(firstOfNextCycle), theme);
+  }
+  assert.ok(Object.values(space.WORD_FAMILIES).every(words => words.length >= 36));
+});
+
+check("Space Lex gives escaped targets a second chance after three other targets", () => {
+  const mission = { type: "WORD_FAMILY", theme: "TRAVEL", easy: true };
+  let state = nextLexWord({ ...playingState(), mission });
+  const first = state.enemies[0];
+  const beforeMiss = state.vocabulary;
+  state = space.checkEnemiesReachedBottom({ ...state, enemies: [{ ...first, y: 1 }] }, mission);
+  assert.equal(beforeMiss.reviews.length, 0);
+  assert.equal(state.vocabulary.reviews.length, 1);
+
+  const intervening = new Set();
+  for (let i = 0; i < 3; i++) {
+    const beforeDecoy = state.vocabulary;
+    state = nextLexWord(state, false);
+    assert.equal(state.vocabulary, beforeDecoy);
+    const wrong = state.enemies[0];
+    const shot = space.checkCollisions({ ...state, enemies: [{ ...wrong, x: 0.5, y: 0.5 }], bullets: [bullet("wrong")] }, mission);
+    assert.equal(shot.vocabulary, beforeDecoy, "shooting a decoy must never schedule it as a target");
+    state = nextLexWord(state);
+    assert.notEqual(state.enemies[0].text, first.text);
+    intervening.add(state.enemies[0].text);
+  }
+  assert.equal(intervening.size, 3);
+  state = nextLexWord(state);
+  assert.equal(state.enemies[0].text, first.text);
+  assert.equal(state.vocabulary.reviews.length, 0);
+  assert.equal(nextLexWord(state).enemies[0].text === first.text, false);
+  for (const reset of [space.startNextWave(state), space.startGame(state), space.resetGame(state)]) {
+    assert.equal(reset.vocabulary.targetsShown, 0);
+    assert.deepEqual(reset.vocabulary.reviews, []);
+  }
+});
+
+check("Space Lex synonyms give a genuine example and never spawn their own cue", () => {
+  for (const easy of [true, false]) {
+    for (const synonymKey of Object.keys(easy ? space.EASY_SYNONYMS : space.SYNONYMS)) {
+      for (const type of ["SYNONYMS", "BOSS"]) {
+        const mission = { type, easy, synonymKey };
+        assert.equal(space.isTargetWord(synonymKey, mission), false);
+        assert.ok(space.isTargetWord(space.getMissionExample(mission), mission));
+        let state = { ...playingState(), mission };
+        const drawn = new Set();
+        for (let i = 0; i < 4; i++) {
+          state = nextLexWord(state);
+          assert.notEqual(state.enemies[0].text, synonymKey);
+          drawn.add(state.enemies[0].text);
+        }
+        assert.equal(drawn.size, 4);
+        assert.notEqual(nextLexWord(state, false).enemies[0].text, synonymKey);
+      }
     }
   }
 });

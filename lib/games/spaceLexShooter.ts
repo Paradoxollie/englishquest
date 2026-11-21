@@ -11,6 +11,8 @@
  */
 
 import type { GameLevel } from "./levels";
+import { concreteDistractors, EASY_WORD_FAMILIES, themeDistractors, WORD_FAMILIES } from "./space-lex-families";
+export { EASY_WORD_FAMILIES, WORD_FAMILIES } from "./space-lex-families";
 
 export type MissionType = "WORD_FAMILY" | "CONNECTORS" | "SYNONYMS" | "BOSS";
 
@@ -97,8 +99,20 @@ export interface ActivePowerUp {
   endTime: number; // timestamp when effect ends
 }
 
+interface WaveVocabulary {
+  remaining: string[];
+  recent: string[];
+  targetsShown: number;
+  reviews: { word: string; readyAfter: number }[];
+}
+
+function freshVocabulary(): WaveVocabulary {
+  return { remaining: [], recent: [], targetsShown: 0, reviews: [] };
+}
+
 export interface GameState {
   mission: Mission | null;
+  vocabulary: WaveVocabulary;
   enemies: EnemyWord[];
   bullets: Bullet[];
   powerups: PowerUp[]; // collectible power-ups on screen
@@ -110,7 +124,7 @@ export interface GameState {
   lives: number;
   score: number; // local only
   level: number;
-  /** Niveau du vocabulaire du joueur (1 = A1 ... 5 = C1). */
+  /** Niveau du vocabulaire du joueur (1 = A1 ... 5 = B1+). */
   vocabLevel: GameLevel;
 
   // Wave System
@@ -180,224 +194,6 @@ export function isBeginnerLevel(level: GameLevel): boolean {
   return level <= 2;
 }
 
-// Word banks for missions (lexical fields: words that belong to a theme)
-export const WORD_FAMILIES: Record<string, string[]> = {
-  // Thèmes classiques utiles pour les rédactions
-  TRAVEL: [
-    "airplane", "airport", "station", "platform", "hotel",
-    "hostel", "passport", "visa", "luggage", "suitcase",
-    "backpack", "journey", "trip", "travel", "destination",
-    "tourism", "tourist", "reservation", "booking", "departure",
-    "arrival", "delay", "cancellation", "ticket", "boarding"
-  ],
-  FOOD: [
-    "restaurant", "cafe", "canteen", "menu", "recipe",
-    "kitchen", "ingredient", "flavour", "spice", "sweet",
-    "salty", "bitter", "sour", "healthy", "unhealthy",
-    "balanced", "snack", "dessert", "meal", "breakfast",
-    "lunch", "dinner", "diet", "allergy", "portion"
-  ],
-  SPORTS: [
-    "stadium", "arena", "pitch", "field", "court",
-    "athlete", "player", "opponent", "team", "coach",
-    "referee", "supporter", "training", "practice", "competition",
-    "tournament", "championship", "league", "victory", "defeat",
-    "draw", "score", "fitness", "exercise", "performance"
-  ],
-  NATURE: [
-    "forest", "jungle", "mountain", "valley", "river",
-    "lake", "ocean", "sea", "desert", "island",
-    "beach", "cliff", "wildlife", "species", "habitat",
-    "sunrise", "sunset", "landscape", "environment", "ecosystem",
-    "storm", "rain", "wind", "snow", "season"
-  ],
-  TECHNOLOGY: [
-    "computer", "laptop", "tablet", "smartphone", "screen",
-    "keyboard", "mouse", "software", "program", "application",
-    "app", "internet", "website", "platform", "network",
-    "wifi", "data", "file", "robot", "algorithm",
-    "digital", "device", "update", "password", "security"
-  ],
-  EDUCATION: [
-    "school", "college", "university", "classroom", "lesson",
-    "course", "teacher", "student", "pupil", "homework",
-    "grade", "mark", "result", "subject", "timetable",
-    "library", "knowledge", "learning", "revision", "deadline",
-    "book", "pen", "pencil", "paper", "notebook"
-  ],
-
-  // Thèmes vraiment utiles pour les essais / argumentations
-  ENVIRONMENT_ISSUES: [
-    "nature", "climate", "weather", "global warming", "climate change",
-    "recycling", "waste", "rubbish", "litter", "plastic",
-    "pollution", "smog", "carbon", "carbon footprint", "renewable",
-    "solar", "wind", "sustainable", "biodiversity", "deforestation",
-    "endangered", "conservation", "greenhouse", "emissions", "protect"
-  ],
-  SOCIAL_MEDIA: [
-    "account", "profile", "post", "comment", "like",
-    "share", "follower", "influencer", "trend", "hashtag",
-    "content", "video", "story", "stream", "message",
-    "chat", "notification", "privacy", "filter", "community",
-    "fake news", "bullying", "troll", "addiction", "algorithm"
-  ],
-  FEELINGS: [
-    "happy", "sad", "angry", "afraid", "anxious",
-    "worried", "relieved", "disappointed", "confident", "proud",
-    "ashamed", "embarrassed", "frustrated", "jealous", "curious",
-    "bored", "lonely", "hopeful", "shocked", "surprised",
-    "excited", "tired", "stressed", "relaxed", "motivated"
-  ],
-  CITY_LIFE: [
-    "street", "avenue", "square", "neighbourhood", "district",
-    "traffic", "rush hour", "crowd", "noise", "pollution",
-    "building", "skyscraper", "block", "shop", "mall",
-    "market", "bus", "tram", "underground", "station",
-    "pedestrian", "crossing", "park", "bench", "streetlight"
-  ],
-  FUTURE_JOBS: [
-    "job", "career", "workplace", "office", "factory",
-    "salary", "income", "wage", "internship", "training",
-    "qualification", "skills", "experience", "interview", "promotion",
-    "colleague", "manager", "boss", "company", "remote work",
-    "resignation", "unemployment", "contract", "full-time", "part-time"
-  ],
-
-  // Spécial pour ton jeu de vaisseau
-  SPACE_MISSION: [
-    "space", "spaceship", "station", "rocket", "launch",
-    "mission", "crew", "astronaut", "cosmonaut", "galaxy",
-    "planet", "moon", "asteroid", "comet", "orbit",
-    "gravity", "black hole", "solar system", "signal", "scanner",
-    "radar", "shield", "engine", "fuel", "base"
-  ],
-  DIPLOMACY: [
-    "agreement", "negotiation", "compromise", "alliance", "partnership",
-    "cooperation", "trust", "respect", "peace", "truce",
-    "treaty", "conflict", "tension", "sanction", "embassy",
-    "protocol", "misunderstanding", "concession", "proposal", "resolution"
-  ],
-  "HEALTH & MEDICINE": [
-    "hospital", "medicine", "symptom", "treatment", "disease",
-    "illness", "patient", "doctor", "nurse", "surgery",
-    "operation", "recovery", "immune", "virus", "bacteria",
-    "vaccine", "pharmacy", "prescription", "therapy", "clinic"
-  ],
-  "ART & CULTURE": [
-    "masterpiece", "exhibition", "gallery", "museum", "performance",
-    "literature", "novel", "poetry", "sculpture", "painting",
-    "theatre", "cinema", "festival", "heritage", "tradition",
-    "culture", "creative", "artistic", "abstract", "classic"
-  ],
-  "BUSINESS & ECONOMY": [
-    "profit", "investment", "market", "economy", "entrepreneur",
-    "startup", "company", "budget", "finance", "revenue",
-    "inflation", "recession", "consumer", "producer", "trade",
-    "industry", "product", "service", "strategy", "growth"
-  ],
-  "CRIME & JUSTICE": [
-    "evidence", "witness", "verdict", "investigation", "sentence",
-    "crime", "criminal", "police", "lawyer", "judge",
-    "court", "trial", "guilty", "innocent", "prison",
-    "suspect", "theft", "victim", "justice", "illegal"
-  ],
-  "COOKING": [
-    "boil", "fry", "roast", "bake", "grill",
-    "steam", "chop", "slice", "mix", "stir",
-    "whisk", "pour", "ingredient", "seasoning", "flavour",
-    "tasty", "delicious", "savoury", "utensil", "pan"
-  ],
-  CLOTHES: [
-    "shirt", "t-shirt", "jeans", "trousers", "shorts",
-    "skirt", "dress", "coat", "jacket", "sweater",
-    "jumper", "hoodie", "shoes", "boots", "trainers",
-    "sneakers", "socks", "hat", "cap", "scarf",
-    "gloves", "tie", "belt", "pyjamas", "uniform"
-  ],
-  "HOUSE & HOME": [
-    "house", "home", "flat", "apartment", "garden",
-    "kitchen", "bathroom", "bedroom", "living room", "garage",
-    "furniture", "sofa", "chair", "table", "bed",
-    "window", "door", "roof", "wall", "floor",
-    "ceiling", "cupboard", "shelf", "lamp", "mirror"
-  ],
-  FAMILY: [
-    "mother", "father", "mum", "dad", "parents",
-    "brother", "sister", "grandmother", "grandfather", "grandparents",
-    "uncle", "aunt", "cousin", "son", "daughter",
-    "nephew", "niece", "husband", "wife", "child"
-  ],
-  "BODY PARTS": [
-    "head", "face", "eye", "nose", "mouth",
-    "ear", "hair", "neck", "shoulder", "arm",
-    "hand", "finger", "leg", "knee", "foot",
-    "stomach", "back", "skin", "heart", "brain"
-  ],
-  ANIMALS: [
-    "cat", "dog", "bird", "fish", "rabbit",
-    "hamster", "mouse", "horse", "cow", "pig",
-    "sheep", "chicken", "duck", "lion", "tiger",
-    "elephant", "monkey", "bear", "snake", "spider"
-  ],
-  WEATHER: [
-    "sun", "rain", "cloud", "wind", "snow",
-    "storm", "fog", "mist", "thunder", "lightning",
-    "hot", "cold", "warm", "cool", "dry",
-    "wet", "sunny", "rainy", "cloudy", "windy"
-  ],
-  COLOURS: [
-    "red", "blue", "green", "yellow", "black",
-    "white", "grey", "orange", "purple", "pink",
-    "brown", "gold", "silver", "violet", "indigo",
-    "colourful", "bright", "dark", "pale", "light"
-  ]
-};
-
-/**
- * Thèmes voisins : leurs mots ne servent jamais de distracteurs les uns pour
- * les autres (« bus » n'est pas un mauvais mot dans une mission TRAVEL).
- */
-const RELATED_THEMES: string[][] = [
-  ["NATURE", "WEATHER", "ENVIRONMENT_ISSUES", "ANIMALS", "SPACE_MISSION"],
-  ["FOOD", "COOKING", "HOUSE & HOME", "ANIMALS", "HEALTH & MEDICINE"],
-  ["TRAVEL", "CITY_LIFE", "SPACE_MISSION", "NATURE"],
-  ["TECHNOLOGY", "SOCIAL_MEDIA", "SPACE_MISSION"],
-  ["EDUCATION", "FUTURE_JOBS", "ART & CULTURE"],
-  ["FUTURE_JOBS", "BUSINESS & ECONOMY", "HEALTH & MEDICINE", "CRIME & JUSTICE", "SPORTS", "SPACE_MISSION"],
-  ["SPORTS", "HEALTH & MEDICINE", "BODY PARTS"],
-  ["HOUSE & HOME", "CITY_LIFE", "FAMILY"],
-  ["CRIME & JUSTICE", "DIPLOMACY", "BUSINESS & ECONOMY"],
-  ["FEELINGS", "HEALTH & MEDICINE", "WEATHER", "COLOURS"],
-  ["COLOURS", "ART & CULTURE", "WEATHER"],
-  ["BUSINESS & ECONOMY", "CITY_LIFE"],
-  ["ENVIRONMENT_ISSUES", "CITY_LIFE"],
-];
-
-/**
- * Thèmes faits de noms concrets : seuls distracteurs « de thème » pour les
- * missions de synonymes (un adjectif d'un autre thème pourrait être un
- * synonyme non listé).
- */
-const NOUN_THEMES = [
-  "TRAVEL", "SPORTS", "TECHNOLOGY", "EDUCATION", "CITY_LIFE", "SPACE_MISSION",
-  "CLOTHES", "HOUSE & HOME", "FAMILY", "BODY PARTS", "ANIMALS",
-];
-
-/** Thèmes proposés aux niveaux 1 et 2, avec leurs mots les plus courants. */
-export const EASY_WORD_FAMILIES: Record<string, string[]> = {
-  FOOD: ["menu", "kitchen", "sweet", "salty", "snack", "dessert", "meal", "breakfast", "lunch", "dinner", "restaurant", "cafe"],
-  ANIMALS: ["cat", "dog", "bird", "fish", "rabbit", "hamster", "mouse", "horse", "cow", "pig", "sheep", "chicken", "duck", "lion", "tiger", "elephant", "monkey", "bear", "snake", "spider"],
-  COLOURS: ["red", "blue", "green", "yellow", "black", "white", "grey", "orange", "purple", "pink", "brown"],
-  CLOTHES: ["shirt", "t-shirt", "jeans", "trousers", "shorts", "skirt", "dress", "coat", "jacket", "jumper", "shoes", "boots", "socks", "hat", "cap", "scarf", "gloves"],
-  FAMILY: ["mother", "father", "mum", "dad", "parents", "brother", "sister", "grandmother", "grandfather", "uncle", "aunt", "cousin", "son", "daughter", "child"],
-  "BODY PARTS": ["head", "face", "eye", "nose", "mouth", "ear", "hair", "neck", "arm", "hand", "finger", "leg", "knee", "foot", "back"],
-  "HOUSE & HOME": ["house", "home", "flat", "garden", "kitchen", "bathroom", "bedroom", "living room", "garage", "sofa", "chair", "table", "bed", "window", "door", "roof", "wall", "floor", "lamp", "mirror"],
-  WEATHER: ["sun", "rain", "cloud", "wind", "snow", "storm", "fog", "hot", "cold", "warm", "sunny", "rainy", "cloudy", "windy"],
-  SPORTS: ["stadium", "field", "player", "team", "coach", "training", "competition", "victory", "score", "exercise"],
-  EDUCATION: ["school", "classroom", "lesson", "teacher", "student", "pupil", "homework", "mark", "subject", "timetable", "library", "book", "pen", "pencil", "paper", "notebook"],
-  TRAVEL: ["airplane", "airport", "station", "hotel", "passport", "suitcase", "backpack", "trip", "travel", "tourist", "ticket"],
-  NATURE: ["forest", "jungle", "mountain", "river", "lake", "ocean", "sea", "desert", "island", "beach"],
-};
 
 /** Noms des thèmes : affichage anglais et traduction française. */
 export const THEME_LABELS: Record<string, { en: string; fr: string }> = {
@@ -564,7 +360,7 @@ export const SYNONYMS: Record<string, string[]> = {
   ],
   EASY: [
     "easy", "simple", "straightforward", "effortless", "uncomplicated",
-    "painless", "undemanding"
+    "painless", "undemanding", "not hard", "not difficult"
   ],
   DANGEROUS: [
     "dangerous", "risky", "hazardous", "unsafe", "perilous",
@@ -605,17 +401,17 @@ export const SYNONYMS: Record<string, string[]> = {
 
 /** Synonymes proposés aux niveaux 1 et 2 : les plus courants seulement. */
 export const EASY_SYNONYMS: Record<string, string[]> = {
-  BIG: ["big", "large", "huge", "giant", "enormous"],
-  SMALL: ["small", "little", "tiny", "mini"],
-  HAPPY: ["happy", "glad", "cheerful", "pleased"],
-  SAD: ["sad", "unhappy", "upset"],
-  GOOD: ["good", "great", "nice", "fine", "excellent", "fantastic"],
-  BAD: ["bad", "awful", "terrible", "horrible"],
-  FAST: ["fast", "quick", "rapid"],
-  DIFFICULT: ["difficult", "hard", "tough", "complicated"],
-  EASY: ["easy", "simple"],
-  BEAUTIFUL: ["beautiful", "pretty", "lovely", "gorgeous"],
-  STRANGE: ["strange", "weird", "odd"],
+  BIG: ["large", "huge", "giant", "enormous", "massive", "gigantic"],
+  SMALL: ["little", "tiny", "miniature", "mini", "compact"],
+  HAPPY: ["glad", "cheerful", "pleased", "delighted", "joyful"],
+  SAD: ["unhappy", "down", "gloomy", "miserable", "heartbroken"],
+  GOOD: ["great", "nice", "fine", "excellent", "fantastic", "wonderful"],
+  BAD: ["awful", "terrible", "horrible", "poor", "dreadful"],
+  FAST: ["quick", "rapid", "speedy", "swift"],
+  DIFFICULT: ["hard", "tough", "complicated", "tricky", "challenging"],
+  EASY: ["simple", "not hard", "not difficult", "straightforward"],
+  BEAUTIFUL: ["pretty", "lovely", "gorgeous", "stunning", "good-looking"],
+  STRANGE: ["weird", "odd", "unusual", "bizarre", "peculiar"],
 };
 
 /** Contraires : leurs mots servent de distracteurs dans les missions de synonymes. */
@@ -690,6 +486,7 @@ export function createGameState(vocabLevel: GameLevel = DEFAULT_VOCAB_LEVEL): Ga
   const now = Date.now();
   return {
     mission: null,
+    vocabulary: freshVocabulary(),
     enemies: [],
     bullets: [],
     powerups: [],
@@ -781,7 +578,7 @@ export function generateMission(waveNumber: number = 1, vocabLevel: GameLevel = 
 
   // Pas de connecteurs aux niveaux 1 et 2 : ce sont des notions de collège et de lycée.
   const missionTypes: MissionType[] = easy ? ["WORD_FAMILY", "SYNONYMS"] : ["WORD_FAMILY", "CONNECTORS", "SYNONYMS"];
-  const type = pick(missionTypes);
+  const type = easy && waveNumber === 1 ? "WORD_FAMILY" : pick(missionTypes);
 
   // Waves get slightly longer as we progress
   const targetCount = 10 + (waveNumber - 1) * 5;
@@ -819,14 +616,12 @@ function getCategoryWords(mission: Mission): string[] {
  * Get target words for a mission (the most common ones only in easy mode)
  */
 function getTargetWords(mission: Mission): string[] {
-  if (mission.easy) {
-    if (mission.type === "WORD_FAMILY" && mission.theme && EASY_WORD_FAMILIES[mission.theme]) {
-      return EASY_WORD_FAMILIES[mission.theme];
-    }
-    if ((mission.type === "SYNONYMS" || mission.type === "BOSS") && mission.synonymKey && EASY_SYNONYMS[mission.synonymKey]) {
-      return EASY_SYNONYMS[mission.synonymKey];
-    }
+  if ((mission.type === "SYNONYMS" || mission.type === "BOSS") && mission.synonymKey) {
+    if (mission.easy && EASY_SYNONYMS[mission.synonymKey]) return EASY_SYNONYMS[mission.synonymKey];
+    const cue = mission.synonymKey.toLowerCase();
+    return getCategoryWords(mission).filter(word => word !== cue);
   }
+  if (mission.easy && mission.theme && EASY_WORD_FAMILIES[mission.theme]) return EASY_WORD_FAMILIES[mission.theme];
   return getCategoryWords(mission);
 }
 
@@ -843,14 +638,6 @@ export function isTargetWord(word: string, mission: Mission | null): boolean {
   return targetWords.includes(word.toLowerCase());
 }
 
-function relatedThemes(theme: string | undefined): Set<string> {
-  const related = new Set<string>(theme ? [theme] : []);
-  for (const group of RELATED_THEMES) {
-    if (theme && group.includes(theme)) group.forEach((item) => related.add(item));
-  }
-  return related;
-}
-
 /**
  * Distractors for a mission: words that can never be right for it.
  * - Theme mission: words of unrelated themes.
@@ -862,21 +649,14 @@ function relatedThemes(theme: string | undefined): Set<string> {
 function getDistractorWords(mission: Mission | null): { neutral: string[]; thematic: string[] } {
   const excluded = new Set((mission ? getCategoryWords(mission) : []).map((word) => word.toLowerCase()));
   const keep = (word: string) => !excluded.has(word.toLowerCase());
-  const themeWords = (themes: string[]) => themes.flatMap((theme) => {
-    const words = mission?.easy && EASY_WORD_FAMILIES[theme] ? EASY_WORD_FAMILIES[theme] : WORD_FAMILIES[theme] ?? [];
-    return words;
-  });
-
   if (!mission) {
-    return { neutral: DISTRACTOR_WORDS, thematic: Object.values(WORD_FAMILIES).flat() };
+    return { neutral: DISTRACTOR_WORDS, thematic: concreteDistractors };
   }
 
   if (mission.type === "WORD_FAMILY") {
-    const related = relatedThemes(mission.theme);
-    const pool = mission.easy ? Object.keys(EASY_WORD_FAMILIES) : Object.keys(WORD_FAMILIES);
     return {
-      neutral: [...NEUTRAL_GREETINGS, ...NEUTRAL_OBJECTS, ...NEUTRAL_VERBS, ...NEUTRAL_NOUNS].filter(keep),
-      thematic: themeWords(pool.filter((theme) => !related.has(theme))).filter(keep),
+      neutral: [],
+      thematic: themeDistractors(mission.theme ?? "").filter(keep),
     };
   }
 
@@ -885,7 +665,7 @@ function getDistractorWords(mission: Mission | null): { neutral: string[]; thema
     // cause et temps, « while » contraste et temps ; l'élève serait pénalisé à tort.
     return {
       neutral: [...NEUTRAL_GREETINGS, ...NEUTRAL_OBJECTS, ...NEUTRAL_VERBS, ...NEUTRAL_NOUNS].filter(keep),
-      thematic: [...themeWords(NOUN_THEMES), ...Object.values(SYNONYMS).flat()].filter(keep),
+      thematic: [...concreteDistractors, ...Object.values(SYNONYMS).flat()].filter(keep),
     };
   }
 
@@ -896,34 +676,49 @@ function getDistractorWords(mission: Mission | null): { neutral: string[]; thema
     : [];
   return {
     neutral: [...NEUTRAL_GREETINGS, ...NEUTRAL_OBJECTS, ...NEUTRAL_VERBS, ...NEUTRAL_NOUNS].filter(keep),
-    thematic: [...oppositeWords, ...oppositeWords, ...themeWords(NOUN_THEMES)].filter(keep),
+    thematic: [...oppositeWords, ...oppositeWords, ...concreteDistractors].filter(keep),
   };
 }
 
-/**
- * Spawn a new enemy word with varied movement patterns
- */
-export function spawnEnemy(state: GameState, mission: Mission | null): EnemyWord {
+// Draw new targets without replacement. A missed target gets another turn
+// once three further targets have been shown, even in a large word family.
+const REVIEW_GAP = 3;
+
+function drawTarget(words: string[], vocabulary: WaveVocabulary): { word: string; vocabulary: WaveVocabulary } {
+  const { remaining, recent, reviews, targetsShown } = vocabulary;
+  const bag = remaining.length ? remaining : words;
+  const due = reviews.find(review => review.readyAfter <= targetsShown);
+  const waiting = new Set(reviews.map(review => review.word));
+  const available = bag.filter(word => !waiting.has(word));
+  // A very small synonym set may need to cycle while a review is waiting.
+  const candidates = available.length ? available : words.filter(word => !waiting.has(word));
+  const fresh = candidates.filter(word => !recent.includes(word));
+  const word = due?.word ?? (fresh.length ? pick(fresh) : recent.find(item => candidates.includes(item)) ?? pick(bag));
+  return {
+    word,
+    vocabulary: {
+      remaining: bag.filter(item => item !== word),
+      recent: [...recent.filter(item => item !== word), word].slice(-REVIEW_GAP),
+      reviews: reviews.filter(review => review.word !== word),
+      targetsShown: targetsShown + 1,
+    },
+  };
+}
+
+function prepareEnemy(state: GameState, mission: Mission | null): { enemy: EnemyWord; vocabulary: WaveVocabulary } {
   const targetWords = mission ? getTargetWords(mission) : [];
-  const { neutral, thematic } = getDistractorWords(mission);
-
-  // 60 % de mots cibles, 40 % de distracteurs
-  const TARGET_PROBABILITY = 0.60;
-
-  let randomWord: string = "EMPTY";
-  let isTarget: boolean = false;
-
-  if (targetWords.length > 0 && Math.random() < TARGET_PROBABILITY) {
-    randomWord = pick(targetWords);
-    isTarget = true;
-  } else if (neutral.length > 0 || thematic.length > 0) {
-    // Mélange varié : 40 % de mots neutres, 60 % de mots d'autres thèmes
+  const isTarget = targetWords.length > 0 && Math.random() < 0.60;
+  let vocabulary = state.vocabulary;
+  let randomWord: string;
+  if (isTarget) {
+    const draw = drawTarget(targetWords, vocabulary);
+    randomWord = draw.word;
+    vocabulary = draw.vocabulary;
+  } else {
+    const { neutral, thematic } = getDistractorWords(mission);
     const useNeutral = thematic.length === 0 || (neutral.length > 0 && Math.random() < 0.4);
-    randomWord = pick(useNeutral ? neutral : thematic);
-    isTarget = false;
-  } else if (targetWords.length > 0) {
-    randomWord = pick(targetWords);
-    isTarget = true;
+    const pool = useNeutral ? neutral : thematic;
+    randomWord = pick(pool.length ? pool : NEUTRAL_GREETINGS);
   }
 
   const baseX = Math.random() * 0.8 + 0.1; // random base x position (10% to 90% of screen)
@@ -937,7 +732,7 @@ export function spawnEnemy(state: GameState, mission: Mission | null): EnemyWord
   const amplitude = 0.02 + Math.random() * 0.05; // oscillation amplitude (2% to 7% of screen)
   const phase = Math.random() * Math.PI * 2; // random phase offset
 
-  return {
+  const enemy: EnemyWord = {
     id: generateId(),
     text: randomWord.toUpperCase(),
     isTarget,
@@ -956,13 +751,18 @@ export function spawnEnemy(state: GameState, mission: Mission | null): EnemyWord
     spiralRadius: 0.01 + Math.random() * 0.02, // initial spiral radius
     spiralAngle: Math.random() * Math.PI * 2, // initial spiral angle
   };
+  return { enemy, vocabulary };
+}
+
+export function spawnEnemy(state: GameState, mission: Mission | null): EnemyWord {
+  return prepareEnemy(state, mission).enemy;
 }
 
 /**
  * Update enemy positions with varied movement patterns
  * Ensures smooth, continuous movement that never teleports or goes out of bounds
  */
-export function updateEnemies(state: GameState, deltaTime: number): GameState {
+export function updateEnemies(state: GameState, deltaTime: number, wordWidths?: ReadonlyMap<string, number>): GameState {
   if (state.waveStatus !== "playing") return state; // Only move if playing
 
   // Normalize deltaTime to 60fps (16.67ms per frame)
@@ -1089,7 +889,7 @@ export function updateEnemies(state: GameState, deltaTime: number): GameState {
   }).filter((enemy) => enemy.y < 1.2); // remove enemies that are off-screen
 
   // Check and resolve collisions between enemies (with smooth resolution)
-  enemies = resolveEnemyCollisions(enemies, MIN_X, MAX_X);
+  enemies = resolveEnemyCollisions(enemies, MIN_X, MAX_X, wordWidths);
 
   return { ...newState, enemies };
 }
@@ -1098,13 +898,14 @@ export function updateEnemies(state: GameState, deltaTime: number): GameState {
  * Check and resolve collisions between enemies to prevent overlap
  * Uses smooth, gradual separation to avoid teleportation
  */
-function resolveEnemyCollisions(enemies: EnemyWord[], minX: number, maxX: number): EnemyWord[] {
+function resolveEnemyCollisions(enemies: EnemyWord[], minX: number, maxX: number, wordWidths?: ReadonlyMap<string, number>): EnemyWord[] {
   const resolvedEnemies: EnemyWord[] = [];
   const COLLISION_BUFFER = 0.015; // 1.5% buffer between enemies
   const MAX_SEPARATION_PER_FRAME = 0.002; // Maximum separation per frame (very small to prevent teleportation)
 
   for (let i = 0; i < enemies.length; i++) {
     const enemy = enemies[i];
+    const enemyDims = getEnemyDimensions(enemy.text, wordWidths?.get(enemy.id));
     let adjustedX = enemy.x; // Start from current position
     let adjustedY = enemy.y;
 
@@ -1113,8 +914,7 @@ function resolveEnemyCollisions(enemies: EnemyWord[], minX: number, maxX: number
       const otherEnemy = resolvedEnemies[j];
 
       // Get dimensions for both enemies
-      const enemyDims = getEnemyDimensions(enemy.text);
-      const otherDims = getEnemyDimensions(otherEnemy.text);
+      const otherDims = getEnemyDimensions(otherEnemy.text, wordWidths?.get(otherEnemy.id));
 
       // Calculate bounding boxes
       const enemyLeft = enemy.x - enemyDims.width / 2;
@@ -1194,7 +994,8 @@ function resolveEnemyCollisions(enemies: EnemyWord[], minX: number, maxX: number
     }
 
     // Final safety clamp
-    const finalX = Math.max(minX, Math.min(maxX, adjustedX));
+    const halfWidth = Math.min(0.5, enemyDims.width / 2);
+    const finalX = Math.max(minX, halfWidth, Math.min(maxX, 1 - halfWidth, adjustedX));
     const finalY = adjustedY;
 
     resolvedEnemies.push({
@@ -1212,13 +1013,13 @@ function resolveEnemyCollisions(enemies: EnemyWord[], minX: number, maxX: number
  * Exported for use in UI to match hitbox
  * Dimensions are calculated to match the actual rendered size
  */
-export function getEnemyDimensions(text: string): { width: number; height: number } {
+export function getEnemyDimensions(text: string, measuredWidth?: number): { width: number; height: number } {
   const BASE_WIDTH = 0.082;
   const BASE_HEIGHT = 0.068;
   const CHAR_WIDTH = 0.013;
 
   const textLength = text.length;
-  const width = Math.min(0.26, BASE_WIDTH + Math.max(0, textLength - 4) * CHAR_WIDTH);
+  const width = measuredWidth ?? Math.min(0.26, BASE_WIDTH + Math.max(0, textLength - 4) * CHAR_WIDTH);
   const height = BASE_HEIGHT;
 
   return { width, height };
@@ -1285,7 +1086,7 @@ function generateFeedbackExplanation(word: string, isTarget: boolean, mission: M
  * Check collisions between bullets and enemies
  * Uses rectangular hitbox that adapts to word length
  */
-export function checkCollisions(state: GameState, mission: Mission | null): GameState {
+export function checkCollisions(state: GameState, mission: Mission | null, wordWidths?: ReadonlyMap<string, number>): GameState {
   if (state.gameOver || state.waveStatus !== "playing") return state;
   const BULLET_WIDTH = 0.01; // Width of bullet (1% of screen width)
   const BULLET_HEIGHT = 0.03; // Height of bullet (3% of screen height)
@@ -1300,7 +1101,7 @@ export function checkCollisions(state: GameState, mission: Mission | null): Game
     for (const enemy of [...state.enemies].sort((a, b) => b.y - a.y)) {
       if (enemiesToRemove.has(enemy.id)) continue;
       // Get dynamic dimensions based on word length
-      const enemyDims = getEnemyDimensions(enemy.text);
+      const enemyDims = getEnemyDimensions(enemy.text, wordWidths?.get(enemy.id));
 
       // Calculate bounding boxes
       const enemyLeft = enemy.x - enemyDims.width / 2;
@@ -1460,6 +1261,19 @@ export function checkEnemiesReachedBottom(state: GameState, mission: Mission | n
         if (!newState.missedWords.includes(enemy.text)) {
           newState.missedWords = [...newState.missedWords, enemy.text];
         }
+        const word = enemy.text.toLowerCase();
+        const vocabulary = newState.vocabulary;
+        if (isTargetWord(word, mission) && !vocabulary.reviews.some(review => review.word === word)) {
+          newState.vocabulary = {
+            ...vocabulary,
+            reviews: [...vocabulary.reviews, { word, readyAfter: vocabulary.targetsShown + REVIEW_GAP }],
+          };
+          newState.feedbackMessages = [...newState.feedbackMessages.slice(-1), {
+            id: generateId(), text: enemy.text, isCorrect: false,
+            explanation: mission?.lang === "fr" ? "C’était une cible à toucher" : "That was a target",
+            x: 0.5, y: 0.72, life: 0, maxLife: 120,
+          }];
+        }
 
         // Correct word reached bottom - check for shield
         if (newState.hasShield) {
@@ -1591,10 +1405,9 @@ export function spawnEnemiesIfNeeded(state: GameState, mission: Mission | null):
 
   // Generate a new upcoming enemy if none exists and it's time
   if (!newState.upcomingEnemy && newState.enemies.length < maxEnemiesOnScreen && now - newState.lastEnemySpawnTime >= spawnInterval - PREVIEW_DURATION) {
-    const newEnemyData = spawnEnemy(newState, mission);
-    newState.upcomingEnemy = {
-      ...newEnemyData,
-    };
+    const draw = prepareEnemy(newState, mission);
+    newState.upcomingEnemy = draw.enemy;
+    newState.vocabulary = draw.vocabulary;
     newState.upcomingEnemySpawnTime = newState.lastEnemySpawnTime + spawnInterval;
   }
 
@@ -1612,6 +1425,10 @@ export function updateMissionIfNeeded(state: GameState): GameState {
     return {
       ...state,
       mission: generateMission(state.waveNumber, state.vocabLevel),
+      vocabulary: freshVocabulary(),
+      upcomingEnemy: null,
+      upcomingEnemySpawnTime: 0,
+      enemies: [],
       lastMissionChangeTime: now,
       missionDuration: 0,
     };
@@ -1825,6 +1642,7 @@ export function startNextWave(state: GameState): GameState {
     powerups: [],
     waveNumber: nextWaveNumber,
     mission: nextMission,
+    vocabulary: freshVocabulary(),
     waveTarget: nextMission.targetCount,
     waveProgress: 0,
     waveStatus: isBossWave ? "boss_intro" : "intro",
@@ -1900,6 +1718,7 @@ export function startGame(state: GameState): GameState {
     isRunning: true,
     gameOver: false,
     mission: firstMission,
+    vocabulary: freshVocabulary(),
     waveNumber: 1,
     waveTarget: firstMission.targetCount,
     waveProgress: 0,
