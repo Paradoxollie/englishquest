@@ -1,20 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { joinClass } from "@/lib/classes/classes-server";
+import { readLive } from "@/lib/classes/live-client";
+import { liveClock } from "@/lib/classes/live-shared";
 import { ActionFeedback, useClassAction } from "./use-class-action";
 
 type JoinClassFormProps = {
   initialCode?: string;
   /** Liens affichés après l'inscription (page /rejoindre). */
   showNextSteps?: boolean;
+  studentLive?: boolean;
 };
 
-export function JoinClassForm({ initialCode = "", showNextSteps = false }: JoinClassFormProps) {
+export function JoinClassForm({ initialCode = "", showNextSteps = false, studentLive = true }: JoinClassFormProps) {
+  const router = useRouter();
   const [code, setCode] = useState(initialCode);
-  const [joined, setJoined] = useState(false);
+  const [joinedId, setJoinedId] = useState<string | null>(null);
+  const liveLookup = useRef<AbortController | null>(null);
   const { pending, result, run } = useClassAction("La connexion a échoué. Réessaie.");
+  useEffect(() => () => liveLookup.current?.abort(), []);
 
   return (
     <form
@@ -23,9 +30,18 @@ export function JoinClassForm({ initialCode = "", showNextSteps = false }: JoinC
         event.preventDefault();
         run(
           () => joinClass(code),
-          () => {
+          (response) => {
             setCode("");
-            setJoined(true);
+            const classId = response.data?.classId;
+            setJoinedId(classId ?? null);
+            if (!classId || !studentLive) return;
+            const destination = `/direct/${classId}`;
+            // The same code is also used for homework outside a live session.
+            const controller = new AbortController();
+            liveLookup.current = controller;
+            void readLive(classId, undefined, controller.signal).then((state) => {
+              if (!controller.signal.aborted && state.session && liveClock(state.session, state.serverNow).phase !== "finished") router.push(destination);
+            }).catch(() => {});
           }
         );
       }}
@@ -38,10 +54,12 @@ export function JoinClassForm({ initialCode = "", showNextSteps = false }: JoinC
             name="code"
             value={code}
             onChange={(event) => {
+              liveLookup.current?.abort();
               setCode(event.target.value.toUpperCase());
-              setJoined(false);
+              setJoinedId(null);
             }}
             maxLength={9}
+            disabled={pending}
             required
             autoComplete="off"
             autoCapitalize="characters"
@@ -56,14 +74,10 @@ export function JoinClassForm({ initialCode = "", showNextSteps = false }: JoinC
         </div>
       </label>
       <ActionFeedback result={result} />
-      {showNextSteps && joined ? (
+      {joinedId ? (
         <div className="eq-home-actions">
-          <Link href="/home" className="eq-btn eq-btn-gold">
-            Voir mes devoirs
-          </Link>
-          <Link href="/profile#classe" className="eq-btn eq-btn-ghost">
-            Mes classes
-          </Link>
+          {showNextSteps ? <Link href="/home" className="eq-btn eq-btn-gold">Voir mes devoirs</Link> : null}
+          {studentLive ? <Link href={`/direct/${joinedId}`} prefetch={false} className="eq-btn eq-btn-ghost">Attendre une séance en direct</Link> : null}
         </div>
       ) : null}
     </form>

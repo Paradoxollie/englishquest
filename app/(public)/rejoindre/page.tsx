@@ -43,7 +43,7 @@ export default async function JoinClassPage({ searchParams }: { searchParams: Pr
       <div className="eq-container eq-section">
         <div className="eq-card eq-class-join-page mx-auto grid max-w-xl gap-4 p-6">
           <p className="eq-muted text-sm">Tu pourras quitter la classe à tout moment depuis ton profil.</p>
-          <JoinClassForm initialCode={prefill} showNextSteps />
+          <JoinClassForm initialCode={prefill} showNextSteps studentLive={viewer.role === "student"} />
           <p className="text-sm">
             <Link href="/profile#classe" className="eq-text-link">
               Voir mes classes

@@ -1,4 +1,5 @@
 "use client";
+import { recordClassHits } from "@/components/classes/live-activity-events";
 
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
 
@@ -499,7 +500,9 @@ export function SpaceLexGame({
         next = collectPowerUp(next);
         next = updateBullets(next, clampedDelta);
         next = updateEnemies(next, clampedDelta, wordWidthsRef.current);
+        const beforeHits = next.enemies;
         next = checkCollisions(next, next.mission, wordWidthsRef.current);
+        recordClassHits(beforeHits, next.enemies);
         next = checkEnemiesReachedBottom(next, next.mission);
         next = spawnEnemiesIfNeeded(next, next.mission);
         next = updateLevel(next);

@@ -1,4 +1,5 @@
 "use client";
+import { recordClassAnswer } from "@/components/classes/live-activity-events";
 
 import Link from "next/link";
 import { MistakePractice } from "@/components/play/mistake-practice";
@@ -206,6 +207,7 @@ export function GrammarRushGame({
       const elapsed = Math.max(0, now - questionAtRef.current);
       answerPendingRef.current = true;
       const result = answerRush(current, choice, elapsed);
+      recordClassAnswer(result.isCorrect);
       stateRef.current = result.state;
       setState(result.state);
       setSelected(choice);

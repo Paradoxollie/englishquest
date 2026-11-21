@@ -18,6 +18,8 @@ for (const script of [
   'scripts/tests/character-roster-postgres.cjs',
   'scripts/tests/classes-regression.cjs',
   'scripts/tests/class-visibility-postgres.cjs',
+  'scripts/tests/live-class-postgres.cjs',
+  'scripts/tests/live-ceremony.cjs',
 ]) {
   const result = spawnSync(process.execPath, [script], { cwd: root, stdio: 'inherit' });
   if (result.error) throw result.error;

@@ -52,6 +52,13 @@ export default function PrivacyPage() {
               e-mail. Tu peux quitter une classe à tout moment depuis ton profil.</li>
           </ul>
           <p>
+            En séance de classe, ton professeur voit les pseudos présents, les réponses comptabilisées et les résultats
+            de chaque manche. Les participants voient le podium de leur séance. Le site garde tes réponses aux
+            exercices pour reprendre après une coupure. Quitter la classe efface ta participation et tes résultats
+            de ses séances. Ton professeur peut aussi consulter le nombre de parties libres et de missions validées
+            pendant les sept derniers jours, à partir de ton entrée dans la classe.
+          </p>
+          <p>
             Rien d&apos;autre : pas de nom réel, pas d&apos;établissement, pas de date de
             naissance. Ton pseudo et tes meilleurs scores apparaissent dans les classements, visibles par les
             autres joueurs connectés. Choisis un pseudo qui ne te désigne pas si tu préfères rester discret.

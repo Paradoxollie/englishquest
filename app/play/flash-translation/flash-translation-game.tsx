@@ -1,4 +1,5 @@
 "use client";
+import { recordClassAnswer } from "@/components/classes/live-activity-events";
 
 import { translationAnswers } from "@/lib/games/translation-recall";
 import { MistakePractice } from "@/components/play/mistake-practice";
@@ -231,6 +232,7 @@ export function FlashTranslationGame({
         return;
       }
       setState(answered);
+      recordClassAnswer(index === round.correctIndex);
       setSelected(index);
       setLiveAnswerMs(0);
 

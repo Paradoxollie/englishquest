@@ -1,4 +1,5 @@
 "use client";
+import { recordClassAnswer } from "@/components/classes/live-activity-events";
 
 import dynamic from "next/dynamic";
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
@@ -362,6 +363,7 @@ export function EnigmaScrollGame({
     }
     setState(next);
     setMessage(null);
+    recordClassAnswer(result.isWin);
     if (result.isWin) {
       playSoundEffect("victory");
       setLastPoints(result.pointsEarned);

@@ -39,6 +39,9 @@ function ClassCard({ item, showOwner }: { item: TeacherClassSummary; showOwner: 
         <Link href={`/teachers/classe/${item.id}`} className="eq-btn eq-btn-primary eq-btn-sm">
           Ouvrir la classe
         </Link>
+        <Link href={`/teachers/classe/${item.id}/direct`} prefetch={false} className="eq-btn eq-btn-gold eq-btn-sm">
+          Séance en direct
+        </Link>
         <Link href={`/teachers/classe/${item.id}/code`} className="eq-btn eq-btn-ghost eq-btn-sm">
           Afficher le code en grand
         </Link>
@@ -73,8 +76,7 @@ export default async function TeachersPage() {
   return (
     <div>
       <PageHead caption="Espace professeur" title="Vos classes">
-        Créez une classe, projetez son code : vos élèves la rejoignent en quelques secondes. Vous suivez ensuite leurs
-        missions et vous leur donnez des devoirs.
+        Retrouvez vos classes, préparez une séance de jeux ou de cours et suivez les devoirs de vos élèves.
       </PageHead>
 
       <div className="eq-container eq-section eq-teach">
@@ -94,18 +96,17 @@ export default async function TeachersPage() {
             <ol className="eq-teach-steps">
               <li>
                 <span>
-                  <b>Projetez le code</b> avec « Afficher le code en grand ».
+                  <b>Ouvrez « Séance en direct »</b> sur la carte de votre classe. Choisissez les activités et leur durée.
                 </span>
               </li>
               <li>
                 <span>
-                  <b>Les élèves vont sur /rejoindre</b> (ou dans leur profil) et tapent le code. Pas besoin d&apos;adresse
-                  e-mail.
+                  <b>Ouvrez la salle d&apos;attente et projetez le code.</b> Les élèves vont sur /rejoindre avec leur pseudo.
                 </span>
               </li>
               <li>
                 <span>
-                  <b>Ouvrez la classe</b> pour suivre les missions et donner des devoirs.
+                  <b>Donnez le départ</b> quand la classe est prête. Les manches s&apos;enchaînent jusqu&apos;au podium.
                 </span>
               </li>
             </ol>

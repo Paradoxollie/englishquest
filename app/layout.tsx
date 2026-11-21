@@ -3,10 +3,7 @@ import { Inter, Lexend } from "next/font/google";
 import "./globals.css";
 import "./studio-theme.css";
 import "./pro-theme.css";
-import { SiteShell } from "@/components/layout/site-shell";
-import { AuthProvider } from "@/components/auth/auth-provider";
-import { AppHeader } from "@/components/layout/app-header";
-import { RewardCelebrations } from "@/components/rewards/reward-celebrations";
+import { SiteContent } from "@/components/layout/site-content";
 import { SITE_URL } from "@/lib/site/config";
 
 // Lexend pour les titres (conçue pour la lisibilité), Inter pour le texte.
@@ -92,10 +89,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-screen antialiased" suppressHydrationWarning>
-        <AuthProvider>
-          <SiteShell header={<AppHeader />}>{children}</SiteShell>
-          <RewardCelebrations />
-        </AuthProvider>
+        <SiteContent>{children}</SiteContent>
       </body>
     </html>
   );

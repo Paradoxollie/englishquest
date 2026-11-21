@@ -837,6 +837,38 @@ function inDays(days) {
     assert.ok(await openInvitation());
   });
 
+  await test("Live rooms, projections and private invitation referrers stay out of visit statistics", async () => {
+    const { NextRequest, NextResponse } = require("next/server");
+    const { proxy } = loadTs("proxy.ts", name => {
+      if (name === "next/server") return { NextResponse };
+      if (name === "@/lib/navigation/safe-next") return safeNext;
+      return pureResolver(name);
+    });
+    const site = "https://example.invalid";
+    const requests = [];
+    const fetchBefore = globalThis.fetch;
+    globalThis.fetch = async (_url, { headers, body }) => {
+      requests.push({ referer: headers.referer, ...JSON.parse(body) });
+      return new Response();
+    };
+    try {
+      const visit = (path, referer = "") => proxy(new NextRequest(site + path, { headers: { referer } }));
+      const pupil = "/direct/" + CLASS_A;
+      const teacher = "/teachers/classe/" + CLASS_A + "/direct";
+      for (const path of [pupil, teacher, teacher + "?projection=1", "/activite-classe/cours/1"]) {
+        assert.equal((await visit(path)).headers.get("referrer-policy"), "no-referrer");
+      }
+      assert.equal(requests.length, 0);
+      const invitation = "/rejoindre?code=KM47RT";
+      for (const path of [pupil, teacher, invitation, "/auth/login?next=" + encodeURIComponent(pupil), "/auth/signup?next=" + encodeURIComponent(invitation)]) {
+        await visit("/home", site + path);
+        assert.deepEqual(requests.at(-1), { path: "/home", referrer: null, referer: "" });
+      }
+      await visit("/essayer", "https://public.example/article");
+      assert.deepEqual(requests.at(-1), { path: "/essayer", referrer: "https://public.example/article", referer: "https://public.example/article" });
+    } finally { globalThis.fetch = fetchBefore; }
+  });
+
   /* ---------------------------------------------------------------- invariants */
 
   await test("Class space copy has no em or en dashes; migration locks writes and enables RLS", async () => {

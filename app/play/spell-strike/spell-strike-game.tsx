@@ -1,4 +1,6 @@
 "use client";
+import { recordClassAnswer } from "@/components/classes/live-activity-events";
+import { useClassActivity } from "@/components/classes/live-activity-context";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playClipOrSpeak, playSoundEffect, stopAllGameAudio } from "@/lib/games/audio";
@@ -45,6 +47,7 @@ export function SpellStrikeGame({
   suggestedLevel: GameLevel | null;
   audioMap?: Record<string, string>;
 }) {
+  const inClass = Boolean(useClassActivity());
   const voiceStatus = useEnglishVoiceStatus();
   const noVoice = voiceStatus === "unsupported" || voiceStatus === "no-english";
 
@@ -170,11 +173,13 @@ export function SpellStrikeGame({
     [audioMap, enableAnswer, noVoice, showWrittenWord]
   );
 
-  const beginDictation = useCallback((entry: SpellEntry) => {
+  const beginDictation = useCallback((entry: SpellEntry, waitForTap = false) => {
     answerStartedAtRef.current = null;
     setCanAnswer(false);
     if (silentChoice || (noVoice && !audioMap[entry.id] && !audioMap[`${entry.id}-sentence`])) {
       showWrittenWord(entry);
+    } else if (waitForTap) {
+      setAudioNotice("Appuie sur Écouter le mot pour commencer la dictée.");
     } else if (noVoice && !audioMap[entry.id]) {
       playSentence(entry);
     } else {
@@ -243,9 +248,9 @@ export function SpellStrikeGame({
     setPhase("playing");
     startedAtRef.current = performance.now();
     gameSession.begin();
-    if (deck[0]) beginDictation(deck[0]);
-    later(() => inputRef.current?.focus(), 60);
-  }, [beginDictation, clearTimers, gameSession, later, level]);
+    if (deck[0]) beginDictation(deck[0], inClass);
+    if (!inClass) later(() => inputRef.current?.focus(), 60);
+  }, [beginDictation, clearTimers, gameSession, inClass, later, level]);
 
   const goToNext = useCallback(() => {
     clearTimers();
@@ -283,6 +288,7 @@ export function SpellStrikeGame({
       const reactionMs = answerStart === null ? 0 : Math.max(400, Math.round(performance.now() - answerStart));
       const issue: SpellAnswerIssue = skipped ? "wrong" : spellAnswerIssue(currentEntry, value);
       const correct = issue === "ok";
+      recordClassAnswer(correct);
       const nextStreak = correct ? streak + 1 : 0;
       const points = computeSpellRoundPoints({ difficulty, correct, usedHint, reactionMs, newStreak: nextStreak });
 

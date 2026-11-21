@@ -47,6 +47,11 @@ export async function ClassJoinCard({ viewer }: { viewer: Pick<Viewer, "id" | "r
                 <b>{item.name}</b>
                 <small className="eq-muted">avec {item.teacherName}</small>
               </div>
+              {viewer.role === "student" ? (
+                <Link href={`/direct/${item.id}`} prefetch={false} className="eq-btn eq-btn-gold eq-btn-sm" aria-label={`Rejoindre le direct de ${item.name}`}>
+                  Rejoindre le direct
+                </Link>
+              ) : null}
               <ConfirmActionButton
                 label="Quitter"
                 question={`Quitter « ${item.name} » ? Ton professeur ne verra plus ta progression.`}
@@ -65,7 +70,7 @@ export async function ClassJoinCard({ viewer }: { viewer: Pick<Viewer, "id" | "r
           Tu suis déjà {MAX_CLASSES_PER_PUPIL} classes, le maximum. Quitte-en une pour en rejoindre une autre.
         </p>
       ) : (
-        <JoinClassForm />
+        <JoinClassForm studentLive={viewer.role === "student"} />
       )}
     </section>
   );

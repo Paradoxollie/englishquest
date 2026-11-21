@@ -1,4 +1,6 @@
 "use client";
+import { recordClassAnswer } from "@/components/classes/live-activity-events";
+import { useClassActivity } from "@/components/classes/live-activity-context";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playDialogueOrSpeak, playSoundEffect, setRecordingPaused, setRecordingRate, stopAllGameAudio } from "@/lib/games/audio";
@@ -50,6 +52,7 @@ export function EchoSignalGame({
   audioMap?: Record<string, string>;
   lineStarts?: Record<string, number[]>;
 }) {
+  const inClass = Boolean(useClassActivity());
   const voiceStatus = useEnglishVoiceStatus();
   const noVoice = voiceStatus === "unsupported" || voiceStatus === "no-english";
 
@@ -245,8 +248,11 @@ export function EchoSignalGame({
     setPhase("playing");
     startedAtRef.current = performance.now();
     gameSession.begin();
-    if (picked[0] && !silentChoice) playScenario(picked[0], 1);
-  }, [clearTimers, gameSession, level, playScenario, silentChoice]);
+    if (picked[0] && !silentChoice) {
+      if (inClass) setAudioNotice("Appuie sur Écouter le message pour commencer.");
+      else playScenario(picked[0], 1);
+    }
+  }, [clearTimers, gameSession, inClass, level, playScenario, silentChoice]);
 
   const moveNext = useCallback(() => {
     clearTimers();
@@ -295,6 +301,7 @@ export function EchoSignalGame({
     (optionIndex: number) => {
       if (phase !== "playing" || !currentMission || !currentQuestion || (!silentMode && (!playsUsed || isPlayingAudio))) return;
       const correct = optionIndex === currentQuestion.correctIndex;
+      recordClassAnswer(correct);
       const nextStreak = correct ? streak + 1 : 0;
       const points = computeEchoQuestionPoints({ difficulty, correct, playsUsed, newStreak: nextStreak, silentMode });
 

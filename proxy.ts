@@ -2,6 +2,25 @@ import type { NextFetchEvent, NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { REQUEST_PATH_HEADER } from "@/lib/navigation/safe-next";
 
+function isLiveClassPath(pathname: string) {
+  return pathname.startsWith("/activite-classe/") || pathname.startsWith("/direct/")
+    || /^\/teachers\/classe\/[^/]+\/direct(?:\/|$)/.test(pathname);
+}
+
+function visitReferrer(request: NextRequest) {
+  const referrer = request.headers.get("referer");
+  if (!referrer) return "";
+  try {
+    const source = new URL(referrer, request.url);
+    if (source.origin !== request.nextUrl.origin) return referrer;
+    const next = source.pathname.startsWith("/auth/") ? source.searchParams.get("next") : null;
+    const pages = next ? [source, new URL(next, source)] : [source];
+    return pages.some((page) => page.origin === source.origin && (
+      isLiveClassPath(page.pathname) || (page.pathname === "/rejoindre" && page.searchParams.has("code"))
+    )) ? "" : referrer;
+  } catch { return ""; }
+}
+
 export async function proxy(request: NextRequest, event: NextFetchEvent) {
   const pathname = request.nextUrl.pathname;
   function forwardPage() {
@@ -26,6 +45,11 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
     return NextResponse.next();
   }
 
+  if (isLiveClassPath(pathname)) {
+    const response = forwardPage();
+    response.headers.set("Referrer-Policy", "no-referrer");
+    return response;
+  }
   if (request.method !== "GET") return forwardPage();
 
   // Les préchargements de liens ne sont pas des visites.
@@ -40,6 +64,7 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   }
 
   const baseUrl = request.nextUrl.origin;
+  const referrer = visitReferrer(request);
 
   const trackPromise = fetch(`${baseUrl}/api/track-visit`, {
     method: "POST",
@@ -50,11 +75,11 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
       "x-forwarded-for": request.headers.get("x-forwarded-for") || "",
       "x-vercel-forwarded-for": request.headers.get("x-vercel-forwarded-for") || "",
       "x-real-ip": request.headers.get("x-real-ip") || "",
-      referer: request.headers.get("referer") || "",
+      referer: referrer,
     },
     body: JSON.stringify({
       path: pathname,
-      referrer: request.headers.get("referer") || null,
+      referrer: referrer || null,
     }),
   }).catch(() => undefined);
 

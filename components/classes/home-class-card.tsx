@@ -40,8 +40,17 @@ async function HomeClassCardContent() {
     );
   }
 
+  const liveLinks = viewer.role === "student" ? (
+    <nav className="eq-home-actions" aria-label="Séances de classe">
+      {overview.classes.map((item) => (
+        <Link key={item.id} href={`/direct/${item.id}`} prefetch={false} className="eq-btn eq-btn-gold eq-btn-sm">
+          Direct de {item.name}
+        </Link>
+      ))}
+    </nav>
+  ) : null;
   const pending = overview.pending;
-  if (pending.length === 0) return null;
+  if (pending.length === 0) return liveLinks;
 
   // Un compte tout neuf n'avait pas encore de carte quand le devoir a été donné :
   // on ouvre ici les missions demandées (sans effet si elles le sont déjà).
@@ -96,6 +105,7 @@ async function HomeClassCardContent() {
           Et {hidden} autre{hidden > 1 ? "s" : ""} devoir{hidden > 1 ? "s" : ""} après ceux-ci.
         </p>
       ) : null}
+      {liveLinks}
     </section>
   );
 }

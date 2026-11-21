@@ -6,6 +6,7 @@ import { Mascot } from "@/components/comic/mascot";
 import { ResponsiveDetails } from "@/components/ui/responsive-details";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { games } from "@/lib/games/config";
+import { useClassActivity } from "@/components/classes/live-activity-context";
 import {
   canSpeakEnglish,
   isSoundMuted,
@@ -266,13 +267,15 @@ export function GameHud({
   onQuit?: () => void;
   showSoundToggle?: boolean;
 }) {
+  const classActivity = useClassActivity();
+  const showQuit = onQuit && !classActivity;
   return (
     <div className="eq-game-hud-wrap">
       <div className="eq-game-hud">{children}</div>
-      {showSoundToggle || onQuit ? (
+      {showSoundToggle || showQuit ? (
         <div className="eq-game-hud-actions">
           {showSoundToggle ? <SoundToggleButton /> : null}
-          {onQuit ? (
+          {showQuit ? (
             <button type="button" className="eq-game-quit" onClick={onQuit} data-testid="game-quit">
               Quitter
             </button>
@@ -330,6 +333,15 @@ export function GameStart({
   startDisabled?: boolean;
 }) {
   const introId = useId();
+  const classActivity = useClassActivity();
+  const startedForClass = useRef(false);
+  useEffect(() => {
+    if (classActivity && !startDisabled && !startedForClass.current) {
+      startedForClass.current = true;
+      onStart();
+    }
+  }, [classActivity, startDisabled, onStart]);
+  if (classActivity) return <p role="status" className="eq-muted">Le jeu se prépare…</p>;
   const introduction = <p id={introId} className="eq-game-start-intro">{intro}</p>;
   return (
     <div className="eq-game-start eq-slam">
@@ -396,6 +408,14 @@ export function GameEnd({
   children?: ReactNode;
 }) {
   const isZeroScore = score === 0 || score === "0";
+  const classActivity = useClassActivity();
+  const replayRef = useRef(onReplay);
+  useEffect(() => { replayRef.current = onReplay; }, [onReplay]);
+  useEffect(() => {
+    if (!classActivity) return;
+    const timer = setTimeout(() => replayRef.current(), 3200);
+    return () => clearTimeout(timer);
+  }, [classActivity]);
   const mood: "great" | "ok" | "low" =
     typeof ratio === "number" ? (ratio >= 0.7 ? "great" : ratio >= 0.4 ? "ok" : "low") : isZeroScore ? "low" : "great";
   // Une seule célébration par résultat enregistré (XP, or, niveau, badges, étoiles).
@@ -406,6 +426,13 @@ export function GameEnd({
     dispatchReward(buildGameRewardDetail(rewards));
   }, [rewards, rewardStatus]);
 
+  if (classActivity) {
+    return <div className="eq-game-end" role="status">
+      <h2 className="eq-h3">{title}</h2>
+      {lines?.[0] && <p>{lines[0]}</p>}
+      <p className="eq-muted">La manche continue. Une nouvelle partie va démarrer.</p>
+    </div>;
+  }
   return (
     <div className="eq-game-end eq-slam" data-testid="game-end">
       <div className="eq-game-end-head">

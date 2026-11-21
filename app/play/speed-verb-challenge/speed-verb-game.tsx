@@ -1,4 +1,5 @@
 "use client";
+import { recordClassAnswer } from "@/components/classes/live-activity-events";
 
 import { MistakePractice } from "@/components/play/mistake-practice";
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
@@ -369,6 +370,7 @@ export function SpeedVerbGame({
     roundLockedRef.current = true;
     const answerTime = now - roundStartedAtRef.current;
     const { state: next, result } = submitAnswer(checked, answer, answerTime);
+    recordClassAnswer(result.isCorrect);
     const round = checked.currentRound;
 
     setStats((previous) => ({
@@ -431,6 +433,7 @@ export function SpeedVerbGame({
     roundLockedRef.current = true;
     const round = current.currentRound;
     updateState(skipCurrentVerb(current));
+    recordClassAnswer(false);
     playSoundEffect("wrong");
     setStats((previous) => ({ ...previous, attempts: previous.attempts + 1 }));
     const nextFeedback: Feedback = {

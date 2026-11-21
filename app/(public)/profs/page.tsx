@@ -4,17 +4,17 @@ import Link from "next/link";
 export const metadata = publicPageMetadata({
   path: "/profs",
   title: "Pour les profs",
-  description: "English Quest en classe : une classe avec un code à projeter, le suivi des missions de chaque élève, des devoirs avec date limite. Gratuit, pour les professeurs d'anglais de la 6e à la terminale.",
+  description: "Créez une classe, lancez des jeux et des cours en direct, projetez le podium et retrouvez les devoirs de vos élèves sur English Quest.",
 });
 
 const features = [
   {
     title: "Une classe, un code",
-    copy: "Vous créez la classe, le site lui donne un code de six caractères. Les élèves le tapent et la rejoignent. Pas de liste à saisir, pas d'adresse e-mail à collecter.",
+    copy: "Projetez le code de six caractères au tableau. Les élèves le saisissent sur leur téléphone ou leur ordinateur et rejoignent votre classe avec leur pseudo.",
   },
   {
-    title: "Le code en grand, au tableau",
-    copy: "Un bouton affiche le code seul à l'écran, en très grand, avec l'adresse à taper. Lisible du fond de la salle, au vidéoprojecteur comme sur un écran interactif.",
+    title: "Une compétition en direct",
+    copy: "Choisissez les jeux ou les cours et la durée de chaque manche. Tous les appareils suivent le même compte à rebours. Vous voyez les réponses arriver et pouvez projeter le podium à la fin.",
   },
   {
     title: "Le suivi de chaque élève",
@@ -57,8 +57,8 @@ export default function TeachersLandingPage() {
           <p className="eq-kicker">Pour les professeurs d&apos;anglais</p>
           <h1 className="eq-h1">English Quest en classe</h1>
           <p className="eq-lead">
-            Vos élèves avancent dans les missions à leur rythme, en classe ou à la maison. Vous voyez où chacun en est,
-            vous repérez ce qui bloque et vous donnez des devoirs. Gratuitement.
+            Faites jouer la classe ensemble ou donnez une mission à faire à la maison. Retrouvez les résultats de la
+            séance, les devoirs rendus et les notions à reprendre dans votre espace professeur.
           </p>
           <div className="eq-home-actions">
             <Link href="/contact" className="eq-btn eq-btn-gold eq-btn-lg">

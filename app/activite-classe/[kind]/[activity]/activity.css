@@ -1,0 +1,17 @@
+.eq-live-preparing { padding: 1rem; }
+.eq-live-game-frame { width: 100%; max-width: 58rem; margin-inline: auto; min-width: 0; }
+.eq-live-course { max-width: 49rem; margin-inline: auto; padding: clamp(.7rem, 3vw, 1.6rem); display: grid; gap: .8rem; }
+.eq-live-objective { color: var(--muted); }
+.eq-live-course-nav, .eq-live-course-choices { display: flex; flex-wrap: wrap; gap: .5rem; }
+.eq-live-course-nav .eq-btn[aria-pressed="true"] { box-shadow: inset 0 -3px var(--gold); }
+.eq-live-lesson, .eq-live-exercise, .eq-live-course-feedback { display: grid; gap: .85rem; }
+.eq-live-lesson details { border: 1px solid var(--line, #bbc2ca); border-radius: .65rem; padding: .7rem; }
+.eq-live-lesson summary { cursor: pointer; font-weight: 700; }
+.eq-live-lesson details[open] > summary { margin-bottom: .65rem; }
+.eq-live-lesson .eq-prose { overflow-x: auto; }
+.eq-live-lesson .eq-prose table { width: 100%; }
+.eq-live-exercise .eq-live-course-choices { display: grid; }
+.eq-live-course-choices .eq-btn { justify-content: flex-start; text-align: left; white-space: normal; }
+.eq-live-course-choices .eq-input { padding: .65rem; min-width: 0; }
+.eq-live-course-feedback { padding: .8rem; border-inline-start: 4px solid var(--gold); }
+.eq-live-word-hint { font-weight: 700; line-height: 1.7; }

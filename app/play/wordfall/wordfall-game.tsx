@@ -1,4 +1,5 @@
 "use client";
+import { recordClassAnswer } from "@/components/classes/live-activity-events";
 
 import { filterInappropriateWords } from "@/lib/games/enigma-scroll-words";
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
@@ -418,6 +419,7 @@ export function WordfallGame({
       const current = stateRef.current;
       if (!current || !current.isRunning || pausedRef.current || !input.trim()) return;
       const result = processWordInput(current, input);
+      recordClassAnswer(result.success);
       if (!result.success) {
         stateRef.current = result.newState;
         setState(result.newState);

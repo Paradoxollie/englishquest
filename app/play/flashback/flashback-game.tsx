@@ -1,4 +1,5 @@
 "use client";
+import { recordClassAnswer } from "@/components/classes/live-activity-events";
 
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
 
@@ -187,6 +188,7 @@ export function FlashbackGame({
       return;
     }
     setRounds(count => count + 1);
+    if (choice !== null) recordClassAnswer(next.lastDecisionCorrect === true);
     const streak = next.lastDecisionCorrect ? comboRef.current + 1 : 0;
     comboRef.current = streak;
     setCombo(streak);

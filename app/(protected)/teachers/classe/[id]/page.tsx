@@ -6,6 +6,7 @@ import { AssignmentForm } from "@/components/classes/assignment-form";
 import { AssignmentList } from "@/components/classes/assignment-list";
 import { ClassSettings } from "@/components/classes/class-settings";
 import { PupilsTable } from "@/components/classes/pupils-table";
+import { PracticeWeek } from "@/components/classes/practice-week";
 import { TeacherOnlyNotice } from "@/components/classes/teacher-only-notice";
 import {
   MAX_DUE_DATE_DAYS_AHEAD,
@@ -79,6 +80,12 @@ export default async function TeacherClassPage({ params, searchParams }: ClassPa
             {pupils.length === 0 ? "Aucun élève" : `${pupils.length} élève${pupils.length > 1 ? "s" : ""}`} · créée le {createdOn}
             {!summary.isOwn && summary.teacherName ? ` · classe de ${summary.teacherName}` : ""}
           </p>
+          <div className="eq-home-actions mt-4">
+            <Link href={`/teachers/classe/${summary.id}/direct`} prefetch={false} className="eq-btn eq-btn-primary">
+              {archived ? "Résultats des séances" : "Séance en direct"}
+            </Link>
+            <a href="#devoirs" className="eq-btn eq-btn-ghost">Devoirs</a>
+          </div>
         </div>
         <div className="eq-teach-head-code">
           <p className="eq-teach-code-label">Code de la classe</p>
@@ -103,7 +110,7 @@ export default async function TeacherClassPage({ params, searchParams }: ClassPa
           <h2 id="class-pupils" className="eq-h2">
             Élèves
           </h2>
-          <span className="eq-muted text-sm">Pseudo et progression seulement, jamais d&apos;adresse e-mail.</span>
+          <span className="eq-muted text-sm">La dernière activité correspond aux jeux et missions enregistrés sur le site.</span>
         </div>
         {pupils.length === 0 ? (
           <div className="eq-card eq-teach-empty">
@@ -142,6 +149,7 @@ export default async function TeacherClassPage({ params, searchParams }: ClassPa
           <AssignmentList assignments={assignments} today={today} />
         </section>
 
+        {pupils.length > 0 ? <PracticeWeek classId={summary.id} viewerId={viewer.id} /> : null}
         <section className="eq-teach-block" aria-labelledby="class-struggles">
           <h2 id="class-struggles" className="eq-h2">
             Notions qui coincent
