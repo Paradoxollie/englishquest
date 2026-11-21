@@ -77,9 +77,10 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
   if (!user) return null;
 
   const admin = createSupabaseAdminClient();
-  const { data } = await admin.from("profiles").select("role, username").eq("id", user.id).maybeSingle();
-  const role = data?.role === "teacher" || data?.role === "admin" ? (data.role as ProfileRole) : "student";
-  return { id: user.id, role, username: (data?.username as string | undefined) ?? "" };
+  const { data, error } = await admin.from("profiles").select("role, username").eq("id", user.id).maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data || (data.role !== "student" && data.role !== "teacher" && data.role !== "admin")) return null;
+  return { id: user.id, role: data.role, username: data.username ?? "" };
 });
 
 /**
@@ -485,8 +486,10 @@ export type PupilClassOverview = {
 };
 
 /** Classes actives de l'élève (les classes archivées ne s'affichent plus) et devoirs en attente. */
-export async function getPupilClassOverview(userId: string): Promise<PupilClassOverview> {
+export async function getPupilClassOverview(viewer: Pick<Viewer, "id" | "role">): Promise<PupilClassOverview> {
   const today = parisDateString();
+  if (viewer.role === "teacher") return { classes: [], pending: [], today };
+  const userId = viewer.id;
   const admin = createSupabaseAdminClient();
 
   const { data: memberRows, error: memberError } = await admin
@@ -499,7 +502,7 @@ export async function getPupilClassOverview(userId: string): Promise<PupilClassO
 
   const classIds = memberships.map((row) => row.class_id);
   const [{ data: classRows, error: classError }, { data: assignmentRows, error: assignmentError }] = await Promise.all([
-    admin.from("classes").select(CLASS_COLUMNS).in("id", classIds).is("archived_at", null),
+    admin.from("classes").select("id, teacher_id, name, created_at").in("id", classIds).is("archived_at", null),
     admin
       .from("class_assignments")
       .select("id, class_id, course_id, due_date, note, created_at")
@@ -510,7 +513,7 @@ export async function getPupilClassOverview(userId: string): Promise<PupilClassO
   if (classError) throw new Error(classError.message);
   if (assignmentError) throw new Error(assignmentError.message);
 
-  const activeClasses = (classRows ?? []) as ClassRecord[];
+  const activeClasses = (classRows ?? []) as Pick<ClassRecord, "id" | "teacher_id" | "name" | "created_at">[];
   const classById = new Map(activeClasses.map((row) => [row.id, row]));
   const joinedAt = new Map(memberships.map((row) => [row.class_id, row.joined_at]));
   const teacherNames = await usernamesById(admin, activeClasses.map((row) => row.teacher_id));

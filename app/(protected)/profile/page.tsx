@@ -210,7 +210,7 @@ export default async function ProfilePage({
       <BadgesSection earned={badges.all} stats={badges.stats} />
       {badges.newlyEarned.length > 0 ? <RewardOnMount detail={{ badges: badges.newlyEarned }} /> : null}
 
-      <ClassJoinCard userId={user.id} />
+      <ClassJoinCard viewer={{ id: user.id, role: profile.role }} />
 
       <section className="eq-card eq-profile-account" aria-labelledby="profile-account">
         <span className="eq-caption">Compte</span>

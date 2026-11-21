@@ -38,6 +38,7 @@ const UNIQUE_VIOLATION = "23505";
 const CODE_ATTEMPTS = 6;
 const GENERIC_ERROR = "L'opération n'a pas abouti. Réessayez dans un instant.";
 const PUPIL_GENERIC_ERROR = "Ça n'a pas marché. Réessaie dans un instant.";
+const TEACHER_MEMBERSHIP_ERROR = "Avec un compte professeur, retrouvez vos classes dans l’espace professeur.";
 
 function teacherPaths(classId?: string) {
   revalidatePath("/teachers");
@@ -320,6 +321,7 @@ async function recordFailedJoin(admin: AdminClient, userId: string) {
 export async function joinClass(code: unknown): Promise<ClassActionResult<{ classId: string; className: string }>> {
   const viewer = await getViewer();
   if (!viewer) return { ok: false, error: "Connecte-toi pour rejoindre une classe." };
+  if (viewer.role === "teacher") return { ok: false, error: TEACHER_MEMBERSHIP_ERROR };
 
   const normalized = normalizeClassCode(code);
   if (!isValidClassCode(normalized)) {
@@ -416,6 +418,7 @@ export async function joinClass(code: unknown): Promise<ClassActionResult<{ clas
 export async function leaveClass(classId: unknown): Promise<ClassActionResult> {
   const viewer = await getViewer();
   if (!viewer) return { ok: false, error: "Connecte-toi d'abord." };
+  if (viewer.role === "teacher") return { ok: false, error: TEACHER_MEMBERSHIP_ERROR };
   if (!isUuid(classId)) return { ok: false, error: "Classe introuvable." };
 
   const admin = createSupabaseAdminClient();

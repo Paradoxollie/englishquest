@@ -4,8 +4,8 @@ import { redirect } from "next/navigation";
 import { PageHead } from "@/components/comic/page-head";
 import { JoinClassForm } from "@/components/classes/join-class-form";
 import { CLASS_CODE_LENGTH, normalizeClassCode } from "@/lib/classes/classes";
+import { getViewer } from "@/lib/classes/classes-data";
 import { withNextParam } from "@/lib/navigation/safe-next";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Rejoindre une classe",
@@ -28,14 +28,11 @@ export default async function JoinClassPage({ searchParams }: { searchParams: Pr
     .replace(/[^A-Z0-9]/g, "")
     .slice(0, CLASS_CODE_LENGTH);
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const viewer = await getViewer();
+  if (!viewer) {
     redirect(withNextParam("/auth/signup", prefill ? `/rejoindre?code=${prefill}` : "/rejoindre"));
   }
+  if (viewer.role === "teacher") redirect("/teachers");
 
   return (
     <div>

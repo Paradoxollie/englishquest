@@ -25,7 +25,7 @@ async function HomeClassCardContent() {
 
   let overview;
   try {
-    overview = await getPupilClassOverview(viewer.id);
+    overview = await getPupilClassOverview(viewer);
   } catch (error) {
     console.error("HomeClassCard", error);
     return null;

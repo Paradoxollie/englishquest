@@ -587,7 +587,7 @@ function inDays(days) {
     assert.equal(db.tables.class_members.length, 1);
   });
 
-  await test("Joining refuses archived classes, the class's own teacher and a sixth class", async () => {
+  await test("Joining refuses archived classes, teacher accounts and a sixth class", async () => {
     const seed = baseSeed();
     seed.classes.push({ id: crypto.randomUUID(), teacher_id: TEACHER, name: "Vieille classe", code: "ARCH22", archived_at: "2026-06-30T00:00:00.000Z" });
     const extra = Array.from({ length: 5 }, (_, index) => ({
@@ -606,7 +606,12 @@ function inDays(days) {
     assert.equal(db.tables.class_join_attempts.length, 1, "an archived code counts as a wrong code");
 
     session.userId = TEACHER;
-    assert.match((await actions.joinClass("KM47RT")).error, /C'est votre classe/);
+    const teacherReply = await actions.joinClass("KM47RT");
+    assert.match(teacherReply.error, /compte professeur/);
+    assert.deepEqual(await actions.joinClass("PQ29XZ"), teacherReply);
+    assert.deepEqual(await actions.joinClass("ZZZ222"), teacherReply);
+    assert.equal(db.tables.class_members.length, 0);
+    assert.equal(db.tables.class_join_attempts.length, 1);
 
     session.userId = PUPIL;
     for (const group of extra) assert.equal((await actions.joinClass(group.code)).ok, true);
@@ -772,7 +777,7 @@ function inDays(days) {
     const db = createFakeDb(seed);
     const { data } = loadServer(db, { userId: PUPIL });
 
-    const overview = await data.getPupilClassOverview(PUPIL);
+    const overview = await data.getPupilClassOverview({ id: PUPIL, role: "student" });
     assert.deepEqual(overview.classes.map((item) => [item.name, item.teacherName]), [["4e B", "m_marienne"]]);
     assert.deepEqual(overview.pending.map((item) => [item.courseId, item.status]), [
       [5, "en_retard"],
@@ -780,8 +785,56 @@ function inDays(days) {
     ]);
     assert.equal(overview.pending[0].note, "Avant le contrôle");
 
-    const empty = await data.getPupilClassOverview(PUPIL_2);
+    const empty = await data.getPupilClassOverview({ id: PUPIL_2, role: "student" });
     assert.deepEqual(empty, { classes: [], pending: [], today: classes.parisDateString() });
+  });
+
+  await test("A former pupil sees only their own classes and codes when promoted to teacher", async () => {
+    const seed = baseSeed();
+    seed.class_members.push({ class_id: CLASS_A, user_id: OTHER_TEACHER, joined_at: "2026-09-02T08:00:00.000Z" });
+    const { data, actions } = loadServer(createFakeDb(seed), { userId: OTHER_TEACHER });
+    const viewer = await data.getViewer();
+    assert.equal(viewer.role, "teacher");
+    assert.deepEqual((await data.getTeacherClasses(viewer)).map(({ id, code }) => [id, code]), [[CLASS_B, "PQ29XZ"]]);
+    assert.equal(await data.getTeacherClassDetail(viewer, CLASS_A), null);
+    assert.match((await actions.leaveClass(CLASS_A)).error, /compte professeur/);
+    assert.deepEqual(await data.getPupilClassOverview(viewer), { classes: [], pending: [], today: classes.parisDateString() });
+  });
+
+  await test("Projection and invitation links use the current account's class permissions", async () => {
+    const db = createFakeDb(baseSeed());
+    const session = { userId: OTHER_TEACHER };
+    const { data } = loadServer(db, session);
+    const mocks = {
+      "react/jsx-runtime": require("react/jsx-runtime"),
+      "next/link": "a",
+      "next/navigation": {
+        notFound() { throw new Error("Page introuvable"); },
+        redirect(href) { throw new Error("Redirection " + href); },
+      },
+      "@/lib/navigation/login-return": {},
+      "@/lib/navigation/safe-next": safeNext,
+      "@/lib/classes/classes": classes,
+      "@/lib/classes/classes-data": data,
+      "@/lib/site/config": { SITE_URL: "https://example.invalid" },
+      "@/lib/supabase/admin": { createSupabaseAdminClient: () => db.client },
+      "@/components/classes/projection-code": { ProjectionCode: "projection-code" },
+      "@/components/classes/teacher-only-notice": { TeacherOnlyNotice: "teacher-notice" },
+      "@/components/classes/join-class-form": { JoinClassForm: "join-class-form" },
+      "@/components/comic/page-head": { PageHead: "header" },
+    };
+    const resolve = (name) => name in mocks ? mocks[name] : pureResolver(name);
+    const projection = loadTs("app/(protected)/teachers/classe/[id]/code/page.tsx", resolve).default;
+    const invitation = loadTs("app/(public)/rejoindre/page.tsx", resolve).default;
+    const project = (id) => projection({ params: Promise.resolve({ id }) });
+    const openInvitation = () => invitation({ searchParams: Promise.resolve({ code: "KM47RT" }) });
+
+    assert.equal((await project(CLASS_B)).props.code, "PQ29XZ");
+    await assert.rejects(project(CLASS_A), /Page introuvable/);
+    await assert.rejects(openInvitation(), /Redirection \/teachers$/);
+    session.userId = PUPIL;
+    assert.equal((await project(CLASS_A)).type, "teacher-notice");
+    assert.ok(await openInvitation());
   });
 
   /* ---------------------------------------------------------------- invariants */

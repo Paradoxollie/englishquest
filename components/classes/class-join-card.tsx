@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { MAX_CLASSES_PER_PUPIL } from "@/lib/classes/classes";
-import { getPupilClassOverview, type PupilClassOverview } from "@/lib/classes/classes-data";
+import { getPupilClassOverview, type PupilClassOverview, type Viewer } from "@/lib/classes/classes-data";
 import { leaveClass } from "@/lib/classes/classes-server";
 import { ConfirmActionButton } from "./confirm-action-button";
 import { JoinClassForm } from "./join-class-form";
@@ -8,10 +9,17 @@ import { JoinClassForm } from "./join-class-form";
  * Carte « Classe » du profil : rejoindre une classe avec le code du
  * professeur, voir ses classes, en quitter une. Ancre #classe.
  */
-export async function ClassJoinCard({ userId }: { userId: string }) {
+export async function ClassJoinCard({ viewer }: { viewer: Pick<Viewer, "id" | "role"> }) {
+  if (viewer.role === "teacher") {
+    return (
+      <div id="classe">
+        <Link href="/teachers" className="eq-btn eq-btn-gold">Gérer mes classes</Link>
+      </div>
+    );
+  }
   let overview: PupilClassOverview | null = null;
   try {
-    overview = await getPupilClassOverview(userId);
+    overview = await getPupilClassOverview(viewer);
   } catch (error) {
     console.error("ClassJoinCard", error);
   }
