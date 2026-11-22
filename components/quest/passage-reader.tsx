@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { checkPassage } from "@/app/quest/atlas/actions";
-import { culturalClues, passageArt, passages, type Passage } from "@/lib/adventure/catalog";
+import { culturalClues, passages, type Passage } from "@/lib/adventure/catalog";
 import { recordingPath, type AccountDraft, type Activity, type GameAnswer, type QuizSubmission } from "@/lib/adventure/activities";
 import { ActivitySheet, PassageStage } from "./passage-stage";
+import { landscapeSizes, passageArt } from "./passage-art";
 import { PassageQuiz, type QuizDraft } from "./passage-quiz";
 import { useAdventureDraft } from "./use-adventure-draft";
 
@@ -132,7 +133,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
       <Link href="/quest#atlas" onNavigate={leave}>← Carte des mondes</Link><span>{savedStage} / {steps.length} épreuves validées · Escale {episode.id}</span>
     </nav>
     {!opened || done ? <section className={`atlas-splash ${done ? "atlas-finale" : ""}`}>
-      <div className="atlas-splash-art"><Image src={passageArt(episode)} alt={episode.alt} fill priority sizes="(max-width: 760px) 100vw, 58vw" /></div>
+      <div className="atlas-splash-art"><Image src={passageArt[episode.art]} alt={episode.alt} placeholder="blur" fill priority sizes={landscapeSizes} /></div>
       <div className="atlas-splash-copy">
         <span className="atlas-label">{done ? "Escale validée" : episode.place}</span>
         <h1 tabIndex={-1} ref={heading}>{done ? episode.keepsake : episode.title}</h1>

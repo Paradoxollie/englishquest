@@ -3,8 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { culturalClues, passageArt, type Passage } from "@/lib/adventure/catalog";
+import { culturalClues, type Passage } from "@/lib/adventure/catalog";
 import { panels } from "@/lib/adventure/panels";
+import { landscapeSizes, passageArt } from "./passage-art";
 
 const otherVoice: Record<number, string> = {
   1: "Quand tu entends I’m, le prénom qui suit est celui de la personne qui parle.",
@@ -32,7 +33,7 @@ export function PassageStage({ episode, index, total, saved, open }: {
     <div className="atlas-strip"><span>{episode.place}</span><h1 ref={title} tabIndex={-1}>{episode.title}</h1>
       <span className="atlas-sequence">Scène {index + 1} / {total}</span></div>
     <div className="atlas-landscape">
-      <Image src={passageArt(episode)} alt={episode.alt} width={1440} height={810} priority sizes="(max-width: 1190px) 100vw, 1160px" />
+      <Image src={passageArt[episode.art]} alt={episode.alt} placeholder="blur" priority sizes={landscapeSizes} />
       <button type="button" className="atlas-pin" onClick={open} style={{ left: `${panel.x}%`, top: `${panel.y}%` }} aria-label={panel.action}>
         <span aria-hidden="true">✦</span><b>{panel.action}</b>
       </button>

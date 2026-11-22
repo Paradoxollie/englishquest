@@ -2,7 +2,7 @@ export type Passage = {
   id: number;
   title: string;
   place: string;
-  art: string;
+  art: "quai" | "canopy" | "wind" | "tide" | "observatory";
   alt: string;
   minutes: string;
   skill: string;
@@ -26,7 +26,7 @@ export const passages: Passage[] = [
     keepsake: "La balise d’écho" },
   { id: 3, title: "Le secret des moulins", place: "Îles du grand vent", art: "wind", minutes: "6 à 10 min",
     alt: "Maya inspecte le moyeu d’un moulin volant. Depuis le balcon, Sam observe le cadran de l’horloge.",
-    skill: "Dire ce que j’ai et ce qu’un autre personnage possède.",
+    skill: "Dire ce que tu possèdes et ce qu’un équipier a dans son sac.",
     opening: "Le moulin est à l’arrêt. Maya cherche l’outil qui libérera les voiles. Sam garde les sacs de l’équipe. Qui a quoi ?",
     ending: "Les voiles se remettent en marche. Un courant d’air emporte la navette jusqu’à une ville où les rues disparaissent sous l’eau.",
     keepsake: "La roue des vents" },
@@ -43,10 +43,6 @@ export const passages: Passage[] = [
     ending: "Un trait de lumière relie l’observatoire, le phare, les moulins, la forêt et le port. Maya oriente la navette. Vous avez tracé ensemble le premier itinéraire de l’Atlas.",
     keepsake: "La carte des cinq mondes" },
 ];
-
-export function passageArt(passage: Passage) {
-  return `/art/passage/${passage.art}.webp`;
-}
 
 export const culturalClues: Record<number, { after: number; object: string; source: string; note: string }> = {
   1: { after: 1, object: "Le tampon du billet", source: "Retour vers le futur", note: "Le petit tampon 10:04 sur le billet du quai fait un clin d’œil à l’horloge de Hill Valley. Le robot, lui, voulait simplement qu’on lui dise bonjour." },
