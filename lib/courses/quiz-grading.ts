@@ -14,7 +14,7 @@ import { getCourseQuizPool } from "./exercises-server";
  */
 
 /** Ancien format (identifiant numérique) accepté : pages encore ouvertes avant la mise à jour. */
-export type CourseQuizAnswer = { id: string | number; choice?: number; text?: string };
+export type CourseQuizAnswer = Omit<ExerciseAnswer, "id"> & { id: string | number };
 
 const MAX_TEXT_LENGTH = 200;
 
@@ -38,7 +38,7 @@ export function gradeCourseQuiz(
 
   for (const raw of answers) {
     if (!raw || typeof raw !== "object") return null;
-    const { id, choice, text } = raw as Partial<CourseQuizAnswer>;
+    const { id, choice, text, revision } = raw as Partial<CourseQuizAnswer>;
     if (typeof id !== "string" && !Number.isInteger(id)) return null;
     const key = String(id);
     const item = byId.get(key);
@@ -52,6 +52,10 @@ export function gradeCourseQuiz(
     } else {
       if (typeof text !== "string" || text.length > MAX_TEXT_LENGTH) return null;
       answer.text = text;
+      if (revision !== undefined) {
+        if (typeof revision !== "number" || !Number.isSafeInteger(revision) || revision < 1) return null;
+        answer.revision = revision;
+      }
     }
     if (isExerciseAnswerCorrect(item, answer)) score += 1;
   }

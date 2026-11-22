@@ -14,6 +14,7 @@ import {
   isExerciseAnswerCorrect,
   orderPunctuation,
   orderTokens,
+  writtenExerciseAnswer,
   type ExerciseAnswer,
   type ExerciseItem,
 } from "@/lib/courses/exercise-check";
@@ -237,7 +238,7 @@ export function Quiz({ questions }: QuizProps) {
   const submitTyped = () => {
     const entry = deck[currentQuestion];
     if (!entry || entry.item.type !== "gap" || !typed.trim()) return;
-    settle(entry, { id: entry.item.id, text: typed });
+    settle(entry, writtenExerciseAnswer(entry.item, typed));
   };
 
   const submitBuilt = () => {
@@ -447,7 +448,7 @@ export function Quiz({ questions }: QuizProps) {
               autoCorrect="off"
               spellCheck={false}
               lang="en"
-              placeholder="Tape le mot qui manque"
+              placeholder="Mot ou groupe de mots manquant"
             />
             {!isAnswered ? (
               <button type="submit" className="eq-btn eq-btn-gold" disabled={!typed.trim()}>

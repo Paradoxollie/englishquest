@@ -52,9 +52,10 @@
     {
       "id": "x7",
       "type": "gap",
-      "prompt": "I hope I'll be ___ to come to your party.",
-      "answers": ["able"],
-      "explanation": "Can n'a pas de futur : on utilise will be able to + base verbale."
+      "prompt": "I hope I'll ___ come to your party. (exprime la capacité avec able)",
+      "answers": ["be able to"],
+      "previousAnswers": [["able"]],
+      "explanation": "« I hope I'll be able to come to your party » veut dire « J'espère pouvoir venir à ta fête ». Après will, on emploie be able to pour exprimer une capacité."
     },
     {
       "id": "x8",
@@ -66,7 +67,7 @@
     {
       "id": "x9",
       "type": "gap",
-      "prompt": "The firefighters ___ able to save the cat yesterday.",
+      "prompt": "The firefighters ___ able to save the cat yesterday. (conjugue be au passé)",
       "answers": ["were"],
       "explanation": "Réussite ponctuelle au passé : was/were able to. The firefighters = they, donc were."
     },

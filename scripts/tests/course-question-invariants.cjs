@@ -104,6 +104,8 @@ assert.equal(bank.length, nativeCount, "Question bank has no orphaned entries");
 for (const question of bank) checkQuestion(question, `Bank ${question.id}`);
 
 const { gradeCourseQuiz } = loadSource(path.join(root, "lib/courses/quiz-grading.ts"));
+const { getCourseQuizPool } = loadSource(path.join(root, "lib/courses/exercises-server.ts"));
+const { gradeLiveAnswers } = loadSource(path.join(root, "lib/classes/live-grading.ts"));
 for (const course of [1, 27, 50]) {
   const own = bank.filter((question) => question.course === course);
   const perfect = own.map((question) => ({ id: Number(question.id.split("-")[1]), choice: question.correctAnswer }));
@@ -146,37 +148,68 @@ for (const [course, id, accepted, rejected] of [
   assert.equal(check.isOrderAnswerCorrect(item, accepted), true, `Course ${course} accepts a valid alternative`);
   assert.equal(check.isOrderAnswerCorrect(item, rejected), false, `Course ${course} checks the order`);
 }
+function verifyMark(course, item, response, correct) {
+  const pool = getCourseQuizPool(course);
+  const otherAnswers = pool.filter(q => q.type === "mcq" && q.id !== item.id).slice(0, 9)
+    .map(q => ({ id: q.id, choice: q.correctAnswer }));
+  const context = `course ${course} exercise ${item.id} answer ${JSON.stringify(response)}`;
+  assert.equal(check.isExerciseAnswerCorrect(item, response), correct, `Browser: ${context}`);
+  assert.deepEqual(gradeCourseQuiz(course, [...otherAnswers, response]), { score: correct ? 10 : 9, total: 10 }, `Solo: ${context}`);
+  const [mark] = gradeLiveAnswers(pool, [response]);
+  assert.equal(mark?.ok, correct, `Live: ${context}`);
+  assert.equal(mark.revision, response.revision, `Resumed live answer: ${context}`);
+}
 for (const [course,id,correct,incorrect] of [
-  [1,"x7","’s","’re"], [1,"x9","’s","have"], [34,"x7","’s being recorded","’s been recorded"],
+  [1,"x7","’s","’re"], [1,"x9","Has  got","have got"], [1,"x9","has","has got got"], [1,"x9","’s got","’s"],
+  [15,"x7","be able to","able"], [17,"x7","ought to","ought"], [17,"x9","’d better","’d"],
+  [34,"x7","’s being recorded","’s been recorded"],
   [41,"x8","’ve gotten","’d gotten"], [44,"x10","’d not read","’ve not read"],
 ]) {
   const item = JSON.parse(fs.readFileSync(path.join(root,`lib/courses/exercises/course${course}.json`),"utf8")).items.find((q) => q.id === id);
   assert.equal(check.isGapAnswerCorrect(item,correct),true);
   assert.equal(check.isGapAnswerCorrect(item,incorrect),false);
-  const native = bank.filter((q) => q.course === course && /^\d+-\d+$/.test(q.id)).slice(0,9);
-  assert.deepEqual(gradeCourseQuiz(course,[...native.map((q) => ({id:q.id.split("-")[1],choice:q.correctAnswer})),{id,text:correct}]),{score:10,total:10});
+  verifyMark(course, item, check.writtenExerciseAnswer(item, correct), true);
+  verifyMark(course, item, check.writtenExerciseAnswer(item, incorrect), false);
 }
+const blueEyes = extras1.find(item => item.id === "x9");
+assert.match(blueEyes.prompt, /She ___ blue eyes\./);
+verifyMark(1, blueEyes, { id: "x9", text: "’s" }, true); // The old prompt supplied “got”.
+verifyMark(1, blueEyes, { id: "x9", text: "has got" }, true);
+verifyMark(1, blueEyes, { id: "x9", text: "’s", revision: 2 }, false);
+verifyMark(1, blueEyes, { id: "x9", text: "have got", revision: 2 }, false);
+verifyMark(1, blueEyes, { id: "x9", text: "has", revision: 999 }, false);
 assert.equal(check.displayToken("She", 0), "she");
 assert.equal(check.displayToken("Tom", 0), "Tom");
 assert.equal(check.displayToken("I", 0), "I");
 let seed = 7;
 const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+let exerciseCount = 0;
 for (let course = 1; course <= 50; course += 1) {
-  const pool = [
-    ...bank.filter((q) => q.course === course && /^\d+-\d+$/.test(q.id)).map((q) => ({ id: q.id.split("-")[1], type: "mcq", question: q.question, options: q.options, correctAnswer: q.correctAnswer, explanation: "" })),
-    ...JSON.parse(fs.readFileSync(path.join(root, `lib/courses/exercises/course${course}.json`), "utf8")).items,
-  ];
+  const pool = getCourseQuizPool(course);
+  for (const item of pool) {
+    exerciseCount++;
+    if (item.type === "mcq") {
+      item.options.forEach((_, choice) => verifyMark(course, item, { id: item.id, choice }, choice === item.correctAnswer));
+    } else {
+      for (const text of item.answers) verifyMark(course, item, check.writtenExerciseAnswer(item, text), true);
+      verifyMark(course, item, check.writtenExerciseAnswer(item, "zzz"), false);
+      for (const [index, accepted] of (item.previousAnswers ?? []).entries()) {
+        for (const text of accepted) verifyMark(course, item, { id: item.id, text, revision: index + 1 }, true);
+      }
+    }
+  }
   for (let draw = 0; draw < 4; draw += 1) {
     const series = check.drawQuizSeries(pool, rnd);
     assert.equal(series.length, 10, `Course ${course}: ten exercises`);
     assert.equal(new Set(series.map((item) => item.id)).size, 10, `Course ${course}: no repeat`);
     assert.equal(series.filter((item) => item.type === "gap").length, 2);
     assert.equal(series.filter((item) => item.type === "order").length, 2);
-    const answers = series.map((item) => item.type === "mcq" ? { id: item.id, choice: item.correctAnswer } : { id: item.id, text: item.answers[0] });
+    const answers = series.map((item) => item.type === "mcq" ? { id: item.id, choice: item.correctAnswer } : check.writtenExerciseAnswer(item, item.answers[0]));
     assert.deepEqual(gradeCourseQuiz(course, answers), { score: 10, total: 10 }, `Course ${course}: perfect mixed series`);
   }
 }
 console.log("PASS Course quizzes are graded on the server from the answers only, mixed series of 50 courses included.");
+console.log(`PASS All answer options and listed written variants of ${exerciseCount} exercises agree in the browser, solo scores and live marks.`);
 
 process.env.SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "test-only-key";
 const { createPlacementToken, readPlacementToken, createPlacementStepToken, readPlacementStepToken } = loadSource(path.join(root, "lib/placement/placement-token.ts"));

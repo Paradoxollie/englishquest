@@ -15,6 +15,10 @@ export function gradeLiveAnswers(pool: ExerciseItem[], input: unknown[]): (Exerc
     } else {
       if (!("text" in raw) || typeof raw.text !== "string" || !raw.text.trim() || raw.text.length > 200) continue;
       answer = { id: raw.id, text: raw.text.trim() };
+      if ("revision" in raw) {
+        if (typeof raw.revision !== "number" || !Number.isSafeInteger(raw.revision) || raw.revision < 1) continue;
+        answer.revision = raw.revision;
+      }
     }
     seen.add(raw.id);
     marks.push({ ...answer, ok: isExerciseAnswerCorrect(question, answer) });

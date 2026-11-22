@@ -52,9 +52,10 @@
     {
       "id": "x7",
       "type": "gap",
-      "prompt": "You ___ to listen to your teacher. (synonyme de should)",
-      "answers": ["ought"],
-      "explanation": "Ought to a le même sens que should, mais il garde to devant le verbe."
+      "prompt": "You ___ listen to your teacher. (donne un conseil avec ought)",
+      "answers": ["ought to"],
+      "previousAnswers": [["ought"]],
+      "explanation": "« You ought to listen to your teacher » veut dire « Tu devrais écouter ton professeur ». Ought to est suivi du verbe listen."
     },
     {
       "id": "x8",
@@ -66,9 +67,10 @@
     {
       "id": "x9",
       "type": "gap",
-      "prompt": "We ___ better hurry, or we'll miss the bus.",
-      "answers": ["had", "'d"],
-      "explanation": "Avertissement : had better + base verbale. À l'oral, on dit souvent we'd better."
+      "prompt": "We ___ hurry, or we'll miss the bus. (donne un avertissement avec better)",
+      "answers": ["had better", "'d better"],
+      "previousAnswers": [["had", "'d"]],
+      "explanation": "« We had better hurry » signifie « Nous ferions mieux de nous dépêcher ». La forme courte est « We'd better hurry »."
     },
     {
       "id": "x10",

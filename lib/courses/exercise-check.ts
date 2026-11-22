@@ -18,6 +18,8 @@ export type GapItem = {
   type: "gap";
   prompt: string;
   answers: string[];
+  /** Réponses des anciens énoncés, dans l’ordre des révisions. */
+  previousAnswers?: string[][];
   explanation: string;
 };
 
@@ -34,7 +36,7 @@ export type ExerciseItem = McqItem | GapItem | OrderItem;
 export type CourseExercises = { course: number; items: ExerciseItem[] };
 
 /** Réponse envoyée au serveur : indice d'origine pour un QCM, texte sinon. */
-export type ExerciseAnswer = { id: string; choice?: number; text?: string };
+export type ExerciseAnswer = { id: string; choice?: number; text?: string; revision?: number };
 
 /** Nombre de questions d'une série de quiz. */
 export const QUIZ_SIZE = 10;
@@ -54,9 +56,18 @@ export function normalizeAnswer(value: string) {
     .toLowerCase();
 }
 
-export function isGapAnswerCorrect(item: GapItem, text: string) {
+export function isGapAnswerCorrect(item: GapItem, text: string, revision = (item.previousAnswers?.length ?? 0) + 1) {
+  const history = item.previousAnswers ?? [];
+  const answers = revision === history.length + 1 ? item.answers : history[revision - 1];
   const given = normalizeAnswer(text);
-  return given.length > 0 && item.answers.some((answer) => normalizeAnswer(answer) === given);
+  return given.length > 0 && Array.isArray(answers) && answers.some((answer) => normalizeAnswer(answer) === given);
+}
+
+export function writtenExerciseAnswer(item: GapItem | OrderItem, text: string): ExerciseAnswer {
+  if (item.type === "gap" && item.previousAnswers?.length) {
+    return { id: item.id, text, revision: item.previousAnswers.length + 1 };
+  }
+  return { id: item.id, text };
 }
 
 export function isOrderAnswerCorrect(item: OrderItem, text: string) {
@@ -106,7 +117,11 @@ export function displayToken(token: string, index: number) {
 export function isExerciseAnswerCorrect(item: ExerciseItem, answer: ExerciseAnswer) {
   if (item.type === "mcq") return answer.choice === item.correctAnswer;
   if (typeof answer.text !== "string") return false;
-  return item.type === "gap" ? isGapAnswerCorrect(item, answer.text) : isOrderAnswerCorrect(item, answer.text);
+  if (item.type === "order") return isOrderAnswerCorrect(item, answer.text);
+  if (answer.revision !== undefined) return isGapAnswerCorrect(item, answer.text, answer.revision);
+  // Les anciennes copies ne précisent pas l'énoncé affiché. On y conserve aussi les réponses de la première version.
+  return isGapAnswerCorrect(item, answer.text)
+    || (Boolean(item.previousAnswers?.length) && isGapAnswerCorrect(item, answer.text, 1));
 }
 
 /** Réponse modèle à afficher après une erreur. */

@@ -9,14 +9,18 @@ const url = (path) => new URL(path,base).href;
 
 async function verifyCourseVariant(browser, course, prompt, answer) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  // Fix only the exercise draw so the target appears in the normal ten-question quiz.
+  // A repeatable draw on this isolated page also works with a minified production build.
   await page.addInitScript((draw) => {
-    const original = Math.random;
-    Math.random = () => new Error().stack?.includes("drawQuizSeries") ? draw : original();
-  }, course === 1 ? 0.01 : 0.99);
+    Math.random = () => draw;
+  }, course === 1 ? 0.25 : 0.4);
   try {
     await page.goto(url(`/cours/${course}#quiz`));
     const quiz = page.getByTestId("quiz");
+    const firstNative = bank.find(question => question.id === `${course}-1`);
+    await page.waitForFunction(first => {
+      const question = document.querySelector("#quiz .eq-quiz-question");
+      return question && question.textContent.trim() !== first;
+    }, firstNative.question);
     for (let n = 0; n < 10; n++) {
       const text = await quiz.locator(".eq-quiz-question").innerText();
       const target = text.includes(prompt);
@@ -90,8 +94,10 @@ async function verifyCourseVariant(browser, course, prompt, answer) {
     await page.getByRole("link",{name:"Continuer vers la mission 11"}).first().waitFor();
     await page.waitForFunction(() => window.localStorage.getItem("eq-placement-token") === null);
     console.log("PASS Guest test through both chapters, next lesson, map, library, refresh, legacy result and three login destinations");
-    await verifyCourseVariant(browser, 1, "got blue eyes", "’s");
+    await verifyCourseVariant(browser, 1, "___ blue eyes", "has got");
+    await verifyCourseVariant(browser, 1, "___ blue eyes", "’s got");
+    await verifyCourseVariant(browser, 17, "___ listen to your teacher", "ought to");
     await verifyCourseVariant(browser, 49, "Éteignez vos téléphones", ["turn", "your", "phones", "off", "please"]);
-    console.log("PASS Course 1 accepts the contracted 's and course 49 accepts the polite request with please at the end in the browser");
+    console.log("PASS Full and contracted has got, ought to, and the end-position please are accepted in the browser");
   } finally { await browser.close(); }
 })().catch((error) => { console.error(error); process.exitCode=1; });

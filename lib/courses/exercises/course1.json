@@ -66,9 +66,10 @@
     {
       "id": "x9",
       "type": "gap",
-      "prompt": "She ___ got blue eyes.",
-      "answers": ["has", "'s"],
-      "explanation": "Avec she, have got devient has got."
+      "prompt": "She ___ blue eyes. (have ou have got)",
+      "answers": ["has got", "has", "'s got"],
+      "previousAnswers": [["has", "'s"]],
+      "explanation": "« She has got blue eyes » et « She has blue eyes » veulent toutes les deux dire « Elle a les yeux bleus ». La forme courte est « She's got blue eyes »."
     },
     {
       "id": "x10",

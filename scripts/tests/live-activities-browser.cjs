@@ -150,6 +150,25 @@ async function run() {
     await frame.locator(".eq-live-exercise").waitFor();
     assert.notEqual(await exercise.getAttribute("data-exercise"), exerciseId);
     assert.equal((await page.evaluate(() => window.checkpoints.length)), 0);
+    // Reprendre juste avant x9 permet de vérifier l'énoncé reçu par un téléphone et le relevé envoyé au professeur.
+    const native = require("../../lib/placement/questions.json").filter(q => q.course === 1)
+      .map(q => ({ id: q.id.split("-")[1], choice: q.correctAnswer }));
+    const extras = require("../../lib/courses/exercises/course1.json").items.filter(q => q.id !== "x9")
+      .map(q => q.type === "mcq" ? { id: q.id, choice: q.correctAnswer } : { id: q.id, text: q.answers[0] });
+    const earlier = [...native, ...extras];
+    const baseline = { courseId: 1, answers: earlier, answered: earlier.length, correct: earlier.length, score: 100 * earlier.length };
+    for (const [text, right] of [["has got", true], ["have got", false]]) {
+      await open("cours/1", baseline);
+      await frame.getByRole("heading", { name: /She ___ blue eyes/ }).waitFor();
+      await exercise.getByRole("textbox").fill(text);
+      await exercise.getByRole("button", { name: "Valider" }).click();
+      await frame.getByText(right ? "Bonne réponse !" : "Réponse attendue", { exact: true }).waitFor();
+      const checkpoint = await didAnswer("course 1 x9");
+      assert.deepEqual(checkpoint.answers.at(-1), { id: "x9", text, revision: 2 });
+      assert.equal(checkpoint.correct, earlier.length + Number(right));
+      await open("cours/1", checkpoint);
+      await frame.getByText(`${checkpoint.correct} bonnes réponses sur ${earlier.length + 1}.`, { exact: true }).waitFor();
+    }
     assert.deepEqual(writes, [], "embedded public activities never write standalone rewards");
     assert.deepEqual(errors, [], "client rendering");
     console.log("PASS lesson, real answer, correction and resume without duplicate credit");

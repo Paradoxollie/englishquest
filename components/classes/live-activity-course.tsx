@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type FormEvent, type ReactNode } from "react";
-import { displayToken, isExerciseAnswerCorrect, orderTokens, type ExerciseAnswer, type ExerciseItem } from "@/lib/courses/exercise-check";
+import { displayToken, isExerciseAnswerCorrect, orderTokens, writtenExerciseAnswer, type ExerciseAnswer, type ExerciseItem } from "@/lib/courses/exercise-check";
 import { useClassActivity } from "./live-activity-context";
 import { recordClassAnswer } from "./live-activity-events";
 
@@ -48,7 +48,7 @@ export function LiveCourseActivity({ title, objective, exercises, children }: {
   }
   function submitText(event: FormEvent) {
     event.preventDefault();
-    if (question && text.trim()) submit({ id: question.id, text: text.trim() });
+    if (question && question.type !== "mcq" && text.trim()) submit(writtenExerciseAnswer(question, text.trim()));
   }
   function next() {
     setQuestion(deck.find(item => !answers.some(given => given.id === item.id)));
@@ -79,7 +79,7 @@ export function LiveCourseActivity({ title, objective, exercises, children }: {
         {options.map(({ value, index }) => <button key={index} className="eq-btn eq-btn-ghost" disabled={feedback !== null}
           onClick={() => submit({ id: question.id, choice: index })}>{value}</button>)}
       </div> : <form onSubmit={submitText} className="eq-live-course-choices">
-        <label htmlFor="live-written-answer">Ta réponse en anglais</label>
+        <label htmlFor="live-written-answer">{question.type === "gap" ? "Mot ou groupe de mots manquant" : "Ta réponse en anglais"}</label>
         <input id="live-written-answer" className="eq-input" value={text} onChange={event => setText(event.target.value)}
           maxLength={200} autoComplete="off" autoCapitalize="off" spellCheck={false} readOnly={feedback !== null} />
         {feedback === null && <button className="eq-btn eq-btn-primary" disabled={!text.trim()}>Valider</button>}
