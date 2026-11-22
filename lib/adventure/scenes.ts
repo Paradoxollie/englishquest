@@ -31,7 +31,7 @@ function echo(message: RadioMessage, title: string, questions: EchoQuestion[]): 
 export const scenes: Record<number, AuthoredActivity[]> = {
   1: [
     scene("choice", "Premier contact", "Sam part chercher la boussole. Que lui dis-tu en le voyant partir ?", {
-      lesson: lesson("Deux mots pour le quai", "Hello! · Bonjour !\nGoodbye! · Au revoir !"), options: ["Hello!", "Goodbye!"] },
+      lesson: lesson("Deux mots pour le quai", "Hello! · Bonjour !\nGoodbye! · Au revoir !"), options: ["Hello!", "Goodbye!"], reply: { speaker: "Sam", line: "Goodbye, Nova!" } },
     ["Goodbye!"], "Sam s’éloigne. Cherche le mot du départ.", "Sam te fait un signe de la main. La radio reste entre tes mains."),
     scene("choice", "Une voix sur le quai", "Qui vient de t’appeler ?", {
       lesson: lesson("À la radio, on salue puis on donne son prénom.", "Hi! · Salut !\nI’m Maya. · Je suis Maya."),
@@ -53,12 +53,12 @@ export const scenes: Record<number, AuthoredActivity[]> = {
     "Tu peux commencer par I’m ou I am, puis ajouter le nom du badge.", "I’m Sky et My name is Sky permettent tous les deux de te présenter. La navette peut partir."),
   ],
   2: [
-    scene("choice", "Le sac de Maya", "Maya cherche une clé. Quel mot choisis-tu sur l’inventaire ?", {
+    scene("spot", "Le sac de Maya", "Maya te demande « a key ». Touche l’objet à lui tendre.", {
       lesson: lesson("A veut dire « un » ou « une » devant ces objets.", "a key · une clé\na bag · un sac\na map · une carte"),
-      options: ["a bag", "a map", "a key"] }, ["a key"], "Map sert à trouver son chemin. Bag permet de transporter des affaires.", "A key, c’est une clé. Elle ouvre le boîtier de la balise."),
-    scene("choice", "L’abri sous le grand arbre", "Sous un parapluie, Maya trouve deux sacs. Lequel demande-t-elle ?", {
+      spots: { picture: "inventory", points: [[17, 62], [50, 60], [82, 57]], labels: ["Le sac", "La carte", "La clé"] }, options: ["a bag", "a map", "a key"] }, ["a key"], "Map sert à trouver son chemin. Bag permet de transporter des affaires.", "A key, c’est une clé. Elle ouvre le boîtier de la balise."),
+    scene("spot", "L’abri sous le grand arbre", "Lis le mot de Maya et touche le sac qu’elle demande.", {
       lesson: lesson("En anglais, la couleur vient avant l’objet.", "a red key · une clé rouge\na blue key · une clé bleue"),
-      document: doc("Le mot de Maya", "Hello! A red bag, please."), options: ["Un sac bleu", "Un sac rouge", "Une clé rouge"] },
+      document: doc("Le mot de Maya", "Hello! A red bag, please."), spots: { picture: "shelter", points: [[29, 58], [73, 57]] }, options: ["Un sac rouge", "Un sac bleu"] },
     ["Un sac rouge"], "Red indique la couleur. Bag désigne l’objet.", "A red bag est un sac rouge. L’équipe le met à l’abri du passage de la balise."),
     scene("order", "L’étiquette effacée", "Écris avec les étiquettes « C’est une carte bleue ».", {
       lesson: lesson("It’s est la forme courte de It is, « c’est ».", "It’s a red key. · C’est une clé rouge.", [
@@ -147,9 +147,9 @@ export const scenes: Record<number, AuthoredActivity[]> = {
     "La première phrase peut commencer par I’m ou My name is. La deuxième commence par The key.", "I’m Nova. The key is on the map. Ton équipe a reçu les deux informations. Le faisceau rallume la route des cinq mondes."),
   ],
   6: [
-    scene("choice", "Deux noms au générique", "Qui chante dans le film ?", {
+    scene("spot", "Deux noms au générique", "Touche l’artiste qui chante sur la pellicule.", {
       lesson: lesson("Un métier après a", "a singer · un chanteur, une chanteuse\na pilot · un pilote, une pilote"),
-      document: doc("Les badges des artistes", "MIRA · singer\nLEO · pilot"), options: ["Mira", "Leo"] },
+      document: doc("Les badges des artistes", "MIRA · singer\nLEO · pilot"), spots: { picture: "film", points: [[28, 53], [63, 51]] }, options: ["Mira", "Leo"] },
     ["Mira"], "Cherche singer sur les badges.", "Mira chante. Son nom se lit encore sur le bord de la pellicule."),
     scene("choice", "Une voix derrière la caméra", "De qui parle Leo dans la deuxième phrase ?", {
       lesson: lesson("I désigne la personne qui parle. She et he permettent de parler d’une autre personne.", "I am Sam. · Je suis Sam.\nShe is Maya. · Elle, c’est Maya.\nHe is Sam. · Lui, c’est Sam."),
@@ -173,10 +173,10 @@ export const scenes: Record<number, AuthoredActivity[]> = {
         [["Are", "Le verbe être vient en premier dans cette question."], ["you", "You veut dire « tu » ou « vous »."], ["the singer?", "The désigne la personne précise que tu recherches."]]),
       options: ["Are you the pilot?", "You are the singer.", "I am the pilot."] },
     ["Are you the pilot?"], "Commence par le verbe are, puis la personne à qui tu parles.", "Are you the pilot? La guichetière appelle les deux personnes qui partent ce matin."),
-    scene("choice", "Deux réponses", "À qui dois-tu remettre le bon de vol ?", {
+    scene("delivery", "Deux réponses", "Prends le bon de vol et confie-le à la personne qui pilote.", {
       lesson: lesson("Répondre pour soi", "Yes, I am. · Oui.\nNo, I’m not. · Non."),
-      document: doc("Question aux deux coursiers", "Are you the pilot?\nJo: No, I’m not.\nKit: Yes, I am."), options: ["Jo", "Kit"] },
-    ["Kit"], "C’est la personne qui répond oui à la question.", "Kit pilote le planeur. Jo reste au guichet pour trier le courrier."),
+      document: doc("Question aux deux coursiers", "Are you the pilot?\nJo: No, I’m not.\nKit: Yes, I am."), options: ["Le bon de vol", "La bobine"], delivery: { picture: "letter", destinations: ["Jo", "Kit"] } },
+    ["Le bon de vol | Kit"], "Sélectionne le bon de vol. Cherche ensuite la personne qui répond oui.", "Kit emporte le bon de vol. Jo reste au guichet pour trier le courrier."),
     scene("order", "Le badge retourné", "Tu cherches maintenant la personne qui chante. Assemble ta question.", {
       englishCue: "Ask a question.", options: ["the singer?", "you", "Are"] },
     ["Are you the singer"], "Reprends l’ordre de la question posée à la pilote, puis change le métier.", "Are you the singer? Mira retourne son badge et te salue."),
@@ -203,6 +203,10 @@ export const scenes: Record<number, AuthoredActivity[]> = {
     ["Trois lanternes bleues"], "Lis le groupe qui se termine par lanterns.", "Le panier bleu est prêt. Les deux clés rouges appartiennent à une autre commande."),
     scene("write", "Un reçu pour le port", "Pour le voyage retour, écris « deux lanternes rouges » en toutes lettres.", { englishCue: "Write the order." },
     ["two red lanterns"], "Commence par le nombre en lettres, puis la couleur, puis le nom au pluriel.", "Two red lanterns. Ce reçu permettra de retrouver le rail dans l’autre sens."),
+    scene("delivery", "Le dernier départ", "Prépare le colis pour le port, puis choisis sa destination.", {
+      legacyQuiz: true, document: doc("Les commandes", "Port · Two red lanterns.\nIsland · Three blue lanterns."),
+      options: ["Three blue lanterns", "Two red lanterns"], delivery: { picture: "lanterns", destinations: ["Île", "Port"] } },
+    ["Two red lanterns | Port"], "Relis la ligne Port. Compare la quantité et la couleur avant de fermer le colis.", "Les deux lanternes rouges prennent la route du port. Les trois bleues restent avec vous pour l’île."),
   ],
   9: [
     scene("choice", "Le panneau de la gare", "Le panneau indique Turn right. Quel aiguillage faut-il préparer ?", {
@@ -212,7 +216,7 @@ export const scenes: Record<number, AuthoredActivity[]> = {
       lesson: lesson("Sur une voie toute droite", "Go straight. · Va tout droit.\nStop. · Arrête-toi.\nThen · ensuite"),
       document: doc("Les deux signaux", "Go straight. Then stop."), options: ["Aller tout droit", "M’arrêter", "Tourner à gauche"] },
     ["M’arrêter"], "Then annonce l’action suivante.", "Le wagon s’arrête devant le premier poste d’aiguillage."),
-    scene("route", "Aux commandes du rail", "Règle les deux aiguillages dans l’ordre du billet.", {
+    scene("route", "Aux commandes du rail", "Conduis le wagon. À chaque croisement, suis le billet.", {
       englishCue: "Follow the route.", document: doc("La feuille de route", "Turn left. Then turn right.") },
     ["left right"], "Le premier virage est à gauche. Pour le deuxième, relis les mots après then.", "Gauche puis droite. La lanterne du tunnel s’allume au passage du wagon."),
     scene("order", "Un rail tout droit", "Compose « Va tout droit, puis arrête-toi ».", {
@@ -241,9 +245,115 @@ export const scenes: Record<number, AuthoredActivity[]> = {
       englishCue: "Write for your team." }, ["We are ready. We have two maps", "We're ready. We have two maps", "We are ready. We've got two maps", "We're ready. We've got two maps", "We are ready. We have got two maps", "We're ready. We have got two maps"],
     "Commence tes deux phrases par We. Dans la deuxième, réutilise have et mets map au pluriel après two.", "We’re ready. We have two maps. Vous gardez une carte sur l’île et confiez l’autre au port."),
   ],
+  11: [
+    scene("spot", "Un mot au vestiaire", "Iris a laissé un billet. Touche ce qu’elle est venue chercher.", {
+      lesson: lesson("My indique à qui appartient l’objet. C’est la personne qui parle.", "my key · ma clé\nmy map · ma carte\nmy bag · mon sac"),
+      document: doc("Le billet d’Iris", "My bag, please!\nIris"), options: ["Le sac", "La carte", "La clé"],
+      spots: { picture: "cloakroom", points: [[18, 60], [50, 63], [80, 55]] } },
+    ["Le sac"], "Iris dit my bag. Quel objet sert à emporter ses affaires ?", "Tu sors le sac bleu du vestiaire. Dans la doublure dépasse un ticket."),
+    scene("choice", "Les deux faces du ticket", "Iris parle à Sam. À qui appartient la carte ?", {
+      lesson: lesson("Your désigne ce qui appartient à la personne à qui on parle.", "my bag · mon sac\nyour bag · ton sac, votre sac"),
+      document: doc("Au dos du ticket", "Sam, this is your map.\nIris"), options: ["À Iris", "À Sam", "À Maya"] },
+    ["À Sam"], "Iris a écrit le prénom de la personne à qui elle parle.", "Sam reconnaît son plan du port. Iris s’en est servie pour entrer dans le musée."),
+    scene("choice", "L’appel du propriétaire", "Écoute qui appelle, puis retrouve le ticket de cette personne.", {
+      englishCue: "Listen and match.", radio: radio("sam-intro", "Sam", "Hi, I’m Sam."),
+      document: doc("Les deux tickets", "Maya · my key\nSam · my map"), options: ["Le ticket de la clé", "Le ticket de la carte"] },
+    ["Le ticket de la carte"], "Retrouve le prénom entendu, puis lis l’objet écrit à côté.", "Sam récupère le ticket de son plan. Celui de la clé reste à Maya."),
+    scene("order", "Rendre la carte", "Parle à Sam. Assemble « C’est ta carte » en commençant par This.", {
+      lesson: lesson("Quand tu rends un objet, tu peux le montrer avec This is.", "This is my key. · C’est ma clé.\nThis is your bag. · C’est ton sac."),
+      options: ["your", "map.", "This", "is"] }, ["This is your map"], "Commence par This is. À qui parles-tu ?", "This is your map. Sam retourne la carte et découvre un dessin du vestiaire."),
+    scene("write", "La voix dans le cadre", "Iris écrit à la première personne. Écris pour elle « C’est mon sac ».", { englishCue: "Write as Iris." },
+    ["This is my bag", "It's my bag", "It is my bag", "That's my bag", "That is my bag", "This bag is mine", "That bag is mine"], "C’est Iris qui parle. Emploie my devant l’objet.", "This is my bag. Le cadre renvoie les mots d’Iris comme un écho."),
+  ],
+  12: [
+    scene("spot", "La propriétaire de l’écharpe", "Lis la fiche, puis touche le portrait de la personne à qui appartient l’écharpe bleue.", {
+      lesson: lesson("His et her renvoient au propriétaire. Ici, Iris est désignée par she et Noé par he.", "her scarf · son écharpe à elle\nhis scarf · son écharpe à lui\na scarf · une écharpe"),
+      document: doc("Le registre", "Iris is here. Her scarf is blue.\nNoé is here. His scarf is red."),
+      options: ["Iris", "Noé"], spots: { picture: "mirrors", points: [[27, 55], [66, 49]] }, englishCue: "Find the owner." },
+    ["Iris"], "Cherche la propriétaire de l’écharpe bleue, celle désignée par her.", "L’écharpe bleue appartient à Iris. Une petite clé brille dans son reflet."),
+    scene("choice", "Le gardien reconnaît sa clé", "Maya parle de Noé et de la clé qui lui appartient. Comment finit-elle sa phrase ?", {
+      document: doc("La légende à compléter", "This is Noé. This is ___ key."), options: ["his", "her", "my"] },
+    ["his"], "Le registre désigne Noé par he. Quel petit mot va avec he pour parler de sa clé ?", "This is his key. La clé du gardien a enfin retrouvé son étiquette."),
+    scene("evidence", "Le tiroir aux tickets", "Épingle les deux indices qui relient une personne à la clé rouge, puis nomme cette personne.", {
+      clues: [doc("L’inventaire", "The red key is in the blue bag."), doc("Le ticket d’Iris", "The blue bag is my bag. — Iris"), doc("L’écharpe de Noé", "My scarf is red. — Noé")],
+      options: ["Iris", "Noé"] }, ["0+1 | Iris"], "Une pièce situe la clé. Une autre donne le nom de la propriétaire du sac.", "La clé rouge est dans le sac bleu d’Iris. La couleur de l’écharpe ne dit rien sur la clé."),
+    scene("order", "Sous le reflet", "La clé rouge est celle d’Iris. Écris « C’est sa clé » avec les étiquettes.", {
+      englishCue: "Label the key.", options: ["her", "This", "key.", "is"] }, ["This is her key"], "Commence par This is. Pour Iris, le registre emploie she.", "This is her key. Le reflet d’Iris apparaît au-dessus de la clé rouge."),
+    scene("write", "Le billet du gardien", "Présente le sac de Noé. Écris « C’est son sac » en précisant en anglais qu’il est à lui.", { englishCue: "Write the label." },
+    ["This is his bag", "It's his bag", "It is his bag", "That's his bag", "That is his bag"], "C’est Noé qui possède le sac. Tu parles de lui.", "This is his bag. Sam glisse l’étiquette dans la pochette du registre."),
+    scene("delivery", "Remise en main propre", "Rends au gardien sa clé. Choisis l’objet, puis la personne qui doit le recevoir.", {
+      document: doc("La dernière ligne du registre", "Iris · her red key\nNoé · his blue key"),
+      options: ["The red key", "The blue key"], delivery: { picture: "mirrors", destinations: ["Iris", "Noé"] } },
+    ["The blue key | Noé"], "Le gardien s’appelle Noé. Relis sa ligne pour choisir la couleur.", "Noé reçoit sa clé bleue. Le tiroir s’ouvre sur une plume de cuivre."),
+  ],
+  13: [
+    scene("spot", "Le premier déclic", "Lis la commande en anglais et touche l’automate à réveiller.", {
+      lesson: lesson("Deux automates veillent dans l’atelier.", "a heron · un héron\na turtle · une tortue\nwake up · réveille-toi"),
+      document: doc("La commande", "Wake up, turtle!"), options: ["Le héron", "La tortue"], spots: { picture: "automata", points: [[26, 48], [74, 59]] } },
+    ["La tortue"], "Turtle désigne l’animal à carapace.", "La tortue se réveille. Un petit cliquetis sort du tiroir de son harnais."),
+    scene("choice", "Le bagage trop lourd", "Que sait faire la tortue d’après sa fiche ?", {
+      lesson: lesson("Can veut dire « pouvoir » ou « savoir faire ». Le verbe qui suit garde sa forme.", "I can open the door. · Je peux ouvrir la porte.\nI can carry a bag. · Je peux porter un sac."),
+      document: doc("La fiche de la tortue", "I can carry the bag."), options: ["Porter le sac", "Ouvrir la porte", "Dessiner la carte"] },
+    ["Porter le sac"], "Cherche le verbe après can.", "La carapace a juste la place pour le sac bleu."),
+    scene("choice", "Le ressort bloqué", "Quelle action le héron ne peut-il pas faire ?", {
+      lesson: lesson("Can’t est la forme courte de cannot.", "I can open the door. · Je peux ouvrir la porte.\nI can’t open the door. · Je ne peux pas ouvrir la porte."),
+      document: doc("La fiche du héron", "I can open the door. I can't carry the bag."), options: ["Porter le sac", "Ouvrir la porte"] },
+    ["Porter le sac"], "Dans la deuxième phrase, cherche ce qui suit can’t.", "Son bec peut tourner la clé, mais le sac déséquilibrerait ses longues pattes."),
+    scene("delivery", "Chacun son outil", "Prépare ce qu’il faut pour ouvrir la porte. Donne-le au bon automate.", {
+      document: doc("La consigne de Noé", "The heron can open the door. The turtle can carry the bag."),
+      options: ["The bag", "The key"], delivery: { picture: "automata", destinations: ["The turtle", "The heron"] } },
+    ["The key | The heron"], "Pour ouvrir la porte, il faut une clé. Relis la première phrase pour trouver qui la reçoit.", "La clé s’emboîte dans le bec du héron."),
+    scene("write", "Une voix de métal", "Parle comme la tortue. Écris « Je peux porter le sac ».", { englishCue: "Speak for the turtle." },
+    ["I can carry the bag"], "Commence par I can, puis utilise le verbe qui signifie porter.", "I can carry the bag. Le harnais de la tortue se tend."),
+    scene("evidence", "Le laissez-passer", "Une seule machine peut-elle porter le sac et ouvrir la porte ? Épingle les deux fiches utiles et réponds à Noé.", {
+      clues: [doc("Héron", "I can open the door. I can't carry the bag."), doc("Plan de la porte", "The key is on the table."), doc("Tortue", "I can carry the bag. I can't open the door.")],
+      options: ["Le héron seul", "La tortue seule", "Il faut les deux"] },
+    ["0+2 | Il faut les deux"], "Compare ce que chaque automate peut faire et ce qui lui est impossible.", "Il faut les deux. Le héron ouvre la porte pendant que la tortue passe avec le sac."),
+  ],
+  14: [
+    scene("choice", "Une étoile manque à l’appel", "Noé cherche une seule clé. Quelle question doit-il poser ?", {
+      lesson: lesson("Pour demander où est un objet, on dit Where is…? Avec plusieurs, on dit Where are…?", "Where is the star? · Où est l’étoile ?\nWhere are the stars? · Où sont les étoiles ?"),
+      options: ["Where are the keys?", "Where is the key?", "Where is the bag?"] },
+    ["Where is the key?"], "Noé cherche une clé. Utilise is puis le nom au singulier.", "Where is the key? Une petite tache rouge attire l’œil sous la table."),
+    scene("spot", "La serre à la loupe", "Où est la clé ? Touche-la à l’endroit indiqué par le gardien.", {
+      lesson: lesson("Situer un objet", "on the map · sur la carte\nunder the table · sous la table"),
+      document: doc("Le mot de Noé", "The stars are on the map. The key is under the table."),
+      options: ["Les étoiles sur la carte", "La clé sous la table"], spots: { picture: "roof", points: [[48, 39], [48, 85]], labels: ["Sur la carte", "Sous la table"] } },
+    ["La clé sous la table"], "Cherche sous le plateau de la table.", "La clé rouge est à portée de la tortue. Il manque encore les deux poids."),
+    scene("order", "Le message du toit", "Demande où sont les étoiles.", { englishCue: "Ask where.", options: ["stars?", "are", "the", "Where"] },
+    ["Where are the stars"], "Il y a deux étoiles. Commence par Where, puis le verbe au pluriel.", "Where are the stars? Maya répond en tapotant le papier bleu."),
+    scene("choice", "Le plan de la balance", "À quel endroit Maya a-t-elle retrouvé les deux poids ?", {
+      englishCue: "Read the reply.", document: doc("La réponse de Maya", "The stars are on the map. The map is on the table."),
+      options: ["Sur la carte", "Sous la table", "Dans le sac"] }, ["Sur la carte"], "La première phrase situe précisément les étoiles.", "Sur la carte, deux marques rondes montrent où poser les pieds de la balance."),
+    scene("write", "La position exacte", "Transmets en anglais « Les étoiles sont sur la carte ».", { englishCue: "Send their location." },
+    ["The stars are on the map", "The two stars are on the map", "Both stars are on the map", "The stars are on top of the map"], "Commence par The stars. Accord au pluriel, puis on pour « sur ».", "The stars are on the map. Noé peut installer sa balance."),
+  ],
+  15: [
+    scene("evidence", "Suivre la voyageuse", "Deux documents permettent de retrouver la propriétaire du sac posé près de la toile. Épingle-les et donne son nom.", {
+      clues: [doc("Table de restauration", "The bag by the painting is blue."), doc("Poche du gardien", "My key is red. — Noé"), doc("Registre du matin", "Iris has the blue bag. Noé has the red bag.")],
+      lesson: lesson("Deux expressions pour lire les documents du musée", "by the painting · près du tableau\nby the door · près de la porte"),
+      options: ["Noé", "Iris"] }, ["0+2 | Iris"], "Une pièce situe le sac et donne sa couleur. L’autre relie cette couleur à un nom.", "La tache bleue près de la toile appartient à Iris. Tu reconnais son fameux bagage."),
+    scene("delivery", "Rendre le bagage", "Lis la demande. Pose le bon objet devant son destinataire.", {
+      englishCue: "Deliver the parcel.", document: doc("Le dernier billet", "This is my blue bag. My map is in the bag. — Iris"),
+      options: ["The red key", "The blue bag"], delivery: { picture: "frame", destinations: ["Noé", "Iris"] } },
+    ["The blue bag | Iris"], "Iris réclame le bagage qui contient sa carte.", "Iris attrape la poignée. Le bleu de son sac reprend sa place dans le tableau."),
+    scene("order", "La voix derrière la toile", "Iris demande « Où est la clé ? ». Recompose sa question.", {
+      englishCue: "Ask as Iris.", options: ["the", "Where", "key?", "is"] }, ["Where is the key"], "Il y a une seule clé. Place le verbe juste après Where.", "Where is the key? Un cliquetis répond de l’autre côté du cadre."),
+    scene("choice", "La réponse du gardien", "À qui Noé confie-t-il le soin d’ouvrir la porte ?", {
+      document: doc("Le billet de Noé", "Iris, your key is on the map. You can open the door. — Noé"),
+      options: ["À Iris", "Au héron", "À Sam"] }, ["À Iris"], "Cherche à qui Noé dit you au début du billet.", "Iris retrouve sa clé sur la carte et la tourne dans le cadre comme dans une serrure."),
+    scene("choice", "De quel côté du cadre ?", "Maya parle à Iris. Quel message lui rappelle que le sac est bien à elle ?", {
+      englishCue: "Choose Maya’s line.", options: ["This is my bag.", "This is your bag.", "This is his bag."] },
+    ["This is your bag."], "Maya s’adresse directement à la propriétaire. C’est donc le petit mot qui correspond à « ton ».", "This is your bag. Iris lève les yeux et reconnaît le port sur la toile."),
+    scene("write", "Le mot laissé à Noé", "Écris deux phrases en anglais au nom d’Iris pour dire « C’est mon sac. Je peux ouvrir la porte ».", { englishCue: "Leave a note for Noé." },
+    ["This is my bag", "It is my bag", "It's my bag", "That is my bag", "That's my bag", "This bag is mine", "That bag is mine"].flatMap(ownBag =>
+      [`${ownBag}. I can open the door`, `I can open the door. ${ownBag}`]),
+    "Parle pour Iris. Utilise my pour son sac, puis I can et le verbe « ouvrir » pour la porte.", "Noé lit ton mot. Dans le cadre, le bateau d’Iris quitte doucement le quai."),
+  ],
 };
 
-for (const episode of Object.values(scenes)) {
+for (const id of [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 14]) {
+  const episode = scenes[id];
   episode.push(scene("quiz", "Le carnet de bord", "Réponds aux trois questions pour valider ton escale.", {}, [],
     "Vérifie à nouveau tes réponses. Tu peux aussi revoir les indices du décor.",
     "Les trois réponses du carnet sont justes. Cette escale est validée."));

@@ -107,6 +107,41 @@ export const panels: Record<number, Panel[]> = {
     panel("Les vitres du phare reprennent les couleurs des mondes traversés.", maya("Le port vérifie la liaison avec quatre petits signaux.")),
     panel("Le film tourne enfin jusqu’à sa dernière image. Il y manque juste la réponse de votre équipe.", sam("Two maps!", "Deux cartes !"), maya("Une pour chaque rive. Écris à la poste en notre nom.")),
   ],
+  11: [
+    panel("Le dernier bateau du film entre au port. Une silhouette saute du quai peint et laisse des traces humides sur le parquet du musée.", maya("Sam, la dame du tableau vient de passer derrière toi !"), sam("Elle a laissé un mot au vestiaire.")),
+    panel("Au revers du ticket, une ligne d’encre se met à sécher. Maya se penche sur la carte posée sur le pupitre.", maya("Quelqu’un a écrit ton prénom, Sam.")),
+    panel("La radio du vestiaire s’allume. Deux tickets sont encore sur le comptoir.", sam("Pour envoyer le bon ticket, écoute qui appelle.")),
+    panel("Le papier porte un dessin du port sur une face et du musée sur l’autre.", maya("Si c’est sa carte, tu peux la lui rendre.")),
+    panel("Un petit bruit de vagues traverse le cadre vide. En t’approchant, tu sens une odeur de sel.", sam("On dirait qu’Iris essaie de nous écrire. Prête-lui ta voix.")),
+  ],
+  12: [
+    panel("Un lapin blanc sculpté dans le bois semble se multiplier jusqu’au fond de la galerie. Deux portraits attendent sous les miroirs.", maya("Le registre connaît leurs noms. Il nous aidera à leur rendre leurs affaires.")),
+    panel("Noé, le gardien, souffle sur un miroir. Un dessin de clé apparaît dans la buée.", sam("Il a dessiné sa clé. L’étiquette, elle, est à moitié effacée.")),
+    panel("Une clé rouge et deux morceaux de papier tombent du tiroir. Un troisième billet dépasse du cadre.", maya("Deux indices doivent suffire pour remonter jusqu’à son propriétaire.")),
+    panel("La clé rouge se reflète sous le portrait d’Iris. Sur l’autre vitre, elle a disparu.", sam("Vite, écrivons l’étiquette pendant que les deux miroirs sont d’accord.")),
+    panel("Noé retrouve sa sacoche sous le banc. Il a oublié de marquer son nom.", maya("Nous parlons de lui entre nous. Comment dirais-tu que ce sac est à lui ?")),
+  ],
+  13: [
+    panel("Un grillon de cuivre saute d’un ressort et réveille l’atelier. Un oiseau et une tortue dorment encore sous une lampe verte.", maya("Le grillon savait exactement sur quelle touche sauter. À ton tour.")),
+    panel("En ouvrant les yeux, la tortue déplie sur sa carapace une minuscule étagère à bagages.", sam("Elle a même sa propre fiche de travail.")),
+    panel("Le héron lisse une plume dentelée. Quand la tortue lui tend le sac, il recule d’un pas.", maya("Lis jusqu’au bout. Un tout petit mot change ce qu’il peut faire.")),
+    panel("Le sac attend à côté de la clé. Un ressort remonte dans le ventre du grand héron.", sam("Il ne manque plus que le bon outil.")),
+    panel("Sur la carapace, une petite bande de papier passe dans un rouleau.", maya("La tortue voudrait annoncer ce qu’elle peut faire.")),
+  ],
+  14: [
+    panel("Sur le toit du musée, on voit des poissons nager dans une gouttière de verre. Plus haut, aucune étoile ne bouge.", sam("Celles que nous cherchons sont en cuivre. Et il nous manque aussi une clé.")),
+    panel("Du bout de son crayon, Noé désigne la table d’astronome. La tortue s’arrête au bord de son ombre.", maya("Les étoiles et la clé sont à des endroits différents.")),
+    panel("Une constellation se reflète sur la vitre. Les vraies étoiles sont trop loin pour servir de poids.", sam("On en cherche deux, cette fois. Demande à Maya où elles sont.")),
+    panel("Maya soulève un coin de la carte. Deux poids brillent comme des punaises dorées.", maya("The stars are on the map.", "Les étoiles sont sur la carte.")),
+    panel("Une trompe acoustique relie la serre à l’étage du dessous. Noé attend devant l’autre embouchure.", sam("Dicte-lui la position exacte. Il saura où apporter sa balance.")),
+  ],
+  15: [
+    panel("Dans l’atelier de restauration, une petite roue à images fait courir un bateau en rond. Un sac attend au pied d’un tableau encore humide.", maya("Les étiquettes ont glissé de la table. Reprenons les deux qui concernent ce sac.")),
+    panel("Une femme en manteau vert s’avance sur le quai peint. Tout autour du cadre, l’aube commence à blanchir.", sam("Cette fois, la destinataire est devant nous.")),
+    panel("Iris s’arrête au bord de la toile. On distingue la forme d’une serrure dans la peinture.", maya("Elle cherche de quoi rentrer. Posons sa question.")),
+    panel("Un billet de Noé passe sous la porte de l’atelier. Il porte encore une goutte de pluie.", sam("Il y a le nom de la destinataire, puis deux courtes phrases.")),
+    panel("Plus qu’un pas jusqu’au bateau. Maya aperçoit le sac qu’Iris risque d’oublier sur le quai.", maya("Comment lui rappeler qu’il est à elle ?")),
+  ],
 };
 
 export const logbookPanels: Record<number, Panel> = {
@@ -117,9 +152,14 @@ export const logbookPanels: Record<number, Panel> = {
   5: panel("Tous les miroirs sont en place.", maya("Le port guette notre lumière."), sam("Une dernière transmission et la route se rallume.")),
   6: panel("La dernière image tremble encore sur l’écran.", sam("Ce petit timbre en forme d’aile… Je l’ai déjà vu quelque part.")),
   7: panel("Le chat quitte enfin le colis. Kit peut ouvrir la sacoche.", maya("Quand le carnet sera prêt, on pourra lire le courrier de l’île.")),
-  8: panel("Sous le panier, une aiguille de fer se met à vibrer.", sam("Je crois qu’il y a une voie juste sous nos pieds.")),
+  8: panel("La marchande sort les deux dernières étiquettes d’envoi. Sous le panier, une aiguille de fer vibre.", sam("Avant d’aller voir ce qu’il y a sous nos pieds, il reste un colis à expédier.")),
   9: panel("Le rail s’arrête au bord de l’eau.", maya("Le phare est là. Je veux garder notre itinéraire dans le carnet.")),
   10: panel("Le dernier tuyau prend la lumière. Au loin, le robot du port a déroulé son écran.", sam("On leur envoie le film entier ?"), maya("Dès que notre carnet est prêt.")),
+  11: panel("L’éclat de miroir renvoie la couleur d’une salle inconnue.", maya("Vérifions ce que nous avons retrouvé avant de suivre ce reflet.")),
+  12: panel("Les portes de bronze se referment lentement. Noé tend la main au guichet.", sam("La rouge appartient à Iris. Laquelle faut-il rendre au gardien ?")),
+  13: panel("Deux ombres se découpent sur la porte. Noé ne donnera son accord qu’en voyant leurs fiches.", maya("Qui doit partir pour le toit ? Prouve-le avec ce que tu as trouvé.")),
+  14: panel("Les poids s’équilibrent. Dans une salle sous vos pieds, un verrou vient de sauter.", sam("Gardons les positions en mémoire. On pourrait devoir remonter dans le noir.")),
+  15: panel("Le bateau peint largue ses amarres. Noé arrive en courant au bout du couloir.", maya("Iris veut lui laisser un dernier mot. C’est à toi de l’écrire.")),
 };
 
 export function storyPanel(id: number, index: number): Panel {

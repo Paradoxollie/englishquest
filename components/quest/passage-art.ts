@@ -1,5 +1,6 @@
 import type { StaticImageData } from "next/image";
 import type { Passage } from "@/lib/adventure/catalog";
+import type { BoardPicture } from "@/lib/adventure/activities";
 import quai from "@/public/art/passage/quai.webp";
 import canopy from "@/public/art/passage/canopy.webp";
 import wind from "@/public/art/passage/wind.webp";
@@ -21,11 +22,29 @@ import letter from "@/public/art/passage/post-insert.webp";
 import lanterns from "@/public/art/passage/market-insert.webp";
 import junction from "@/public/art/passage/rail-insert.webp";
 import reply from "@/public/art/passage/island-insert.webp";
+import hall from "@/public/art/passage/museum-hall.webp";
+import mirrors from "@/public/art/passage/museum-mirrors.webp";
+import workshop from "@/public/art/passage/museum-workshop.webp";
+import roof from "@/public/art/passage/museum-roof.webp";
+import frame from "@/public/art/passage/museum-frame.webp";
+import cloakroomDetail from "@/public/art/passage/museum-hall-insert.webp";
+import mirrorsDetail from "@/public/art/passage/museum-mirrors-insert.webp";
+import workshopDetail from "@/public/art/passage/museum-workshop-insert.webp";
+import roofDetail from "@/public/art/passage/museum-roof-insert.webp";
+import frameDetail from "@/public/art/passage/museum-frame-insert.webp";
+import inventory from "@/public/art/passage/canopy-inventory.webp";
+import bags from "@/public/art/passage/shelter-close.webp";
 
-export const passageArt = { quai, canopy, wind, tide, observatory, cinema, post, market, rail, island } satisfies Record<Passage["art"], StaticImageData>;
+export const passageArt = { quai, canopy, wind, tide, observatory, cinema, post, market, rail, island,
+  "museum-hall": hall, "museum-mirrors": mirrors, "museum-workshop": workshop, "museum-roof": roof, "museum-frame": frame } satisfies Record<Passage["art"], StaticImageData>;
 export const landscapeSizes = "(max-width: 1190px) 100vw, 1160px";
 
 const cutaways = {
+  cloakroom: { src: cloakroomDetail, alt: "Au vestiaire, un sac bleu, une carte dépliée et une clé rouge sont posés côte à côte." },
+  mirrors: { src: mirrorsDetail, alt: "La galerie conserve deux médaillons. À gauche se trouve Iris, en vert. À droite se trouve Noé, le gardien à la moustache." },
+  automata: { src: workshopDetail, alt: "Un héron mécanique sur ses longues pattes et une tortue chargée de bagages attendent sur l’établi." },
+  roof: { src: roofDetail, alt: "Deux étoiles de cuivre reposent sur une carte bleue. Une clé rouge brille sur le carrelage sous la table." },
+  frame: { src: frameDetail, alt: "Dans le tableau, Iris et son sac bleu attendent sur le quai du port. Une enveloppe rouge repose devant le cadre." },
   film: { src: film, alt: "Une bande de pellicule montre deux silhouettes, une chanteuse et un pilote." },
   letter: { src: letter, alt: "Dans la poste, une enveloppe cachetée et une broche en forme d’aile attendent dans les casiers." },
   lanterns: { src: lanterns, alt: "Les lanternes bleues sont rangées dans leur panier à côté d’une carte enroulée." },
@@ -39,6 +58,13 @@ const cutaways = {
   dome: { src: dome, alt: "Les panneaux peints d’étoiles s’écartent. Au-dessus de la lentille apparaissent une aurore et le vrai ciel." },
 };
 
+export const boardPictures = {
+  inventory: { src: inventory, alt: "À gauche un sac, au centre une carte et à droite une clé sont posés sur une table en bois." },
+  shelter: { src: bags, alt: "Un sac rouge à gauche et un sac bleu à droite attendent sur le banc." },
+  film: cutaways.film, letter: cutaways.letter, lanterns: cutaways.lanterns, cloakroom: cutaways.cloakroom,
+  automata: cutaways.automata, mirrors: cutaways.mirrors, roof: cutaways.roof, frame: cutaways.frame,
+} satisfies Record<BoardPicture, { src: StaticImageData; alt: string }>;
+
 const shots: Record<number, Partial<Record<number | "ending", keyof typeof cutaways>>> = {
   1: { 1: "radio", 2: "radio", 3: "radio", 5: "radio", ending: "departure" },
   2: { 1: "shelter", 2: "shelter", 4: "shelter" },
@@ -50,6 +76,11 @@ const shots: Record<number, Partial<Record<number | "ending", keyof typeof cutaw
   8: { 3: "lanterns", 4: "lanterns", ending: "lanterns" },
   9: { 1: "junction", 2: "junction", 4: "junction", ending: "junction" },
   10: { 1: "reply", 3: "reply", 5: "reply", ending: "reply" },
+  11: { 0: "cloakroom", 2: "cloakroom", 4: "cloakroom", ending: "cloakroom" },
+  12: { 0: "mirrors", 2: "mirrors", 5: "mirrors", ending: "mirrors" },
+  13: { 0: "automata", 2: "automata", 4: "automata", ending: "automata" },
+  14: { 1: "roof", 3: "roof", 5: "roof", ending: "roof" },
+  15: { 1: "frame", 3: "frame", 5: "frame", ending: "frame" },
 };
 
 export function passagePicture(episode: Passage, scene: number | "ending") {

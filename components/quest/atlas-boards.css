@@ -1,0 +1,95 @@
+.atlas-reader[data-chapter="3"] { --atlas-blue: #6c3254; --atlas-gold: #f0bb62; }
+.atlas-reader .comic-banner[data-compact] { height: auto; min-height: 38px; padding: 5px 14px; background: #204249; }
+.atlas-reader[data-chapter="2"] .comic-banner[data-compact] { background: #63452f; }
+.atlas-reader[data-chapter="3"] .comic-banner[data-compact] { background: #503549; }
+.atlas-exhibit, .atlas-maildesk, .atlas-journey, .atlas-dossier {
+  width: min(100%, 680px); box-sizing: border-box; color: #192437; border: 2px solid #272934;
+  border-radius: 10px; overflow: hidden; background: #fff7e5; box-shadow: 3px 3px 0 #25303c;
+}
+.atlas-reader :is(.atlas-exhibit,.atlas-maildesk,.atlas-journey,.atlas-dossier) button {
+  min-height: 44px; font: inherit; line-height: 1.2; font-weight: 700; cursor: pointer;
+}
+.atlas-reader :is(.atlas-exhibit,.atlas-maildesk,.atlas-journey,.atlas-dossier) button:focus-visible {
+  outline: 3px solid #095bd3; outline-offset: -4px; box-shadow: 0 0 0 2px white;
+}
+.atlas-reader :is(.atlas-exhibit,.atlas-maildesk,.atlas-journey,.atlas-dossier) button:disabled { cursor: default; }
+.exhibit-image, .maildesk-view, .journey-window { position: relative; isolation: isolate; overflow: hidden; }
+.exhibit-image > img, .maildesk-view > img, .journey-land { display: block; width: 100%; height: auto; }
+.exhibit-pin {
+  position: absolute; display: grid; place-items: center; transform: translate(-50%, -50%); color: white; width: 46px;
+  background: transparent; border: 0; border-radius: 50%;
+}
+.exhibit-pin span {
+  display: grid; place-items: center; height: 28px; min-width: 28px; border: 2px solid #fff5cc; border-radius: 50%;
+  background: #152f40e8; box-shadow: 0 0 0 2px #171f25, 0 2px 6px #171f25; font-size: .9rem;
+}
+.exhibit-pin[aria-pressed=true] span { color: #171f25; background: #ffd462; box-shadow: 0 0 0 4px #1c2e3d, 0 0 0 7px #ffeb9d; }
+.exhibit-key, .mail-items, .mail-bins, .dossier-verdict { display: flex; flex-wrap: wrap; gap: 7px; }
+.exhibit-key { padding: 8px; border-top: 2px solid #272934; }
+.exhibit-key button, .mail-items button, .mail-bins button, .dossier-verdict button, .dossier-sheet button {
+  color: #192437; border: 1.5px solid #8d795a; border-radius: 5px; padding: 6px 11px; background: #fffdf5;
+}
+.exhibit-key button b { display: inline-grid; place-items: center; width: 1.25em; height: 1.25em; border-radius: 50%; background: #233d4a; color: white; font-size: .85em; }
+.exhibit-key button[aria-pressed=true], .mail-items button[aria-pressed=true], .mail-bins button[aria-pressed=true],
+.dossier-verdict button[aria-pressed=true], .dossier-sheet button[aria-pressed=true] { background: #ffe19b; border-color: #41331d; box-shadow: inset 0 -2px #a57235; }
+.maildesk-view { max-height: 150px; background: #383328; }
+.maildesk-view img { width: 100%; height: clamp(88px, 21vw, 150px); object-fit: cover; object-position: 50% 57%; }
+.mail-slip { position: absolute; right: 4%; bottom: 12%; background: #fff2ca; color: #402b1c; border: 2px solid #9e572b;
+  box-shadow: 2px 3px 0 #392d23; padding: 6px 12px; font-weight: 750; transform: rotate(-2deg); animation: atlas-stamp .22s ease-out; }
+.mail-slip i { color: #954324; }
+.maildesk-sorting { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 12px; }
+.maildesk-sorting strong, .dossier-verdict strong { display: block; font-size: .82rem; margin-bottom: 5px; color: #5a442f; }
+.mail-bins button { background: #e0e8e2; border: 1.5px solid #476057; border-bottom: 4px solid #476057; }
+.mail-bins button:disabled { opacity: .62; }
+.atlas-dossier { padding: clamp(10px, 2vw, 18px); background: #e6d9bd; }
+.dossier-tabs { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 4px; }
+.dossier-tabs button { padding: 5px clamp(4px, 1.5vw, 12px); overflow-wrap: anywhere; text-align: left; border: 1.5px solid #78613d;
+  border-radius: 7px 7px 0 0; background: #e8cca0; color: #342b22; }
+.dossier-tabs button small { display: block; font-size: .67rem; letter-spacing: .025em; font-weight: 600; }
+.dossier-tabs button[aria-pressed=true] { background: #743c51; color: #fff8ed; border-color: #653347; }
+.dossier-sheet { min-height: 108px; border: 1.5px solid #8a7659; background: #fff9e7; padding: 12px; box-shadow: 0 3px 0 #b19d7c; animation: atlas-stamp .17s ease-out; }
+.dossier-sheet strong { color: #713747; font-size: .85rem; }
+.dossier-sheet p { margin: 5px 0 10px; font-size: clamp(1.02rem, 2vw, 1.22rem); }
+.dossier-sheet button:disabled { opacity: .55; }
+.dossier-count { font-size: .84rem; margin: 11px 0 0; font-weight: 650; }
+.dossier-verdict { margin-top: 10px; align-items: center; }
+.dossier-verdict strong { margin: 0 5px 0 0; }
+.journey-window { background: #123f43; aspect-ratio: 16 / 9; }
+.journey-land { height: 100%; object-fit: cover; transition: transform .75s ease; }
+.journey-window[data-first=left] .journey-land { transform-origin: 22% 55%; transform: scale(1.13); }
+.journey-window[data-first=right] .journey-land { transform-origin: 78% 55%; transform: scale(1.13); }
+.journey-vehicle { position: absolute; left: 50%; bottom: 2%; width: clamp(48px,18%,122px); height: 38%; transform: translateX(-50%); pointer-events: none; }
+.journey-vehicle::before { content: ""; position: absolute; left: 18%; right: 18%; bottom: 0; height: 14%; border-radius: 50%; background: #ffda71bd; box-shadow: 0 0 8px 2px #ffefab; }
+.journey-vehicle img { position: relative; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(1px 0 0 #fff6ce) drop-shadow(-1px 0 0 #fff6ce) drop-shadow(0 3px 2px #12262c); }
+.journey-vehicle[data-last=left] { --exit: 21%; --turn: -18deg; }
+.journey-vehicle[data-last=right] { --exit: 79%; --turn: 18deg; }
+.journey-vehicle[data-count="1"] { animation: atlas-first-fork 1.05s ease-in-out both; }
+.journey-vehicle[data-count="2"] { left: var(--exit); bottom: 31%; transform: translateX(-50%) scale(.72) rotate(var(--turn)); animation: atlas-last-fork .65s ease-out both; }
+.journey-turn { position: absolute; bottom: 26%; padding: 5px 10px; background: #fff5d9f2; border: 2px solid #352c20; color: #263a37; border-radius: 4px;
+  box-shadow: 1px 3px 0 #332e28; }
+.journey-turn span { color: #594b15; }
+.journey-turn[data-turn=left] { left: 4%; } .journey-turn[data-turn=right] { right: 4%; }
+.journey-turn:disabled { visibility: hidden; }
+.journey-log { padding: 6px 10px; display: flex; flex-wrap: wrap; gap: 0 8px; justify-content: space-between; align-items: center; border-top: 2px solid #272934; }
+.journey-log p { margin: 4px 0; font-size: .89rem; }
+.journey-log button { border: 0; background: transparent; color: #174078; text-decoration: underline; font-size: .83rem; }
+.atlas-utterances .atlas-answer { border-radius: 18px 18px 18px 3px; }
+.atlas-spoken-reply { display: flex; gap: 9px; align-items: center; margin: 10px 0; }
+.atlas-spoken-reply img { border: 2px solid #21363e; border-radius: 50%; }
+.atlas-spoken-reply q { border: 2px solid #253b40; border-radius: 14px 14px 14px 3px; padding: 8px 14px; background: white; font-weight: 700; animation: atlas-stamp .22s ease-out; }
+@keyframes atlas-stamp { from { opacity: .2; transform: translateY(5px); } }
+@keyframes atlas-first-fork {
+  0%, 100% { left: 50%; bottom: 2%; transform: translateX(-50%); opacity: 1; }
+  54%, 68% { left: var(--exit); bottom: 31%; transform: translateX(-50%) scale(.72) rotate(var(--turn)); opacity: 1; }
+  76% { left: var(--exit); bottom: 35%; opacity: 0; } 77% { left: 50%; bottom: -7%; opacity: 0; }
+}
+@keyframes atlas-last-fork { from { left: 50%; bottom: 2%; transform: translateX(-50%); } }
+@media(max-width: 480px) {
+  .maildesk-sorting { grid-template-columns: 1fr; gap: 9px; }
+  .dossier-tabs button { font-size: .82rem; }
+  .exhibit-key { gap: 4px; }
+  .exhibit-key button { padding: 4px 7px; font-size: .83rem; }
+}
+@media(prefers-reduced-motion: reduce) {
+  .atlas-reader .journey-land, .atlas-reader .journey-vehicle, .atlas-reader .mail-slip, .atlas-reader .dossier-sheet, .atlas-reader .atlas-spoken-reply q { animation: none; transition: none; }
+}

@@ -77,4 +77,20 @@ export const quizBank: Record<number, AtlasQuestion[]> = {
     ["Vous êtes prêts et vous avez deux clés. Que transmettez-vous ?", "We are ready. We have two keys.", "I am ready. I have two keys.", "We are ready. We need two keys."],
     ["Vous êtes prêts et vous avez trois cartes. Quel billet signez-vous ?", "We’re ready. We have three maps.", "We’re ready. We have three keys.", "I’m ready. I have three maps."],
   ],
+  11: [
+    ["Maya écrit « This is my map ». À qui appartient la carte ?", "À Maya", "À Sam", "À la personne qui lit"],
+    ["Sam dit à Iris « This is my key ». À qui est la clé ?", "À Sam", "À Iris", "À Maya"],
+    ["Tu rends son sac à Iris. Que lui dis-tu ?", "This is your bag.", "This is my bag.", "This is your map."],
+    ["Iris te rend ta clé. Quel mot emploie-t-elle en te parlant ?", "your key", "my key", "my map"],
+    ["« Nova, this is your map. This is my bag. — Sam » Que récupères-tu si tu t’appelles Nova ?", "La carte", "Le sac", "La clé"],
+    ["« Sam, this is your bag. This is my map. — Iris » Qui garde la carte ?", "Iris", "Sam", "Nova"],
+  ],
+  14: [
+    ["Tu cherches une seule carte. Quelle question poses-tu ?", "Where is the map?", "Where are the maps?", "Where are the keys?"],
+    ["Tu cherches deux clés. Quelle question poses-tu ?", "Where are the keys?", "Where is the key?", "Where is the map?"],
+    ["« The key is under the map. » Où est la clé ?", "Sous la carte", "Sur la carte", "Dans le sac"],
+    ["« The stars are on the bag. » Où sont les étoiles ?", "Sur le sac", "Sous le sac", "Sur la carte"],
+    ["« The map is on the table. The keys are under the table. » Que trouves-tu sous la table ?", "Les clés", "La carte", "Les étoiles"],
+    ["« The key is under the bag. The stars are on the bag. » Que trouves-tu sur le sac ?", "Les étoiles", "La clé", "La carte"],
+  ],
 };

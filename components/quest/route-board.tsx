@@ -1,23 +1,27 @@
+import Image from "next/image";
+import railFork from "@/public/art/passage/rail-fork.webp";
+import islandFork from "@/public/art/passage/island-fork.webp";
+import railCar from "@/public/art/passage/rail-car.webp";
+import mailBoat from "@/public/art/passage/mail-boat.webp";
+
 const names = { left: "gauche", right: "droite" } as const;
 type Turn = keyof typeof names;
 
-export function RouteBoard({ value, change }: { value: string; change: (value: string) => void }) {
+export function RouteBoard({ value, change, vehicle }: { value: string; change: (value: string) => void; vehicle: "rail" | "boat" }) {
   const turns = value.split(" ").filter((turn): turn is Turn => turn === "left" || turn === "right").slice(0, 2);
-  const fork = turns[0] === "left" ? 96 : 224;
-  const end = fork + (turns[1] === "left" ? -40 : 40);
-  const route = "M160 91 L160 78" + (turns.length ? ` L${fork} 49` : "") + (turns.length === 2 ? ` L${end} 15` : "");
-  return <div className="atlas-switches">
-    <svg viewBox="0 0 320 105" aria-hidden="true" focusable="false">
-      <path className="switch-rails" d="M160 91V78L96 49L56 15M96 49L136 15M160 78L224 49L184 15M224 49L264 15" />
-      {[56, 136, 184, 264].map(x => <circle key={x} cx={x} cy="15" r="5" className="switch-stop" />)}
-      <path className="switch-trail" d={route} />
-      <circle cx={turns.length === 2 ? end : turns.length === 1 ? fork : 160} cy={[85, 49, 15][turns.length]} r="6" className="switch-position" />
-    </svg>
-    <p aria-live="polite">{turns.length ? `Ton trajet · ${turns.map(t => names[t]).join(" puis ")}` : "Premier embranchement"}{turns.length === 1 ? " · Encore un virage" : ""}</p>
-    <div className="switch-controls">{(["left", "right"] as const).map(t =>
-      <button type="button" key={t} disabled={turns.length === 2} onClick={() => change([...turns, t].join(" "))}>
-        <span aria-hidden="true">{t === "left" ? "↖ " : "↗ "}</span>{t === "left" ? "Gauche" : "Droite"}
-      </button>)}</div>
-    {turns.length > 0 && <button className="switch-undo" type="button" onClick={() => change(turns.slice(0, -1).join(" "))}>Annuler le dernier virage</button>}
+  const train = vehicle === "rail";
+  return <div className="atlas-journey">
+    <div className="journey-window" data-first={turns[0]} data-count={turns.length}>
+      <Image className="journey-land" src={train ? railFork : islandFork} alt={train ? "Deux voies se séparent sous les arbres. Chacune rejoint une arche éclairée." : "Le chenal se sépare autour d’une petite île entre deux bouées."} placeholder="blur" sizes="(max-width: 720px) 94vw, 680px" />
+      <div className="journey-vehicle" key={value} data-last={turns.at(-1)} data-count={turns.length}>
+        <Image src={train ? railCar : mailBoat} alt={train ? "Ton wagon" : "Ta barque"} sizes="125px" loading="eager" />
+      </div>
+      {(["left", "right"] as const).map(turn => <button className="journey-turn" type="button" data-turn={turn} key={turn} disabled={turns.length === 2}
+        onClick={() => change([...turns, turn].join(" "))}><span aria-hidden="true">{turn === "left" ? "↖" : "↗"}</span> {turn === "left" ? "Gauche" : "Droite"}</button>)}
+    </div>
+    <div className="journey-log"><p role="status"><strong>{["Premier embranchement", "Deuxième embranchement", "Trajet tracé"][turns.length]}</strong>
+      {turns.length > 0 && <span> · {turns.map(t => names[t]).join(" puis ")}</span>}</p>
+      {turns.length > 0 && <button type="button" onClick={() => change(turns.slice(0, -1).join(" "))}>Annuler le dernier virage</button>}
+    </div>
   </div>;
 }

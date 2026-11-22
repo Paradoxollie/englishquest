@@ -7,7 +7,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { checkPassage } from "@/app/quest/atlas/actions";
 import { passages, type Passage } from "@/lib/adventure/catalog";
-import { recordingPath, type AccountDraft, type Activity, type ComicPhase, type GameAnswer, type QuizSubmission } from "@/lib/adventure/activities";
+import { boardAnswer, recordingPath, type AccountDraft, type Activity, type ComicPhase, type GameAnswer, type QuizSubmission } from "@/lib/adventure/activities";
 import { ComicLesson, PassageStage } from "./passage-stage";
 import { storyPanel } from "@/lib/adventure/panels";
 import { landscapeSizes, passagePicture } from "./passage-art";
@@ -15,11 +15,14 @@ import { PassageQuiz, type QuizDraft } from "./passage-quiz";
 import { useAdventureDraft } from "./use-adventure-draft";
 import { partForStage, partTitles } from "@/lib/adventure/parts";
 import { RouteBoard } from "./route-board";
+import { PassageBoard } from "./passage-boards";
+import "./atlas-boards.css";
 
 const GrammarRush = dynamic(() => import("@/app/play/grammar-rush/grammar-rush-game").then(m => m.GrammarRushGame), { loading: () => <p role="status">La radio s’allume…</p> });
 const EchoSignal = dynamic(() => import("@/app/play/echo-signal/echo-signal-game").then(m => m.EchoSignalGame), { loading: () => <p role="status">Connexion à la radio…</p> });
 const confirmations: Record<Activity["mode"], string> = {
   choice: "Indice confirmé", order: "Phrase assemblée", write: "Message transmis", route: "Itinéraire confirmé", game: "Manche réussie", quiz: "Carnet validé",
+  spot: "Objet repéré", delivery: "Remise confirmée", evidence: "Enquête résolue",
 };
 
 function pauseWhenRemoved(player: HTMLAudioElement | null) {
@@ -36,6 +39,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
   const [opened, setOpened] = useState(saved > 0);
   const [choice, setChoice] = useState("");
   const [tiles, setTiles] = useState<number[]>([]);
+  const [clue, setClue] = useState(0);
   const [feedback, setFeedback] = useState<{ ok: boolean; message: string; retryIds?: string[] } | null>(null);
   const [busy, setBusy] = useState(false);
   const [savedStage, setSavedStage] = useState(saved);
@@ -50,6 +54,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
   const [quiz, setQuiz] = useState<QuizDraft>({ answers: [] });
   const [shuffle, setShuffle] = useState(0);
   const initialStage = useRef(saved);
+  const initialSteps = useRef(steps);
   const pending = useRef(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const shouldFocus = useRef(false);
@@ -76,8 +81,14 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
         if (restored === "help" && typeof d.retryHint === "string") setFeedback({ ok: false, message: d.retryHint });
         const lastBeat = storyPanel(episode.id, d.index).dialogue.length;
         setBeat(Number.isInteger(d.beat) ? Math.max(0, Math.min(lastBeat, d.beat)) : 0);
-        setChoice(typeof d.choice === "string" ? d.choice : "");
-        setTiles(Array.isArray(d.tiles) ? d.tiles.filter((n: number) => Number.isInteger(n) && n >= 0 && n < (steps[d.index].options?.length ?? 0)) : []);
+        const restoredStep = initialSteps.current[d.index];
+        const previousRecipient = restoredStep.mode === "delivery" && restoredStep.delivery?.destinations.includes(d.choice);
+        const validChoice = typeof d.choice === "string" && (restoredStep.mode !== "spot" || restoredStep.options?.includes(d.choice));
+        setChoice(validChoice ? d.choice : "");
+        const tileCount = restoredStep.clues?.length ?? restoredStep.options?.length ?? 0;
+        const restoredTiles = Array.isArray(d.tiles) ? d.tiles.filter((n: number) => Number.isInteger(n) && n >= 0 && n < tileCount) : [];
+        setTiles(previousRecipient && episode.id === 7 && d.index === 1 && !restoredTiles.length ? [0] : restoredTiles);
+        setClue(Number.isInteger(d.clue) && restoredStep.clues?.[d.clue] ? d.clue : 0);
         setGameAnswers(Array.isArray(d.gameAnswers) ? d.gameAnswers : []);
         if (d.quiz && Array.isArray(d.quiz.answers)) setQuiz(d.quiz);
         if (Number.isSafeInteger(d.shuffle)) seed = d.shuffle;
@@ -89,10 +100,10 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
   useEffect(() => {
     if (!initialized) return;
     if (done) { try { localStorage.removeItem(draftKey); } catch { /* Optional local copy. */ } return; }
-    track({ index, opened, sheet: phase === "question", phase, beat, retryHint, choice, tiles, gameAnswers, quiz, shuffle, replaying }, onAccount && index === savedStage);
+    track({ index, opened, sheet: phase === "question", phase, beat, retryHint, choice, tiles, clue, gameAnswers, quiz, shuffle, replaying }, onAccount && index === savedStage);
     const timer = window.setTimeout(() => { void flush(); }, 1300);
     return () => window.clearTimeout(timer);
-  }, [initialized, done, draftKey, index, opened, phase, beat, retryHint, choice, tiles, gameAnswers, quiz, shuffle, replaying, onAccount, savedStage, track, flush]);
+  }, [initialized, done, draftKey, index, opened, phase, beat, retryHint, choice, tiles, clue, gameAnswers, quiz, shuffle, replaying, onAccount, savedStage, track, flush]);
 
   function leave(event: { preventDefault: () => void }) {
     if (!onAccount) return;
@@ -111,14 +122,14 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
   useEffect(() => {
     const host = window as Window & { render_game_to_text?: () => string };
     const previous = host.render_game_to_text;
-    host.render_game_to_text = () => JSON.stringify({ episode: episode.id, stage: index, mode: !opened ? "opening" : done ? "ending" : feedback?.ok ? "success" : phase === "question" ? step.mode : phase, beat, saved: savedStage, feedback: feedback?.ok ?? null });
+    host.render_game_to_text = () => JSON.stringify({ episode: episode.id, stage: index, mode: !opened ? "opening" : done ? "ending" : feedback?.ok ? "success" : phase === "question" ? step.mode : phase, beat, saved: savedStage, choice, tiles, clue, feedback: feedback?.ok ?? null });
     return () => { host.render_game_to_text = previous; };
-  }, [episode.id, index, opened, done, step, savedStage, feedback, phase, beat]);
+  }, [episode.id, index, opened, done, step, savedStage, feedback, phase, beat, choice, tiles, clue]);
 
   function move(to: number) {
     shouldFocus.current = true;
     if (done && to === 0) { setReplaying(true); setShuffle(crypto.getRandomValues(new Uint32Array(1))[0]); }
-    setChoice(""); setTiles([]); setGameAnswers([]); setQuiz({ answers: [] }); setPhase("story"); setBeat(0); setNetworkError("");
+    setChoice(""); setTiles([]); setClue(0); setGameAnswers([]); setQuiz({ answers: [] }); setPhase("story"); setBeat(0); setNetworkError("");
     setFeedback(null); setIndex(to); setOpened(true);
   }
   function show(nextPhase: ComicPhase) {
@@ -143,9 +154,11 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
     } catch { setNetworkError("Connexion interrompue. Ta réponse est conservée. Tu peux la renvoyer."); }
     finally { pending.current = false; setBusy(false); }
   }
-  const currentAnswer = step?.mode === "order" ? tiles.map(i => step.options![i]).join(" ") : choice;
+  const currentAnswer = step?.mode === "order" ? tiles.map(i => step.options![i]).join(" ") : step ? boardAnswer(step, choice, tiles) : "";
   const answerReady = step?.mode === "order" ? tiles.length === step.options!.length
-    : step?.mode === "route" ? /^(left|right) (left|right)$/.test(choice) : choice.trim().length > 0;
+    : step?.mode === "route" ? /^(left|right) (left|right)$/.test(choice) : currentAnswer.trim().length > 0;
+  const isQuiz = step?.mode === "quiz" || (step?.legacyQuiz && Boolean(quiz.ticket));
+  const illustratedQuestion = phase === "question" && !feedback?.ok && !isQuiz && (step?.spots || step?.delivery || step?.mode === "route");
   const round = { busy, initialAnswers: gameAnswers, progress: setGameAnswers, submit: (answers: GameAnswer[]) => { void submit(answers); } };
   const soundSwitch = <button type="button" className="comic-sound-mode" aria-pressed={readRadio} onClick={() => {
     setReadRadio(!readRadio);
@@ -157,7 +170,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
     choices.push(...choices.splice(0, rotation));
   }
 
-  return <article className="atlas-reader" data-story={episode.id} data-stage={index} data-phase={feedback?.ok ? "success" : phase} data-beat={beat}>
+  return <article className="atlas-reader" data-story={episode.id} data-chapter={Math.ceil(episode.id / 5)} data-stage={index} data-phase={feedback?.ok ? "success" : phase} data-beat={beat}>
     <div className="atlas-reader-progress"><nav className="atlas-reader-nav" aria-label="Navigation dans l’aventure">
       <Link href="/quest#atlas" onNavigate={leave}>← Carte des mondes</Link><span>Escale {episode.id} · {savedStage}/{steps.length} validées</span>
     </nav>
@@ -187,7 +200,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
     </section> : phase === "story" ? <PassageStage key={index} episode={episode} index={index} beat={beat} turn={setBeat}
       nextLabel={step.lesson ? "Ouvrir le carnet" : "À toi de jouer"} open={() => show(step.lesson ? "lesson" : "question")} />
       : <section className="comic-paper" aria-label={step.title} aria-busy={busy}>
-        <div className="comic-banner"><Image src={picture.src} alt="" fill sizes={landscapeSizes} placeholder="blur" />
+        <div className="comic-banner" data-compact={illustratedQuestion ? true : undefined}>{!illustratedQuestion && <Image src={picture.src} alt="" fill sizes={landscapeSizes} placeholder="blur" />}
           <span>{episode.place} <i aria-hidden="true">/</i> {step.title}</span>
         </div>
         {phase === "lesson" || phase === "help" ? <div className="comic-page-content">
@@ -201,14 +214,16 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
           </div>
         </div> : feedback?.ok ? <div className="comic-page-content comic-result">
           <div className="atlas-feedback" data-right="true" role="status">
-            <h2 ref={heading} tabIndex={-1}>{confirmations[step.mode]}</h2><p>{feedback.message}</p>
+            <h2 ref={heading} tabIndex={-1}>{confirmations[isQuiz ? "quiz" : step.mode]}</h2>
+            {step.reply && <div className="atlas-spoken-reply"><Image src={step.reply.speaker === "Sam" ? "/art/personnages/sam-visage.webp" : "/art/personnages/maya-visage.webp"} alt={step.reply.speaker} width={55} height={55} /><q lang="en">{step.reply.line}</q></div>}
+            <p>{feedback.message}</p>
             <small className="atlas-save">Étape enregistrée {onAccount ? "sur ton compte" : "sur cet appareil"}.</small>
           </div>
           <button className="atlas-cta comic-next" onClick={() => move(index + 1)}>{index + 1 === steps.length ? "Découvrir mon souvenir" : "Continuer l’histoire"} →</button>
         </div> : <div className="atlas-work">
           {step.englishCue && <span className="atlas-english-cue" lang="en">{step.englishCue}</span>}
-          <h2 className="comic-question" ref={heading} id="atlas-stage-title" tabIndex={-1}>{step.prompt}</h2>
-        {step.document && <div className="atlas-document"><strong>{step.document.label}</strong><p lang="en">{step.document.text}</p></div>}
+          <h2 className="comic-question" ref={heading} id="atlas-stage-title" tabIndex={-1}>{isQuiz && step.legacyQuiz ? "Reprends les trois questions de ton carnet." : step.prompt}</h2>
+        {step.document && !isQuiz && <div className="atlas-document"><strong>{step.document.label}</strong><p lang="en">{step.document.text}</p></div>}
         {step.radio && <div className="atlas-radio"><div className="comic-radio-head"><strong>Radio de l’équipe</strong>{soundSwitch}</div>
           {readRadio ? <p lang="en" className="comic-radio-text">{step.radio.line}</p> : <audio ref={pauseWhenRemoved} aria-label="Écouter le message en anglais" controls preload="none" src={recordingPath(step.radio)} />}
         </div>}
@@ -217,17 +232,18 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
             : <>{soundSwitch}<EchoSignal isLoggedIn={false} missionTarget={null} suggestedLevel={1} audioMap={{ [step.game.scenario.id]: recordingPath(step.game.radio) }}
               adventure={{ ...round, scenario: step.game.scenario, readRadio }} /></>}
         </div>}
-        {step.mode === "quiz" && <PassageQuiz id={episode.id} draft={quiz} update={setQuiz} submit={submit} busy={busy} />}
-        {step.mode !== "game" && step.mode !== "quiz" && <form onSubmit={e => { e.preventDefault(); if (answerReady) void submit(currentAnswer); }}>
+        {isQuiz && <PassageQuiz id={episode.id} draft={quiz} update={setQuiz} submit={submit} busy={busy} />}
+        {step.mode !== "game" && !isQuiz && <form onSubmit={e => { e.preventDefault(); if (answerReady) void submit(currentAnswer); }}>
           <fieldset disabled={busy} className="atlas-answer-group"><legend className="sr-only">{step.prompt}</legend>
-            {step.mode === "choice" && <div className="atlas-choices">{choices.map((value, i) => <label key={value} className="atlas-answer">
+            {step.mode === "choice" && <div className={step.reply ? "atlas-choices atlas-utterances" : "atlas-choices"}>{choices.map((value, i) => <label key={value} className="atlas-answer">
               <input type="radio" name="answer" value={value} checked={choice === value} onChange={() => { setChoice(value); setFeedback(null); }} />
               <span className="atlas-letter" aria-hidden="true">{String.fromCharCode(65 + i)}</span><span>{value}</span>
             </label>)}</div>}
             {step.mode === "write" && <label className="atlas-write">Ton message en anglais
               <textarea maxLength={250} rows={2} lang="en" spellCheck={false} autoCapitalize="sentences" value={choice} onChange={e => { setChoice(e.target.value); setFeedback(null); }} />
             </label>}
-            {step.mode === "route" && <RouteBoard value={choice} change={v => { setChoice(v); setFeedback(null); }} />}
+            {step.mode === "route" && <RouteBoard vehicle={episode.id === 9 ? "rail" : "boat"} value={choice} change={setChoice} />}
+            {(step.spots || step.delivery || step.clues) && <PassageBoard step={step} choice={choice} tiles={tiles} clue={clue} seed={shuffle + index} select={setChoice} pin={setTiles} examine={setClue} />}
             {step.mode === "order" && <>
               <div className="atlas-built" aria-label="Ta phrase" aria-live="polite">{tiles.length ? tiles.map((id, pos) =>
                 <button key={id} type="button" onClick={() => { setTiles(tiles.filter((_, i) => i !== pos)); setFeedback(null); }}

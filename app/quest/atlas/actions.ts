@@ -26,7 +26,8 @@ export async function importGuestAtlas() {
 }
 
 export async function openAtlasQuiz(id: number, ticket?: string) {
-  if (!Number.isInteger(id) || !scenes[id]) throw new Error("Escale inconnue.");
+  const last = Number.isInteger(id) ? scenes[id]?.at(-1) : undefined;
+  if (!last || (last.mode !== "quiz" && !last.legacyQuiz)) throw new Error("Cette escale ne se termine pas par un quiz.");
   const { stages, userId } = await getAdventureProgress();
   if (stages[id - 1] < scenes[id].length - 1) throw new Error("Termine les scènes avant d’ouvrir le carnet.");
   return quizForm(id, userId ?? "guest", ticket);
@@ -40,9 +41,11 @@ export async function checkPassage(id: number, index: number, answer: unknown) {
     return { ok: false, message: "Termine d’abord l’étape précédente.", synced: progress.synced };
   }
   const step = rows[index];
-  const retryIds = step.mode === "quiz" ? quizRetryIds(id, progress.userId ?? "guest", answer) : null;
-  const correct = step.mode === "quiz" ? retryIds?.length === 0 : gradeActivity(step, answer);
-  if (!correct) return { ok: false, message: step.hint, synced: progress.synced, retryIds: retryIds ?? undefined };
+  const submittingQuiz = step.mode === "quiz" || (step.legacyQuiz && typeof answer === "object" && answer !== null);
+  const retryIds = submittingQuiz ? quizRetryIds(id, progress.userId ?? "guest", answer) : null;
+  const correct = submittingQuiz ? retryIds?.length === 0 : gradeActivity(step, answer);
+  const legacyCarnet = Boolean(step.legacyQuiz && submittingQuiz);
+  if (!correct) return { ok: false, message: legacyCarnet ? "Reprends les quantités et les objets indiqués dans ton carnet." : step.hint, synced: progress.synced, retryIds: retryIds ?? undefined };
   const synced = progress.stages[id - 1] > index ? progress.synced : await keepCheckpoint(id, index + 1, progress.userId);
-  return { ok: true, message: step.explain, synced };
+  return { ok: true, message: legacyCarnet ? "Les trois réponses du carnet sont justes. Cette escale est validée." : step.explain, synced };
 }

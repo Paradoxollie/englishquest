@@ -50,7 +50,7 @@ const chapterDefinitions: Omit<Chapter, "courseIds" | "level">[] = [
     tagline: "Les structures qui font la différence à l'écrit comme à l'oral.",
     accent: "#f2b53a",
     gradient: ["#3d2a0c", "#0e1526"],
-    artSrc: "/art/bd/numero-4.jpg",
+    artSrc: "/art/bd/tactique-plan-de-londres.webp",
   },
   {
     id: 5,

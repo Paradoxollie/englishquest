@@ -18,7 +18,7 @@ export async function AtlasCover() {
       <div className="atlas-cover-copy">
         <span className="atlas-label">Aventure · Premiers pas en anglais</span>
         <h1 id="atlas-name">L’Atlas des <em>passages</em></h1>
-        <p>{featured.id > 5 ? "Le port a retrouvé sa route. Mais qui a envoyé ce film d’une île absente des cartes ? Avec Maya et Sam, remonte la piste du courrier." : "Au quai 7, Maya et Sam t’attendent pour le dernier départ. Cap sur l’observatoire, une escale après l’autre."} Tu peux t’arrêter et reprendre à la même case.</p>
+        <p>{atlasChapters.find(c => featured.id >= c.first && featured.id <= c.last)?.intro} Tu peux t’arrêter et reprendre à la même case.</p>
         <Link className="atlas-cta" href={`/quest/atlas/${featured.id}`}>
           {complete === passages.length ? "Revoir la première escale" : stages.some(Boolean) ? "Reprendre l’aventure" : "Commencer l’aventure"} <span aria-hidden="true">→</span>
         </Link>

@@ -13,7 +13,7 @@ export async function saveAdventureDraft(id: number, version: number, draft: Dra
       JSON.stringify(draft).length > 3500) return -1;
   const { data, error } = await createSupabaseAdminClient().rpc("save_adventure_draft", {
     p_user: user.id, p_mission: id, p_stage: draft.index, p_version: version,
-    p_draft: { index: draft.index, opened: draft.opened, sheet: draft.sheet, phase: draft.phase, beat: draft.beat, retryHint: draft.retryHint, choice: draft.choice, tiles: draft.tiles, gameAnswers: draft.gameAnswers,
+    p_draft: { index: draft.index, opened: draft.opened, sheet: draft.sheet, phase: draft.phase, beat: draft.beat, retryHint: draft.retryHint, clue: draft.clue, choice: draft.choice, tiles: draft.tiles, gameAnswers: draft.gameAnswers,
       quiz: draft.quiz, shuffle: draft.shuffle, replaying: false },
   });
   if (error) throw new Error("Le brouillon reste sur cet appareil.");

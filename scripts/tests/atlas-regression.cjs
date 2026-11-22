@@ -73,12 +73,18 @@ async function test() {
   await db.query("insert into public.adventure_checkpoints(user_id,mission,stage,draft_version) values ($1,5,7,2)", [accounts[0]]);
   await db.exec(fs.readFileSync(path.join(root, "supabase/migrations/20261122155026_extend_atlas_missions.sql"), "utf8"));
   assert.deepEqual((await db.query("select mission,stage,draft_version from public.adventure_checkpoints where user_id=$1", [accounts[0]])).rows, [{mission:5,stage:7,draft_version:2}]);
+  await db.query("insert into public.adventure_checkpoints(user_id,mission,stage,draft_version) values ($1,10,6,3)", [accounts[0]]);
+  const museumMigration = fs.readdirSync(path.join(root, "supabase/migrations")).find(file => file.endsWith("_atlas_museum_chapter.sql"));
+  await db.exec(fs.readFileSync(path.join(root, "supabase/migrations", museumMigration), "utf8"));
+  assert.deepEqual((await db.query("select mission,stage,draft_version from public.adventure_checkpoints where user_id=$1 order by mission", [accounts[0]])).rows,
+    [{mission:5,stage:7,draft_version:2}, {mission:10,stage:6,draft_version:3}]);
   await db.query("delete from public.adventure_checkpoints where user_id=$1", [accounts[0]]);
   const { scenes } = load("lib/adventure/scenes.ts");
   const { passages } = load("lib/adventure/catalog.ts");
   const empty = passages.map(() => 0);
   const { partForStage } = load("lib/adventure/parts.ts");
   const { gradeActivity } = load("lib/adventure/grading.ts");
+  const { boardAnswer, learnerActivity } = load("lib/adventure/activities.ts");
   const { quizBank } = load("lib/adventure/quiz-bank.ts");
   const { quizForm, gradeQuiz } = load("lib/adventure/quiz.ts");
   const { panels, storyPanel } = load("lib/adventure/panels.ts");
@@ -86,6 +92,7 @@ async function test() {
   const { getAdventureProgress } = load("lib/adventure/progress.ts");
   const { checkPassage, openAtlasQuiz, importGuestAtlas } = load("app/quest/atlas/actions.ts");
   await assert.rejects(openAtlasQuiz(1));
+  await assert.rejects(openAtlasQuiz(13));
   const [goodbye, caller] = scenes[1];
   assert.ok(goodbye.lesson);
   assert.equal(goodbye.document, undefined);
@@ -134,6 +141,32 @@ async function test() {
         const wrong = { ...answer, answers: answer.answers.map((a,i) => i===1 ? {...a, value:"wrong"} : a) };
         assert.deepEqual((await checkPassage(p.id, index, wrong)).retryIds, [answer.answers[1].id]);
       } else assert.ok(gradeActivity(step, answer));
+      if (step.legacyQuiz) {
+        const oldForm = await openAtlasQuiz(p.id);
+        const oldAnswer = { ticket: oldForm.ticket, answers: oldForm.questions.map(q => ({id:q.id, value:quizBank[p.id][Number(q.id)][1]})) };
+        assert.deepEqual((await openAtlasQuiz(p.id, oldForm.ticket)).questions, oldForm.questions);
+        assert.ok((await checkPassage(p.id, index, oldAnswer)).ok);
+      }
+      if (step.mode === "spot") {
+        assert.equal(step.options.length, step.spots.points.length);
+        assert.ok(step.spots.points.every(point => point.length === 2 && point.every(n => n > 0 && n < 100)));
+        for (const option of step.options) assert.equal(gradeActivity(step, option), step.accept.includes(option));
+      }
+      if (step.mode === "evidence" || step.mode === "delivery") {
+        const view = learnerActivity(step);
+        const [pieces, decision] = answer.split(" | ");
+        const tiles = step.mode === "delivery" ? [step.options.indexOf(pieces)] : pieces.split("+").map(Number).reverse();
+        assert.ok(gradeActivity(step, boardAnswer(view, decision, tiles)));
+        assert.equal(gradeActivity(step, boardAnswer(view, decision, [])), false);
+        assert.equal(gradeActivity(step, boardAnswer(view, "", tiles)), false);
+        if (step.clues) {
+          assert.equal(gradeActivity(step, boardAnswer(view, decision, [tiles[0], tiles[0]])), false);
+          assert.equal(gradeActivity(step, boardAnswer(view, decision, [tiles[0], [0,1,2].find(i => !tiles.includes(i))])), false);
+        } else {
+          const other = step.delivery.destinations.find(dest => dest !== decision);
+          assert.equal(gradeActivity(step, boardAnswer(view, other, tiles)), false);
+        }
+      }
       if (step.mode === "order") assert.equal(gradeActivity(step, step.options.join(" ")), false);
       if (step.mode === "choice") for (const option of step.options) assert.equal(gradeActivity(step, option), step.accept.includes(option));
       if (step.mode === "route") {

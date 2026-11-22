@@ -14,6 +14,9 @@ const subject: Record<number, Record<Hero, string>> = {
   6: { Maya: "25% 47%", Sam: "76% 48%" }, 7: { Maya: "26% 45%", Sam: "74% 44%" },
   8: { Maya: "36% 48%", Sam: "64% 42%" }, 9: { Maya: "21% 43%", Sam: "37% 43%" },
   10: { Maya: "28% 49%", Sam: "75% 48%" },
+  11: { Maya: "32% 45%", Sam: "79% 41%" }, 12: { Maya: "24% 38%", Sam: "79% 36%" },
+  13: { Maya: "24% 45%", Sam: "84% 42%" }, 14: { Maya: "36% 43%", Sam: "63% 42%" },
+  15: { Maya: "22% 44%", Sam: "80% 41%" },
 };
 
 function Caption({ text }: { text: string }) {
@@ -73,6 +76,11 @@ const reminders: Record<number, NonNullable<Activity["lesson"]>> = {
   8: { rule: "Demander et compter", example: "How many keys? · Combien de clés ?\none, two, three, four, five · un, deux, trois, quatre, cinq\ntwo blue keys · deux clés bleues" },
   9: { rule: "Suivre un itinéraire", example: "Turn left. · Tourne à gauche.\nTurn right. · Tourne à droite.\nGo straight. · Va tout droit.\nThen stop. · Ensuite, arrête-toi." },
   10: { rule: "Écrire pour son équipe", example: "We are ready. · Nous sommes prêts.\nWe have a map. · Nous avons une carte.\nWe need a key. · Nous avons besoin d’une clé." },
+  11: { rule: "À qui est l’objet ?", example: "This is my bag. · C’est mon sac.\nThis is your map. · C’est ta carte." },
+  12: { rule: "Parler d’Iris et de Noé", example: "her key · sa clé à elle\nhis key · sa clé à lui" },
+  13: { rule: "Ce que sait faire l’automate", example: "I can open the door. · Je peux ouvrir la porte.\nI can’t carry the bag. · Je ne peux pas porter le sac." },
+  14: { rule: "Demander et donner une position", example: "Where is the key? · Où est la clé ?\nWhere are the stars? · Où sont les étoiles ?\non the map · sur la carte\nunder the table · sous la table" },
+  15: { rule: "Parler au nom d’Iris", example: "This is my key. · C’est ma clé.\nI can open the door. · Je peux ouvrir la porte." },
 };
 
 const greetings = [

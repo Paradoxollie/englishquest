@@ -2,7 +2,8 @@ export type Passage = {
   id: number;
   title: string;
   place: string;
-  art: "quai" | "canopy" | "wind" | "tide" | "observatory" | "cinema" | "post" | "market" | "rail" | "island";
+  art: "quai" | "canopy" | "wind" | "tide" | "observatory" | "cinema" | "post" | "market" | "rail" | "island" |
+    "museum-hall" | "museum-mirrors" | "museum-workshop" | "museum-roof" | "museum-frame";
   alt: string;
   minutes: string;
   skill: string;
@@ -72,9 +73,40 @@ export const passages: Passage[] = [
     opening: "Le courrier est arrivé jusqu’au phare, mais personne au port ne sait comment revenir ici. Mira vous a laissé la dernière page de son film. À vous d’envoyer la réponse.",
     ending: "Les cinq tuyaux chantent. Une barque emporte votre réponse et, cette fois, laisse sur la carte un sillage dans les deux sens. Au cinéma du port, le robot projette enfin le film entier.",
     keepsake: "Le timbre du voyage retour" },
+  { id: 11, title: "Le portrait sans bagage", place: "Vestiaire du musée", art: "museum-hall", minutes: "7 à 11 min",
+    alt: "Au vestiaire du musée, Maya et Sam découvrent un cadre vide et des empreintes turquoise.",
+    skill: "Distinguer ce qui est à toi de ce qui est à la personne qui parle.",
+    opening: "De retour au port, le robot projette son film sur le mur du musée. À minuit, une voyageuse traverse l’écran. Un cadre se vide. Il ne reste au vestiaire qu’un bagage et un mot signé Iris.",
+    ending: "Dans le bon sac, Maya trouve un éclat de miroir. Sur son dos, Iris a dessiné deux profils. La galerie des reflets est encore éclairée.",
+    keepsake: "Le ticket du vestiaire" },
+  { id: 12, title: "Les deux reflets", place: "Galerie des miroirs", art: "museum-mirrors", minutes: "8 à 12 min",
+    alt: "Deux miroirs anciens renvoient la lumière pourpre de la galerie devant Maya et Sam.",
+    skill: "Indiquer à qui appartient un objet avec his et her.",
+    opening: "Iris devait laisser une clé au gardien. Les miroirs ont échangé les étiquettes. Deux témoins, trois pièces à examiner et une seule clé à remettre en main propre.",
+    ending: "Noé ouvre le tiroir avec sa clé. À l’intérieur, un oiseau de cuivre a laissé une longue plume dentelée. On entend un ressort derrière le mur.",
+    keepsake: "La plume de cuivre" },
+  { id: 13, title: "Le héron et la tortue", place: "Atelier des automates", art: "museum-workshop", minutes: "8 à 13 min",
+    alt: "Dans l’atelier, Maya et Sam se penchent vers un grand héron mécanique et une tortue à ressort.",
+    skill: "Dire ce qu’un personnage peut faire et trouver qui peut aider.",
+    opening: "Derrière la cloison, une machine peut porter le sac d’Iris jusqu’au toit. L’autre sait ouvrir la porte. Les engrenages se sont tus, mais leurs fiches sont intactes.",
+    ending: "La tortue se met en marche, le sac sur sa carapace. Le héron déverrouille la serre d’un coup de bec. Une lumière tremble derrière les vitres.",
+    keepsake: "Le ressort du héron" },
+  { id: 14, title: "Deux étoiles sur le toit", place: "Serre des étoiles", art: "museum-roof", minutes: "8 à 12 min",
+    alt: "Sur le toit vitré du musée, Maya et Sam étudient une table d’astronome sous les étoiles.",
+    skill: "Demander où se trouvent un ou plusieurs objets et transmettre leur position.",
+    opening: "La tortue a suivi Iris jusqu’à une serre. Le mécanisme du tableau attend deux étoiles de cuivre et une clé. Le gardien te demande où les trouver.",
+    ending: "Les deux étoiles servent de poids dans la balance de la serre. Une petite porte s’ouvre sur l’atelier de restauration. Une odeur de peinture fraîche en sort.",
+    keepsake: "L’étoile de la serre" },
+  { id: 15, title: "Le dernier bord du tableau", place: "Atelier de restauration", art: "museum-frame", minutes: "9 à 15 min",
+    alt: "À l’aube, Maya et Sam découvrent Iris dans une toile représentant le port.",
+    skill: "Croiser des témoignages et écrire une réponse au nom d’un personnage.",
+    opening: "Iris vous attend à côté de sa toile. Chaque nuit, elle visite une autre salle. Cette fois, son cadre est resté ouvert. Pour rentrer avant l’aube, elle doit retrouver son bagage et prévenir le gardien.",
+    ending: "Iris franchit le bord du tableau avec son sac. Noé sourit en lisant ton mot. À l’ouverture du musée, les visiteurs découvrent un détail inédit sur la toile du port : deux capes sèchent au soleil.",
+    keepsake: "La carte postale d’Iris" },
 ];
 
 export const atlasChapters = [
-  { title: "Le premier itinéraire", first: 1, last: 5 },
-  { title: "Le courrier de l’île invisible", first: 6, last: 10 },
+  { title: "Le premier itinéraire", first: 1, last: 5, intro: "Au quai 7, Maya et Sam t’attendent pour le dernier départ. Cap sur l’observatoire, une escale après l’autre." },
+  { title: "Le courrier de l’île invisible", first: 6, last: 10, intro: "Le port a retrouvé sa route. Mais qui a envoyé ce film d’une île absente des cartes ? Avec Maya et Sam, remonte la piste du courrier." },
+  { title: "Le musée après minuit", first: 11, last: 15, intro: "Cette nuit, une voyageuse est sortie de son tableau. De salle en salle, recueille les témoignages et découvre comment Iris pourra rentrer." },
 ];
