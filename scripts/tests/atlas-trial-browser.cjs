@@ -4,6 +4,17 @@ const { chromium } = require(process.env.AUDIT_PLAYWRIGHT_PACKAGE || "playwright
 const base = new URL(process.argv[2] || "http://127.0.0.1:3000");
 const trial = "Essayer l’aventure BD";
 
+async function verifyChapterBookmark(page, path, chapter) {
+  await page.goto(path + "#chapitre-" + chapter);
+  await page.waitForFunction(id => {
+    const nodes = document.querySelectorAll("#chapitre-" + id);
+    if (nodes.length !== 1 || !nodes[0].getClientRects().length) return false;
+    const top = nodes[0].getBoundingClientRect().top;
+    return scrollY > 0 && top >= 0 && top < 180;
+  }, chapter);
+  assert.equal(new URL(page.url()).pathname, path);
+}
+
 async function verify(browser, width) {
   const context = await browser.newContext({
     baseURL: base.origin,
@@ -23,9 +34,7 @@ async function verify(browser, width) {
     await page.goto("/");
     assert.equal(await link(trial).getAttribute("href"), "/quest/atlas");
     assert.equal(await link("Commencer la mission 1").getAttribute("href"), "/cours/1");
-    await page.goto("/quest#chapitre-3");
-    await page.locator("#chapitre-3").waitFor();
-    assert.equal(new URL(page.url()).pathname, "/quest");
+    await verifyChapterBookmark(page, "/quest", 3);
     assert.equal(await page.locator(".eq-map-chapter").count(), 5);
     assert.equal(await button(/^Mission \d+,/).count(), 50);
     await link(trial).click();
@@ -50,6 +59,7 @@ async function verify(browser, width) {
     await page.locator(".eq-quest-progress").waitFor();
     assert.equal(new URL(page.url()).pathname, "/tous-les-cours/parcours");
     assert.match(await page.locator(".eq-quest-progress").innerText(), /0\s*\/\s*50/);
+    await verifyChapterBookmark(page, "/tous-les-cours/parcours", 5);
     await page.goto("/contact?escale=1");
     assert.equal(await page.locator("#subject").inputValue(), "Avis sur l’aventure BD · Escale 1 · Le robot du quai 7");
     await page.goto("/contact?cours=1&exercice=x9");

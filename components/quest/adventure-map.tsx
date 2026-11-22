@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { MissionStarsLegend, MissionStarsRow } from "@/components/rewards/mission-stars";
 import { CharacterFace } from "@/components/rewards/character-face";
 import type { MissionSummary } from "@/lib/courses/mission-summary";
@@ -89,8 +89,25 @@ export function AdventureMap({ chapters, mission, playerFaceUrl, isLoggedIn }: A
     () => chapters.flatMap((chapter) => chapter.nodes).find((node) => node.isCurrent) ?? null,
     [chapters]
   );
+  const mapRef = useRef<HTMLDivElement>(null);
   const [selectedId, setSelectedId] = useState<number | null>(currentNode?.courseId ?? null);
   const selected = chapters.flatMap((chapter) => chapter.nodes).find((node) => node.courseId === selectedId) ?? null;
+
+  useEffect(() => {
+    // The map can arrive after the browser has already looked for the chapter in the URL.
+    function showLinkedChapter() {
+      const hash = window.location.hash;
+      if (/^#chapitre-\d+$/.test(hash)) {
+        mapRef.current?.querySelector<HTMLElement>(hash)?.scrollIntoView({ block: "start", behavior: "instant" });
+      }
+    }
+    const frame = window.requestAnimationFrame(showLinkedChapter);
+    window.addEventListener("hashchange", showLinkedChapter);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("hashchange", showLinkedChapter);
+    };
+  }, []);
 
   /* La caméra glisse jusqu'à la mission en cours quand elle est hors de l'écran. */
   useEffect(() => {
@@ -100,7 +117,7 @@ export function AdventureMap({ chapters, mission, playerFaceUrl, isLoggedIn }: A
     if (window.location.hash !== "#mission-courante") return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const timer = window.setTimeout(() => {
-      const target = document.getElementById("mission-courante");
+      const target = mapRef.current?.querySelector<HTMLElement>("#mission-courante");
       if (!target) return;
       const rect = target.getBoundingClientRect();
       if (rect.top > window.innerHeight * 0.85 || rect.top < 0) {
@@ -111,7 +128,7 @@ export function AdventureMap({ chapters, mission, playerFaceUrl, isLoggedIn }: A
   }, [currentNode]);
 
   return (
-    <div className="eq-map">
+    <div className="eq-map" ref={mapRef}>
       {chapters.map((chapter) => {
         const points = chapter.nodes.map((_, index) => nodePosition(index));
         const trackHeight = TOP_PADDING + Math.max(0, chapter.nodes.length - 1) * ROW_HEIGHT + BOTTOM_PADDING;
