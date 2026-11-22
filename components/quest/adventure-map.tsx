@@ -97,7 +97,7 @@ export function AdventureMap({ chapters, mission, playerFaceUrl, isLoggedIn }: A
     if (!currentNode || typeof window === "undefined") return;
     // Au tout début du parcours, l'en-tête montre déjà la mission et son bouton : on ne bouge pas.
     if (currentNode.courseId <= 2) return;
-    if (window.location.hash && window.location.hash !== "#mission-courante") return;
+    if (window.location.hash !== "#mission-courante") return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const timer = window.setTimeout(() => {
       const target = document.getElementById("mission-courante");

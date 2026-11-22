@@ -1,5 +1,7 @@
 "use client";
 import { recordClassAnswer } from "@/components/classes/live-activity-events";
+import { AdventureGameResult, type AdventureRound } from "@/components/quest/adventure-game-result";
+import type { GameAnswer } from "@/lib/adventure/activities";
 
 import Link from "next/link";
 import { MistakePractice } from "@/components/play/mistake-practice";
@@ -45,6 +47,7 @@ export function GrammarRushGame({
   missionTarget,
   levelLabel,
   focusCourseId = null,
+  adventure,
 }: {
   queue: RushQuestion[];
   questionPool?: RushQuestion[];
@@ -54,7 +57,9 @@ export function GrammarRushGame({
   levelLabel: string;
   /** Cours ciblé via ?cours=N : ses bonnes réponses comptent pour l'étoile d'entraînement. */
   focusCourseId?: number | null;
+  adventure?: AdventureRound;
 }) {
+  const [adventureAnswers, setAdventureAnswers] = useState<GameAnswer[]>([]);
   const [phase, setPhase] = useState<"start" | "playing" | "ended">("start");
   const [paused, setPaused] = useState(false);
   const [state, setState] = useState<RushState>(() => createRushState(queue));
@@ -80,7 +85,7 @@ export function GrammarRushGame({
   const runRef = useRef(0);
   const stateRef = useRef(state);
   const gameSession = useGameSession("grammar-rush", isLoggedIn);
-  useGameFocusMode(phase === "playing");
+  useGameFocusMode(!adventure && phase === "playing");
 
   useEffect(() => {
     stateRef.current = state;
@@ -102,11 +107,20 @@ export function GrammarRushGame({
     }
   }, []);
 
-  const start = useCallback(() => {
+  const start = useCallback((resume = true) => {
     if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
     const sourcePool = questionPool && questionPool.length > 0 ? questionPool : queue;
     const freshQueue = weaveRushQueue(sourcePool, queueFocusCourseId);
-    const fresh = createRushState(freshQueue.length > 0 ? freshQueue : queue);
+    const deck = freshQueue.length > 0 ? freshQueue : queue;
+    let fresh = createRushState(deck);
+    if (adventure) {
+      const previous = resume ? adventure.initialAnswers : [];
+      const played = previous.flatMap(a => deck.filter(q => q.id === a.id && q.options.includes(a.value)));
+      fresh = createRushState([...played, ...deck.filter(q => !played.includes(q))]);
+      played.forEach((q, i) => { fresh = answerRush(fresh, q.options.indexOf(previous[i].value), 3500).state; });
+      setAdventureAnswers(previous);
+      if (!resume) adventure.progress([]);
+    }
     stateRef.current = fresh;
     setState(fresh);
     setPaused(false);
@@ -125,8 +139,8 @@ export function GrammarRushGame({
     const now = performance.now();
     startedAtRef.current = now;
     questionAtRef.current = now;
-    setPhase("playing");
-  }, [questionPool, queue, queueFocusCourseId, gameSession]);
+    setPhase(adventure && !currentRushQuestion(fresh) ? "ended" : "playing");
+  }, [adventure, questionPool, queue, queueFocusCourseId, gameSession]);
 
   /* Abandon : retour à l'écran de départ, rien n'est enregistré. */
   const quit = useCallback(() => {
@@ -169,7 +183,7 @@ export function GrammarRushGame({
 
   /* Chronomètre */
   useEffect(() => {
-    if (phase !== "playing" || paused) return;
+    if (phase !== "playing" || paused || adventure) return;
     const interval = setInterval(() => {
       const left = GRAMMAR_RUSH_TIME_MS - (performance.now() - startedAtRef.current);
       if (left <= 0) {
@@ -184,13 +198,13 @@ export function GrammarRushGame({
       }
     }, 100);
     return () => clearInterval(interval);
-  }, [phase, paused]);
+  }, [phase, paused, adventure]);
 
   const choose = useCallback(
     (choice: number) => {
       if (phase !== "playing" || answerPendingRef.current || pausedRef.current) return;
       const now = performance.now();
-      if (now - startedAtRef.current >= GRAMMAR_RUSH_TIME_MS) {
+      if (!adventure && now - startedAtRef.current >= GRAMMAR_RUSH_TIME_MS) {
         answerPendingRef.current = true;
         if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
         setTimeLeft(0);
@@ -207,6 +221,10 @@ export function GrammarRushGame({
       const elapsed = Math.max(0, now - questionAtRef.current);
       answerPendingRef.current = true;
       const result = answerRush(current, choice, elapsed);
+      if (adventure) {
+        const answers = [...adventureAnswers, { id: question.id, value: question.options[choice] }];
+        setAdventureAnswers(answers); adventure.progress(answers);
+      }
       recordClassAnswer(result.isCorrect);
       stateRef.current = result.state;
       setState(result.state);
@@ -229,14 +247,14 @@ export function GrammarRushGame({
               question,
             }
       );
-      nextTimerRef.current = setTimeout(
+      if (!adventure) nextTimerRef.current = setTimeout(
         () => {
           if (!pausedRef.current) advanceQuestion();
         },
         result.isCorrect ? FEEDBACK_RIGHT_MS : FEEDBACK_WRONG_MS
       );
     },
-    [advanceQuestion, phase]
+    [advanceQuestion, phase, adventure, adventureAnswers]
   );
 
   /* Touches 1 à options.length + Échap (Pause) */
@@ -244,7 +262,7 @@ export function GrammarRushGame({
     if (phase !== "playing") return;
     const onKey = (event: KeyboardEvent) => {
       if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
-      if (event.key === "Escape") {
+      if (!adventure && event.key === "Escape") {
         event.preventDefault();
         togglePause();
         return;
@@ -260,7 +278,7 @@ export function GrammarRushGame({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [phase, choose, togglePause]);
+  }, [phase, choose, togglePause, adventure]);
 
   /* Enregistrement */
   useEffect(() => {
@@ -303,6 +321,12 @@ export function GrammarRushGame({
       });
   }, [phase, isLoggedIn, focusCourseId, gameSession]);
 
+  if (adventure && phase === "start") return <div className="atlas-game-start">
+    <p>Quatre messages, à ton rythme. Réponds aux quatre et décode au moins trois messages pour ouvrir le passage.</p>
+    <button className="eq-btn eq-btn-primary" onClick={() => start()}>{adventure.initialAnswers.length ? "Reprendre Grammar Rush" : "Lancer Grammar Rush"}</button>
+  </div>;
+  if (adventure && phase === "ended") return <AdventureGameResult round={adventure} correct={state.correct} total={queue.length}
+    required={3} answers={adventureAnswers} replay={() => start(false)} />;
   if (phase === "start") {
     return (
       <GameStart
@@ -389,7 +413,7 @@ export function GrammarRushGame({
     <div className="eq-game-play">
       <GameHud onQuit={quit}>
         <HudStat label="Score" value={state.score} tone="gold" />
-        <HudStat label="Temps" value={`${Math.ceil(timeLeft / 1000)} s`} tone={timeLow ? "coral" : "cyan"} />
+        {!adventure && <HudStat label="Temps" value={`${Math.ceil(timeLeft / 1000)} s`} tone={timeLow ? "coral" : "cyan"} />}
         <HudStat
           label="Série"
           value={state.streak}
@@ -398,7 +422,7 @@ export function GrammarRushGame({
         />
         <HudStat label="Justes" value={`${state.correct} / ${state.attempts}`} />
       </GameHud>
-      <TimeBar percent={(timeLeft / GRAMMAR_RUSH_TIME_MS) * 100} low={timeLow} />
+      {!adventure && <TimeBar percent={(timeLeft / GRAMMAR_RUSH_TIME_MS) * 100} low={timeLow} />}
 
       <div
         className={`eq-game-stage eq-card-stage ${
@@ -408,15 +432,15 @@ export function GrammarRushGame({
       >
         <div className="eq-card-top">
           <p className="eq-game-prompt-kicker">
-            Cours {question.course} · {question.options.length} choix
+            {adventure ? `Signal ${Math.min(state.index + (feedback ? 0 : 1), queue.length)} sur ${queue.length}` : `Cours ${question.course} · ${question.options.length} choix`}
           </p>
-          <button
+          {!adventure && <button
             type="button"
             className="eq-btn eq-btn-ghost eq-enigma-mini-btn"
             onClick={togglePause}
           >
             {paused ? "Reprendre" : "Pause (Échap)"}
-          </button>
+          </button>}
         </div>
 
         <p className="eq-game-prompt is-text" data-testid="game-prompt">
@@ -449,6 +473,9 @@ export function GrammarRushGame({
         </div>
 
         <div className="eq-card-feedback-slot">
+          {adventure && feedback && <button type="button" className="eq-btn eq-btn-ghost eq-btn-sm" onClick={advanceQuestion}>
+            {state.index >= queue.length ? "Voir le résultat" : "Signal suivant"}
+          </button>}
           {feedback ? (
             <p
               className={`eq-game-feedback ${feedback.right ? "is-right" : "is-wrong"}`}

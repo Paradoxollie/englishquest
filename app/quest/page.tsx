@@ -1,4 +1,5 @@
 import { GuestMissionTransfer } from "@/components/quest/guest-mission-transfer";
+import { AtlasCover } from "@/components/quest/atlas-cover";
 import { getGuestProgress } from "@/lib/courses/guest-progress-server";
 import { RecoverGuestPlacement } from "@/components/quest/recover-guest-placement";
 import { publicPageMetadata } from "@/lib/site/metadata";
@@ -32,8 +33,8 @@ import { getServerUser } from "@/lib/supabase/auth-cache";
 
 export const metadata = publicPageMetadata({
   path: "/quest",
-  title: "L’aventure en anglais en 50 missions",
-  description: "Explore les cinq chapitres d’English Quest, du niveau A1 à B1+. Chaque mission propose une leçon, un quiz et un jeu pour pratiquer.",
+  title: "L’aventure en anglais avec Maya et Sam",
+  description: "Explore les cinq mondes de l’Atlas des passages avec Maya et Sam, puis retrouve les cinquante missions des cours.",
 });
 
 export const dynamic = "force-dynamic";
@@ -179,13 +180,14 @@ export default async function QuestPage() {
     <div className="eq-quest">
       {!guest.placementChapter ? <RecoverGuestPlacement /> : null}
       {isLoggedIn && hasGuestProgress ? <GuestMissionTransfer /> : null}
+      <AtlasCover />
       <section className="eq-quest-head">
         <div className="eq-container eq-quest-head-row">
           <div className="grid justify-items-start gap-4">
-            <span className="eq-caption eq-slam">La carte des missions</span>
-            <h1 className="eq-cover-title eq-slam eq-slam-2">
+            <span className="eq-caption eq-slam">Le parcours des cours</span>
+            <h2 className="eq-cover-title eq-slam eq-slam-2">
               {player ? `${player.username}, ta progression` : "50 missions, 5 chapitres"}
-            </h1>
+            </h2>
             <div className="eq-quest-progress eq-slam eq-slam-3" aria-label="Ta progression">
               <b>
                 {roadmap.completedCount} / {roadmap.totalCourses}

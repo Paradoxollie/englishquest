@@ -19,6 +19,7 @@ const baseNavLinks = [
 ];
 
 function isActivePath(pathname: string, href: string) {
+  if (href === "/tous-les-cours" && pathname.startsWith("/cours/")) return true;
   if (href === "/") {
     return pathname === "/" || pathname === "/home";
   }

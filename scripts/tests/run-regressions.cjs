@@ -11,6 +11,7 @@ for (const script of [
   'scripts/tests/score-plausibility-regression.cjs',
   'scripts/tests/quiz-interaction-regression.cjs',
   'scripts/tests/course-question-invariants.cjs',
+  'scripts/tests/atlas-regression.cjs',
   'scripts/tests/exercise-invariants.cjs',
   'scripts/tests/auth-pagination-regression.cjs',
   'scripts/tests/rewards-regression.cjs',
