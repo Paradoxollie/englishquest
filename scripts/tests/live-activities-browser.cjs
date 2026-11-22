@@ -118,17 +118,21 @@ async function run() {
       if (slug === "space-lex") {
         await frame.getByRole("button", { name: "Passer", exact: true }).click();
         const stage = frame.getByTestId("space-stage");
-        const word = frame.locator("[data-enemy-id]").first();
-        await word.waitFor({ timeout: 20000 });
+        await page.waitForFunction(() => {
+          const word = document.querySelector("iframe").contentDocument.querySelector("[data-enemy-id]");
+          return word && parseFloat(word.style.top) > 26;
+        }, undefined, { timeout: 20000 });
         await page.screenshot({ path: path.join(screenshots, "blaster-mobile.png") });
-        for (let attempts = 0; attempts < 55 && !(await page.evaluate(() => window.checkpoints.length)); attempts++) {
-          const wordBox = await word.boundingBox(), box = await stage.boundingBox();
-          if (box && wordBox) {
-            const x = Math.max(1, Math.min(box.width - 1, wordBox.x - box.x + wordBox.width / 2));
-            await stage.tap({ position: { x, y: box.height * .65 } });
-          }
-          await page.waitForTimeout(150);
-        }
+        const word = frame.locator("[data-enemy-id]").first();
+        const text = await word.textContent();
+        const box = await word.boundingBox();
+        await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+        const feedback = stage.locator(".eq-space-feedback-chip").filter({ hasText: text });
+        await feedback.waitFor();
+        const correct = await feedback.evaluate(el => Number(el.classList.contains("is-success")));
+        const progress = await didAnswer(slug);
+        assert.equal(progress.answered, 1, "one tap counts as one answer for the teacher");
+        assert.equal(progress.correct, correct);
       }
       const result = await didAnswer(slug);
       assert.ok(result.answered > 0);

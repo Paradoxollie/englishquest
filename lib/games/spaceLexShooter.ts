@@ -78,6 +78,7 @@ export interface EnemyWord {
 
 export interface Bullet {
   id: string;
+  targetId?: string; // A tap selects this word. Free shots travel up the ship's column.
   x: number; // horizontal position (0-1, normalized)
   y: number; // vertical position (0-1, normalized)
   previousY?: number; // previous position for collision checks between frames
@@ -135,6 +136,7 @@ export interface GameState {
   waveTransitionTime: number; // timestamp for transitions
 
   gameOver: boolean;
+  queuedWordId: string | null;
   lastBulletTime: number; // timestamp of last bullet fired
   lastEnemySpawnTime: number; // timestamp of last enemy spawn
   lastPowerUpSpawnTime: number; // timestamp of last power-up spawn
@@ -171,6 +173,7 @@ export interface Explosion {
   x: number;
   y: number;
   type: "hit" | "miss";
+  beamFromX?: number;
   life: number;
   maxLife: number;
 }
@@ -508,6 +511,7 @@ export function createGameState(vocabLevel: GameLevel = DEFAULT_VOCAB_LEVEL): Ga
     waveTransitionTime: now,
 
     gameOver: false,
+    queuedWordId: null,
     lastBulletTime: 0,
     lastEnemySpawnTime: 0,
     lastPowerUpSpawnTime: 0,
@@ -1082,45 +1086,32 @@ function generateFeedbackExplanation(word: string, isTarget: boolean, mission: M
   }
 }
 
-/**
- * Check collisions between bullets and enemies
- * Uses rectangular hitbox that adapts to word length
- */
+function crossesWord(bullet: Bullet, enemy: EnemyWord, measuredWidth?: number): boolean {
+  const { width, height } = getEnemyDimensions(enemy.text, measuredWidth);
+  const previousY = bullet.previousY ?? bullet.y;
+  // Include the full distance travelled since the last frame, even on a slow device.
+  return Math.abs(bullet.x - enemy.x) < width / 2 + 0.005
+    && Math.min(bullet.y, previousY) - 0.015 < enemy.y + height / 2
+    && Math.max(bullet.y, previousY) + 0.015 > enemy.y - height / 2;
+}
+
 export function checkCollisions(state: GameState, mission: Mission | null, wordWidths?: ReadonlyMap<string, number>): GameState {
-  if (state.gameOver || state.waveStatus !== "playing") return state;
-  const BULLET_WIDTH = 0.01; // Width of bullet (1% of screen width)
-  const BULLET_HEIGHT = 0.03; // Height of bullet (3% of screen height)
+  if (state.gameOver || state.waveStatus !== "playing" || !state.bullets.length) return state;
 
   let newState = { ...state, boss: state.boss ? { ...state.boss } : null };
   const bulletsToRemove = new Set<string>();
   const enemiesToRemove = new Set<string>();
+  const nearestFirst = [...state.enemies].sort((a, b) => b.y - a.y);
 
   for (const bullet of state.bullets) {
     if (newState.gameOver || newState.waveStatus !== "playing") break;
-    // A rising bullet hits the nearest word on its path first.
-    for (const enemy of [...state.enemies].sort((a, b) => b.y - a.y)) {
+    // A selected shot is spent even if another shot already removed its word.
+    if (bullet.targetId) bulletsToRemove.add(bullet.id);
+    for (const enemy of nearestFirst) {
       if (enemiesToRemove.has(enemy.id)) continue;
-      // Get dynamic dimensions based on word length
-      const enemyDims = getEnemyDimensions(enemy.text, wordWidths?.get(enemy.id));
-
-      // Calculate bounding boxes
-      const enemyLeft = enemy.x - enemyDims.width / 2;
-      const enemyRight = enemy.x + enemyDims.width / 2;
-      const enemyTop = enemy.y - enemyDims.height / 2;
-      const enemyBottom = enemy.y + enemyDims.height / 2;
-
-      const bulletLeft = bullet.x - BULLET_WIDTH / 2;
-      const bulletRight = bullet.x + BULLET_WIDTH / 2;
-      const bulletTop = Math.min(bullet.y, bullet.previousY ?? bullet.y) - BULLET_HEIGHT / 2;
-      const bulletBottom = Math.max(bullet.y, bullet.previousY ?? bullet.y) + BULLET_HEIGHT / 2;
-
-      // Check rectangular collision (AABB - Axis Aligned Bounding Box)
-      const collision = (
-        bulletLeft < enemyRight &&
-        bulletRight > enemyLeft &&
-        bulletTop < enemyBottom &&
-        bulletBottom > enemyTop
-      );
+      const collision = bullet.targetId
+        ? bullet.targetId === enemy.id
+        : crossesWord(bullet, enemy, wordWidths?.get(enemy.id));
 
       if (collision) {
         bulletsToRemove.add(bullet.id);
@@ -1132,6 +1123,7 @@ export function checkCollisions(state: GameState, mission: Mission | null, wordW
           x: enemy.x,
           y: enemy.y,
           type: enemy.isTarget ? "hit" : "miss",
+          beamFromX: bullet.targetId ? bullet.x : undefined,
           life: 0,
           maxLife: 20, // 20 frames at 60fps = ~333ms
         };
@@ -1301,6 +1293,9 @@ export function checkEnemiesReachedBottom(state: GameState, mission: Mission | n
  */
 export function fireBullet(state: GameState, cooldownMs: number = 450): GameState {
   if (state.waveStatus !== "playing") return state; // Only fire if playing
+  if (state.queuedWordId && !state.enemies.some(enemy => enemy.id === state.queuedWordId)) {
+    return { ...state, queuedWordId: null };
+  }
 
   const now = Date.now();
   const bulletInterval = cooldownMs;
@@ -1315,6 +1310,7 @@ export function fireBullet(state: GameState, cooldownMs: number = 450): GameStat
 
   const newBullet: Bullet = {
     id: generateId(),
+    targetId: state.queuedWordId ?? undefined,
     x: bulletX,
     y: 0.9, // start cleanly at the ship nose
     previousY: 0.9,
@@ -1324,6 +1320,7 @@ export function fireBullet(state: GameState, cooldownMs: number = 450): GameStat
   return {
     ...state,
     bullets: [...state.bullets, newBullet],
+    queuedWordId: null,
     lastBulletTime: now,
   };
 }
@@ -1639,6 +1636,7 @@ export function startNextWave(state: GameState): GameState {
     ...state,
     enemies: [], // Clear screen
     bullets: [],
+    queuedWordId: null,
     powerups: [],
     waveNumber: nextWaveNumber,
     mission: nextMission,
@@ -1727,6 +1725,7 @@ export function startGame(state: GameState): GameState {
     lastMissionChangeTime: now,
     lastEnemySpawnTime: now,
     lastBulletTime: 0,
+    queuedWordId: null,
     upcomingEnemy: null,
     upcomingEnemySpawnTime: 0,
     currentDialogue: getDialogueForWave(1, state.vocabLevel),
@@ -1832,6 +1831,7 @@ export function resumeGame(state: GameState, pausedDurationMs = 0): GameState {
     ...state,
     isRunning: true,
     shipVelocity: 0,
+    queuedWordId: null,
     waveTransitionTime: shift(state.waveTransitionTime),
     lastBulletTime: shift(state.lastBulletTime),
     lastEnemySpawnTime: shift(state.lastEnemySpawnTime),
@@ -1856,7 +1856,6 @@ export function resetGame(state: GameState): GameState {
 export function moveShip(state: GameState, direction: "left" | "right" | "stop"): GameState {
   const ACCELERATION = 0.0045;
   const MAX_VELOCITY = 0.015;
-  const FRICTION = 0.985;
 
   let newVelocity = state.shipVelocity;
 
@@ -1865,11 +1864,7 @@ export function moveShip(state: GameState, direction: "left" | "right" | "stop")
   } else if (direction === "right") {
     newVelocity = Math.min(MAX_VELOCITY, newVelocity + ACCELERATION);
   } else {
-    // Apply friction when stopping
-    newVelocity *= FRICTION;
-    if (Math.abs(newVelocity) < 0.0001) {
-      newVelocity = 0;
-    }
+    newVelocity = 0;
   }
 
   return {

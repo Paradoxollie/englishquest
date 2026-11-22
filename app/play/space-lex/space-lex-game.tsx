@@ -66,6 +66,35 @@ declare global {
 
 type SubmitStatus = "idle" | "saving" | "saved" | "error" | "guest";
 
+function wordAtPointer(event: React.PointerEvent<HTMLDivElement>): string | null {
+  const label = event.target instanceof Element
+    ? event.target.closest<HTMLElement>("[data-enemy-id]")
+    : null;
+  if (label) return label.dataset.enemyId ?? null;
+
+  // Match the visible box (including the hover outline). Give fingers a
+  // little more room. The answer itself never influences which label wins.
+  const fine = event.pointerType === "mouse";
+  let nearest: string | null = null;
+  let nearestDistance = Infinity;
+  const board = event.currentTarget.getBoundingClientRect();
+  for (const word of event.currentTarget.querySelectorAll<HTMLElement>("[data-enemy-id]")) {
+    const box = word.getBoundingClientRect();
+    if (box.bottom <= board.top || box.top >= board.bottom) continue;
+    const dx = Math.max(box.left - event.clientX, event.clientX - box.right, 0);
+    const dy = Math.max(box.top - event.clientY, event.clientY - box.bottom, 0);
+    const marginX = fine ? 3 : Math.max(6, (44 - box.width) / 2);
+    const marginY = fine ? 3 : Math.max(6, (44 - box.height) / 2);
+    if (dx > marginX || dy > marginY) continue;
+    const distance = dx * dx + dy * dy;
+    if (distance < nearestDistance) {
+      nearest = word.dataset.enemyId ?? null;
+      nearestDistance = distance;
+    }
+  }
+  return nearest;
+}
+
 function SpaceShip({
   x,
   isRunning,
@@ -425,7 +454,7 @@ export function SpaceLexGame({
     if (fired !== current) {
       gameStateRef.current = fired;
       setGameState(fired);
-      playSoundEffect("tick");
+      if (fired.bullets.length > current.bullets.length) playSoundEffect("tick");
     }
   }, []);
 
@@ -489,7 +518,9 @@ export function SpaceLexGame({
         }
         next = updateShipPosition(next, clampedDelta);
 
-        if (autoFireRef.current) {
+        if (next.queuedWordId) {
+          next = fireBullet(next, 240);
+        } else if (autoFireRef.current) {
           next = fireBullet(next, 360);
         } else if (pointerDownRef.current || keys.has("fire")) {
           next = fireBullet(next, 240);
@@ -579,7 +610,7 @@ export function SpaceLexGame({
       lastUpdateRef.current = Date.now();
     } else {
       pausedAtRef.current = Date.now();
-      const pausedState = { ...current, shipVelocity: 0 };
+      const pausedState = { ...current, shipVelocity: 0, queuedWordId: null };
       gameStateRef.current = pausedState;
       setGameState(pausedState);
       isPausedRef.current = true;
@@ -794,11 +825,11 @@ export function SpaceLexGame({
 
   const handleStagePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     const current = gameStateRef.current;
-    if (!current?.isRunning || current.gameOver || isPausedRef.current) return;
-    if (current.currentDialogue) return;
-    const rect = gameAreaRef.current?.getBoundingClientRect();
-    if (!rect || rect.width <= 0) return;
-    const ratio = (e.clientX - rect.left) / rect.width;
+    if (!e.isPrimary || !current?.isRunning || current.gameOver || isPausedRef.current) return;
+    if (current.currentDialogue || current.waveStatus !== "playing") return;
+    const stage = e.currentTarget;
+    if (!stage.clientWidth) return;
+    const ratio = (e.clientX - stage.getBoundingClientRect().left - stage.clientLeft) / stage.clientWidth;
     const updated = setShipTarget(current, ratio);
     gameStateRef.current = updated;
     setGameState(updated);
@@ -806,7 +837,8 @@ export function SpaceLexGame({
 
   const handleStagePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (e.target instanceof Element && e.target.closest("button")) return;
+      if (!e.isPrimary || e.button !== 0) return;
+      if (e.target instanceof Element && e.target.closest("button, .eq-space-preview")) return;
       const current = gameStateRef.current;
       if (!current?.isRunning || current.gameOver || isPausedRef.current) return;
       if (current.currentDialogue) {
@@ -816,13 +848,14 @@ export function SpaceLexGame({
         return;
       }
       if (current.waveStatus !== "playing") return;
-      pointerDownRef.current = true;
-      const rect = gameAreaRef.current?.getBoundingClientRect();
-      if (rect && rect.width > 0) {
-        const ratio = (e.clientX - rect.left) / rect.width;
-        const aimed = setShipTarget(current, ratio);
-        gameStateRef.current = aimed;
-      }
+      const stage = e.currentTarget;
+      if (!stage.clientWidth) return;
+      const wordId = wordAtPointer(e);
+      const ratio = (e.clientX - stage.getBoundingClientRect().left - stage.clientLeft) / stage.clientWidth;
+      const aimed = { ...setShipTarget(current, ratio), queuedWordId: wordId };
+      pointerDownRef.current = wordId === null;
+      gameStateRef.current = aimed;
+      setGameState(aimed);
       applyManualShot();
     },
     [applyManualShot]
@@ -849,8 +882,8 @@ export function SpaceLexGame({
         startLabel="Décoller"
         onStart={handleStartGame}
         rules={[
-          isMobile ? "Glisse sur l’aire de jeu ou maintiens les flèches pour déplacer le vaisseau." : "Déplace-toi avec la souris, les flèches ou les touches Q et D.",
-          isMobile ? "Touche une cible pour te diriger vers elle et tirer, ou utilise le bouton Tirer." : "Clique ou appuie sur Espace pour tirer. Tu peux aussi activer le tir automatique.",
+          isMobile ? "Touche le mot que tu choisis pour tirer dessus." : "Clique sur le mot que tu choisis pour tirer dessus.",
+          isMobile ? "Tu peux aussi déplacer le vaisseau avec les flèches et appuyer sur Tirer pour tirer droit devant." : "Au clavier, déplace le viseur avec les flèches ou Q et D. Appuie sur Espace pour tirer droit devant.",
           "Suis la consigne de la vague. Une cible que tu laisses passer peut revenir quelques mots plus tard.",
           missionTarget
             ? `Objectif de mission : ${missionTarget.toLocaleString("fr-FR")} points.`
@@ -1036,10 +1069,14 @@ export function SpaceLexGame({
         onPointerMove={handleStagePointerMove}
         onPointerDown={handleStagePointerDown}
         onPointerUp={handleStagePointerUp}
+        onPointerCancel={handleStagePointerUp}
         onPointerLeave={handleStagePointerUp}
       >
         <div className="eq-space-grid" aria-hidden="true" />
         <div className="eq-space-stars" aria-hidden="true" />
+        {gameState.waveStatus === "playing" && !currentDialogueLine && (
+          <div className="eq-space-aim-line" style={{ left: `${gameState.shipX * 100}%` }} aria-hidden="true" />
+        )}
 
         {/* Single consolidated Top HUD row inside the arena: zero overlaps */}
         <div className="eq-space-topbar">
@@ -1122,7 +1159,7 @@ export function SpaceLexGame({
         ))}
 
         {/* Plasma Bullets */}
-        {gameState.bullets.map((bullet) => (
+        {gameState.bullets.filter(bullet => !bullet.targetId).map((bullet) => (
           <div
             key={bullet.id}
             className="eq-space-bullet"
@@ -1132,6 +1169,14 @@ export function SpaceLexGame({
         ))}
 
         {/* Explosions */}
+        {gameState.explosions.length > 0 && (
+          <svg className="eq-space-shot-trails" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            {gameState.explosions.map(exp => exp.beamFromX !== undefined && exp.life < 9 && (
+              <line key={exp.id} x1={exp.beamFromX * 100} y1="90" x2={exp.x * 100} y2={exp.y * 100}
+                opacity={1 - exp.life / 9} vectorEffect="non-scaling-stroke" />
+            ))}
+          </svg>
+        )}
         {gameState.explosions.map((exp) => {
           const progress = Math.min(1, exp.life / Math.max(1, exp.maxLife));
           return (
@@ -1307,6 +1352,7 @@ export function SpaceLexGame({
               onPointerUp={() => {
                 keysPressedRef.current.delete("left");
               }}
+              onPointerCancel={() => keysPressedRef.current.delete("left")}
               onPointerLeave={() => {
                 keysPressedRef.current.delete("left");
               }}
@@ -1325,6 +1371,7 @@ export function SpaceLexGame({
               onPointerUp={() => {
                 keysPressedRef.current.delete("right");
               }}
+              onPointerCancel={() => keysPressedRef.current.delete("right")}
               onPointerLeave={() => {
                 keysPressedRef.current.delete("right");
               }}
@@ -1341,7 +1388,7 @@ export function SpaceLexGame({
             aria-pressed={autoFire}
             onClick={() => setAutoFire((v) => !v)}
           >
-            {autoFire ? "Tir automatique activé" : isMobile ? "Activer le tir automatique" : "Tir manuel (Clic / Espace)"}
+            {autoFire ? "Tir automatique activé" : "Activer le tir automatique"}
           </button>
           <button type="button" className="eq-btn eq-btn-ghost" onClick={handlePauseToggle}>
             {isPaused ? "Reprendre" : isMobile ? "Pause" : "Pause (Échap)"}

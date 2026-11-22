@@ -238,6 +238,52 @@ check("Space Lex two bullets can score one enemy only once", () => {
   assert.equal(initial.score, 0);
 });
 
+check("Space Lex fires at the selected label even past the ship or behind another word", () => {
+  for (const y of [0.21, 0.97]) for (const correct of [true, false]) {
+    const chosen = enemy("chosen", correct, y);
+    const other = enemy("other", !correct, 0.7);
+    const state = { ...playingState(), enemies: [other, chosen], queuedWordId: chosen.id };
+    const fired = space.fireBullet(state, 240);
+    const hit = space.checkCollisions(space.updateBullets(fired, 72), null);
+    assert.deepEqual(hit.enemies.map(word => word.id), [other.id]);
+    assert.deepEqual(hit.feedbackMessages.map(message => message.text), [chosen.text]);
+    assert.equal(hit.waveProgress, correct ? 1 : 0);
+    assert.equal(hit.lives, correct ? 3 : 2);
+    assert.equal(hit.score, correct ? 10 : 0);
+    assert.equal(hit.bullets.length, 0);
+  }
+});
+
+check("Space Lex holds a tap through the normal cooldown and never redirects a stale choice", () => {
+  const chosen = enemy("chosen");
+  const state = { ...playingState(), enemies: [chosen], queuedWordId: chosen.id, lastBulletTime: Date.now() };
+  assert.equal(space.fireBullet(state, 240), state);
+  const fired = space.fireBullet({ ...state, lastBulletTime: Date.now() - 241 }, 240);
+  assert.equal(fired.queuedWordId, null);
+  assert.equal(fired.bullets[0].targetId, chosen.id);
+  const other = enemy("other", false);
+  const expired = space.fireBullet({ ...state, enemies: [other], lastBulletTime: 0 }, 240);
+  assert.equal(expired.queuedWordId, null);
+  assert.equal(expired.bullets.length, 0);
+  const spent = space.checkCollisions({ ...fired, enemies: [other] }, null);
+  assert.deepEqual(spent.enemies, [other]);
+  assert.equal(spent.lives, 3);
+  assert.equal(spent.bullets.length, 0);
+  for (const reset of [space.resumeGame(state), space.startNextWave(state), space.resetGame(state)]) {
+    assert.equal(reset.queuedWordId, null);
+  }
+});
+
+check("Space Lex keyboard aim stays aligned as soon as the arrow is released", () => {
+  let state = playingState();
+  for (let frame = 0; frame < 8; frame++) state = space.updateShipPosition(space.moveShip(state, "right"), 16);
+  assert.ok(state.shipX > 0.5);
+  const releasedX = state.shipX;
+  for (let frame = 0; frame < 20; frame++) state = space.updateShipPosition(space.moveShip(state, "stop"), 16);
+  assert.equal(state.shipX, releasedX);
+  assert.equal(space.fireBullet(state, 240).bullets[0].x, releasedX);
+});
+
 check("Space Lex two bullets on one distractor remove a single life", () => {
   const result = space.checkCollisions({ ...playingState(), enemies: [enemy("wrong", false)], bullets: [bullet("one"), bullet("two")] }, null);
   assert.equal(result.lives, 2);
