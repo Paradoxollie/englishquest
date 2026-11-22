@@ -5,7 +5,7 @@ import { gradeActivity } from "@/lib/adventure/grading";
 import { scenes } from "@/lib/adventure/scenes";
 import { quizForm, quizRetryIds } from "@/lib/adventure/quiz";
 import { cookies } from "next/headers";
-import { receiptName } from "@/lib/adventure/receipts";
+import { legacyGuestReceiptName, receiptName } from "@/lib/adventure/receipts";
 
 export async function importGuestAtlas() {
   const { stages, guestStages, userId, synced } = await getAdventureProgress();
@@ -17,7 +17,9 @@ export async function importGuestAtlas() {
     if (stage > stages[id - 1] && !await keepCheckpoint(id, stage, userId)) return false;
     for (let n = 1; n <= stage; n++) {
       const key = receiptName(id, n, false);
-      if (jar.has(key)) jar.set(key, "", { path: "/quest", maxAge: 0 });
+      const oldKey = legacyGuestReceiptName(id, n);
+      if (jar.has(key)) jar.set(key, "", { httpOnly: true, path: "/", maxAge: 0 });
+      if (jar.has(oldKey)) jar.set(oldKey, "", { httpOnly: true, path: "/quest", maxAge: 0 });
     }
   }
   return true;

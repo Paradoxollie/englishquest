@@ -49,7 +49,8 @@ export async function getAccountDraft(id: number, userId: string | undefined, st
 export async function keepCheckpoint(id: number, stage: number, userId?: string) {
   const jar = await cookies();
   const name = receiptName(id, stage, Boolean(userId));
-  const options = { httpOnly: true, sameSite: "lax" as const, secure: process.env.NODE_ENV === "production", path: "/quest" };
+  // The sign-in action can render the Atlas before the browser has navigated back to /quest.
+  const options = { httpOnly: true, sameSite: "lax" as const, secure: process.env.NODE_ENV === "production", path: userId ? "/quest" : "/" };
   jar.set(name, signReceipt(name, userId ?? "guest"), { ...options, maxAge: RECEIPT_AGE });
   // Two tabs can respond out of order. Each proof has its own name. The highest one wins.
   for (let older = 1; older < stage; older++) {

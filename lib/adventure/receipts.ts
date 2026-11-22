@@ -4,10 +4,12 @@ import { passages } from "./catalog";
 import { scenes } from "./scenes";
 
 export const RECEIPT_AGE = 180 * 24 * 3600;
-const PREFIX = "eq-atlas1-";
-
 export function receiptName(id: number, stage: number, signedIn: boolean) {
-  return `${PREFIX}${signedIn ? "a" : "g"}${id}-${stage}`;
+  return `${signedIn ? "eq-atlas1-a" : "eq-atlas2-g"}${id}-${stage}`;
+}
+
+export function legacyGuestReceiptName(id: number, stage: number) {
+  return `eq-atlas1-g${id}-${stage}`;
 }
 
 function signature(name: string, owner: string, expiry: string) {
@@ -24,8 +26,8 @@ export function signReceipt(name: string, owner: string, now = Date.now()) {
 export function readReceipts(items: { name: string; value: string }[], userId?: string, now = Date.now()) {
   const stages = passages.map(() => 0);
   for (const { name, value } of items) {
-    const parts = /^eq-atlas1-([ag])([1-5])-([1-9])$/.exec(name);
-    if (!parts || (parts[1] === "a") !== Boolean(userId)) continue;
+    const parts = /^eq-atlas(1-[ag]|2-g)([1-5])-([1-9])$/.exec(name);
+    if (!parts || (parts[1] === "1-a") !== Boolean(userId)) continue;
     const id = Number(parts[2]), stage = Number(parts[3]);
     const signed = /^([a-z0-9]{1,8})\.([\w-]{43})$/.exec(value);
     if (stage > scenes[id].length || !signed || parseInt(signed[1], 36) <= now / 1000) continue;

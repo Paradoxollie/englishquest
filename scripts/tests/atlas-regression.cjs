@@ -33,7 +33,11 @@ const admin = {
 const mocks = {
   "server-only": {},
   "next/headers": { cookies: async () => ({ getAll: items, has: name => jar.has(name),
-    set(name, value, options) { assert.ok(options.httpOnly); assert.equal(options.path, "/quest"); if (options.maxAge) jar.set(name, value); else jar.delete(name); } }) },
+    set(name, value, options) {
+      assert.ok(options.httpOnly);
+      assert.equal(options.path, name.startsWith("eq-atlas2-g") ? "/" : "/quest");
+      if (options.maxAge) jar.set(name, value); else jar.delete(name);
+    } }) },
   "@/lib/supabase/auth-cache": { getServerUser: async () => user ? { id: user } : null },
   "@/lib/supabase/admin": { createSupabaseAdminClient: () => admin },
 };
@@ -71,9 +75,9 @@ async function test() {
   const { quizBank } = load("lib/adventure/quiz-bank.ts");
   const { quizForm, gradeQuiz } = load("lib/adventure/quiz.ts");
   const { panels } = load("lib/adventure/panels.ts");
-  const { readReceipts } = load("lib/adventure/receipts.ts");
+  const { readReceipts, receiptName, legacyGuestReceiptName, signReceipt } = load("lib/adventure/receipts.ts");
   const { getAdventureProgress } = load("lib/adventure/progress.ts");
-  const { checkPassage, openAtlasQuiz } = load("app/quest/atlas/actions.ts");
+  const { checkPassage, openAtlasQuiz, importGuestAtlas } = load("app/quest/atlas/actions.ts");
   await assert.rejects(openAtlasQuiz(1));
   assert.equal((await checkPassage(2, 0, solution(scenes[2][0]))).ok, false);
   assert.equal((await checkPassage(1, 2, solution(scenes[1][2]))).ok, false);
@@ -118,6 +122,8 @@ async function test() {
   assert.equal(gradeActivity(scenes[5].findLast(s => s.mode === "write"), "I’m Nova. The key is under the map."), false);
   const target = passages.map(p => scenes[p.id].length);
   assert.deepEqual((await getAdventureProgress()).stages, target);
+  const guestReceipts = new Map(jar);
+  assert.equal(await importGuestAtlas(), false);
   const [receipt] = items();
   assert.deepEqual(readReceipts([{...receipt, value: receipt.value.replace(/.$/, "!")}]), [0,0,0,0,0]);
   assert.deepEqual(readReceipts(items(), undefined, Date.now() + 400 * 86400000), [0,0,0,0,0]);
@@ -140,6 +146,22 @@ async function test() {
   assert.equal((await getAdventureProgress()).stages[0], 2);
   user = accounts[1];
   assert.equal((await getAdventureProgress()).stages[0], 0);
+  jar = guestReceipts;
+  jar.delete(receiptName(1, target[0], false));
+  const legacy = legacyGuestReceiptName(1, target[0]);
+  jar.set(legacy, signReceipt(legacy, "guest"));
+  const unclaimed = await getAdventureProgress();
+  assert.deepEqual(unclaimed.stages, [0,0,0,0,0]);
+  assert.deepEqual(unclaimed.guestStages, target);
+  offline = true;
+  assert.equal(await importGuestAtlas(), false);
+  assert.deepEqual(readReceipts(items()), target);
+  offline = false;
+  assert.equal(await importGuestAtlas(), true);
+  assert.deepEqual((await getAdventureProgress()).stages, target);
+  assert.deepEqual(readReceipts(items()), [0,0,0,0,0]);
+  user = accounts[0];
+  assert.deepEqual((await getAdventureProgress()).stages, [2,0,0,0,0]);
   for (const role of ["anon","authenticated"]) {
     await db.exec("set role " + role);
     await assert.rejects(db.query("select * from public.adventure_checkpoints"), /permission denied/);
