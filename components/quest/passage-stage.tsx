@@ -89,6 +89,20 @@ const greetings = [
   { word: "Goodbye!", translation: "Au revoir !", clip: "maya-goodbye" },
 ];
 
+type AudioFile = { src: string; label: string };
+
+export function AudioOptions({ files, unavailable = false }: { files: AudioFile[]; unavailable?: boolean }) {
+  return <details className="atlas-audio-help" open={unavailable || undefined}>
+    <summary>Options d’écoute</summary>
+    {unavailable && <p role="status">Tu peux écouter le fichier dans ton lecteur habituel.</p>}
+    <div>{files.map(file => <a key={file.src} href={file.src} download>{file.label}</a>)}</div>
+  </details>;
+}
+
+const greetingFiles = greetings.map(({ clip, word }) => ({
+  src: `/audio/passage/${clip}.mp3`, label: `Télécharger « ${word} » en MP3`,
+}));
+
 function SpokenGreetings() {
   const audio = useRef<HTMLAudioElement>(null);
   const [failed, setFailed] = useState("");
@@ -107,7 +121,7 @@ function SpokenGreetings() {
     <button type="button" className="comic-listen" aria-label={`Écouter « ${g.word} » en anglais américain`} onClick={() => listen(g.clip)}>
       <span aria-hidden="true">▶</span> Écouter</button>
   </div>)}<audio preload="none" ref={audio} />
-    {failed && <p role="status" className="atlas-audio-help">Le lecteur n’a pas pu ouvrir ce mot. <a href={`/audio/passage/${failed}.mp3`} download>Télécharger « {greetings.find(g => g.clip === failed)?.word} » en MP3</a></p>}
+    <AudioOptions files={greetingFiles} unavailable={Boolean(failed)} />
   </div>;
 }
 

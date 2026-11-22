@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { checkPassage } from "@/app/quest/atlas/actions";
 import { passages, type Passage } from "@/lib/adventure/catalog";
 import { boardAnswer, recordingPath, type AccountDraft, type Activity, type ComicPhase, type GameAnswer, type QuizSubmission } from "@/lib/adventure/activities";
-import { ComicLesson, PassageStage } from "./passage-stage";
+import { AudioOptions, ComicLesson, PassageStage } from "./passage-stage";
 import { storyPanel } from "@/lib/adventure/panels";
 import { landscapeSizes, passagePicture } from "./passage-art";
 import { PassageQuiz, type QuizDraft } from "./passage-quiz";
@@ -230,13 +230,14 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
           {readRadio ? <p lang="en" className="comic-radio-text">{step.radio.line}</p> : <>
             <audio ref={pauseWhenRemoved} aria-label="Écouter le message en anglais" controls preload="none" src={recordingPath(step.radio)}
               onError={() => setFailedRadio(step.radio!.file)} onPlaying={() => setFailedRadio("")} />
-            {failedRadio === step.radio.file && <p className="atlas-audio-help" role="status">Tu peux lire le message avec « Sans son » ou <a href={recordingPath(step.radio)} download>télécharger le MP3</a>.</p>}
+            <AudioOptions files={[{ src: recordingPath(step.radio), label: "Télécharger le MP3" }]} unavailable={failedRadio === step.radio.file} />
           </>}
         </div>}
         {step.game && <div className="atlas-game eq-game-main">
           {step.game.type === "rush" ? <GrammarRush isLoggedIn={false} missionTarget={null} levelLabel="Premiers pas" queue={step.game.questions} adventure={round} />
             : <>{soundSwitch}<EchoSignal isLoggedIn={false} missionTarget={null} suggestedLevel={1} audioMap={{ [step.game.scenario.id]: recordingPath(step.game.radio) }}
-              adventure={{ ...round, scenario: step.game.scenario, readRadio }} /></>}
+              adventure={{ ...round, scenario: step.game.scenario, readRadio }} />
+              {!readRadio && <AudioOptions files={[{ src: recordingPath(step.game.radio), label: "Télécharger le message du jeu en MP3" }]} />}</>}
         </div>}
         {isQuiz && <PassageQuiz id={episode.id} draft={quiz} update={setQuiz} submit={submit} busy={busy} />}
         {step.mode !== "game" && !isQuiz && <form onSubmit={e => { e.preventDefault(); if (answerReady) void submit(currentAnswer); }}>

@@ -1,5 +1,7 @@
 // Run with the site's URL. AUDIT_PLAYWRIGHT_PACKAGE and CHROMIUM_PATH can point to a local install.
 const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
 const { chromium } = require(process.env.AUDIT_PLAYWRIGHT_PACKAGE || "playwright");
 const base = new URL(process.argv[2] || "http://127.0.0.1:3000");
 const trial = "Essayer l’aventure BD";
@@ -13,6 +15,20 @@ async function verifyChapterBookmark(page, path, chapter) {
     return scrollY > 0 && top >= 0 && top < 180;
   }, chapter);
   assert.equal(new URL(page.url()).pathname, path);
+}
+
+async function checkOriginalRecording(page, linkName, filename) {
+  const options = page.locator(".atlas-audio-help");
+  assert.equal(await options.getAttribute("open"), null);
+  await options.locator("summary").click();
+  const [download] = await Promise.all([
+    page.waitForEvent("download"),
+    options.getByRole("link", { name: linkName, exact: true }).click(),
+  ]);
+  assert.equal(download.suggestedFilename(), filename);
+  const original = path.join(__dirname, "../../public/audio/passage", filename);
+  assert.deepEqual(fs.readFileSync(await download.path()), fs.readFileSync(original));
+  await download.delete();
 }
 
 async function verify(browser, width) {
@@ -53,6 +69,19 @@ async function verify(browser, width) {
     await page.locator(".atlas-cover-copy .atlas-cta").click();
     await page.locator(".comic-balloon").waitFor();
     assert.equal(await page.locator(".comic-balloon strong").innerText(), "Maya");
+    await button(/Bulle suivante/).click();
+    await button(/Ouvrir le carnet/).click();
+    await checkOriginalRecording(page, "Télécharger « Hello! » en MP3", "hello-us.mp3");
+    await button(/À moi de jouer/).click();
+    await page.locator("label.atlas-answer").filter({ hasText: "Goodbye!" }).click();
+    await button(/Vérifier ma réponse/).click();
+    await button(/Continuer l’histoire/).click();
+    await button(/Lire la bulle/).click();
+    await button(/Ouvrir le carnet/).click();
+    await button(/À moi de jouer/).click();
+    await checkOriginalRecording(page, "Télécharger le MP3", "sam-intro.mp3");
+    await button(/Sans son/).click();
+    assert.match(await page.locator(".comic-radio-text").innerText(), /Sam/);
     await page.goto("/quest#atlas");
     await page.waitForURL(url => url.pathname === "/quest/atlas");
     await link("Retrouver ma carte des 50 cours").click();
