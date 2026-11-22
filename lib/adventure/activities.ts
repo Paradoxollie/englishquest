@@ -5,9 +5,11 @@ export type RadioMessage = { speaker: "Maya" | "Sam"; line: string; file: string
 export type GameAnswer = { id: string; value: string };
 export type QuizForm = { ticket: string; questions: { id: string; prompt: string; options: string[] }[] };
 export type QuizSubmission = { ticket: string; answers: GameAnswer[] };
+export type ComicPhase = "story" | "lesson" | "question" | "help";
 export type Draft = {
   index: number; opened: boolean; sheet: boolean; choice: string; tiles: number[];
-  gameAnswers: GameAnswer[]; quiz: { ticket?: string; answers: GameAnswer[] }; shuffle: number; replaying: boolean;
+  phase?: ComicPhase; beat?: number; retryHint?: string;
+  gameAnswers: GameAnswer[]; quiz: { ticket?: string; answers: GameAnswer[]; page?: number; retryIds?: string[] }; shuffle: number; replaying: boolean;
 };
 export type AccountDraft = { version: number; data: Draft | null };
 export type PassageGame = { type: "rush"; questions: RushQuestion[] } | { type: "echo"; scenario: EchoScenario; radio: RadioMessage };

@@ -74,11 +74,21 @@ async function test() {
   const { gradeActivity } = load("lib/adventure/grading.ts");
   const { quizBank } = load("lib/adventure/quiz-bank.ts");
   const { quizForm, gradeQuiz } = load("lib/adventure/quiz.ts");
-  const { panels } = load("lib/adventure/panels.ts");
+  const { panels, storyPanel } = load("lib/adventure/panels.ts");
   const { readReceipts, receiptName, legacyGuestReceiptName, signReceipt } = load("lib/adventure/receipts.ts");
   const { getAdventureProgress } = load("lib/adventure/progress.ts");
   const { checkPassage, openAtlasQuiz, importGuestAtlas } = load("app/quest/atlas/actions.ts");
   await assert.rejects(openAtlasQuiz(1));
+  const [goodbye, caller] = scenes[1];
+  assert.ok(goodbye.lesson);
+  assert.equal(goodbye.document, undefined);
+  assert.ok(gradeActivity(goodbye, "Goodbye!"));
+  assert.equal(gradeActivity(goodbye, "Hello!"), false);
+  assert.equal(caller.radio.line, "Hi, I’m Sam.");
+  assert.ok(storyPanel(1, 1).dialogue.every(speech => !speech.line.includes("Sam")));
+  for (const clip of ["maya-hello", "maya-goodbye"]) {
+    assert.ok(fs.statSync(path.join(root, "public/audio/passage", clip + ".mp3")).size > 4000);
+  }
   assert.equal((await checkPassage(2, 0, solution(scenes[2][0]))).ok, false);
   assert.equal((await checkPassage(1, 2, solution(scenes[1][2]))).ok, false);
   for (const p of passages) {
@@ -86,6 +96,12 @@ async function test() {
     assert.ok(culturalClues[p.id].after <= scenes[p.id].length);
     assert.ok(fs.existsSync(path.join(root, "public/art/passage", p.art + ".webp")));
     for (const [index, step] of scenes[p.id].entries()) {
+      const panel = storyPanel(p.id, index);
+      assert.ok(panel.caption.trim() && panel.dialogue.length >= 1 && panel.dialogue.length <= 2);
+      for (const speech of panel.dialogue) {
+        assert.ok(["Maya", "Sam"].includes(speech.speaker) && speech.line.trim());
+        if (speech.lang === "en") assert.ok(speech.french.trim());
+      }
       assert.equal((await checkPassage(p.id, index, "…")).ok, false);
       let answer = solution(step);
       if (step.mode === "quiz") {
@@ -134,6 +150,9 @@ async function test() {
   assert.equal(await saveAdventureDraft(1, 0, draft), 1);
   assert.equal(await saveAdventureDraft(1, 0, { ...draft, choice:"Boom" }), -1);
   assert.equal((await db.query("select draft->>'choice' as choice from adventure_checkpoints where user_id=$1", [user])).rows[0].choice, "Hello!");
+  const comic = { ...draft, sheet: false, phase: "help", beat: 2, retryHint: goodbye.hint };
+  assert.equal(await saveAdventureDraft(1, 1, comic), 2);
+  assert.deepEqual((await db.query("select draft from adventure_checkpoints where user_id=$1", [user])).rows[0].draft, comic);
   assert.ok((await checkPassage(1, 0, solution(scenes[1][0]))).synced);
   assert.equal(await saveAdventureDraft(1, 1, draft), -1);
   assert.equal((await db.query("select draft from adventure_checkpoints where user_id=$1", [user])).rows[0].draft, null);

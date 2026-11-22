@@ -29,14 +29,13 @@ function echo(message: RadioMessage, title: string, questions: EchoQuestion[]): 
 
 export const scenes: Record<number, AuthoredActivity[]> = {
   1: [
-    scene("choice", "Premier contact", "Maya monte à bord et te dit bonjour. Que lui réponds-tu ?", {
-      lesson: lesson("Pour dire bonjour, tu peux dire Hello ou Hi. Pour dire au revoir, dis Goodbye.", "Hello! = Bonjour !    Goodbye! = Au revoir !"),
-      document: doc("Billet d’équipage · 10:04", "Maya: Hello!"), options: ["Goodbye!", "Hello!"] },
-    ["Hello!"], "Tu arrives. Cherche le mot qui ouvre une conversation.", "Hello! Le robot s’allume et attend de connaître son équipage."),
-    scene("choice", "Une voix sur le quai", "Écoute qui se présente. Quel badge tends-tu au robot ?", {
-      lesson: lesson("I’m et I am veulent dire « je suis ». Devant un prénom, on peut les employer pour se présenter.", "I’m Maya. = Je m’appelle Maya."),
-      radio: radio("robot", "Sam", "Hello! I'm Sam. Hi, Maya!"), options: ["Maya", "Sam"] },
-    ["Sam"], "Repère le prénom juste après I’m. L’autre prénom est celui de la personne saluée.", "I’m Sam. C’est Sam qui se présente, puis il salue Maya."),
+    scene("choice", "Premier contact", "Sam part chercher la boussole. Que lui dis-tu en le voyant partir ?", {
+      lesson: lesson("Deux mots pour le quai", "Hello! · Bonjour !\nGoodbye! · Au revoir !"), options: ["Hello!", "Goodbye!"] },
+    ["Goodbye!"], "Sam s’éloigne. Cherche le mot du départ.", "Sam te fait un signe de la main. La radio reste entre tes mains."),
+    scene("choice", "Une voix sur le quai", "Qui vient de t’appeler ?", {
+      lesson: lesson("Pour te présenter, dis I’m suivi de ton prénom.", "I’m Maya. · Je m’appelle Maya."),
+      radio: radio("sam-intro", "Sam", "Hi, I’m Sam."), options: ["Maya", "Sam"] },
+    ["Sam"], "Écoute le prénom qui vient après I’m.", "C’est Sam. Il a retrouvé le robot qui transporte la boussole."),
     scene("order", "À toi le micro", "Ton nom de héros est Nova. Assemble « Bonjour, je suis Nova ».", {
       options: ["Nova", "Hello,", "I’m"] }, ["Hello I'm Nova"],
     "Commence par saluer, puis dis I’m, puis ton nom.", "Hello, I’m Nova. Le robot reconnaît ton insigne."),
@@ -49,10 +48,10 @@ export const scenes: Record<number, AuthoredActivity[]> = {
   ],
   2: [
     scene("choice", "Le sac de Maya", "Maya cherche une clé. Quel mot choisis-tu sur l’inventaire ?", {
-      lesson: lesson("Voici trois objets à emporter. A veut dire « un » ou « une ».", "a key = une clé · a bag = un sac · a map = une carte"),
+      lesson: lesson("Trois objets dans le sac", "a key · une clé\na bag · un sac\na map · une carte"),
       options: ["a bag", "a map", "a key"] }, ["a key"], "Map sert à trouver son chemin. Bag permet de transporter des affaires.", "A key, c’est une clé. Elle ouvre le boîtier de la balise."),
     scene("choice", "L’abri sous le grand arbre", "Sous un parapluie, Maya trouve deux sacs. Lequel demande-t-elle ?", {
-      lesson: lesson("Red signifie rouge et blue signifie bleu. En anglais, la couleur se place avant l’objet.", "a blue key = une clé bleue"),
+      lesson: lesson("En anglais, la couleur vient avant l’objet.", "a red key · une clé rouge\na blue key · une clé bleue"),
       document: doc("Le mot de Maya", "Hello! A red bag, please."), options: ["Un sac bleu", "Un sac rouge", "Une clé rouge"] },
     ["Un sac rouge"], "Red indique la couleur. Bag désigne l’objet.", "A red bag est un sac rouge. L’équipe le met à l’abri du passage de la balise."),
     scene("order", "L’étiquette effacée", "Écris avec les étiquettes « C’est une carte bleue ».", {
@@ -110,7 +109,7 @@ export const scenes: Record<number, AuthoredActivity[]> = {
       document: doc("Registre de l’observatoire", "I’m Maya. I have the map.\nI’m Sam. I have the key."),
       options: ["Maya", "Sam", "Le robot"] }, ["Sam"], "Lis les deux lignes jusqu’au bout. La clé se dit key.", "Sam a la clé. Maya a la carte. Ils se partagent le travail."),
     scene("choice", "Les étoiles du plafond", "Le plan de l’observatoire est-il sur la table ou sous la table ?", {
-      lesson: lesson("Deux mots pour cette dernière escale.", "a star = une étoile · a table = une table"),
+      lesson: lesson("Deux mots de l’observatoire", "a star · une étoile\na table · une table"),
       document: doc("La salle au ciel peint", "Stars on the ceiling. A blue map under the table."),
       options: ["Sur la table", "Sous la table"] }, ["Sous la table"],
     "Under indique ce qui est en dessous.", "La carte est sous la table. Les étoiles du plafond, elles, sont peintes."),

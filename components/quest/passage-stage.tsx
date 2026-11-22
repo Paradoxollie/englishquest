@@ -1,67 +1,104 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { culturalClues, type Passage } from "@/lib/adventure/catalog";
-import { panels } from "@/lib/adventure/panels";
+import { useEffect, useRef, useState, type CSSProperties, type Ref } from "react";
+import type { Activity } from "@/lib/adventure/activities";
+import type { Passage } from "@/lib/adventure/catalog";
+import { storyPanel, type Hero } from "@/lib/adventure/panels";
 import { landscapeSizes, passageArt } from "./passage-art";
 
-const otherVoice: Record<number, string> = {
-  1: "Quand tu entends I’m, le prénom qui suit est celui de la personne qui parle.",
-  2: "Garde en tête nos trois objets : une clé, un sac, une carte. La couleur s’annonce avant l’objet.",
-  3: "Quand je parle de moi, je dis I have. Quand je parle de mon équipier, je dis Maya has ou Sam has.",
-  4: "Imagine le sac devant toi. In, c’est dedans. On, c’est sur le sac. Under, c’est dessous.",
-  5: "Prends un indice à la fois. Tu peux revenir à la carte des mondes, ou réécouter la radio avant de répondre.",
+const subject: Record<number, Record<Hero, string>> = {
+  1: { Maya: "34% 59%", Sam: "76% 39%" }, 2: { Maya: "64% 61%", Sam: "36% 34%" },
+  3: { Maya: "38% 42%", Sam: "76% 54%" }, 4: { Maya: "28% 50%", Sam: "73% 47%" },
+  5: { Maya: "32% 61%", Sam: "72% 39%" },
 };
 
-export function PassageStage({ episode, index, total, saved, open }: {
-  episode: Passage; index: number; total: number; saved: number; open: () => void;
+function Caption({ text }: { text: string }) {
+  return <p className="comic-caption"><span className="sr-only">{text}</span><span aria-hidden="true">
+    {text.split(" ").map((word, i) => <span key={i} className="comic-word" style={{ animationDelay: `${Math.min(i, 18) * 22}ms` }}>{word} </span>)}
+  </span></p>;
+}
+
+export function PassageStage({ episode, index, beat, turn, open, nextLabel }: {
+  episode: Passage; index: number; beat: number; turn: (n: number) => void; open: () => void; nextLabel: string;
 }) {
-  const [voice, setVoice] = useState<"story" | "companion" | "clue">("story");
+  const panel = storyPanel(episode.id, index);
+  const length = panel.dialogue.length;
+  const speech = panel.dialogue[beat - 1];
   const title = useRef<HTMLHeadingElement>(null);
+  const frame = useRef<HTMLElement>(null);
   useEffect(() => {
+    frame.current?.scrollIntoView({ block: "start", behavior: "instant" });
     title.current?.focus({ preventScroll: true });
-    title.current?.closest("article")?.scrollIntoView({ block: "start", behavior: "instant" });
-  }, []);
-  const panel = panels[episode.id][index] ?? { hero: "Maya" as const, line: "Avant d’ouvrir le passage, une dernière vérification. À toi de remplir le carnet de bord.", action: "Ouvrir mon carnet de bord", x: 49, y: 62 };
-  const companion = panel.hero === "Maya" ? "Sam" : "Maya";
-  const speaker = voice === "companion" ? companion : panel.hero;
-  const clue = culturalClues[episode.id];
-  const found = saved >= clue.after;
-  return <section className="atlas-theatre" aria-label={episode.place}>
-    <div className="atlas-strip"><span>{episode.place}</span><h1 ref={title} tabIndex={-1}>{episode.title}</h1>
-      <span className="atlas-sequence">Scène {index + 1} / {total}</span></div>
-    <div className="atlas-landscape">
-      <Image src={passageArt[episode.art]} alt={episode.alt} placeholder="blur" priority sizes={landscapeSizes} />
-      <button type="button" className="atlas-pin" onClick={open} style={{ left: `${panel.x}%`, top: `${panel.y}%` }} aria-label={panel.action}>
-        <span aria-hidden="true">✦</span><b>{panel.action}</b>
-      </button>
-      {found && <button className="atlas-secret" type="button" onClick={() => setVoice(voice === "clue" ? "story" : "clue")} aria-label={`Examiner le détail caché : ${clue.object}`} aria-pressed={voice === "clue"}>✧</button>}
-    </div>
-    <div className="atlas-talk">
-      <Image src={speaker === "Maya" ? "/art/personnages/maya-visage.webp" : "/art/personnages/sam-visage.webp"} alt="" width={64} height={64} />
-      <div key={voice} className="atlas-bubble" aria-live="polite">
-        <strong>{voice === "clue" ? clue.source : speaker}</strong>
-        <p>{voice === "clue" ? clue.note : voice === "companion" ? otherVoice[episode.id] : panel.line}</p>
+  }, [index]);
+  function advance() { if (beat < length) turn(beat + 1); else open(); }
+
+  return <section className="comic-panel" ref={frame} aria-label="Lecture de la BD" onKeyDown={e => {
+    if (e.altKey || e.metaKey || e.ctrlKey || e.repeat) return;
+    if (e.key === "ArrowRight") { e.preventDefault(); advance(); }
+    if (e.key === "ArrowLeft" && beat > 0) { e.preventDefault(); turn(beat - 1); }
+  }}>
+    <h1 ref={title} tabIndex={-1} className="sr-only">{episode.title}</h1>
+    <div className="comic-frame" data-speaker={speech?.speaker} data-view={speech ? "speech" : "wide"}
+      style={{ "--comic-focus": speech ? subject[episode.id][speech.speaker] : "50% 50%" } as CSSProperties}>
+      <div className="comic-picture"><Image src={passageArt[episode.art]} alt={episode.alt} placeholder="blur" priority sizes={landscapeSizes} /></div>
+      <div className="comic-utterance" key={beat} aria-live="polite" aria-atomic="true">
+        {speech ? <div className="comic-balloon">
+          <Image className="comic-portrait" src={speech.speaker === "Maya" ? "/art/personnages/maya-visage.webp" : "/art/personnages/sam-visage.webp"} alt="" width={58} height={58} />
+          <div><strong>{speech.speaker}</strong><p lang={speech.lang}>{speech.line}</p>{speech.french && <small className="comic-gloss">{speech.french}</small>}</div>
+        </div> : <Caption text={panel.caption} />}
       </div>
-      <div className="atlas-stage-actions"><button onClick={open} className="atlas-cta">{panel.action} →</button>
-        <button type="button" className="atlas-talk-link" onClick={() => setVoice(voice === "story" ? "companion" : "story")}>
-          {voice === "story" ? `Parler à ${companion}` : "Revenir au dialogue"}</button></div>
     </div>
+    <nav className="comic-controls" aria-label="Tourner les cases">
+      <button type="button" className="comic-back" disabled={!beat} onClick={() => turn(beat - 1)} aria-label="Case précédente">←</button>
+      <span className="comic-count" aria-live="polite">Case {beat + 1} sur {length + 1}</span>
+      <button type="button" className="atlas-cta comic-next" onClick={advance}>{beat === 0 ? "Lire la bulle" : beat < length ? "Bulle suivante" : nextLabel} <span aria-hidden="true">→</span></button>
+    </nav>
   </section>;
 }
 
-export function ActivitySheet({ children, back, leave }: { children: ReactNode; back: () => void; leave: (event: { preventDefault: () => void }) => void }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const dialog = ref.current;
-    dialog?.showModal();
-    return () => { dialog?.close(); };
-  }, []);
-  return <dialog ref={ref} className="atlas-dialog" aria-labelledby="atlas-stage-title" onCancel={event => { event.preventDefault(); back(); }}>
-    <div className="atlas-dialog-nav"><button type="button" onClick={back}>← Revoir le décor</button>
-      <Link href="/quest#atlas" onNavigate={leave}>Quitter vers la carte ↗</Link></div>
-    {children}
-  </dialog>;
+const reminders: Record<number, NonNullable<Activity["lesson"]>> = {
+  1: { rule: "Saluer, puis se présenter", example: "Hello! · Bonjour !\nI’m Maya. · Je m’appelle Maya." },
+  2: { rule: "La couleur vient avant l’objet.", example: "a blue bag · un sac bleu\na red key · une clé rouge" },
+  3: { rule: "Le verbe change avec la personne.", example: "I have a bag. · J’ai un sac.\nSam has a map. · Sam a une carte." },
+  4: { rule: "Indiquer une position", example: "in · dans\non · sur\nunder · sous" },
+  5: { rule: "Croiser les indices", example: "I have a key. · J’ai une clé.\nThe map is on the bag. · La carte est sur le sac." },
+};
+
+const greetings = [
+  { word: "Hello!", translation: "Bonjour !", clip: "maya-hello" },
+  { word: "Goodbye!", translation: "Au revoir !", clip: "maya-goodbye" },
+];
+
+function SpokenGreetings() {
+  const audio = useRef<HTMLAudioElement>(null);
+  const [failed, setFailed] = useState(false);
+  function listen(clip: string) {
+    const el = audio.current;
+    if (!el) return;
+    el.pause();
+    el.src = `/audio/passage/${clip}.mp3`;
+    setFailed(false);
+    void el.play().catch((e: Error) => { if (e.name !== "AbortError") setFailed(true); });
+  }
+  return <div className="comic-words">{greetings.map(g => <div className="comic-word-row" key={g.clip}>
+    <div><b lang="en">{g.word}</b><span>{g.translation}</span></div>
+    <button type="button" className="comic-listen" aria-label={`Écouter Maya dire « ${g.word} »`} onClick={() => listen(g.clip)}>
+      <span aria-hidden="true">▶</span> Écouter</button>
+  </div>)}<audio preload="none" ref={audio} />
+    {failed && <p role="status">Le son ne s’est pas chargé. Touche « Écouter » pour réessayer.</p>}
+  </div>;
+}
+
+export function ComicLesson({ episode, index, step, hint, focusRef }: { episode: number; index: number; step: Activity; hint?: string; focusRef?: Ref<HTMLHeadingElement> }) {
+  const entry = step.lesson ?? reminders[episode];
+  return <aside className="comic-notebook" aria-label="Petit cours">
+    <div className="comic-notebook-tab">Carnet de bord</div>
+    <h2 tabIndex={-1} ref={focusRef}>{entry.rule}</h2>
+    {episode === 1 && index === 0 ? <SpokenGreetings /> : <div className="comic-examples">{entry.example.split("\n").map(line => {
+      const [en, fr] = line.split(/ · | = /, 2);
+      return <p key={line}><b lang="en">{en}</b>{fr && <span>{fr}</span>}</p>;
+    })}</div>}
+    {hint && <p className="comic-hint">{hint}</p>}
+  </aside>;
 }

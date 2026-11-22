@@ -34,7 +34,9 @@
   border: 2px solid var(--atlas-ink); border-radius: 9px; background: var(--atlas-gold); color: #172232;
   box-shadow: 2px 3px 0 var(--atlas-ink); text-decoration: none; font-weight: 800; cursor: pointer;
 }
-.atlas-cta:hover:enabled,.atlas-cta[href]:hover { background: #ffda70; transform: translateY(-1px); }
+@media (hover: hover) and (pointer: fine) {
+  .atlas-cta:hover:enabled,.atlas-cta[href]:hover { background: #ffda70; }
+}
 .atlas-cta:disabled { opacity: .53; cursor: default; box-shadow: none; }
 .atlas-cover-progress,.atlas-save { display: block; font-size: .81rem; line-height: 1.55; color: #535c69; }
 .atlas-cover-progress { margin-top: 14px; }
@@ -120,69 +122,81 @@
   .atlas-reader-nav { margin-bottom: 9px; }
   .atlas-work h2 { scroll-margin-top: 74px; }
 }
-.atlas-theatre {
-  border: 3px solid var(--atlas-ink); border-radius: 13px; overflow: hidden; color: var(--atlas-ink); background: var(--atlas-cream);
-  box-shadow: 4px 5px 0 #182437;
-}
-.atlas-strip { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; padding: 10px 18px; color: #fff; background: #192437; }
-.atlas-strip h1 { color: #fff; font-size: clamp(1.2rem,2.3vw,1.9rem); }
-.atlas-strip > span { color: #ffdc75; font-size: .8rem; font-weight: 700; }
-.atlas-strip .atlas-sequence { margin-left: auto; color: #fff; }
-.atlas-landscape { position: relative; width: 100%; background: #182437; margin: auto; isolation: isolate; }
-.atlas-landscape > img { display: block; width: 100%; height: auto; }
-.atlas-pin,.atlas-secret {
-  position: absolute; z-index: 1; cursor: pointer; border: 2px solid #172233;
-  border-radius: 50%; min-width: 46px; min-height: 46px; box-shadow: 0 0 0 3px white, 3px 4px 0 3px #172233;
-  color: #172233; background: #ffce46; font-weight: 850;
-}
-.atlas-pin { display: grid; place-items: center; transform: translate(-50%,-50%); }
-.atlas-pin > span { font-size: 1.45rem; line-height: 1; }
-.atlas-pin b { position: absolute; bottom: calc(100% + 9px); left: 50%; transform: translateX(-50%);
-  padding: 4px 9px; border: 1.5px solid #172233; border-radius: 4px; background: #fffaf0;
-  font-size: .8rem; white-space: nowrap; box-shadow: 1px 2px 0 #172233; }
-.atlas-pin:after { content: ""; position: absolute; inset: -6px; border: 2px solid #ffe27a; border-radius: 50%; pointer-events: none; animation: atlas-call 1.8s ease-out 2; }
-.atlas-secret { left: 11px; top: 11px; min-width: 44px; min-height: 44px; background: #fff6d2; font-size: 1.35rem; }
-.atlas-talk { display: grid; grid-template-columns: 64px 1fr auto; gap: 16px; align-items: center; padding: clamp(14px,2vw,26px); border-top: 3px solid #192437; }
-.atlas-talk > img { border-radius: 50%; border: 2px solid #192437; background: #f4cc66; }
-.atlas-bubble { position: relative; border: 2px solid #233044; border-radius: 15px 15px 15px 3px; padding: 10px 16px; background: #fff; animation: atlas-enter .23s ease-out both; line-height: 1.45; }
-.atlas-bubble:before { content: ""; position: absolute; left: -7px; top: 55%; width: 10px; height: 10px; background: white; border-left: 2px solid #233044; border-bottom: 2px solid #233044; transform: rotate(45deg); }
-.atlas-bubble strong { color: #173f9c; }
-.atlas-stage-actions { display: grid; justify-items: center; gap: 8px; }
-.atlas-stage-actions .atlas-cta { margin: 0; }
-.atlas-talk-link,.atlas-dialog-nav :is(a,button) { cursor:pointer; color:#254888; font-weight:700; text-decoration:underline; text-underline-offset:3px; }
-.atlas-dialog { position: fixed; inset: 0; margin: auto; padding: 0; width: min(800px,calc(100% - 32px)); max-width: none; max-height: calc(100dvh - 32px); overflow: auto;
-  color:var(--atlas-ink); background:var(--atlas-cream); border:3px solid #192437; border-radius:14px; box-shadow:5px 7px 0 #192437; overscroll-behavior: contain; }
-.atlas-dialog::backdrop { background:rgb(12 20 35 / 67%); }
-.atlas-dialog[open] { animation: atlas-enter .2s ease-out both; }
-.atlas-dialog-nav { z-index:3; position:sticky; top:0; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:4px 14px; border-bottom:1px solid #c9bd9e; background:#fff3ce; }
-.atlas-dialog-nav :is(a,button) { min-height:42px; display:inline-flex; align-items:center; font-size:.84rem; }
-.atlas-final-test fieldset { border:0; margin:12px 0 18px; padding:0; }
-.atlas-final-test legend { font-weight:750; margin-bottom:7px; }
-.atlas-final-test fieldset > small { color:#80470b; font-weight:700; }
+.atlas-talk-link, .comic-secondary { color:#254888; text-decoration:underline; text-underline-offset:3px; font-weight:700; cursor:pointer; }
+.atlas-reader { margin-block:clamp(10px,2vw,26px) 34px; }
+.atlas-reader:has(.comic-panel, .comic-paper) { max-width:min(1100px,max(720px,calc((100dvh - 200px) * 1.79))); }
+.comic-panel, .comic-paper { border:3px solid var(--atlas-ink); background:#fffaf0; box-shadow:5px 6px 0 #192437; border-radius:10px; overflow:hidden; }
+.comic-panel { scroll-margin-top:115px; }
+.comic-frame { position:relative; overflow:hidden; isolation:isolate; background:#e4d5b8; }
+.comic-picture { overflow:hidden; width:100%; aspect-ratio:1.93; }
+.comic-picture img { display:block; height:100%; width:100%; object-fit:cover; object-position:center; transform-origin:var(--comic-focus); transition:transform .35s ease-out; }
+.comic-frame[data-view="speech"] .comic-picture img { transform:scale(1.15); }
+.comic-utterance { position:absolute; inset:0; pointer-events:none; }
+.comic-caption { position:absolute; top:clamp(12px,2.2vw,28px); left:clamp(12px,2.2vw,28px); max-width:min(74%,40ch); padding:.65em 1em; margin:0;
+  background:#ffdc78; color:#202638; border:2px solid #192437; box-shadow:3px 4px #192437; font:650 clamp(1rem,1.75vw,1.38rem)/1.4 var(--font-lexend),sans-serif; }
+.comic-word { animation:comic-ink .18s both; }
+@keyframes comic-ink { from { opacity:0; } to { opacity:1; } }
+.comic-balloon { position:absolute; left:clamp(15px,3vw,44px); bottom:clamp(18px,3vw,40px); display:flex; align-items:center; gap:.8em;
+  width:max-content; max-width:min(71%,48ch); border:3px solid #202639; border-radius:24px 27px 25px 18px;
+  box-shadow:3px 4px #192437; padding:.75em 1em; background:#fffefa; color:#172437; animation:atlas-enter .22s ease-out both; }
+.comic-balloon::before { content:""; position:absolute; top:-11px; left:34%; width:19px; height:19px; background:#fffefa; border-top:3px solid #202639; border-left:3px solid #202639; transform:skew(-17deg) rotate(45deg); }
+[data-speaker="Sam"] .comic-balloon { left:auto; right:clamp(15px,3vw,44px); }
+[data-speaker="Sam"] .comic-balloon::before { left:auto; right:32%; }
+.comic-portrait { flex:none; width:clamp(37px,5vw,57px); height:auto; aspect-ratio:1; border-radius:50%; border:2px solid #202639; background:#f6cf6f; }
+.comic-balloon strong { display:block; color:#1d4798; font:750 .85rem/1.5 var(--font-lexend),sans-serif; }
+.comic-balloon p { margin:0; line-height:1.4; font-size:clamp(1rem,1.65vw,1.27rem); }
+.comic-gloss { display:block; color:#4c5968; margin-top:3px; line-height:1.4; }
+.comic-controls, .comic-form-actions { display:flex; align-items:center; gap:12px; }
+.comic-controls { background:#fff7e6; border-top:2px solid var(--atlas-ink); padding:10px clamp(12px,2vw,25px); }
+.comic-controls .comic-next { margin:0 0 0 auto; }
+.comic-back, .comic-listen { min-width:44px; min-height:44px; border:1.5px solid #223149; background:white; color:#19325e; border-radius:8px; cursor:pointer; font-weight:750; }
+.comic-back { font-size:1.35rem; }
+.comic-back:disabled { opacity:.35; cursor:default; }
+.comic-count { font-size:.84rem; color:#425066; }
+.comic-secondary { min-height:44px; }
+.comic-banner { position:relative; isolation:isolate; height:clamp(88px,15vh,142px); display:flex; align-items:flex-end; border-bottom:3px solid #192437; padding:10px 18px; }
+.comic-banner img { object-fit:cover; object-position:50% 40%; z-index:-1; }
+.comic-banner span { color:#182339; background:#ffdf83; padding:4px 10px; box-shadow:2px 2px #182339; border:1.5px solid #182339; font:700 .87rem/1.4 var(--font-lexend),sans-serif; }
+.comic-banner i { color:#725621; padding:0 3px; }
+.comic-page-content, .comic-paper .atlas-work { width:min(100%,780px); margin:0 auto; padding:clamp(18px,3vw,36px); }
+.comic-page-content .comic-controls { border:0; background:transparent; margin-top:14px; padding:0; }
+.comic-notebook { background:#fffdf5; border:1.5px solid #b39b6b; border-left:5px solid #c38630; border-radius:3px 10px 10px 3px; padding:clamp(14px,2vw,24px); }
+.comic-notebook-tab, .atlas-final-test legend small { display:block; color:#775118; font:700 .78rem/1.5 var(--font-lexend),sans-serif; margin-bottom:.45em; }
+.comic-notebook h2, .comic-page-content h2, .comic-paper .comic-question { font-size:clamp(1.22rem,2.4vw,1.9rem); margin:0 0 12px; }
+.comic-examples p, .comic-word-row { display:flex; align-items:center; gap:12px; padding:8px 0; margin:0; border-top:1px solid #e0d7bf; flex-wrap:wrap; }
+.comic-examples b, .comic-word-row b { color:#21478a; }
+.comic-examples span, .comic-word-row span { color:#35435a; }
+.comic-word-row { flex-wrap:nowrap; justify-content:space-between; gap:9px; }
+.comic-word-row div { display:flex; gap:.7em; flex-wrap:wrap; }
+.comic-listen { display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:2px 11px; font-size:.85rem; }
+.comic-hint { padding:10px 12px; margin:12px 0 0; border-radius:6px; background:#fff0c7; color:#523c15; }
+.comic-recall { display:block; margin-top:6px; }
+.atlas-final-test fieldset { border:0; margin:12px 0 18px; padding:0; min-width:0; }
+.atlas-final-test legend { font-weight:750; margin-bottom:8px; }
 .atlas-final-test .atlas-cta { margin-top:0; }
+.comic-result .atlas-feedback { margin-top:0; }
+.comic-result .atlas-feedback h2 { margin-bottom:.3em; }
+.comic-result .atlas-save { margin-top:.5em; }
 .atlas-finale .atlas-splash-copy:before { display:block; content:"★"; width:42px; text-align:center; margin-bottom:10px; border:2px solid #192437; border-radius:50%; background:#ffce46; color:#192437; font-size:1.5rem; transform:rotate(-9deg); }
-@keyframes atlas-call { from { transform:scale(.85); opacity:1; } to { transform:scale(1.48); opacity:0; } }
-@media (min-width: 701px) and (max-height: 950px) {
-  .atlas-reader:has(.atlas-theatre) { max-width:min(1160px,max(740px,calc((100dvh - 235px) * 1.77))); margin-block:12px 24px; }
-  .atlas-talk { padding:12px 16px; }
-  .atlas-bubble { padding:8px 13px; }
-}
 @media (max-width:700px) {
-  .atlas-strip { gap:3px 8px; padding:9px 12px; }
-  .atlas-strip > span:first-child { flex-basis:100%; }
-  .atlas-strip .atlas-sequence { align-self:center; font-size:.72rem; }
-  .atlas-pin b { display:none; }
-  .atlas-talk { grid-template-columns:42px 1fr; gap:10px; padding:12px; }
-  .atlas-talk > img { width:42px; }
-  .atlas-stage-actions { grid-column:1 / -1; grid-template-columns:1fr; gap:8px; }
-  .atlas-stage-actions .atlas-cta { width:100%; }
-  .atlas-talk-link { min-height:36px; }
-  .atlas-bubble { font-size:.94rem; padding:8px 11px; }
-  .atlas-dialog { width:calc(100% - 12px); max-height:calc(100dvh - 14px); border-radius:10px; }
   .atlas-reader-nav { font-size:.75rem; }
+  .comic-picture { aspect-ratio:1.34; }
+  .comic-frame[data-view="speech"] .comic-utterance { position:relative; margin-top:-21px; padding:0 10px 10px; }
+  .comic-frame[data-view="speech"] { background:#f8ebd0; }
+  .comic-balloon, [data-speaker="Sam"] .comic-balloon { position:relative; left:auto; right:auto; bottom:auto; max-width:100%; width:100%; padding:10px; gap:8px; border-radius:17px; box-shadow:2px 3px #192437; }
+  .comic-balloon strong { font-size:.78rem; }
+  .comic-caption { max-width:calc(100% - 24px); padding:7px 10px; }
+  .comic-controls { flex-wrap:wrap; gap:7px; padding:8px; }
+  .comic-controls .comic-next { min-height:44px; font-size:.9rem; padding:8px 10px; }
+  .comic-count { font-size:.75rem; }
+  .comic-banner { height:83px; padding:7px; }
+  .comic-banner span { font-size:.74rem; }
+  .comic-page-content, .comic-paper .atlas-work { padding:14px; }
+  .comic-secondary { font-size:.86rem; }
 }
-@media (prefers-reduced-motion: reduce) {
-  .atlas-bubble,.atlas-dialog[open],.atlas-pin:after { animation:none; }
+@media (prefers-reduced-motion:reduce) {
+  .comic-word, .comic-balloon { animation:none; }
+  .comic-picture img { transition:none; }
 }
 @media (min-width:701px) {
   .atlas-splash:not(.atlas-finale) { display:block; position:relative; border:3px solid var(--atlas-ink); }
