@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateCourseRoadmap } from "@/lib/courses/revalidate-roadmap";
 import { gradeChapterExam, isChapterCompleted, recordChapterExam } from "@/lib/exams/exams";
 import { syncBadgesSafely, type NewBadge } from "@/lib/profile/badges-server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -39,7 +40,7 @@ export async function submitChapterExamAction(
   const record = await recordChapterExam(user.id, chapter, graded.correct, graded.total);
   // Badge d'examen et de niveau : seulement si la tentative est enregistrée.
   const newBadges = record.saved ? await syncBadgesSafely(user.id) : [];
-  revalidatePath("/tous-les-cours/parcours");
+  revalidateCourseRoadmap();
   revalidatePath("/home");
   revalidatePath("/profile");
   return { ...graded, ...record, newBadges };

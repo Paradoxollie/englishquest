@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateCourseRoadmap } from "@/lib/courses/revalidate-roadmap";
 import {
   PLACEMENT_LAST_TESTED_CHAPTER,
   applyPlacement,
@@ -52,7 +53,7 @@ export async function submitPlacementStepAction(
     const token = createPlacementToken(placedChapter);
     const retained = await keepGuestPlacement(token);
     const target = chapters.find((item) => item.id === retained) ?? chapters[0];
-    revalidatePath("/tous-les-cours/parcours");
+    revalidateCourseRoadmap();
     revalidatePath("/tous-les-cours");
     return {
       ...graded,
@@ -63,7 +64,7 @@ export async function submitPlacementStepAction(
     };
   }
   const placed = await applyPlacement(user.id, placedChapter);
-  revalidatePath("/tous-les-cours/parcours");
+  revalidateCourseRoadmap();
   revalidatePath("/home");
   return { ...graded, next: null, placed, retainedHigherChapter: placed.chapterId > placedChapter };
 }
@@ -74,7 +75,10 @@ export async function restartPlacementAction(): Promise<PlacementStep | null> {
 
 export async function restoreGuestPlacementAction(token: string) {
   const chapter = await keepGuestPlacement(token);
-  if (chapter !== null) { revalidatePath("/tous-les-cours/parcours"); revalidatePath("/tous-les-cours"); }
+  if (chapter !== null) {
+    revalidateCourseRoadmap();
+    revalidatePath("/tous-les-cours");
+  }
   return chapter;
 }
 

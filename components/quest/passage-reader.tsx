@@ -109,7 +109,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
   function leave(event: { preventDefault: () => void }) {
     if (!onAccount) return;
     event.preventDefault();
-    void flush().finally(() => router.push("/quest#atlas"));
+    void flush().finally(() => router.push("/quest/atlas"));
   }
 
   useEffect(() => {
@@ -173,7 +173,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
 
   return <article className="atlas-reader" data-story={episode.id} data-chapter={Math.ceil(episode.id / 5)} data-stage={index} data-phase={feedback?.ok ? "success" : phase} data-beat={beat}>
     <div className="atlas-reader-progress"><nav className="atlas-reader-nav" aria-label="Navigation dans l’aventure">
-      <Link href="/quest#atlas" onNavigate={leave}>← Carte des mondes</Link><span>Escale {episode.id} · {savedStage}/{steps.length} validées</span>
+      <Link href="/quest/atlas" onNavigate={leave}>← Carte des mondes</Link><span>Escale {episode.id} · {savedStage}/{steps.length} validées</span>
     </nav>
     {opened && !done && <ol className="atlas-part-meter" aria-label="Les trois parties de l’escale">
       {partTitles.map((title, i) => {
@@ -191,8 +191,9 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
         {done ? <>
           <p className="atlas-skill">Tu as réussi à {episode.skill.charAt(0).toLowerCase() + episode.skill.slice(1)}</p>
           <p className="atlas-save">{steps.length} épreuves validées · {onAccount ? "Sur ton compte" : "Sur cet appareil"}</p>
-          <Link className="atlas-cta" href={next ? `/quest/atlas/${next.id}` : "/quest#atlas"}>{next ? "Découvrir le monde suivant" : "Retrouver mon Atlas"} →</Link>
+          <Link className="atlas-cta" href={next ? `/quest/atlas/${next.id}` : "/quest/atlas"}>{next ? "Découvrir le monde suivant" : "Retrouver mon Atlas"} →</Link>
           <button className="atlas-replay" onClick={() => move(0)}>Rejouer cette escale</button>
+          <Link className="atlas-link" href={`/contact?escale=${episode.id}`}>Donner mon avis sur cette escale</Link>
         </> : <>
           <p className="atlas-save">{episode.minutes} environ</p>
           <button className="atlas-cta" onClick={() => move(0)}>Ouvrir la BD <span aria-hidden="true">→</span></button>

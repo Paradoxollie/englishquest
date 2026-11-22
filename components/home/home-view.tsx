@@ -246,6 +246,7 @@ export function HomeView({
               <i style={{ width: `${completionPercent}%` }} />
             </div>
           </div>
+          <Link href="/quest/atlas" prefetch={false} className="eq-text-link mt-3 self-start">Essayer l’aventure BD</Link>
           </div>
         </section>
 

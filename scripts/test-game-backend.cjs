@@ -440,8 +440,11 @@ async function main() {
   delete repeatedCourseAnswers["6-q0"];
   assert.equal(placement.gradePlacementStep(repeatedCourseAnswers, 1).valid, false, "placement needs six different courses");
   const serverAuth = { createSupabaseServerClient: async () => ({ auth: { getUser: async () => ({ data: { user: { id: "user" } } }) } }) };
+  const refreshed = new Set();
+  const cache = { "next/cache": { revalidatePath: path => refreshed.add(path) } };
+  const roadmapCache = { ...cache, "@/lib/courses/revalidate-roadmap": loadTs("lib/courses/revalidate-roadmap.ts", cache) };
   const placementMocks = (auth) => ({
-    "next/cache": { revalidatePath: () => {} },
+    ...roadmapCache,
     "@/lib/supabase/server": auth,
     "@/lib/courses/chapters": { chapters: chapterDefinitions },
     "@/lib/placement/placement-token": {
@@ -469,10 +472,11 @@ async function main() {
   const guestDone = await guestPlacement.submitPlacementStepAction(1, failedAnswers);
   assert.equal(guestDone.placed.chapterId, 1);
   assert.equal(guestDone.guestToken, "signed-1");
+  assert.ok(refreshed.has("/quest") && refreshed.has("/tous-les-cours/parcours"));
   assert.equal(placementWrites, writesBeforeGuest, "a guest placement never writes to the database");
   let badgeSyncs = 0;
   const examAction = loadTs("app/(protected)/examen/[chapter]/actions.ts", {
-    "next/cache": { revalidatePath: () => {} },
+    ...roadmapCache,
     "@/lib/supabase/server": serverAuth,
     "@/lib/exams/exams": { ...scoped.exams, isChapterCompleted: async () => true },
     "@/lib/profile/badges-server": { syncBadgesSafely: async () => { badgeSyncs += 1; return []; } },

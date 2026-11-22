@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateCourseRoadmap } from "@/lib/courses/revalidate-roadmap";
 import { autoCompleteCourseMissionForGame, type AutoCompletedCourse } from "@/lib/courses/mission-auto-complete";
 import { gameAuthFailure, interruptedGameSave, saveGameScore } from "@/lib/games/score-settlement";
 import { checkSpellStrike } from "@/lib/games/score-plausibility";
@@ -76,7 +77,7 @@ export async function submitSpellStrikeScore(params: {
     revalidatePath("/leaderboard");
     revalidatePath("/profile");
     revalidatePath("/home");
-    revalidatePath("/tous-les-cours/parcours");
+    revalidateCourseRoadmap();
 
     return {
       success: true,

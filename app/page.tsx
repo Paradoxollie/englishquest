@@ -73,7 +73,10 @@ export default async function PublicHomePage({
               <Link href="/cours/1" className="eq-btn eq-btn-primary eq-btn-xl">
                 Commencer la mission 1
               </Link>
-              <Link href="/test-de-niveau" className="eq-btn eq-btn-ghost eq-btn-xl">
+              <Link href="/quest/atlas" prefetch={false} className="eq-btn eq-btn-ghost eq-btn-xl">
+                Essayer l’aventure BD
+              </Link>
+              <Link href="/test-de-niveau" className="eq-text-link">
                 Tester mon niveau
               </Link>
             </div>

@@ -3,6 +3,7 @@ import { PageHead } from "@/components/comic/page-head";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { ContactForm } from "./contact-form";
+import { passages } from "@/lib/adventure/catalog";
 
 export const metadata = publicPageMetadata({
   path: "/contact",
@@ -11,12 +12,14 @@ export const metadata = publicPageMetadata({
 });
 
 export default async function ContactPage({ searchParams }: {
-  searchParams: Promise<{ cours?: string | string[]; exercice?: string | string[] }>;
+  searchParams: Promise<{ cours?: string | string[]; exercice?: string | string[]; escale?: string | string[] }>;
 }) {
-  const { cours, exercice } = await searchParams;
+  const { cours, exercice, escale } = await searchParams;
   const quizSubject = typeof cours === "string" && /^(?:[1-9]|[1-4][0-9]|50)$/.test(cours)
     && typeof exercice === "string" && /^x?[0-9]{1,3}$/.test(exercice)
     ? `Question du cours ${cours} (exercice ${exercice})` : undefined;
+  const episode = passages.find(p => String(p.id) === escale);
+  const initialSubject = quizSubject ?? (episode ? `Avis sur l’aventure BD · Escale ${episode.id} · ${episode.title}` : undefined);
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -57,7 +60,7 @@ export default async function ContactPage({ searchParams }: {
             ) : null}
           </section>
           <section className="eq-card p-6 md:p-8">
-            <ContactForm user={user} profile={profile} initialSubject={quizSubject} />
+            <ContactForm user={user} profile={profile} initialSubject={initialSubject} />
           </section>
         </div>
       </div>

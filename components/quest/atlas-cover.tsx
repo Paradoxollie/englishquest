@@ -18,7 +18,8 @@ export async function AtlasCover() {
       <div className="atlas-cover-copy">
         <span className="atlas-label">Aventure · Premiers pas en anglais</span>
         <h1 id="atlas-name">L’Atlas des <em>passages</em></h1>
-        <p>{atlasChapters.find(c => featured.id >= c.first && featured.id <= c.last)?.intro} Tu peux t’arrêter et reprendre à la même case.</p>
+        <p>{atlasChapters.find(c => featured.id >= c.first && featured.id <= c.last)?.intro}{" "}
+          {userId ? "Tu peux t’arrêter et reprendre à la même case." : "Tu peux jouer sans compte et reprendre à la même case sur cet appareil."}</p>
         <Link className="atlas-cta" href={`/quest/atlas/${featured.id}`}>
           {complete === passages.length ? "Revoir la première escale" : stages.some(Boolean) ? "Reprendre l’aventure" : "Commencer l’aventure"} <span aria-hidden="true">→</span>
         </Link>
@@ -39,7 +40,7 @@ export async function AtlasCover() {
         const done = stages[p.id - 1] >= scenes[p.id].length;
         const locked = current !== undefined && p.id > current.id;
         const part = partForStage(stages[p.id - 1], scenes[p.id].length);
-        return <li key={p.id}><Link className="atlas-stop" href={`/quest/atlas/${p.id}`} data-current={p.id === current?.id || undefined}>
+        return <li key={p.id}><Link className="atlas-stop" href={`/quest/atlas/${p.id}`} prefetch={false} data-current={p.id === current?.id || undefined}>
           <div className="atlas-thumb"><Image src={passageArt[p.art]} placeholder="blur" fill sizes="(max-width: 720px) 45vw, 220px" alt="" />
             <span>{String(p.id).padStart(2, "0")}</span></div>
           <strong>{p.title}</strong><small>{done ? "Validée ✓" : locked ? "À découvrir" : stages[p.id - 1] ? "En cours" : "À jouer"} · {p.minutes}</small>

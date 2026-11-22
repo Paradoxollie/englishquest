@@ -32,6 +32,11 @@ export default function PrivacyPage() {
             Tu peux aussi les effacer dans les réglages de ton navigateur, en supprimant les données du site.
           </p>
           <p>
+            Dans l’aventure BD, ce navigateur garde ta case en cours et ton brouillon. Un cookie conserve
+            tes étapes validées pendant 180 jours au maximum. Si tu te connectes sur un appareil partagé,
+            tu peux choisir de rattacher à ton compte les étapes que tu as jouées en invité.
+          </p>
+          <p>
             Le site compte aussi les pages consultées à partir d’une empreinte du réseau.
             Le journal des visites ne conserve pas l’adresse IP en clair.
           </p>
@@ -47,6 +52,8 @@ export default function PrivacyPage() {
             <li>tes scores aux jeux, ta progression sur la carte d&apos;aventure, tes points d&apos;expérience,
               ton or et les objets que tu as choisis pour ton profil ;</li>
             <li>les messages que tu envoies par le formulaire de contact ;</li>
+            <li>dans l’aventure BD, tes étapes validées, ta case en cours et tes réponses en cours de rédaction
+              pour reprendre sur un autre appareil.</li>
             <li>les classes que tu rejoins avec le code de ton professeur. Ton professeur voit alors ton
               pseudo et ta progression (missions, expérience, résultats aux quiz), jamais ton adresse
               e-mail. Tu peux quitter une classe à tout moment depuis ton profil.</li>

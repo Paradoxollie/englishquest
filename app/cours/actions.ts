@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { revalidateCourseRoadmap } from "@/lib/courses/revalidate-roadmap";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
@@ -35,7 +36,7 @@ export async function transferGuestQuizzesAction() {
   if (!userId) return { success: false };
   try {
     await transferGuestScores(userId);
-    revalidatePath("/tous-les-cours/parcours");
+    revalidateCourseRoadmap();
     revalidatePath("/home");
     return { success: true };
   } catch {
@@ -55,7 +56,7 @@ async function getAuthenticatedUserId() {
 function revalidateCourseSurfaces(courseNumber: number) {
   revalidatePath(`/cours/${courseNumber}`);
   revalidatePath("/home");
-  revalidatePath("/tous-les-cours/parcours");
+  revalidateCourseRoadmap();
   revalidatePath("/play");
   revalidatePath("/tous-les-cours");
 }

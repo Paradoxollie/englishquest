@@ -1482,6 +1482,30 @@ html[data-theme="dark"] .eq-game-card .eq-game-poster {
   align-items: end;
 }
 
+.eq-atlas-invitation > a {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 2vw, 22px);
+  margin-bottom: 20px;
+  padding: 8px;
+  border: 1.5px solid var(--pro-border);
+  border-radius: var(--pro-radius-lg);
+  background: var(--surface-welcome-bg);
+  color: var(--pro-text);
+}
+.eq-atlas-invitation img {
+  width: clamp(72px, 17vw, 112px);
+  height: 72px;
+  flex: none;
+  border-radius: var(--pro-radius);
+  object-fit: cover;
+}
+.eq-atlas-invitation strong, .eq-atlas-invitation strong + span { display: block; }
+.eq-atlas-invitation strong { font-family: var(--font-display); font-size: 1.05rem; }
+.eq-atlas-invitation strong + span { margin-top: 3px; color: var(--pro-muted); font-size: .9rem; line-height: 1.4; }
+.eq-atlas-invitation [aria-hidden] { margin-inline: auto .6rem; color: var(--pro-primary); font-size: 1.4rem; }
+.eq-atlas-invitation a:is(:hover, :focus-visible) strong { text-decoration: underline; text-underline-offset: .2em; }
+
 @media (min-width: 960px) {
   .eq-quest-head-row {
     grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
