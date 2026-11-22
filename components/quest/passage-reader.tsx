@@ -48,6 +48,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
   const [beat, setBeat] = useState(0);
   const [networkError, setNetworkError] = useState("");
   const [readRadio, setReadRadio] = useState(false);
+  const [failedRadio, setFailedRadio] = useState("");
   const [initialized, setInitialized] = useState(false);
   const [replaying, setReplaying] = useState(false);
   const [gameAnswers, setGameAnswers] = useState<GameAnswer[]>([]);
@@ -130,7 +131,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
     shouldFocus.current = true;
     if (done && to === 0) { setReplaying(true); setShuffle(crypto.getRandomValues(new Uint32Array(1))[0]); }
     setChoice(""); setTiles([]); setClue(0); setGameAnswers([]); setQuiz({ answers: [] }); setPhase("story"); setBeat(0); setNetworkError("");
-    setFeedback(null); setIndex(to); setOpened(true);
+    setFeedback(null); setFailedRadio(""); setIndex(to); setOpened(true);
   }
   function show(nextPhase: ComicPhase) {
     shouldFocus.current = true;
@@ -225,7 +226,11 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
           <h2 className="comic-question" ref={heading} id="atlas-stage-title" tabIndex={-1}>{isQuiz && step.legacyQuiz ? "Reprends les trois questions de ton carnet." : step.prompt}</h2>
         {step.document && !isQuiz && <div className="atlas-document"><strong>{step.document.label}</strong><p lang="en">{step.document.text}</p></div>}
         {step.radio && <div className="atlas-radio"><div className="comic-radio-head"><strong>Radio de l’équipe</strong>{soundSwitch}</div>
-          {readRadio ? <p lang="en" className="comic-radio-text">{step.radio.line}</p> : <audio ref={pauseWhenRemoved} aria-label="Écouter le message en anglais" controls preload="none" src={recordingPath(step.radio)} />}
+          {readRadio ? <p lang="en" className="comic-radio-text">{step.radio.line}</p> : <>
+            <audio ref={pauseWhenRemoved} aria-label="Écouter le message en anglais" controls preload="none" src={recordingPath(step.radio)}
+              onError={() => setFailedRadio(step.radio!.file)} onPlaying={() => setFailedRadio("")} />
+            {failedRadio === step.radio.file && <p className="atlas-audio-help" role="status">Tu peux lire le message avec « Sans son » ou <a href={recordingPath(step.radio)} download>télécharger le MP3</a>.</p>}
+          </>}
         </div>}
         {step.game && <div className="atlas-game eq-game-main">
           {step.game.type === "rush" ? <GrammarRush isLoggedIn={false} missionTarget={null} levelLabel="Premiers pas" queue={step.game.questions} adventure={round} />

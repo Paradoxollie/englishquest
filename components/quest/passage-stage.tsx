@@ -91,22 +91,23 @@ const greetings = [
 
 function SpokenGreetings() {
   const audio = useRef<HTMLAudioElement>(null);
-  const [failed, setFailed] = useState(false);
+  const [failed, setFailed] = useState("");
   useEffect(() => { const el = audio.current; return () => el?.pause(); }, []);
   function listen(clip: string) {
     const el = audio.current;
     if (!el) return;
     el.pause();
     el.src = `/audio/passage/${clip}.mp3`;
-    setFailed(false);
-    void el.play().catch((e: Error) => { if (e.name !== "AbortError") setFailed(true); });
+    setFailed("");
+    const src = el.src;
+    void el.play().catch((e: Error) => { if (e.name !== "AbortError" && el.src === src) setFailed(clip); });
   }
   return <div className="comic-words">{greetings.map(g => <div className="comic-word-row" key={g.clip}>
     <div><b lang="en">{g.word}</b><span>{g.translation}</span></div>
     <button type="button" className="comic-listen" aria-label={`Écouter « ${g.word} » en anglais américain`} onClick={() => listen(g.clip)}>
       <span aria-hidden="true">▶</span> Écouter</button>
   </div>)}<audio preload="none" ref={audio} />
-    {failed && <p role="status">Le son ne s’est pas chargé. Touche « Écouter » pour réessayer.</p>}
+    {failed && <p role="status" className="atlas-audio-help">Le lecteur n’a pas pu ouvrir ce mot. <a href={`/audio/passage/${failed}.mp3`} download>Télécharger « {greetings.find(g => g.clip === failed)?.word} » en MP3</a></p>}
   </div>;
 }
 

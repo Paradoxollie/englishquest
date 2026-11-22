@@ -1,4 +1,6 @@
 .atlas-reader[data-chapter="3"] { --atlas-blue: #6c3254; --atlas-gold: #f0bb62; }
+.atlas-audio-help { margin: 8px 0 0; font-size: .9rem; }
+.atlas-audio-help a { color: #174078; font-weight: 650; text-decoration: underline; text-underline-offset: 3px; }
 .atlas-reader .comic-banner[data-compact] { height: auto; min-height: 38px; padding: 5px 14px; background: #204249; }
 .atlas-reader[data-chapter="2"] .comic-banner[data-compact] { background: #63452f; }
 .atlas-reader[data-chapter="3"] .comic-banner[data-compact] { background: #503549; }
