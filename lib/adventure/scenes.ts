@@ -84,10 +84,10 @@ export const scenes: Record<number, AuthoredActivity[]> = {
       ]),
       document: doc("Inventaire du moulin", "I’m Maya. I have a red key. Sam has the ocarina."),
       options: ["Maya", "Sam"] }, ["Sam"], "Cherche le prénom placé juste avant has the ocarina.", "Sam sort l’ocarina. Aux trois premières notes, les voiles rouges frémissent."),
-    scene("choice", "La caisse des outils", "D’après la radio, qui a la carte rouge ?", {
-      englishCue: "Listen and choose.",
-      radio: radio("chimes", "Maya", "I'm Maya. I have a blue bag. Sam has a red map."),
-      options: ["Maya", "Sam"] }, ["Sam"], "Écoute le prénom juste avant has a red map.", "Sam has a red map. Maya, elle, a le sac bleu."),
+    scene("choice", "Le billet de l’atelier", "Le meunier cherche sa carte rouge. Lis le billet en anglais. Vers qui l’envoies-tu ?", {
+      englishCue: "Read the note.",
+      document: doc("Le billet près de l’ocarina", "I have the red map. Maya has the blue bag.\nSam"),
+      options: ["Maya", "Sam"] }, ["Sam"], "I désigne la personne qui a signé le billet.", "Tu envoies le meunier vers Sam, l’auteur du billet. Carte en main, il peut orienter les voiles."),
     scene("order", "Passe la clé", "Construis « Maya a une clé rouge ».", { options: ["a red key", "Maya", "has"] },
     ["Maya has a red key"], "Le prénom vient avant has, puis tu ajoutes l’objet.", "Maya has a red key. L’étiquette du trousseau est complète."),
     rush(3, "Trie les quatre messages du moulin. Qui possède quel objet ?", [

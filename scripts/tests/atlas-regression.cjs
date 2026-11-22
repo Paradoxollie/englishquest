@@ -92,9 +92,9 @@ async function test() {
   assert.deepEqual(scenes[1][2].lesson.parts.map(([word]) => word), ["I", "am", "Maya."]);
   assert.match(scenes[1][2].lesson.rule, /I am et I’m/);
   assert.match(scenes[5][2].lesson.example, /Take the map/);
+  assert.equal(scenes[3][2].radio, undefined);
+  assert.match(scenes[3][2].document.text, /I have the red map\.[\s\S]+\nSam$/);
   for (const p of passages) {
-    const recordings = scenes[p.id].filter(step => step.radio || step.game?.radio);
-    assert.equal(recordings.length, 1);
     const examples = scenes[p.id].flatMap(step => step.lesson?.example.split("\n") ?? []);
     assert.ok(examples.every(line => line.split(/ · | = /).length === 2));
   }
