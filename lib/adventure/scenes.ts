@@ -3,7 +3,8 @@ import type { EchoQuestion, EchoScenario } from "@/lib/games/echoSignal";
 import type { RushQuestion } from "@/lib/games/grammar-rush";
 
 const doc = (label: string, text: string) => ({ label, text });
-const lesson = (rule: string, example: string) => ({ rule, example });
+type Lesson = NonNullable<Activity["lesson"]>;
+const lesson = (rule: string, example: string, parts?: Lesson["parts"], say?: string): Lesson => ({ rule, example, parts, say });
 const radio = (file: string, speaker: RadioMessage["speaker"], line: string): RadioMessage => ({ file, speaker, line });
 
 function scene(mode: Activity["mode"], title: string, prompt: string, detail: Partial<Activity>, accept: string[], hint: string, explain: string): AuthoredActivity {
@@ -33,29 +34,37 @@ export const scenes: Record<number, AuthoredActivity[]> = {
       lesson: lesson("Deux mots pour le quai", "Hello! · Bonjour !\nGoodbye! · Au revoir !"), options: ["Hello!", "Goodbye!"] },
     ["Goodbye!"], "Sam s’éloigne. Cherche le mot du départ.", "Sam te fait un signe de la main. La radio reste entre tes mains."),
     scene("choice", "Une voix sur le quai", "Qui vient de t’appeler ?", {
-      lesson: lesson("Pour te présenter, dis I’m suivi de ton prénom.", "I’m Maya. · Je m’appelle Maya."),
+      lesson: lesson("À la radio, on salue puis on donne son prénom.", "Hi! · Salut !\nI’m Maya. · Je suis Maya."),
       radio: radio("sam-intro", "Sam", "Hi, I’m Sam."), options: ["Maya", "Sam"] },
     ["Sam"], "Écoute le prénom qui vient après I’m.", "C’est Sam. Il a retrouvé le robot qui transporte la boussole."),
     scene("order", "À toi le micro", "Ton nom de héros est Nova. Assemble « Bonjour, je suis Nova ».", {
+      lesson: lesson("I am et I’m veulent dire « je suis ».", "I’m Maya. · Je suis Maya.", [
+        ["I", "I veut dire « je ». C’est le sujet, la personne qui parle."],
+        ["am", "Am veut dire « suis ». C’est le verbe être avec I. À l’oral, I am devient souvent I’m."],
+        ["Maya.", "C’est le prénom. Tu peux le remplacer par ton nom de héros."],
+      ], "Si tu veux, présente-toi à voix haute avec un prénom de ton choix."),
       options: ["Nova", "Hello,", "I’m"] }, ["Hello I'm Nova"],
     "Commence par saluer, puis dis I’m, puis ton nom.", "Hello, I’m Nova. Le robot reconnaît ton insigne."),
     rush(1, "La radio reçoit quatre messages très courts. Identifie les salutations et les présentations.", [
       ["Tu arrives sur le quai. Tu dis…", "Hello!", "Goodbye!", "Bye!"], ["« I’m Maya. » Qui parle ?", "Maya", "Sam", "Nova"],
       ["Maya repart. Elle te dit…", "Goodbye!", "Hi!", "Hello!"], ["Pour dire « Je suis Sam », choisis…", "I am Sam.", "I am Maya.", "Hello, Maya!"] ]),
-    scene("write", "Signe le registre", "Le robot propose un autre badge, Sky. Présente-toi en anglais avec ce nom de héros.", {
-      document: doc("Ton nouveau badge", "SKY") }, ["I'm Sky", "I am Sky", "My name is Sky", "My name's Sky", "It's Sky", "Hello I'm Sky", "Hi I'm Sky", "Hello I am Sky", "Hi I am Sky", "Hello my name is Sky", "Hi my name is Sky"],
+    scene("write", "Signe le registre", "La dernière passagère porte le badge Sky. Prends sa place au micro et présente-toi en anglais.", {
+      document: doc("Le badge de la passagère", "SKY") }, ["I'm Sky", "I am Sky", "My name is Sky", "My name's Sky", "It's Sky", "Hello I'm Sky", "Hi I'm Sky", "Hello I am Sky", "Hi I am Sky", "Hello my name is Sky", "Hi my name is Sky"],
     "Tu peux commencer par I’m ou I am, puis ajouter le nom du badge.", "I’m Sky et My name is Sky permettent tous les deux de te présenter. La navette peut partir."),
   ],
   2: [
     scene("choice", "Le sac de Maya", "Maya cherche une clé. Quel mot choisis-tu sur l’inventaire ?", {
-      lesson: lesson("Trois objets dans le sac", "a key · une clé\na bag · un sac\na map · une carte"),
+      lesson: lesson("A veut dire « un » ou « une » devant ces objets.", "a key · une clé\na bag · un sac\na map · une carte"),
       options: ["a bag", "a map", "a key"] }, ["a key"], "Map sert à trouver son chemin. Bag permet de transporter des affaires.", "A key, c’est une clé. Elle ouvre le boîtier de la balise."),
     scene("choice", "L’abri sous le grand arbre", "Sous un parapluie, Maya trouve deux sacs. Lequel demande-t-elle ?", {
       lesson: lesson("En anglais, la couleur vient avant l’objet.", "a red key · une clé rouge\na blue key · une clé bleue"),
       document: doc("Le mot de Maya", "Hello! A red bag, please."), options: ["Un sac bleu", "Un sac rouge", "Une clé rouge"] },
     ["Un sac rouge"], "Red indique la couleur. Bag désigne l’objet.", "A red bag est un sac rouge. L’équipe le met à l’abri du passage de la balise."),
     scene("order", "L’étiquette effacée", "Écris avec les étiquettes « C’est une carte bleue ».", {
-      lesson: lesson("It’s veut dire « c’est ». Tu peux aussi écrire It is.", "It’s a red key. = C’est une clé rouge."),
+      lesson: lesson("It’s est la forme courte de It is, « c’est ».", "It’s a red key. · C’est une clé rouge.", [
+        ["It", "It désigne ici l’objet que tu montres."], ["is", "Avec it, le verbe être s’écrit is."],
+        ["a red key.", "Une clé rouge. La couleur red vient avant le nom key."],
+      ]),
       options: ["map", "It’s", "blue", "a"] }, ["It's a blue map"], "Commence par It’s a, puis la couleur, puis l’objet.", "It’s a blue map. Sam retrouve la carte du pont."),
     echo(radio("jungle", "Sam", "Hello, I'm Sam. A blue bag, please. A red key, too. Thank you!"), "La commande de Sam", [
       { id: "bag", prompt: "Quel sac demande Sam ?", options: ["Un sac rouge.", "Un sac bleu.", "Une carte bleue.", "Une clé rouge."], correctIndex: 1, explanation: "A blue bag désigne un sac bleu." },
@@ -70,9 +79,11 @@ export const scenes: Record<number, AuthoredActivity[]> = {
       document: doc("Le carnet de Maya", "Hello! I’m Maya. I have a blue key."), options: ["Une clé bleue", "Une carte bleue", "Une clé rouge"] },
     ["Une clé bleue"], "Relis ce qui suit I have. Retrouve les mots appris dans la forêt.", "Maya a une clé bleue. Elle la garde pour le mécanisme du moulin."),
     scene("choice", "L’instrument du meunier", "Qui a l’ocarina, le petit instrument du moulin ?", {
-      lesson: lesson("Pour parler d’une autre personne, emploie has.", "I have a key. Sam has a map."),
-      document: doc("Inventaire du moulin", "Maya has the key. Sam has the blue bag. The ocarina is in Sam’s bag."),
-      options: ["Maya", "Sam"] }, ["Sam"], "Le carnet parle de Sam’s bag, le sac de Sam.", "L’ocarina est dans le sac de Sam. Il le remet au meunier."),
+      lesson: lesson("Avec I, on dit have. Avec un prénom comme Sam ou Maya, on dit has.", "I have a key. · J’ai une clé.\nSam has a map. · Sam a une carte.", [
+        ["Sam", "Le sujet est Sam. On parle de lui."], ["has", "Has est une forme du verbe avoir."], ["a map.", "C’est l’objet que Sam possède, une carte."],
+      ]),
+      document: doc("Inventaire du moulin", "I’m Maya. I have a red key. Sam has the ocarina."),
+      options: ["Maya", "Sam"] }, ["Sam"], "Cherche le prénom placé juste avant has the ocarina.", "Sam sort l’ocarina. Aux trois premières notes, les voiles rouges frémissent."),
     scene("choice", "La caisse des outils", "D’après la radio, qui a la carte rouge ?", {
       englishCue: "Listen and choose.",
       radio: radio("chimes", "Maya", "I'm Maya. I have a blue bag. Sam has a red map."),
@@ -88,11 +99,14 @@ export const scenes: Record<number, AuthoredActivity[]> = {
   4: [
     scene("choice", "L’escale du sous-marin", "Repère la carte de Sam.", {
       englishCue: "Read and choose.",
-      lesson: lesson("In signifie « dans ». On veut dire « sur ».", "in the bag = dans le sac · on the bag = sur le sac"),
-      document: doc("Carnet du sous-marin jaune", "Yellow submarine · Lost and found\nSam’s map is in the red bag."),
+      lesson: lesson("The désigne un objet précis. In et on indiquent où il se trouve.", "in the bag · dans le sac\non the bag · sur le sac"),
+      document: doc("Message du sous-marin jaune", "Hi, Sam! I have a red bag. The map is in the bag."),
       options: ["Sur le sac rouge", "Dans le sac rouge", "Sur le ferry"] }, ["Dans le sac rouge"], "L’objet est à l’intérieur si tu lis in.", "The map is in the red bag. Sam remonte avec sa carte."),
     scene("order", "Sous la passerelle", "Construis « La clé est sous le sac ».", {
-      lesson: lesson("Under signifie « sous ». The key is… permet de dire où est la clé.", "The map is under the bag. = La carte est sous le sac."),
+      lesson: lesson("Under indique que quelque chose est en dessous.", "The map is under the bag. · La carte est sous le sac.", [
+        ["The map", "La carte est le sujet, l’objet dont on parle."], ["is", "Is est le verbe être. Ici, il veut dire « est »."],
+        ["under the bag.", "Sous le sac. Ce groupe indique le lieu."],
+      ]),
       options: ["the bag", "under", "The key", "is"] }, ["The key is under the bag"], "Commence par le nom de l’objet que tu cherches.", "The key is under the bag. Maya la ramasse avant que l’eau ne monte."),
     echo(radio("ferry", "Maya", "Hi, it's Maya. The red key is on the bag. The blue map is under the bag."), "La radio de l’écluse", [
       { id: "location-key", prompt: "Où est la clé rouge ?", options: ["Dans le sac.", "Sur le sac.", "Sous le sac.", "Dans l’eau."], correctIndex: 1, explanation: "On the bag signifie « sur le sac »." },
@@ -106,15 +120,17 @@ export const scenes: Record<number, AuthoredActivity[]> = {
   5: [
     scene("choice", "Les badges de nuit", "Qui possède la clé du dôme ?", {
       englishCue: "Read the names.",
-      document: doc("Registre de l’observatoire", "I’m Maya. I have the map.\nI’m Sam. I have the key."),
+      lesson: lesson("Un rendez-vous à l’observatoire", "The door is closed. · La porte est fermée.\nMeet me at the door! · Retrouve-moi à la porte !"),
+      document: doc("Un billet glissé sous la porte", "Hi, Nova! I have the map, but the door is closed. Sam has the key. Meet me at the door!\nMaya"),
       options: ["Maya", "Sam", "Le robot"] }, ["Sam"], "Lis les deux lignes jusqu’au bout. La clé se dit key.", "Sam a la clé. Maya a la carte. Ils se partagent le travail."),
     scene("choice", "Les étoiles du plafond", "Le plan de l’observatoire est-il sur la table ou sous la table ?", {
-      lesson: lesson("Deux mots de l’observatoire", "a star · une étoile\na table · une table"),
-      document: doc("La salle au ciel peint", "Stars on the ceiling. A blue map under the table."),
+      lesson: lesson("Trois mots pour lire le billet", "a star · une étoile\nthe ceiling · le plafond\na table · une table"),
+      document: doc("Le billet de la gardienne", "Hi, Nova! The stars are on the ceiling. My blue map is under the table. It’s for you!"),
       options: ["Sur la table", "Sous la table"] }, ["Sous la table"],
     "Under indique ce qui est en dessous.", "La carte est sous la table. Les étoiles du plafond, elles, sont peintes."),
     scene("choice", "La dernière transmission", "À qui faut-il apporter la clé, et de quelle couleur est-elle ?", {
       englishCue: "Listen and read.",
+      lesson: lesson("Deux consignes pour choisir un objet", "Take the map. · Prends la carte.\nLeave the bag. · Laisse le sac."),
       document: doc("Étiquettes des destinataires", "Blue key → Maya\nRed key → Sam"),
       radio: radio("stars", "Sam", "Hi, it's Sam. I have two keys. Leave the red key in the bag. Take the blue key."),
       options: ["La clé rouge à Sam", "La clé bleue à Sam", "La clé bleue à Maya"] }, ["La clé bleue à Maya"],

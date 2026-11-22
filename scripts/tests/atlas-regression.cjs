@@ -70,7 +70,7 @@ async function test() {
   await db.exec(fs.readFileSync(path.join(root, "supabase/migrations/20261122085111_adventure_checkpoints.sql"), "utf8"));
   for (const id of accounts) await db.query("insert into auth.users values ($1)", [id]);
   const { scenes } = load("lib/adventure/scenes.ts");
-  const { culturalClues, passages } = load("lib/adventure/catalog.ts");
+  const { passages } = load("lib/adventure/catalog.ts");
   const { gradeActivity } = load("lib/adventure/grading.ts");
   const { quizBank } = load("lib/adventure/quiz-bank.ts");
   const { quizForm, gradeQuiz } = load("lib/adventure/quiz.ts");
@@ -86,14 +86,22 @@ async function test() {
   assert.equal(gradeActivity(goodbye, "Hello!"), false);
   assert.equal(caller.radio.line, "Hi, I’m Sam.");
   assert.ok(storyPanel(1, 1).dialogue.every(speech => !speech.line.includes("Sam")));
-  for (const clip of ["maya-hello", "maya-goodbye"]) {
-    assert.ok(fs.statSync(path.join(root, "public/audio/passage", clip + ".mp3")).size > 4000);
+  for (const clip of ["hello-us", "maya-goodbye"]) {
+    assert.ok(fs.statSync(path.join(root, "public/audio/passage", clip + ".mp3")).size > 2000);
+  }
+  assert.deepEqual(scenes[1][2].lesson.parts.map(([word]) => word), ["I", "am", "Maya."]);
+  assert.match(scenes[1][2].lesson.rule, /I am et I’m/);
+  assert.match(scenes[5][2].lesson.example, /Take the map/);
+  for (const p of passages) {
+    const recordings = scenes[p.id].filter(step => step.radio || step.game?.radio);
+    assert.equal(recordings.length, 1);
+    const examples = scenes[p.id].flatMap(step => step.lesson?.example.split("\n") ?? []);
+    assert.ok(examples.every(line => line.split(/ · | = /).length === 2));
   }
   assert.equal((await checkPassage(2, 0, solution(scenes[2][0]))).ok, false);
   assert.equal((await checkPassage(1, 2, solution(scenes[1][2]))).ok, false);
   for (const p of passages) {
     assert.equal(panels[p.id].length + 1, scenes[p.id].length);
-    assert.ok(culturalClues[p.id].after <= scenes[p.id].length);
     assert.ok(fs.existsSync(path.join(root, "public/art/passage", p.art + ".webp")));
     for (const [index, step] of scenes[p.id].entries()) {
       const panel = storyPanel(p.id, index);

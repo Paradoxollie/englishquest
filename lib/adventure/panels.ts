@@ -11,7 +11,7 @@ export const panels: Record<number, Panel[]> = {
     panel("Quai 7, à l’aube. Les dernières balises viennent de s’éteindre.",
       maya("Moi, c’est Maya. Si on rallume l’observatoire, les navettes retrouveront leur chemin. Tu embarques ?"),
       sam("Moi, c’est Sam. Je vais chercher la boussole. À toi la radio !")),
-    panel("La radio de bord crépite.",
+    panel("Depuis la tempête, l’horloge du quai marque toujours 10 h 04. Dans la cabine, le voyant de la radio s’allume.",
       maya("Quelqu’un essaie de nous joindre. Écoute son prénom.")),
     panel("La passerelle reste fermée. Le robot attend un nom de code.",
       sam("Hello, Nova!", "Bonjour, Nova !"), maya("C’est ton nom de code. Le robot attend ta réponse.")),
@@ -23,8 +23,8 @@ export const panels: Record<number, Panel[]> = {
   2: [
     panel("Une rafale emporte une balise dans la forêt des cloches.",
       sam("Je la vois ! Elle est coincée dans les branches."), maya("Je vais ouvrir son boîtier. Passe-moi une clé.")),
-    panel("La pluie commence. Deux sacs attendent sous un parapluie.",
-      sam("Lequel on emporte ?"), maya("J’ai laissé un mot pour qu’on retrouve le bon.")),
+    panel("À l’arrêt de la forêt, la pluie tambourine sur un grand parapluie orange. Deux sacs sont au sec.",
+      sam("Celui de gauche ou celui de droite ?"), maya("J’ai laissé un mot sur le banc. Regarde la couleur.")),
     panel("Une goutte a effacé l’étiquette de la carte.",
       maya("My map!", "Ma carte !"), sam("J’ai des lettres sèches. On peut refaire son étiquette.")),
     panel("Sam installe la balise au-dessus du pont.",
@@ -35,8 +35,8 @@ export const panels: Record<number, Panel[]> = {
   3: [
     panel("La balise conduit la navette vers un moulin immobile.",
       maya("Sans vent, on n’atteindra jamais la ville."), sam("Ouvre le carnet. On y a noté nos outils.")),
-    panel("Le meunier cherche son ocarina pour réveiller les voiles.",
-      sam("Je l’ai entendu ce matin."), maya("Son propriétaire a laissé un inventaire.")),
+    panel("Dans l’atelier, le meunier pose un ocarina près des engrenages. Il lui faut la personne qui l’a apporté.",
+      sam("Il paraît que trois notes suffisent à réveiller le vent."), maya("Regarde dans mon inventaire qui a l’instrument.")),
     panel("Une voix traverse les pales du moulin.",
       sam("Qui a pris la carte pour la traversée ?"), maya("Approche la radio. Mon message arrive.")),
     panel("Le meunier déplie ses plans sur le balcon.",
@@ -47,8 +47,8 @@ export const panels: Record<number, Panel[]> = {
       maya("Le meunier te demande ce que tu transportes."), sam("C’est à toi de lui répondre.")),
   ],
   4: [
-    panel("Le vent dépose la navette sur un canal qui déborde.",
-      sam("Where’s my map?", "Où est ma carte ?"), maya("Les objets trouvés du port tiennent un carnet.")),
+    panel("Un périscope jaune fend l’eau. Un petit sous-marin passe un câble au ferry coincé dans l’écluse.",
+      sam("Where’s my map?", "Où est ma carte ?"), maya("Le pilote l’a repêchée ! Il t’a laissé un message.")),
     panel("Une clé glisse sous la passerelle.",
       maya("Je descends la chercher."), sam("Laisse-lui un message précis sur sa position.")),
     panel("Le ferry avance. Maya est restée à quai.",
@@ -60,9 +60,9 @@ export const panels: Record<number, Panel[]> = {
   ],
   5: [
     panel("La lentille du phare éclaire la porte de l’observatoire.",
-      maya("We’re here!", "Nous y sommes !"), sam("Voilà le dôme qu’on cherchait depuis le quai. Ouvrons le registre.")),
-    panel("Au plafond, un ciel étoilé dissimule le mécanisme.",
-      sam("Do we have a map?", "Est-ce qu’on a un plan ?"), maya("Regarde, un mot du gardien.")),
+      maya("We’re here!", "Nous y sommes !"), sam("Voilà le dôme qu’on cherchait depuis le quai. Quelqu’un a glissé un billet sous la porte.")),
+    panel("Deux étoiles brillent côte à côte. L’une glisse avec le panneau du plafond. L’autre reste dans le ciel.",
+      sam("Do we have a map?", "Est-ce qu’on a un plan ?"), maya("La gardienne a laissé de quoi trouver le bon ciel.")),
     panel("Une dernière serrure sépare l’équipe du télescope.",
       maya("J’ai les étiquettes pour livrer les clés."), sam("Je t’indique par radio laquelle prendre.")),
     panel("Le télescope reçoit quatre signaux des mondes traversés.",
@@ -75,7 +75,7 @@ export const panels: Record<number, Panel[]> = {
 };
 
 export const logbookPanels: Record<number, Panel> = {
-  1: panel("La tour attend le feu vert pour le décollage.", maya("Un dernier contrôle radio."), sam("Après ça, cap sur la forêt !")),
+  1: panel("Derrière la vitre, la grande aiguille avance enfin d’un cran. La tour attend ton feu vert.", maya("Un dernier contrôle radio."), sam("Garde un œil sur la boussole du quai !")),
   2: panel("Un bourdonnement sort de la balise réparée.", sam("Elle a capté un écho."), maya("Consigne notre découverte avant de le suivre.")),
   3: panel("Les ailes tournent enfin au-dessus des nuages.", maya("Le vent ouvre une route."), sam("Finissons le carnet avant de lever l’ancre.")),
   4: panel("Une gardienne fait signe depuis le phare.", sam("Elle nous attend avec une lentille."), maya("Vérifions notre carnet avant d’accoster.")),

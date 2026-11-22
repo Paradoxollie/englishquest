@@ -162,7 +162,7 @@ export default async function PublicHomePage({
                 Cinq chapitres, de A1 à B1+
               </h2>
             </div>
-            <Link href="/quest" className="eq-text-link">
+            <Link href="/tous-les-cours/parcours" className="eq-text-link">
               Voir la carte des missions
             </Link>
           </div>
@@ -171,7 +171,7 @@ export default async function PublicHomePage({
               const cover = resolveArt(chapter.artSrc);
               return (
                 <li key={chapter.id} className="eq-reveal">
-                  <Link href={`/quest#chapitre-${chapter.id}`} className="eq-issue">
+                  <Link href={`/tous-les-cours/parcours#chapitre-${chapter.id}`} className="eq-issue">
                     <span className="eq-issue-cover">
                       {cover ? (
                         <Image

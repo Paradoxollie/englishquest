@@ -112,7 +112,7 @@ export function MissionBar({ entry, mission, chapterLabel, nextEntry, practiceBe
                   Mission suivante
                 </Link>
               ) : null}
-              <Link href="/quest" className="eq-btn eq-btn-ghost eq-btn-sm">
+              <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-ghost eq-btn-sm">
                 Voir la carte
               </Link>
             </span>

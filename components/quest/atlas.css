@@ -69,16 +69,15 @@
 .atlas-work h2 { margin: 6px 0 10px; font-size: clamp(1.7rem,3vw,2.75rem); scroll-margin-top: 90px; }
 .atlas-instruction { margin-bottom: 16px; font-size: 1.08rem; line-height: 1.55; }
 .atlas-english-cue { display:block; font-weight:700; color:#204f90; }
-.atlas-lesson,.atlas-document,.atlas-radio,.atlas-feedback,.atlas-clue { margin: 14px 0; padding: 12px 15px; border-radius: 7px; font-size: .95rem; line-height: 1.55; }
+.atlas-lesson,.atlas-document,.atlas-radio,.atlas-feedback { margin: 14px 0; padding: 12px 15px; border-radius: 7px; font-size: .95rem; line-height: 1.55; }
 .atlas-lesson { background: #eaf2fe; border-left: 4px solid #406baa; }
 .atlas-lesson p + p { margin-top: 4px; font-weight: 600; }
 .atlas-document { background: #fff; border: 1px solid #b8b8ab; border-left: 5px solid #e5a72b; }
-.atlas-document strong,.atlas-radio > strong { font-size: .77rem; letter-spacing: .045em; text-transform: uppercase; }
+.atlas-document strong,.comic-radio-head strong { font-size: .77rem; letter-spacing: .045em; text-transform: uppercase; }
 .atlas-document p { white-space: pre-line; margin-top: 3px; font-weight: 650; }
 .atlas-radio { background: #e9f1ed; }
 .atlas-radio audio { display: block; width: 100%; max-width: 450px; margin: 8px 0; }
-.atlas-reader summary { cursor: pointer; font-weight: 650; }
-.atlas-radio details p,.atlas-clue p { margin-top: 5px; }
+.comic-radio-text { margin:7px 0 0; }
 .atlas-answer-group { min-width: 0; margin: 0; padding: 0; border: 0; }
 .atlas-choices { display: grid; gap: 8px; }
 .atlas-answer { position: relative; display: flex; align-items: center; gap: 11px; padding: 9px 12px; min-height: 46px; border: 1.5px solid #aaa99e; border-radius: 8px; background: #fff; cursor: pointer; }
@@ -96,8 +95,6 @@
 .atlas-tiles button:disabled { opacity: .36; cursor: default; }
 .atlas-feedback { border-left: 4px solid #bc7f1c; background: #fff0cc; animation: atlas-enter .18s ease-out both; }
 .atlas-feedback[data-right=true] { background: #dcf3e4; border-color: #287951; }
-.atlas-clue { background: #fff2c7; border: 1px dashed #aa8030; }
-.atlas-clue[open] strong { display: block; margin-top: 8px; }
 .atlas-game-end h3 { margin: 8px 0; font-size: 1.45rem; }
 .atlas-game :is(.atlas-game-start,.atlas-game-end) > button { margin-top: 12px; }
 .atlas-game { min-width: 0; margin-top: 14px; }
@@ -170,6 +167,17 @@
 .comic-word-row div { display:flex; gap:.7em; flex-wrap:wrap; }
 .comic-listen { display:inline-flex; align-items:center; justify-content:center; gap:7px; padding:2px 11px; font-size:.85rem; }
 .comic-hint { padding:10px 12px; margin:12px 0 0; border-radius:6px; background:#fff0c7; color:#523c15; }
+.comic-sentence { margin-block:10px 4px; }
+.comic-pieces { display:flex; flex-wrap:wrap; gap:6px; }
+.comic-pieces button, .comic-sound-mode { min-height:44px; padding:5px 11px; background:#fffefa; color:#234576; border:1.5px solid #48668c; border-radius:8px; font-weight:700; cursor:pointer; }
+.comic-pieces button[aria-pressed=true], .comic-sound-mode[aria-pressed=true] { color:#fff; background:#244882; }
+.comic-sentence p, .comic-say { margin:7px 0 0; color:#3e4e62; line-height:1.45; font-size:.93rem; }
+.comic-say { padding-top:8px; border-top:1px solid #e0d7bf; }
+.comic-frame[data-cutaway=true] .comic-picture img { transform:none; }
+.comic-frame[data-cutaway=true] .comic-balloon::before { display:none; }
+.comic-radio-head { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+.comic-sound-mode { font-size:.84rem; }
+.atlas-game .comic-sound-mode { margin-bottom:8px; }
 .comic-recall { display:block; margin-top:6px; }
 .atlas-final-test fieldset { border:0; margin:12px 0 18px; padding:0; min-width:0; }
 .atlas-final-test legend { font-weight:750; margin-bottom:8px; }
@@ -181,6 +189,10 @@
 @media (max-width:700px) {
   .atlas-reader-nav { font-size:.75rem; }
   .comic-picture { aspect-ratio:1.34; }
+  .comic-frame[data-cutaway=true] .comic-picture { aspect-ratio:1.75; }
+  .comic-frame[data-cutaway=true][data-view=wide] { display:flex; flex-direction:column; }
+  .comic-frame[data-cutaway=true][data-view=wide] .comic-utterance { position:relative; order:-1; padding:9px 12px; background:#f8ebd0; }
+  .comic-frame[data-cutaway=true][data-view=wide] .comic-caption { position:static; width:fit-content; max-width:100%; }
   .comic-frame[data-view="speech"] .comic-utterance { position:relative; margin-top:-21px; padding:0 10px 10px; }
   .comic-frame[data-view="speech"] { background:#f8ebd0; }
   .comic-balloon, [data-speaker="Sam"] .comic-balloon { position:relative; left:auto; right:auto; bottom:auto; max-width:100%; width:100%; padding:10px; gap:8px; border-radius:17px; box-shadow:2px 3px #192437; }

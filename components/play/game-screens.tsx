@@ -590,7 +590,7 @@ export function GameEnd({
           <b>Mission {rewards.courseCompleted.courseNumber} validée.</b> {rewards.courseCompleted.courseTitle} :
           + {rewards.courseCompleted.rewards.xp} XP, + {rewards.courseCompleted.rewards.gold} or. La mission suivante est
           ouverte.
-          <Link href="/quest" className="eq-btn eq-btn-gold eq-btn-sm">
+          <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-gold eq-btn-sm">
             Voir la carte
           </Link>
         </div>

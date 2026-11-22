@@ -208,7 +208,7 @@ export function HomeView({
                     {mission.secondary.label}
                   </Link>
                 ) : null}
-                <Link href="/quest" className="eq-btn eq-btn-ghost">
+                <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-ghost">
                   Voir la carte
                 </Link>
               </div>
@@ -229,7 +229,7 @@ export function HomeView({
                 <Link href="/play" className="eq-btn eq-btn-gold">
                   Jouer
                 </Link>
-                <Link href="/quest" className="eq-btn eq-btn-ghost">
+                <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-ghost">
                   Voir la carte
                 </Link>
               </div>

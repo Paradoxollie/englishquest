@@ -315,7 +315,7 @@ export async function signUpAction(
   // Retour prévu (lien de classe /rejoindre?code=...) : si la session est déjà
   // ouverte, on y va directement ; sinon le formulaire propose de se connecter.
   const transfer = data.session ? await transferGuestScores(userId).catch(() => -1) : 0;
-  const next = requestedDestination ?? (transfer !== 0 ? "/quest" : null);
+  const next = requestedDestination ?? (transfer !== 0 ? "/tous-les-cours/parcours" : null);
   if (next && data.session) {
     revalidatePath("/", "layout");
     redirect(next);
@@ -438,7 +438,7 @@ export async function loginAction(
   revalidatePath("/profile", "layout");
   
   // Redirige vers la page demandée avant la connexion (lien de classe), sinon l'accueil.
-  redirect(getSafeNextPath(formData.get("next")) ?? (transfer !== 0 ? "/quest" : "/"));
+  redirect(getSafeNextPath(formData.get("next")) ?? (transfer !== 0 ? "/tous-les-cours/parcours" : "/"));
 }
 
 /**

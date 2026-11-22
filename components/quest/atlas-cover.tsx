@@ -41,5 +41,6 @@ export async function AtlasCover() {
         </Link></li>;
       })}
     </ol>
+    <Link href="/tous-les-cours/parcours" className="atlas-login">Retrouver ma carte des 50 cours</Link>
   </section>;
 }

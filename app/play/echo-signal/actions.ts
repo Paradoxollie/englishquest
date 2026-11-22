@@ -76,7 +76,7 @@ export async function submitEchoSignalScore(params: {
     revalidatePath("/leaderboard");
     revalidatePath("/profile");
     revalidatePath("/home");
-    revalidatePath("/quest");
+    revalidatePath("/tous-les-cours/parcours");
 
     return {
       success: true,

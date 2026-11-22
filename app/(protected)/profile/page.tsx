@@ -156,7 +156,7 @@ export default async function ProfilePage({
 
       <div className="eq-profile-grid">
         <section className="eq-card" aria-labelledby="profile-progress">
-          <span className="eq-caption">Aventure</span>
+          <span className="eq-caption">Parcours des cours</span>
           <h2 id="profile-progress" className="eq-h3">
             {currentCourse
               ? `Mission ${currentCourse.course_number} · ${lessons[currentCourse.course_number]?.title ?? currentCourse.title}`
@@ -168,7 +168,7 @@ export default async function ProfilePage({
             {completedCourses} mission{completedCourses > 1 ? "s" : ""} validée{completedCourses > 1 ? "s" : ""} sur 50.
           </p>
           <div className="eq-home-actions">
-            <Link href="/quest" className="eq-btn eq-btn-gold">
+            <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-gold">
               Ouvrir la carte
             </Link>
             {currentCourse ? (

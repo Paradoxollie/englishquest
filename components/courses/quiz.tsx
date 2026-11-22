@@ -349,7 +349,7 @@ export function Quiz({ questions }: QuizProps) {
                   Continuer vers la mission {mission.courseNumber + 1}
                 </Link>
               ) : null}
-              <Link href="/auth/signup?next=/quest" className="eq-btn eq-btn-ghost">
+              <Link href="/auth/signup?next=/tous-les-cours/parcours" className="eq-btn eq-btn-ghost">
                 {saveState === "saved" ? "Garder ma progression avec un compte" : "Créer un compte"}
               </Link>
             </>
@@ -358,7 +358,7 @@ export function Quiz({ questions }: QuizProps) {
             Refaire le quiz
           </button>
           {passed && (!mission || mission.isAuthenticated || (saveState !== "idle" && saveState !== "saving")) ? (
-            <Link href="/quest" className={mission && !mission.isAuthenticated && mission.courseNumber < 50 ? "eq-btn eq-btn-ghost" : "eq-btn eq-btn-gold"}>
+            <Link href="/tous-les-cours/parcours" className={mission && !mission.isAuthenticated && mission.courseNumber < 50 ? "eq-btn eq-btn-ghost" : "eq-btn eq-btn-gold"}>
               Retour à la carte
             </Link>
           ) : null}

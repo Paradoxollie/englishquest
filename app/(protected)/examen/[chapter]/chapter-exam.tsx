@@ -128,7 +128,7 @@ export function ChapterExam({
           <button type="button" className="eq-btn eq-btn-primary" onClick={() => window.location.reload()}>
             Repasser
           </button>
-          <Link href="/quest" className="eq-btn eq-btn-ghost">
+          <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-ghost">
             Voir la carte
           </Link>
         </div>

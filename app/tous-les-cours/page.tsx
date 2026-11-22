@@ -30,26 +30,25 @@ export default async function TousLesCoursPage() {
       {!user ? <RecoverGuestPlacement /> : null}
       <PageHead caption="La bibliothèque" title="Les 50 cours">
         <p>
-          Une notion par cours, de A1 à B1+ : la règle, des exemples, les pièges des francophones et un quiz de dix
-          questions. Tout est en accès libre.
+          Choisis librement une notion ou suis les cinq chapitres dans l’ordre. Chaque cours propose des exemples,
+          un entraînement et un quiz de dix questions.
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-3">
+          <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-primary">Ma carte des 50 missions</Link>
           {(isLoggedIn || guest?.placementChapter || roadmap.completedCount > 0) && recommendedCourse ? (
             <>
-              <Link href={`/cours/${recommendedCourse.courseId}`} className="eq-btn eq-btn-primary">
+              <Link href={`/cours/${recommendedCourse.courseId}`} className="eq-text-link">
                 Reprendre le cours {recommendedCourse.courseId}
               </Link>
               <span className="text-sm font-bold">
                 {placedCount ? `${roadmap.completedCount - placedCount} cours validés par quiz · ${placedCount} acquis au test de niveau` : `${roadmap.completedCount} / ${roadmap.totalCourses} validés`}
               </span>
             </>
-          ) : roadmap.completedCount === roadmap.totalCourses ? (
-            <Link href="/quest" className="eq-text-link">Revoir ma carte des 50 missions validées</Link>
-          ) : (
+          ) : roadmap.completedCount < roadmap.totalCourses ? (
             <Link href="/test-de-niveau" className="eq-text-link">
               Tu ne sais pas par où commencer ? Teste ton niveau
             </Link>
-          )}
+          ) : null}
         </div>
       </PageHead>
 

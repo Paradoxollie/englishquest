@@ -65,7 +65,7 @@ export default async function PlacementPage() {
                 maîtrises déjà.
               </p>
               <div className="eq-home-actions">
-                <Link href="/quest" className="eq-btn eq-btn-primary">
+                <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-primary">
                   Voir la carte
                 </Link>
               </div>

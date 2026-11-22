@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type CSSProperties, type Ref } from "react
 import type { Activity } from "@/lib/adventure/activities";
 import type { Passage } from "@/lib/adventure/catalog";
 import { storyPanel, type Hero } from "@/lib/adventure/panels";
-import { landscapeSizes, passageArt } from "./passage-art";
+import { landscapeSizes, passageArt, passagePicture } from "./passage-art";
 
 const subject: Record<number, Record<Hero, string>> = {
   1: { Maya: "34% 59%", Sam: "76% 39%" }, 2: { Maya: "64% 61%", Sam: "36% 34%" },
@@ -25,6 +25,8 @@ export function PassageStage({ episode, index, beat, turn, open, nextLabel }: {
   const panel = storyPanel(episode.id, index);
   const length = panel.dialogue.length;
   const speech = panel.dialogue[beat - 1];
+  const picture = passagePicture(episode, index);
+  const heroesInView = picture.src === passageArt[episode.art];
   const title = useRef<HTMLHeadingElement>(null);
   const frame = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -40,8 +42,8 @@ export function PassageStage({ episode, index, beat, turn, open, nextLabel }: {
   }}>
     <h1 ref={title} tabIndex={-1} className="sr-only">{episode.title}</h1>
     <div className="comic-frame" data-speaker={speech?.speaker} data-view={speech ? "speech" : "wide"}
-      style={{ "--comic-focus": speech ? subject[episode.id][speech.speaker] : "50% 50%" } as CSSProperties}>
-      <div className="comic-picture"><Image src={passageArt[episode.art]} alt={episode.alt} placeholder="blur" priority sizes={landscapeSizes} /></div>
+      data-cutaway={!heroesInView || undefined} style={{ "--comic-focus": speech && heroesInView ? subject[episode.id][speech.speaker] : "50% 50%" } as CSSProperties}>
+      <div className="comic-picture"><Image src={picture.src} alt={picture.alt} placeholder="blur" priority sizes={landscapeSizes} /></div>
       <div className="comic-utterance" key={beat} aria-live="polite" aria-atomic="true">
         {speech ? <div className="comic-balloon">
           <Image className="comic-portrait" src={speech.speaker === "Maya" ? "/art/personnages/maya-visage.webp" : "/art/personnages/sam-visage.webp"} alt="" width={58} height={58} />
@@ -66,13 +68,15 @@ const reminders: Record<number, NonNullable<Activity["lesson"]>> = {
 };
 
 const greetings = [
-  { word: "Hello!", translation: "Bonjour !", clip: "maya-hello" },
+  // Dvortygirl's public-domain US recording, https://commons.wikimedia.org/wiki/File:En-us-hello.ogg
+  { word: "Hello!", translation: "Bonjour !", clip: "hello-us" },
   { word: "Goodbye!", translation: "Au revoir !", clip: "maya-goodbye" },
 ];
 
 function SpokenGreetings() {
   const audio = useRef<HTMLAudioElement>(null);
   const [failed, setFailed] = useState(false);
+  useEffect(() => { const el = audio.current; return () => el?.pause(); }, []);
   function listen(clip: string) {
     const el = audio.current;
     if (!el) return;
@@ -83,10 +87,20 @@ function SpokenGreetings() {
   }
   return <div className="comic-words">{greetings.map(g => <div className="comic-word-row" key={g.clip}>
     <div><b lang="en">{g.word}</b><span>{g.translation}</span></div>
-    <button type="button" className="comic-listen" aria-label={`Écouter Maya dire « ${g.word} »`} onClick={() => listen(g.clip)}>
+    <button type="button" className="comic-listen" aria-label={`Écouter « ${g.word} » en anglais américain`} onClick={() => listen(g.clip)}>
       <span aria-hidden="true">▶</span> Écouter</button>
   </div>)}<audio preload="none" ref={audio} />
     {failed && <p role="status">Le son ne s’est pas chargé. Touche « Écouter » pour réessayer.</p>}
+  </div>;
+}
+
+function SentencePieces({ parts }: { parts: NonNullable<NonNullable<Activity["lesson"]>["parts"]> }) {
+  const [selected, setSelected] = useState<number | null>(null);
+  return <div className="comic-sentence">
+    <div className="comic-pieces" role="group" aria-label="Les mots de la phrase">{parts.map(([word], i) =>
+      <button type="button" lang="en" key={word} aria-pressed={selected === i} onClick={() => setSelected(i)}>{word}</button>
+    )}</div>
+    <p role="status">{selected === null ? "Touche un mot pour le comprendre." : parts[selected][1]}</p>
   </div>;
 }
 
@@ -99,6 +113,8 @@ export function ComicLesson({ episode, index, step, hint, focusRef }: { episode:
       const [en, fr] = line.split(/ · | = /, 2);
       return <p key={line}><b lang="en">{en}</b>{fr && <span>{fr}</span>}</p>;
     })}</div>}
+    {entry.parts && <SentencePieces parts={entry.parts} />}
+    {entry.say && <p className="comic-say">{entry.say}</p>}
     {hint && <p className="comic-hint">{hint}</p>}
   </aside>;
 }

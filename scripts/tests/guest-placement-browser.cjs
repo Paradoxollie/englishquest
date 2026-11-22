@@ -90,7 +90,7 @@ async function verifyCourseVariant(browser, course, prompt, answer) {
     }
     await context.clearCookies();
     await page.evaluate((token) => window.localStorage.setItem("eq-placement-token",token),proof.value);
-    await page.goto(url("/quest"));
+    await page.goto(url("/tous-les-cours/parcours"));
     await page.getByRole("link",{name:"Continuer vers la mission 11"}).first().waitFor();
     await page.waitForFunction(() => window.localStorage.getItem("eq-placement-token") === null);
     console.log("PASS Guest test through both chapters, next lesson, map, library, refresh, legacy result and three login destinations");

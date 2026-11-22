@@ -217,7 +217,7 @@ async function test(name, run) { await run(); cases += 1; console.log(`PASS ${na
     assert.deepEqual(calls[0], calls[1]);
     assert.match(content(done), /gardée sur cet appareil/);
     assert.ok(find(done, (n) => n.type === "a" && n.props.href === "/cours/2"));
-    assert.ok(find(done, (n) => n.type === "a" && n.props.href === "/auth/signup?next=/quest"));
+    assert.ok(find(done, (n) => n.type === "a" && n.props.href === "/auth/signup?next=/tous-les-cours/parcours"));
   });
   await test("The last guest mission reports blocked storage and returns to the map", async () => {
     const h = harness(questions.slice(0,1), { isAuthenticated:false, courseNumber:50, keepGuestQuiz:async () => "blocked" });
@@ -227,7 +227,7 @@ async function test(name, run) { await run(); cases += 1; console.log(`PASS ${na
     await new Promise((resolve) => setImmediate(resolve));
     const done = h.render();
     assert.match(content(done), /bloque la sauvegarde/);
-    assert.ok(find(done, (n) => n.type === "a" && n.props.href === "/quest"));
+    assert.ok(find(done, (n) => n.type === "a" && n.props.href === "/tous-les-cours/parcours"));
     assert.equal(find(done, (n) => n.type === "a" && n.props.href === "/cours/51"),null);
   });
   console.log(`\n${cases} Quiz interaction regression cases passed.`);

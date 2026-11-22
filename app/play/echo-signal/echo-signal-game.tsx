@@ -55,7 +55,7 @@ export function EchoSignalGame({
   suggestedLevel: GameLevel | null;
   audioMap?: Record<string, string>;
   lineStarts?: Record<string, number[]>;
-  adventure?: AdventureRound & { scenario: EchoScenario };
+  adventure?: AdventureRound & { scenario: EchoScenario; readRadio: boolean };
 }) {
   const inClass = Boolean(useClassActivity());
   const voiceStatus = useEnglishVoiceStatus();
@@ -118,7 +118,8 @@ export function EchoSignalGame({
   }, [clearTimers]);
 
   const currentMission = missions[clipIndex] ?? null;
-  const silentMode = silentChoice || (!!currentMission && (
+  const readRadio = adventure?.readRadio === true;
+  const silentMode = readRadio || silentChoice || (!!currentMission && (
     textScenario === currentMission.id || (noVoice && !audioMap[currentMission.id])
   ));
   const currentQuestion = currentMission?.questions[qIndex] ?? null;
@@ -172,6 +173,8 @@ export function EchoSignalGame({
     setActiveSpeakerIndex(null);
   }, []);
 
+  useEffect(() => { if (readRadio) stopScenario(); }, [readRadio, stopScenario]);
+
   // Only a completed playback consumes an attempt.
   const togglePlay = useCallback(() => {
     if (!currentMission || silentMode) return;
@@ -192,7 +195,7 @@ export function EchoSignalGame({
       clearTimers();
       stopScenario();
       setPhase("ended");
-      playSoundEffect(finalCorrect > 0 ? "victory" : "wrong");
+      if (!readRadio) playSoundEffect(finalCorrect > 0 ? "victory" : "wrong");
 
       if (!isLoggedIn) {
         setSubmitStatus("guest");
@@ -221,7 +224,7 @@ export function EchoSignalGame({
         setSubmitStatus("saved");
       })();
     },
-    [clearTimers, gameSession, isLoggedIn, stopScenario]
+    [clearTimers, gameSession, isLoggedIn, readRadio, stopScenario]
   );
 
   const startGame = useCallback((resume = true) => {
@@ -264,11 +267,11 @@ export function EchoSignalGame({
     setPhase(restoredEnd ? "ended" : "playing");
     startedAtRef.current = performance.now();
     gameSession.begin();
-    if (!restoredEnd && picked[0] && !silentChoice) {
+    if (!restoredEnd && picked[0] && !silentChoice && !readRadio) {
       if (inClass) setAudioNotice("Appuie sur Écouter le message pour commencer.");
       else playScenario(picked[0], 1);
     }
-  }, [adventure, clearTimers, gameSession, inClass, level, playScenario, silentChoice]);
+  }, [adventure, clearTimers, gameSession, inClass, level, playScenario, readRadio, silentChoice]);
 
   const moveNext = useCallback(() => {
     clearTimers();
@@ -341,16 +344,16 @@ export function EchoSignalGame({
         },
       ]);
       // La transcription apparaît après la dernière question de la transmission.
-      if (qIndex + 1 >= currentMission.questions.length) setShowTranscript(true);
+      if (!adventure && qIndex + 1 >= currentMission.questions.length) setShowTranscript(true);
       setPhase("feedback");
-      playSoundEffect(correct ? (nextStreak >= 3 ? "combo" : "correct") : "wrong");
+      if (!readRadio) playSoundEffect(correct ? (nextStreak >= 3 ? "combo" : "correct") : "wrong");
       // Pas d'avance automatique : l'élève lit la correction, puis continue.
       later(() => {
         feedbackRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
         continueRef.current?.focus({ preventScroll: true });
       }, 60);
     },
-    [adventure, currentMission, currentQuestion, difficulty, isPlayingAudio, later, logs, phase, playsUsed, qIndex, silentMode, streak]
+    [adventure, currentMission, currentQuestion, difficulty, isPlayingAudio, later, logs, phase, playsUsed, qIndex, readRadio, silentMode, streak]
   );
 
   useEffect(() => {
@@ -372,7 +375,7 @@ export function EchoSignalGame({
   const hasAudio = Object.keys(audioMap).length > 0 || !noVoice;
 
   if (adventure && phase === "start") return <div className="atlas-game-start">
-    <p>Un message, deux indices. Tu peux le réécouter, le ralentir ou en lire la transcription.</p>
+    <p>{readRadio ? "Lis le message pour retrouver les deux indices." : "Un message, deux indices. Tu peux le réécouter ou le ralentir."}</p>
     <button className="eq-btn eq-btn-primary" onClick={() => startGame()}>{adventure.initialAnswers.length ? "Reprendre Echo Signal" : "Lancer Echo Signal"}</button>
   </div>;
   if (adventure && phase === "ended") return <AdventureGameResult round={adventure} correct={correctCount} total={totalQuestions}
@@ -598,7 +601,7 @@ export function EchoSignalGame({
                   {speedRate === 1 ? "Vitesse normale" : "Vitesse lente"}
                 </button>
               ) : null}
-              {phase === "playing" && (
+              {!adventure && phase === "playing" && (
                 <button type="button" className="eq-btn eq-btn-ghost eq-btn-sm" onClick={() => {
                   stopScenario();
                   setTextScenario(currentMission.id);
@@ -616,9 +619,9 @@ export function EchoSignalGame({
                 </p>
               ))}
             </div>
-          ) : (
+          ) : !adventure ? (
             <p className="text-xs text-[var(--muted)]">Le texte du message s&apos;affichera après sa 2e question.</p>
-          )}
+          ) : null}
         </div>
 
         <div className="eq-echo-question">

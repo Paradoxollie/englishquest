@@ -61,7 +61,7 @@ export function buildMissionSummary(params: {
 
   if (quizDone) {
     note = "Quiz réussi : la mission est validée.";
-    cta = { href: "/quest", label: "Voir la carte", tone: "gold" };
+    cta = { href: "/tous-les-cours/parcours", label: "Voir la carte", tone: "gold" };
   } else if (readingDone) {
     note = "Cours lu. Direction le quiz : 80 % pour valider la mission.";
     cta = { href: `/cours/${entry.courseId}#quiz`, label: "Faire le quiz", tone: "gold" };

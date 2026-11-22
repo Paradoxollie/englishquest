@@ -52,7 +52,7 @@ export async function submitPlacementStepAction(
     const token = createPlacementToken(placedChapter);
     const retained = await keepGuestPlacement(token);
     const target = chapters.find((item) => item.id === retained) ?? chapters[0];
-    revalidatePath("/quest");
+    revalidatePath("/tous-les-cours/parcours");
     revalidatePath("/tous-les-cours");
     return {
       ...graded,
@@ -63,7 +63,7 @@ export async function submitPlacementStepAction(
     };
   }
   const placed = await applyPlacement(user.id, placedChapter);
-  revalidatePath("/quest");
+  revalidatePath("/tous-les-cours/parcours");
   revalidatePath("/home");
   return { ...graded, next: null, placed, retainedHigherChapter: placed.chapterId > placedChapter };
 }
@@ -74,7 +74,7 @@ export async function restartPlacementAction(): Promise<PlacementStep | null> {
 
 export async function restoreGuestPlacementAction(token: string) {
   const chapter = await keepGuestPlacement(token);
-  if (chapter !== null) { revalidatePath("/quest"); revalidatePath("/tous-les-cours"); }
+  if (chapter !== null) { revalidatePath("/tous-les-cours/parcours"); revalidatePath("/tous-les-cours"); }
   return chapter;
 }
 

@@ -19,7 +19,7 @@ export type Activity = {
   englishCue?: string;
   document?: { label: string; text: string };
   radio?: RadioMessage;
-  lesson?: { rule: string; example: string };
+  lesson?: { rule: string; example: string; parts?: [word: string, meaning: string][]; say?: string };
   options?: string[];
   game?: PassageGame;
 };

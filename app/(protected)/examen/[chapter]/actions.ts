@@ -39,7 +39,7 @@ export async function submitChapterExamAction(
   const record = await recordChapterExam(user.id, chapter, graded.correct, graded.total);
   // Badge d'examen et de niveau : seulement si la tentative est enregistrée.
   const newBadges = record.saved ? await syncBadgesSafely(user.id) : [];
-  revalidatePath("/quest");
+  revalidatePath("/tous-les-cours/parcours");
   revalidatePath("/home");
   revalidatePath("/profile");
   return { ...graded, ...record, newBadges };

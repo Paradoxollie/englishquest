@@ -35,7 +35,7 @@ export async function transferGuestQuizzesAction() {
   if (!userId) return { success: false };
   try {
     await transferGuestScores(userId);
-    revalidatePath("/quest");
+    revalidatePath("/tous-les-cours/parcours");
     revalidatePath("/home");
     return { success: true };
   } catch {
@@ -55,7 +55,7 @@ async function getAuthenticatedUserId() {
 function revalidateCourseSurfaces(courseNumber: number) {
   revalidatePath(`/cours/${courseNumber}`);
   revalidatePath("/home");
-  revalidatePath("/quest");
+  revalidatePath("/tous-les-cours/parcours");
   revalidatePath("/play");
   revalidatePath("/tous-les-cours");
 }
@@ -79,7 +79,7 @@ export async function startCourseAction(formData: FormData) {
 export async function launchCourseMissionAction(formData: FormData) {
   const courseNumber = Number(formData.get("courseNumber"));
   if (!Number.isFinite(courseNumber)) {
-    redirect("/quest");
+    redirect("/tous-les-cours/parcours");
   }
 
   const destination = `/cours/${courseNumber}`;

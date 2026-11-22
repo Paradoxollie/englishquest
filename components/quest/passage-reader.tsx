@@ -6,11 +6,11 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { useEffect, useRef, useState } from "react";
 import { checkPassage } from "@/app/quest/atlas/actions";
-import { culturalClues, passages, type Passage } from "@/lib/adventure/catalog";
+import { passages, type Passage } from "@/lib/adventure/catalog";
 import { recordingPath, type AccountDraft, type Activity, type ComicPhase, type GameAnswer, type QuizSubmission } from "@/lib/adventure/activities";
 import { ComicLesson, PassageStage } from "./passage-stage";
 import { storyPanel } from "@/lib/adventure/panels";
-import { landscapeSizes, passageArt } from "./passage-art";
+import { landscapeSizes, passagePicture } from "./passage-art";
 import { PassageQuiz, type QuizDraft } from "./passage-quiz";
 import { useAdventureDraft } from "./use-adventure-draft";
 
@@ -20,10 +20,8 @@ const confirmations: Record<Activity["mode"], string> = {
   choice: "Indice confirmé", order: "Phrase assemblée", write: "Message transmis", game: "Manche réussie", quiz: "Carnet validé",
 };
 
-function CulturalClue({ id }: { id: number }) {
-  const clue = culturalClues[id];
-  return <details className="atlas-clue"><summary><span aria-hidden="true">✧ </span>Dans le décor · {clue.object}</summary>
-    <strong>{clue.source}</strong><p>{clue.note}</p></details>;
+function pauseWhenRemoved(player: HTMLAudioElement | null) {
+  if (player) return () => player.pause();
 }
 
 export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey, cloudDraft }: {
@@ -43,6 +41,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
   const [phase, setPhase] = useState<ComicPhase>("story");
   const [beat, setBeat] = useState(0);
   const [networkError, setNetworkError] = useState("");
+  const [readRadio, setReadRadio] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [replaying, setReplaying] = useState(false);
   const [gameAnswers, setGameAnswers] = useState<GameAnswer[]>([]);
@@ -54,11 +53,12 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
   const shouldFocus = useRef(false);
   const done = index >= steps.length;
   const step = steps[index];
-  const clue = culturalClues[episode.id];
+  const picture = passagePicture(episode, done ? "ending" : opened ? index : -1);
   const next = passages.find(p => p.id === episode.id + 1);
 
   useEffect(() => {
     let seed = crypto.getRandomValues(new Uint32Array(1))[0];
+    try { setReadRadio(sessionStorage.getItem("eq-atlas-radio-text") === "yes"); } catch { /* The switch also works without storage. */ }
     try {
       let local;
       try { local = JSON.parse(localStorage.getItem(draftKey) ?? "null"); } catch { /* Read the account copy. */ }
@@ -143,6 +143,10 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
   const currentAnswer = step?.mode === "order" ? tiles.map(i => step.options![i]).join(" ") : choice;
   const answerReady = step?.mode === "order" ? tiles.length === step.options!.length : choice.trim().length > 0;
   const round = { busy, initialAnswers: gameAnswers, progress: setGameAnswers, submit: (answers: GameAnswer[]) => { void submit(answers); } };
+  const soundSwitch = <button type="button" className="comic-sound-mode" aria-pressed={readRadio} onClick={() => {
+    setReadRadio(!readRadio);
+    try { sessionStorage.setItem("eq-atlas-radio-text", readRadio ? "no" : "yes"); } catch { /* Keep this choice for the open episode. */ }
+  }}>Sans son</button>;
   const choices = [...(step?.options ?? [])];
   if (step?.mode === "choice" && choices.length > 1) {
     const rotation = (shuffle + index) % choices.length;
@@ -154,7 +158,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
       <Link href="/quest#atlas" onNavigate={leave}>← Carte des mondes</Link><span>{savedStage} / {steps.length} épreuves validées · Escale {episode.id}</span>
     </nav>
     {!opened || done ? <section className={`atlas-splash ${done ? "atlas-finale" : ""}`}>
-      <div className="atlas-splash-art"><Image src={passageArt[episode.art]} alt={episode.alt} placeholder="blur" fill priority sizes={landscapeSizes} /></div>
+      <div className="atlas-splash-art"><Image src={picture.src} alt={picture.alt} placeholder="blur" fill priority sizes={landscapeSizes} /></div>
       <div className="atlas-splash-copy">
         <span className="atlas-label">{done ? "Escale validée" : episode.place}</span>
         <h1 tabIndex={-1} ref={heading}>{done ? episode.keepsake : episode.title}</h1>
@@ -162,7 +166,6 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
         {done ? <>
           <p className="atlas-skill">Tu as réussi à {episode.skill.charAt(0).toLowerCase() + episode.skill.slice(1)}</p>
           <p className="atlas-save">{steps.length} épreuves validées · {onAccount ? "Sur ton compte" : "Sur cet appareil"}</p>
-          <CulturalClue id={episode.id} />
           <Link className="atlas-cta" href={next ? `/quest/atlas/${next.id}` : "/quest#atlas"}>{next ? "Découvrir le monde suivant" : "Retrouver mon Atlas"} →</Link>
           <button className="atlas-replay" onClick={() => move(0)}>Rejouer cette escale</button>
         </> : <>
@@ -173,7 +176,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
     </section> : phase === "story" ? <PassageStage key={index} episode={episode} index={index} beat={beat} turn={setBeat}
       nextLabel={step.lesson ? "Ouvrir le carnet" : "À toi de jouer"} open={() => show(step.lesson ? "lesson" : "question")} />
       : <section className="comic-paper" aria-label={step.title} aria-busy={busy}>
-        <div className="comic-banner"><Image src={passageArt[episode.art]} alt="" fill sizes={landscapeSizes} placeholder="blur" />
+        <div className="comic-banner"><Image src={picture.src} alt="" fill sizes={landscapeSizes} placeholder="blur" />
           <span>{episode.place} <i aria-hidden="true">/</i> {step.title}</span>
         </div>
         {phase === "lesson" || phase === "help" ? <div className="comic-page-content">
@@ -190,20 +193,18 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
             <h2 ref={heading} tabIndex={-1}>{confirmations[step.mode]}</h2><p>{feedback.message}</p>
             <small className="atlas-save">Étape enregistrée {onAccount ? "sur ton compte" : "sur cet appareil"}.</small>
           </div>
-          {index + 1 === clue.after && <CulturalClue id={episode.id} />}
           <button className="atlas-cta comic-next" onClick={() => move(index + 1)}>{index + 1 === steps.length ? "Découvrir mon souvenir" : "Continuer l’histoire"} →</button>
         </div> : <div className="atlas-work">
           {step.englishCue && <span className="atlas-english-cue" lang="en">{step.englishCue}</span>}
           <h2 className="comic-question" ref={heading} id="atlas-stage-title" tabIndex={-1}>{step.prompt}</h2>
         {step.document && <div className="atlas-document"><strong>{step.document.label}</strong><p lang="en">{step.document.text}</p></div>}
-        {step.radio && <div className="atlas-radio"><strong>Radio de l’équipe</strong>
-          <audio aria-label="Écouter le message en anglais" controls preload="none" src={recordingPath(step.radio)} />
-          <details><summary>Lire la transcription</summary><p lang="en">{step.radio.line}</p></details>
+        {step.radio && <div className="atlas-radio"><div className="comic-radio-head"><strong>Radio de l’équipe</strong>{soundSwitch}</div>
+          {readRadio ? <p lang="en" className="comic-radio-text">{step.radio.line}</p> : <audio ref={pauseWhenRemoved} aria-label="Écouter le message en anglais" controls preload="none" src={recordingPath(step.radio)} />}
         </div>}
         {step.game && <div className="atlas-game eq-game-main">
           {step.game.type === "rush" ? <GrammarRush isLoggedIn={false} missionTarget={null} levelLabel="Premiers pas" queue={step.game.questions} adventure={round} />
-            : <EchoSignal isLoggedIn={false} missionTarget={null} suggestedLevel={1} audioMap={{ [step.game.scenario.id]: recordingPath(step.game.radio) }}
-              adventure={{ ...round, scenario: step.game.scenario }} />}
+            : <>{soundSwitch}<EchoSignal isLoggedIn={false} missionTarget={null} suggestedLevel={1} audioMap={{ [step.game.scenario.id]: recordingPath(step.game.radio) }}
+              adventure={{ ...round, scenario: step.game.scenario, readRadio }} /></>}
         </div>}
         {step.mode === "quiz" && <PassageQuiz id={episode.id} draft={quiz} update={setQuiz} submit={submit} busy={busy} />}
         {step.mode !== "game" && step.mode !== "quiz" && <form onSubmit={e => { e.preventDefault(); if (answerReady) void submit(currentAnswer); }}>

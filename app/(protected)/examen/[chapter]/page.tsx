@@ -56,7 +56,7 @@ export default async function ChapterExamPage({ params }: { params: Promise<{ ch
                 L&apos;examen s&apos;ouvre quand les dix missions du chapitre sont validées sur la carte.
               </p>
               <div className="eq-home-actions pt-2">
-                <Link href="/quest" className="eq-btn eq-btn-primary">
+                <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-primary">
                   Retour à la carte
                 </Link>
               </div>

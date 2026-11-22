@@ -130,8 +130,8 @@ export function PlacementTest({
           <Link href={`/cours/${placed.firstCourseId}`} className="eq-btn eq-btn-gold">
             Ouvrir le cours {placed.firstCourseId}
           </Link>
-          {kept ? <Link href="/quest" className="eq-btn eq-btn-ghost">Voir ma carte</Link> : null}
-          <Link href="/auth/signup?next=/quest" className="eq-text-link">{kept ? "Garder mon résultat avec un compte" : "Créer un compte"}</Link>
+          {kept ? <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-ghost">Voir ma carte</Link> : null}
+          <Link href="/auth/signup?next=/tous-les-cours/parcours" className="eq-text-link">{kept ? "Garder mon résultat avec un compte" : "Créer un compte"}</Link>
         </div>
       </div>
     );
@@ -153,7 +153,7 @@ export function PlacementTest({
           <Link href={`/cours/${placed.firstCourseId}`} className="eq-btn eq-btn-gold">
             Ouvrir la première mission
           </Link>
-          <Link href="/quest" className="eq-btn eq-btn-ghost">
+          <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-ghost">
             Voir la carte
           </Link>
         </div>
