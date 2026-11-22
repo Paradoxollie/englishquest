@@ -163,7 +163,9 @@
 .atlas-finale .atlas-splash-copy:before { display:block; content:"★"; width:42px; text-align:center; margin-bottom:10px; border:2px solid #192437; border-radius:50%; background:#ffce46; color:#192437; font-size:1.5rem; transform:rotate(-9deg); }
 @keyframes atlas-call { from { transform:scale(.85); opacity:1; } to { transform:scale(1.48); opacity:0; } }
 @media (min-width: 701px) and (max-height: 950px) {
-  .atlas-reader:has(.atlas-theatre) { max-width:min(1160px,max(720px,calc((100dvh - 315px) * 1.77))); margin-block:12px 24px; }
+  .atlas-reader:has(.atlas-theatre) { max-width:min(1160px,max(740px,calc((100dvh - 235px) * 1.77))); margin-block:12px 24px; }
+  .atlas-talk { padding:12px 16px; }
+  .atlas-bubble { padding:8px 13px; }
 }
 @media (max-width:700px) {
   .atlas-strip { gap:3px 8px; padding:9px 12px; }

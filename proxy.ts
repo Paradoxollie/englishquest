@@ -58,8 +58,8 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
     return forwardPage();
   }
 
-  // Le site lancé en local ne compte pas dans les visites de production.
-  if (["localhost", "127.0.0.1", "::1"].includes(request.nextUrl.hostname)) {
+  // Les essais locaux et les aperçus ont leur propre audience.
+  if (process.env.VERCEL_ENV === "preview" || ["localhost", "127.0.0.1", "::1"].includes(request.nextUrl.hostname)) {
     return forwardPage();
   }
 

@@ -14,6 +14,9 @@ import { useAdventureDraft } from "./use-adventure-draft";
 
 const GrammarRush = dynamic(() => import("@/app/play/grammar-rush/grammar-rush-game").then(m => m.GrammarRushGame), { loading: () => <p role="status">La radio s’allume…</p> });
 const EchoSignal = dynamic(() => import("@/app/play/echo-signal/echo-signal-game").then(m => m.EchoSignalGame), { loading: () => <p role="status">Connexion à la radio…</p> });
+const confirmations: Record<Activity["mode"], string> = {
+  choice: "Indice confirmé", order: "Phrase assemblée", write: "Message transmis", game: "Manche réussie", quiz: "Carnet validé",
+};
 
 function CulturalClue({ id }: { id: number }) {
   const clue = culturalClues[id];
@@ -184,7 +187,8 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
           {!feedback?.ok && <button className="atlas-cta atlas-check" type="submit" disabled={!answerReady || busy}>{busy ? "Vérification…" : "Vérifier ma réponse"}</button>}
         </form>}
         {feedback && <div className="atlas-feedback" data-right={feedback.ok} role="status">
-          <strong>{feedback.ok ? "Bien joué !" : "Un indice pour réessayer"}</strong><p>{feedback.message}</p>
+          <strong>{feedback.ok ? confirmations[step.mode] : "Un indice pour réessayer"}</strong><p>{feedback.message}</p>
+          {feedback.ok && <small className="atlas-save">Étape enregistrée {onAccount ? "sur ton compte" : "sur cet appareil"}.</small>}
         </div>}
         {feedback?.ok && <>
           {index + 1 === clue.after && <CulturalClue id={episode.id} />}

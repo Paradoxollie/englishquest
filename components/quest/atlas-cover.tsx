@@ -16,7 +16,7 @@ export async function AtlasCover() {
       <div className="atlas-cover-copy">
         <span className="atlas-label">Aventure · Premiers pas en anglais</span>
         <h1 id="atlas-name">L’Atlas des <em>passages</em></h1>
-        <p>Un robot au mauvais quai, une balise perdue dans la canopée… Voyage avec Maya et Sam. Ton anglais ouvre le passage vers le monde suivant.</p>
+        <p>Les routes entre cinq mondes se sont effacées. Au quai 7, Maya et Sam t’attendent pour le dernier départ. Lis les indices, écoute les transmissions et trace ton chemin jusqu’à l’observatoire.</p>
         <Link className="atlas-cta" href={`/quest/atlas/${featured.id}`}>
           {complete === passages.length ? "Revoir la première escale" : stages.some(Boolean) ? "Reprendre l’aventure" : "Commencer l’aventure"} <span aria-hidden="true">→</span>
         </Link>

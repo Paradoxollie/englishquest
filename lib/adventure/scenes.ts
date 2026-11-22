@@ -22,14 +22,14 @@ function echo(message: RadioMessage, title: string, questions: EchoQuestion[]): 
   const scenario: EchoScenario = { id: message.file, level: 1, category: "Radio de l’Atlas", title, context: title,
     lines: [{ speaker: message.speaker, voiceProfile: message.speaker === "Maya" ? "female_us" : "male_us", text: message.line }],
     questions: [questions[0], questions[1]] };
-  return scene("game", "Echo Signal", "Intercepte la transmission et retrouve ses deux informations.", { game: { type: "echo", scenario, radio: message } }, [],
+  return scene("game", "Echo Signal", "Intercepte la transmission et retrouve ses deux informations.", { englishCue: "Listen.", game: { type: "echo", scenario, radio: message } }, [],
     "Tu peux relancer la transmission et ralentir la voix. Cherche une information à chaque écoute.",
     "Les deux informations de la transmission sont confirmées.");
 }
 
 export const scenes: Record<number, AuthoredActivity[]> = {
   1: [
-    scene("choice", "Le robot ouvre un œil", "Maya monte à bord et te dit bonjour. Que lui réponds-tu ?", {
+    scene("choice", "Premier contact", "Maya monte à bord et te dit bonjour. Que lui réponds-tu ?", {
       lesson: lesson("Pour dire bonjour, tu peux dire Hello ou Hi. Pour dire au revoir, dis Goodbye.", "Hello! = Bonjour !    Goodbye! = Au revoir !"),
       document: doc("Billet d’équipage · 10:04", "Maya: Hello!"), options: ["Goodbye!", "Hello!"] },
     ["Hello!"], "Tu arrives. Cherche le mot qui ouvre une conversation.", "Hello! Le robot s’allume et attend de connaître son équipage."),
@@ -66,6 +66,7 @@ export const scenes: Record<number, AuthoredActivity[]> = {
   ],
   3: [
     scene("choice", "Deux trousses de voyage", "Maya écrit dans le carnet. Qu’a-t-elle ?", {
+      englishCue: "Read the note.",
       lesson: lesson("I have veut dire « j’ai ». I’ve got permet de dire la même chose.", "I have a bag. = J’ai un sac."),
       document: doc("Le carnet de Maya", "Hello! I’m Maya. I have a blue key."), options: ["Une clé bleue", "Une carte bleue", "Une clé rouge"] },
     ["Une clé bleue"], "Relis ce qui suit I have. Retrouve les mots appris dans la forêt.", "Maya a une clé bleue. Elle la garde pour le mécanisme du moulin."),
@@ -74,6 +75,7 @@ export const scenes: Record<number, AuthoredActivity[]> = {
       document: doc("Inventaire du moulin", "Maya has the key. Sam has the blue bag. The ocarina is in Sam’s bag."),
       options: ["Maya", "Sam"] }, ["Sam"], "Le carnet parle de Sam’s bag, le sac de Sam.", "L’ocarina est dans le sac de Sam. Il le remet au meunier."),
     scene("choice", "La caisse des outils", "D’après la radio, qui a la carte rouge ?", {
+      englishCue: "Listen and choose.",
       radio: radio("chimes", "Maya", "I'm Maya. I have a blue bag. Sam has a red map."),
       options: ["Maya", "Sam"] }, ["Sam"], "Écoute le prénom juste avant has a red map.", "Sam has a red map. Maya, elle, a le sac bleu."),
     scene("order", "Passe la clé", "Construis « Maya a une clé rouge ».", { options: ["a red key", "Maya", "has"] },
@@ -86,6 +88,7 @@ export const scenes: Record<number, AuthoredActivity[]> = {
   ],
   4: [
     scene("choice", "L’escale du sous-marin", "Repère la carte de Sam.", {
+      englishCue: "Read and choose.",
       lesson: lesson("In signifie « dans ». On veut dire « sur ».", "in the bag = dans le sac · on the bag = sur le sac"),
       document: doc("Carnet du sous-marin jaune", "Yellow submarine · Lost and found\nSam’s map is in the red bag."),
       options: ["Sur le sac rouge", "Dans le sac rouge", "Sur le ferry"] }, ["Dans le sac rouge"], "L’objet est à l’intérieur si tu lis in.", "The map is in the red bag. Sam remonte avec sa carte."),
@@ -98,11 +101,12 @@ export const scenes: Record<number, AuthoredActivity[]> = {
     scene("choice", "Un mot qui change tout", "Quel message dit que la clé est À L’INTÉRIEUR du sac ?", {
       options: ["The key is on the bag.", "The key is under the bag.", "The key is in the bag."] }, ["The key is in the bag."],
     "Relis les trois prépositions de l’escale.", "In place la clé dans le sac. Sam ferme la poche avant d’embarquer."),
-    scene("write", "Guide le ferry", "Envoie à Maya « La carte est sur le sac ».", {},
+    scene("write", "Guide le ferry", "Envoie à Maya « La carte est sur le sac ».", { englishCue: "Write your message." },
     ["The map is on the bag", "The map's on the bag"], "Pars de The map is. Il reste à indiquer « sur le sac ».", "The map is on the bag. Depuis le bateau, Maya repère la carte et rejoint la rive haute."),
   ],
   5: [
     scene("choice", "Les badges de nuit", "Qui possède la clé du dôme ?", {
+      englishCue: "Read the names.",
       document: doc("Registre de l’observatoire", "I’m Maya. I have the map.\nI’m Sam. I have the key."),
       options: ["Maya", "Sam", "Le robot"] }, ["Sam"], "Lis les deux lignes jusqu’au bout. La clé se dit key.", "Sam a la clé. Maya a la carte. Ils se partagent le travail."),
     scene("choice", "Les étoiles du plafond", "Le plan de l’observatoire est-il sur la table ou sous la table ?", {
@@ -111,6 +115,7 @@ export const scenes: Record<number, AuthoredActivity[]> = {
       options: ["Sur la table", "Sous la table"] }, ["Sous la table"],
     "Under indique ce qui est en dessous.", "La carte est sous la table. Les étoiles du plafond, elles, sont peintes."),
     scene("choice", "La dernière transmission", "À qui faut-il apporter la clé, et de quelle couleur est-elle ?", {
+      englishCue: "Listen and read.",
       document: doc("Étiquettes des destinataires", "Blue key → Maya\nRed key → Sam"),
       radio: radio("stars", "Sam", "Hi, it's Sam. I have two keys. Leave the red key in the bag. Take the blue key."),
       options: ["La clé rouge à Sam", "La clé bleue à Sam", "La clé bleue à Maya"] }, ["La clé bleue à Maya"],
@@ -118,9 +123,10 @@ export const scenes: Record<number, AuthoredActivity[]> = {
     rush(5, "Relie les indices des quatre mondes pour aligner le télescope.", [
       ["« Hi, I’m Sky. » Quel badge ?", "Sky", "Sam", "Maya"], ["« I have a red bag. » Choisis l’objet.", "Un sac rouge", "Une clé rouge", "Un sac bleu"],
       ["« The key is on the map. » Où est la clé ?", "Sur la carte", "Sous la carte", "Dans le sac"], ["Sam ___ the blue key.", "has", "have", "am"] ]),
-    scene("order", "La carte des étoiles", "Construis « La clé bleue est sous la carte ».", {
+    scene("order", "La carte des étoiles", "Construis « La clé bleue est sous la carte ».", { englishCue: "Put the words in order.",
       options: ["is", "The blue key", "the map", "under"] }, ["The blue key is under the map"], "Commence par le groupe qui désigne la clé bleue.", "The blue key is under the map. Le télescope vise maintenant la bonne étoile."),
     scene("write", "Ton message aux deux héros", "Ton badge dit Nova. Écris deux phrases en anglais. Présente-toi, puis dis que la clé est sur la carte.", {
+      englishCue: "Write two sentences.",
       document: doc("Dernier message", "Badge · NOVA     Objet · la clé     Position · sur la carte") },
     ["I'm Nova. The key is on the map", "I am Nova. The key is on the map", "My name is Nova. The key is on the map", "My name's Nova. The key is on the map", "I'm Nova. The key's on the map", "I am Nova. The key's on the map", "My name is Nova. The key's on the map", "My name's Nova. The key's on the map"],
     "La première phrase peut commencer par I’m ou My name is. La deuxième commence par The key.", "I’m Nova. The key is on the map. Ton équipe a reçu les deux informations. Le faisceau rallume la route des cinq mondes."),
@@ -132,16 +138,3 @@ for (const episode of Object.values(scenes)) {
     "Vérifie à nouveau tes réponses. Tu peux aussi revoir les indices du décor.",
     "Les trois réponses du carnet sont justes. Cette escale est validée."));
 }
-
-// The French instruction stays visible throughout these first five worlds.
-// Introduce a few reusable English instructions only after the first landing.
-scenes[2][3].englishCue = "Listen.";
-scenes[3][0].englishCue = "Read the note.";
-scenes[3][2].englishCue = "Listen and choose.";
-scenes[4][0].englishCue = "Read and choose.";
-scenes[4][2].englishCue = "Listen.";
-scenes[4][4].englishCue = "Write your message.";
-scenes[5][0].englishCue = "Read the names.";
-scenes[5][2].englishCue = "Listen and read.";
-scenes[5][4].englishCue = "Put the words in order.";
-scenes[5][5].englishCue = "Write two sentences.";

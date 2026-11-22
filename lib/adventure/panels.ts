@@ -7,7 +7,7 @@ export const panels: Record<number, Panel[]> = {
   1: [
     maya("Le robot vient de se réveiller. Viens avec moi, on va lui dire bonjour.", "Saluer le robot", 55, 57),
     sam("La radio grésille. Écoute bien le prénom de celui qui appelle.", "Décrocher la radio", 63, 32),
-    maya("Il te faut un badge pour monter à bord. Quel nom de héros va-t-on lui donner ?", "Préparer mon badge", 27, 57),
+    maya("Le registre demande un nom de code. Prépare ton badge pour monter à bord.", "Préparer mon badge", 27, 57),
     sam("La rampe va s’ouvrir. Tu reçois les messages de l’équipage ?", "Brancher la radio de bord", 81, 29),
     maya("Voilà le registre. Maintenant que tu sais faire, c’est toi qui présentes notre nouvelle recrue.", "Signer le registre", 87, 83),
   ],
