@@ -14,7 +14,7 @@ export type Draft = {
 export type AccountDraft = { version: number; data: Draft | null };
 export type PassageGame = { type: "rush"; questions: RushQuestion[] } | { type: "echo"; scenario: EchoScenario; radio: RadioMessage };
 export type Activity = {
-  mode: "choice" | "order" | "write" | "game" | "quiz";
+  mode: "choice" | "order" | "write" | "route" | "game" | "quiz";
   title: string; prompt: string;
   englishCue?: string;
   document?: { label: string; text: string };

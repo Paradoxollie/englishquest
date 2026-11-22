@@ -3458,6 +3458,16 @@ html .cahier .lesson-section-content [class*="line-through"] .opacity-50 {
   background: var(--pro-primary-soft);
   color: var(--pro-text);
 }
+.eq-course-parts { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .45rem; margin: 1.15rem 0; }
+.eq-course-parts a { display: block; border: 1.5px solid var(--ink, #202633); border-radius: .6rem; padding: .55rem .65rem; background: #fff9e9; color: #192c51; font-weight: 750; line-height: 1.2; text-decoration: none; }
+.eq-course-parts a:hover, .eq-course-parts a:focus-visible { background: #ffdf7a; }
+.eq-course-parts small, .eq-course-part small, .eq-lesson-practice h2 small { display: block; font-size: .75rem; font-weight: 700; margin-bottom: .18rem; color: #214b86; letter-spacing: .015em; }
+.eq-course-part { margin: 1.3rem 0 .5rem; font: 750 1.45rem/1.2 var(--font-lexend),sans-serif; color: #17253d; }
+.eq-course-part, #entrainement { scroll-margin-top: 6rem; }
+.cahier .eq-lesson-practice label { display: grid; gap: .3rem; margin: .65rem 0; font-size: .88rem; font-weight: 700; }
+.cahier .eq-lesson-practice textarea { display: block; width: 100%; max-width: 42rem; background: #fffefa; color: #172437; font: inherit; font-weight: normal; border: 1.5px solid #8b897f; border-radius: .5rem; padding: .6rem; resize: vertical; }
+.eq-lesson-practice [id="modele-entrainement"] { border-left: 3px solid #bd8b11; padding-left: .75rem; }
+@media (max-width: 460px) { .eq-course-parts { gap: .25rem; }.eq-course-parts a { font-size: .83rem; padding: .5rem .35rem; } }
 .eq-lesson-practice h2 {
   font-weight: 750;
   margin-block-end: 0.4rem;

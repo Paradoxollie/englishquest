@@ -65,6 +65,11 @@ export default function LegalNoticePage() {
           </p>
         </section>
 
+        <section id="voix-atlas">
+          <h2 className="eq-h2">Voix de l’Atlas</h2>
+          <p>La prononciation américaine de « three » a été enregistrée par Dvortygirl. La version du jeu est convertie en MP3 avec un court silence autour du mot. <a href="https://commons.wikimedia.org/wiki/File:En-us-three.ogg">Enregistrement original</a> · <a rel="license" href="https://creativecommons.org/licenses/by-sa/3.0/">Licence CC BY-SA 3.0 de l’original et de cette version</a>.</p>
+        </section>
+
         <section>
           <h2 className="eq-h2">Responsabilité</h2>
           <p>

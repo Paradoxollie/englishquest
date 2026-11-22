@@ -146,6 +146,101 @@ export const scenes: Record<number, AuthoredActivity[]> = {
     ["I'm Nova. The key is on the map", "I am Nova. The key is on the map", "My name is Nova. The key is on the map", "My name's Nova. The key is on the map", "I'm Nova. The key's on the map", "I am Nova. The key's on the map", "My name is Nova. The key's on the map", "My name's Nova. The key's on the map"],
     "La première phrase peut commencer par I’m ou My name is. La deuxième commence par The key.", "I’m Nova. The key is on the map. Ton équipe a reçu les deux informations. Le faisceau rallume la route des cinq mondes."),
   ],
+  6: [
+    scene("choice", "Deux noms au générique", "Qui chante dans le film ?", {
+      lesson: lesson("Un métier après a", "a singer · un chanteur, une chanteuse\na pilot · un pilote, une pilote"),
+      document: doc("Les badges des artistes", "MIRA · singer\nLEO · pilot"), options: ["Mira", "Leo"] },
+    ["Mira"], "Cherche singer sur les badges.", "Mira chante. Son nom se lit encore sur le bord de la pellicule."),
+    scene("choice", "Une voix derrière la caméra", "De qui parle Leo dans la deuxième phrase ?", {
+      lesson: lesson("I désigne la personne qui parle. She et he permettent de parler d’une autre personne.", "I am Sam. · Je suis Sam.\nShe is Maya. · Elle, c’est Maya.\nHe is Sam. · Lui, c’est Sam."),
+      document: doc("La note de Leo", "I am Leo. She is Mira."), options: ["Leo", "Mira", "Sam"] },
+    ["Mira"], "Lis le prénom juste après She is.", "Leo se présente, puis désigne Mira, de l’autre côté de la caméra."),
+    scene("order", "La fiche de Leo", "Présente Leo avec les étiquettes. Dis « Il est pilote ».", {
+      englishCue: "Put the words in order.", lesson: lesson("Pour présenter le métier d’une personne", "She is a singer. · Elle est chanteuse.", [
+        ["She", "She est le sujet. Pour Leo, dont la fiche emploie he, tu utiliseras he."],
+        ["is", "Avec she et he, le verbe être prend la forme is."], ["a singer.", "En anglais, on garde a devant le métier au singulier."] ]),
+      options: ["a pilot", "is", "He"] }, ["He is a pilot"], "Commence par He, puis place le verbe.", "He is a pilot. La fiche de Leo rejoint le premier photogramme."),
+    rush(6, "Les sous-titres se sont décrochés. Rends à chaque image sa réplique.", [
+      ["Mira se présente. « I ___ Mira. »", "am", "is", "has"], ["Leo est pilote. « He ___ a pilot. »", "is", "am", "have"],
+      ["Mira chante. Que dit Sam à son sujet ?", "She is a singer.", "I am a singer.", "He is a pilot."],
+      ["Qui parle dans « I am a pilot. » si Mira chante et Leo pilote ?", "Leo", "Mira", "Le projecteur"] ]),
+    scene("write", "La fiche de Mira", "Mira monte sur scène. Écris « Elle est chanteuse » pour légender son image.", { englishCue: "Write the caption." },
+    ["She is a singer", "She's a singer"], "Utilise She pour Mira, le verbe être, puis le métier avec a.", "She is a singer. Sous cette légende, Sam repère la première image du courrier."),
+  ],
+  7: [
+    scene("choice", "Au guichet", "Tu veux savoir si la personne devant toi est la pilote. Quelle question poses-tu ?", {
+      lesson: lesson("Pour transformer une affirmation en question, are passe devant you.", "You are the singer. · Tu es la chanteuse.\nAre you the singer? · Es-tu la chanteuse ?",
+        [["Are", "Le verbe être vient en premier dans cette question."], ["you", "You veut dire « tu » ou « vous »."], ["the singer?", "The désigne la personne précise que tu recherches."]]),
+      options: ["Are you the pilot?", "You are the singer.", "I am the pilot."] },
+    ["Are you the pilot?"], "Commence par le verbe are, puis la personne à qui tu parles.", "Are you the pilot? La guichetière appelle les deux personnes qui partent ce matin."),
+    scene("choice", "Deux réponses", "À qui dois-tu remettre le bon de vol ?", {
+      lesson: lesson("Répondre pour soi", "Yes, I am. · Oui.\nNo, I’m not. · Non."),
+      document: doc("Question aux deux coursiers", "Are you the pilot?\nJo: No, I’m not.\nKit: Yes, I am."), options: ["Jo", "Kit"] },
+    ["Kit"], "C’est la personne qui répond oui à la question.", "Kit pilote le planeur. Jo reste au guichet pour trier le courrier."),
+    scene("order", "Le badge retourné", "Tu cherches maintenant la personne qui chante. Assemble ta question.", {
+      englishCue: "Ask a question.", options: ["the singer?", "you", "Are"] },
+    ["Are you the singer"], "Reprends l’ordre de la question posée à la pilote, puis change le métier.", "Are you the singer? Mira retourne son badge et te salue."),
+    scene("choice", "Le message du haut", "D’après Jo, qui pilote le planeur ?", {
+      englishCue: "Read the reply.", document: doc("Un billet tombé du planeur", "Hi, Kit! I am Jo. I’m not the pilot. You are the pilot!"),
+      options: ["Kit", "Jo", "Mira"] }, ["Kit"], "Jo parle à Kit. Dans la dernière phrase, you désigne la personne qui reçoit le billet.", "Kit est bien la pilote. Jo lui a gardé la sacoche rouge."),
+    scene("write", "Une réponse de ta main", "Tu es Nova, qui transporte les sacs à pied. Kit te demande « Are you the pilot? ». Réponds brièvement en anglais avec le verbe être.", {},
+    ["No I'm not", "No I am not", "I'm not", "I am not", "No I'm not the pilot", "No I am not the pilot"], "Commence par No, puis parle de toi avec I.", "No, I’m not. Kit prend les commandes et te confie l’enveloppe à ouvrir."),
+  ],
+  8: [
+    scene("choice", "Les paniers du marché", "Le bon porte le mot four. Combien de places faut-il dans le panier ?", {
+      lesson: lesson("Compter jusqu’à cinq", "one · un\ntwo · deux\nthree · trois\nfour · quatre\nfive · cinq"),
+      options: ["2", "4", "5"] }, ["4"], "Repars de one et compte jusqu’à four.", "Quatre places. Le panier est assez grand pour la commande de l’île."),
+    scene("order", "La marchande lève sa craie", "Demande « Combien de lanternes ? » avec les étiquettes.", {
+      lesson: lesson("On demande une quantité avec How many suivi du nom au pluriel.", "one lantern · une lanterne\ntwo lanterns · deux lanternes\nHow many keys? · Combien de clés ?",
+        [["How many", "Ces deux mots ensemble veulent dire « combien de »."], ["keys?", "On met le nom au pluriel. Key devient keys, lantern devient lanterns."]]),
+      options: ["lanterns?", "How", "many"] }, ["How many lanterns"], "Commence par les deux mots de la question, puis nomme ce que tu comptes.", "How many lanterns? La marchande passe sa radio au canal de l’île."),
+    scene("choice", "La quantité à la radio", "Écoute la réponse de l’île. Combien de lanternes sont commandées ?", {
+      englishCue: "Listen for the number.", radio: radio("three-us", "Maya", "Three."), options: ["2", "3", "5"] },
+    ["3"], "Repère le nombre entre two et four. Tu peux réécouter ou lire le message avec « Sans son ».", "Trois lanternes. Sam déplie l’autre moitié du bon pour retrouver leur couleur."),
+    scene("choice", "La moitié du bon", "Lesquelles charges-tu dans le panier ?", {
+      englishCue: "Read the order.", document: doc("Le bon plié", "Three blue lanterns. Two red keys."),
+      options: ["Trois lanternes bleues", "Deux lanternes rouges", "Trois clés bleues"] },
+    ["Trois lanternes bleues"], "Lis le groupe qui se termine par lanterns.", "Le panier bleu est prêt. Les deux clés rouges appartiennent à une autre commande."),
+    scene("write", "Un reçu pour le port", "Pour le voyage retour, écris « deux lanternes rouges » en toutes lettres.", { englishCue: "Write the order." },
+    ["two red lanterns"], "Commence par le nombre en lettres, puis la couleur, puis le nom au pluriel.", "Two red lanterns. Ce reçu permettra de retrouver le rail dans l’autre sens."),
+  ],
+  9: [
+    scene("choice", "Le panneau de la gare", "Le panneau indique Turn right. Quel aiguillage faut-il préparer ?", {
+      lesson: lesson("Deux directions", "Turn left. · Tourne à gauche.\nTurn right. · Tourne à droite."), options: ["À gauche", "À droite"] },
+    ["À droite"], "Right correspond à la droite.", "Sam déverrouille l’aiguillage de droite. Le wagon peut quitter le quai."),
+    scene("choice", "Le signal fixe", "Que dois-tu faire au deuxième signal ?", {
+      lesson: lesson("Sur une voie toute droite", "Go straight. · Va tout droit.\nStop. · Arrête-toi.\nThen · ensuite"),
+      document: doc("Les deux signaux", "Go straight. Then stop."), options: ["Aller tout droit", "M’arrêter", "Tourner à gauche"] },
+    ["M’arrêter"], "Then annonce l’action suivante.", "Le wagon s’arrête devant le premier poste d’aiguillage."),
+    scene("route", "Aux commandes du rail", "Règle les deux aiguillages dans l’ordre du billet.", {
+      englishCue: "Follow the route.", document: doc("La feuille de route", "Turn left. Then turn right.") },
+    ["left right"], "Le premier virage est à gauche. Pour le deuxième, relis les mots après then.", "Gauche puis droite. La lanterne du tunnel s’allume au passage du wagon."),
+    scene("order", "Un rail tout droit", "Compose « Va tout droit, puis arrête-toi ».", {
+      englishCue: "Guide the driver.", options: ["stop.", "Go", "then", "straight,"] }, ["Go straight then stop"], "Commence par Go straight, puis relie les actions avec then.", "Go straight, then stop. Le wagon attend à l’entrée du dernier tunnel."),
+    scene("write", "Le virage de sortie", "Sam conduit. Écris-lui « Tourne à gauche » en anglais.", {}, ["Turn left", "Turn to the left", "Take a left", "Make a left turn"],
+    "Commence par le verbe de la consigne, puis indique la direction.", "Turn left. En sortant du tunnel, Sam aperçoit le premier tuyau du phare."),
+  ],
+  10: [
+    scene("choice", "Un message à plusieurs", "Qui se dit prêt à partir ?", {
+      lesson: lesson("Quand on parle au nom du groupe, on utilise we.", "I am ready. · Je suis prêt ou prête.\nWe are ready. · Nous sommes prêts.\nWe’re ready. · C’est la même phrase, en plus court."),
+      document: doc("Signatures au bas du billet", "We are ready!\nMira and Leo"), options: ["Mira seule", "Mira et Leo", "Leo seul"] },
+    ["Mira et Leo"], "We inclut les deux personnes qui signent.", "Mira et Leo attendent ensemble au phare. Ils gardent une place pour votre courrier."),
+    scene("choice", "La consigne de Mira", "De quoi le phare a-t-il encore besoin ?", {
+      englishCue: "Read the note.", lesson: lesson("Pour demander des objets", "We need a map. · Nous avons besoin d’une carte.\nWe have a map. · Nous avons une carte."),
+      document: doc("La lettre de l’île", "We have two red lanterns. We need three blue lanterns.\nMira and Leo"),
+      options: ["Deux lanternes rouges", "Trois lanternes bleues", "Trois clés bleues"] }, ["Trois lanternes bleues"], "Lis ce qui suit We need.", "Le panier du marché contient exactement les lanternes qui manquaient."),
+    scene("route", "La voie du retour", "Guide la barque aux deux embranchements du chenal.", {
+      englishCue: "Follow the route.", document: doc("Les marques sur la carte", "Turn right. Then turn left.") },
+    ["right left"], "Right d’abord, left après then. Tu peux annuler le dernier virage.", "La barque rejoint la jetée. Le port peut maintenant recevoir votre réponse."),
+    rush(10, "Les fenêtres du phare s’éclairent. Lis les quatre signaux avant d’envoyer ton message.", [
+      ["« Are you the pilot? » Tu l’es. Réponds.", "Yes, I am.", "Yes, he is.", "No, I’m not."],
+      ["« She is a singer. » Qui est sur scène d’après le film ?", "Mira", "Leo", "Sam"],
+      ["« We need two keys. » Que faut-il apporter ?", "Deux clés", "Trois clés", "Deux cartes"],
+      ["« Turn left. Then stop. » Que fais-tu à la fin ?", "Je m’arrête", "Je tourne à droite", "Je vais tout droit"] ]),
+    scene("write", "La réponse de l’équipe", "Écris deux phrases pour la poste. Dis « Nous sommes prêts. Nous avons deux cartes ».", {
+      englishCue: "Write for your team." }, ["We are ready. We have two maps", "We're ready. We have two maps", "We are ready. We've got two maps", "We're ready. We've got two maps", "We are ready. We have got two maps", "We're ready. We have got two maps"],
+    "Commence tes deux phrases par We. Dans la deuxième, réutilise have et mets map au pluriel après two.", "We’re ready. We have two maps. Vous gardez une carte sur l’île et confiez l’autre au port."),
+  ],
 };
 
 for (const episode of Object.values(scenes)) {

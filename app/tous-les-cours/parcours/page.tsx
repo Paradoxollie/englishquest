@@ -184,7 +184,7 @@ export default async function CoursePathPage() {
           <div className="grid justify-items-start gap-4">
             <Link href="/tous-les-cours" className="eq-text-link">← Tous les cours</Link>
             <h1 className="eq-cover-title eq-slam eq-slam-2">
-              {player ? `${player.username}, ta progression` : "50 missions, 5 chapitres"}
+              {player ? `${player.username}, ta carte des cours` : "50 missions, 5 chapitres"}
             </h1>
             <div className="eq-quest-progress eq-slam eq-slam-3" aria-label="Ta progression">
               <b>
@@ -202,7 +202,7 @@ export default async function CoursePathPage() {
             </div>
           </div>
           <div className="eq-quest-next eq-slam eq-slam-4">
-            <span className="eq-caption">{currentCourse ? "Prochaine mission" : "Parcours terminé"}</span>
+            <span className="eq-caption">{currentCourse ? "Mon prochain cours" : "Parcours terminé"}</span>
             <p>
               {currentCourse ? (
                 <>
@@ -211,7 +211,7 @@ export default async function CoursePathPage() {
                     {getCourseShortName(lessons[currentCourse.courseId]?.title ?? currentCourse.title)}
                   </b>
                   <br />
-                  Une leçon, puis un quiz à réussir à 80 %.
+                  Lis la leçon, entraîne-toi et réussis le quiz à 80 %.
                 </>
               ) : (
                 "Toutes les missions sont validées. Les jeux restent ouverts."

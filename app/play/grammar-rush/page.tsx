@@ -9,6 +9,7 @@ import { getGameBySlug } from "@/lib/games/config";
 import { buildRushPool, buildRushQueue } from "@/lib/games/grammar-rush-server";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 import { GrammarRushGame } from "./grammar-rush-game";
+import Link from "next/link";
 
 const SLUG = "grammar-rush";
 
@@ -74,6 +75,7 @@ export default async function GrammarRushPage({
       isLoggedIn={Boolean(user)}
       aside={<GameBoard slug={SLUG} userId={userId} buckets={[{ key: "all", label: "Tous" }]} />}
     >
+      {practiceCourseId && <Link className="eq-text-link" href={`/cours/${practiceCourseId}#entrainement`}>← Reprendre le cours {practiceCourseId}</Link>}
       <GrammarRushGame
         queue={queue}
         questionPool={questionPool}

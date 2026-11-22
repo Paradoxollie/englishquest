@@ -58,7 +58,7 @@ export function MissionBar({ entry, mission, chapterLabel, nextEntry, practiceBe
 
   const quiz = state?.quizTotal ? state : decodeCourseMissionTelemetry(entry.missionTelemetry);
   const quizLabel = quiz.quizTotal ? `Quiz ${quiz.quizScore} / ${quiz.quizTotal}` : "Quiz à 80 %";
-  const practiceHref = mission.primaryGameSlug ? getCoursePracticeHref(entry.courseId) : null;
+  const practiceHref = mission.primaryGameSlug && (!isAuthenticated || entry.status !== "locked") ? getCoursePracticeHref(entry.courseId) : null;
 
   let note: string;
   if (placed) {

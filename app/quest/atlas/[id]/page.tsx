@@ -24,7 +24,7 @@ export default async function StoryPage({ params }: Props) {
     <span className="atlas-label">Escale {episode.id} · {episode.place}</span>
     <h1>{episode.title}</h1><p>Ton équipe est encore à l’escale {current.id}. Termine « {current.title} » pour poursuivre le voyage dans l’ordre.</p>
     <Link href={`/quest/atlas/${current.id}`} className="atlas-cta">Rejoindre mon équipe →</Link>
-    <Link href="/quest#atlas" className="atlas-link">Voir les cinq mondes</Link>
+    <Link href="/quest#atlas" className="atlas-link">Revenir à la carte des mondes</Link>
   </div>;
   const draft = await getAccountDraft(episode.id, userId, stages[episode.id - 1]);
   return <PassageReader key={episode.id} episode={episode} steps={scenes[episode.id].map(learnerActivity)} cloudDraft={draft}

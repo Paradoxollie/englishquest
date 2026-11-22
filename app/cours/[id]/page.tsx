@@ -1,4 +1,7 @@
 import { getGuestRoadmap } from "@/lib/courses/guest-progress-server";
+import { createHash } from "node:crypto";
+import { LessonPractice } from "@/components/courses/lesson-practice";
+import { getCoursePracticeHref } from "@/lib/courses/practice";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -121,6 +124,8 @@ export default async function CoursePage({ params }: CoursePageProps) {
   const chapterLabel = `Chapitre ${chapter.id} · ${chapter.name}`;
   const prompt = lessonPrompts[courseId];
   const mission = roadmapEntry ? missionPlan ?? getCourseMissionPlan(roadmapEntry) : null;
+  const practiceHref = mission?.primaryGameSlug && (!user || roadmapEntry?.status !== "locked") ? getCoursePracticeHref(courseId) : null;
+  const reader = user ? createHash("sha256").update(user.id).digest("hex").slice(0, 20) : "guest";
 
   return (
     <CourseMissionProvider
@@ -137,18 +142,6 @@ export default async function CoursePage({ params }: CoursePageProps) {
         objective={lesson.objective}
         levelLabel={palier?.level}
         typeLabel={roadmapEntry?.typeLabel}
-        openingPractice={prompt && (
-          <aside className="eq-lesson-practice" aria-label="À toi de jouer">
-            <h2>À toi de jouer</h2>
-            <p>{prompt.situation}</p>
-            <details>
-              <summary>Voir une réponse possible</summary>
-              <p lang="en">{prompt.answer}</p>
-              <p>{prompt.explanation}</p>
-              {courseId === 48 ? <Link href="/cours/13">Revoir used to et be used to</Link> : null}
-            </details>
-          </aside>
-        )}
         topBar={
           roadmapEntry && mission ? (
             <MissionBar
@@ -166,11 +159,17 @@ export default async function CoursePage({ params }: CoursePageProps) {
           ) : null
         }
       >
-        {lesson.sections.map((section, index) => (
-          <LessonSection key={sectionAnchors[index]?.id ?? index} id={sectionAnchors[index]?.id} sectionIndex={index} title={section.title}>
-            {section.content}
-          </LessonSection>
-        ))}
+        {lesson.sections.map((section, index) => {
+          const quiz = /^quiz\b/i.test(section.title);
+          return <div key={sectionAnchors[index].id}>
+            {index === 0 && <h2 className="eq-course-part" id="lecon"><small>Partie 1</small> Le cours</h2>}
+            {quiz && <>
+              {prompt && <LessonPractice key={`${reader}-${courseId}`} course={courseId} prompt={prompt} gameHref={practiceHref} reader={reader} />}
+              <h2 className="eq-course-part" id="validation"><small>Partie 3</small> Le quiz</h2>
+            </>}
+            <LessonSection id={sectionAnchors[index].id} sectionIndex={index} title={section.title}>{section.content}</LessonSection>
+          </div>;
+        })}
         <nav className="eq-lesson-nav" aria-label="Cours voisins">
           {courseId > 1 ? (
             <Link href={`/cours/${courseId - 1}`} className="eq-btn eq-btn-ghost">

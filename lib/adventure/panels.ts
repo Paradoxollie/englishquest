@@ -72,6 +72,41 @@ export const panels: Record<number, Panel[]> = {
     panel("Le faisceau attend le dernier message de l’équipage.",
       sam("Your turn, Nova.", "À toi, Nova."), maya("Présente-toi, puis dis-moi où est la clé. On pourra rentrer.")),
   ],
+  6: [
+    panel("Le faisceau de l’observatoire se pose sur l’écran d’un cinéma désert. Le robot du port déroule sa bobine.", maya("Une île a voulu nous envoyer un film. Regarde, il manque la fin."), sam("Commençons par les deux noms au générique.")),
+    panel("Devant une lune en carton, une silhouette chante. Quelqu’un a écrit au crayon dans la marge.", sam("I am Leo.", "Je suis Leo."), maya("C’est la première ligne. Lis la suivante avec moi.")),
+    panel("Dans le projecteur, une image tremble. Le pilote porte des lunettes relevées sur le front.", maya("Voilà Leo. Si on recolle sa fiche au bon endroit, le film pourra continuer.")),
+    panel("La manivelle repart. Quatre sous-titres défilent encore dans le désordre.", sam("Je fais tourner la bobine. Tu t’occupes des mots ?")),
+    panel("Sous les projecteurs, Mira salue. Une enveloppe dépasse de sa poche.", maya("On tient une piste. Laisse une légende sous son image pour le robot.")),
+  ],
+  7: [
+    panel("À la poste des nuages, un chat dort sur le seul colis qui ne bouge pas. Deux planeurs attendent le vent.", sam("On cherche la pilote du prochain vol. Seulement, tout le monde a les mêmes lunettes !"), maya("On peut lui poser la question.")),
+    panel("Deux coursiers répondent au guichet. Le vent couvre leurs voix, alors ils écrivent.", maya("Read their answers.", "Lis leurs réponses.")),
+    panel("Une autre voyageuse arrive. Son badge s’est retourné dans la tempête.", sam("Cette fois, on cherche la chanteuse du film. À toi de lui demander.")),
+    panel("Un billet s’échappe de la sacoche rouge. Le chat l’immobilise d’un coup de patte.", maya("On dirait un mot de Jo pour Kit. Qui prend les commandes ?")),
+    panel("Kit te tend son casque de pilote. Elle t’a pris pour son remplaçant.", sam("Are you the pilot?", "Es-tu le pilote ?"), maya("Réponds pour toi. On va lui éviter une sacrée surprise.")),
+  ],
+  8: [
+    panel("La nuit tombe. Deux cerises en mosaïque brillent au pied de l’étal des lanternes.", maya("L’île a besoin de lumière. Sur ce morceau du bon, je ne lis que la taille du panier.")),
+    panel("La marchande tire son crayon de derrière son oreille et attend ta commande.", sam("Avant de lui répondre, il faut demander la quantité à l’île.")),
+    panel("Un grésillement, puis un seul mot traverse le marché.", maya("La radio ne capte que le nombre. Garde-le en tête.")),
+    panel("Sam retourne sa moitié du bon. Deux commandes sont écrites l’une sous l’autre.", sam("Les clés restent ici. C’est le panier des lanternes qu’on emporte.")),
+    panel("La marchande glisse une souche vierge dans ton carnet.", maya("Pour le retour, il nous en faudra deux autres, rouges cette fois. Tu écris le reçu ?")),
+  ],
+  9: [
+    panel("Une bibliothèque tourne sur ses gonds. Derrière, un wagon grince sous un nuage de lucioles.", sam("Un train secret derrière des livres ? Voilà une gare où je pourrais rater mon départ."), maya("Monte ! Le premier signal vient de s’allumer.")),
+    panel("Deux lampes blanches éclairent un billet coincé sous le frein.", maya("Lis jusqu’au bout. Il y a deux actions.")),
+    panel("Deux leviers attendent devant le tunnel. Le rail se sépare une première fois, puis une seconde.", sam("Je garde la lanterne allumée. C’est toi qui choisis la voie.")),
+    panel("Le wagon longe une rangée de livres gravés à même la pierre. Le prochain feu est rouge.", maya("Transmets la consigne au wagon qui nous suit.")),
+    panel("L’air sent le sel. À gauche, les premières lucioles sortent à ciel ouvert.", sam("Which way?", "De quel côté ?"), maya("C’est la sortie. Envoie-lui la direction.")),
+  ],
+  10: [
+    panel("Sur le phare, cinq tuyaux de cuivre attendent le vent. Une enveloppe t’est adressée.", sam("Deux signatures sur le même billet. Lis-le pour toute l’équipe.")),
+    panel("Le gardien a accroché une copie du courrier à la fenêtre. Deux lanternes rouges y brillent déjà.", maya("Mira a distingué ce qu’ils ont déjà et ce qui manque.")),
+    panel("Du haut du phare, tu vois la barque s’engager dans un chenal à deux embranchements.", sam("Le rail nous a conduits ici. Maintenant, aidons la barque à rentrer.")),
+    panel("Les vitres du phare reprennent les couleurs des mondes traversés.", maya("Le port vérifie la liaison avec quatre petits signaux.")),
+    panel("Le film tourne enfin jusqu’à sa dernière image. Il y manque juste la réponse de votre équipe.", sam("Two maps!", "Deux cartes !"), maya("Une pour chaque rive. Écris à la poste en notre nom.")),
+  ],
 };
 
 export const logbookPanels: Record<number, Panel> = {
@@ -80,6 +115,11 @@ export const logbookPanels: Record<number, Panel> = {
   3: panel("Les ailes tournent enfin au-dessus des nuages.", maya("Le vent ouvre une route."), sam("Finissons le carnet avant de lever l’ancre.")),
   4: panel("Une gardienne fait signe depuis le phare.", sam("Elle nous attend avec une lentille."), maya("Vérifions notre carnet avant d’accoster.")),
   5: panel("Tous les miroirs sont en place.", maya("Le port guette notre lumière."), sam("Une dernière transmission et la route se rallume.")),
+  6: panel("La dernière image tremble encore sur l’écran.", sam("Ce petit timbre en forme d’aile… Je l’ai déjà vu quelque part.")),
+  7: panel("Le chat quitte enfin le colis. Kit peut ouvrir la sacoche.", maya("Quand le carnet sera prêt, on pourra lire le courrier de l’île.")),
+  8: panel("Sous le panier, une aiguille de fer se met à vibrer.", sam("Je crois qu’il y a une voie juste sous nos pieds.")),
+  9: panel("Le rail s’arrête au bord de l’eau.", maya("Le phare est là. Je veux garder notre itinéraire dans le carnet.")),
+  10: panel("Le dernier tuyau prend la lumière. Au loin, le robot du port a déroulé son écran.", sam("On leur envoie le film entier ?"), maya("Dès que notre carnet est prêt.")),
 };
 
 export function storyPanel(id: number, index: number): Panel {

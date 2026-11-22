@@ -11,6 +11,9 @@ const subject: Record<number, Record<Hero, string>> = {
   1: { Maya: "34% 59%", Sam: "76% 39%" }, 2: { Maya: "64% 61%", Sam: "36% 34%" },
   3: { Maya: "38% 42%", Sam: "76% 54%" }, 4: { Maya: "28% 50%", Sam: "73% 47%" },
   5: { Maya: "32% 61%", Sam: "72% 39%" },
+  6: { Maya: "25% 47%", Sam: "76% 48%" }, 7: { Maya: "26% 45%", Sam: "74% 44%" },
+  8: { Maya: "36% 48%", Sam: "64% 42%" }, 9: { Maya: "21% 43%", Sam: "37% 43%" },
+  10: { Maya: "28% 49%", Sam: "75% 48%" },
 };
 
 function Caption({ text }: { text: string }) {
@@ -65,6 +68,11 @@ const reminders: Record<number, NonNullable<Activity["lesson"]>> = {
   3: { rule: "Le verbe change avec la personne.", example: "I have a bag. · J’ai un sac.\nSam has a map. · Sam a une carte." },
   4: { rule: "Indiquer une position", example: "in · dans\non · sur\nunder · sous" },
   5: { rule: "Croiser les indices", example: "I have a key. · J’ai une clé.\nThe map is on the bag. · La carte est sur le sac." },
+  6: { rule: "Parler d’une autre personne", example: "I am Sam. · Je suis Sam.\nShe is a pilot. · Elle est pilote.\nHe is a singer. · Il est chanteur." },
+  7: { rule: "Demander et répondre", example: "Are you the singer? · Es-tu la chanteuse ?\nYes, I am. · Oui.\nNo, I’m not. · Non." },
+  8: { rule: "Demander et compter", example: "How many keys? · Combien de clés ?\none, two, three, four, five · un, deux, trois, quatre, cinq\ntwo blue keys · deux clés bleues" },
+  9: { rule: "Suivre un itinéraire", example: "Turn left. · Tourne à gauche.\nTurn right. · Tourne à droite.\nGo straight. · Va tout droit.\nThen stop. · Ensuite, arrête-toi." },
+  10: { rule: "Écrire pour son équipe", example: "We are ready. · Nous sommes prêts.\nWe have a map. · Nous avons une carte.\nWe need a key. · Nous avons besoin d’une clé." },
 };
 
 const greetings = [

@@ -69,8 +69,15 @@ async function test() {
   await db.exec("create role anon; create role authenticated; create role service_role bypassrls; create schema auth; create table auth.users(id uuid primary key);");
   await db.exec(fs.readFileSync(path.join(root, "supabase/migrations/20261122085111_adventure_checkpoints.sql"), "utf8"));
   for (const id of accounts) await db.query("insert into auth.users values ($1)", [id]);
+  // An account that finished world five before this release must keep its checkpoint and draft version.
+  await db.query("insert into public.adventure_checkpoints(user_id,mission,stage,draft_version) values ($1,5,7,2)", [accounts[0]]);
+  await db.exec(fs.readFileSync(path.join(root, "supabase/migrations/20261122155026_extend_atlas_missions.sql"), "utf8"));
+  assert.deepEqual((await db.query("select mission,stage,draft_version from public.adventure_checkpoints where user_id=$1", [accounts[0]])).rows, [{mission:5,stage:7,draft_version:2}]);
+  await db.query("delete from public.adventure_checkpoints where user_id=$1", [accounts[0]]);
   const { scenes } = load("lib/adventure/scenes.ts");
   const { passages } = load("lib/adventure/catalog.ts");
+  const empty = passages.map(() => 0);
+  const { partForStage } = load("lib/adventure/parts.ts");
   const { gradeActivity } = load("lib/adventure/grading.ts");
   const { quizBank } = load("lib/adventure/quiz-bank.ts");
   const { quizForm, gradeQuiz } = load("lib/adventure/quiz.ts");
@@ -102,6 +109,9 @@ async function test() {
   assert.equal((await checkPassage(1, 2, solution(scenes[1][2]))).ok, false);
   for (const p of passages) {
     assert.equal(panels[p.id].length + 1, scenes[p.id].length);
+    assert.equal(partForStage(0, scenes[p.id].length), 0);
+    assert.equal(partForStage(2, scenes[p.id].length), 1);
+    assert.equal(partForStage(scenes[p.id].length-2, scenes[p.id].length), 2);
     assert.ok(fs.existsSync(path.join(root, "public/art/passage", p.art + ".webp")));
     for (const [index, step] of scenes[p.id].entries()) {
       const panel = storyPanel(p.id, index);
@@ -126,6 +136,10 @@ async function test() {
       } else assert.ok(gradeActivity(step, answer));
       if (step.mode === "order") assert.equal(gradeActivity(step, step.options.join(" ")), false);
       if (step.mode === "choice") for (const option of step.options) assert.equal(gradeActivity(step, option), step.accept.includes(option));
+      if (step.mode === "route") {
+        assert.equal(gradeActivity(step, "left"), false);
+        assert.equal(gradeActivity(step, answer.split(" ").reverse().join(" ")), false);
+      }
       if (step.game) {
         assert.equal(gradeActivity(step, answer.map(() => answer[0])), false);
         assert.equal(gradeActivity(step, answer.slice(1)), false);
@@ -149,10 +163,10 @@ async function test() {
   const guestReceipts = new Map(jar);
   assert.equal(await importGuestAtlas(), false);
   const [receipt] = items();
-  assert.deepEqual(readReceipts([{...receipt, value: receipt.value.replace(/.$/, "!")}]), [0,0,0,0,0]);
-  assert.deepEqual(readReceipts(items(), undefined, Date.now() + 400 * 86400000), [0,0,0,0,0]);
+  assert.deepEqual(readReceipts([{...receipt, value: receipt.value.replace(/.$/, "!")}]), empty);
+  assert.deepEqual(readReceipts(items(), undefined, Date.now() + 400 * 86400000), empty);
   user = accounts[0];
-  assert.deepEqual((await getAdventureProgress()).stages, [0,0,0,0,0]);
+  assert.deepEqual((await getAdventureProgress()).stages, empty);
   const { saveAdventureDraft } = load("app/quest/atlas/draft-actions.ts");
   const draft = { index:0, opened:true, sheet:true, choice:"Hello!", tiles:[], gameAnswers:[], quiz:{ answers:[] }, shuffle:3, replaying:false };
   assert.equal(await saveAdventureDraft(1, 0, draft), 1);
@@ -178,7 +192,7 @@ async function test() {
   const legacy = legacyGuestReceiptName(1, target[0]);
   jar.set(legacy, signReceipt(legacy, "guest"));
   const unclaimed = await getAdventureProgress();
-  assert.deepEqual(unclaimed.stages, [0,0,0,0,0]);
+  assert.deepEqual(unclaimed.stages, empty);
   assert.deepEqual(unclaimed.guestStages, target);
   offline = true;
   assert.equal(await importGuestAtlas(), false);
@@ -186,9 +200,9 @@ async function test() {
   offline = false;
   assert.equal(await importGuestAtlas(), true);
   assert.deepEqual((await getAdventureProgress()).stages, target);
-  assert.deepEqual(readReceipts(items()), [0,0,0,0,0]);
+  assert.deepEqual(readReceipts(items()), empty);
   user = accounts[0];
-  assert.deepEqual((await getAdventureProgress()).stages, [2,0,0,0,0]);
+  assert.deepEqual((await getAdventureProgress()).stages, passages.map(p => p.id === 1 ? 2 : 0));
   for (const role of ["anon","authenticated"]) {
     await db.exec("set role " + role);
     await assert.rejects(db.query("select * from public.adventure_checkpoints"), /permission denied/);
@@ -196,6 +210,6 @@ async function test() {
     await assert.rejects(db.query("select public.save_adventure_draft($1,1,0,0,'{}')", [user]), /permission denied/);
     await db.exec("reset role");
   }
-  console.log("PASS Five Atlas episodes, grading, game evidence, sequential unlocks, signed guest progress, private account sync and replay");
+  console.log("PASS", passages.length, "Atlas episodes, grading, routes, sequential unlocks, guest progress, private account sync and replay");
 }
 test().finally(() => db.close()).catch(error => { console.error(error); process.exitCode = 1; });

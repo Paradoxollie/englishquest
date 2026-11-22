@@ -33,7 +33,7 @@ export async function openAtlasQuiz(id: number, ticket?: string) {
 }
 
 export async function checkPassage(id: number, index: number, answer: unknown) {
-  const rows = Number.isInteger(id) && id >= 1 && id <= 5 ? scenes[id] : null;
+  const rows = Number.isInteger(id) ? scenes[id] : null;
   if (!rows || !Number.isInteger(index) || index < 0 || index >= rows.length) throw new Error("Étape inconnue.");
   const progress = await getAdventureProgress();
   if ((id > 1 && progress.stages[id - 2] < scenes[id - 1].length) || index > progress.stages[id - 1]) {

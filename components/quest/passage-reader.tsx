@@ -13,11 +13,13 @@ import { storyPanel } from "@/lib/adventure/panels";
 import { landscapeSizes, passagePicture } from "./passage-art";
 import { PassageQuiz, type QuizDraft } from "./passage-quiz";
 import { useAdventureDraft } from "./use-adventure-draft";
+import { partForStage, partTitles } from "@/lib/adventure/parts";
+import { RouteBoard } from "./route-board";
 
 const GrammarRush = dynamic(() => import("@/app/play/grammar-rush/grammar-rush-game").then(m => m.GrammarRushGame), { loading: () => <p role="status">La radio s’allume…</p> });
 const EchoSignal = dynamic(() => import("@/app/play/echo-signal/echo-signal-game").then(m => m.EchoSignalGame), { loading: () => <p role="status">Connexion à la radio…</p> });
 const confirmations: Record<Activity["mode"], string> = {
-  choice: "Indice confirmé", order: "Phrase assemblée", write: "Message transmis", game: "Manche réussie", quiz: "Carnet validé",
+  choice: "Indice confirmé", order: "Phrase assemblée", write: "Message transmis", route: "Itinéraire confirmé", game: "Manche réussie", quiz: "Carnet validé",
 };
 
 function pauseWhenRemoved(player: HTMLAudioElement | null) {
@@ -52,6 +54,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
   const heading = useRef<HTMLHeadingElement>(null);
   const shouldFocus = useRef(false);
   const done = index >= steps.length;
+  const currentPart = partForStage(index, steps.length);
   const step = steps[index];
   const picture = passagePicture(episode, done ? "ending" : opened ? index : -1);
   const next = passages.find(p => p.id === episode.id + 1);
@@ -141,7 +144,8 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
     finally { pending.current = false; setBusy(false); }
   }
   const currentAnswer = step?.mode === "order" ? tiles.map(i => step.options![i]).join(" ") : choice;
-  const answerReady = step?.mode === "order" ? tiles.length === step.options!.length : choice.trim().length > 0;
+  const answerReady = step?.mode === "order" ? tiles.length === step.options!.length
+    : step?.mode === "route" ? /^(left|right) (left|right)$/.test(choice) : choice.trim().length > 0;
   const round = { busy, initialAnswers: gameAnswers, progress: setGameAnswers, submit: (answers: GameAnswer[]) => { void submit(answers); } };
   const soundSwitch = <button type="button" className="comic-sound-mode" aria-pressed={readRadio} onClick={() => {
     setReadRadio(!readRadio);
@@ -154,9 +158,16 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
   }
 
   return <article className="atlas-reader" data-story={episode.id} data-stage={index} data-phase={feedback?.ok ? "success" : phase} data-beat={beat}>
-    <nav className="atlas-reader-nav" aria-label="Navigation dans l’aventure">
-      <Link href="/quest#atlas" onNavigate={leave}>← Carte des mondes</Link><span>{savedStage} / {steps.length} épreuves validées · Escale {episode.id}</span>
+    <div className="atlas-reader-progress"><nav className="atlas-reader-nav" aria-label="Navigation dans l’aventure">
+      <Link href="/quest#atlas" onNavigate={leave}>← Carte des mondes</Link><span>Escale {episode.id} · {savedStage}/{steps.length} validées</span>
     </nav>
+    {opened && !done && <ol className="atlas-part-meter" aria-label="Les trois parties de l’escale">
+      {partTitles.map((title, i) => {
+        return <li key={title} aria-current={i === currentPart ? "step" : undefined} data-past={i < currentPart || undefined}>
+          <span>Partie {i + 1}</span> <strong>{title}</strong>
+        </li>;
+      })}
+    </ol>}</div>
     {!opened || done ? <section className={`atlas-splash ${done ? "atlas-finale" : ""}`}>
       <div className="atlas-splash-art"><Image src={picture.src} alt={picture.alt} placeholder="blur" fill priority sizes={landscapeSizes} /></div>
       <div className="atlas-splash-copy">
@@ -216,6 +227,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
             {step.mode === "write" && <label className="atlas-write">Ton message en anglais
               <textarea maxLength={250} rows={2} lang="en" spellCheck={false} autoCapitalize="sentences" value={choice} onChange={e => { setChoice(e.target.value); setFeedback(null); }} />
             </label>}
+            {step.mode === "route" && <RouteBoard value={choice} change={v => { setChoice(v); setFeedback(null); }} />}
             {step.mode === "order" && <>
               <div className="atlas-built" aria-label="Ta phrase" aria-live="polite">{tiles.length ? tiles.map((id, pos) =>
                 <button key={id} type="button" onClick={() => { setTiles(tiles.filter((_, i) => i !== pos)); setFeedback(null); }}

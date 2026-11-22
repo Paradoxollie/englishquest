@@ -107,7 +107,6 @@ interface LessonLayoutProps {
   typeLabel?: string;
   aside?: ReactNode;
   topBar?: ReactNode;
-  openingPractice?: ReactNode;
   children: ReactNode;
 }
 
@@ -119,7 +118,6 @@ export function LessonLayout({
   typeLabel,
   aside,
   topBar,
-  openingPractice,
   children,
 }: LessonLayoutProps) {
   const match = title.match(/^(.*?)\s*\(([^()]*)\)\s*$/);
@@ -140,8 +138,12 @@ export function LessonLayout({
             {main}
             {sub ? <span className="eq-lesson-subtitle">{sub}</span> : null}
           </h1>
-          {openingPractice}
           {objective ? <p className="eq-lesson-objective">{objective}</p> : null}
+          <nav className="eq-course-parts" aria-label="Les trois parties du cours">
+            <a href="#lecon"><small>Partie 1</small>Le cours</a>
+            <a href="#entrainement"><small>Partie 2</small>S’entraîner</a>
+            <a href="#validation"><small>Partie 3</small>Le quiz</a>
+          </nav>
           {aside ? <div className="eq-lesson-aside">{aside}</div> : null}
           <SpeakSelection />
           <div className="eq-lesson-body">{children}</div>

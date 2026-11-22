@@ -26,11 +26,11 @@ export function signReceipt(name: string, owner: string, now = Date.now()) {
 export function readReceipts(items: { name: string; value: string }[], userId?: string, now = Date.now()) {
   const stages = passages.map(() => 0);
   for (const { name, value } of items) {
-    const parts = /^eq-atlas(1-[ag]|2-g)([1-5])-([1-9])$/.exec(name);
+    const parts = /^eq-atlas(1-[ag]|2-g)([1-9]\d{0,2})-([1-9])$/.exec(name);
     if (!parts || (parts[1] === "1-a") !== Boolean(userId)) continue;
     const id = Number(parts[2]), stage = Number(parts[3]);
     const signed = /^([a-z0-9]{1,8})\.([\w-]{43})$/.exec(value);
-    if (stage > scenes[id].length || !signed || parseInt(signed[1], 36) <= now / 1000) continue;
+    if (!scenes[id] || stage > scenes[id].length || !signed || parseInt(signed[1], 36) <= now / 1000) continue;
     if (timingSafeEqual(Buffer.from(signature(name, userId ?? "guest", signed[1])), Buffer.from(signed[2]))) {
       stages[id - 1] = Math.max(stages[id - 1], stage);
     }

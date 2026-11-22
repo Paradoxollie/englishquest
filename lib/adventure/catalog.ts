@@ -2,7 +2,7 @@ export type Passage = {
   id: number;
   title: string;
   place: string;
-  art: "quai" | "canopy" | "wind" | "tide" | "observatory";
+  art: "quai" | "canopy" | "wind" | "tide" | "observatory" | "cinema" | "post" | "market" | "rail" | "island";
   alt: string;
   minutes: string;
   skill: string;
@@ -42,4 +42,39 @@ export const passages: Passage[] = [
     opening: "Au sommet, un télescope peut rallumer le chemin du retour. Pour l’activer, tu devras reconnaître la bonne personne, retrouver une clé et envoyer toi-même le dernier message.",
     ending: "Un trait de lumière relie l’observatoire, le phare, les moulins, la forêt et le port. Maya oriente la navette. Vous avez tracé ensemble le premier itinéraire de l’Atlas.",
     keepsake: "La carte des cinq mondes" },
+  { id: 6, title: "Le cinéma des silhouettes", place: "Cinéma de la Lune", art: "cinema", minutes: "7 à 11 min",
+    alt: "Dans un cinéma à ciel ouvert, Maya et Sam découvrent une lune de papier éclairée par un vieux projecteur.",
+    skill: "Présenter quelqu’un et dire son métier.",
+    opening: "Au port, le robot vous attend avec une bobine mouillée. Sur la dernière image, on devine un phare qui ne figure sur aucune carte. Qui a envoyé le film ?",
+    ending: "Sur la dernière image, Mira tend une enveloppe à Leo. Un timbre en forme d’aile vous donne une adresse de départ. Direction la poste des nuages !",
+    keepsake: "Le photogramme de la Lune" },
+  { id: 7, title: "Le courrier des nuages", place: "Poste aérienne", art: "post", minutes: "7 à 12 min",
+    alt: "Maya et Sam cherchent le bon coursier dans une poste suspendue au-dessus des nuages.",
+    skill: "Poser une question à quelqu’un et comprendre sa réponse.",
+    opening: "Des planeurs chargés de courrier partent dans toutes les directions. Leo a laissé l’enveloppe au guichet. Pour la récupérer, trouve la personne qui pilotera le prochain vol.",
+    ending: "La pilote ouvre la sacoche. L’île vous envoie une demande de lumière. La piste qui mène au phare s’est éteinte. L’enveloppe contient un bon à échanger au marché.",
+    keepsake: "Le timbre ailé" },
+  { id: 8, title: "Le marché des lanternes", place: "Halles du crépuscule", art: "market", minutes: "8 à 12 min",
+    alt: "Au marché de nuit, Maya et Sam passent entre des étals de lanternes suspendues.",
+    skill: "Comprendre une petite quantité et écrire une commande.",
+    opening: "Sous les passerelles, chaque étal éclaire un bout de rue. Le bon de l’île est déchiré en deux. Sam en a la couleur. Tu vas devoir retrouver la quantité.",
+    ending: "Les lanternes quittent leur panier. Une à une, elles éclairent un ancien rail. Au bout, une bibliothèque pivote dans la paroi de la montagne.",
+    keepsake: "La lanterne de poche" },
+  { id: 9, title: "Le rail des lucioles", place: "Ligne souterraine", art: "rail", minutes: "8 à 13 min",
+    alt: "Maya et Sam voyagent dans un petit wagon sur une voie éclairée par des lucioles.",
+    skill: "Suivre deux directions dans l’ordre et guider une autre personne.",
+    opening: "Derrière la bibliothèque attend un wagon postal. Le rail se divise dans le noir. Maya conduit, Sam surveille les lanternes. À toi de lire la feuille de route.",
+    ending: "Le wagon ressort à l’air libre. En bas, cinq tuyaux de cuivre dépassent de la brume. Le quai du phare est enfin en vue.",
+    keepsake: "Le poinçon du rail" },
+  { id: 10, title: "Le phare aux cinq notes", place: "Île du retour", art: "island", minutes: "9 à 15 min",
+    alt: "Maya et Sam découvrent le phare aux tuyaux de cuivre sur une île qui émerge de la brume.",
+    skill: "Lire un message puis répondre au nom de ton équipe.",
+    opening: "Le courrier est arrivé jusqu’au phare, mais personne au port ne sait comment revenir ici. Mira vous a laissé la dernière page de son film. À vous d’envoyer la réponse.",
+    ending: "Les cinq tuyaux chantent. Une barque emporte votre réponse et, cette fois, laisse sur la carte un sillage dans les deux sens. Au cinéma du port, le robot projette enfin le film entier.",
+    keepsake: "Le timbre du voyage retour" },
+];
+
+export const atlasChapters = [
+  { title: "Le premier itinéraire", first: 1, last: 5 },
+  { title: "Le courrier de l’île invisible", first: 6, last: 10 },
 ];
