@@ -444,10 +444,14 @@ html[data-theme="dark"] .eq-text-link {
   content: none !important;
 }
 
-@media (max-width: 359px) {
-  .eq-header .eq-header-row { gap: 6px; padding-inline: 12px; }
-  .eq-header .eq-brand { gap: 6px; }
+@media (max-width: 479px) {
+  .eq-header .eq-header-row { column-gap: 4px; padding-inline: clamp(8px, 3vw, 14px); }
+  .eq-header .eq-brand { gap: 5px; }
+  .eq-header .eq-brand-mark svg { width: 26px; height: 26px; }
   .eq-header .eq-brand-text { font-size: 1rem !important; }
+  .eq-header-actions { gap: 4px; }
+  .eq-header .eq-burger { gap: 4px; padding-inline: 7px; }
+  .eq-header .eq-login-shortcut, .eq-header .eq-staff-shortcut { font-size: .8125rem; padding-inline: 6px; }
 }
 
 .eq-nav-link {
@@ -477,6 +481,14 @@ html[data-theme="dark"] .eq-text-link {
   border-radius: 0 !important;
   box-shadow: inset 0 -2.5px 0 var(--pro-primary) !important;
   font-weight: 700 !important;
+}
+
+@media (max-width: 899px) {
+  .eq-header .eq-nav-link {
+    flex: 1 1 auto;
+    padding: 0 5px !important;
+    font-size: clamp(.875rem, 3.6vw, .95rem) !important;
+  }
 }
 
 .eq-theme-toggle,

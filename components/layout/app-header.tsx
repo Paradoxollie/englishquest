@@ -15,11 +15,11 @@ const baseNavLinks = [
   { label: "Cours", href: "/tous-les-cours" },
   { label: "Jeux", href: "/play" },
   { label: "Collection", href: "/collection" },
-  { label: "Classements", href: "/leaderboard" },
 ];
 
 function isActivePath(pathname: string, href: string) {
-  if (href === "/tous-les-cours" && pathname.startsWith("/cours/")) return true;
+  if (href === "/tous-les-cours" && (pathname.startsWith("/cours/") || pathname.startsWith("/examen/") || pathname === "/test-de-niveau")) return true;
+  if (href === "/play" && pathname === "/essayer") return true;
   if (href === "/") {
     return pathname === "/" || pathname === "/home";
   }
@@ -36,6 +36,80 @@ function ProfileRing({ state }: { state: HeaderState }) {
   );
 }
 
+function HeaderMenu({ state, signedIn, loading, onLogout }: {
+  state: HeaderState; signedIn: boolean; loading: boolean; onLogout: () => Promise<void>;
+}) {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const region = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
+  const notices = state.contactReplies;
+  const noticeLabel = notices === 1 ? "une réponse à consulter" : `${notices} réponses à consulter`;
+  const links = [
+    ...(state.canAccessDashboard ? [{ href: "/dashboard", label: "Tableau de bord" }] : []),
+    ...(state.canAccessTeachers ? [{ href: "/teachers", label: "Espace prof" }] : []),
+    ...(signedIn ? [
+      { href: "/messages", label: notices ? `Messages (${notices})` : "Messages" },
+      { href: "/profile", label: "Mon profil" },
+    ] : []),
+    { href: "/leaderboard", label: "Classements" },
+    ...(!signedIn && !loading ? [
+      { href: "/auth/login", label: "Se connecter" },
+      { href: "/auth/signup", label: "Créer un compte" },
+    ] : []),
+  ];
+
+  useEffect(() => {
+    if (!open) return;
+    function closeOutside(event: Event) {
+      if (event.target instanceof Node && !region.current?.contains(event.target)) setOpen(false);
+    }
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setOpen(false);
+      button.current?.focus();
+    }
+    document.addEventListener("pointerdown", closeOutside);
+    document.addEventListener("focusin", closeOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("focusin", closeOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open]);
+
+  return (
+    <div className="eq-menu" ref={region}>
+      <button className="eq-burger" type="button" ref={button} aria-expanded={open} aria-controls="eq-site-menu"
+        aria-label={open ? "Fermer le menu" : notices ? `Ouvrir le menu, ${noticeLabel}` : "Ouvrir le menu"}
+        onClick={() => setOpen(!open)}>
+        <span className="eq-menu-icon" aria-hidden="true">
+          <span className="eq-burger-bar" /><span className="eq-burger-bar" /><span className="eq-burger-bar" />
+        </span>
+        <span>Menu</span>
+        {notices > 0 && <span aria-hidden="true" className="eq-menu-notice">{notices}</span>}
+      </button>
+      <div id="eq-site-menu" className="eq-mobile-menu" hidden={!open}>
+        <nav className="eq-mobile-nav" aria-label="Menu du site">
+          {links.map(link => <Link key={link.href} href={link.href} className="eq-mobile-link"
+            aria-current={isActivePath(pathname, link.href) ? "page" : undefined} onNavigate={() => setOpen(false)}>
+            {link.label}
+          </Link>)}
+        </nav>
+        <div className="eq-mobile-actions">
+          <ThemeToggle testId="theme-toggle-drawer" />
+          {signedIn && <button type="button" className="eq-btn eq-btn-ghost eq-btn-sm" onClick={() => {
+            setOpen(false);
+            void onLogout();
+          }}>Se déconnecter</button>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function AppHeader() {
   const { user, loading } = useAuth();
   const userId = user?.id ?? null;
@@ -43,14 +117,14 @@ export function AppHeader() {
   const router = useRouter();
   const [accountHeader, setAccountHeader] = useState<{ userId: string; state: HeaderState } | null>(null);
   const headerState = accountHeader && accountHeader.userId === userId ? accountHeader.state : guestHeaderState;
-  const [menuOpen, setMenuOpen] = useState(false);
-  const menuButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!userId) return;
     const account = userId;
     let controller: AbortController | null = null;
     let lastChecked = 0;
+    let retryTimer: number | undefined;
+    let retried = false;
 
     async function loadHeaderState() {
       lastChecked = Date.now();
@@ -69,14 +143,21 @@ export function AppHeader() {
 
         if (!request.signal.aborted) {
           setAccountHeader({ userId: account, state: data });
+          if (!data.role && !retried) retryOnce();
         }
       } catch {
         if (!request.signal.aborted) {
           setAccountHeader(current => current?.userId === account ? current : {
             userId: account, state: { ...guestHeaderState, isAuthenticated: true },
           });
+          if (!retried) retryOnce();
         }
       }
+    }
+
+    function retryOnce() {
+      retried = true;
+      retryTimer = window.setTimeout(loadHeaderState, 2500);
     }
 
     void loadHeaderState();
@@ -87,6 +168,7 @@ export function AppHeader() {
     window.addEventListener("eq:reward", handleRefresh);
     window.addEventListener("itemEquipped", handleRefresh);
     window.addEventListener("eq:contact-notices", handleRefresh);
+    window.addEventListener("online", handleRefresh);
     const onReturn = () => {
       if (document.visibilityState === "visible" && Date.now() - lastChecked > 60_000) handleRefresh();
     };
@@ -94,46 +176,32 @@ export function AppHeader() {
 
     return () => {
       controller?.abort();
+      window.clearTimeout(retryTimer);
       window.removeEventListener("eq:reward", handleRefresh);
       window.removeEventListener("itemEquipped", handleRefresh);
       window.removeEventListener("eq:contact-notices", handleRefresh);
+      window.removeEventListener("online", handleRefresh);
       document.removeEventListener("visibilitychange", onReturn);
     };
   }, [userId]);
 
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
-
   const handleLogout = async () => {
-    setMenuOpen(false);
     await logoutAction();
     setAccountHeader(null);
     router.refresh();
   };
 
-  const navLinks = [
-    ...baseNavLinks,
-    // L'espace profs (classes, suivi, devoirs) : visible seulement des comptes prof et admin.
-    // Les visiteurs trouvent la présentation sur /profs, en pied de page.
-    ...(headerState.canAccessTeachers ? [{ label: "Profs", href: "/teachers" }] : []),
-    ...(headerState.canAccessDashboard ? [{ label: "Dashboard", href: "/dashboard" }] : []),
-  ];
-
   const resolvedLoading = loading || Boolean(userId && accountHeader?.userId !== userId);
   const notices = headerState.contactReplies;
   const messagesLabel = notices ? `Messages (${notices})` : "Messages";
+  const staff = headerState.canAccessTeachers || headerState.canAccessDashboard;
+  const staffHref = headerState.canAccessDashboard ? "/dashboard" : "/teachers";
+  const homeHref = user ? "/home" : "/";
 
   return (
-    <header className="eq-header" data-staff={headerState.canAccessTeachers || headerState.canAccessDashboard || undefined}
-      onKeyDown={(event) => {
-        if (menuOpen && event.key === "Escape") {
-          setMenuOpen(false);
-          menuButton.current?.focus();
-        }
-      }}>
+    <header className="eq-header">
       <div className="eq-container eq-header-row">
-        <Link href={user ? "/home" : "/"} className="eq-brand" aria-label="English Quest, accueil">
+        <Link href={homeHref} className="eq-brand" aria-label="English Quest, accueil">
           <span className="eq-brand-mark" aria-hidden="true">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
               <rect x="2" y="2" width="28" height="28" rx="8" fill="#1E4ED8" stroke="#141A29" strokeWidth="2" />
@@ -164,10 +232,10 @@ export function AppHeader() {
         </Link>
 
         <nav className="eq-nav" aria-label="Navigation principale">
-          {navLinks.map((link) => (
+          {baseNavLinks.map((link) => (
             <Link
               key={link.href}
-              href={link.href}
+              href={link.href === "/" ? homeHref : link.href}
               className="eq-nav-link"
               aria-current={isActivePath(pathname, link.href) ? "page" : undefined}
             >
@@ -177,98 +245,23 @@ export function AppHeader() {
         </nav>
 
         <div className="eq-header-actions">
-          <ThemeToggle compact />
-          {resolvedLoading ? (
-            <span className="eq-header-skeleton" aria-hidden="true" />
-          ) : user ? (
-            <>
-              <Link href="/messages" className="eq-btn eq-btn-ghost eq-btn-sm" title="Mes messages">
-                {messagesLabel}
-              </Link>
-              <Link href="/profile" className="eq-profile-link" title="Mon profil">
-                <ProfileRing state={headerState} />
-                <span className="eq-profile-name">{headerState.username ?? "Profil"}</span>
-              </Link>
-              <button type="button" onClick={handleLogout} className="eq-btn eq-btn-ghost eq-btn-sm">
-                Se déconnecter
-              </button>
-            </>
-          ) : (
-            <>
-              <Link href="/auth/login" className="eq-btn eq-btn-ghost eq-btn-sm">
-                Se connecter
-              </Link>
-              <Link href="/auth/signup" className="eq-btn eq-btn-gold eq-btn-sm">
-                Créer un compte
-              </Link>
-            </>
-          )}
-        </div>
-
-        <div className="eq-mobile-controls">
-          {user && !resolvedLoading ? (
-            <Link href="/profile" className="eq-profile-shortcut" aria-label="Mon profil">
-              <ProfileRing state={headerState} />
+          {resolvedLoading ? <span className="eq-header-skeleton" aria-hidden="true" /> : user ? <>
+            {staff && <Link className="eq-staff-shortcut" href={staffHref}
+              aria-label={headerState.canAccessDashboard ? "Tableau de bord admin" : "Espace prof"}
+              aria-current={isActivePath(pathname, staffHref) ? "page" : undefined}>
+              <span className="eq-staff-short">{headerState.canAccessDashboard ? "Admin" : "Profs"}</span>
+              <span className="eq-staff-full">{headerState.canAccessDashboard ? "Tableau de bord" : "Espace prof"}</span>
+            </Link>}
+            <Link href="/messages" className="eq-desktop-action eq-btn eq-btn-ghost eq-btn-sm">{messagesLabel}</Link>
+            <Link href="/profile" className={`eq-profile-link${staff ? " eq-desktop-action" : ""}`} aria-label="Mon profil">
+              <ProfileRing state={headerState} /><span className="eq-profile-name">{headerState.username ?? "Profil"}</span>
             </Link>
-          ) : null}
-          <ThemeToggle compact />
-          <button
-            ref={menuButton}
-            type="button"
-            className="eq-burger"
-            aria-expanded={menuOpen}
-            aria-controls="eq-mobile-menu"
-            aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            <span className="eq-burger-bar" />
-            <span className="eq-burger-bar" />
-            <span className="eq-burger-bar" />
-            {notices > 0 && <span className="absolute -right-1 -top-1 rounded-full bg-[var(--pro-primary)] px-1.5 text-xs font-bold text-white"
-              aria-hidden="true" title="Réponse à consulter">{notices}</span>}
-          </button>
+          </> : <>
+            <Link href="/auth/login" className="eq-login-shortcut">Connexion</Link>
+            <Link href="/auth/signup" className="eq-desktop-action eq-btn eq-btn-gold eq-btn-sm">Créer un compte</Link>
+          </>}
+          <HeaderMenu key={pathname} state={headerState} signedIn={!!user} loading={resolvedLoading} onLogout={handleLogout} />
         </div>
-      </div>
-
-      <div id="eq-mobile-menu" className="eq-mobile-menu" hidden={!menuOpen}>
-        <nav className="eq-container eq-mobile-nav" aria-label="Navigation mobile">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="eq-mobile-link"
-              onNavigate={() => setMenuOpen(false)}
-              aria-current={isActivePath(pathname, link.href) ? "page" : undefined}
-            >
-              {link.label}
-            </Link>
-          ))}
-          <div className="eq-mobile-actions">
-            <ThemeToggle testId="theme-toggle-drawer" />
-            {user ? (
-              <>
-                <Link href="/profile" className="eq-btn eq-btn-ghost">
-                  Mon profil
-                </Link>
-                <Link href="/messages" className="eq-btn eq-btn-ghost">
-                  {messagesLabel}
-                </Link>
-                <button type="button" onClick={handleLogout} className="eq-btn eq-btn-ghost">
-                  Se déconnecter
-                </button>
-              </>
-            ) : (
-              <>
-                <Link href="/auth/login" className="eq-btn eq-btn-ghost">
-                  Se connecter
-                </Link>
-                <Link href="/auth/signup" className="eq-btn eq-btn-gold">
-                  Créer un compte
-                </Link>
-              </>
-            )}
-          </div>
-        </nav>
       </div>
     </header>
   );

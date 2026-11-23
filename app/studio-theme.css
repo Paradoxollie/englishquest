@@ -375,13 +375,6 @@ body {
   transform: rotate(-12deg) scale(1.06);
 }
 
-.eq-mobile-controls {
-  display: var(--header-mobile-display, inline-flex);
-  align-items: center;
-  gap: 8px;
-  margin-left: auto;
-}
-
 .eq-burger {
   margin-left: 0;
   border: 1.5px solid var(--ink-rule);
@@ -400,7 +393,6 @@ body {
 
 .eq-mobile-link {
   color: var(--fg);
-  border-bottom: 1px solid var(--line);
 }
 
 .eq-footer {

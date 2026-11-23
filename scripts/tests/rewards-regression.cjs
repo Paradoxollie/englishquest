@@ -460,6 +460,26 @@ const chapterDefinitions = [1, 2, 3, 4, 5].map((id) => ({ id, courseIds: Array.f
     assert.equal(await ownPortrait({ item_key: "custom_own", image_url: "/private/own.webp" }), "/private/own.webp");
   });
 
+  await test("The header keeps the signed-in role when profile decorations or notices fail", async () => {
+    const profiles = ["admin", "teacher", "student"].map(role => ({ id: role, role, username: role }));
+    const unavailable = async () => { throw Error("temporarily unavailable"); };
+    const db = { profiles, fail(query) {
+      if (query.table === "contact_messages") throw Error("notice count unavailable");
+    } };
+    const { getHeaderState } = loadSource("lib/navigation/header-state.ts", {
+      "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(db) },
+      "@/lib/courses/progress": { getUserCourseRoadmap: unavailable },
+      "@/lib/shop/equipped-portrait": { getEquippedPortraitUrl: unavailable },
+      "@/lib/games/config": { getGameBySlug: () => null },
+    });
+    for (const role of ["admin", "teacher", "student", "missing", null]) {
+      const header = await getHeaderState(role);
+      assert.equal(header.canAccessDashboard, role === "admin");
+      assert.equal(header.canAccessTeachers, role === "teacher" || role === "admin");
+      assert.equal(header.contactReplies, 0);
+    }
+  });
+
   await test("Collection goals reflect earned levels, available gold and already owned pieces", () => {
     const { chooseRewardGoal, describeRewardGoal, chooseLevelUnlock, wardrobeItemHref } = loadSource("lib/shop/reward-preview.ts");
     const atom = (id, level, price, extra = {}) => ({
