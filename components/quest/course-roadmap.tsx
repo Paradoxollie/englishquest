@@ -235,7 +235,7 @@ export async function CourseRoadmap() {
         <Link href="/quest/atlas" prefetch={false} aria-labelledby="atlas-invitation-title" aria-describedby="atlas-invitation-intro">
           <Image src={quay} alt="" width={112} height={72} sizes="112px" />
           <span>
-            <strong id="atlas-invitation-title">Essayer l’aventure BD</strong>
+            <strong id="atlas-invitation-title">Suivre l’aventure de Maya et Sam</strong>
             <span id="atlas-invitation-intro">Au quai 7, le robot attend ton nom de code. À toi de te présenter en anglais.</span>
           </span>
           <span aria-hidden="true">→</span>

@@ -350,9 +350,111 @@ export const scenes: Record<number, AuthoredActivity[]> = {
       [`${ownBag}. I can open the door`, `I can open the door. ${ownBag}`]),
     "Parle pour Iris. Utilise my pour son sac, puis I can et le verbe « ouvrir » pour la porte.", "Noé lit ton mot. Dans le cadre, le bateau d’Iris quitte doucement le quai."),
   ],
+  16: [
+    scene("spot", "La voix du carnet", "Écoute le nom du fruit, puis touche-le dans le carnet.", {
+      lesson: lesson("Deux fruits du verger", "an apple · une pomme\na pear · une poire\napples / pears · des pommes / des poires"),
+      radio: { speaker: "Maya", file: "apple", collection: "spell-strike", line: "Apple." },
+      options: ["The apple", "The pear"], spots: { picture: "fruit", points: [[29, 51], [73, 52]], labels: ["Fruit de gauche", "Fruit de droite"] } },
+    ["The apple"], "Réécoute le mot ou affiche-le avec « Sans son ». Apple désigne la pomme et pear, la poire.", "La pomme rejoint la page des fruits. À côté, Pip a laissé une trace dans la chair d’une poire."),
+    scene("choice", "Deux voix au verger", "Sam et Maya goûtent les fruits. Quel fruit Sam dit-il aimer ?", {
+      lesson: lesson("Dire ce que l’on aime", "I like pears. · J’aime les poires.\nI like apples. · J’aime les pommes.", [["I", "Je. C’est la personne qui parle."], ["like", "Aimer. Avec I, le verbe garde sa forme de base."], ["pears", "Les poires en général. Le nom comptable est ici au pluriel."]]),
+      document: doc("Le carnet de dégustation", "Maya: I like pears.\nSam: I like apples."), options: ["Apples", "Pears"] },
+    ["Apples"], "Cherche la ligne de Sam. Le nom du fruit vient après I like.", "Sam glisse une pomme dans sa poche. Maya laisse sa poire près de la petite empreinte."),
+    scene("order", "D’une personne à l’autre", "Dis à Maya « Tu aimes les poires ». Assemble les mots.", {
+      englishCue: "Talk to Maya.", lesson: lesson("Quand tu t’adresses à quelqu’un, I devient you.", "I like apples. · J’aime les pommes.\nYou like apples. · Tu aimes les pommes."),
+      options: ["pears.", "You", "like"] }, ["You like pears"], "Maya est devant toi. Commence par You et garde le verbe like.", "Maya acquiesce. À son tour, elle te tend le carnet de terrain."),
+    scene("delivery", "La première fiche de Pip", "Le carnet indique quel fruit chacun a choisi. Prépare la part de Pip.", {
+      englishCue: "Feed Pip.", document: doc("Les deux marques", "Sam → apples\nPip → pears"), options: ["Apples", "Pears"], delivery: { picture: "fruit", destinations: ["Sam", "Pip"] } },
+    ["Pears | Pip"], "Suis la ligne de Pip jusqu’au fruit, puis donne-lui ce fruit.", "Pip croque sa poire et laisse une petite encoche en forme de lune."),
+    scene("write", "Le tour de Sam", "Sam a choisi les pommes. Dis-lui « Tu aimes les pommes » avec you et like.", { englishCue: "Talk to Sam." },
+    ["You like apples"], "Tu parles à Sam. Écris le sujet, le verbe, puis le nom du fruit au pluriel.", "Sam reconnaît son choix et te laisse une ligne vierge sur la fiche."),
+    scene("write", "Ta place dans le carnet", "À toi de choisir. Écris une phrase commençant par I like pour dire si tu aimes les pommes, les poires ou les deux.", { englishCue: "Write about yourself." },
+    ["I like apples", "I like pears", "I like apples and pears", "I like pears and apples", "I like both apples and pears", "I like both pears and apples"],
+    "Parle pour toi avec I. Pour les deux fruits ensemble, and veut dire « et ».", "Ton propre choix figure à côté de ceux de Maya et de Sam. Pip reconnaît maintenant ton carnet."),
+  ],
+  17: [
+    scene("spot", "Le palier des semis", "Lis le billet de June. Touche ce que réclame le jeune plant.", {
+      lesson: lesson("Exprimer un besoin", "water · de l’eau\nlight · de la lumière\nI need water. · J’ai besoin d’eau.\nIt needs water. · Ce plant a besoin d’eau.", [["It", "Ici, it reprend le jeune plant."], ["needs", "Le verbe need prend un s avec it."], ["water", "Water désigne l’eau."]]),
+      document: doc("Le billet sous le pot", "It needs light."), options: ["Water", "Light"], spots: { picture: "supplies", points: [[26, 55], [76, 50]], labels: ["La carafe", "La lampe"] } },
+    ["Light"], "Relis le mot placé après needs. Quel objet peut éclairer les feuilles ?", "La lampe s’allume au premier palier. L’escalier pivote d’un quart de tour."),
+    scene("choice", "Le message de June", "Sam parle de June, qui a besoin d’eau. Choisis la phrase qu’il peut dire.", {
+      lesson: lesson("Le même s avec he, she et it", "He needs light. · Il a besoin de lumière.\nShe needs water. · Elle a besoin d’eau.\nThey need water. · Ils ou elles ont besoin d’eau."),
+      options: ["She needs water.", "He needs water.", "She likes water."] },
+    ["She needs water."], "Tu parles de June. Le besoin se dit avec needs.", "June reçoit de l’eau pour arroser les plants du deuxième palier."),
+    scene("order", "La carafe de Sam", "Sam te montre sa carafe vide. Assemble « Il a besoin d’eau ».", {
+      englishCue: "Help Sam.", options: ["water.", "needs", "He"] }, ["He needs water"], "Sam est désigné par he. Au présent, need prend alors un s.", "June remplit la carafe de Sam juste avant que les marches repartent."),
+    scene("write", "Une étiquette pour June", "June part arroser. Commence par She et écris en anglais qu’elle a besoin d’eau.", { englishCue: "Write her label." },
+    ["She needs water", "She needs some water"], "Le sujet est She. Pense au s à la fin du verbe.", "June attache l’étiquette à sa carafe pour qu’elle revienne au bon étage."),
+    scene("write", "Le palier dans l’ombre", "La carafe de Sam est pleine, mais il fait trop sombre pour lire sa carte. De l’eau ou de la lumière ? Écris ce dont il a besoin en commençant par He.", { englishCue: "Help him read." },
+    ["He needs light", "He needs some light", "He needs more light", "He needs a light", "He needs a lamp", "He needs the lamp", "He needs a flashlight", "He needs a torch"], "Parle de Sam avec He. Utilise le verbe need et pense à la lumière qui lui manque.", "June allume la lampe. Sam lit enfin sa carte. Quelque chose remue sous les feuilles du palier suivant."),
+    scene("write", "La fiche de la petite bête", "Le gardien emploie it pour Pip. Sur sa fiche, écris avec It et like que l’animal aime les poires.", {
+      lesson: lesson("Like suit la même règle que need.", "I like apples. · J’aime les pommes.\nIt likes apples. · Cet animal aime les pommes."), englishCue: "Finish Pip’s card." },
+    ["It likes pears"], "Après It, ajoute le s à like. Le nom des fruits est au pluriel.", "June fixe ta fiche à la caisse de voyage de Pip. La prochaine équipe saura quoi lui servir."),
+  ],
+  18: [
+    scene("spot", "Une commande à l’oreille", "La table vient d’appeler. Écoute le mot et touche le plat commandé.", {
+      lesson: lesson("Pour parler du pain ou de la soupe en général, on dit bread ou soup.", "bread · du pain\nsoup · de la soupe"), radio: { speaker: "Maya", file: "bread", collection: "spell-strike", line: "Bread." },
+      options: ["Soup", "Bread"], spots: { picture: "meal", points: [[29, 53], [75, 53]], labels: ["Le bol", "La miche"] } },
+    ["Bread"], "Écoute une nouvelle fois. Bread désigne ce que l’on coupe en tranches.", "Le loir pousse la miche vers la première table. Sa louche frappe une deuxième fois."),
+    scene("choice", "Qui parle à table ?", "Maya signe au nom de sa table. Quel aliment son groupe aime-t-il ?", {
+      lesson: lesson("We nous inclut. They désigne les autres.", "We like bread. · Nous aimons le pain.\nThey like bread. · Ils ou elles aiment le pain."),
+      document: doc("Les deux tables", "Maya: We like soup.\nSam: They like bread."), options: ["Soup", "Bread", "Pears"] },
+    ["Soup"], "Maya parle pour son groupe. Lis la ligne qui commence par We.", "Le bol part à la table de Maya. Sam regarde les deux pilotes installés en face."),
+    scene("order", "Ce que refusent les pilotes", "Les deux pilotes n’aiment pas les poires. Assemble la phrase qui parle d’eux.", {
+      lesson: lesson("Avec I, you, we ou they, don’t précède le verbe.", "We don’t like bread. · Nous n’aimons pas le pain.\nThey do not like soup. · Ils n’aiment pas la soupe.", [["They", "Ici, ce sont les deux pilotes."], ["don’t", "Forme courte de do not."], ["like", "Après don’t, like garde sa forme de base."]]),
+      options: ["pears.", "like", "They", "don’t"] }, ["They don't like pears"], "D’abord les personnes, puis don’t, puis le verbe like.", "Les poires restent pour Pip. Les deux pilotes gardent leur plateau de pain."),
+    rush(18, "Le loir bat quatre coups pour trier les étiquettes du service.", [
+      ["Maya parle pour sa table. « ___ like soup. »", "We", "She", "It"],
+      ["Deux pilotes ont besoin d’eau. Complète « They ___ water. »", "need", "needs", "is"],
+      ["Sur la fiche de Pip, complète « It ___ pears. »", "likes", "like", "am"],
+      ["« We don’t like soup. » Quel plat la table refuse-t-elle ?", "La soupe", "Le pain", "Les poires"] ]),
+    scene("write", "Le billet de ta table", "Toi et Maya aimez la soupe. Écris au loir en commençant par We.", { englishCue: "Write for your table." },
+    ["We like soup"], "We parle au nom du groupe. Ici le verbe like garde sa forme de base.", "Le loir lit votre billet et remplit le second bol."),
+    scene("write", "La relève du service", "Les deux pilotes n’aiment pas la soupe. Laisse un mot qui parle d’eux en utilisant They et le verbe like.", { englishCue: "Leave a note." },
+    ["They don't like soup", "They do not like soup"], "La négation se place entre They et like. Don’t et do not conviennent tous les deux.", "La relève garde la soupe au chaud pour les autres. Cinq notes résonnent alors dans la baie."),
+  ],
+  19: [
+    scene("choice", "La première réponse", "Sam interroge les pilotes sur leurs goûts. De quel aliment parle-t-il ?", {
+      englishCue: "Read the signal.", lesson: lesson("Poser une question sur les goûts", "You like bread. · Tu aimes le pain.\nDo you like bread? · Est-ce que tu aimes le pain ?", [["Do", "Ici, do ouvre la question sur les goûts."], ["you", "Tu ou vous. Tu peux parler à une personne ou à plusieurs."], ["like", "Après Do you, le verbe garde sa forme de base."]]),
+      document: doc("Signal reçu", "Do you like pears?"), options: ["Pears", "Apples", "Bread"] },
+    ["Pears"], "Le dernier mot de la question désigne l’aliment.", "La radio est accordée. À chaque question, cinq petites lampes attendent une réponse."),
+    scene("choice", "La voix derrière la brume", "Lina répond pour elle-même. Que sais-tu maintenant de ses goûts ?", {
+      englishCue: "Read Lina’s reply.", lesson: lesson("Une réponse courte reprend do.", "Yes, I do. · Oui, j’aime ça.\nNo, I don’t. · Non, je n’aime pas ça."),
+      document: doc("L’échange radio", "Sam: Do you like pears?\nLina: No, I don’t."), options: ["Elle aime les poires.", "Elle n’aime pas les poires."] },
+    ["Elle n’aime pas les poires."], "Retrouve le nom du fruit dans la question, puis lis la réponse de Lina.", "Tu notes le goût de Lina dans le carnet. De l’autre côté de l’eau, elle se penche à nouveau vers le micro."),
+    scene("order", "À toi le micro", "Demande à la pilote si elle aime la soupe.", {
+      englishCue: "Ask about soup.", options: ["you", "soup?", "Do", "like"] }, ["Do you like soup"], "Place Do devant la personne à qui tu parles, puis le verbe.", "La pilote entend ta question malgré la brume. Une lampe bleue clignote deux fois."),
+    scene("write", "Ta réponse à Lina", "Lina te demande « Do you like soup? ». Réponds pour toi avec la réponse courte en anglais, par oui ou par non.", {
+      englishCue: "Reply to Lina." }, ["Yes I do", "No I don't", "No I do not"], "Donne ton propre avis. Commence par Yes ou No et réponds avec I et do ou don’t.", "Lina répète ta réponse dans son journal radio. Une autre voix vient de prendre le micro."),
+    scene("write", "La question de l’autre rive", "Le deuxième pilote est au micro. Demande-lui en anglais s’il aime les pommes, en utilisant like.", { englishCue: "Ask the pilot." },
+    ["Do you like apples"], "Adresse-toi au pilote avec you. Quel mot ouvre la question au présent simple ?", "Le pilote répond « Yes, I do! ». La dernière lampe s’allume et le quai donne le départ."),
+  ],
+  20: [
+    scene("choice", "Un dernier message de la serre", "À qui la jardinière demande-t-elle de prendre la carte ?", {
+      englishCue: "Read June’s note.", document: doc("Sur le guidon", "Sam, your map is in my bag. You can take it. — June"), options: ["Sam", "June", "Pip"] },
+    ["Sam"], "Lis le prénom avant la virgule. June s’adresse directement à cette personne.", "Sam retrouve sa carte. Une ligne de câble traverse la baie de part en part."),
+    scene("evidence", "Le bon panier pour Pip", "Épingle les deux indices qui permettent de choisir le panier de Pip. Quel panier lui convient ?", {
+      englishCue: "Find two clues.", clues: [doc("Fiche du verger", "Pip likes pears."), doc("Bordereau des paniers", "Blue bag: pears. Red bag: apples."), doc("Le billet de June", "I need light.")],
+      options: ["The blue bag", "The red bag"] }, ["0+1 | The blue bag"], "Il te faut une pièce sur le goût de Pip et une autre sur le contenu des sacs.", "Les poires sont dans le sac bleu. Pip saute dans la nacelle en les sentant."),
+    scene("delivery", "Deux places dans la nacelle", "Les pilotes ont soif. Lis leur demande et charge ce qu’il faut pour eux.", {
+      englishCue: "Pack for the pilots.", document: doc("Le manifeste", "Pilots: We need water.\nPip: pears."), options: ["Water", "Pears"], delivery: { picture: "cargo", destinations: ["The pilots", "Pip"] } },
+    ["Water | The pilots"], "Les pilotes disent we en parlant d’eux-mêmes. Que demandent-ils après need ?", "La gourde est calée contre le sac. Au-dessus de la baie, le câble se tend."),
+    scene("write", "Une voix au-dessus de l’eau", "Avant de préparer un sandwich pour Lina, demande-lui en anglais si elle aime le pain. Utilise le verbe like.", { englishCue: "Ask Lina." },
+    ["Do you like bread"], "Tu parles à Lina. Pose une question avec Do, puis le sujet, puis like.", "« Yes, I do! » Lina fait tinter sa sonnette. Vous la retrouverez de l’autre côté."),
+    scene("choice", "Le fanal de la rive", "Lis le message d’accueil. Quel aliment attend l’équipe au débarcadère ?", {
+      englishCue: "Read the welcome note.", document: doc("Le fanal", "We have soup. We don’t have bread."), options: ["Soup", "Bread", "Water"] },
+    ["Soup"], "Dans la première phrase, have indique ce qu’il y a. Don’t have indique ce qui manque.", "La marmite fume sur le ponton. Le vent emporte déjà l’odeur jusqu’à vous."),
+    scene("order", "À qui est la carte ?", "Rappelle à Sam que la carte lui appartient. Commence par This.", {
+      englishCue: "Return the map.", options: ["your", "This", "map.", "is"] }, ["This is your map"], "Adresse-toi à Sam. Réutilise le petit mot du musée qui veut dire « ton ».", "Sam replie la carte. Tu peux envoyer tes deux dernières informations au refuge."),
+    scene("write", "Ton message au refuge", "Écris deux phrases en anglais pour prévenir le refuge. Utilise It et like pour Pip, We et need pour ton équipe. Tu choisis l’ordre.", {
+      englishCue: "Send your message.", document: { label: "Billet de traversée", text: "Pip · aime les poires.\nNotre équipe · gourdes vides, eau à prévoir.", lang: "fr" } },
+    ["It likes pears", "It really likes pears"].flatMap(taste =>
+      ["We need water", "We need some water", "We need more water", "We need drinking water"].flatMap(need => [`${taste}. ${need}`, `${need}. ${taste}`])),
+    "Pour Pip, pense au s du verbe like. Pour ton équipe, emploie le verbe de besoin avec We. Les deux informations sont nécessaires.", "Le refuge prépare les poires pour Pip et l’eau pour votre équipe. Votre message a bien traversé la baie."),
+  ],
 };
 
-for (const id of [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 14]) {
+for (const id of [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 14, 16, 19]) {
   const episode = scenes[id];
   episode.push(scene("quiz", "Le carnet de bord", "Réponds aux trois questions pour valider ton escale.", {}, [],
     "Vérifie à nouveau tes réponses. Tu peux aussi revoir les indices du décor.",

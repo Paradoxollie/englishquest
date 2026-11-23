@@ -18,6 +18,24 @@
 }
 :is(.atlas-cover,.atlas-reader,.atlas-lock) :focus-visible { outline: 3px solid #1677c9; outline-offset: 3px; }
 .atlas-cover { scroll-margin-top: 78px; }
+.atlas-orientation { display:flex; flex-wrap:wrap; align-items:flex-start; gap:6px 22px; margin-top:14px; }
+.atlas-course-map, .atlas-journal summary { display:inline-flex; align-items:center; gap:.5em; min-height:44px; color:#204779; font-weight:700; }
+.atlas-course-map { text-decoration:underline; text-underline-offset:3px; }
+.atlas-journal { flex:1 1 260px; background:#fff9e9; color:#192437; border:1px solid #c5bda9; border-radius:10px; padding:0 14px; }
+.atlas-journal summary { display:list-item; width:fit-content; padding-block:10px; cursor:pointer; }
+.atlas-journal-chapter { border-top:1px solid #ddd2ba; padding-inline:2px; }
+.atlas-journal-chapter summary { font-size:.97rem; color:#374052; }
+.atlas-journal ol { list-style:decimal; margin:0; padding:0 0 14px 1.7rem; }
+.atlas-journal li + li { margin-top:8px; }
+.atlas-journal li a { font-weight:700; color:#204779; text-decoration:underline; text-underline-offset:3px; }
+.atlas-journal li p { margin:3px 0 0; line-height:1.55; max-width:65ch; }
+.atlas-skillbook { margin-top:16px; color:var(--atlas-ink); background:#faf6e9; border:1px solid #c5bda9; border-radius:10px; }
+.atlas-skillbook summary { padding:12px 15px; cursor:pointer; font-weight:700; }
+.atlas-skillbook summary small { display:inline-block; margin-left:.5em; font-weight:500; }
+.atlas-skillbook ul { padding:0 16px 12px; margin:0; list-style:none; display:grid; gap:5px; }
+.atlas-skillbook li { display:flex; align-items:baseline; gap:.65em; font-size:.92rem; }
+.atlas-skillbook li small { color:#506064; margin-right:.25em; }
+.atlas-skillbook li[data-done=true] span { color:#22604f; font-weight:bold; }
 .atlas-chapter { margin-top: clamp(1.5rem, 4vw, 2.5rem); }
 .atlas-chapter-head { display: flex; justify-content: space-between; align-items: flex-end; gap: .8rem; flex-wrap: wrap; }
 .atlas-chapter h2 { margin: 0; font-size: clamp(1.35rem, 3vw, 2rem); }
@@ -159,6 +177,9 @@
 .comic-balloon strong { display:block; color:#1d4798; font:750 .85rem/1.5 var(--font-lexend),sans-serif; }
 .comic-balloon p { margin:0; line-height:1.4; font-size:clamp(1rem,1.65vw,1.27rem); }
 .comic-gloss { display:block; color:#4c5968; margin-top:3px; line-height:1.4; }
+.comic-translation { font-size:.88rem; pointer-events:auto; }
+.comic-translation summary { cursor:pointer; width:fit-content; color:#24556b; padding:6px 2px; text-decoration:underline; text-underline-offset:3px; }
+.comic-translation span { display:block; padding-bottom:3px; }
 .comic-controls, .comic-form-actions { display:flex; align-items:center; gap:12px; }
 .comic-controls { background:#fff7e6; border-top:2px solid var(--atlas-ink); padding:10px clamp(12px,2vw,25px); }
 .comic-controls .comic-next { margin:0 0 0 auto; }

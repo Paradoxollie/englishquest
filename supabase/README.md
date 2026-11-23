@@ -2,13 +2,14 @@
 
 ## État vérifié le 23 novembre 2026
 
-L’historique de migrations de la base de production confirme les onze migrations horodatées du 18 au 23 novembre inclus. Les indications d’application plus bas décrivent leur ordre d’installation pour un environnement neuf.
+L’historique de migrations de la base de production confirme les douze migrations horodatées du 18 au 23 novembre inclus. Les indications d’application plus bas décrivent leur ordre d’installation pour un environnement neuf.
 
 | Dates | Changements présents sur Omega |
 | --- | --- |
 | 18 et 19 novembre | Scores et récompenses atomiques, reprise des quiz invités, albums, personnages, conservation du positionnement vérifié. |
 | 21 novembre | Chaque professeur gère ses propres classes. Les tables `class_live_sessions`, `class_live_results` et les autres tables du direct enregistrent les manches et leurs résultats. Le suivi classe distingue le travail joué des missions acquises par positionnement. |
 | 22 novembre | `adventure_checkpoints` permet la reprise privée de l’Atlas par compte. Les migrations successives étendent la sauvegarde jusqu’à l’escale 15. Le brouillon permet de retrouver la case en cours. |
+| 23 novembre | [Le chapitre du refuge](migrations/20261123201128_atlas_refuge_chapter.sql) étend la contrainte des numéros d’escale jusqu’à 20. La contrainte validée, la protection des lignes et la conservation des points de reprise existants ont été contrôlées sur Omega. |
 | 23 novembre | `contact_messages` porte le suivi de remise des réponses. `contact_followups` garde les ajouts successifs au fil. Le serveur vérifie l’identité du titulaire du compte ou le reçu privé de l’invité. Un accusé de lecture repose sur l’action prévue dans le fil. |
 
 Pour faire un bilan d’usage, comparer les horodatages `visited_at`, `created_at` et `completed_at` en heure de Paris. Le compteur des pages et la base de scores ont des périmètres différents. Les parties invitées ne créent pas de ligne dans `game_scores`. Le champ `best_score` des cours distingue une mission jouée et un acquis de positionnement. [Comparaison et requête en lecture seule](../docs/FREQUENTATION-2026-11-23.md)

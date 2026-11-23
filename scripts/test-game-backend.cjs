@@ -472,7 +472,7 @@ async function main() {
   const guestDone = await guestPlacement.submitPlacementStepAction(1, failedAnswers);
   assert.equal(guestDone.placed.chapterId, 1);
   assert.equal(guestDone.guestToken, "signed-1");
-  assert.ok(refreshed.has("/quest") && refreshed.has("/tous-les-cours/parcours"));
+  assert.ok(refreshed.has("/tous-les-cours") && refreshed.has("/tous-les-cours/parcours"));
   assert.equal(placementWrites, writesBeforeGuest, "a guest placement never writes to the database");
   let badgeSyncs = 0;
   const examAction = loadTs("app/(protected)/examen/[chapter]/actions.ts", {

@@ -78,13 +78,19 @@ async function test() {
   await db.exec(fs.readFileSync(path.join(root, "supabase/migrations", museumMigration), "utf8"));
   assert.deepEqual((await db.query("select mission,stage,draft_version from public.adventure_checkpoints where user_id=$1 order by mission", [accounts[0]])).rows,
     [{mission:5,stage:7,draft_version:2}, {mission:10,stage:6,draft_version:3}]);
+  await db.query("insert into public.adventure_checkpoints(user_id,mission,stage,draft_version) values ($1,15,6,4)", [accounts[0]]);
+  const refugeMigration = fs.readdirSync(path.join(root, "supabase/migrations")).find(file => file.endsWith("_atlas_refuge_chapter.sql"));
+  await db.exec(fs.readFileSync(path.join(root, "supabase/migrations", refugeMigration), "utf8"));
+  assert.deepEqual((await db.query("select mission,stage,draft_version from public.adventure_checkpoints where user_id=$1 order by mission", [accounts[0]])).rows,
+    [{mission:5,stage:7,draft_version:2}, {mission:10,stage:6,draft_version:3}, {mission:15,stage:6,draft_version:4}]);
+  await assert.rejects(db.query("insert into public.adventure_checkpoints(user_id,mission,stage) values ($1,21,0)", [accounts[0]]), /check constraint/);
   await db.query("delete from public.adventure_checkpoints where user_id=$1", [accounts[0]]);
   const { scenes } = load("lib/adventure/scenes.ts");
   const { passages } = load("lib/adventure/catalog.ts");
   const empty = passages.map(() => 0);
   const { partForStage } = load("lib/adventure/parts.ts");
   const { gradeActivity } = load("lib/adventure/grading.ts");
-  const { boardAnswer, learnerActivity } = load("lib/adventure/activities.ts");
+  const { boardAnswer, learnerActivity, recordingPath } = load("lib/adventure/activities.ts");
   const { quizBank } = load("lib/adventure/quiz-bank.ts");
   const { quizForm, gradeQuiz } = load("lib/adventure/quiz.ts");
   const { panels, storyPanel } = load("lib/adventure/panels.ts");
@@ -111,6 +117,29 @@ async function test() {
   for (const p of passages) {
     const examples = scenes[p.id].flatMap(step => step.lesson?.example.split("\n") ?? []);
     assert.ok(examples.every(line => line.split(/ · | = /).length === 2));
+  }
+  const refuge = passages.filter(p => p.id >= 16 && p.id <= 20);
+  assert.equal(refuge.length, 5);
+  for (const p of refuge) {
+    assert.ok(p.targets.length && p.course);
+    assert.equal(new Set(p.targets.map(goal => goal.stage)).size, p.targets.length);
+    for (const goal of p.targets) assert.equal(scenes[p.id][goal.stage-1].mode, "write");
+    assert.ok(fs.existsSync(path.join(root, "public/art/passage", p.art + "-insert.webp")));
+  }
+  const contrasts = [
+    [16, 5, "You like apples.", "I like apples."], [16, 6, "I like pears and apples!", "I likes apples"],
+    [17, 4, "She needs some water.", "She need water."], [17, 5, "He needs light.", "She needs light."],
+    [17, 5, "He needs a lamp.", "He needs water."],
+    [17, 6, "It likes pears.", "It like pears."], [18, 5, "We like soup.", "They like soup."],
+    [18, 6, "They don’t like soup.", "They like soup."], [18, 6, "They do not like soup.", "They doesn't like soup."],
+    [19, 4, "No, I don’t.", "No, I am not."], [19, 5, "Do you like apples?", "You like apples."],
+    [20, 4, "Do you like bread?", "Does you like bread?"], [20, 7, "We need water. It likes pears.", "We need water."],
+    [20, 7, "It likes pears. We need some water.", "It likes water. We need pears."],
+    [20, 7, "We need more water. It really likes pears.", "We need more water. It really like pears."]
+  ];
+  for (const [id, stage, right, wrong] of contrasts) {
+    assert.ok(gradeActivity(scenes[id][stage-1], right), right);
+    assert.equal(gradeActivity(scenes[id][stage-1], wrong), false, wrong);
   }
   assert.equal((await checkPassage(2, 0, solution(scenes[2][0]))).ok, false);
   assert.equal((await checkPassage(1, 2, solution(scenes[1][2]))).ok, false);
@@ -184,7 +213,7 @@ async function test() {
         }
       }
       const recording = step.radio ?? step.game?.radio;
-      if (recording) assert.ok(fs.statSync(path.join(root, "public/audio/passage", recording.file + ".mp3")).size > 10000);
+      if (recording) assert.ok(fs.statSync(path.join(root, "public", recordingPath(recording))).size > (recording.collection === "spell-strike" ? 2000 : 10000));
       assert.ok((await checkPassage(p.id, index, answer)).ok);
     }
   }

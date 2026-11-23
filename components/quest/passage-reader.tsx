@@ -193,6 +193,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
           <p className="atlas-save">{steps.length} épreuves validées · {onAccount ? "Sur ton compte" : "Sur cet appareil"}</p>
           <Link className="atlas-cta" href={next ? `/quest/atlas/${next.id}` : "/quest/atlas"}>{next ? "Découvrir le monde suivant" : "Retrouver mon Atlas"} →</Link>
           <button className="atlas-replay" onClick={() => move(0)}>Rejouer cette escale</button>
+          {episode.course && <Link className="atlas-link" href={`/cours/${episode.course.id}`}>Retrouver dans les cours · {episode.course.topic}</Link>}
           <Link className="atlas-link" href={`/contact?escale=${episode.id}`}>Donner mon avis sur cette escale</Link>
         </> : <>
           <p className="atlas-save">{episode.minutes} environ</p>
@@ -225,7 +226,7 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
         </div> : <div className="atlas-work">
           {step.englishCue && <span className="atlas-english-cue" lang="en">{step.englishCue}</span>}
           <h2 className="comic-question" ref={heading} id="atlas-stage-title" tabIndex={-1}>{isQuiz && step.legacyQuiz ? "Reprends les trois questions de ton carnet." : step.prompt}</h2>
-        {step.document && !isQuiz && <div className="atlas-document"><strong>{step.document.label}</strong><p lang="en">{step.document.text}</p></div>}
+        {step.document && !isQuiz && <div className="atlas-document"><strong>{step.document.label}</strong><p lang={step.document.lang ?? "en"}>{step.document.text}</p></div>}
         {step.radio && <div className="atlas-radio"><div className="comic-radio-head"><strong>Radio de l’équipe</strong>{soundSwitch}</div>
           {readRadio ? <p lang="en" className="comic-radio-text">{step.radio.line}</p> : <>
             <audio ref={pauseWhenRemoved} aria-label="Écouter le message en anglais" controls preload="none" src={recordingPath(step.radio)}

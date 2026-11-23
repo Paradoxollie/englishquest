@@ -3,13 +3,16 @@ export type Passage = {
   title: string;
   place: string;
   art: "quai" | "canopy" | "wind" | "tide" | "observatory" | "cinema" | "post" | "market" | "rail" | "island" |
-    "museum-hall" | "museum-mirrors" | "museum-workshop" | "museum-roof" | "museum-frame";
+    "museum-hall" | "museum-mirrors" | "museum-workshop" | "museum-roof" | "museum-frame" |
+    "refuge-orchard" | "refuge-stairs" | "refuge-kitchen" | "refuge-radio" | "refuge-moon";
   alt: string;
   minutes: string;
   skill: string;
   opening: string;
   ending: string;
   keepsake: string;
+  course?: { id: number; topic: string };
+  targets?: { stage: number; label: string }[];
 };
 
 export const passages: Passage[] = [
@@ -18,7 +21,7 @@ export const passages: Passage[] = [
     skill: "Saluer et se présenter avec un nom de héros.",
     opening: "Une tempête a effacé les routes de l’Atlas. Au port suspendu, une navette peut encore décoller.",
     ending: "Le robot ouvre le coffret de la tour. L’aiguille de la boussole pointe vers une forêt suspendue. Tu transmets le cap à Maya. La navette quitte le quai.",
-    keepsake: "La boussole du port" },
+    keepsake: "La boussole du port", course: { id: 1, topic: "Se présenter avec be" } },
   { id: 2, title: "L’écho de la canopée", place: "Forêt des cloches", art: "canopy", minutes: "6 à 10 min",
     alt: "Au-dessus d’un pont de lianes, Sam bondit vers une petite balise tandis que Maya lui indique sa trajectoire.",
     skill: "Reconnaître et nommer un objet avec sa couleur.",
@@ -30,7 +33,7 @@ export const passages: Passage[] = [
     skill: "Dire ce que tu possèdes et ce qu’un équipier a dans son sac.",
     opening: "Le moulin est à l’arrêt. Maya cherche l’outil qui libérera les voiles. Sam garde les sacs de l’équipe. Qui a quoi ?",
     ending: "Les voiles se remettent en marche. Un courant d’air emporte la navette jusqu’à une ville où les rues disparaissent sous l’eau.",
-    keepsake: "La roue des vents" },
+    keepsake: "La roue des vents", course: { id: 1, topic: "Dire ce que l’on possède avec have" } },
   { id: 4, title: "La ville à contre-marée", place: "Cité des marées", art: "tide", minutes: "7 à 12 min",
     alt: "Maya tient l’amarre sur le quai et Sam la retient depuis un bateau, devant les écluses de la ville.",
     skill: "Comprendre où se trouve un objet et indiquer sa position.",
@@ -41,7 +44,7 @@ export const passages: Passage[] = [
     alt: "Maya oriente la roue du télescope et Sam désigne une étoile à travers le dôme ouvert.",
     skill: "Croiser deux indices et écrire un court message en autonomie.",
     opening: "Au sommet, un télescope peut rallumer le chemin du retour. Pour l’activer, tu devras reconnaître la bonne personne, retrouver une clé et envoyer toi-même le dernier message.",
-    ending: "Un trait de lumière relie l’observatoire, le phare, les moulins, la forêt et le port. Maya oriente la navette. Vous avez tracé ensemble le premier itinéraire de l’Atlas.",
+    ending: "Un trait de lumière relie l’observatoire au port. Votre premier itinéraire est tracé. En posant la navette au quai 7, Sam aperçoit le robot. Il tient une bobine de film encore trempée.",
     keepsake: "La carte des cinq mondes" },
   { id: 6, title: "Le cinéma des silhouettes", place: "Cinéma de la Lune", art: "cinema", minutes: "7 à 11 min",
     alt: "Dans un cinéma à ciel ouvert, Maya et Sam découvrent une lune de papier éclairée par un vieux projecteur.",
@@ -54,7 +57,7 @@ export const passages: Passage[] = [
     skill: "Poser une question à quelqu’un et comprendre sa réponse.",
     opening: "Des planeurs chargés de courrier partent dans toutes les directions. Leo a laissé l’enveloppe au guichet. Pour la récupérer, trouve la personne qui pilotera le prochain vol.",
     ending: "La pilote ouvre la sacoche. L’île vous envoie une demande de lumière. La piste qui mène au phare s’est éteinte. L’enveloppe contient un bon à échanger au marché.",
-    keepsake: "Le timbre ailé" },
+    keepsake: "Le timbre ailé", course: { id: 5, topic: "Poser une question avec be" } },
   { id: 8, title: "Le marché des lanternes", place: "Halles du crépuscule", art: "market", minutes: "8 à 12 min",
     alt: "Au marché de nuit, Maya et Sam passent entre des étals de lanternes suspendues.",
     skill: "Comprendre une petite quantité et écrire une commande.",
@@ -78,13 +81,13 @@ export const passages: Passage[] = [
     skill: "Distinguer ce qui est à toi de ce qui est à la personne qui parle.",
     opening: "De retour au port, le robot projette son film sur le mur du musée. À minuit, une voyageuse traverse l’écran. Un cadre se vide. Il ne reste au vestiaire qu’un bagage et un mot signé Iris.",
     ending: "Dans le bon sac, Maya trouve un éclat de miroir. Sur son dos, Iris a dessiné deux profils. La galerie des reflets est encore éclairée.",
-    keepsake: "Le ticket du vestiaire" },
+    keepsake: "Le ticket du vestiaire", course: { id: 7, topic: "Indiquer à qui appartient un objet" } },
   { id: 12, title: "Les deux reflets", place: "Galerie des miroirs", art: "museum-mirrors", minutes: "8 à 12 min",
     alt: "Maya observe l’écharpe bleue dans le miroir de gauche. Sam pose la main sur le socle du miroir de droite, où se reflète une broche en forme de plume.",
     skill: "Indiquer à qui appartient un objet avec his et her.",
     opening: "Iris devait laisser une clé au gardien. Les miroirs ont échangé les étiquettes. Deux témoins, trois pièces à examiner et une seule clé à remettre en main propre.",
     ending: "Noé ouvre le tiroir avec sa clé. À l’intérieur, un oiseau de cuivre a laissé une longue plume dentelée. On entend un ressort derrière le mur.",
-    keepsake: "La plume de cuivre" },
+    keepsake: "La plume de cuivre", course: { id: 7, topic: "Choisir entre his et her" } },
   { id: 13, title: "Le héron et la tortue", place: "Atelier des automates", art: "museum-workshop", minutes: "8 à 13 min",
     alt: "Dans l’atelier, Maya et Sam se penchent vers un grand héron mécanique et une tortue à ressort.",
     skill: "Dire ce qu’un personnage peut faire et trouver qui peut aider.",
@@ -101,12 +104,48 @@ export const passages: Passage[] = [
     alt: "À l’aube, Maya et Sam découvrent Iris dans une toile représentant le port.",
     skill: "Croiser des témoignages et écrire une réponse au nom d’un personnage.",
     opening: "Iris vous attend à côté de sa toile. Chaque nuit, elle visite une autre salle. Cette fois, son cadre est resté ouvert. Pour rentrer avant l’aube, elle doit retrouver son bagage et prévenir le gardien.",
-    ending: "Iris franchit le bord du tableau avec son sac. Noé sourit en lisant ton mot. À l’ouverture du musée, les visiteurs découvrent un détail inédit sur la toile du port : deux capes sèchent au soleil.",
+    ending: "Iris rentre dans sa toile avec son sac. Deux capes sèchent désormais sur le port peint. Sous le cadre, Noé ramasse une carte postale pour votre équipe. Une petite empreinte turquoise marque un coin du papier.",
     keepsake: "La carte postale d’Iris" },
+  { id: 16, title: "La première empreinte", place: "Verger du refuge", art: "refuge-orchard", minutes: "7 à 11 min",
+    alt: "Au verger, Maya et Sam découvrent une petite créature à queue turquoise près d’un carnet de terrain.",
+    skill: "Dire en anglais quel fruit tu aimes et parler du goût de quelqu’un qui est devant toi.",
+    opening: "Au dos de la carte postale d’Iris, une empreinte turquoise est encore humide. Elle mène à un verger en bord de mer. Une petite bête y attend le bateau du soir. Dans le carnet du refuge, la page de Pip est vide.",
+    ending: "Une trace de poire apparaît sur la première page du carnet. Pip se glisse sous le portail de la serre. Il faut lui préparer des provisions avant que les deux lunes se lèvent.",
+    keepsake: "L’empreinte de Pip", course: { id: 3, topic: "Le présent simple" },
+    targets: [{ stage: 5, label: "Dire à quelqu’un ce qu’il aime avec you." }, { stage: 6, label: "Écrire mon propre choix avec I like." }] },
+  { id: 17, title: "L’escalier de verre", place: "Serre tournante", art: "refuge-stairs", minutes: "8 à 12 min",
+    alt: "Dans une serre lumineuse, un escalier de bois pivote entre les plantes devant Maya et Sam.",
+    skill: "Indiquer ce dont quelqu’un a besoin en choisissant he, she ou it et la forme du verbe.",
+    opening: "Dans la serre, l’escalier change de palier chaque fois que la cloche sonne. Là-haut attend June, la jardinière. Entre sa lampe, la carafe de Sam et le plant de Pip, il y a de quoi se tromper de livraison.",
+    ending: "June accroche la fiche de Pip à sa caisse de voyage. L’escalier rejoint enfin la porte de la cuisine. De l’autre côté, quelqu’un tape trois coups sur une louche.",
+    keepsake: "La feuille de verre", course: { id: 3, topic: "Le verbe avec he, she et it" },
+    targets: [{ stage: 4, label: "Écrire un besoin en parlant de June avec she." }, { stage: 5, label: "Écrire un besoin en parlant de Sam avec he." }, { stage: 6, label: "Décrire le goût d’un animal avec it et le s du verbe." }] },
+  { id: 18, title: "Trois coups de louche", place: "Cantine sur rails", art: "refuge-kitchen", minutes: "8 à 12 min",
+    alt: "Un petit cuisinier à fourrure veille sur une marmite dans un wagon de cuisine, entre Maya et Sam.",
+    skill: "Parler au nom d’un groupe et expliquer en anglais ce que d’autres personnes n’aiment pas.",
+    opening: "Le wagon-cuisine doit servir deux tables avant de repartir. Sur le comptoir, un loir minuscule frappe sa louche pour appeler le service. Maya te confie le carnet des commandes.",
+    ending: "Les bons paniers partent aux deux tables. Le loir pose sa louche. Cinq notes lui répondent depuis la falaise. Quelqu’un réclame encore une livraison.",
+    keepsake: "La petite louche de cuivre", course: { id: 6, topic: "La négation avec don’t" },
+    targets: [{ stage: 5, label: "Écrire pour ma table avec we." }, { stage: 6, label: "Dire ce que les autres n’aiment pas avec they et don’t." }] },
+  { id: 19, title: "Cinq notes dans la brume", place: "Radio des deux lunes", art: "refuge-radio", minutes: "7 à 12 min",
+    alt: "Maya et Sam écoutent un orgue-radio à cinq lampes face à la mer et aux deux lunes.",
+    skill: "Poser une question sur les goûts avec Do you et donner une réponse courte.",
+    opening: "Sur la falaise, un petit orgue transforme cinq notes en signal radio. Le refuge de l’autre rive entend votre appel. Tu vas pouvoir demander aux pilotes ce qu’ils aimeraient recevoir.",
+    ending: "La dernière lampe répond à votre question. Les pilotes envoient maintenant le signal du départ. Dehors, les deux roues du vélo suspendu se mettent à tourner.",
+    keepsake: "Le diapason de la baie", course: { id: 5, topic: "Les questions avec do" },
+    targets: [{ stage: 4, label: "Répondre pour moi à une question sur mes goûts." }, { stage: 5, label: "Poser par écrit une question avec Do you like…?" }] },
+  { id: 20, title: "À vélo entre deux lunes", place: "Traversée de la baie", art: "refuge-moon", minutes: "9 à 14 min",
+    alt: "Un vélo suspendu à un câble traverse la baie au clair de lune avec sa nacelle de voyage.",
+    skill: "Croiser des messages et écrire à une autre équipe pour qu’elle sache quoi préparer.",
+    opening: "Le vent a repoussé le bateau de Pip. Il reste le vélo suspendu de la baie. Pour atteindre le refuge, il faut charger sa nacelle et prévenir les pilotes de l’autre rive. Cette fois, c’est toi qui écris le message.",
+    ending: "Le vélo se découpe sur la lune. À l’arrivée, les pilotes attendent avec les poires et l’eau. Pip saute dans le verger du refuge. Sur la côte, un feu qu’aucune carte ne signale vient de s’allumer.",
+    keepsake: "La sonnette des deux lunes", course: { id: 3, topic: "Parler de goûts et de besoins au présent" },
+    targets: [{ stage: 4, label: "Réutiliser Do you like…? pour demander si quelqu’un aime un autre aliment." }, { stage: 7, label: "Transmettre deux informations utiles dans un même message." }] },
 ];
 
 export const atlasChapters = [
-  { title: "Le premier itinéraire", first: 1, last: 5, intro: "Au quai 7, Maya et Sam t’attendent pour le dernier départ. Cap sur l’observatoire, une escale après l’autre." },
+  { title: "Le premier itinéraire", first: 1, last: 5, intro: "Une tempête a effacé les routes de l’Atlas. Au quai 7, Maya et Sam t’attendent pour le dernier départ. À vous trois de rallumer l’observatoire." },
   { title: "Le courrier de l’île invisible", first: 6, last: 10, intro: "Le port a retrouvé sa route. Mais qui a envoyé ce film d’une île absente des cartes ? Avec Maya et Sam, remonte la piste du courrier." },
   { title: "Le musée après minuit", first: 11, last: 15, intro: "Cette nuit, une voyageuse est sortie de son tableau. De salle en salle, recueille les témoignages et découvre comment Iris pourra rentrer." },
+  { title: "Le refuge des deux lunes", first: 16, last: 20, intro: "Au dos de la carte d’Iris, une petite patte a laissé sa trace. Rejoins Pip et aide-le à traverser la baie avant la nuit." },
 ];

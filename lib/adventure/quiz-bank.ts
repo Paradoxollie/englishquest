@@ -93,4 +93,20 @@ export const quizBank: Record<number, AtlasQuestion[]> = {
     ["« The map is on the table. The keys are under the table. » Que trouves-tu sous la table ?", "Les clés", "La carte", "Les étoiles"],
     ["« The key is under the bag. The stars are on the bag. » Que trouves-tu sur le sac ?", "Les étoiles", "La clé", "La carte"],
   ],
+  16: [
+    ["Maya dit « I like pears. » Que choisis-tu pour elle ?", "Des poires", "Des pommes", "De l’eau"],
+    ["Sur une autre page, Sam écrit « I like apples. » Que lui proposes-tu ?", "Des pommes", "Des poires", "Du pain"],
+    ["Tu parles à June de ce qu’elle aime. Quel sujet utilises-tu ?", "You", "I", "We"],
+    ["Tu notes ton propre goût dans le carnet. Quel sujet te désigne ?", "I", "You", "It"],
+    ["Tu aimes les pommes. Quel est ton message ?", "I like apples.", "You like apples.", "I like pears."],
+    ["Le gardien devant toi aime les poires. Que lui dis-tu ?", "You like pears.", "I like pears.", "You like apples."],
+  ],
+  19: [
+    ["Demande à une pilote si elle aime les poires.", "Do you like pears?", "Do you need pears?", "I like pears."],
+    ["Demande directement à Sam s’il aime le pain.", "Do you like bread?", "Do you like soup?", "I like bread."],
+    ["« Do you like apples? » Tu aimes ça. Quelle réponse courte convient ?", "Yes, I do.", "No, I don’t.", "Yes, I am."],
+    ["« Do you like bread? » Tu n’aimes pas ça. Que réponds-tu ?", "No, I don’t.", "Yes, I do.", "No, I’m not."],
+    ["Maya: « Do you like soup? » Lina: « No, I don’t. » Que retires-tu du panier de Lina ?", "La soupe", "Le pain", "Les pommes"],
+    ["Sam: « Do you like pears? » Lina: « Yes, I do. » Que mets-tu dans son panier ?", "Des poires", "Du pain", "De l’eau"],
+  ],
 };

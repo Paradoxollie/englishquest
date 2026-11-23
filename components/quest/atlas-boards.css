@@ -1,4 +1,22 @@
 .atlas-reader[data-chapter="3"] { --atlas-blue: #6c3254; --atlas-gold: #f0bb62; }
+.atlas-reader[data-chapter="4"] { --atlas-blue: #19595b; --atlas-gold: #efc36b; }
+.atlas-reader[data-chapter="4"] .comic-banner[data-compact] { background: #204a4d; }
+.atlas-reader[data-chapter="4"] .comic-frame[data-view="speech"]:not([data-cutaway]) .comic-picture img {
+  object-position: var(--comic-focus);
+}
+@media (min-width: 701px) {
+  .atlas-reader[data-chapter="4"]:has(.comic-frame[data-view="wide"]) {
+    max-width: min(1100px, max(680px, calc((100dvh - 320px) * 1.77)));
+  }
+  .atlas-reader[data-chapter="4"] .comic-frame[data-view="wide"] { display: flex; flex-direction: column; }
+  .atlas-reader[data-chapter="4"] .comic-frame[data-view="wide"] .comic-utterance {
+    position: relative; order: -1; padding: 8px 14px; background: #f8ebd0; border-bottom: 2px solid var(--atlas-ink);
+  }
+  .atlas-reader[data-chapter="4"] .comic-caption {
+    position: static; width: fit-content; max-width: 100%; padding: 5px 12px; font-size: clamp(1rem, 1.25vw, 1.2rem);
+  }
+  .atlas-reader[data-chapter="4"] .comic-frame[data-view="wide"] .comic-picture { aspect-ratio: 16/9; }
+}
 .atlas-audio-help { margin: 8px 0 0; font-size: .9rem; }
 .atlas-audio-help summary { width: fit-content; padding: 10px 0; cursor: pointer; font-weight: 650; }
 .atlas-audio-help > div { display: flex; flex-wrap: wrap; gap: 0 1rem; }

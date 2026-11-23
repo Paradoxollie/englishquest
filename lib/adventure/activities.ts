@@ -1,12 +1,12 @@
 import type { EchoScenario } from "@/lib/games/echoSignal";
 import type { RushQuestion } from "@/lib/games/grammar-rush";
 
-export type RadioMessage = { speaker: "Maya" | "Sam"; line: string; file: string };
+export type RadioMessage = { speaker: "Maya" | "Sam"; line: string; file: string; collection?: "spell-strike" };
 export type GameAnswer = { id: string; value: string };
 export type QuizForm = { ticket: string; questions: { id: string; prompt: string; options: string[] }[] };
 export type QuizSubmission = { ticket: string; answers: GameAnswer[] };
 export type ComicPhase = "story" | "lesson" | "question" | "help";
-export type BoardPicture = "inventory" | "shelter" | "film" | "letter" | "lanterns" | "cloakroom" | "automata" | "mirrors" | "roof" | "frame";
+export type BoardPicture = "inventory" | "shelter" | "film" | "letter" | "lanterns" | "cloakroom" | "automata" | "mirrors" | "roof" | "frame" | "fruit" | "supplies" | "meal" | "cargo";
 export type Clue = { label: string; text: string };
 export type Draft = {
   index: number; opened: boolean; sheet: boolean; choice: string; tiles: number[];
@@ -19,7 +19,7 @@ export type Activity = {
   mode: "choice" | "order" | "write" | "spot" | "delivery" | "evidence" | "route" | "game" | "quiz";
   title: string; prompt: string;
   englishCue?: string;
-  document?: { label: string; text: string };
+  document?: { label: string; text: string; lang?: "en" | "fr" };
   radio?: RadioMessage;
   lesson?: { rule: string; example: string; parts?: [word: string, meaning: string][]; say?: string };
   options?: string[];
@@ -51,5 +51,5 @@ export function boardAnswer(step: Activity, choice: string, tiles: number[]) {
 }
 
 export function recordingPath(message: RadioMessage) {
-  return `/audio/passage/${message.file}.mp3`;
+  return `/audio/${message.collection ?? "passage"}/${message.file}.mp3`;
 }

@@ -142,6 +142,48 @@ export const panels: Record<number, Panel[]> = {
     panel("Un billet de Noé passe sous la porte de l’atelier. Il porte encore une goutte de pluie.", sam("Il y a le nom de la destinataire, puis deux courtes phrases.")),
     panel("Plus qu’un pas jusqu’au bateau. Maya aperçoit le sac qu’Iris risque d’oublier sur le quai.", maya("Comment lui rappeler qu’il est à elle ?")),
   ],
+  16: [
+    panel("Une petite patte turquoise dépasse de la carte d’Iris. Au bout du sentier, le carnet du refuge est ouvert sous un pommier.",
+      maya("On dirait le carnet d’un collectionneur. Mais ici, on note les rencontres et on laisse les bêtes en liberté."), sam("Look at that tail!", "Regarde cette queue !")),
+    panel("Pip renifle les deux fruits. Maya et Sam ont déjà écrit leur choix dans la marge.", sam("Et si on lisait nos deux lignes ?")),
+    panel("Maya te tend la page. Cette fois, tu t’adresses à la personne qui vient de parler.", maya("Your turn!", "À toi !")),
+    panel("Près du panier, une trace de botte et une minuscule empreinte se séparent.", sam("One for Pip, one for me.", "Une part pour Pip et une pour moi.")),
+    panel("Sam fait tourner une pomme dans sa poche. Il attend que tu lui confirmes son choix.", maya("Il est juste devant toi. À toi de lui parler.")),
+    panel("Entre les signatures, il reste la place pour ton propre goût.", sam("What about you?", "Et toi ?"), maya("Les deux fruits sont mûrs. Tu peux aussi aimer les deux.")),
+  ],
+  17: [
+    panel("Un escalier de bois quitte son palier sans faire tomber une seule feuille. Un petit pot attend sur la marche du haut.",
+      sam("It’s moving!", "Il bouge !"), maya("Chaque fois que la cloche sonne, l’escalier choisit une autre porte.")),
+    panel("Tout en haut, June essaie d’atteindre les semis. Sam appelle depuis la rampe.", sam("I can help.", "Je peux aider.")),
+    panel("Sam tend sa carafe depuis le palier du milieu. June le cherche à travers les feuillages.", maya("Where is Sam?", "Où est Sam ?"), sam("I’m here!", "Je suis là !")),
+    panel("Quand les marches s’alignent, June fait passer une carafe. Son étiquette s’est détachée.", maya("This one is for June.", "Celle-ci est pour June.")),
+    panel("Sam déplie sa carte. Un quart de tour de l’escalier, et les feuilles plongent son palier dans l’ombre.", sam("It’s dark here.", "Il fait sombre ici.")),
+  ],
+  18: [
+    panel("Trois coups de louche sur une casserole. Debout sur une tasse, un minuscule loir dirige tout le service.",
+      sam("Who’s the cook?", "Qui fait la cuisine ?"), maya("Le petit, sur la tasse. Écoute sa première commande.")),
+    panel("Le wagon penche dans le virage. Les billets des deux tables glissent l’un contre l’autre.", maya("This is our table.", "Ça, c’est notre table.")),
+    panel("Les pilotes rendent leur assiette de fruits. Le loir cherche de quoi l’écrire.", sam("Two pilots, one note.", "Deux pilotes, un billet.")),
+    panel("Quatre petites commandes arrivent ensemble. Pour garder le rythme du loir, chacun déchiffre une ligne.", maya("Ready?", "Tout est prêt ?"), sam("Let’s go!", "C’est parti !")),
+    panel("Ta table demande un autre bol. Le loir approche l’oreille pour connaître votre goût.", maya("Write for both of us.", "Écris pour nous deux.")),
+  ],
+  19: [
+    panel("À la radio de la falaise, cinq tubes s’allument l’un après l’autre. De l’autre côté de l’eau, quelqu’un reproduit les cinq notes.",
+      maya("Can you hear us?", "Vous nous entendez ?"), sam("Look! Five lights.", "Regarde ! Cinq lumières.")),
+    panel("Une voix prend la place de la cinquième note. C’est Lina, l’une des pilotes.", sam("Hello, Lina!", "Bonjour, Lina !")),
+    panel("Le micro en cuivre bascule de ton côté. C’est ton équipe qui pose la prochaine question.", maya("Ask her.", "Pose-lui la question.")),
+    panel("La pilote joue les cinq notes à l’envers. Au refuge, cela veut dire que c’est à l’autre personne de répondre.", sam("She’s asking you now.", "Maintenant, c’est à toi qu’elle pose la question.")),
+    panel("Un second pilote prend le micro. Il reste une pomme sur le comptoir du wagon.", maya("One more question.", "Encore une question.")),
+  ],
+  20: [
+    panel("Sous les deux lunes, un vélo attend sur un câble tendu au-dessus de l’eau. Une note de June est coincée dans la sonnette.", maya("Is this your map, Sam?", "C’est ta carte, Sam ?")),
+    panel("Les paniers portent les bonnes couleurs, mais le vent a mélangé les étiquettes.", sam("Which bag is for Pip?", "Quel sac est pour Pip ?")),
+    panel("Sur l’autre rive, deux pilotes agitent leurs gourdes vides. Pip, lui, s’est installé dans la nacelle.", maya("There’s room for one more thing.", "Il reste de la place pour une chose.")),
+    panel("Le vélo passe devant la grande lune. La sonnette répond au fanal comme si la roue dessinait une note dans le ciel.",
+      sam("Look at the moon!", "Regarde la lune !"), maya("Lina can hear you.", "Lina t’entend.")),
+    panel("Le fanal projette deux lignes sur la voile du port. Le repas d’arrivée est presque prêt.", sam("What do they have?", "Qu’est-ce qu’ils ont ?")),
+    panel("Pip lève sa queue en éventail. Un papier échappé de la poche de Sam vient de s’y accrocher.", maya("Sam, look behind you!", "Sam, regarde derrière toi !")),
+  ],
 };
 
 export const logbookPanels: Record<number, Panel> = {
@@ -160,6 +202,11 @@ export const logbookPanels: Record<number, Panel> = {
   13: panel("Deux ombres se découpent sur la porte. Noé ne donnera son accord qu’en voyant leurs fiches.", maya("Qui doit partir pour le toit ? Prouve-le avec ce que tu as trouvé.")),
   14: panel("Les poids s’équilibrent. Dans une salle sous vos pieds, un verrou vient de sauter.", sam("Gardons les positions en mémoire. On pourrait devoir remonter dans le noir.")),
   15: panel("Le bateau peint largue ses amarres. Noé arrive en courant au bout du couloir.", maya("Iris veut lui laisser un dernier mot. C’est à toi de l’écrire.")),
+  16: panel("Pip tamponne le carnet avec sa patte. Avant de tourner la page, le refuge te confie trois dernières questions.", maya("Let’s check.", "Vérifions.")),
+  17: panel("La caisse de Pip attend devant un escalier qui pivote déjà. June a besoin de sa fiche avant le prochain palier.", sam("Quick! Pip’s card!", "Vite ! La fiche de Pip !")),
+  18: panel("Le loir pose sa toque pour la relève. Le prochain service doit savoir ce que les deux pilotes refusent.", maya("Leave them a note.", "Laisse-leur un mot.")),
+  19: panel("La brume se lève. Les cinq lampes palpitent une dernière fois, puis le carnet radio s’ouvre.", sam("Can you hear the bell?", "Tu entends la sonnette ?")),
+  20: panel("La petite lune disparaît derrière l’arche. Sur le ponton, les pilotes attendent encore deux informations pour vous accueillir.", maya("Tell them what we need.", "Dis-leur ce qu’il nous faut."), sam("And don’t forget Pip!", "Et n’oublie pas Pip !")),
 };
 
 export function storyPanel(id: number, index: number): Panel {

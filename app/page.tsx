@@ -66,15 +66,15 @@ export default async function PublicHomePage({
               Progresse en anglais, une mission après l&apos;autre.
             </h1>
             <p className="eq-lead eq-slam eq-slam-3">
-              Cinquante missions courtes : une leçon, un quiz, un jeu. Chaque mission validée te fait avancer sur ton
-              parcours, du collège à l&apos;âge adulte.
+              Retrouve les routes effacées de l’Atlas avec Maya et Sam. Tu peux aussi suivre les 50 cours d’anglais
+              dans l’ordre ou choisir la notion que tu veux travailler.
             </p>
             <div className="eq-home-actions-row eq-slam eq-slam-4">
-              <Link href="/cours/1" className="eq-btn eq-btn-primary eq-btn-xl">
-                Commencer la mission 1
+              <Link href="/quest/atlas" prefetch={false} className="eq-btn eq-btn-primary eq-btn-xl">
+                Suivre l’aventure de Maya et Sam
               </Link>
-              <Link href="/quest/atlas" prefetch={false} className="eq-btn eq-btn-ghost eq-btn-xl">
-                Essayer l’aventure BD
+              <Link href="/cours/1" className="eq-btn eq-btn-ghost eq-btn-xl">
+                Commencer le cours 1
               </Link>
               <Link href="/test-de-niveau" className="eq-text-link">
                 Tester mon niveau
@@ -160,7 +160,7 @@ export default async function PublicHomePage({
         <div className="eq-container">
           <div className="eq-section-head">
             <div>
-              <span className="eq-caption">Le parcours</span>
+              <span className="eq-caption">Le parcours guidé des cours</span>
               <h2 id="home-path" className="eq-h2">
                 Cinq chapitres, de A1 à B1+
               </h2>

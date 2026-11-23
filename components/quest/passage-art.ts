@@ -34,12 +34,30 @@ import roofDetail from "@/public/art/passage/museum-roof-insert.webp";
 import frameDetail from "@/public/art/passage/museum-frame-insert.webp";
 import inventory from "@/public/art/passage/canopy-inventory.webp";
 import bags from "@/public/art/passage/shelter-close.webp";
+import orchard from "@/public/art/passage/refuge-orchard.webp";
+import stairs from "@/public/art/passage/refuge-stairs.webp";
+import kitchen from "@/public/art/passage/refuge-kitchen.webp";
+import organ from "@/public/art/passage/refuge-radio.webp";
+import moon from "@/public/art/passage/refuge-moon.webp";
+import fruit from "@/public/art/passage/refuge-orchard-insert.webp";
+import supplies from "@/public/art/passage/refuge-stairs-insert.webp";
+import meal from "@/public/art/passage/refuge-kitchen-insert.webp";
+import tubes from "@/public/art/passage/refuge-radio-insert.webp";
+import landing from "@/public/art/passage/refuge-moon-insert.webp";
+import cargo from "@/public/art/passage/refuge-cargo.webp";
 
 export const passageArt = { quai, canopy, wind, tide, observatory, cinema, post, market, rail, island,
-  "museum-hall": hall, "museum-mirrors": mirrors, "museum-workshop": workshop, "museum-roof": roof, "museum-frame": frame } satisfies Record<Passage["art"], StaticImageData>;
+  "museum-hall": hall, "museum-mirrors": mirrors, "museum-workshop": workshop, "museum-roof": roof, "museum-frame": frame,
+  "refuge-orchard": orchard, "refuge-stairs": stairs, "refuge-kitchen": kitchen, "refuge-radio": organ, "refuge-moon": moon } satisfies Record<Passage["art"], StaticImageData>;
 export const landscapeSizes = "(max-width: 1190px) 100vw, 1160px";
 
 const cutaways = {
+  fruit: { src: fruit, alt: "Un carnet de naturaliste présente une pomme rouge sur la page de gauche et une poire jaune sur celle de droite." },
+  supplies: { src: supplies, alt: "Une carafe d’eau à gauche et une lampe à droite entourent un jeune plant dans la serre." },
+  meal: { src: meal, alt: "Un bol de soupe à gauche, une louche et une miche de pain à droite attendent sur le comptoir." },
+  tubes: { src: tubes, alt: "Cinq lampes colorées et un micro de cuivre forment le clavier lumineux de la radio du refuge." },
+  cargo: { src: cargo, alt: "Près de la sonnette, des poires dépassent d’un sac bleu posé à côté d’une carafe pleine d’eau." },
+  landing: { src: landing, alt: "Au soleil levant, Pip quitte le quai vers le verger. La sonnette, le sac bleu et la carafe sont arrivés avec lui." },
   cloakroom: { src: cloakroomDetail, alt: "Au vestiaire, un sac bleu, une carte dépliée et une clé rouge sont posés côte à côte." },
   mirrors: { src: mirrorsDetail, alt: "La galerie conserve deux médaillons. À gauche se trouve Iris, en vert. À droite se trouve Noé, le gardien à la moustache." },
   automata: { src: workshopDetail, alt: "Un héron mécanique sur ses longues pattes et une tortue chargée de bagages attendent sur l’établi." },
@@ -63,6 +81,7 @@ export const boardPictures = {
   shelter: { src: bags, alt: "Un sac rouge à gauche et un sac bleu à droite attendent sur le banc." },
   film: cutaways.film, letter: cutaways.letter, lanterns: cutaways.lanterns, cloakroom: cutaways.cloakroom,
   automata: cutaways.automata, mirrors: cutaways.mirrors, roof: cutaways.roof, frame: cutaways.frame,
+  fruit: cutaways.fruit, supplies: cutaways.supplies, meal: cutaways.meal, cargo: cutaways.cargo,
 } satisfies Record<BoardPicture, { src: StaticImageData; alt: string }>;
 
 const shots: Record<number, Partial<Record<number | "ending", keyof typeof cutaways>>> = {
@@ -81,6 +100,11 @@ const shots: Record<number, Partial<Record<number | "ending", keyof typeof cutaw
   13: { 0: "automata", 2: "automata", 4: "automata", ending: "automata" },
   14: { 1: "roof", 3: "roof", 5: "roof", ending: "roof" },
   15: { 1: "frame", 3: "frame", 5: "frame", ending: "frame" },
+  16: { 1: "fruit", 3: "fruit", 5: "fruit" },
+  17: { 1: "supplies", 3: "supplies", 4: "supplies" },
+  18: { 1: "meal", 3: "meal", 5: "meal" },
+  19: { 1: "tubes", 3: "tubes", 5: "tubes" },
+  20: { 1: "cargo", 2: "cargo", 5: "cargo", ending: "landing" },
 };
 
 export function passagePicture(episode: Passage, scene: number | "ending") {

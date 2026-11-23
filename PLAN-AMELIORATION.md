@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | 1 | Essai en classe prévu en décembre | Une enseignante et ses élèves entrent avec leur code, terminent un jeu puis un cours, voient le podium et savent où reprendre. Observer le Wi-Fi, les petits écrans, les mots visés dans Lexicon et les retours spontanés. |
 | 2 | Qualité de l’écoute et autonomie des débutants | Écouter les voix américaines sur téléphones réels et vérifier si un débutant comprend la première consigne, retrouve l’aide et peut finir seul. Noter le modèle d’appareil, la mission et l’extrait concerné. |
-| 3 | Suite de l’Atlas et relecture des cours | Après les 15 escales publiées, concevoir l’arc suivant par compétences, varier la mécanique, vérifier les réponses acceptables et la lisibilité avant de multiplier les épisodes. |
+| 3 | Atlas et progression vers 250 escales | Observer si les joueurs retrouvent le fil dans le journal et la carte guidée dans Cours. Essayer le refuge sur un téléphone physique et une commande avec un nouvel aliment. Reprendre le feu aperçu sur la côte dans les escales 21–25. [Repères de progression](docs/PROGRESSION-ATLAS.md) |
 | 4 | Comprendre l’usage après les partages | Comparer les jours à la même heure, distinguer ouvertures, scores et validations de quiz. Évaluer l’intérêt de compteurs agrégés de débuts et fins de partie pour les invités. [Mesures et limites](docs/FREQUENTATION-2026-11-23.md) |
 | 5 | Exploitation gratuite et suivi des demandes | Vérifier les quotas lors d’un vrai essai, la conservation effective du journal de visites et la remise des réponses aux anciens invités. Une demande d’accès professeur attend le retour depuis un compte connecté. |
 

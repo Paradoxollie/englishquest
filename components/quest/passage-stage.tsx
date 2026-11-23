@@ -17,6 +17,9 @@ const subject: Record<number, Record<Hero, string>> = {
   11: { Maya: "32% 45%", Sam: "79% 41%" }, 12: { Maya: "24% 38%", Sam: "79% 36%" },
   13: { Maya: "24% 45%", Sam: "84% 42%" }, 14: { Maya: "36% 43%", Sam: "63% 42%" },
   15: { Maya: "22% 44%", Sam: "80% 41%" },
+  16: { Maya: "24% 49%", Sam: "45% 31%" }, 17: { Maya: "21% 48%", Sam: "34% 41%" },
+  18: { Maya: "28% 42%", Sam: "85% 31%" }, 19: { Maya: "18% 54%", Sam: "87% 48%" },
+  20: { Maya: "40% 21%", Sam: "54% 16%" },
 };
 
 function Caption({ text }: { text: string }) {
@@ -53,7 +56,9 @@ export function PassageStage({ episode, index, beat, turn, open, nextLabel }: {
       <div className="comic-utterance" key={beat} aria-live="polite" aria-atomic="true">
         {speech ? <div className="comic-balloon">
           <Image className="comic-portrait" src={speech.speaker === "Maya" ? "/art/personnages/maya-visage.webp" : "/art/personnages/sam-visage.webp"} alt="" width={58} height={58} />
-          <div><strong>{speech.speaker}</strong><p lang={speech.lang}>{speech.line}</p>{speech.french && <small className="comic-gloss">{speech.french}</small>}</div>
+          <div><strong>{speech.speaker}</strong><p lang={speech.lang}>{speech.line}</p>{speech.french && (episode.id < 19
+            ? <small className="comic-gloss">{speech.french}</small>
+            : <details className="comic-gloss comic-translation"><summary>Aide en français</summary><span lang="fr">{speech.french}</span></details>)}</div>
         </div> : <Caption text={panel.caption} />}
       </div>
     </div>
@@ -81,6 +86,11 @@ const reminders: Record<number, NonNullable<Activity["lesson"]>> = {
   13: { rule: "Ce que sait faire l’automate", example: "I can open the door. · Je peux ouvrir la porte.\nI can’t carry the bag. · Je ne peux pas porter le sac." },
   14: { rule: "Demander et donner une position", example: "Where is the key? · Où est la clé ?\nWhere are the stars? · Où sont les étoiles ?\non the map · sur la carte\nunder the table · sous la table" },
   15: { rule: "Parler au nom d’Iris", example: "This is my key. · C’est ma clé.\nI can open the door. · Je peux ouvrir la porte." },
+  16: { rule: "Qui parle et à qui ?", example: "I like pears. · J’aime les poires.\nYou like pears. · Tu aimes les poires.\napples · des pommes" },
+  17: { rule: "Avec he, she et it, pense au s.", example: "I need water. · J’ai besoin d’eau.\nShe needs light. · Elle a besoin de lumière.\nIt likes apples. · Cet animal aime les pommes." },
+  18: { rule: "Parler de deux groupes", example: "We like bread. · Nous aimons le pain.\nThey don’t like bread. · Ils n’aiment pas le pain.\nsoup · de la soupe" },
+  19: { rule: "Poser une question et y répondre", example: "Do you like pears? · Aimes-tu les poires ?\nYes, I do. · Oui, j’aime ça.\nNo, I don’t. · Non, je n’aime pas ça." },
+  20: { rule: "Choisir le sujet avant d’écrire le verbe", example: "It likes apples. · Cet animal aime les pommes.\nWe need light. · Nous avons besoin de lumière.\nDo you like soup? · Aimes-tu la soupe ?" },
 };
 
 const greetings = [

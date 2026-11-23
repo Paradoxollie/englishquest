@@ -34,7 +34,7 @@ export default async function TousLesCoursPage() {
           un entraînement et un quiz de dix questions.
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-3">
-          <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-primary">Ma carte des 50 missions</Link>
+          <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-primary">Mon parcours guidé de 50 cours</Link>
           {(isLoggedIn || guest?.placementChapter || roadmap.completedCount > 0) && recommendedCourse ? (
             <>
               <Link href={`/cours/${recommendedCourse.courseId}`} className="eq-text-link">

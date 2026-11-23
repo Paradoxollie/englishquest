@@ -175,7 +175,7 @@ export function HomeView({
           <div className="eq-home-mission-body">
           {currentCourse && mission ? (
             <>
-              <span className="eq-caption eq-caption-red">Ta prochaine mission</span>
+              <span className="eq-caption eq-caption-red">Ton prochain cours</span>
               <p className="eq-muted text-xs font-bold uppercase tracking-wider">
                 Mission {currentCourse.courseId}
                 {chapter ? ` · Chapitre ${chapter.id}, ${chapter.name}` : ""}
@@ -218,12 +218,12 @@ export function HomeView({
             </>
           ) : (
             <>
-              <span className="eq-caption">Aventure</span>
+              <span className="eq-caption">Parcours guidé des cours</span>
               <h2 id="home-mission" className="eq-h2">
                 Toutes les missions sont validées
               </h2>
               <p className="eq-muted">
-                Tu as terminé la carte. Les jeux restent ouverts, et de nouveaux chapitres arrivent.
+                Tu as terminé les 50 cours. Tu peux les revoir sur la carte ou retrouver Maya et Sam dans la BD.
               </p>
               <div className="eq-home-actions">
                 <Link href="/play" className="eq-btn eq-btn-gold">
@@ -237,7 +237,7 @@ export function HomeView({
           )}
           <div className="mt-4">
             <div className="flex items-center justify-between text-xs font-bold eq-muted">
-              <span>Progression sur la carte</span>
+              <span>Progression dans les cours</span>
               <span>
                 {completionPercent} %{maxStars > 0 ? ` · ${totalStars} / ${maxStars} étoiles` : ""}
               </span>
@@ -246,7 +246,7 @@ export function HomeView({
               <i style={{ width: `${completionPercent}%` }} />
             </div>
           </div>
-          <Link href="/quest/atlas" prefetch={false} className="eq-text-link mt-3 self-start">Essayer l’aventure BD</Link>
+          <Link href="/quest/atlas" prefetch={false} className="eq-text-link mt-3 self-start">Suivre l’aventure de Maya et Sam</Link>
           </div>
         </section>
 
