@@ -14,6 +14,7 @@ for (const script of [
   'scripts/tests/atlas-regression.cjs',
   'scripts/tests/exercise-invariants.cjs',
   'scripts/tests/auth-pagination-regression.cjs',
+  'scripts/tests/contact-followups-postgres.cjs',
   'scripts/tests/rewards-regression.cjs',
   'scripts/tests/collection-shop-postgres.cjs',
   'scripts/tests/character-roster-postgres.cjs',

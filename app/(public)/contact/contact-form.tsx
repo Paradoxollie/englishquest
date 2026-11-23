@@ -4,6 +4,8 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import type { User } from "@supabase/supabase-js";
 import { submitContactMessageAction } from "./actions";
+import Link from "next/link";
+import { ReceiptLink } from "@/components/contact/receipt-link";
 
 type Profile = {
   username: string;
@@ -117,6 +119,8 @@ export function ContactForm({ user, profile, initialSubject }: ContactFormProps)
       {state.success && (
         <div role="status" className="rounded-[var(--radius)] bg-[var(--mint-soft)] px-4 py-3 text-sm font-bold text-[var(--mint)]">
           {state.success}
+          {state.receipt && <div className="mt-3"><ReceiptLink path={state.receipt} remember /></div>}
+          {isAuthenticated && <Link href="/messages" className="eq-btn eq-btn-ghost mt-3">Ouvrir mes messages</Link>}
         </div>
       )}
 

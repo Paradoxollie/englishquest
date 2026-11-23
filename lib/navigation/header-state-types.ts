@@ -19,6 +19,7 @@ export type HeaderState = {
   role: ProfileRole | null;
   completionRate: number;
   canAccessDashboard: boolean;
+  contactReplies: number;
   canAccessTeachers: boolean;
   focusCourse: HeaderFocusCourse | null;
   focusGame: HeaderFocusGame | null;
@@ -31,6 +32,7 @@ export const guestHeaderState: HeaderState = {
   role: null,
   completionRate: 0,
   canAccessDashboard: false,
+  contactReplies: 0,
   canAccessTeachers: false,
   focusCourse: null,
   focusGame: null,

@@ -2,10 +2,12 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { receiptPath } from "@/lib/contact/receipts";
 
 export type ContactFormState = {
   error?: string;
   success?: string;
+  receipt?: string;
 };
 
 const LIMITS = { name: 80, email: 160, subject: 120, message: 3000 } as const;
@@ -85,22 +87,25 @@ export async function submitContactMessageAction(
   }
 
   // Insérer le message
-  const { error } = await adminClient
+  const { data: created, error } = await adminClient
     .from("contact_messages")
     .insert({
       user_id: user?.id || null,
+      guest_receipt_issued: !user,
       name,
       email,
       subject,
       message,
-    });
+    }).select("id, guest_receipt_key").single();
 
-  if (error) {
+  if (error || !created) {
     console.error("Error submitting contact message:", error);
     return { error: "Le message n'a pas pu être envoyé. Réessaie dans un instant." };
   }
 
-  return { success: SUCCESS };
+  return user
+    ? { success: "Message envoyé. Tu retrouveras la réponse dans Mes messages." }
+    : { success: "Message envoyé. Garde ton lien privé pour lire la réponse ici.", receipt: receiptPath(created.id, created.guest_receipt_key) };
 }
 
 

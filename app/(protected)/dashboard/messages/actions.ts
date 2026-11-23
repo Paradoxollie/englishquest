@@ -2,8 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/auth/roles";
+import { appendReply, currentContactUser } from "@/lib/contact/server";
+import { receiptPath, uuidPattern } from "@/lib/contact/receipts";
 
 export type MessageActionState = {
   error?: string;
@@ -71,52 +72,20 @@ export async function deleteMessageAction(
 }
 
 export async function replyToMessageAction(
-  prevState: MessageActionState,
   formData: FormData
 ): Promise<MessageActionState> {
-  if (!(await isAdmin())) {
-    return { error: "Vous n'avez pas les permissions nécessaires." };
-  }
+  const id = await currentContactUser();
+  if (!id) return { error: "Connecte-toi pour répondre." };
+  // The transaction checks the current database role before reading or writing the conversation.
+  return appendReply(formData, { id, team: true }, String(formData.get("messageId") ?? ""));
+}
 
-  const messageId = formData.get("messageId")?.toString();
-  const reply = formData.get("reply")?.toString().trim();
-
-  if (!messageId) {
-    return { error: "ID message manquant." };
-  }
-
-  if (!reply || reply.length === 0) {
-    return { error: "La réponse ne peut pas être vide." };
-  }
-
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { error: "Utilisateur non authentifié." };
-  }
-
-  const adminClient = createSupabaseAdminClient();
-  const { error } = await adminClient
-    .from("contact_messages")
-    .update({
-      reply: reply,
-      replied: true,
-      replied_by: user.id,
-      replied_at: new Date().toISOString(),
-      read: true, // Marquer comme lu automatiquement quand on répond
-    })
-    .eq("id", messageId);
-
-  if (error) {
-    console.error("Error replying to message:", error);
-    return { error: "Erreur lors de l'envoi de la réponse." };
-  }
-
-  revalidatePath("/dashboard/messages");
-  revalidatePath("/dashboard");
-  revalidatePath("/messages"); // Revalider aussi la page des utilisateurs
-  return { success: "Réponse envoyée avec succès !" };
+export async function getGuestReceipt(messageId: string) {
+  if (!uuidPattern.test(messageId) || !(await isAdmin())) return { error: "Échange indisponible." };
+  const { data, error } = await createSupabaseAdminClient().from("contact_messages")
+    .select("id, guest_receipt_key").eq("id", messageId).is("user_id", null).maybeSingle();
+  if (error || !data) return { error: "Lien indisponible." };
+  return { path: receiptPath(data.id, data.guest_receipt_key) };
 }
 
 

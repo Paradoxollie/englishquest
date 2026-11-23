@@ -50,8 +50,10 @@ export function AppHeader() {
     if (!userId) return;
     const account = userId;
     let controller: AbortController | null = null;
+    let lastChecked = 0;
 
     async function loadHeaderState() {
+      lastChecked = Date.now();
       controller?.abort();
       const request = new AbortController();
       controller = request;
@@ -84,11 +86,18 @@ export function AppHeader() {
     };
     window.addEventListener("eq:reward", handleRefresh);
     window.addEventListener("itemEquipped", handleRefresh);
+    window.addEventListener("eq:contact-notices", handleRefresh);
+    const onReturn = () => {
+      if (document.visibilityState === "visible" && Date.now() - lastChecked > 60_000) handleRefresh();
+    };
+    document.addEventListener("visibilitychange", onReturn);
 
     return () => {
       controller?.abort();
       window.removeEventListener("eq:reward", handleRefresh);
       window.removeEventListener("itemEquipped", handleRefresh);
+      window.removeEventListener("eq:contact-notices", handleRefresh);
+      document.removeEventListener("visibilitychange", onReturn);
     };
   }, [userId]);
 
@@ -112,6 +121,8 @@ export function AppHeader() {
   ];
 
   const resolvedLoading = loading || Boolean(userId && accountHeader?.userId !== userId);
+  const notices = headerState.contactReplies;
+  const messagesLabel = notices ? `Messages (${notices})` : "Messages";
 
   return (
     <header className="eq-header" data-staff={headerState.canAccessTeachers || headerState.canAccessDashboard || undefined}
@@ -172,7 +183,7 @@ export function AppHeader() {
           ) : user ? (
             <>
               <Link href="/messages" className="eq-btn eq-btn-ghost eq-btn-sm" title="Mes messages">
-                Messages
+                {messagesLabel}
               </Link>
               <Link href="/profile" className="eq-profile-link" title="Mon profil">
                 <ProfileRing state={headerState} />
@@ -213,6 +224,8 @@ export function AppHeader() {
             <span className="eq-burger-bar" />
             <span className="eq-burger-bar" />
             <span className="eq-burger-bar" />
+            {notices > 0 && <span className="absolute -right-1 -top-1 rounded-full bg-[var(--pro-primary)] px-1.5 text-xs font-bold text-white"
+              aria-hidden="true" title="Réponse à consulter">{notices}</span>}
           </button>
         </div>
       </div>
@@ -238,7 +251,7 @@ export function AppHeader() {
                   Mon profil
                 </Link>
                 <Link href="/messages" className="eq-btn eq-btn-ghost">
-                  Messages
+                  {messagesLabel}
                 </Link>
                 <button type="button" onClick={handleLogout} className="eq-btn eq-btn-ghost">
                   Se déconnecter

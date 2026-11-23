@@ -4,6 +4,8 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { ContactForm } from "./contact-form";
 import { passages } from "@/lib/adventure/catalog";
+import Link from "next/link";
+import { SavedReceipt } from "@/components/contact/receipt-link";
 
 export const metadata = publicPageMetadata({
   path: "/contact",
@@ -50,14 +52,21 @@ export default async function ContactPage({ searchParams }: {
             <ul className="eq-muted grid gap-2.5 text-sm leading-relaxed">
               <li>Mot de passe oublié : indique ton pseudo, je réinitialise ton accès.</li>
               <li>Un bug : précise sur quelle page et avec quel appareil si possible.</li>
-              <li>Professeur : indiquez votre pseudo et votre établissement pour activer le rôle professeur.</li>
+              <li>{user ? "Pour demander l’accès professeur, écris-nous ici depuis ton compte."
+                : <>Pour demander l’accès professeur, <Link className="underline" href="/auth/signup?next=/contact">crée ton compte</Link>, puis écris ici avec ton pseudo.</>}</li>
             </ul>
             {profile ? (
               <p className="eq-inset p-3 text-sm eq-muted">
                 Connecté en tant que <b className="text-[var(--pro-text)]">{profile.username}</b>. La réponse arrivera
                 dans tes messages.
               </p>
-            ) : null}
+            ) : (
+              <div className="eq-inset grid gap-2 p-3 text-sm">
+                <p>Après l’envoi, tu obtiendras un lien privé pour lire la réponse et poursuivre l’échange sur le site.</p>
+                <p>Tu as déjà écrit sans compte et tu n’as pas de lien ? Renvoie ta demande pour en obtenir un.</p>
+              </div>
+            )}
+            <SavedReceipt />
           </section>
           <section className="eq-card p-6 md:p-8">
             <ContactForm user={user} profile={profile} initialSubject={initialSubject} />
