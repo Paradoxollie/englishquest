@@ -9,9 +9,10 @@ const url = (path) => new URL(path,base).href;
 
 async function verifyCourseVariant(browser, course, prompt, answer) {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
-  // A repeatable draw on this isolated page also works with a minified production build.
+  // Keep each integer shuffle index repeatable, while allowing React to generate distinct event keys.
   await page.addInitScript((draw) => {
-    Math.random = () => draw;
+    const originalRandom = Math.random;
+    Math.random = () => draw + originalRandom() * 0.00001;
   }, course === 1 ? 0.25 : 0.4);
   try {
     await page.goto(url(`/cours/${course}#quiz`));
