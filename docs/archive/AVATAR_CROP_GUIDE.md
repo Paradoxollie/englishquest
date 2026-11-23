@@ -1,5 +1,7 @@
 # Guide - Système de Crop d'Avatars
 
+**Archive, repère au 23 novembre 2026.** Les personnages officiels possèdent maintenant un portrait et une silhouette. Le cadrage des nouveaux visuels et la reprise des anciens achats sont décrits dans le [point de reprise](../../REPRISE.md).
+
 ## 🎨 Fonctionnalités
 
 ### Crop d'image (style WhatsApp)

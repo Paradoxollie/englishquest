@@ -2,9 +2,11 @@
 
 Site gratuit d'apprentissage de l'anglais par le jeu, créé par Pierre Marienne, professeur
 d'anglais. Parcours de 50 cours avec quiz, neuf mini-jeux, progression par XP et or,
-quatre albums illustrés, douze personnages à collectionner et classements.
+quatre albums illustrés, douze personnages à collectionner et classements. L’Atlas des
+passages propose 15 escales en BD. L’espace professeur permet de donner des devoirs
+et de lancer une séance synchronisée sur les téléphones de sa classe.
 
-Production : https://englishquest-omega.vercel.app
+[Ouvrir le site public](https://englishquest-omega.vercel.app) · [Reprendre le projet dans une autre conversation](REPRISE.md) · [Bilan de fréquentation des 22 et 23 novembre](docs/FREQUENTATION-2026-11-23.md)
 
 ## Pile technique
 
@@ -54,7 +56,9 @@ en invité et enregistre ses captures dans `output/playwright/audit-2026-10-13/`
 | `app/` | Pages et actions serveur (App Router). `(public)` = accès libre, `(protected)` = connexion requise |
 | `app/play/<jeu>/` | Interface de chaque jeu, soumission des scores, classements |
 | `app/cours/[id]/` | Affichage d'un cours et validation de mission |
-| `components/` | Interface : en-tête, cours, quiz, carte Aventure, pub, composants de base |
+| `components/` | Navigation selon le rôle, cours, quiz, BD, séances en direct, vestiaire et composants de base |
+| `lib/adventure/` | Escales, scènes, bulles, activités, quiz et reprise de l’Atlas |
+| `lib/classes/`, `lib/contact/` | Gestion de classe et séances synchronisées, suivi privé des demandes |
 | `lib/courses/` | Les 50 cours (`list/course1..50.tsx`), catalogue, métadonnées, progression, missions |
 | `lib/games/` | Moteurs de jeu (logique pure, testable) et listes de mots |
 | `lib/profile/` | XP, niveaux, récompenses, défi du jour |
@@ -63,7 +67,7 @@ en invité et enregistre ses captures dans `output/playwright/audit-2026-10-13/`
 | `supabase/migrations/` | Scripts SQL à exécuter, dans l'ordre |
 | `supabase/archive/` | Scripts historiques, déjà exécutés, à ne pas relancer |
 | `docs/archive/` | Anciennes notes de dépannage |
-| `scripts/` | Outils de maintenance des listes de mots et des visuels |
+| `scripts/` | Tests, maintenance des listes de mots, contrôle de l’audio et préparation des visuels |
 
 ## Ajouter un cours
 
@@ -73,7 +77,7 @@ en invité et enregistre ses captures dans `output/playwright/audit-2026-10-13/`
 
 ## Ajouter du vocabulaire
 
-Chaque mot porte un niveau : 1 = A1 (chapitre 1) à 5 = C1 (chapitre 5), voir
+Les cinq niveaux de vocabulaire correspondent à A1, A2, A2+, B1 et B1+, voir
 `lib/games/levels.ts`. Un joueur connecté joue au niveau de son chapitre en cours ; un
 invité choisit son niveau (Débutant par défaut). Les jeux tirent environ 70 % des mots au
 niveau du joueur et 30 % au niveau inférieur.
@@ -85,8 +89,7 @@ niveau du joueur et 30 % au niveau inférieur.
 - Enigma Scroll : `lib/games/enigma-scroll-targets.ts` (mots à deviner avec traduction et
   niveau) ; les propositions acceptées sont dans `public/data/enigma-guesses-4.json`, `-5`,
   `-6`, chargées à la demande (`node scripts/update-word-lists.js` pour les régénérer)
-- Lexicon Blaster : `lib/games/spaceLexShooter.ts` (thèmes, connecteurs, synonymes, et leurs
-  versions simplifiées pour les niveaux 1 et 2)
+- Lexicon Blaster : `lib/games/space-lex-families.ts` contient les familles ; `lib/games/spaceLexShooter.ts` organise les tirages, les synonymes et les reprises.
 - Speed Verb Challenge : `lib/games/speed-verb-challenge.ts` (`VERBS`)
 
 ## Sessions de partie et scores
@@ -99,8 +102,8 @@ aucun score.
 
 ## Règles du projet
 
-- Les cours et jeux restent gratuits et sans publicité ; la publicité n'apparaît qu'en pied
-  de page des pages d'information (accueil, à propos, contact).
+- Le site est gratuit et sans publicité. Les activités individuelles s’essaient en invité.
+  Un compte est nécessaire pour le suivi entre appareils et pour rejoindre une classe.
 - Aucune image envoyée par un utilisateur n'est affichée sans validation.
 - Toute modification de la base passe par un fichier dans `supabase/migrations/`.
 - Le texte du site est en français, avec ses accents.

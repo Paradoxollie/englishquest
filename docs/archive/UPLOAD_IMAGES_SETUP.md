@@ -1,5 +1,7 @@
 # Configuration de l'Upload d'Images Personnalisées
 
+**Archive, repère au 23 novembre 2026.** Cette procédure concerne les images personnalisées de l’ancien système. Pour les personnages officiels actuels, partir du [catalogue](../../lib/shop/characters.ts) et des [règles de confidentialité](../../.cursor/rules/security-and-rgpd.md).
+
 Ce guide explique comment configurer le système d'upload d'images pour les avatars et backgrounds personnalisés.
 
 ## 📋 Checklist de configuration

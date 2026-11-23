@@ -1,5 +1,7 @@
 # Dépannage - Gestion de la Boutique
 
+**Archive, repère au 23 novembre 2026.** Pour un achat ou un portrait manquant, vérifier le catalogue actif, le reçu et l’article équipé avec les [essais des albums](../../scripts/tests/collection-shop-postgres.cjs) et de la [reprise des personnages](../../scripts/tests/character-roster-postgres.cjs).
+
 ## 🔍 Vérifications à faire
 
 ### 1. Vérifier le bucket Storage

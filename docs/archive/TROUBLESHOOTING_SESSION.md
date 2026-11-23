@@ -1,5 +1,7 @@
 # Dépannage - Problème de Session après Login
 
+**Archive, repère au 23 novembre 2026.** Pour une difficulté de connexion actuelle, distinguer la session du compte et la session d’une partie. Vérifier le trajet de retour après connexion et les [contrôles de régression](../../scripts/README.md).
+
 ## 🔍 Diagnostic
 
 Si vous êtes redirigé vers `/auth/login` après vous être connecté, cela signifie que la session n'est pas correctement reconnue par le serveur.

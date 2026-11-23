@@ -1,5 +1,7 @@
 # Guide de Gestion de la Boutique (Admin)
 
+**Archive, repère au 23 novembre 2026.** La gestion en service se trouve dans `/dashboard/shop`. Le vestiaire utilise les albums illustrés, les titres et l’inventaire des propriétaires. [État des albums](../../supabase/README.md)
+
 Ce guide explique comment gérer les avatars, titres et backgrounds depuis le dashboard admin.
 
 ## 📍 Accès

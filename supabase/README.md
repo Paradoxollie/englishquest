@@ -1,5 +1,20 @@
 # Base de données Supabase
 
+## État vérifié le 23 novembre 2026
+
+L’historique de migrations de la base de production confirme les onze migrations horodatées du 18 au 23 novembre inclus. Les indications d’application plus bas décrivent leur ordre d’installation pour un environnement neuf.
+
+| Dates | Changements présents sur Omega |
+| --- | --- |
+| 18 et 19 novembre | Scores et récompenses atomiques, reprise des quiz invités, albums, personnages, conservation du positionnement vérifié. |
+| 21 novembre | Chaque professeur gère ses propres classes. Les tables `class_live_sessions`, `class_live_results` et les autres tables du direct enregistrent les manches et leurs résultats. Le suivi classe distingue le travail joué des missions acquises par positionnement. |
+| 22 novembre | `adventure_checkpoints` permet la reprise privée de l’Atlas par compte. Les migrations successives étendent la sauvegarde jusqu’à l’escale 15. Le brouillon permet de retrouver la case en cours. |
+| 23 novembre | `contact_messages` porte le suivi de remise des réponses. `contact_followups` garde les ajouts successifs au fil. Le serveur vérifie l’identité du titulaire du compte ou le reçu privé de l’invité. Un accusé de lecture repose sur l’action prévue dans le fil. |
+
+Pour faire un bilan d’usage, comparer les horodatages `visited_at`, `created_at` et `completed_at` en heure de Paris. Le compteur des pages et la base de scores ont des périmètres différents. Les parties invitées ne créent pas de ligne dans `game_scores`. Le champ `best_score` des cours distingue une mission jouée et un acquis de positionnement. [Comparaison et requête en lecture seule](../docs/FREQUENTATION-2026-11-23.md)
+
+Les procédures de purge d’octobre et les scripts consolidés documentent des interventions historiques. Vérifier l’historique appliqué avant une nouvelle opération. La durée de rétention réellement appliquée à `site_visits` reste à établir. [Point de reprise](../REPRISE.md)
+
 Projet de production : `englishquest` (eu-north-1). Plan gratuit : le projet se met
 en veille après une semaine sans requête ; la page Supabase du projet permet de le
 réveiller (bouton Restore), ou n'importe quelle visite du site une fois réveillé le
@@ -40,7 +55,7 @@ définies en base. Le solde des comptes existants est conservé.
 Le serveur corrige les quiz invités et conserve sur l'appareil une preuve signée
 pendant 180 jours. À la connexion, la base importe les résultats vérifiés, conserve
 la meilleure note de chaque mission et attribue les récompenses dans l'ordre du
-parcours. Le bilan d'audience compte les visites et les visiteurs distincts en base.
+parcours. Le bilan d’audience compte des requêtes et des empreintes réseau distinctes.
 Ces trois fonctions sont appelables uniquement avec le rôle du serveur.
 
 `npm test` exécute leurs essais sur un PostgreSQL en mémoire. Pour relancer

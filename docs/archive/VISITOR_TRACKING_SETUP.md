@@ -1,5 +1,7 @@
 # Configuration du Tracking des Visiteurs
 
+**Archive, repère au 23 novembre 2026.** Le suivi actuel filtre notamment les préchargements reconnus et les écrans en direct. Les parties invitées restent invisibles dans les scores. Le [bilan de novembre](../FREQUENTATION-2026-11-23.md) contient les définitions et une requête reproductible.
+
 Ce document explique comment configurer le système de tracking des visiteurs pour EnglishQuest.
 
 ## 📋 Vue d'ensemble

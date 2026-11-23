@@ -1,5 +1,7 @@
 # Comment ajouter des mots manuellement au dictionnaire Wordfall
 
+**Archive, repère au 23 novembre 2026.** Pour Wordfall, éditer le [fichier de mots actuel](../../lib/games/words/wordfall-words.json), puis contrôler les traductions, le niveau et les essais des jeux de chute. [Essais](../../scripts/README.md)
+
 Vous pouvez ajouter des mots manuellement de deux façons :
 
 ## Méthode 1 : Ajouter dans le script (recommandé)

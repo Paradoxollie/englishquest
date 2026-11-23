@@ -1,22 +1,10 @@
-# Product Vision – EnglishQuest
+# Publics et parcours d’English Quest
 
-You are coding "EnglishQuest", a FREE gamified website to help French middle and high school students learn English.
+English Quest permet aux francophones d’apprendre l’anglais en autonomie et aux enseignants de s’en servir en classe. Les activités sont gratuites et sans publicité. L’essai en invité précède toute proposition d’inscription. La contrainte d’exploitation de Pierre est zéro dépense.
 
-Main audiences:
-- Students: create an account with a pseudonym and password, play games, earn XP and gold, unlock avatars and rewards, and progress through 50 structured quest levels (like a Candy Crush map).
-- Teachers: access teaching resources, sequences, game ideas, and advice (free at first, maybe premium later).
-- Admin (Pierre): manage content, users, rewards, levels, and teacher resources.
+- **Invité.** Cours, quiz, neuf jeux et aventure BD accessibles directement. Le téléphone et le navigateur conservent les acquis prévus pour ce mode.
+- **Joueur connecté.** Progression personnelle, reprise sur un autre appareil pour les acquis associés, scores, expérience, or, inventaire et classements. La carte des 50 cours et les 15 escales actuelles de l’Atlas ont leurs propres progressions.
+- **Professeur autorisé.** Classes, codes, devoirs, activité récente des membres et séances à projeter avec classement final. Les cours HTML complets produits en parallèle pour les professeurs relèvent d’un projet ultérieur.
+- **Gestionnaire.** Administration des accès, du vestiaire et des demandes. L’accès professeur ouvre ses propres classes.
 
-Hard constraints:
-- The app must stay FREE to use for students and teachers and CHEAP to host for Pierre (use free tiers when possible).
-- Only store minimal personal data: pseudonym, hashed password (via Supabase Auth), and gameplay stats. Email is optional for password reset.
-- Comply with GDPR basics: minimal data collection, ability to delete an account, clear privacy notice, EU hosting when possible.
-- Security is critical: do not expose secrets, always use Supabase Row-Level Security (RLS) and never expose the `service_role` key in the frontend.
-- The site must work perfectly on mobile, tablet, and desktop, in both portrait and landscape orientation.
-
-Core features:
-- Auth: pseudonym + password (optional email).
-- Student hub: `/play` for games with persistent scores and leaderboards, `/quest` for the 50-level path, `/profile` for avatar and stats.
-- Gamification: XP, gold, levels, avatars, achievements, daily challenges, leaderboards.
-- Teachers area: `/teachers` with resources.
-- Admin area: `/dashboard` (only admin role).
+Les consignes des premières escales sont en français, les échanges et activités en anglais. La difficulté et la place de l’anglais augmenteront au fil de la BD. Le cap de 200 à 250 escales s’atteint progressivement par des chapitres éprouvés avec des joueurs. [État des parcours et priorités](../../REPRISE.md)

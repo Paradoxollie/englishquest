@@ -1,5 +1,11 @@
 # Les voix de Spell Strike et Echo Signal
 
+## Écouter les jeux et l’aventure
+
+Les jeux privilégient l’anglais américain. Dans l’Atlas des passages, certaines cases proposent un court extrait et d’autres se jouent par la lecture ou l’écriture. Les enregistrements de l’Atlas sont dans `passage/`. Les options d’écoute donnent accès au fichier original lorsqu’un lecteur intégré tarde à démarrer. Pour comparer le rendu sur un téléphone, on peut essayer la salutation du quai, un mot de Spell Strike et un dialogue d’Echo Signal. [Découvrir l’Atlas](https://englishquest-omega.vercel.app/quest/atlas)
+
+## Contenu du pack des deux jeux
+
 Les deux jeux diffusent des MP3 préparés pour English Quest. Le pack américain emploie Heart pour la dictée et répartit les répliques entre Heart et Michael selon le personnage. Les 340 enregistrements représentent environ 7,2 Mo. Le navigateur télécharge les extraits au fil de la partie.
 
 | Contenu | Chemin depuis ce dossier | Nombre |

@@ -1,5 +1,19 @@
 # English Quest : bilan et plan d'amélioration
 
+## Priorités au 23 novembre 2026
+
+| Ordre | Travail à reprendre | Comment juger le résultat |
+| --- | --- | --- |
+| 1 | Essai en classe prévu en décembre | Une enseignante et ses élèves entrent avec leur code, terminent un jeu puis un cours, voient le podium et savent où reprendre. Observer le Wi-Fi, les petits écrans, les mots visés dans Lexicon et les retours spontanés. |
+| 2 | Qualité de l’écoute et autonomie des débutants | Écouter les voix américaines sur téléphones réels et vérifier si un débutant comprend la première consigne, retrouve l’aide et peut finir seul. Noter le modèle d’appareil, la mission et l’extrait concerné. |
+| 3 | Suite de l’Atlas et relecture des cours | Après les 15 escales publiées, concevoir l’arc suivant par compétences, varier la mécanique, vérifier les réponses acceptables et la lisibilité avant de multiplier les épisodes. |
+| 4 | Comprendre l’usage après les partages | Comparer les jours à la même heure, distinguer ouvertures, scores et validations de quiz. Évaluer l’intérêt de compteurs agrégés de débuts et fins de partie pour les invités. [Mesures et limites](docs/FREQUENTATION-2026-11-23.md) |
+| 5 | Exploitation gratuite et suivi des demandes | Vérifier les quotas lors d’un vrai essai, la conservation effective du journal de visites et la remise des réponses aux anciens invités. Une demande d’accès professeur attend le retour depuis un compte connecté. |
+
+Omega propose déjà neuf jeux, 50 cours, quatre albums, 12 personnages, une première aventure BD, les classes privées et leur mode direct, les conversations de contact et la navigation adaptée au téléphone. Le calendrier et les problèmes relevés ci-dessous décrivent le projet en octobre. Les dates, preuves et points encore ouverts sont regroupés dans le [point de reprise](REPRISE.md).
+
+## Plan initial d’octobre 2026
+
 Bilan du 15 octobre 2026, mis à jour au fil du travail.
 
 À lire en premier par toute nouvelle session. Mettre à jour la colonne « État » au fil du travail.

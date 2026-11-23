@@ -1,5 +1,7 @@
 # Wordfall - Dictionnaire avec Traductions
 
+**Archive, repère au 23 novembre 2026.** Wordfall utilise le [dictionnaire traduit](../../lib/games/words/wordfall-words.json). Les scores, récompenses et sessions passent désormais par les mécanismes communs aux jeux. [Fonctionnement actuel](../../README.md)
+
 Ce dossier contient le dictionnaire pour le jeu Wordfall avec traductions français-anglais.
 
 ## ⚡ Mise à jour automatique

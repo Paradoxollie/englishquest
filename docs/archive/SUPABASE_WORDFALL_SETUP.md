@@ -1,5 +1,7 @@
 # Configuration Supabase pour Wordfall
 
+**Archive, repère au 23 novembre 2026.** Les scores de Wordfall passent désormais par la session de jeu commune avec attribution atomique des récompenses. [Fonctionnement actuel](../../README.md) · [Migrations appliquées](../../supabase/README.md)
+
 Ce guide vous explique comment configurer Supabase pour que le jeu Wordfall fonctionne correctement.
 
 ## 📋 Checklist de configuration

@@ -1,4 +1,17 @@
-# Enigma Scroll - Word Lists Management
+# Index des procédures historiques
+
+Les notes ci-dessous conservent les procédures et les diagnostics des versions antérieures. Le [guide de la base](../../supabase/README.md) indique les migrations effectivement appliquées. Le [point de reprise](../../REPRISE.md) décrit la version publique.
+
+| Sujet | Documents d’origine |
+| --- | --- |
+| Comptes et accès | [Première configuration](SUPABASE_SETUP.md), [erreur à la création de compte](DIAGNOSTIC.md), [session après connexion](TROUBLESHOOTING_SESSION.md), [ancien problème de stockage](FIX_STORAGE_RECURSION.md) |
+| Visites | [Mise en place du journal](VISITOR_TRACKING_SETUP.md), [nettoyage historique](CLEANUP_VISITS_GUIDE.md) |
+| Boutique et images | [Première boutique](SHOP_SYSTEM_SETUP.md), [gestion](ADMIN_SHOP_MANAGEMENT.md), [dépannage](TROUBLESHOOTING_SHOP.md), [recadrage des avatars](AVATAR_CROP_GUIDE.md), [images personnalisées](UPLOAD_IMAGES_SETUP.md) |
+| Jeux et dictionnaires | [Speed Verb Challenge](SUPABASE_SPEED_VERB_SETUP.md), [schéma historique de Wordfall](SUPABASE_WORDFALL_SETUP.md), [dictionnaire de Wordfall](README-WORDFALL.md), [ajout de mots](MANUAL-WORD-ADDITION.md), [Enigma et Wordle](ENIGMA_SCROLL_WORDLE_COMPARISON.md) |
+
+## Ancienne note sur les listes d’Enigma Scroll
+
+Les cibles pédagogiques actuelles ont leur [propre catalogue](../../lib/games/enigma-scroll-targets.ts). Le [guide des scripts](../../scripts/README.md) explique comment sont régénérées les propositions acceptées.
 
 Ce dossier contient les listes de mots pour le jeu Enigma Scroll.
 

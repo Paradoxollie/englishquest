@@ -1,5 +1,7 @@
 # Guide de Configuration Supabase pour EnglishQuest
 
+**Archive, repère au 23 novembre 2026.** Pour l’installation actuelle, commencer par les [variables de développement](../../README.md) et l’[historique des migrations appliquées](../../supabase/README.md). Les extraits ci-dessous décrivent la première configuration.
+
 Ce guide vous explique comment configurer Supabase pour que l'authentification et les profils fonctionnent correctement.
 
 ## 📋 Étapes de Configuration

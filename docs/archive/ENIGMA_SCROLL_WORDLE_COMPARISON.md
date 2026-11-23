@@ -1,5 +1,7 @@
 # Enigma Scroll vs Wordle - Comparaison des systèmes de validation
 
+**Archive, repère au 23 novembre 2026.** La banque actuelle distingue les [cibles traduites et graduées](../../lib/games/enigma-scroll-targets.ts) et les [dictionnaires de propositions](../../public/data). La comparaison ci-dessous explique l’ancienne organisation.
+
 ## 🔍 Différence principale
 
 ### Wordle (NYTimes)

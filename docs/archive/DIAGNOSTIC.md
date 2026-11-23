@@ -1,5 +1,7 @@
 # Diagnostic - Erreur "Database error saving new user"
 
+**Archive, repère au 23 novembre 2026.** Ce diagnostic concernait la création de compte sur un ancien schéma. Pour investiguer aujourd’hui, partir de l’erreur observée, des [migrations appliquées](../../supabase/README.md) et des [tests d’authentification](../../scripts/tests/auth-pagination-regression.cjs).
+
 ## 🔍 Étapes de Diagnostic
 
 ### 1. Vérifier que le script SQL a été exécuté

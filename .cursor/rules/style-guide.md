@@ -1,25 +1,8 @@
-# Style Guide – EnglishQuest
+# Style et usages sur petit écran
 
-Design:
-- Dark theme overall, with a professional, modern look.
-- Background: very dark (near black) with subtle gradients.
-- Accent colors: teal/cyan for primary actions, gold for XP and coins.
-- Use card components with rounded corners and subtle shadows.
+Les surfaces actuelles associent encre de BD pour les jeux et l’aventure, et papier de cahier pour la lecture des cours. Respecter les thèmes clair et sombre du site. Les titres utilisent Lexend et les textes Inter. Les accents or, cyan, menthe et corail signalent les récompenses, les actions et le résultat d’une réponse. [Base graphique](../../app/globals.css)
 
-Typography:
-- Use a clean, professional sans-serif font such as "Inter" for all text.
-- Headings use slightly larger sizes and bolder weight, but no fancy fonts.
-
-MMORPG flavor:
-- Use icons and small decorative elements inspired by RPGs (swords, books, crystals), but keep the UI minimal and not childish.
-- The site should feel like a serious, modern app for teens and young adults, not like a kids’ website.
-
-Responsiveness:
-- Design mobile-first.
-- All pages must be fully usable on smartphones, tablets, and desktops.
-- Use Tailwind responsive utilities (`sm:`, `md:`, `lg:`) to stack elements on small screens and use multi-column layouts on larger screens.
-
-Accessibility:
-- Ensure sufficient color contrast for text.
-- Use semantic HTML (nav, main, header, footer).
-- Buttons must be keyboard-focusable and clearly clickable.
+- Garder visibles les entrées Accueil, Aventure, Cours, Jeux et Collection, ainsi que l’accès propre au rôle du professeur ou du gestionnaire. Prévoir un retour clair pendant les activités en plein écran. Vérifier les intitulés, le clavier, le focus, les tailles tactiles et le contraste à 320 pixels et sur grand écran.
+- Dans l’Atlas, garder les trois parties et une action lisible par case. Faire apparaître la narration et les bulles au rythme du joueur. Une consigne courte, une question distincte et une aide après une erreur doivent aussi fonctionner sur téléphone.
+- Maya et Sam gardent leur identité de super-héros. Adapter les costumes, les décors et les actions à chaque monde, avec des références originales intégrées à l’histoire. Vérifier mains, poignets, objets, reflets et recadrages. Éviter une esthétique trop enfantine.
+- Sur le podium, révéler les places dans l’ordre 3, 2, 1. Respecter le réglage de réduction des animations et conserver l’information essentielle en version statique. [Décisions pédagogiques et graphiques](../../REPRISE.md)

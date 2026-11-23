@@ -1,5 +1,7 @@
 # Guide de Nettoyage des Visites
 
+**Archive, repère au 23 novembre 2026.** Ce guide décrit un nettoyage historique. Pour établir un bilan actuel, utiliser les horaires de Paris et les [requêtes agrégées en lecture seule](../FREQUENTATION-2026-11-23.md). La politique de rétention effective reste à vérifier.
+
 Ce guide explique comment nettoyer les anciennes données de visites qui ont été comptées avec les anciens critères (bots, prefetch, doublons).
 
 ## 📋 Vue d'ensemble

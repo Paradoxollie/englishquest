@@ -1,5 +1,7 @@
 # Configuration Supabase pour Speed Verb Challenge
 
+**Archive, repère au 23 novembre 2026.** Speed Verb Challenge utilise désormais la sauvegarde commune des scores et le contrôle de durée. L’état des tables de novembre et l’ordre des migrations figurent dans le [guide de la base](../../supabase/README.md).
+
 Ce guide vous explique comment configurer Supabase pour que le jeu Speed Verb Challenge fonctionne correctement.
 
 ## 📋 Checklist de configuration

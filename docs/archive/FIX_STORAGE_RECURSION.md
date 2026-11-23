@@ -1,5 +1,7 @@
 # Fix - Récursion infinie dans les politiques Storage
 
+**Archive, repère au 23 novembre 2026.** Cette note décrit un ancien incident de permissions de stockage. Retrouver les migrations actives et l’historique des droits dans le [guide de la base](../../supabase/README.md) avant d’intervenir.
+
 ## 🔴 Problème
 
 Erreur : `infinite recursion detected in policy for relation "profiles"`

@@ -1,5 +1,7 @@
 # Audit du site et des jeux
 
+**Mise à jour du 23 novembre 2026.** Cet audit porte sur les sept jeux d’octobre. Spell Strike et Echo Signal complètent désormais le catalogue. Pour la visée de Lexicon Blaster, les voix américaines et les essais encore attendus en classe, consulter le [point de reprise](REPRISE.md) et les [essais des neuf jeux](scripts/README.md).
+
 Audit du 13 octobre 2026. Les sept jeux ont été examinés et plusieurs bugs
 reproduits puis corrigés. Les vérifications couvrent les moteurs, les interfaces,
 les scores, les récompenses, les missions et les cinq niveaux du parcours.

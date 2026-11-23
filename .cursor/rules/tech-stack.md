@@ -1,33 +1,14 @@
-# Tech Stack – EnglishQuest
+# Architecture d’English Quest Omega
 
-Always use:
+Next.js 16 avec App Router, React 19, TypeScript, Tailwind CSS 4 et styles du projet. Supabase fournit l’authentification, PostgreSQL et le stockage. L’hébergement public passe par Vercel. L’exploitation vise les offres gratuites. [Installation locale](../../README.md)
 
-- Next.js (App Router) with TypeScript in the `app/` directory.
-- Tailwind CSS for styling.
-- Supabase for:
-  - Postgres database
-  - Authentication (email + password, but the main visible field is the pseudonym)
-  - Row-Level Security on all tables
+| Domaine | Source de référence |
+| --- | --- |
+| En-tête selon le rôle | [Composant commun](../../components/layout/app-header.tsx), [état de navigation](../../lib/navigation/header-state.ts) |
+| Cours classiques et carte | [Cours](../../lib/courses), [carte](../../components/quest/course-roadmap.tsx) |
+| Aventure illustrée | [Catalogue, scènes, quiz et reçus](../../lib/adventure) |
+| Jeux et récompenses | [Moteurs et scores](../../lib/games), [vestiaire](../../lib/shop) |
+| Classes et messagerie | [Gestion des séances](../../lib/classes), [conversations et reçus](../../lib/contact) |
+| Base réellement appliquée | [Migrations et état de production](../../supabase/README.md) |
 
-Hosting:
-- Host the Next.js app on Vercel (Hobby / free plan).
-- Use Supabase free tier for database and auth, with an EU region.
-
-Environment variables:
-- NEXT_PUBLIC_SUPABASE_URL
-- NEXT_PUBLIC_SUPABASE_ANON_KEY
-- SUPABASE_SERVICE_ROLE_KEY (server-side only, never in the browser)
-
-Data model (at least):
-- profiles (user id, username/pseudonym, role, xp, gold, level, avatar_id, created_at)
-- levels and user_levels (locked/unlocked/completed, best_score)
-- games and game_scores
-- avatars and user_avatars
-- achievements and user_achievements
-- daily_challenges and user_daily_challenges
-- teacher_resources
-
-When generating code:
-- Provide a `createClient` helper for Supabase in both server and client contexts.
-- Use RLS-safe queries (filter on `auth.uid()` when appropriate).
-- Keep the file structure clean: `app/(public)`, `app/(protected)`, `app/(admin)` if needed.
+Les clients navigateur, serveur et de service se trouvent dans `lib/supabase/`. Les variables de service restent côté serveur. En cas d’évolution du schéma, partir de l’historique appliqué et des migrations versionnées. Pour vérifier un parcours, utiliser les [essais existants](../../scripts/README.md) et comparer la révision de l’alias Omega à celle du dépôt.

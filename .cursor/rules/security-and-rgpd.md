@@ -1,18 +1,8 @@
-# Security and GDPR – EnglishQuest
+# Comptes, confidentialité et accès
 
-Security rules:
-- Never commit secrets (Supabase service_role key, API keys) to the frontend or to the public repo.
-- Use only NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in the browser.
-- Use the SUPABASE_SERVICE_ROLE_KEY only in secure server-side contexts (API routes, edge functions) if absolutely necessary.
-- Always enable Row-Level Security (RLS) on Supabase tables that store user data.
-- RLS policies must enforce that users can only read and write their own records (for example, `auth.uid() = user_id`).
+Les secrets de service restent côté serveur. Le navigateur utilise les variables publiques Supabase. Les lectures et écritures de données personnelles suivent les contrôles de rôle, les politiques de ligne et les actions du serveur. La politique publiée décrit les données utilisées et les moyens de demander leur suppression. [Confidentialité sur Omega](https://englishquest-omega.vercel.app/confidentialite)
 
-GDPR rules:
-- Store minimal user data: a pseudonym, hashed password (via Supabase Auth), and gameplay stats.
-- Email is optional and only used for password reset and account-related communication.
-- Provide an endpoint or page to delete a user account; when an account is deleted, anonymize or delete related gameplay data.
-- Host data in an EU region when possible.
-
-General:
-- Avoid logging sensitive data.
-- Prefer server-side checks for authorisation (role: admin, teacher, student).
+- Un professeur accède à ses classes, à leurs codes et au travail de leurs membres. Le rôle administrateur reste réservé à la gestion du site. Vérifier les droits sur une action serveur et lors d’une lecture des données. [Essais d’isolation entre classes](../../scripts/tests/class-visibility-postgres.cjs)
+- L’inscription accepte un pseudo, un mot de passe et une adresse facultative. Le profil propose la suppression du compte. Les réponses de contact sont privées. Un invité utilise un lien de suivi personnel, un compte retrouve ses fils dans Messages. Écarter des documents partagés les noms d’élèves, adresses, codes de classe et liens de suivi.
+- La BD garde des étapes validées sur l’appareil et, une fois rattachées à un compte, en base. Sur un téléphone partagé, le choix de rattachement appartient au joueur. Les écrans de séance en direct sont exclus du journal de visites.
+- Pour l’audience, travailler en agrégats. Le serveur conserve une empreinte de réseau et des informations de requête. La durée effective de conservation et sa purge restent à vérifier avant toute affirmation de conformité globale. [Mesure de l’audience](../../docs/FREQUENTATION-2026-11-23.md) · [Migrations appliquées](../../supabase/README.md)

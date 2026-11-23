@@ -1,5 +1,7 @@
 # Configuration du Système de Boutique
 
+**Archive, repère au 23 novembre 2026.** Les migrations du vestiaire et des douze personnages ont été appliquées en novembre. Consulter le [schéma actuel et les essais d’achat](../../supabase/README.md) avant une intervention sur le catalogue.
+
 Ce guide explique comment configurer le système de boutique pour les avatars, titres et backgrounds.
 
 ## 📋 Checklist de configuration
