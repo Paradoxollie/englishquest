@@ -119,7 +119,10 @@ export function ContactForm({ user, profile, initialSubject }: ContactFormProps)
       {state.success && (
         <div role="status" className="rounded-[var(--radius)] bg-[var(--mint-soft)] px-4 py-3 text-sm font-bold text-[var(--mint)]">
           {state.success}
-          {state.receipt && <div className="mt-3"><ReceiptLink path={state.receipt} remember /></div>}
+          {state.receipt && <div className="mt-3 grid gap-2">
+            <p>Garde ce lien pour toi. Toute personne qui l’ouvre peut lire l’échange et y répondre.</p>
+            <ReceiptLink path={state.receipt} remember />
+          </div>}
           {isAuthenticated && <Link href="/messages" className="eq-btn eq-btn-ghost mt-3">Ouvrir mes messages</Link>}
         </div>
       )}

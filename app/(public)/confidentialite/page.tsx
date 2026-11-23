@@ -40,6 +40,11 @@ export default function PrivacyPage() {
             Le site compte aussi les pages consultées à partir d’une empreinte du réseau.
             Le journal des visites ne conserve pas l’adresse IP en clair.
           </p>
+          <p>
+            Si tu écris depuis la page Contact, ton nom ou pseudo, ton adresse e-mail et les messages sont conservés
+            pour cet échange. Un lien privé te permet de lire les réponses et d’écrire à nouveau. Garde-le pour toi.
+            Si tu choisis de l’enregistrer sur ton appareil, tu peux le retirer depuis la page Contact.
+          </p>
         </section>
 
         <section>
@@ -51,7 +56,8 @@ export default function PrivacyPage() {
               compte sans adresse e-mail fonctionne aussi ;</li>
             <li>tes scores aux jeux, ta progression sur la carte d&apos;aventure, tes points d&apos;expérience,
               ton or et les objets que tu as choisis pour ton profil ;</li>
-            <li>les messages que tu envoies par le formulaire de contact ;</li>
+            <li>les échanges avec l’équipe dans « Mes messages ». Avec ou sans compte, si tu cliques sur
+              « Confirmer ma lecture », l’équipe voit la date de ta confirmation.</li>
             <li>dans l’aventure BD, tes étapes validées, ta case en cours et tes réponses en cours de rédaction
               pour reprendre sur un autre appareil.</li>
             <li>les classes que tu rejoins avec le code de ton professeur. Ton professeur voit alors ton

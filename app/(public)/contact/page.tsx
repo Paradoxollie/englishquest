@@ -62,7 +62,7 @@ export default async function ContactPage({ searchParams }: {
               </p>
             ) : (
               <div className="eq-inset grid gap-2 p-3 text-sm">
-                <p>Après l’envoi, tu obtiendras un lien privé pour lire la réponse et poursuivre l’échange sur le site.</p>
+                <p>Après l’envoi, garde ton lien privé. Les réponses t’attendront sur le site. Tu devras rouvrir ce lien pour les lire.</p>
                 <p>Tu as déjà écrit sans compte et tu n’as pas de lien ? Renvoie ta demande pour en obtenir un.</p>
               </div>
             )}
