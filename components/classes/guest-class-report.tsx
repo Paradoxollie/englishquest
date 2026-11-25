@@ -1,7 +1,11 @@
+import { cache } from "react";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { courseTitle } from "@/lib/classes/classes-data";
+import { getCourseQuizPool } from "@/lib/courses/exercises-server";
 import { eraseGuestParticipation } from "@/lib/classes/classes-server";
 import { ConfirmActionButton } from "./confirm-action-button";
+
+const exerciseCount = cache((course: number) => getCourseQuizPool(course).length);
 
 // The class detail page checks ownership before rendering this server component.
 export async function GuestClassReport({ classId }: { classId: string }) {
@@ -18,8 +22,15 @@ export async function GuestClassReport({ classId }: { classId: string }) {
     {error ? <p role="alert">Le bilan invité est momentanément indisponible.</p> : guests.length ? <ul className="eq-class-status-list">
       {guests.map(g => <li key={g.id}><div><strong>{g.nickname}</strong>{" · "}
         <time dateTime={g.created_at}>{new Date(g.created_at).toLocaleString("fr-FR", { timeZone: "Europe/Paris", dateStyle: "short", timeStyle: "short" })}</time>
-        {g.class_guest_work.map(work => <p key={work.class_assignments.course_id}>{courseTitle(work.class_assignments.course_id)}
-          {" · "}Réponses justes : {work.marks.filter(m => m.ok).length} / {work.marks.length}</p>)}
+        {g.class_guest_work.length === 0 && <p className="eq-muted">Aucune réponse à un devoir pour le moment.</p>}
+        {g.class_guest_work.map(work => {
+          const course = work.class_assignments.course_id;
+          const answered = work.marks.length;
+          const total = exerciseCount(course);
+          return <p key={course}><strong>{courseTitle(course)}</strong>
+            {" · "}{answered === total ? "Devoir terminé" : "En cours"} · {answered} / {total} exercices
+            {" · "}Réponses justes : {work.marks.filter(m => m.ok).length} / {answered}</p>;
+        })}
       </div><ConfirmActionButton label="Effacer" question={`Effacer la participation de ${g.nickname} et ses résultats ?`}
         confirmLabel="Oui, effacer" action={eraseGuestParticipation.bind(null, classId, g.id)} /></li>)}</ul>
       : <p className="eq-muted">Aucune participation invitée au cours des dix derniers jours.</p>}
