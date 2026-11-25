@@ -44,6 +44,7 @@ export default async function ClassCodeProjectionPage({ params }: { params: Prom
     <ProjectionCode
       classLabel={record.name}
       code={record.code}
+      firstName={record.ask_first_name}
       joinAddress={joinAddress()}
       backHref={`/teachers/classe/${record.id}`}
       archived={Boolean(record.archived_at)}

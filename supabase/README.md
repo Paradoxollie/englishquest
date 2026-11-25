@@ -1,6 +1,6 @@
 # Base de données Supabase
 
-## État vérifié le 23 novembre 2026
+## État vérifié le 25 novembre 2026
 
 L’historique de migrations de la base de production confirme les douze migrations horodatées du 18 au 23 novembre inclus. Les indications d’application plus bas décrivent leur ordre d’installation pour un environnement neuf.
 
@@ -11,10 +11,11 @@ L’historique de migrations de la base de production confirme les douze migrati
 | 22 novembre | `adventure_checkpoints` permet la reprise privée de l’Atlas par compte. Les migrations successives étendent la sauvegarde jusqu’à l’escale 15. Le brouillon permet de retrouver la case en cours. |
 | 23 novembre | [Le chapitre du refuge](migrations/20261123201128_atlas_refuge_chapter.sql) étend la contrainte des numéros d’escale jusqu’à 20. La contrainte validée, la protection des lignes et la conservation des points de reprise existants ont été contrôlées sur Omega. |
 | 23 novembre | `contact_messages` porte le suivi de remise des réponses. `contact_followups` garde les ajouts successifs au fil. Le serveur vérifie l’identité du titulaire du compte ou le reçu privé de l’invité. Un accusé de lecture repose sur l’action prévue dans le fil. |
+| 25 novembre | Un élève invité peut faire le travail de sa classe avec une participation temporaire. L’accès expire quatre heures après l’entrée. Le professeur consulte les devoirs invités pendant dix jours après l’entrée et le bilan du direct pendant dix jours après la fin de la séance. Les profils, acquisitions et scores personnels sont conservés séparément. |
 
 Pour faire un bilan d’usage, comparer les horodatages `visited_at`, `created_at` et `completed_at` en heure de Paris. Le compteur des pages et la base de scores ont des périmètres différents. Les parties invitées ne créent pas de ligne dans `game_scores`. Le champ `best_score` des cours distingue une mission jouée et un acquis de positionnement. [Comparaison et requête en lecture seule](../docs/FREQUENTATION-2026-11-23.md)
 
-Les procédures de purge d’octobre et les scripts consolidés documentent des interventions historiques. Vérifier l’historique appliqué avant une nouvelle opération. La durée de rétention réellement appliquée à `site_visits` reste à établir. [Point de reprise](../REPRISE.md)
+Le nettoyage horaire `englishquest-guest-retention` intervient à la minute 17. Les traces de visites hors classe sont regroupées après dix journées UTC complètes. Chaque passage traite jusqu’à trois anciennes dates. Les pages vues, les réseaux distincts du jour et les ouvertures de chaque jeu restent comparables après l’effacement des détails. Au 25 novembre, les 132 anciennes dates avaient été contrôlées avant le premier lot d’effacement. Les nombres de parties libres commencées et terminées par les invités viennent ensuite de `guest_game_days`, agrégé par jour de Paris et jeu. La fonction `game_usage_between` alimente la vue administrateur, sans stocker de score individuel invité. [Point de reprise](../REPRISE.md)
 
 Projet de production : `englishquest` (eu-north-1). Plan gratuit : le projet se met
 en veille après une semaine sans requête ; la page Supabase du projet permet de le

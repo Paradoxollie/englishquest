@@ -29,7 +29,7 @@ export function LiveCourseActivity({ title, objective, exercises, children }: {
   const [feedback, setFeedback] = useState<boolean | null>(null);
   const settled = useRef<string | null>(null);
   const [text, setText] = useState("");
-  const score = answers.filter(answer => {
+  const score = (activity?.initialCorrect ?? 0) + answers.slice(activity?.initialAnswers.length ?? 0).filter(answer => {
     const item = deck.find(entry => entry.id === answer.id);
     return item && isExerciseAnswerCorrect(item, answer);
   }).length;

@@ -124,4 +124,8 @@ SELECT count(*) AS reseaux_presents_les_deux_jours FROM
   (SELECT visitor_hash FROM jours GROUP BY visitor_hash HAVING count(*) = 2) AS communs;
 ```
 
+## Évolution des mesures le 25 novembre 2026
+
+Ce bilan reste celui des 22 et 23 novembre. À partir du 25, le tableau de bord compte aussi les parties libres lancées et terminées par les invités dans les neuf jeux, par jour de Paris. Il garde les ouvertures par jeu, les pages vues et les réseaux distincts quotidiens après le retrait des traces de plus de dix journées complètes. Les anciens lancements et fins de partie en invité ne peuvent pas être reconstitués. Les requêtes de reconstitution individuelle ci-dessus s’appliquent uniquement aux journées dont les détails existent encore.
+
 [Retour au point de reprise](../REPRISE.md)

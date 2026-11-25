@@ -10,11 +10,11 @@ export const metadata = publicPageMetadata({
 const features = [
   {
     title: "Une classe, un code",
-    copy: "Projetez le code de six caractères au tableau. Les élèves le saisissent sur leur téléphone ou leur ordinateur et rejoignent votre classe avec leur pseudo.",
+    copy: "Projetez le code ou partagez le lien élève. Sur téléphone ou ordinateur, chacun entre le pseudo ou le prénom que vous demandez. L’inscription est facultative.",
   },
   {
     title: "Une compétition en direct",
-    copy: "Choisissez les jeux ou les cours et la durée de chaque manche. Tous les appareils suivent le même compte à rebours. Vous voyez les réponses arriver et pouvez projeter le podium à la fin.",
+    copy: "Choisissez les jeux ou les cours et la durée de chaque manche. Suivez les réponses en direct, projetez le podium et retrouvez le bilan pendant dix jours.",
   },
   {
     title: "Le suivi de chaque élève",
@@ -37,7 +37,7 @@ const features = [
 const steps = [
   {
     title: "Créez un compte",
-    copy: "Un pseudo et un mot de passe, comme vos élèves. L'adresse e-mail est facultative, mais utile pour vous répondre.",
+    copy: "Le compte professeur sert à gérer vos classes. Vos élèves peuvent participer avec le code et un pseudo.",
   },
   {
     title: "Écrivez-moi depuis la page Contact",

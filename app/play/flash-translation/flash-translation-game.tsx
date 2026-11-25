@@ -286,6 +286,7 @@ export function FlashTranslationGame({
     playSoundEffect(state.wrongAnswers < state.rounds.length ? "victory" : "wrong");
     if (practice) return;
     if (!isLoggedIn) {
+      gameSession.finishGuest();
       setSubmitStatus("guest");
       return;
     }

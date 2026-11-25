@@ -20,6 +20,7 @@ async function run() {
       create table public.profiles(id uuid primary key, username text, role text);
       create table public.classes(id uuid primary key, teacher_id uuid, name text, code text, archived_at timestamptz);
       create table public.class_members(class_id uuid, user_id uuid, joined_at timestamptz default now(), primary key(class_id,user_id));
+      create table public.class_assignments(id uuid primary key default gen_random_uuid(), class_id uuid references public.classes, course_id integer);
       create table public.game_scores(user_id uuid, created_at timestamptz);
       create table public.user_course_progress(user_id uuid, status text, completed_at timestamptz, best_score integer);
       grant all on all tables in schema public to service_role;
@@ -33,6 +34,8 @@ async function run() {
     await db.exec(fs.readFileSync(path.join(dir, files[0]), "utf8"));
     const weekly = fs.readdirSync(dir).find(file => file.endsWith("_count_played_class_missions.sql"));
     await db.exec(fs.readFileSync(path.join(dir, weekly), "utf8"));
+    const guestMigration = fs.readdirSync(dir).find(file => file.endsWith("_temporary_class_participation.sql"));
+    await db.exec(fs.readFileSync(path.join(dir, guestMigration), "utf8"));
     const sql = (s,p=[]) => db.query(s,p);
     const rpc = async (user,action="state",session=null,rounds=null,index=null,progress=null,room=classroom) =>
       (await sql("select public.class_live_request($1,$2,$3,$4,$5,$6,$7) as state",
@@ -122,6 +125,37 @@ async function run() {
     assert.equal(groupBoard.people.length,30);
     assert.equal(groupBoard.people[0].correct,30);
     assert.equal(groupBoard.people.at(-1).rank,30);
+    // The teacher and registered student still use the original endpoint in the same room as a guest.
+    const token = "a".repeat(64), otherToken = "b".repeat(64), bucket = "d".repeat(64);
+    const enter = async (code,name,hash) => (await sql("select public.enter_class_as_guest($1,$2,$3,$4) as g",[code,name,hash,bucket])).rows[0].g;
+    const signed = await enter("BBBB33","Jun",token);
+    assert.equal(signed.classId,elsewhere);
+    assert.equal((await enter("BBBB33","Jun",token)).classId,elsewhere);
+    assert.equal((await enter("BBBB33","jun",otherToken)).error,"name");
+    assert.equal((await enter("AAAA22","Jun",otherToken)).classId,classroom);
+    const guestRpc = async (room=elsewhere,action="state",session=null,progress=null) => (await sql(
+      "select public.class_participant_request(null,$1,$2,$3,null,0,$4,$5) as state",[room,action,session,progress,token])).rows[0].state;
+    assert.equal((await guestRpc()).teacher,false);
+    await assert.rejects(guestRpc(classroom),/live_unavailable/);
+    await assert.rejects(guestRpc(elsewhere,"stop",groupRoom),/live_unavailable/);
+    await guestRpc(elsewhere,"pulse",groupRoom,JSON.stringify({answered:1,correct:1}));
+    assert.ok((await rpc(other,"state",groupRoom,null,null,null,elsewhere)).people.some(p=>p.name==="Jun"));
+    const assignment=randomUUID();
+    await sql("insert into public.class_assignments(id,class_id,course_id) values($1,$2,1)",[assignment,elsewhere]);
+    const work=async hash=>(await sql("select public.save_guest_class_work($1,$2,1,$3) as saved",
+      [hash,assignment,JSON.stringify([{id:"x1",ok:true,text:"private input"}])])).rows[0].saved;
+    assert.equal(await work(token),true);
+    assert.equal(await work(otherToken),false);
+    assert.equal(await work(token),true);
+    assert.deepEqual((await sql("select marks from public.class_guest_work")).rows[0].marks,[{id:"x1",ok:true}]);
+    await sql("update public.class_guests set access_until=now()-interval '1 minute' where token_hash=$1",[token]);
+    await assert.rejects(guestRpc(),/live_unavailable/);
+    assert.equal(await work(token),false);
+    assert.equal((await sql("select count(*)::int as n from public.class_guest_work")).rows[0].n,1);
+    assert.equal((await enter("BBBB33","Jun","f".repeat(64))).classId,elsewhere);
+    await sql("update public.classes set code='EEEE22' where id=$1",[classroom]);
+    assert.equal((await sql("select count(*)::int as n from public.class_guests where token_hash=$1",[otherToken])).rows[0].n,0);
+    console.log("PASS Guest class isolation, duplicate names, live board, server-graded homework, access expiry and rotated invitations");
     await db.exec("reset role; set role authenticated");
     assert.equal((await sql("select has_function_privilege(current_user,'public.class_live_request(uuid,uuid,text,uuid,jsonb,integer,jsonb)','execute') as allowed")).rows[0].allowed,false);
     console.log("PASS Live classroom: clock, grader, ties, history, privacy and a second group of 30 simultaneous simulated players");

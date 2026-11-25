@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 type ProjectionCodeProps = {
   classLabel: string;
   code: string;
+  firstName?: boolean;
   /** Adresse à taper, sans https:// (par exemple englishquest-omega.vercel.app/rejoindre). */
   joinAddress: string;
   backHref: string;
@@ -17,7 +18,7 @@ type ProjectionCodeProps = {
  * Recouvre l'en-tête et le pied de page du site ; « Plein écran » masque aussi
  * le navigateur.
  */
-export function ProjectionCode({ classLabel, code, joinAddress, backHref, archived }: ProjectionCodeProps) {
+export function ProjectionCode({ classLabel, code, joinAddress, backHref, archived, firstName }: ProjectionCodeProps) {
   const [fullscreen, setFullscreen] = useState(false);
 
   useEffect(() => {
@@ -82,7 +83,7 @@ export function ProjectionCode({ classLabel, code, joinAddress, backHref, archiv
             <span key={`${character}-${index}`}>{character}</span>
           ))}
         </p>
-        <p className="eq-projection-foot">Pas encore de compte ? Le site propose d&apos;en créer un d&apos;abord, sans adresse e-mail.</p>
+        <p className="eq-projection-foot">{firstName ? "Indiquez votre prénom" : "Choisissez un pseudo"}, puis « Participer sans compte ».</p>
       </div>
     </div>
   );

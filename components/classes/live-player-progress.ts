@@ -29,6 +29,7 @@ export function progressKey(playerId: string, sessionId: string, index: number):
 }
 
 export function readStoredRound(key: string): StoredRound {
+  if (key.startsWith("eq.live.v1.guest:")) return { progress: EMPTY_PROGRESS, pending: false };
   try {
     const raw = window.sessionStorage.getItem(key);
     if (raw) {
@@ -43,6 +44,7 @@ export function readStoredRound(key: string): StoredRound {
 }
 
 export function writeStoredRound(key: string, entry: StoredRound) {
+  if (key.startsWith("eq.live.v1.guest:")) return;
   try {
     window.sessionStorage.setItem(key, JSON.stringify(entry));
   } catch {

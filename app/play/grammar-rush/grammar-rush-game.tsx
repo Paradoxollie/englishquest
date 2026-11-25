@@ -288,6 +288,7 @@ export function GrammarRushGame({
     const run = runRef.current;
     const final = stateRef.current;
     if (!isLoggedIn) {
+      gameSession.finishGuest();
       setSubmitStatus("guest");
       return;
     }

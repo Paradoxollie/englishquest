@@ -466,6 +466,7 @@ export function SpeedVerbGame({
     playSoundEffect(stats.correct > 0 ? "victory" : "wrong");
 
     if (!isLoggedIn) {
+      gameSession.finishGuest();
       setSubmitStatus("guest");
       return;
     }

@@ -36,6 +36,7 @@ export default async function TeacherLivePage({ params }: { params: Promise<{ id
         classId={classroom.id}
         className={classroom.name}
         archived={Boolean(classroom.archived_at)}
+        firstName={classroom.ask_first_name}
         joinAddress={`${new URL(SITE_URL).host}/rejoindre`}
       />
     </div>

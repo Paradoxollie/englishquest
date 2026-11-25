@@ -42,6 +42,7 @@ export type ClassRecord = {
   teacher_id: string;
   name: string;
   code: string;
+  ask_first_name: boolean;
   created_at: string;
   archived_at: string | null;
 };
@@ -65,7 +66,7 @@ type ProgressRecord = {
   updated_at: string | null;
 };
 
-const CLASS_COLUMNS = "id, teacher_id, name, code, created_at, archived_at";
+const CLASS_COLUMNS = "id, teacher_id, name, code, ask_first_name, created_at, archived_at";
 const PAGE_SIZE = 1000;
 
 /** Compte connecté et rôle, lus une fois par requête. */
@@ -195,6 +196,7 @@ export type TeacherClassSummary = {
   id: string;
   name: string;
   code: string;
+  askFirstName: boolean;
   createdAt: string;
   archivedAt: string | null;
   pupilCount: number;
@@ -207,6 +209,7 @@ function toSummary(record: ClassRecord, pupilCount: number, viewer: Viewer, teac
     id: record.id,
     name: record.name,
     code: record.code,
+    askFirstName: Boolean(record.ask_first_name),
     createdAt: record.created_at,
     archivedAt: record.archived_at,
     pupilCount,

@@ -101,12 +101,12 @@ export default async function TeachersPage() {
               </li>
               <li>
                 <span>
-                  <b>Ouvrez la salle d&apos;attente et projetez le code.</b> Les élèves vont sur /rejoindre avec leur pseudo.
+                  <b>Ouvrez la salle d&apos;attente et projetez le code.</b> Les élèves entrent un pseudo sur /rejoindre, sans inscription. Vous pouvez aussi leur demander un prénom.
                 </span>
               </li>
               <li>
                 <span>
-                  <b>Donnez le départ</b> quand la classe est prête. Les manches s&apos;enchaînent jusqu&apos;au podium.
+                  <b>Donnez le départ</b> quand la classe est prête. Après le podium, vous pouvez revoir les résultats de la séance pendant dix jours.
                 </span>
               </li>
             </ol>

@@ -12,8 +12,7 @@ export default function PrivacyPage() {
   return (
     <div>
       <PageHead caption="Tes données" title="Politique de confidentialité">
-        La version courte : le site garde le strict nécessaire pour faire fonctionner ton compte, ne vend rien à
-        personne, et tu peux tout effacer toi-même depuis ton profil.
+        Retrouve ici ce qui est gardé quand tu joues en solo, participes avec ta classe ou utilises ton compte.
       </PageHead>
 
       <div className="eq-container eq-section">
@@ -37,8 +36,14 @@ export default function PrivacyPage() {
             tu peux choisir de rattacher à ton compte les étapes que tu as jouées en invité.
           </p>
           <p>
-            Le site compte aussi les pages consultées à partir d’une empreinte du réseau.
-            Le journal des visites ne conserve pas l’adresse IP en clair.
+            Hors des espaces de classe, le site compte les pages consultées à partir d’une empreinte du réseau.
+            Le journal conserve temporairement la page, l’heure, le navigateur déclaré et la provenance disponible.
+            Au-delà des dix dernières journées complètes, il ne reste que les totaux quotidiens de pages et de réseaux
+            et les nombres d’ouvertures par jeu. L’ancien journal est regroupé progressivement. L’adresse IP en clair ne figure pas dans ce journal.
+          </p>
+          <p>
+            Un compteur par jeu et par jour indique aussi combien de parties libres les invités ont commencées et terminées.
+            Il ne recueille ni ton score, ni tes réponses, ni un identifiant de joueur.
           </p>
           <p>
             Si tu écris depuis la page Contact, ton nom ou pseudo, ton adresse e-mail et les messages sont conservés
@@ -47,6 +52,22 @@ export default function PrivacyPage() {
           </p>
         </section>
 
+        <section id="classe-invite">
+          <h2 className="eq-h2">Participer en classe sans compte</h2>
+          <p>Du collège au lycée, tu peux entrer avec le code de ton prof et un pseudo. Si ton prof te le demande, un prénom suffit.
+            Tu n’as pas à donner ton nom de famille, une adresse e-mail, un mot de passe ou ta date de naissance.</p>
+          <p>Ton professeur et les administrateurs habilités peuvent voir ton pseudo et tes résultats. La classe peut voir les pseudos au podium.
+            Pour les exercices, le serveur vérifie ta réponse et garde le numéro de la question et le résultat de la correction.
+            Les parties invitées de classe restent en dehors du classement public.</p>
+          <p>Sur cet appareil, un cookie privé te permet de reprendre pendant quatre heures. « Quitter cet appareil » ferme cet accès.
+            Ton pseudo et le bilan invité des devoirs restent consultables dix jours après ton entrée. Le bilan d’une séance en direct
+            reste consultable dix jours après sa fin. Les données arrivées à échéance sont effacées au passage horaire suivant dans la base active.</p>
+          <p>Ton professeur peut effacer ta participation plus tôt. Pour demander une correction ou un effacement, adresse-toi à ton professeur
+            ou utilise le <Link href="/contact">formulaire de contact</Link>. Si tu choisis de créer un compte, le suivi durable commence avec ce compte.</p>
+          <p>Pour un usage scolaire, l’enseignant informe son chef d’établissement et se rapproche du délégué à la protection des données de son académie
+            pour les conditions de traitement, l’information des familles et l’exercice des droits.{" "}
+            <a href="https://www.education.gouv.fr/les-enjeux-de-la-protection-des-donnees-au-sein-de-l-education-455253">Repères du ministère de l’Éducation nationale</a>.</p>
+        </section>
         <section>
           <h2 className="eq-h2">Avec un compte</h2>
           <p>Quand tu crées un compte, le site enregistre :</p>
@@ -68,7 +89,8 @@ export default function PrivacyPage() {
             En séance de classe, ton professeur voit les pseudos présents, les réponses comptabilisées et les résultats
             de chaque manche. Les participants voient le podium de leur séance. Le site garde tes réponses aux
             exercices pour reprendre après une coupure. Quitter la classe efface ta participation et tes résultats
-            de ses séances. Ton professeur peut aussi consulter le nombre de parties libres et de missions validées
+            de ses séances. Le bilan collectif expire dix jours après la fin de la séance. Tes résultats personnels enregistrés en solo,
+            tes cours et tes récompenses restent sur ton compte. Ton professeur peut aussi consulter le nombre de parties libres et de missions validées
             pendant les sept derniers jours, à partir de ton entrée dans la classe.
           </p>
           <p>

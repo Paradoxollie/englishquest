@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 import { REQUEST_PATH_HEADER } from "@/lib/navigation/safe-next";
 
 function isLiveClassPath(pathname: string) {
-  return pathname.startsWith("/activite-classe/") || pathname.startsWith("/direct/")
-    || /^\/teachers\/classe\/[^/]+\/direct(?:\/|$)/.test(pathname);
+  return pathname === "/rejoindre" || pathname.startsWith("/rejoindre/") || pathname.startsWith("/activite-classe/")
+    || pathname.startsWith("/direct/") || pathname.startsWith("/teachers/classe/");
 }
 
 function visitReferrer(request: NextRequest) {
@@ -45,7 +45,9 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
     return NextResponse.next();
   }
 
-  if (isLiveClassPath(pathname)) {
+  const authNext = pathname.startsWith("/auth/") ? request.nextUrl.searchParams.get("next") : null;
+  if (isLiveClassPath(pathname) || request.cookies.has("eq-class-guest") ||
+      (authNext && /^\/(?:rejoindre|direct)(?:[/?]|$)/.test(authNext))) {
     const response = forwardPage();
     response.headers.set("Referrer-Policy", "no-referrer");
     return response;

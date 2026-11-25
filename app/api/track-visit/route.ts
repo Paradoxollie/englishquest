@@ -73,9 +73,16 @@ export async function POST(request: NextRequest) {
     
     // Extraire les données de la requête
     const body = await request.json().catch(() => ({}));
-    const path = body.path || request.nextUrl.pathname || '/';
+    const path = typeof body.path === 'string' ? body.path.split(/[?#]/, 1)[0].slice(0, 400) : '/';
+    if (request.cookies.has("eq-class-guest") || /^\/(?:rejoindre|direct|activite-classe|teachers\/classe)(?:\/|$)/.test(path)) {
+      return NextResponse.json({ success: true, skipped: 'class' });
+    }
     const userAgent = request.headers.get('user-agent') || null;
-    const referrer = request.headers.get('referer') || body.referrer || null;
+    let referrer: string | null = null;
+    try {
+      const source = new URL(request.headers.get('referer') || body.referrer);
+      if (source.protocol === "https:" || source.protocol === "http:") referrer = source.origin;
+    } catch { /* The referrer is optional. */ }
     
     // FILTRE 1: Ignorer les bots et crawlers
     if (isBot(userAgent)) {
@@ -100,9 +107,6 @@ export async function POST(request: NextRequest) {
     }
     
     const visitorHash = hashIP(clientIP);
-    
-    // Obtenir l'ID utilisateur si connecté (depuis le header ou le body)
-    const userId = body.userId || null;
     
     // Date de visite (normalisée à minuit UTC)
     const visitDate = new Date().toISOString().split('T')[0];
@@ -132,7 +136,7 @@ export async function POST(request: NextRequest) {
         user_agent: userAgent,
         path: path,
         visit_date: visitDate,
-        user_id: userId || null,
+        user_id: null,
         referrer: referrer,
         visited_at: new Date().toISOString(),
       });

@@ -511,6 +511,7 @@ export function WordfallGame({
     submittedRef.current = true;
     playSoundEffect(state.wordsCompleted > 0 ? "victory" : "wrong");
     if (!isLoggedIn) {
+      gameSession.finishGuest();
       setSubmitStatus("guest");
       return;
     }

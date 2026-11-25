@@ -18,7 +18,9 @@ function rankLabel(rank: number) {
   return rank === 1 ? "1er" : `${rank}e`;
 }
 
-function WaitingRoom({ snapshot, countdown }: { snapshot: LiveSnapshot; countdown: number | null }) {
+type GuestWork = { id: string; title: string }[];
+
+function WaitingRoom({ snapshot, countdown, guestWork }: { snapshot: LiveSnapshot; countdown: number | null; guestWork?: GuestWork }) {
   const rounds = snapshot.session?.rounds ?? [];
   const first = rounds[0] ? describeRound(rounds[0]) : null;
   const title = countdown === null ? "Salle d’attente" : "Prépare-toi";
@@ -62,7 +64,11 @@ function WaitingRoom({ snapshot, countdown }: { snapshot: LiveSnapshot; countdow
           </ol>
         </section>
       ) : null}
-      <Link className="eq-text-link eq-player-back" href="/home">Retour à mes devoirs</Link>
+      {!snapshot.session && guestWork && guestWork.length > 0 && <section className="eq-player-programme">
+        <h2>Travail donné par le professeur</h2>
+        <ul>{guestWork.map(work => <li key={work.id}><Link className="eq-text-link" href={`/rejoindre/devoir/${work.id}`}>{work.title}</Link></li>)}</ul>
+      </section>}
+      <Link className="eq-text-link eq-player-back" href={guestWork ? "/rejoindre" : "/home"}>{guestWork ? "Ma participation et mes devoirs" : "Retour à mes devoirs"}</Link>
     </div>
   );
 }
@@ -85,7 +91,7 @@ function RoundReport({ self, session }: { self: LivePerson; session: LiveSession
   );
 }
 
-function PlayerPodium({ snapshot, now }: { snapshot: LiveSnapshot; now: number }) {
+function PlayerPodium({ snapshot, now, guest }: { snapshot: LiveSnapshot; now: number; guest: boolean }) {
   const [showResults, setShowResults] = useState(false);
   const self = snapshot.self;
   if (!snapshot.session) return null;
@@ -103,7 +109,7 @@ function PlayerPodium({ snapshot, now }: { snapshot: LiveSnapshot; now: number }
         </div>
       ) : null}
       {showResults ? <p className="eq-muted">La prochaine séance de cette classe s’ouvrira ici automatiquement.</p> : null}
-      <Link href="/home" className="eq-btn eq-btn-gold">Retour à mon accueil</Link>
+      <Link href={guest ? "/rejoindre" : "/home"} className="eq-btn eq-btn-gold">{guest ? "Ma participation en classe" : "Retour à mon accueil"}</Link>
     </section>
   );
 }
@@ -123,14 +129,14 @@ const PlayerRound = memo(function PlayerRound({ round, index, sessionId, playerI
   return <LiveActivity round={round} runKey={runKey} initialProgress={initialProgress} onProgress={onProgress} active={active} />;
 });
 
-export function LivePlayer({ classId, playerId }: { classId: string; playerId: string }) {
+export function LivePlayer({ classId, playerId, guestWork }: { classId: string; playerId: string; guestWork?: GuestWork }) {
   const { snapshot, now, issue, unconfirmed, record, refresh } = usePlayerConnection(classId, playerId);
   if (!snapshot) {
     return (
       <section className="eq-live-player eq-player-unavailable">
         <h1>Séance en direct</h1>
         <p role={issue ? "alert" : "status"}>{issue?.text ?? "Ouverture de la séance…"}</p>
-        {issue?.status === 401 ? (
+        {issue?.status === 401 && !guestWork ? (
           <Link className="eq-btn eq-btn-gold" href={`/auth/login?next=${encodeURIComponent(`/direct/${classId}`)}`}>Me reconnecter</Link>
         ) : issue?.status ? (
           <Link className="eq-btn eq-btn-gold" href="/rejoindre">Entrer mon code de classe</Link>
@@ -155,7 +161,7 @@ export function LivePlayer({ classId, playerId }: { classId: string; playerId: s
       {issue ? <p className="eq-player-warning" role="status">{issue.text}</p> : null}
       {unconfirmed ? <p className="eq-player-warning" role="status">Certains points hors ligne n’ont pas pu être confirmés.</p> : null}
       {clock.phase === "finished" ? (
-        <PlayerPodium key={session?.id} snapshot={snapshot} now={now} />
+        <PlayerPodium key={session?.id} snapshot={snapshot} now={now} guest={Boolean(guestWork)} />
       ) : clock.phase === "round" && round && session ? (
         <header className="eq-player-round-head">
             <div>
@@ -168,14 +174,14 @@ export function LivePlayer({ classId, playerId }: { classId: string; playerId: s
             <progress max={round.durationSeconds} value={seconds} aria-label="Temps restant dans la manche" />
         </header>
       ) : (
-        <WaitingRoom snapshot={snapshot} countdown={clock.phase === "countdown" ? seconds : null} />
+        <WaitingRoom snapshot={snapshot} countdown={clock.phase === "countdown" ? seconds : null} guestWork={guestWork} />
       )}
       {round && session ? (
         <div className="eq-player-stage" hidden={!playing}>
           <PlayerRound key={boundaryKey} round={round} index={stageIndex} sessionId={session.id} playerId={playerId} self={snapshot.self} record={record} active={playing} />
         </div>
       ) : null}
-      {playing ? <Link href="/home" className="eq-text-link eq-player-back">Quitter le direct</Link> : null}
+      {playing ? <Link href={guestWork ? "/rejoindre" : "/home"} className="eq-text-link eq-player-back">Quitter le direct</Link> : null}
     </div>
   );
 }

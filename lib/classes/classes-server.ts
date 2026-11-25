@@ -210,6 +210,27 @@ export async function removePupil(classId: unknown, userId: unknown): Promise<Cl
   return { ok: true, message: "Élève retiré de la classe. Sa progression personnelle est conservée." };
 }
 
+export async function eraseGuestParticipation(classId: string, guestId: string): Promise<ClassActionResult> {
+  const context = await requireManagedClass(classId);
+  if ("error" in context) return { ok: false, error: context.error };
+  if (!isUuid(guestId)) return { ok: false, error: "Participation introuvable." };
+  const { data, error } = await context.admin.from("class_guests").delete()
+    .eq("class_id", context.record.id).eq("id", guestId).select("id").maybeSingle();
+  if (error || !data) return { ok: false, error: "Cette participation n’a pas pu être effacée." };
+  teacherPaths(context.record.id);
+  return { ok: true, message: "La participation et ses résultats ont été effacés." };
+}
+
+export async function setGuestNamePrompt(classId: string, firstName: boolean): Promise<ClassActionResult> {
+  const context = await requireManagedClass(classId);
+  if ("error" in context) return { ok: false, error: context.error };
+  if (typeof firstName !== "boolean") return { ok: false, error: "Consigne inconnue." };
+  const { error } = await context.admin.from("classes").update({ ask_first_name: firstName }).eq("id", context.record.id);
+  if (error) return { ok: false, error: "La consigne n’a pas pu être enregistrée." };
+  teacherPaths(context.record.id);
+  return { ok: true, message: "Consigne enregistrée." };
+}
+
 export async function assignMission(
   classId: unknown,
   courseId: unknown,

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { startGameSession } from "@/lib/games/game-session-server";
+import { countGuestRound } from "@/lib/games/guest-game-counts";
 import { SESSION_CLOCK_TOLERANCE_MS, type GameSessionSlug } from "@/lib/games/game-session-rules";
 
 type PendingSession = {
@@ -20,6 +21,7 @@ type SaveResult = { success: boolean; retryable?: boolean };
  */
 export function useGameSession(slug: GameSessionSlug, isLoggedIn: boolean) {
   const pendingRef = useRef<PendingSession | null>(null);
+  const countedGuestStart = useRef(false);
   const generation = useRef(0);
   const [retryScore, setRetryScore] = useState<(() => void) | null>(null);
   useEffect(() => () => { generation.current += 1; }, []);
@@ -28,6 +30,7 @@ export function useGameSession(slug: GameSessionSlug, isLoggedIn: boolean) {
     generation.current += 1;
     setRetryScore(null);
     if (!isLoggedIn) {
+      countedGuestStart.current = countGuestRound(slug, "started");
       pendingRef.current = null;
       return;
     }
@@ -46,8 +49,16 @@ export function useGameSession(slug: GameSessionSlug, isLoggedIn: boolean) {
     pendingRef.current = pending;
   }, [slug, isLoggedIn]);
 
+  const finishGuest = useCallback(() => {
+    if (countedGuestStart.current) {
+      countedGuestStart.current = false;
+      countGuestRound(slug, "finished");
+    }
+  }, [slug]);
+
   /** Abandon de la partie : la session reste inutilisée et périmera. */
   const cancel = useCallback(() => {
+    countedGuestStart.current = false;
     generation.current += 1;
     setRetryScore(null);
     pendingRef.current = null;
@@ -100,5 +111,5 @@ export function useGameSession(slug: GameSessionSlug, isLoggedIn: boolean) {
     };
   }, [saveForRun]);
 
-  return useMemo(() => ({ begin, finish, cancel, retryScore }), [begin, finish, cancel, retryScore]);
+  return useMemo(() => ({ begin, finish, finishGuest, cancel, retryScore }), [begin, finish, finishGuest, cancel, retryScore]);
 }

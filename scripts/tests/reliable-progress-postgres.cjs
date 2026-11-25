@@ -314,17 +314,22 @@ async function authTests() {
   for (const [key,value] of Object.entries({ username:"guest_fixture", email:"guest@example.invalid", login:"guest@example.invalid", password:"fixture-only",next:"/quest" })) form.set(key,value);
   const onMap = (e) => e.location === "/quest";
   await pass(1);
+  jar.set("eq-class-guest","temporary-class");
   await assert.rejects(auth.signUpAction({}, form), onMap);
+  assert.equal(jar.has("eq-class-guest"),false,"a new account cannot reopen the previous guest after logout");
   const afterSignup = await profile(otherId);
   assert.equal(afterSignup.xp,80);
   assert.equal(afterSignup.gold,36);
   await pass(2);
   session = null; // Email confirmation still pending.
+  jar.set("eq-class-guest","temporary-class");
   assert.ok((await auth.signUpAction({}, form)).success);
+  assert.equal(jar.has("eq-class-guest"),true,"a pending signup keeps the current class usable");
   assert.deepEqual(await profile(otherId),afterSignup);
   assert.equal(await courses.confirmGuestQuizAction(2), true);
   session = { user };
   await assert.rejects(auth.loginAction({},form),onMap);
+  assert.equal(jar.has("eq-class-guest"),false,"signing in releases the shared device");
   assert.equal((await profile(otherId)).xp,160);
   assert.equal(await courses.confirmGuestQuizAction(2), false);
   await assert.rejects(auth.loginAction({},form),onMap);
@@ -389,6 +394,7 @@ async function retryControlsTest() {
   overrides.react = fakeReact;
   overrides["@/lib/games/game-session-server"] = { startGameSession: () => new Promise((resolve) => pending.push(resolve)) };
   const savedWindow = global.window;
+  const originalFetch = global.fetch;
   const timers = [];
   global.window = { setTimeout: (fn) => timers.push(fn) };
   const use = load("components/play/use-game-session.ts").useGameSession;
@@ -429,9 +435,24 @@ async function retryControlsTest() {
     assert.equal(current.sessionId,"new");
     assert.equal((await current.save(async () => ({ success:false,error:"invalid" }))).success,false);
     assert.equal(render().retryScore,null);
+    const gameEvents = [];
+    global.fetch = async (url, options) => {
+      assert.equal(url,"/api/parties-invitees");
+      assert.equal(options.credentials,"omit");
+      gameEvents.push(JSON.parse(options.body));
+      return { ok:true };
+    };
+    const guest = () => { cursor=0; return use("flashback",false); };
+    global.window.location = { pathname:"/play/flashback" };
+    guest().begin(); guest().finishGuest(); guest().finishGuest();
+    guest().begin(); guest().cancel(); guest().finishGuest();
+    global.window.location.pathname = "/activite-classe/jeu/flashback";
+    guest().begin(); guest().finishGuest();
+    assert.deepEqual(gameEvents,["started","finished","started"].map(event=>({game:"flashback",event})));
   } finally {
     cleanup?.();
     global.window = savedWindow;
+    global.fetch = originalFetch;
   }
 }
 

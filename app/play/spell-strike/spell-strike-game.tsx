@@ -195,6 +195,7 @@ export function SpellStrikeGame({
       playSoundEffect(finalCorrect > 0 ? "victory" : "wrong");
 
       if (!isLoggedIn) {
+        gameSession.finishGuest();
         setSubmitStatus("guest");
         return;
       }

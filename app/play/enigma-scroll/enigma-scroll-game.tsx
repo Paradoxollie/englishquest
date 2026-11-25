@@ -461,6 +461,7 @@ export function EnigmaScrollGame({
     if (phase !== "ended" || !state || submittedRef.current) return;
     submittedRef.current = true;
     if (!isLoggedIn) {
+      gameSession.finishGuest();
       setSubmitStatus("guest");
       return;
     }

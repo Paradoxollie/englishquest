@@ -39,6 +39,7 @@ function harness({ users = [], profileEmail = null, pageError = null } = {}) {
     if (name === "next/cache") return { revalidatePath: () => {} };
     if (name === "@/lib/supabase/server") return { createSupabaseServerClient: async () => client };
     if (name === "@/lib/supabase/admin") return { createSupabaseAdminClient: () => admin };
+    if (name === "@/lib/classes/guest-cookie") return { clearClassGuestCookie: async () => {} };
     if (name === "@/lib/site/config") return { SITE_URL: "https://example.invalid" };
     if (name === "@/lib/profile/economy") return { WELCOME_GOLD: 30 };
     if (name === "@/lib/navigation/safe-next") return { getSafeNextPath: () => null };

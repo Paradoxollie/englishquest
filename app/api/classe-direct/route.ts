@@ -5,6 +5,8 @@ import { validateLiveRounds, type LiveSnapshot } from "@/lib/classes/live-shared
 import { getCourseQuizPool } from "@/lib/courses/exercises-server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { guestCredential } from "@/lib/classes/guests";
+import { isSiteOrigin } from "@/lib/navigation/request-origin";
 
 export const dynamic = "force-dynamic";
 const headers = { "Cache-Control": "private, no-store, max-age=0", Vary: "Cookie" };
@@ -24,8 +26,11 @@ async function respond(input: Record<string, unknown>, write: boolean) {
   }
   const client = await createSupabaseServerClient();
   const { data, error: authError } = await client.auth.getClaims();
-  if (!data?.claims?.sub || authError) return failure("Reconnecte-toi pour accéder à ta classe.", 401);
+  const userId = authError ? null : data?.claims?.sub;
+  const guestHash = userId ? null : await guestCredential();
+  if (!userId && !guestHash) return failure("Entre ton code de classe pour participer.", 401);
   const action = write ? input.action : "state";
+  if (guestHash && action !== "state" && action !== "pulse") return failure("Cette commande est réservée au professeur.", 403);
   const args: Record<string, unknown> = { p_class: input.classId, p_action: action, p_session: input.sessionId ?? null };
   if (write) {
     if (action === "prepare") {
@@ -50,7 +55,9 @@ async function respond(input: Record<string, unknown>, write: boolean) {
     }
   }
   const admin = createSupabaseAdminClient();
-  const result = await admin.rpc("class_live_request", { ...args, p_user: data.claims.sub });
+  const result = guestHash
+    ? await admin.rpc("class_participant_request", { ...args, p_user: null, p_guest_hash: guestHash })
+    : await admin.rpc("class_live_request", { ...args, p_user: userId });
   if (result.error) {
     switch (result.error.message) {
       case "live_unavailable": return failure("Cette classe est introuvable pour ce compte.", 404);
@@ -75,7 +82,7 @@ export async function GET(request: Request) {
 }
 export async function POST(request: Request) {
   const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) return failure("Origine de la demande invalide.", 403);
+  if (origin && !isSiteOrigin(request, origin)) return failure("Origine de la demande invalide.", 403);
   if (!request.headers.get("content-type")?.toLowerCase().startsWith("application/json")) return failure("Format invalide.", 415);
   if (Number(request.headers.get("content-length")) > 24_576) return failure("Relevé trop volumineux.", 413);
   const body = await request.text();

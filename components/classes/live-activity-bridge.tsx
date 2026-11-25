@@ -41,7 +41,7 @@ export function LiveActivityBridge({ path, children }: { path: string; children:
       if (activeKey.current !== message.runKey) {
         activeKey.current = message.runKey;
         progress = { ...message.progress };
-        setActivity({ runKey: message.runKey, initialAnswers: progress.answers ?? [] });
+        setActivity({ runKey: message.runKey, initialAnswers: progress.answers ?? [], initialCorrect: progress.correct });
       }
       clearInterval(retry);
       post("started");

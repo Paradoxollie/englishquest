@@ -8,7 +8,7 @@ import { LiveProjectionStandings, LiveRoundProgram, LiveTeacherResults, LiveTeac
 import { sessionDate } from "./live-round-catalog";
 import { LiveTeacherPlanner } from "./live-teacher-planner";
 
-type TeacherProps = { classId: string; className: string; archived: boolean; joinAddress: string };
+type TeacherProps = { classId: string; className: string; archived: boolean; joinAddress: string; firstName: boolean };
 type TeacherCommand = Parameters<typeof sendLive>[1];
 
 function useTeacherSession(classId: string, selected: string | null) {
@@ -152,7 +152,7 @@ function useTeacherSession(classId: string, selected: string | null) {
   } };
 }
 
-export function LiveTeacher({ classId, className, archived, joinAddress }: TeacherProps) {
+export function LiveTeacher({ classId, className, archived, joinAddress, firstName }: TeacherProps) {
   const [selected, setSelected] = useState<string | null>(null);
   const [preparing, setPreparing] = useState(false);
   const [confirmEnd, setConfirmEnd] = useState(false);
@@ -217,7 +217,7 @@ export function LiveTeacher({ classId, className, archived, joinAddress }: Teach
               <p>{finished ? "Séance terminée" : clock.phase === "lobby" ? "Salle d’attente" : "En direct"} · {className}</p>
               <button className="live-teacher-project" type="button" onClick={project}>Projeter</button>
             </div>
-            <LiveTeacherStage snapshot={data} session={session} clock={clock} now={now}
+            <LiveTeacherStage snapshot={data} session={session} clock={clock} now={now} firstName={firstName}
               joinAddress={joinAddress} projectionTarget={projecting ? podiumTarget : null} onResultsVisibleChange={showResults} />
             <div className="live-teacher-stage-controls">
               {!selected && !archived && clock.phase === "lobby" && (
@@ -249,7 +249,7 @@ export function LiveTeacher({ classId, className, archived, joinAddress }: Teach
                 <button type="button" className="live-teacher-project" onClick={leaveProjection}>Quitter la projection</button>
               </div>
               {finished ? <div ref={setPodiumTarget} /> : (
-                <LiveTeacherStage snapshot={data} session={session} clock={clock} now={now} joinAddress={joinAddress} />
+                <LiveTeacherStage snapshot={data} session={session} clock={clock} now={now} joinAddress={joinAddress} firstName={firstName} />
               )}
               {clock.phase === "round" && <LiveProjectionStandings people={data.people} />}
               {clock.phase === "lobby" && !selected && !archived && <button type="button" className="eq-btn eq-btn-gold" disabled={busy} onClick={() => void act({ action: "start", sessionId: session.id })}>Donner le départ</button>}
@@ -261,6 +261,7 @@ export function LiveTeacher({ classId, className, archived, joinAddress }: Teach
       {data && data.history.length > 0 && (
         <section className="live-teacher-panel live-teacher-history">
           <h2 className="eq-h3">Historique des séances en direct</h2>
+          <p className="eq-muted">Le bilan par manche est consultable pendant dix jours après la fin de chaque séance.</p>
           <ul>{data.history.map((item) => (
             <li key={item.id}>
               <div><b>{sessionDate(item.startsAt ?? item.createdAt)}</b><small>{item.roundCount} manche{item.roundCount > 1 ? "s" : ""}</small></div>

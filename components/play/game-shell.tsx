@@ -60,12 +60,13 @@ export function GameShell({ game, mission, isLoggedIn, aside, children }: GameSh
                 </Link>
               </div>
             </ResponsiveDetails>
-          ) : !isLoggedIn ? (
+          ) : null}
+          {!isLoggedIn ? (
             <p className="eq-game-guest">
-              Tu joues sans compte : le score ne sera pas enregistré.{" "}
+              En solo sans compte, ton score reste sur l’écran de fin. Pour retrouver tes scores et tes récompenses, tu peux{" "}
               <Link href="/auth/signup" className="eq-text-link">
-                Créer un compte
-              </Link>
+                créer un compte
+              </Link>.
             </p>
           ) : null}
         </div>

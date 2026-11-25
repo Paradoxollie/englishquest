@@ -24,10 +24,10 @@ function Participants({ people }: { people: LivePerson[] }) {
 
 type StageProps = {
   snapshot: TeacherLiveSnapshot; session: LiveSession; clock: Clock; now: number; joinAddress: string;
-  projectionTarget?: HTMLElement | null; onResultsVisibleChange?: (visible: boolean) => void;
+  firstName?: boolean; projectionTarget?: HTMLElement | null; onResultsVisibleChange?: (visible: boolean) => void;
 };
 
-export function LiveTeacherStage({ snapshot, session, clock, now, joinAddress, projectionTarget, onResultsVisibleChange }: StageProps) {
+export function LiveTeacherStage({ snapshot, session, clock, now, joinAddress, firstName, projectionTarget, onResultsVisibleChange }: StageProps) {
   if (clock.phase === "finished") {
     return <LivePodium session={session} people={snapshot.people} now={now} serverNow={snapshot.serverNow}
       projectionTarget={projectionTarget} onResultsVisibleChange={onResultsVisibleChange} />;
@@ -40,7 +40,7 @@ export function LiveTeacherStage({ snapshot, session, clock, now, joinAddress, p
           <h2>{clock.phase === "countdown" ? "Préparez-vous !" : "Rejoignez la séance"}</h2>
           <p className="live-teacher-address"><span>{joinAddress.slice(0, slash)}</span><wbr /><span>{joinAddress.slice(slash)}</span></p>
           {snapshot.code && <p className="live-teacher-code" aria-label={`Code de la classe ${snapshot.code.split("").join(" ")}`}>{formatClassCode(snapshot.code)}</p>}
-          <p className="live-teacher-instruction">Connectez-vous avec votre pseudo, puis entrez le code de la classe.</p>
+          <p className="live-teacher-instruction">{firstName ? "Entrez le code, puis votre prénom." : "Entrez le code, puis choisissez un pseudo."}</p>
         </div>
         {clock.phase === "countdown" && clock.endsAt !== null ? (
           <div className="live-teacher-counter"><span>Départ dans</span><strong>{countdown(clock.endsAt, now)}</strong></div>

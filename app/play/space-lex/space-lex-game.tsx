@@ -781,6 +781,7 @@ export function SpaceLexGame({
     scoreSubmittedRef.current = true;
 
     if (!isLoggedIn) {
+      gameSession.finishGuest();
       setSubmitStatus("guest");
       return;
     }

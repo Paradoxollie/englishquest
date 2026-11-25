@@ -255,6 +255,7 @@ export function FlashbackGame({
     playSoundEffect(state.score > 0 ? "victory" : "wrong");
     if (selfPaced) return;
     if (!isLoggedIn) {
+      gameSession.finishGuest();
       setSubmitStatus("guest");
       return;
     }

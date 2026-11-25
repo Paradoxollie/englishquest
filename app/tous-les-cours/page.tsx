@@ -32,6 +32,7 @@ export default async function TousLesCoursPage() {
         <p>
           Choisis librement une notion ou suis les cinq chapitres dans l’ordre. Chaque cours propose des exemples,
           un entraînement et un quiz de dix questions.
+          {!user && " Sans compte, tes quiz réussis restent sur ce navigateur. Avec un compte, tu peux les retrouver sur un autre appareil."}
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-3">
           <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-primary">Mon parcours guidé de 50 cours</Link>

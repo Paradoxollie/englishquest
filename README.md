@@ -4,7 +4,8 @@ Site gratuit d'apprentissage de l'anglais par le jeu, créé par Pierre Marienne
 d'anglais. Parcours de 50 cours avec quiz, neuf mini-jeux, progression par XP et or,
 quatre albums illustrés, douze personnages à collectionner et classements. L’Atlas des
 passages compte 20 escales en BD dans cette version du projet. L’espace professeur permet de donner des devoirs
-et de lancer une séance synchronisée sur les téléphones de sa classe.
+et de lancer une séance synchronisée sur les téléphones de sa classe. Les élèves peuvent utiliser un code
+et un pseudo ou un prénom, sans inscription. Le professeur retrouve le bilan pendant dix jours.
 
 [Ouvrir le site public](https://englishquest-omega.vercel.app) · [Reprendre le projet dans une autre conversation](REPRISE.md) · [Bilan de fréquentation des 22 et 23 novembre](docs/FREQUENTATION-2026-11-23.md)
 

@@ -6,6 +6,9 @@ import { AssignmentForm } from "@/components/classes/assignment-form";
 import { AssignmentList } from "@/components/classes/assignment-list";
 import { ClassSettings } from "@/components/classes/class-settings";
 import { PupilsTable } from "@/components/classes/pupils-table";
+import { PupilInvitation } from "@/components/classes/pupil-invitation";
+import { setGuestNamePrompt } from "@/lib/classes/classes-server";
+import { GuestClassReport } from "@/components/classes/guest-class-report";
 import { PracticeWeek } from "@/components/classes/practice-week";
 import { TeacherOnlyNotice } from "@/components/classes/teacher-only-notice";
 import {
@@ -77,7 +80,7 @@ export default async function TeacherClassPage({ params, searchParams }: ClassPa
           <span className="eq-caption">{archived ? "Classe archivée" : "Classe"}</span>
           <h1 className="eq-h1 mt-1">{summary.name}</h1>
           <p className="eq-muted">
-            {pupils.length === 0 ? "Aucun élève" : `${pupils.length} élève${pupils.length > 1 ? "s" : ""}`} · créée le {createdOn}
+            {pupils.length === 0 ? "Aucun compte élève inscrit" : `${pupils.length} compte${pupils.length > 1 ? "s" : ""} élève${pupils.length > 1 ? "s" : ""}`} · créée le {createdOn}
             {!summary.isOwn && summary.teacherName ? ` · classe de ${summary.teacherName}` : ""}
           </p>
           <div className="eq-home-actions mt-4">
@@ -95,6 +98,7 @@ export default async function TeacherClassPage({ params, searchParams }: ClassPa
           <Link href={`/teachers/classe/${summary.id}/code`} className="eq-btn eq-btn-gold eq-btn-sm">
             Afficher le code en grand
           </Link>
+          {!archived && <PupilInvitation code={summary.code} firstName={summary.askFirstName} savePrompt={setGuestNamePrompt.bind(null, summary.id)} />}
         </div>
       </header>
 
@@ -108,16 +112,15 @@ export default async function TeacherClassPage({ params, searchParams }: ClassPa
       <section className="eq-teach-block eq-section-divider" aria-labelledby="class-pupils">
         <div className="eq-section-head">
           <h2 id="class-pupils" className="eq-h2">
-            Élèves
+            Élèves inscrits
           </h2>
           <span className="eq-muted text-sm">La dernière activité correspond aux jeux et missions enregistrés sur le site.</span>
         </div>
         {pupils.length === 0 ? (
           <div className="eq-card eq-teach-empty">
-            <p className="eq-h3">Personne pour l&apos;instant</p>
+            <p className="eq-h3">Aucun compte élève inscrit pour l’instant</p>
             <p className="eq-muted">
-              Projetez le code avec « Afficher le code en grand ». Les élèves vont sur /rejoindre, tapent le code, et
-              apparaissent ici.
+              Projetez le code ou copiez le lien élève. Les élèves qui choisissent un pseudo pour la séance apparaissent dans « Participations sans compte ».
             </p>
           </div>
         ) : (
@@ -125,6 +128,7 @@ export default async function TeacherClassPage({ params, searchParams }: ClassPa
         )}
       </section>
 
+      <GuestClassReport classId={summary.id} />
       <div className="eq-teach-split">
         <section id="devoirs" className="eq-teach-block" aria-labelledby="class-homework">
           <h2 id="class-homework" className="eq-h2">
@@ -132,8 +136,8 @@ export default async function TeacherClassPage({ params, searchParams }: ClassPa
           </h2>
           <div className="eq-card">
             <p className="eq-muted text-sm">
-              La mission s&apos;ouvre sur la carte de chaque élève de la classe, même s&apos;il n&apos;y est pas encore
-              arrivé. Elle compte comme faite quand l&apos;élève la valide (quiz à 80 %).
+              Les invités trouvent le devoir dès leur entrée avec le code. Leurs réponses figurent dans « Participations sans compte ».
+              Pour les élèves inscrits, la mission s’ouvre sur la carte et se valide à 80 % au quiz.
             </p>
             <AssignmentForm
               key={initialCourseId ?? "none"}

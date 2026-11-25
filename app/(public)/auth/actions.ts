@@ -3,6 +3,7 @@
 import { getSafeNextPath, withNextParam } from "@/lib/navigation/safe-next";
 import { SITE_URL } from "@/lib/site/config";
 import { keepGuestPlacement, transferGuestScores } from "@/lib/courses/guest-progress-server";
+import { clearClassGuestCookie } from "@/lib/classes/guest-cookie";
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -314,6 +315,7 @@ export async function signUpAction(
 
   // Retour prévu (lien de classe /rejoindre?code=...) : si la session est déjà
   // ouverte, on y va directement ; sinon le formulaire propose de se connecter.
+  if (data.session) await clearClassGuestCookie();
   const transfer = data.session ? await transferGuestScores(userId).catch(() => -1) : 0;
   const next = requestedDestination ?? (transfer !== 0 ? "/tous-les-cours/parcours" : null);
   if (next && data.session) {
@@ -431,6 +433,7 @@ export async function loginAction(
     }
   }
 
+  await clearClassGuestCookie();
   const transfer = await transferGuestScores(session.user.id).catch(() => -1);
 
   // Revalide les pages pour s'assurer que les cookies sont synchronisés
@@ -447,6 +450,7 @@ export async function loginAction(
 export async function logoutAction() {
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
+  await clearClassGuestCookie();
   redirect("/auth/login");
 }
 

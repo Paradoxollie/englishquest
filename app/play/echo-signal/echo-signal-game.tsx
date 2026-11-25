@@ -198,6 +198,7 @@ export function EchoSignalGame({
       if (!readRadio) playSoundEffect(finalCorrect > 0 ? "victory" : "wrong");
 
       if (!isLoggedIn) {
+        gameSession.finishGuest();
         setSubmitStatus("guest");
         return;
       }

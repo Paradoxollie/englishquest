@@ -821,6 +821,10 @@ function inDays(days) {
       "@/components/classes/projection-code": { ProjectionCode: "projection-code" },
       "@/components/classes/teacher-only-notice": { TeacherOnlyNotice: "teacher-notice" },
       "@/components/classes/join-class-form": { JoinClassForm: "join-class-form" },
+      "@/components/classes/guest-entry-form": { GuestEntryForm: "guest-entry" },
+      "@/lib/classes/guests": { currentClassGuest: async () => null },
+      "./actions": { leaveGuestClass: async () => {} },
+      "node:crypto": require("node:crypto"),
       "@/components/comic/page-head": { PageHead: "header" },
     };
     const resolve = (name) => name in mocks ? mocks[name] : pureResolver(name);
@@ -835,6 +839,8 @@ function inDays(days) {
     session.userId = PUPIL;
     assert.equal((await project(CLASS_A)).type, "teacher-notice");
     assert.ok(await openInvitation());
+    session.userId = null;
+    assert.ok(await openInvitation(), "the invitation opens without signing up");
   });
 
   await test("Live rooms, projections and private invitation referrers stay out of visit statistics", async () => {

@@ -10,6 +10,7 @@ Exécuter les commandes depuis la racine du dépôt. `npm test` lance les régre
 | Exercices et quiz | [Vérification des corrigés](tests/exercise-invariants.cjs), [questions des cours](tests/course-question-invariants.cjs), [interactions du quiz](tests/quiz-interaction-regression.cjs) |
 | Atlas et positionnement en invité | [Règles des escales](tests/atlas-regression.cjs), [parcours de la carte](tests/atlas-trial-browser.cjs), [reprise du positionnement](tests/guest-placement-browser.cjs) |
 | Professeurs et podium | [Isolation des classes](tests/class-visibility-postgres.cjs), [séance synchronisée](tests/live-class-postgres.cjs), [podium](tests/live-ceremony.cjs), [activités dans le navigateur](tests/live-activities-browser.cjs) |
+| Participation temporaire et fréquentation | [Expiration à quatre heures, effacement à dix jours, conservation des comptes et des totaux quotidiens](tests/guest-retention-postgres.cjs). Le test de séance ci-dessus couvre aussi un invité, ses devoirs et le renouvellement du code. |
 | Messages, or et inventaire | [Fil privé et accusés](tests/contact-followups-postgres.cjs), [albums](tests/collection-shop-postgres.cjs), [personnages](tests/character-roster-postgres.cjs) |
 | Voix de jeu | `node scripts/audit-audio-coverage.cjs --check`, puis écoute d’un mot, d’une phrase et d’un dialogue sur les appareils visés. [Enregistrements](../public/audio/README.md) |
 

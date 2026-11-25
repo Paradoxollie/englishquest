@@ -169,7 +169,8 @@ export function usePlayerConnection(classId: string, playerId: string) {
           denied = true;
           current = null;
           setSnapshot(null);
-          setIssue({ status, text: status === 401 ? "Reconnecte-toi pour retrouver ta séance." : "Cette classe est indisponible pour ton compte." });
+          setIssue({ status, text: playerId.startsWith("guest:") ? "Ta participation a expiré ou la classe a fermé. Demande le code à ton professeur."
+            : status === 401 ? "Reconnecte-toi pour retrouver ta séance." : "Cette classe est indisponible pour ton compte." });
         } else if (!usedRead && status && [400, 404, 409, 410, 422].includes(status)) {
           if (sent && session && slot(session, sent.index) === sent.entry) {
             store(sent.sessionId, sent.index, { ...sent.entry, pending: false });

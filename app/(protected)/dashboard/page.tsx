@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/icons";
 import { DashboardNav } from "./dashboard-nav";
 import { getDashboardStats } from "./stats";
+import { GameUsage } from "./game-usage";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -141,6 +142,7 @@ export default async function AdminDashboardPage() {
               />
             </section>
 
+            <GameUsage />
             <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
               <div className="eq-card p-6">
                 <div className="mb-5 flex flex-col gap-2 border-b border-[var(--pro-border)] pb-4 md:flex-row md:items-end md:justify-between">
@@ -148,14 +150,14 @@ export default async function AdminDashboardPage() {
                     <span className="eq-caption">Trafic</span>
                     <h2 className="eq-h2 mt-1">Visiteurs et visites</h2>
                   </div>
-                  <p className="eq-muted text-sm font-semibold">30 derniers jours</p>
+                  <p className="eq-muted text-sm font-semibold">Historique quotidien en UTC</p>
                 </div>
 
                 <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-4">
-                  <MiniMetric label="Uniques total" value={stats.visitors.totalUniqueVisitors} tone="primary" />
-                  <MiniMetric label="Visites total" value={stats.visitors.totalVisits} tone="primary" />
-                  <MiniMetric label="Uniques jour" value={stats.visitors.uniqueVisitorsToday} tone="success" />
-                  <MiniMetric label="Visites jour" value={stats.visitors.visitsToday} tone="gold" />
+                  <MiniMetric label="Réseaux uniques sur 10 jours" value={stats.visitors.totalUniqueVisitors} tone="primary" />
+                  <MiniMetric label="Pages vues au total" value={stats.visitors.totalVisits} tone="primary" />
+                  <MiniMetric label="Réseaux aujourd’hui" value={stats.visitors.uniqueVisitorsToday} tone="success" />
+                  <MiniMetric label="Pages vues aujourd’hui" value={stats.visitors.visitsToday} tone="gold" />
                 </div>
 
                 <div className="mt-6 max-h-[420px] space-y-2.5 overflow-y-auto pr-1">
@@ -174,7 +176,7 @@ export default async function AdminDashboardPage() {
                               })}
                             </p>
                             <p className="eq-muted text-xs font-semibold">
-                              {day.uniqueVisitors} uniques / {day.totalVisits} visites
+                              {day.uniqueVisitors} réseaux · {day.totalVisits} pages vues
                             </p>
                           </div>
                           <div className="eq-bar mt-2.5">
