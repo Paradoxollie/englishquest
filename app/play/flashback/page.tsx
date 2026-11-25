@@ -11,7 +11,7 @@ const SLUG = "flashback";
 
 export const metadata = gameMetadata(
   SLUG,
-  "Mémoriser du vocabulaire anglais · Flashback",
+  "Jeu de mémoire pour retenir les mots anglais · Flashback",
   "Reconnais les mots anglais déjà rencontrés et retrouve leur traduction quand ils reviennent.",
 );
 

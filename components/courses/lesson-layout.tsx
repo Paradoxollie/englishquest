@@ -84,7 +84,7 @@ function LessonSection({ title, children, className = "", sectionIndex = 0, id }
       <header className="eq-lesson-section-head">
         <h2>
           {parsed.mainTitle}
-          {parsed.subTitle ? <span className="eq-lesson-section-sub">{parsed.subTitle}</span> : null}
+          {parsed.subTitle ? <span className="eq-lesson-section-sub"> {parsed.subTitle}</span> : null}
         </h2>
       </header>
       {/^Pour aller plus loin/i.test(parsed.mainTitle) ? (
@@ -136,7 +136,7 @@ export function LessonLayout({
           </p>
           <h1 className="eq-lesson-title">
             {main}
-            {sub ? <span className="eq-lesson-subtitle">{sub}</span> : null}
+            {sub ? <span className="eq-lesson-subtitle"> {sub}</span> : null}
           </h1>
           {objective ? <p className="eq-lesson-objective">{objective}</p> : null}
           <nav className="eq-course-parts" aria-label="Les trois parties du cours">

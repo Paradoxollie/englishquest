@@ -17,7 +17,7 @@ export async function AtlasCover() {
   return <section className="atlas-cover" id="atlas" aria-labelledby="atlas-name">
     <div className="atlas-cover-layout">
       <div className="atlas-cover-copy">
-        <span className="atlas-label">Aventure · Premiers pas en anglais</span>
+        <span className="atlas-label">BD interactive · Débuter en anglais</span>
         <h1 id="atlas-name">L’Atlas des <em>passages</em></h1>
         <p>{current ? chapterIntro : featured.ending}{" "}
           {userId ? "Tu peux t’arrêter et reprendre à la même case." : "Tu peux jouer sans compte et reprendre à la même case sur cet appareil."}</p>

@@ -95,9 +95,11 @@ async function readyChoices(page) {
       await page.setViewportSize({ width: 390, height: 844 });
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, slug + ' mobile overflow');
       if (slug === 'space-lex') {
-        const rules = await page.locator('.eq-game-main').textContent();
-        assert.match(rules, /maintiens les flèches/);
-        assert.match(rules, /Touche une cible/);
+        const rules = page.locator('.eq-rules-disclosure summary');
+        await rules.click();
+        await page.getByText('Touche le mot que tu choisis pour tirer dessus.', { exact: true }).waitFor();
+        assert.match(await page.locator('.eq-game-main').textContent(), /déplacer le vaisseau avec les flèches/);
+        await rules.click();
       }
       await shot(page, slug + '-mobile-start');
       await start(page);

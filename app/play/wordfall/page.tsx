@@ -11,7 +11,7 @@ const SLUG = "wordfall";
 
 export const metadata = gameMetadata(
   SLUG,
-  "Traduire des mots en anglais · Wordfall",
+  "Jeu de mots en anglais avec des blocs à traduire · Wordfall",
   "Traduis les blocs français en anglais avant la zone rouge ou cherche un mot anglais à partir d’une initiale.",
 );
 

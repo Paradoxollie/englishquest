@@ -12,8 +12,8 @@ import { getServerUser } from "@/lib/supabase/auth-cache";
 
 export const metadata = publicPageMetadata({
   path: "/tous-les-cours",
-  title: "50 cours d’anglais avec quiz, de A1 à B1+",
-  description: "50 cours d'anglais du niveau A1 au niveau B1+, avec des exemples et un quiz de dix questions par mission. Commence sans compte et retrouve ta progression sur cet appareil.",
+  title: "Cours d’anglais gratuits avec exercices et quiz, de A1 à B1+",
+  description: "Débute avec be et have ou révise une notion précise. Chaque cours d’anglais propose une leçon, des exercices interactifs et un quiz de dix questions. Accès sans inscription.",
 });
 
 export default async function TousLesCoursPage() {
@@ -28,10 +28,12 @@ export default async function TousLesCoursPage() {
   return (
     <div>
       {!user ? <RecoverGuestPlacement /> : null}
-      <PageHead caption="La bibliothèque" title="Les 50 cours">
+      <PageHead caption="La bibliothèque · A1 à B1+" title="Cours d’anglais avec exercices et quiz">
         <p>
-          Choisis librement une notion ou suis les cinq chapitres dans l’ordre. Chaque cours propose des exemples,
-          un entraînement et un quiz de dix questions.
+          Choisis parmi 50 leçons gratuites. Tu peux commencer par{" "}
+          <Link href="/cours/1" className="eq-text-link">être et avoir en anglais</Link>, revoir{" "}
+          <Link href="/cours/19" className="eq-text-link">quand employer much ou many</Link>{" "}
+          ou suivre les cinq chapitres dans l’ordre.
           {!user && " Sans compte, tes quiz réussis restent sur ce navigateur. Avec un compte, tu peux les retrouver sur un autre appareil."}
         </p>
         <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-3">

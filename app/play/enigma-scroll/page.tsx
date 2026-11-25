@@ -11,7 +11,7 @@ const SLUG = "enigma-scroll";
 
 export const metadata = gameMetadata(
   SLUG,
-  "Mot mystère en anglais · Enigma Scroll",
+  "Jeu de lettres en anglais · Enigma Scroll",
   "Trouve le mot anglais caché en quelques essais : les lettres se colorent pour te guider, et chaque mot se termine par sa traduction.",
 );
 

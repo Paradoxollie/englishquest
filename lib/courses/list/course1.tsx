@@ -1,4 +1,5 @@
 import { LessonExamples } from "@/components/courses/lesson-examples";
+import Link from "next/link";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 import { AlertIcon } from "@/components/ui/icons";
@@ -18,7 +19,8 @@ export const course1: LessonContent = {
           ]}
           note={"Dans I’m, l’apostrophe marque la forme courte de I am. Dans I’ve got, elle marque celle de I have."}
         >
-          Maya accueille un visiteur. Pour dire qui elle est, comment elle se sent ou quel âge elle a, elle utilise be. Pour parler de ce qu’elle possède, elle utilise have.
+          Maya accueille un visiteur. Pour dire qui elle est, comment elle se sent ou quel âge elle a, elle utilise be. Pour parler de ce qu’elle possède, elle utilise have.{" "}
+          <Link href="/quest/atlas/1" className="eq-text-link">Essaie de te présenter à Maya dans la BD.</Link>
         </LessonExamples>
       ),
     },

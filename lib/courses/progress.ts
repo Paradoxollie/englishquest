@@ -283,7 +283,7 @@ function buildRoadmapEntries(
         progressId: progressEntry?.id ?? null,
         missionTelemetry: progressEntry?.best_score ?? null,
         courseId: course.id,
-        title: course.title,
+        title: course.publicTitle ?? course.title,
         type: course.type,
         description: catalogEntry?.description ?? metadata.summary,
         status: progressEntry?.status ?? (course.id === 1 ? "unlocked" : "locked"),

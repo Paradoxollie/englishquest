@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata = publicPageMetadata({
   path: "/profs",
-  title: "Pour les profs",
+  title: "Jeux d’anglais en classe avec un code élève",
   description: "Créez une classe, lancez des jeux et des cours en direct, projetez le podium et retrouvez les devoirs de vos élèves sur English Quest.",
 });
 

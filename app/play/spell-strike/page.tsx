@@ -14,7 +14,7 @@ const SLUG = "spell-strike";
 export const metadata = gameMetadata(
   SLUG,
   "Dictée de mots anglais · Spell Strike",
-  "Écoute chaque mot anglais, appuie sur l'indice de contexte et écris son orthographe exacte sans faute.",
+  "Entraîne ton oreille et ton orthographe avec une dictée interactive. Écoute un mot en anglais, utilise l’indice si besoin et écris ta réponse.",
 );
 
 export const dynamic = "force-dynamic";

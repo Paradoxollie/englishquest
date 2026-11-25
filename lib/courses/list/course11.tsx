@@ -1,4 +1,5 @@
 import { LessonExamples } from "@/components/courses/lesson-examples";
+import Link from "next/link";
 import { LessonContent } from "@/lib/courses/types";
 import { Quiz } from "@/components/courses/quiz";
 
@@ -42,9 +43,7 @@ export const course11: LessonContent = {
       content: (
         <div className="space-y-6">
           <p className="text-slate-200">
-            Les verbes les plus courants sont souvent irréguliers. Il n'y a pas de règle, il faut les apprendre.
-            <br />
-            Voici le "Top 5" absolu à connaître par cœur :
+            Go devient went et have devient had. Lis les cinq exemples du tableau, puis cache la colonne du prétérit et essaie de retrouver chaque forme.
           </p>
 
           <div className="overflow-x-auto">
@@ -61,6 +60,7 @@ export const course11: LessonContent = {
               </tbody>
             </table>
           </div>
+          <Link href="/play/speed-verb-challenge" className="eq-text-link">Réviser les verbes irréguliers en jouant à Speed Verb Challenge</Link>
         </div>
       )
     },

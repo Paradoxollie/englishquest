@@ -6,6 +6,7 @@ import { GameCard } from "@/components/play/game-card";
 import { CollectionInvitation } from "@/components/rewards/collection-invitation";
 import { ART } from "@/lib/art";
 import { publicPageMetadata } from "@/lib/site/metadata";
+import { SITE_URL } from "@/lib/site/config";
 import { resolveArt } from "@/lib/art-server";
 import { chapters } from "@/lib/courses/chapters";
 import { games } from "@/lib/games/config";
@@ -14,9 +15,11 @@ import { getServerUser } from "@/lib/supabase/auth-cache";
 
 export const metadata = publicPageMetadata({
   path: "/",
-  title: "Apprendre l’anglais en jouant",
-  description: "Des jeux gratuits, des cours et des quiz pour progresser en anglais du niveau A1 au niveau B1+. Commence sans compte avec une activité de quelques minutes.",
+  title: "Apprendre l’anglais en jouant gratuitement | English Quest",
+  description: "Apprends l’anglais avec des jeux de vocabulaire, 50 cours avec quiz et une BD interactive pour débutants. Choisis une activité et commence sans inscription.",
 });
+
+const website = { "@context": "https://schema.org", "@type": "WebSite", name: "English Quest", url: SITE_URL };
 
 const steps = [
   {
@@ -52,6 +55,7 @@ export default async function PublicHomePage({
 
   return (
     <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(website).replace(/</g, "\\u003c") }} />
       {params.compte === "supprime" ? (
         <p role="status" className="eq-container pt-4">
           <span className="eq-chip eq-chip-mint">Ton compte a été supprimé. Merci d&apos;avoir joué.</span>
@@ -63,11 +67,11 @@ export default async function PublicHomePage({
           <div className="eq-home-hero-text">
             <span className="eq-caption eq-slam">Anglais, du niveau A1 au niveau B1+</span>
             <h1 className="eq-cover-title is-home eq-slam eq-slam-2">
-              Progresse en anglais, une mission après l&apos;autre.
+              Apprends l’anglais en jouant.
             </h1>
             <p className="eq-lead eq-slam eq-slam-3">
-              Retrouve les routes effacées de l’Atlas avec Maya et Sam. Tu peux aussi suivre les 50 cours d’anglais
-              dans l’ordre ou choisir la notion que tu veux travailler.
+              Embarque avec Maya et Sam dans une BD pour débutants, lance un jeu de vocabulaire
+              ou choisis un cours d’anglais avec exercices et quiz.
             </p>
             <div className="eq-home-actions-row eq-slam eq-slam-4">
               <Link href="/quest/atlas" prefetch={false} className="eq-btn eq-btn-primary eq-btn-xl">
@@ -76,12 +80,15 @@ export default async function PublicHomePage({
               <Link href="/cours/1" className="eq-btn eq-btn-ghost eq-btn-xl">
                 Commencer le cours 1
               </Link>
-              <Link href="/test-de-niveau" className="eq-text-link">
-                Tester mon niveau
+              <Link href="/play" className="eq-text-link">
+                Choisir un jeu d’anglais
               </Link>
             </div>
             <p className="eq-home-note eq-slam eq-slam-4">
               Gratuit, sans publicité.{" "}
+              <Link href="/test-de-niveau" className="eq-text-link">
+                Tester mon niveau
+              </Link>{" · "}
               <Link href="/essayer" className="eq-text-link">
                 Essayer un défi sans compte
               </Link>{" · "}
@@ -162,7 +169,7 @@ export default async function PublicHomePage({
             <div>
               <span className="eq-caption">Le parcours guidé des cours</span>
               <h2 id="home-path" className="eq-h2">
-                Cinq chapitres, de A1 à B1+
+                Des cours d’anglais du niveau A1 au B1+
               </h2>
             </div>
             <Link href="/tous-les-cours/parcours" className="eq-text-link">
@@ -208,7 +215,7 @@ export default async function PublicHomePage({
             <div>
               <span className="eq-caption">Entraînement</span>
               <h2 id="home-games" className="eq-h2">
-                Neuf jeux pour s&apos;entraîner
+                Neuf jeux pour pratiquer l’anglais
               </h2>
             </div>
             <Link href="/play" className="eq-text-link">

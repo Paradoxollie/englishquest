@@ -20,6 +20,7 @@ import { getResolvedCourseMissionPlan } from "@/lib/courses/campaign-server";
 import { getUserCourseMissionState } from "@/lib/courses/mission-state";
 import { getChapterForCourse } from "@/lib/courses/chapters";
 import { publicPageMetadata } from "@/lib/site/metadata";
+import { getCourseMetadata } from "@/lib/courses/metadata";
 import { getCachedUserCourseRoadmap } from "@/lib/courses/roadmap-cache";
 import { getUserCoursePractice } from "@/lib/courses/practice-server";
 import { getCourseExtraExercises } from "@/lib/courses/exercises-server";
@@ -47,22 +48,15 @@ export async function generateMetadata({ params }: CoursePageProps): Promise<Met
   const { id } = await params;
   const courseId = Number.parseInt(id, 10);
   const course = getCourseById(courseId);
-  const palier = getPalierForCourse(courseId);
-  const lesson = lessons[courseId];
-
   if (!course) {
-    return { title: "Cours introuvable" };
+    notFound();
   }
-
-  const title = lesson?.title ?? course.title;
-  const description =
-    lesson?.objective || `${title}, cours d'anglais English Quest${palier ? ` (${palier.level})` : ""}.`;
 
   const chapter = getChapterForCourse(course.id);
   return publicPageMetadata({
     path: `/cours/${course.id}`,
-    title: course.id === 23 ? "For ou since en anglais ? La règle et le quiz" : `${title} · Cours ${course.id}`,
-    description,
+    title: course.publicTitle ?? lessons[course.id]?.title ?? course.title,
+    description: `${getCourseMetadata(course.id).summary} Entraîne-toi avec les exercices et le quiz.`,
     image: chapter.artSrc,
     imageAlt: `Illustration du chapitre « ${chapter.name} » d’English Quest.`,
   });
@@ -138,7 +132,7 @@ export default async function CoursePage({ params }: CoursePageProps) {
     >
       <LessonLayout
         courseNumber={lesson.courseNumber}
-        title={lesson.title}
+        title={course.publicTitle ?? lesson.title}
         objective={lesson.objective}
         levelLabel={palier?.level}
         typeLabel={roadmapEntry?.typeLabel}

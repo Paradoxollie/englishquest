@@ -14,8 +14,8 @@ import { getServerUser } from "@/lib/supabase/auth-cache";
 
 export const metadata = publicPageMetadata({
   path: "/play",
-  title: "Jeux d’anglais gratuits",
-  description: "Neuf jeux pour s'entraîner en anglais : conjugaison, grammaire, vocabulaire, traduction, mémoire, orthographe et compréhension orale. Parties courtes, scores et classements.",
+  title: "Jeux d’anglais gratuits en ligne, sans inscription",
+  description: "Pilote un vaisseau pour apprendre du vocabulaire, révise les verbes irréguliers contre la montre ou écoute un dialogue. Neuf jeux d’anglais à essayer sans compte.",
 });
 
 export default async function PlayPage() {
@@ -45,9 +45,12 @@ export default async function PlayPage() {
     <div>
       <PageHead
         caption="Salle d'entraînement"
-        title="Neuf jeux pour t'entraîner"
+        title="Jeux d’anglais gratuits en ligne"
       >
-        Des parties courtes sur les verbes irréguliers, le vocabulaire, la grammaire, l&apos;orthographe et l&apos;écoute.
+        Choisis ce que tu veux travailler. Tu peux{" "}
+        <Link href="/play/speed-verb-challenge" className="eq-text-link">réviser les verbes irréguliers</Link>,{" "}
+        <Link href="/play/space-lex" className="eq-text-link">apprendre du vocabulaire par thème</Link>{" "}
+        ou relever un défi d’écoute. Les neuf jeux se lancent sans inscription.
         {" "}
         <Link href="/leaderboard" className="eq-text-link">
           Voir la ligue et les classements →

@@ -13,8 +13,8 @@ const SLUG = "space-lex";
 
 export const metadata = gameMetadata(
   SLUG,
-  "Vocabulaire anglais dans l’espace · Lexicon Blaster",
-  "Un shooter spatial où l'on tire sur les bons mots : thèmes, connecteurs, synonymes, et des boss. Consignes en français pour les débutants.",
+  "Jeu de vocabulaire anglais par thème · Lexicon Blaster",
+  "Pilote ton vaisseau et vise les mots anglais de la bonne famille, des aliments aux voyages. Un jeu de vocabulaire gratuit, sans inscription, sur mobile ou ordinateur.",
 );
 
 export const dynamic = "force-dynamic";

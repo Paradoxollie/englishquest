@@ -1,4 +1,5 @@
 import { gameMetadata } from "@/lib/site/metadata";
+import Link from "next/link";
 import { GameBoard } from "@/components/play/game-board";
 import { GameShell } from "@/components/play/game-shell";
 import { getMissionForGame } from "@/lib/courses/mission-for-game";
@@ -10,8 +11,8 @@ const SLUG = "speed-verb-challenge";
 
 export const metadata = gameMetadata(
   SLUG,
-  "Verbes irréguliers anglais · Speed Verb Challenge",
-  "Conjugue les verbes irréguliers anglais contre la montre : prétérit, participe passé, traduction.",
+  "Jeu sur les verbes irréguliers anglais · Speed Verb Challenge",
+  "Retrouve le prétérit et le participe passé des verbes irréguliers anglais dans un jeu de conjugaison contre la montre. Commence en mode facile, sans compte.",
 );
 
 export const dynamic = "force-dynamic";
@@ -44,6 +45,7 @@ export default async function SpeedVerbChallengePage() {
       }
     >
       <SpeedVerbGame isLoggedIn={Boolean(user)} missionTarget={mission && mission.quizPassed && !mission.alreadyReached ? mission.scoreTarget : null} />
+      <p className="mt-4"><Link href="/cours/11#section-quelques-verbes-irreguliers" className="eq-text-link">Revoir cinq verbes irréguliers et leurs exemples au prétérit</Link></p>
     </GameShell>
   );
 }

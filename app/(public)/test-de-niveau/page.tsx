@@ -9,7 +9,7 @@ import { PlacementTest } from "./placement-test";
 export const metadata = publicPageMetadata({
   path: "/test-de-niveau",
   title: "Test de niveau d’anglais gratuit",
-  description: "Teste ton niveau d'anglais en quelques minutes, gratuitement et sans compte : six questions par chapitre, de A1 à B1.",
+  description: "Réponds à six questions d’anglais par chapitre pour savoir par quel cours commencer. Un test de positionnement gratuit, de A1 à B1, accessible sans compte.",
 });
 
 export const dynamic = "force-dynamic";
@@ -25,11 +25,11 @@ export default async function PlacementPage() {
     return (
       <div>
         <PageHead
-          caption="Test de niveau"
-          title="Où en es-tu en anglais ?"
+          caption="Trouver mon premier cours"
+          title="Test de niveau d’anglais gratuit"
         >
-          Six questions par chapitre, de A1 à B1. Quatre bonnes réponses et le chapitre suivant s&apos;enchaîne ; au
-          premier qui résiste, c&apos;est là que tu commences. Entre deux et huit minutes, sans compte.
+          Réponds à six questions par chapitre, de A1 à B1. Avec quatre bonnes réponses, tu passes au chapitre
+          suivant. À la fin, tu sauras par quel cours commencer. Compte deux à huit minutes, sans inscription.
         </PageHead>
 
         <div className="eq-container eq-section">

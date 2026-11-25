@@ -5,14 +5,14 @@ import { Quiz } from "@/components/courses/quiz";
 export const course19: LessonContent = {
   courseNumber: 19,
   title: "Quantité précise (Much / Many)",
-  objective: "Maîtriser les quantités dénombrables et indénombrables.",
+  objective: "Dire combien il y en a. Demande « How many apples? » pour des pommes et « How much water? » pour de l’eau.",
   sections: [
     {
       title: "1. Le Concept Fondamental : Dénombrable vs Indénombrable",
       content: (
         <div className="space-y-6">
           <p className="text-slate-300">
-            En anglais, tout dépend de la nature du mot. Peut-on compter l'objet sur ses doigts ?
+            On utilise many avec un nom dénombrable au pluriel, comme apples. Avec un nom indénombrable comme water, on utilise much.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-slate-900 p-4 rounded-lg border-l-4 border-emerald-500">

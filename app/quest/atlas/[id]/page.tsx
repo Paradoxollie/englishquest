@@ -6,13 +6,26 @@ import { scenes } from "@/lib/adventure/scenes";
 import { learnerActivity } from "@/lib/adventure/activities";
 import { getAdventureProgress, getAccountDraft } from "@/lib/adventure/progress";
 import { PassageReader } from "@/components/quest/passage-reader";
+import { publicPageMetadata } from "@/lib/site/metadata";
 import "@/components/quest/atlas.css";
 
 export const dynamic = "force-dynamic";
 type Props = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Props) {
   const { id } = await params;
-  return { title: passages.find(p => String(p.id) === id)?.title ?? "L’Atlas des passages" };
+  const episode = passages.find(p => String(p.id) === id);
+  if (!episode) notFound();
+  if (episode.id !== passages[0].id) {
+    // Une première visite afficherait la consigne pour débloquer cette escale.
+    return { title: episode.title, robots: { index: false, follow: true } };
+  }
+  return publicPageMetadata({
+    path: `/quest/atlas/${episode.id}`,
+    title: `Se présenter en anglais en BD · ${episode.title}`,
+    description: "Sur le quai, choisis comment dire bonjour et au revoir, puis présente-toi en anglais avec ton nom de héros. Une courte BD pour débutants, jouable sans inscription.",
+    image: `/art/passage/${episode.art}.webp`,
+    imageAlt: episode.alt,
+  });
 }
 export default async function StoryPage({ params }: Props) {
   const { id } = await params;

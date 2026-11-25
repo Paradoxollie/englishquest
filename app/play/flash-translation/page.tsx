@@ -11,7 +11,7 @@ const SLUG = "flash-translation";
 
 export const metadata = gameMetadata(
   SLUG,
-  "Traduction rapide en anglais · Flash Translation",
+  "Jeu de traduction du français vers l’anglais · Flash Translation",
   "Dix mots français à ton niveau, quatre traductions anglaises à chaque fois : réponds vite, le score est ton temps total.",
 );
 

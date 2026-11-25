@@ -5,7 +5,7 @@ import { Quiz } from "@/components/courses/quiz";
 export const course29: LessonContent = {
     courseNumber: 29,
     title: "Incertitude : May, Might & Maybe",
-    objective: "Exprimer une possibilité avec may ou might, un doute avec maybe et une permission avec may.",
+    objective: "Dire « Il va peut-être pleuvoir » avec It may rain, It might rain ou Maybe it will rain. Tu verras aussi comment demander une permission avec may.",
     sections: [
         {
             title: "Exprimer un degré de certitude",
