@@ -88,6 +88,7 @@ export default async function TeacherClassPage({ params, searchParams }: ClassPa
               {archived ? "Résultats des séances" : "Séance en direct"}
             </Link>
             <a href="#devoirs" className="eq-btn eq-btn-ghost">Devoirs</a>
+            <a href="#participations" className="eq-btn eq-btn-ghost">Bilan des invités</a>
           </div>
         </div>
         <div className="eq-teach-head-code">

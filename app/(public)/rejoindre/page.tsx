@@ -51,7 +51,8 @@ export default async function JoinClassPage({ searchParams }: { searchParams: Pr
             </li>)}</ul> : <p className="eq-muted">Aucun devoir pour le moment.</p>}
             <form action={leaveGuestClass}><button className="eq-btn eq-btn-ghost">Quitter cet appareil ou changer de joueur</button></form>
           </> : <GuestEntryForm code={prefill} attempt={randomUUID()} firstName={Boolean(prefill && params.prenom === "1")} />}
-          <p className="eq-muted text-sm">Ton prof peut revoir ta participation pendant dix jours. Ton pseudo peut apparaître sur le podium de la classe.
+          <p className="eq-muted text-sm">Tu peux reprendre sur cet appareil pendant quatre heures. Ton prof peut revoir ta participation pendant dix jours.
+            Ton pseudo peut apparaître sur le podium de la classe.
             {" "}<Link href="/confidentialite#classe-invite" className="eq-text-link">Tes données en classe</Link></p>
           <p className="text-sm"><Link className="eq-text-link" href={withNextParam("/auth/login",next)}>Utiliser mon compte</Link>
             {" · "}<Link className="eq-text-link" href={withNextParam("/auth/signup",next)}>Créer un compte</Link></p>
