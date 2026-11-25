@@ -131,7 +131,7 @@ Emplacements d'images (dans `public/art/`, JPG) : `hero-home.jpg` 2400×1350 suj
 | # | Tâche | Qui | Taille | État |
 |---|---|---|---|---|
 | 6.1 | Nom de domaine | P | S | à faire |
-| 6.2 | Search Console, titres de cours orientés recherche, exercices visibles sans compte | C | M | à faire |
+| 6.2 | Search Console, titres de cours orientés recherche, exercices visibles sans compte | C | M | 25 novembre 2026, titres des 50 cours et entrées jeux et BD revus. Mesurer les apparitions et les clics sur les recherches sans le nom du site. [Bilan et point de départ](REPRISE.md) |
 | 6.3 | Présentation aux collègues, puis groupes de profs d'anglais | P | M | à faire |
 | 6.4 | Revoir la publicité au-delà de quelques milliers de visiteurs par mois (ou page de dons) | P | S | à faire |
 
