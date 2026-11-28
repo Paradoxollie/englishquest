@@ -6,6 +6,7 @@ Exécuter les commandes depuis la racine du dépôt. `npm test` lance les régre
 
 | Sujet | Essai ou point d’entrée |
 | --- | --- |
+| Suivi individuel des joueurs | `node scripts/tests/learning-report-postgres.cjs` vérifie les notes successives, le record conservé après un échec, l’entraînement libre, le positionnement, les doublons, la pagination, les dates d’adhésion et le retrait d’un élève. Dans le navigateur, terminer un quiz connecté, ouvrir « Voir mon suivi », puis retrouver la même note depuis le pseudo dans la classe. Le bilan à copier doit omettre le pseudo, l’adresse et le code. |
 | Barre du haut et classements | Le scénario `rankings-visible-in-header-and-return-after-game` du [test navigateur](tests/browser-games-audit.cjs) contrôle que les six rubriques tiennent à l’écran et que le lien vers les classements conserve sa destination après une partie et sur les formulaires de connexion et d’inscription. |
 | Pages proposées aux moteurs de recherche | `node scripts/tests/public-search.cjs http://127.0.0.1:3000` vérifie les titres, les descriptions, les adresses publiques et les liens vers les activités. Ajouter `--sample` pour un contrôle court sur Omega. |
 | Neuf jeux, écrans de jeu et validation des scores | `npm run test:browser -- http://127.0.0.1:3000`, [règles des jeux de chute et de tir](tests/falling-games-regression.cjs), [validation des scores](tests/score-plausibility-regression.cjs) |
