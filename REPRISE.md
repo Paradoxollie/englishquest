@@ -18,6 +18,8 @@ Les vérifications locales couvrent les choix et les corrigés, 300 tirages de G
 
 Dans la nouvelle famille « Musique » de Lexicon, le tir sur BELL près du bas de l’écran et le tir sur ONION ont donné chacun le retour attendu, à la souris à 1 366 pixels et au toucher simulé à 320 pixels.
 
+**Publié et vérifié sur Omega le 28 novembre.** L’alias public a servi la révision `8bf746b`. Les six jeux ont été lancés en invité à 390 et 1 366 pixels. Sur chaque écran, une bonne réponse dans Grammar Rush a mené à une question du cours sélectionné. Les cinq fichiers publics correspondaient intégralement aux listes attendues de 276, 554, 824, 1 101 et 1 379 questions. Ces essais ont été exclus des compteurs de parties invitées. [Grammar Rush sur Omega](https://englishquest-omega.vercel.app/play/grammar-rush)
+
 ## Visibilité et relais enseignants, 25 novembre au soir
 
 Les personnes qui cherchent une activité en français peuvent accéder directement aux neuf jeux, aux 50 cours et à la première BD. L’accueil explique les trois possibilités. Les titres des cours indiquent la notion à travailler, par exemple « Much ou many en anglais ? ». La leçon sur le prétérit permet d’ouvrir Speed Verb Challenge puis de retourner au tableau des cinq verbes. Le plan du site indique désormais 73 adresses publiques. La couverture et la première BD ont chacune leur adresse et leur illustration de partage. Les escales suivantes se débloquent dans le récit et sont exclues des résultats de recherche. [Jeux d’anglais](https://englishquest-omega.vercel.app/play) · [Cours d’anglais](https://englishquest-omega.vercel.app/tous-les-cours) · [Premier épisode](https://englishquest-omega.vercel.app/quest/atlas/1)
