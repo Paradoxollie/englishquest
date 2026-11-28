@@ -3,13 +3,13 @@
 Site gratuit d'apprentissage de l'anglais par le jeu, créé par Pierre Marienne, professeur
 d'anglais. Parcours de 50 cours avec quiz, neuf mini-jeux, progression par XP et or,
 quatre albums illustrés, douze personnages à collectionner et classements. L’Atlas des
-passages compte 20 escales en BD dans cette version du projet. L’espace professeur permet de donner des devoirs
+passages compte 25 escales en BD dans cette version du projet. L’espace professeur permet de donner des devoirs
 et de lancer une séance synchronisée sur les téléphones de sa classe. Les élèves peuvent utiliser un code
 et un pseudo ou un prénom, sans inscription. Le professeur retrouve le bilan pendant dix jours.
 
 [Ouvrir le site public](https://englishquest-omega.vercel.app) · [Reprendre le projet dans une autre conversation](REPRISE.md) · [Bilan de fréquentation des 22 et 23 novembre](docs/FREQUENTATION-2026-11-23.md)
 
-**Aventure** suit Maya et Sam jusqu’au quatrième chapitre, **Le refuge des deux lunes**. Le journal restitue les escales déjà terminées. **Cours** propose une bibliothèque par notion et l’ancienne carte guidée des 50 missions, avec ses acquis et examens. [Ouvrir l’épopée](https://englishquest-omega.vercel.app/quest/atlas) · [Ouvrir le parcours guidé](https://englishquest-omega.vercel.app/tous-les-cours/parcours) · [Progression pédagogique vers 250 escales](docs/PROGRESSION-ATLAS.md)
+**Aventure** suit Maya et Sam jusqu’au cinquième chapitre, **Le cinéma des marées**. Le journal restitue l’histoire des escales terminées. Les carnets des chapitres 4 et 5 montrent les objectifs écrits réussis. **Cours** propose une bibliothèque par notion et l’ancienne carte guidée des 50 missions, avec ses acquis et examens. [Ouvrir l’épopée](https://englishquest-omega.vercel.app/quest/atlas) · [Ouvrir le parcours guidé](https://englishquest-omega.vercel.app/tous-les-cours/parcours) · [Progression pédagogique vers 250 escales](docs/PROGRESSION-ATLAS.md)
 
 ## Pile technique
 

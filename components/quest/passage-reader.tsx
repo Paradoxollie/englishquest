@@ -16,6 +16,7 @@ import { useAdventureDraft } from "./use-adventure-draft";
 import { partForStage, partTitles } from "@/lib/adventure/parts";
 import { RouteBoard } from "./route-board";
 import { PassageBoard } from "./passage-boards";
+import { CoastalProjection } from "./coastal-projection";
 import "./atlas-boards.css";
 
 const GrammarRush = dynamic(() => import("@/app/play/grammar-rush/grammar-rush-game").then(m => m.GrammarRushGame), { loading: () => <p role="status">La radio s’allume…</p> });
@@ -115,10 +116,11 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
   useEffect(() => {
     if (shouldFocus.current) {
       heading.current?.focus({ preventScroll: true });
-      heading.current?.scrollIntoView({ block: "nearest", behavior: "instant" });
+      const reveal = done ? heading.current?.closest(".atlas-reader") : heading.current;
+      reveal?.scrollIntoView({ block: done ? "start" : "nearest", behavior: "instant" });
       shouldFocus.current = false;
     }
-  }, [opened, index, phase, feedback?.ok]);
+  }, [opened, index, phase, feedback?.ok, done]);
 
   useEffect(() => {
     const host = window as Window & { render_game_to_text?: () => string };
@@ -183,7 +185,10 @@ export function PassageReader({ episode, steps, saved, savedOnAccount, draftKey,
       })}
     </ol>}</div>
     {!opened || done ? <section className={`atlas-splash ${done ? "atlas-finale" : ""}`}>
-      <div className="atlas-splash-art"><Image src={picture.src} alt={picture.alt} placeholder="blur" fill priority sizes={landscapeSizes} /></div>
+      <div className="atlas-splash-art">
+        <Image src={picture.src} alt={picture.alt} placeholder="blur" fill priority sizes={landscapeSizes} />
+        {done && (episode.id === 24 || episode.id === 25) && <CoastalProjection episode={episode.id} />}
+      </div>
       <div className="atlas-splash-copy">
         <span className="atlas-label">{done ? "Escale validée" : episode.place}</span>
         <h1 tabIndex={-1} ref={heading}>{done ? episode.keepsake : episode.title}</h1>

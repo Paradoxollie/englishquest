@@ -6,7 +6,7 @@ export type GameAnswer = { id: string; value: string };
 export type QuizForm = { ticket: string; questions: { id: string; prompt: string; options: string[] }[] };
 export type QuizSubmission = { ticket: string; answers: GameAnswer[] };
 export type ComicPhase = "story" | "lesson" | "question" | "help";
-export type BoardPicture = "inventory" | "shelter" | "film" | "letter" | "lanterns" | "cloakroom" | "automata" | "mirrors" | "roof" | "frame" | "fruit" | "supplies" | "meal" | "cargo";
+export type BoardPicture = "inventory" | "shelter" | "film" | "letter" | "lanterns" | "cloakroom" | "automata" | "mirrors" | "roof" | "frame" | "fruit" | "supplies" | "meal" | "cargo" | "coast-plates";
 export type Clue = { label: string; text: string };
 export type Draft = {
   index: number; opened: boolean; sheet: boolean; choice: string; tiles: number[];

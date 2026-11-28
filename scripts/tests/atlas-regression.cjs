@@ -84,9 +84,18 @@ async function test() {
   assert.deepEqual((await db.query("select mission,stage,draft_version from public.adventure_checkpoints where user_id=$1 order by mission", [accounts[0]])).rows,
     [{mission:5,stage:7,draft_version:2}, {mission:10,stage:6,draft_version:3}, {mission:15,stage:6,draft_version:4}]);
   await assert.rejects(db.query("insert into public.adventure_checkpoints(user_id,mission,stage) values ($1,21,0)", [accounts[0]]), /check constraint/);
+  const beforeCoast = { index: 3, opened: true, phase: "question", choice: "Do you like bread?" };
+  await db.query("insert into public.adventure_checkpoints(user_id,mission,stage,draft_version,draft) values ($1,20,3,7,$2)", [accounts[0], JSON.stringify(beforeCoast)]);
+  const oldRows = async () => (await db.query("select mission, stage, draft_version, draft, updated_at from public.adventure_checkpoints where user_id=$1 and mission<=20 order by mission", [accounts[0]])).rows;
+  const oldProgress = await oldRows();
+  const coastMigration = fs.readdirSync(path.join(root, "supabase/migrations")).find(file => file.endsWith("_atlas_coast_chapter.sql"));
+  await db.exec(fs.readFileSync(path.join(root, "supabase/migrations", coastMigration), "utf8"));
+  assert.deepEqual(await oldRows(), oldProgress);
+  await db.query("insert into public.adventure_checkpoints(user_id,mission,stage) values ($1,25,6)", [accounts[0]]);
+  await assert.rejects(db.query("insert into public.adventure_checkpoints(user_id,mission,stage) values ($1,26,0)", [accounts[0]]), /check constraint/);
   await db.query("delete from public.adventure_checkpoints where user_id=$1", [accounts[0]]);
   const { scenes } = load("lib/adventure/scenes.ts");
-  const { passages } = load("lib/adventure/catalog.ts");
+  const { passages, atlasChapters } = load("lib/adventure/catalog.ts");
   const empty = passages.map(() => 0);
   const { partForStage } = load("lib/adventure/parts.ts");
   const { gradeActivity } = load("lib/adventure/grading.ts");
@@ -120,7 +129,14 @@ async function test() {
   }
   const refuge = passages.filter(p => p.id >= 16 && p.id <= 20);
   assert.equal(refuge.length, 5);
-  for (const p of refuge) {
+  const coast = passages.filter(p => p.id >= 21 && p.id <= 25);
+  assert.deepEqual(coast.map(p => p.id), [21, 22, 23, 24, 25]);
+  assert.deepEqual(atlasChapters.flatMap(c => Array.from({length: c.last - c.first + 1}, (_, i) => c.first + i)), passages.map(p => p.id));
+  assert.equal(coast.reduce((sum, p) => sum + p.targets.length, 0), 9);
+  assert.equal(scenes[25].at(-1).mode, "write");
+  assert.ok(coast.filter(p => scenes[p.id].at(-1).mode === "quiz").length >= 3);
+  assert.equal(await openAtlasQuiz(21).then(() => true, () => false), false);
+  for (const p of [...refuge, ...coast]) {
     assert.ok(p.targets.length && p.course);
     assert.equal(new Set(p.targets.map(goal => goal.stage)).size, p.targets.length);
     for (const goal of p.targets) assert.equal(scenes[p.id][goal.stage-1].mode, "write");
@@ -135,7 +151,19 @@ async function test() {
     [19, 4, "No, I don’t.", "No, I am not."], [19, 5, "Do you like apples?", "You like apples."],
     [20, 4, "Do you like bread?", "Does you like bread?"], [20, 7, "We need water. It likes pears.", "We need water."],
     [20, 7, "It likes pears. We need some water.", "It likes water. We need pears."],
-    [20, 7, "We need more water. It really likes pears.", "We need more water. It really like pears."]
+    [20, 7, "We need more water. It really likes pears.", "We need more water. It really like pears."],
+    [21, 4, "She opens the gate every evening.", "She open the gate every evening."],
+    [21, 5, "I close the door.", "I closes the door."],
+    [22, 5, "It doesn’t open the gate.", "It doesn’t opens the gate."],
+    [22, 5, "It does not open the cinema gate.", "It does open the gate."],
+    [23, 4, "Does it take the note?", "Does it takes the note?"],
+    [23, 6, "Does she need the map?", "Do she need the map?"],
+    [24, 5, "Yes, she does.", "Yes, it does."],
+    [24, 6, "No, it does not.", "Yes, it does."],
+    [25, 4, "Do you close the red gate?", "Does she close the red gate?"],
+    [25, 6, "Tess opens the blue gate. Your map is in the blue bag.", "Tess opens the blue gate."],
+    [25, 6, "The map’s in the blue bag. She opens the blue gate every evening.", "The map is in the red bag. She opens the blue gate."],
+    [25, 6, "She opens the blue gate and the map is in the blue bag.", "She opens the red gate and the map is in the blue bag."]
   ];
   for (const [id, stage, right, wrong] of contrasts) {
     assert.ok(gradeActivity(scenes[id][stage-1], right), right);

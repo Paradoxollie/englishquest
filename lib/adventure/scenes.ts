@@ -28,6 +28,16 @@ function echo(message: RadioMessage, title: string, questions: EchoQuestion[]): 
     "Les deux informations de la transmission sont confirmées.");
 }
 
+const eveningGateReports = ["Tess", "She"].flatMap(subject => {
+  const statement = `${subject} opens the blue gate`;
+  const times = ["every evening", "every night", "each evening", "each night"];
+  return [statement, ...times.flatMap(time => [`${statement} ${time}`, `${time} ${statement}`])];
+});
+const mapLocations = ["The map is", "Your map is", "The map’s", "Your map’s"].flatMap(start =>
+  [`${start} in the blue bag`, `${start} in your blue bag`]);
+const boatMessages = eveningGateReports.flatMap(gate => mapLocations.flatMap(map =>
+  [`${gate}. ${map}`, `${map}. ${gate}`, `${gate} and ${map}`, `${map} and ${gate}`]));
+
 export const scenes: Record<number, AuthoredActivity[]> = {
   1: [
     scene("choice", "Premier contact", "Sam part chercher la boussole. Que lui dis-tu en le voyant partir ?", {
@@ -452,9 +462,144 @@ export const scenes: Record<number, AuthoredActivity[]> = {
       ["We need water", "We need some water", "We need more water", "We need drinking water"].flatMap(need => [`${taste}. ${need}`, `${need}. ${taste}`])),
     "Pour Pip, pense au s du verbe like. Pour ton équipe, emploie le verbe de besoin avec We. Les deux informations sont nécessaires.", "Le refuge prépare les poires pour Pip et l’eau pour votre équipe. Votre message a bien traversé la baie."),
   ],
+  21: [
+    scene("choice", "Une lune sur la grille", "Lis le programme de Tess. À quel moment peux-tu entrer au cinéma ?", {
+      englishCue: "Read the sign.",
+      lesson: lesson("Le présent simple sert à raconter ce qui se répète. Ici, gate désigne la grille.", "every morning · chaque matin\nevery evening · chaque soir\nI open the door. · J’ouvre la porte.\nI close the door. · Je ferme la porte."),
+      document: doc("À l’entrée du cinéma", "I open the gate every evening.\nI close it every morning.\nTess"),
+      options: ["Le soir", "Le matin"] }, ["Le soir"], "Gate désigne la grille. Cherche quand Tess écrit open, le verbe qui signifie ouvrir.",
+    "C’est le soir. Dans un grincement, la grille du cinéma s’ouvre. Le dernier bateau au large pourra bientôt voir l’écran."),
+    scene("choice", "Deux gestes en coulisses", "Deux personnages en carton jouent le même film tous les soirs. Qui ferme la porte pour faire le noir ?", {
+      englishCue: "Who closes the door?",
+      lesson: lesson("Avec he, she ou un prénom, open et close prennent un s.", "I open the box. · J’ouvre la boîte.\nShe opens the box. · Elle ouvre la boîte.\nHe closes the box. · Il ferme la boîte.",
+        [["open → opens", "On ajoute s à open."], ["close → closes", "Close a déjà un e. On lui ajoute simplement s."]]),
+      document: doc("Les rôles du film", "Mira opens the door.\nLeo closes the door."), options: ["Mira", "Leo"] }, ["Leo"],
+    "Dans le premier rôle, opens fait entrer la lumière. Le deuxième rôle la coupe.", "Sam fait jouer la silhouette de Leo. La lune de l’écran disparaît dès que la petite porte se ferme devant la lampe."),
+    scene("order", "Le secret de la lune", "Sur la fiche des trucages, raconte ce que Leo fait à chaque séance pour obtenir le noir. Remplace son nom par he.", {
+      englishCue: "Build the caption.", options: ["the door.", "He", "closes"] }, ["He closes the door"],
+    "Commence par le sujet he. Place ensuite le geste, puis l’objet.", "Dans le noir, un rond d’étain éclairé devient une lune immense. Sam le fait tourner sur sa tranche."),
+    scene("write", "La ligne manquante du programme", "Dis à Sam en anglais ce que fait Tess chaque soir. Commence par She et indique qu’elle ouvre la grille.", {
+      englishCue: "Write Tess’s routine.", document: { label: "Au crayon, sous le programme", text: "Tess · ouverture de la grille du cinéma", lang: "fr" } },
+    ["the gate", "the cinema gate"].flatMap(gate => [`She opens ${gate}`, `She opens ${gate} every evening`, `She opens ${gate} every night`, `Every evening she opens ${gate}`]),
+    "Grille se dit gate. Avec she, le verbe d’action porte un s.", "Sam accroche ta ligne au programme. Les derniers spectateurs entrent pendant que Tess fait pivoter sa lanterne vers la mer."),
+    scene("write", "Ton rôle dans le film", "Invente le geste que ton personnage fait à chaque séance. Avec I, dis que tu ouvres la porte ou que tu la fermes. Les deux idées conviennent.", {
+      englishCue: "Choose your part.", document: { label: "Accessoire du tournage", text: "Une petite porte de carton, à ouvrir ou à fermer devant la lampe.", lang: "fr" } },
+    ["I open the door", "I close the door", "I open the door every evening", "I close the door every evening"],
+    "Avec I, utilise open ou close, puis the door. Tu décides de ton geste.", "Ton personnage a son rôle. À l’écran, derrière la porte de carton, quelque chose déploie des ailes démesurées."),
+  ],
+  22: [
+    scene("choice", "Le billet froissé", "Lis la première ligne du registre de nuit. Qui emporte les billets d’habitude ?", {
+      englishCue: "Follow the note.",
+      lesson: lesson("Un petit mot écrit peut se dire a note. Ici, take veut dire emporter.", "a bird · un oiseau\na note · un billet, un petit mot\nI take the map. · J’emporte la carte."),
+      document: doc("Registre du cinéma", "Tess opens the gate. The bird takes the notes."), options: ["Tess", "The bird"] }, ["The bird"],
+    "Cherche le sujet juste avant takes the notes.", "Un oiseau de métal tire un billet de dessous l’écran. Tess l’appelle Sterne. Au même instant, le monstre de la toile déplie une aile."),
+    scene("evidence", "Le géant de la toile", "Épingle les deux indices qui identifient l’objet devant la lampe. À qui appartient cette ombre immense ?", {
+      englishCue: "Match the shadow.", lesson: lesson("L’objet qui passe devant la lampe projette son ombre sur l’écran.", "a shadow · une ombre\na star · une étoile\na boat · un bateau"),
+      clues: [doc("Les deux silhouettes du théâtre", "The bird has two stars. The little boat has one star."), doc("Sur la patère de Tess", "My bag is red."), doc("Croquis du machiniste", "At the lamp: two stars.")],
+      options: ["The little boat", "The bird"] }, ["0+2 | The bird"], "Le machiniste a noté le nombre d’étoiles sur l’objet devant la lampe. Quelle autre fiche permet de donner son nom ?",
+    "Les deux étoiles dorées du croquis brillent sur l’aile de Sterne. Quand il passe devant la lampe, l’ombre de ses ailes rejoint les dents en carton du décor. Voilà ton monstre !"),
+    scene("order", "La clé reste au clou", "Écris avec les morceaux de phrase que l’oiseau n’emporte pas la clé. Utilise it pour Sterne.", {
+      englishCue: "Correct the report.", lesson: lesson("Avec he, she ou it, doesn’t ou does not rend l’action négative. Le verbe qui suit reste à sa forme de base.",
+        "She closes the door. · Elle ferme la porte.\nShe doesn’t close the door. · Elle ne ferme pas la porte.\nShe does not close the door. · Elle ne ferme pas la porte."),
+      options: ["the key.", "take", "It", "doesn’t"] }, ["It doesn't take the key"],
+    "Pars de It. Place d’abord la négation, puis take, puis ce que Sterne laisse sur place.", "Sam retrouve la clé au clou et peut soulever le rideau. Derrière, un petit pont de carton relie la toile aux coulisses."),
+    scene("choice", "Le chemin du courrier", "Regarde comment Sterne distribue le courrier. À qui confies-tu le prochain billet pour la cabine ?", {
+      englishCue: "Read both lines.", document: doc("Rôles de la tournée", "Sam doesn’t take notes to Tess.\nThe bird takes notes to Tess."), options: ["Sam", "The bird"] },
+    ["The bird"], "To Tess indique la destination. Repère quelle ligne dit que le trajet a bien lieu.",
+    "Tu fixes le billet à la petite pince de Sterne. L’oiseau s’arrête devant une vraie grille et attend que quelqu’un la lève."),
+    scene("write", "Un métier pour chaque silhouette", "Le régisseur croit que Sterne ouvre aussi la grille. Corrige sa fiche en anglais. Commence par It, nomme la grille et utilise doesn’t ou does not.", {
+      englishCue: "Set the record straight.", document: { label: "La fiche à corriger", text: "La grille du cinéma est actionnée par Tess. Sterne transporte le courrier.", lang: "fr" } },
+    ["It doesn't open the gate", "It does not open the gate", "It doesn't open the cinema gate", "It does not open the cinema gate"],
+    "Après doesn’t ou does not, utilise open. N’oublie pas de nommer la grille.",
+    "La fiche indique maintenant le bon métier. Tess lève la grille de service et Sterne file vers la cabine, le billet bien en vue."),
+  ],
+  23: [
+    scene("choice", "Sous la vitre de la cabine", "Tu parles à Sam de Tess. Quelle question lui poses-tu pour savoir si elle ferme la porte ?", {
+      englishCue: "Ask about Tess.", lesson: lesson("Pour poser une question sur he, she ou it, place does avant le sujet. Le verbe garde sa forme de base.",
+        "He has the key. · Il a la clé.\nDoes he have the key? · Est-ce qu’il a la clé ?\nDoes it need light? · Est-ce qu’il a besoin de lumière ?"),
+      options: ["Do you close the door?", "Does she close the door?", "Does she open the door?"] },
+    ["Does she close the door?"], "Face à Sam, you parlerait de Sam. She permet de parler de Tess.", "Sam acquiesce. Dans le noir de la cabine, le billet de Sterne paraît blanc des deux côtés."),
+    scene("choice", "Un mot sur la bande-son", "Écoute le mot que Maya a retrouvé sur le billet. Quel programme du cinéma faut-il sortir pour lire la suite ?", {
+      englishCue: "Listen for the time.", lesson: lesson("Deux programmes se succèdent au cinéma.", "morning · le matin\nevening · le soir"),
+      radio: { speaker: "Maya", file: "evening", collection: "spell-strike", line: "Evening." }, options: ["Le programme du matin", "Le programme du soir"] },
+    ["Le programme du soir"], "Tu peux écouter à nouveau ou lire le mot avec « Sans son ». Morning désigne le début de la journée.",
+    "Tess sort le programme du soir. Le papier, tenu devant la lampe, laisse apparaître deux dessins transparents."),
+    scene("order", "Le carnet de la projectionniste", "Demande si Tess ouvre la grille. Assemble la question en utilisant son prénom.", {
+      englishCue: "Build the question.", options: ["open", "the gate?", "Does", "Tess"] }, ["Does Tess open the gate"],
+    "Place Does avant le prénom de Tess. Une fois does en place, le verbe est open.", "Sam te montre Tess au pied de la manivelle. C’est bien elle qui règle l’entrée du cinéma."),
+    scene("write", "Le retour du messager", "Tu veux savoir si l’oiseau emporte le billet à chaque séance. Pose la question à Sam en anglais avec it, take et le mot pour « le billet ».", {
+      englishCue: "Ask about the bird." }, ["Does it take the note", "Does it take the note every evening", "Does it take the note every night", "Does it take the note to Tess", "Does it take the note to Tess every evening"],
+    "Pose d’abord la question avec Does, puis indique de qui tu parles. Take vient après le sujet.", "Sam ouvre le registre postal devant la lampe. Sur le papier, de petites empreintes d’encre se mettent à avancer. Elles remontent jusqu’à la cabine de Tess."),
+    scene("delivery", "Deux images sur verre", "Choisis la plaque dont Tess a besoin et apporte-la-lui. L’autre sert au spectacle de Sam.", {
+      englishCue: "Deliver the right slide.", lesson: lesson("Une plaque en verre porte une image que la lampe agrandit.", "the boat · le bateau\nthe moon · la lune"),
+      document: doc("Deux demandes près de la lanterne", "Sam: The moon, please.\nTess: The boat, please."),
+      options: ["The moon", "The boat"], delivery: { picture: "coast-plates", destinations: ["Tess", "Sam"] } }, ["The boat | Tess"],
+    "Lis la demande de Tess. Choisis d’abord l’image puis la personne à qui la donner.", "Tess glisse ta plaque devant la lampe. Le dessin d’un bateau se superpose au billet et révèle trois petits mots : « Where’s our map? »"),
+    scene("write", "À qui manque la carte ?", "Demande à Sam si Tess a besoin de la carte, avec she et need. Tu veux savoir qui a envoyé « Where’s our map? ».", {
+      englishCue: "Ask about the map." }, ["Does she need the map", "Does she need this map"],
+    "Tu parles de Tess à Sam. Garde she comme sujet et pose la question avec Does.", "Sam secoue la tête. Tess a déjà son plan du port. Le message vient du dernier bateau, qui attend encore au large."),
+  ],
+  24: [
+    scene("choice", "La lampe du pont", "Lis la fiche de Tess et réponds à la première question du poste. « Does Tess have the note? »", {
+      englishCue: "Answer for Tess.", lesson: lesson("Une réponse courte reprend does. Choisis le pronom de la personne ou de la chose dont on parle.",
+        "Does Sam have the map? · Est-ce que Sam a la carte ?\nYes, he does. · Oui, il l’a.\nNo, he doesn’t. · Non, il ne l’a pas."),
+      document: doc("Au poste du pont", "Tess: I have the note."), options: ["Yes, she does.", "Yes, it does.", "No, she doesn’t."] }, ["Yes, she does."],
+    "Tess confirme qu’elle a le billet. Dans ta réponse, parle d’elle avec she.", "La première lampe clignote au-dessus du canal. De l’autre côté du pont, le bateau lui répond d’un éclair."),
+    scene("choice", "La réponse du large", "Les pilotes ont envoyé une question et une réponse. Quelle information places-tu sur le plan ?", {
+      englishCue: "Read the reply.", document: doc("Sur la bande de papier", "Does the bird take the key?\nNo, it doesn’t."),
+      options: ["Sterne n’emporte pas la clé.", "Sterne emporte la clé.", "Tess n’emporte pas la clé."] }, ["Sterne n’emporte pas la clé."],
+    "It reprend the bird. Lis aussi le tout premier mot de la réponse.", "Tu effaces la clé dessinée sur l’aile de Sterne. Deux petits leviers se mettent à luire."),
+    scene("order", "Deux coups sur le levier", "Le relais demande « Does the bird take the notes to Tess? ». Sterne transporte le courrier de Tess. Compose la réponse courte affirmative.", {
+      englishCue: "Answer for the bird.", options: ["does.", "Yes,", "it"] }, ["Yes it does"], "Parle de l’oiseau avec it. Termine la réponse par l’auxiliaire de la question.",
+    "Le petit levier émet les deux mêmes éclats que le bateau. Tu viens de régler la durée d’un signal."),
+    { ...rush(24, "Quatre signaux arrivent du bateau. Décode au moins trois échanges pour réveiller les lampes du pont.", [
+      ["Tess: « I have a key. » Does Tess have a key?", "Yes, she does.", "Yes, it does.", "No, she doesn’t."],
+      ["« The bird takes the note. » Does the bird take the note?", "Yes, it does.", "Yes, it is.", "No, it doesn’t."],
+      ["Tess: « I don’t take the boat. » Does Tess take the boat?", "No, she doesn’t.", "Yes, she does.", "No, it doesn’t."],
+      ["« The bird doesn’t open the gate. » Does the bird open the gate?", "No, it doesn’t.", "No, it isn’t.", "Yes, it does."],
+    ]), englishCue: "Decode the four signals.", explain: "Le pont s’allume comme une rangée de bornes d’arcade. Deux questions du bateau passent enfin en clair." },
+    scene("write", "La grille au soleil", "Le bateau demande « Does Tess close the red gate? ». Lis le registre et envoie une réponse courte en anglais avec she.", {
+      englishCue: "Send a short reply.", document: { label: "Service du soir", text: "Tess · fermeture de la grille rouge, marquée d’un soleil.", lang: "fr" } },
+    ["Yes she does"], "Le registre confirme que oui. Dans la réponse, reprends Tess avec she, puis l’auxiliaire de la question.",
+    "Le bateau raye la grille au soleil sur son plan. Son prochain signal montre une aile."),
+    scene("write", "L’oiseau à la manivelle ?", "« Does Sterne open the gates? » Réponds au bateau par une réponse courte en anglais. Utilise it pour Sterne.", {
+      englishCue: "Reply about Sterne.", document: { label: "Répartition du service", text: "Sterne transporte les billets. Tess seule actionne les grilles du canal.", lang: "fr" } },
+    ["No it doesn't", "No it does not"], "Ici, la réponse est négative. Reprends it, puis la forme négative de does.",
+    "Le bateau sait désormais de qui attendre le signal de passage. Sur le pont, les quatre lampes dessinent le chemin jusqu’à l’écran flottant."),
+  ],
+  25: [
+    scene("choice", "Une voile devient écran", "Le dernier bateau a reçu les signaux du pont. Lis son message. Pourquoi attend-il toujours ?", {
+      englishCue: "Read the crew’s message.", document: doc("Message du bateau", "We can see two gates. Which gate? Where is our map?"),
+      lesson: lesson("Which permet de demander lequel ou laquelle parmi plusieurs choix.", "Which bag? · Quel sac ?\nWhere is our key? · Où est notre clé ?"),
+      options: ["Il lui manque le passage à prendre et sa carte.", "Il lui manque un billet pour le cinéma.", "Il lui manque la clé de la cabine."] }, ["Il lui manque le passage à prendre et sa carte."],
+    "Which gate? porte sur le choix de la grille. La dernière question concerne un deuxième objet.", "Tu traces deux cases sur la bande du projecteur. Chacune contiendra une information pour le bateau."),
+    scene("evidence", "Les emblèmes du canal", "Épingle la consigne de Tess et la légende qui permet de la lire. Quelle grille faut-il montrer au bateau ?", {
+      englishCue: "Find the safe gate.", lesson: lesson("Sur les grilles, les couleurs sont doublées par des emblèmes.", "the waves · les vagues\nthe sun · le soleil"),
+      clues: [doc("Paroles de Tess", "I open the gate with the waves every evening."), doc("Légende des grilles", "Blue gate: waves.\nRed gate: sun."), doc("Programme du cinéma", "The film is about the moon.")],
+      options: ["The red gate", "The blue gate"] }, ["0+1 | The blue gate"], "Une fiche dit quel emblème chercher et une autre donne la couleur de la grille correspondante.",
+    "Les vagues désignent la grille bleue. Maya regarde vers le chenal pour vérifier que le passage est bien libre ce soir."),
+    scene("order", "La demande des pilotes", "Les pilotes veulent savoir où se trouve leur carte. Reforme leur question en parlant à leur place.", {
+      englishCue: "Ask for the map.", options: ["our", "map?", "Where", "is"] }, ["Where is our map"],
+    "Commence par le mot qui interroge sur le lieu. Les pilotes parlent de leur propre carte avec our.", "À travers ses jumelles, Sam aperçoit deux sacs sur le bateau. La bande du projecteur a encore une case vide."),
+    scene("write", "Un dernier appel à Tess", "Tess est au micro. Demande-lui directement en anglais si elle ferme la grille rouge, avec you et close.", {
+      englishCue: "Ask Tess directly.", lesson: lesson("Pour parler à quelqu’un, utilise you. La question au présent commence alors par do.",
+        "Does she need a key? · Est-ce qu’elle a besoin d’une clé ?\nDo you need a key? · Est-ce que tu as besoin d’une clé ?") },
+    ["Do you close the red gate", "Do you close the red gate every evening", "Do you close the red gate every night"],
+    "Tu parles à Tess cette fois. Commence par Do you, puis nomme son geste et la couleur de la grille.",
+    "« Yes, I do. » Tess abaisse la grille rouge devant vous. Maya voit de l’eau libre jusqu’au quai derrière la grille bleue levée."),
+    scene("choice", "Les deux sacs du bord", "Lis l’inventaire du bateau. Dans quel sac les pilotes doivent-ils chercher pour retrouver leur chemin ?", {
+      englishCue: "Check both bags.", document: doc("Inventaire à bord", "Blue bag: our map.\nRed bag: the cabin key."),
+      options: ["The red bag", "The blue bag"] }, ["The blue bag"], "La clé donne accès à la cabine. La carte permet de suivre le chenal sur l’eau.",
+    "Sam montre le sac aux pilotes avec sa lampe. Il reste à projeter le message entier sur la voile."),
+    scene("write", "Le message sur l’eau", "Écris deux phrases pour l’équipage. Indique quelle grille Tess ouvre habituellement, avec Tess ou she et open. Nomme la carte et dis où elle est, avec in. Donne la couleur de la grille et celle du sac. Tu choisis l’ordre.", {
+      englishCue: "Guide the boat home.", document: { label: "Carnet du pont", text: "Passage du soir : grille bleue aux vagues.\nCarte de l’équipage : dans le sac bleu.", lang: "fr" } },
+    boatMessages,
+    "Avec Tess ou she, pense au s de open. Pour la carte, précise le sac et sa couleur. Les pilotes ont besoin des deux renseignements.",
+    "Sur la voile, ton message est assez grand pour être lu du large. Les pilotes sortent la carte, passent sous les vagues bleues et rentrent au port. Sterne les accompagne jusqu’à la jetée."),
+  ],
 };
 
-for (const id of [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 14, 16, 19]) {
+for (const id of [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 14, 16, 19, 21, 22, 23, 24]) {
   const episode = scenes[id];
   episode.push(scene("quiz", "Le carnet de bord", "Réponds aux trois questions pour valider ton escale.", {}, [],
     "Vérifie à nouveau tes réponses. Tu peux aussi revoir les indices du décor.",

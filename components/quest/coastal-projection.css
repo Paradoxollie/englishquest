@@ -1,0 +1,132 @@
+.atlas-reader[data-chapter="5"] { --atlas-blue: #19545c; }
+.atlas-reader[data-chapter="5"] .comic-picture { position: relative; }
+.atlas-reader[data-chapter="5"] .comic-frame[data-view="speech"]:not([data-cutaway]) .comic-picture img {
+  object-position: var(--comic-focus);
+}
+.atlas-reader[data-chapter="5"] .comic-panel > .comic-controls {
+  border-top: 5px solid #213b40;
+  border-image: repeating-linear-gradient(90deg, #213b40 0 13px, #d3bf91 13px 18px, #213b40 18px 26px) 5;
+}
+@media (min-width: 701px) {
+  .atlas-reader[data-chapter="5"] .comic-frame[data-view="wide"] { display: flex; flex-direction: column; }
+  .atlas-reader[data-chapter="5"] .comic-frame[data-view="wide"] .comic-utterance {
+    position: relative; order: -1; padding: 9px clamp(14px, 2vw, 26px) 11px;
+    border-bottom: 2px solid var(--atlas-ink); background: #f8ebd0;
+  }
+  .atlas-reader[data-chapter="5"] .comic-caption {
+    position: static; width: fit-content; max-width: 100%; padding: .35em .8em; box-shadow: 2px 2px var(--atlas-ink);
+    font-size: clamp(1rem, 1.4vw, 1.2rem); line-height: 1.4;
+  }
+}
+
+.coast-beam, .coast-plates, .coast-signal, .coast-homeward {
+  position: absolute;
+  pointer-events: none;
+}
+.coast-beam {
+  inset: 0;
+  background: linear-gradient(102deg, #ffe7a05c, #ffdc7d21 62%, transparent);
+  clip-path: polygon(0 59%, 100% 2%, 100% 91%);
+  transform-origin: left 59%;
+  animation: coast-beam-sweep 1.8s ease-in-out both;
+}
+@keyframes coast-beam-sweep {
+  0% { opacity: 0; transform: rotate(7deg); }
+  35% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(-5deg); }
+}
+
+.coast-lantern {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.coast-lantern button {
+  position: absolute;
+  right: clamp(8px, 2vw, 24px);
+  bottom: clamp(8px, 2vw, 22px);
+  display: flex; align-items: center; gap: .5em; width: fit-content; min-height: 44px;
+  padding: 4px 11px; border: 2px solid #1b3032; border-radius: 4px;
+  box-shadow: 2px 3px #1b3032; background: #fff1cd; color: #1d302e; cursor: pointer;
+  font: 700 clamp(.77rem, 1.6vw, .95rem)/1.24 var(--font-lexend), system-ui, sans-serif;
+}
+.coast-lantern button:focus-visible { outline: 3px solid white; box-shadow: 0 0 0 6px #153b54; }
+.coast-lantern button::after {
+  content: ""; width: .5em; height: .5em; margin-left: .1em;
+  border: solid currentColor; border-width: 2px 2px 0 0; transform: translateY(.12em) rotate(-45deg);
+}
+.coast-lantern button[aria-expanded="true"]::after { transform: translateY(-.12em) rotate(135deg); }
+.coast-lantern-dial {
+  width: 18px; aspect-ratio: 1; flex: none; border: 2px solid #895d27; border-radius: 50%;
+  background: radial-gradient(circle, #ffe7a1 0 19%, #254b4d 20% 43%, #edbc61 45% 58%, #3e5650 60%);
+}
+.coast-lantern[data-open="true"] > img { animation: coast-lift .4s ease-out; }
+@keyframes coast-lift { from { transform: scale(1.035); } }
+.coast-lantern[data-open="true"]::after {
+  content: ""; position: absolute; inset: 4px; pointer-events: none;
+  border: 1px solid #f4d898; outline: 1px solid #284648; outline-offset: 1px;
+}
+.coast-lantern-caption:not(:empty) {
+  position: absolute; bottom: clamp(8px, 2vw, 22px); left: clamp(8px, 2vw, 24px); max-width: 40%;
+  padding: 4px 7px; border: 1px solid #284648; background: #fff1cd; color: #1b3032;
+  font: 650 clamp(.74rem, 1.5vw, .94rem)/1.3 var(--font-lexend), system-ui, sans-serif;
+}
+
+.coast-plates {
+  right: 4%; bottom: 6%; width: clamp(70px, 15%, 150px); aspect-ratio: 1.64;
+  transform: rotate(-4deg); animation: coast-plates-fade 2.8s ease-out both;
+}
+.coast-plates > span {
+  position: absolute; inset: 0; border: 2px solid #e6c68a; outline: 1px solid #27434b;
+  box-shadow: inset 0 0 0 2px #345157, 1px 2px 0 #273839; border-radius: 2px; background: #28535d75;
+}
+.coast-boat-plate { animation: coast-plates-register 1.2s ease-out both; }
+.coast-boat-plate::after {
+  content: ""; position: absolute; left: 13%; bottom: 18%; width: 32%; height: 51%; background: #ffe8a8;
+  clip-path: polygon(49% 0, 49% 68%, 90% 68%, 57% 12%, 98% 72%, 100% 72%, 73% 97%, 18% 97%, 0 71%, 42% 71%, 42% 48%, 6% 60%);
+}
+.coast-moon-plate { animation: coast-plates-register 1.2s ease-out both; --coast-plate-offset: 28%; }
+.coast-moon-plate::after {
+  content: ""; position: absolute; right: 16%; top: 13%; width: 22%; aspect-ratio: 1; border-radius: 50%;
+  box-shadow: -.26em .15em 0 #ffedb8;
+}
+@keyframes coast-plates-register { from { transform: translateX(var(--coast-plate-offset, -28%)) rotate(-4deg); } }
+@keyframes coast-plates-fade { 0% { opacity: 0; } 20%, 68% { opacity: .96; } 100% { opacity: 0; } }
+
+.coast-signal {
+  right: 7%; bottom: 8%; display: flex; gap: clamp(4px, .7vw, 8px); align-items: center;
+  padding: 5px 8px; border: 2px solid #dec992; background: #254950; border-radius: 20px;
+  box-shadow: 1px 2px 0 #142b32; animation: coast-plates-fade 3.7s ease-out both;
+}
+.coast-signal i {
+  width: clamp(9px, 1.8vw, 16px); aspect-ratio: 1; border-radius: 50%;
+  background: #ffe6a4; outline: 1px solid #173238; animation: coast-signal-light .7s ease-out both;
+}
+.coast-signal i:nth-child(2) { animation-delay: .55s; }
+.coast-signal i:nth-child(3) { animation-delay: 1.1s; }
+.coast-signal i:nth-child(4) { animation-delay: 1.65s; }
+@keyframes coast-signal-light { from { opacity: .23; } to { opacity: 1; } }
+
+.coast-homeward { bottom: 9%; right: 8%; width: clamp(55px, 14%, 100px); aspect-ratio: 1.65; animation: coast-homeward 2.3s ease-out both; }
+.coast-paper-boat {
+  display: block; position: absolute; inset: 0;
+  background: conic-gradient(from 258deg at 56% 63%, #fae3af 0deg 41deg, #678f91 42deg 85deg, #ffedc3 86deg 157deg, #bc904f 158deg 246deg, #4d7478 247deg);
+  clip-path: polygon(0 32%, 31% 43%, 44% 0, 71% 45%, 100% 28%, 78% 85%, 25% 94%);
+}
+.coast-homeward::after {
+  content: ""; position: absolute; right: 23%; bottom: -6%; width: 105%; height: 14%;
+  border-bottom: 2px solid #e4ddbc; border-radius: 50%; transform: rotate(-6deg);
+}
+@keyframes coast-homeward {
+  0% { opacity: 0; transform: translate(-120%, 12%) rotate(-7deg); }
+  26% { opacity: 1; }
+  62% { transform: translate(-31%, -6%) rotate(3deg); }
+  100% { opacity: 1; transform: none; }
+}
+@media (max-width: 700px) {
+  .coast-lantern-caption:not(:empty) { top: 8px; bottom: auto; max-width: 72%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .coast-beam, .coast-plates, .coast-signal { display: none; }
+  .coast-lantern[data-open="true"] > img, .coast-homeward { animation: none; }
+}

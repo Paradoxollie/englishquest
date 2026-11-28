@@ -53,7 +53,7 @@ export async function AtlasCover() {
     {atlasChapters.map((chapter, i) => {
       const stops = passages.filter(p => p.id >= chapter.first && p.id <= chapter.last);
       const targets = stops.flatMap(p => (p.targets ?? []).map(t => ({ ...t, id: p.id, done: stages[p.id - 1] >= t.stage })));
-      return <section className="atlas-chapter" key={chapter.first} aria-labelledby={`atlas-chapter-${i}`}>
+      return <section className="atlas-chapter" id={`atlas-chapitre-${i + 1}`} key={chapter.first} aria-labelledby={`atlas-chapter-${i}`}>
       <div className="atlas-chapter-head"><h2 id={`atlas-chapter-${i}`}><small>Chapitre {i + 1}</small>{chapter.title}</h2>
       <span>{stops.filter(p => stages[p.id - 1] >= scenes[p.id].length).length} / {stops.length} escales validées</span></div>
       <ol className="atlas-stops" start={chapter.first} aria-labelledby={`atlas-chapter-${i}`}>

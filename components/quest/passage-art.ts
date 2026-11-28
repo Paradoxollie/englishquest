@@ -45,13 +45,30 @@ import meal from "@/public/art/passage/refuge-kitchen-insert.webp";
 import tubes from "@/public/art/passage/refuge-radio-insert.webp";
 import landing from "@/public/art/passage/refuge-moon-insert.webp";
 import cargo from "@/public/art/passage/refuge-cargo.webp";
+import coastScreen from "@/public/art/passage/coast-screen.webp";
+import coastShadow from "@/public/art/passage/coast-shadow.webp";
+import coastCabin from "@/public/art/passage/coast-cabin.webp";
+import coastSignal from "@/public/art/passage/coast-signal.webp";
+import coastHome from "@/public/art/passage/coast-home.webp";
+import gateDetail from "@/public/art/passage/coast-screen-insert.webp";
+import birdDetail from "@/public/art/passage/coast-shadow-insert.webp";
+import plateDetail from "@/public/art/passage/coast-cabin-insert.webp";
+import signalDetail from "@/public/art/passage/coast-signal-insert.webp";
+import harborDetail from "@/public/art/passage/coast-home-insert.webp";
 
 export const passageArt = { quai, canopy, wind, tide, observatory, cinema, post, market, rail, island,
   "museum-hall": hall, "museum-mirrors": mirrors, "museum-workshop": workshop, "museum-roof": roof, "museum-frame": frame,
-  "refuge-orchard": orchard, "refuge-stairs": stairs, "refuge-kitchen": kitchen, "refuge-radio": organ, "refuge-moon": moon } satisfies Record<Passage["art"], StaticImageData>;
+  "refuge-orchard": orchard, "refuge-stairs": stairs, "refuge-kitchen": kitchen, "refuge-radio": organ, "refuge-moon": moon,
+  "coast-screen": coastScreen, "coast-shadow": coastShadow, "coast-cabin": coastCabin, "coast-signal": coastSignal, "coast-home": coastHome,
+} satisfies Record<Passage["art"], StaticImageData>;
 export const landscapeSizes = "(max-width: 1190px) 100vw, 1160px";
 
 const cutaways = {
+  gate: { src: gateDetail, alt: "Un ticket repose près de la lanterne du guichet. Entre les deux battants ouverts de la grande grille, on aperçoit la mer." },
+  bird: { src: birdDetail, alt: "Sterne tient un billet roulé dans son bec. Deux étoiles dorées ornent son aile bleu-vert. Son ombre d’oiseau se détache sur la toile." },
+  plates: { src: plateDetail, alt: "Deux plaques de verre reposent sur du velours bleu. Celle de gauche montre un voilier, celle de droite un croissant de lune." },
+  signals: { src: signalDetail, alt: "Le boîtier du chenal porte deux grandes lentilles, une vague blanche sur fond bleu à gauche, un soleil jaune sur fond rouge à droite." },
+  harbor: { src: harborDetail, alt: "Le voilier rouge est amarré au poteau du quai. Derrière sa voile, le soleil se lève et l’écran du cinéma est redevenu blanc." },
   fruit: { src: fruit, alt: "Un carnet de naturaliste présente une pomme rouge sur la page de gauche et une poire jaune sur celle de droite." },
   supplies: { src: supplies, alt: "Une carafe d’eau à gauche et une lampe à droite entourent un jeune plant dans la serre." },
   meal: { src: meal, alt: "Un bol de soupe à gauche, une louche et une miche de pain à droite attendent sur le comptoir." },
@@ -82,6 +99,7 @@ export const boardPictures = {
   film: cutaways.film, letter: cutaways.letter, lanterns: cutaways.lanterns, cloakroom: cutaways.cloakroom,
   automata: cutaways.automata, mirrors: cutaways.mirrors, roof: cutaways.roof, frame: cutaways.frame,
   fruit: cutaways.fruit, supplies: cutaways.supplies, meal: cutaways.meal, cargo: cutaways.cargo,
+  "coast-plates": cutaways.plates,
 } satisfies Record<BoardPicture, { src: StaticImageData; alt: string }>;
 
 const shots: Record<number, Partial<Record<number | "ending", keyof typeof cutaways>>> = {
@@ -105,6 +123,11 @@ const shots: Record<number, Partial<Record<number | "ending", keyof typeof cutaw
   18: { 1: "meal", 3: "meal", 5: "meal" },
   19: { 1: "tubes", 3: "tubes", 5: "tubes" },
   20: { 1: "cargo", 2: "cargo", 5: "cargo", ending: "landing" },
+  21: { 1: "gate", 3: "gate", 5: "gate" },
+  22: { 2: "bird", 4: "bird", ending: "bird" },
+  23: { 1: "plates", 3: "plates", 4: "plates", ending: "plates" },
+  24: { 1: "signals", 3: "signals", 5: "signals" },
+  25: { 1: "signals", 3: "signals", ending: "harbor" },
 };
 
 export function passagePicture(episode: Passage, scene: number | "ending") {

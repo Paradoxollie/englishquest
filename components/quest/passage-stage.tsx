@@ -6,6 +6,7 @@ import type { Activity } from "@/lib/adventure/activities";
 import type { Passage } from "@/lib/adventure/catalog";
 import { storyPanel, type Hero } from "@/lib/adventure/panels";
 import { landscapeSizes, passageArt, passagePicture } from "./passage-art";
+import { CoastalProjection, LanternShutter } from "./coastal-projection";
 
 const subject: Record<number, Record<Hero, string>> = {
   1: { Maya: "34% 59%", Sam: "76% 39%" }, 2: { Maya: "64% 61%", Sam: "36% 34%" },
@@ -20,6 +21,9 @@ const subject: Record<number, Record<Hero, string>> = {
   16: { Maya: "24% 49%", Sam: "45% 31%" }, 17: { Maya: "21% 48%", Sam: "34% 41%" },
   18: { Maya: "28% 42%", Sam: "85% 31%" }, 19: { Maya: "18% 54%", Sam: "87% 48%" },
   20: { Maya: "40% 21%", Sam: "54% 16%" },
+  21: { Maya: "16% 51%", Sam: "32% 50%" }, 22: { Maya: "24% 47%", Sam: "40% 51%" },
+  23: { Maya: "58% 35%", Sam: "89% 32%" }, 24: { Maya: "32% 62%", Sam: "14% 50%" },
+  25: { Maya: "13% 48%", Sam: "26% 48%" },
 };
 
 function Caption({ text }: { text: string }) {
@@ -51,8 +55,14 @@ export function PassageStage({ episode, index, beat, turn, open, nextLabel }: {
   }}>
     <h1 ref={title} tabIndex={-1} className="sr-only">{episode.title}</h1>
     <div className="comic-frame" data-speaker={speech?.speaker} data-view={speech ? "speech" : "wide"}
-      data-cutaway={!heroesInView || undefined} style={{ "--comic-focus": speech && heroesInView ? subject[episode.id][speech.speaker] : "50% 50%" } as CSSProperties}>
-      <div className="comic-picture"><Image src={picture.src} alt={picture.alt} placeholder="blur" priority sizes={landscapeSizes} /></div>
+      data-cutaway={!heroesInView || undefined} style={{ "--comic-focus": (speech && heroesInView && subject[episode.id]?.[speech.speaker]) || "50% 50%" } as CSSProperties}>
+      <div className="comic-picture">
+        {episode.id === 22 && index === 0 && !speech
+          ? <LanternShutter wide={picture} detail={passagePicture(episode, "ending")} />
+          : <Image src={picture.src} alt={picture.alt} placeholder="blur" priority sizes={landscapeSizes} />}
+        {!speech && ((episode.id === 21 && index === 0) || (episode.id === 23 && index === 2))
+          && <CoastalProjection episode={episode.id} />}
+      </div>
       <div className="comic-utterance" key={beat} aria-live="polite" aria-atomic="true">
         {speech ? <div className="comic-balloon">
           <Image className="comic-portrait" src={speech.speaker === "Maya" ? "/art/personnages/maya-visage.webp" : "/art/personnages/sam-visage.webp"} alt="" width={58} height={58} />
@@ -91,6 +101,11 @@ const reminders: Record<number, NonNullable<Activity["lesson"]>> = {
   18: { rule: "Parler de deux groupes", example: "We like bread. · Nous aimons le pain.\nThey don’t like bread. · Ils n’aiment pas le pain.\nsoup · de la soupe" },
   19: { rule: "Poser une question et y répondre", example: "Do you like pears? · Aimes-tu les poires ?\nYes, I do. · Oui, j’aime ça.\nNo, I don’t. · Non, je n’aime pas ça." },
   20: { rule: "Choisir le sujet avant d’écrire le verbe", example: "It likes apples. · Cet animal aime les pommes.\nWe need light. · Nous avons besoin de lumière.\nDo you like soup? · Aimes-tu la soupe ?" },
+  21: { rule: "Dire ce que l’on fait d’habitude", example: "I open the door. · J’ouvre la porte.\nShe opens the door. · Elle ouvre la porte.\nShe closes the door. · Elle ferme la porte." },
+  22: { rule: "Après doesn’t ou does not, garde le verbe sans s.", example: "It doesn’t like apples. · Cet animal n’aime pas les pommes.\nShe does not need light. · Elle n’a pas besoin de lumière." },
+  23: { rule: "Commence par Does, puis place le sujet et le verbe sans s.", example: "Does she like apples? · Aime-t-elle les pommes ?\nDoes it need water? · Cet animal a-t-il besoin d’eau ?" },
+  24: { rule: "Dans une réponse courte, reprends le sujet et does ou doesn’t.", example: "Does she like apples? Yes, she does. · Aime-t-elle les pommes ? Oui.\nDoes it need water? No, it doesn’t. · Cet animal a-t-il besoin d’eau ? Non." },
+  25: { rule: "Poser une question, décrire une habitude et situer un objet", example: "Do you need light? · As-tu besoin de lumière ?\nShe opens the door. · Elle ouvre la porte.\nThe key is in the bag. · La clé est dans le sac." },
 };
 
 const greetings = [

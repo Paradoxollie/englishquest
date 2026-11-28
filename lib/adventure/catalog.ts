@@ -4,7 +4,8 @@ export type Passage = {
   place: string;
   art: "quai" | "canopy" | "wind" | "tide" | "observatory" | "cinema" | "post" | "market" | "rail" | "island" |
     "museum-hall" | "museum-mirrors" | "museum-workshop" | "museum-roof" | "museum-frame" |
-    "refuge-orchard" | "refuge-stairs" | "refuge-kitchen" | "refuge-radio" | "refuge-moon";
+    "refuge-orchard" | "refuge-stairs" | "refuge-kitchen" | "refuge-radio" | "refuge-moon" |
+    "coast-screen" | "coast-shadow" | "coast-cabin" | "coast-signal" | "coast-home";
   alt: string;
   minutes: string;
   skill: string;
@@ -141,6 +142,41 @@ export const passages: Passage[] = [
     ending: "Le vélo se découpe sur la lune. À l’arrivée, les pilotes attendent avec les poires et l’eau. Pip saute dans le verger du refuge. Sur la côte, un feu qu’aucune carte ne signale vient de s’allumer.",
     keepsake: "La sonnette des deux lunes", course: { id: 3, topic: "Parler de goûts et de besoins au présent" },
     targets: [{ stage: 4, label: "Réutiliser Do you like…? pour demander si quelqu’un aime un autre aliment." }, { stage: 7, label: "Transmettre deux informations utiles dans un même message." }] },
+  { id: 21, title: "La grille du cinéma", place: "Cinéma des marées", art: "coast-screen", minutes: "7 à 11 min",
+    alt: "De dos sur le quai, Maya et Sam regardent un cinéma sur pilotis. Une coquille dorée domine ses grilles éclairées.",
+    skill: "Décrire le geste que quelqu’un fait chaque soir et choisir une habitude pour un personnage.",
+    opening: "Au refuge, Pip s’est endormi. Sur l’autre rive, le feu mystérieux dessine un carré de lumière. Maya et Sam suivent la jetée. Derrière une grille, une femme rembobine un film. Pourquoi y a-t-il un cinéma face à la mer ?",
+    ending: "Les spectateurs applaudissent. Au large, un bateau vous voit aussi. Une ombre immense traverse soudain l’écran. Sam entend un petit cliquetis derrière la toile.",
+    keepsake: "Le ticket de la jetée", course: { id: 3, topic: "Les habitudes au présent simple" },
+    targets: [{ stage: 4, label: "Écrire ce que Tess ouvre chaque soir." }, { stage: 5, label: "Choisir une habitude pour mon personnage et la décrire." }] },
+  { id: 22, title: "Le géant derrière la toile", place: "Théâtre d’ombres", art: "coast-shadow", minutes: "7 à 11 min",
+    alt: "Maya et Sam observent un petit oiseau de métal sur une caisse. Sur la toile derrière lui se découpe un énorme dragon de profil.",
+    skill: "Vérifier un indice et démentir une rumeur avec it doesn’t.",
+    opening: "Une aile géante passe sur l’écran, puis une seconde. Dehors, les spectateurs lèvent la tête. Maya se faufile du côté de la lampe. De près, ce géant tient peut-être dans la poche de son manteau.",
+    ending: "Derrière le géant se cache Sterne, un petit oiseau mécanique qui porte les billets du cinéma. Celui-ci est mouillé. Il faut monter à la cabine de Tess pour en comprendre le dessin.",
+    keepsake: "La plume de laiton", course: { id: 6, topic: "La négation avec doesn’t" },
+    targets: [{ stage: 5, label: "Corriger une fausse piste par écrit avec it doesn’t." }] },
+  { id: 23, title: "Les plaques de Tess", place: "Cabine de projection", art: "coast-cabin", minutes: "8 à 12 min",
+    alt: "Tess aux cheveux argentés, Maya et Sam entourent un projecteur de cuivre dans une cabine ouverte sur la baie. Deux petites plaques brillent au-dessus de la lampe.",
+    skill: "Interroger quelqu’un sur les habitudes d’un autre avec Does et un verbe.",
+    opening: "Dans la cabine de Tess, deux images sur verre attendent leur tour. L’une raconte une histoire, l’autre sert à parler avec les marins. Le billet de Sterne pourrait bien en réclamer une.",
+    ending: "À travers la plaque du bateau, un appel prend forme. Le dernier équipage veut rentrer au port. Sur le pont du chenal, le poste de signaux attend qu’on lui réponde.",
+    keepsake: "La plaque du bateau", course: { id: 5, topic: "Construire une question avec does" },
+    targets: [{ stage: 4, label: "Poser une question en anglais sur Sterne." }, { stage: 6, label: "Changer de sujet et interroger quelqu’un sur Tess." }] },
+  { id: 24, title: "Le pont des signaux", place: "Poste du chenal", art: "coast-signal", minutes: "8 à 12 min",
+    alt: "Depuis le quai, Sam et Maya regardent un voilier entre les bras levés du pont. Une vague bleue et un soleil rouge éclairent les deux tours.",
+    skill: "Donner une réponse courte en gardant la bonne personne et le bon sens.",
+    opening: "Le bateau est encore loin. Sur le pont, les lampes du poste peuvent relayer le message. L’équipage pose des questions courtes. Un oui ou un non mal transmis et il attendra devant la mauvaise grille.",
+    ending: "Le poste transmet à nouveau. Au large, une lumière répond par-dessus les vagues. L’équipage vous aperçoit. Il lui manque encore deux renseignements pour rejoindre la jetée.",
+    keepsake: "Le fanal du chenal", course: { id: 5, topic: "Les réponses courtes avec does" },
+    targets: [{ stage: 5, label: "Confirmer une habitude de Tess avec une réponse courte." }, { stage: 6, label: "Démentir une habitude de Sterne avec une réponse courte." }] },
+  { id: 25, title: "Le dernier bateau", place: "Écran sur l’eau", art: "coast-home", minutes: "9 à 14 min",
+    alt: "Près de Maya et Sam, un voilier approche de l’écran posé sur l’eau. Le même voilier y apparaît en silhouette devant un grand disque de lumière.",
+    skill: "Demander une précision puis transmettre deux renseignements pour guider un équipage.",
+    opening: "La toile du cinéma flotte juste au-dessus de l’eau. Le bateau distingue enfin votre signal. Pour accoster, il doit savoir quelle grille Tess ouvre le soir et où se trouve la carte.",
+    ending: "Une amarre tombe sur la jetée. Grâce à ton message, les marins sont rentrés. « Pour la prochaine séance, il nous faudra un plus grand écran ! » lance la capitaine. Dans la boîte de la dernière bobine, Sterne dépose un billet sec. Cette fois, il vient de l’intérieur des terres.",
+    keepsake: "La dernière image du port", course: { id: 3, topic: "Décrire une habitude et situer un objet" },
+    targets: [{ stage: 4, label: "Interroger directement Tess avec do you." }, { stage: 6, label: "Écrire au bateau pour identifier la grille et situer la carte." }] },
 ];
 
 export const atlasChapters = [
@@ -148,4 +184,5 @@ export const atlasChapters = [
   { title: "Le courrier de l’île invisible", first: 6, last: 10, intro: "Le port a retrouvé sa route. Mais qui a envoyé ce film d’une île absente des cartes ? Avec Maya et Sam, remonte la piste du courrier." },
   { title: "Le musée après minuit", first: 11, last: 15, intro: "Cette nuit, une voyageuse est sortie de son tableau. De salle en salle, recueille les témoignages et découvre comment Iris pourra rentrer." },
   { title: "Le refuge des deux lunes", first: 16, last: 20, intro: "Au dos de la carte d’Iris, une petite patte a laissé sa trace. Rejoins Pip et aide-le à traverser la baie avant la nuit." },
+  { title: "Le cinéma des marées", first: 21, last: 25, intro: "Depuis le refuge, Maya et Sam ont aperçu un feu sur la côte. Sur la jetée, on projette un film face à la mer. Mais qui regarde depuis le large ?" },
 ];

@@ -13,12 +13,13 @@ Exécuter les commandes depuis la racine du dépôt. `npm test` lance les régre
 | Variété des parties | Le scénario navigateur `six-games-fresh-openings-same-phone` vérifie les cinq listes de Grammar Rush et deux départs par jeu dans le même onglet. Les [contrôles de vocabulaire](tests/round-games-regression.cjs) vérifient les niveaux, les choix proposés et les équivalents admis. |
 | Exercices et quiz | [Vérification des corrigés](tests/exercise-invariants.cjs), [questions des cours](tests/course-question-invariants.cjs), [interactions du quiz](tests/quiz-interaction-regression.cjs) |
 | Atlas et positionnement en invité | [Règles des escales](tests/atlas-regression.cjs), [parcours de la carte](tests/atlas-trial-browser.cjs), [reprise du positionnement](tests/guest-placement-browser.cjs) |
+| Chapitre 5 de la BD | Le test des escales rejoue les 25 aventures et vérifie aussi la conservation d’un ancien brouillon, les neuf objectifs écrits du cinéma, les formes pleines et contractées, et le message final incomplet ou erroné. Le test de la carte ouvre le favori du chapitre 5 à deux largeurs et vérifie l’accès séquentiel d’un nouvel invité. |
 | Professeurs et podium | [Isolation des classes](tests/class-visibility-postgres.cjs), [séance synchronisée](tests/live-class-postgres.cjs), [podium](tests/live-ceremony.cjs), [activités dans le navigateur](tests/live-activities-browser.cjs) |
 | Participation temporaire et fréquentation | [Expiration à quatre heures, effacement à dix jours, conservation des comptes et des totaux quotidiens](tests/guest-retention-postgres.cjs). Le test de séance ci-dessus couvre aussi un invité, ses devoirs et le renouvellement du code. |
 | Messages, or et inventaire | [Fil privé et accusés](tests/contact-followups-postgres.cjs), [albums](tests/collection-shop-postgres.cjs), [personnages](tests/character-roster-postgres.cjs) |
 | Voix de jeu | `node scripts/audit-audio-coverage.cjs --check`, puis écoute d’un mot, d’une phrase et d’un dialogue sur les appareils visés. [Enregistrements](../public/audio/README.md) |
 
-Les captures et journaux du poste sont dans `output/playwright/`, en particulier `navigation-omega`, `atlas-omega`, `lexicon-visee` et `suivi-contact`. Les essais automatisés de classe utilisent des données fictives. L’écoute en salle, le tactile sur iPhone physique et le comportement d’un groupe réel sont des essais humains à part. [État des essais](../REPRISE.md)
+Les captures et journaux du poste sont dans `output/playwright/`, en particulier `navigation-omega`, `atlas-omega`, `atlas-coast`, `lexicon-visee` et `suivi-contact`. Les essais automatisés de classe utilisent des données fictives. L’écoute en salle, le tactile sur iPhone physique et le comportement d’un groupe réel sont des essais humains à part. [État des essais](../REPRISE.md)
 
 ## update-word-lists.js
 

@@ -59,11 +59,23 @@ async function verify(browser, width) {
     await link(storyLink).click();
     await page.locator("#atlas-name").waitFor();
     assert.equal(new URL(page.url()).pathname, "/quest/atlas");
-    assert.equal(await page.locator(".atlas-stops > li").count(), 20);
+    assert.equal(await page.locator(".atlas-stops > li").count(), 25);
     assert.equal(await page.locator(".atlas-journal").count(), 0);
-    const journal = page.locator(".atlas-skillbook");
-    await journal.locator("summary").click();
-    assert.equal(await journal.locator('li[data-done="false"]').count(), 11);
+    await page.goto("/quest/atlas#atlas-chapitre-5");
+    await page.waitForFunction(() => {
+      const heading = document.querySelector("#atlas-chapitre-5 h2");
+      const top = heading?.getBoundingClientRect().top;
+      return top >= 64 && top < innerHeight - 80;
+    });
+    for (const [title, goals] of [["Le refuge des deux lunes", 11], ["Le cinéma des marées", 9]]) {
+      const chapter = page.getByRole("region", { name: new RegExp(title) });
+      const journal = chapter.locator(".atlas-skillbook");
+      await journal.locator("summary").click();
+      assert.equal(await journal.locator('li[data-done="false"]').count(), goals);
+    }
+    await page.goto("/quest/atlas/21");
+    assert.equal(await page.getByRole("link", { name: /Rejoindre mon équipe/ }).getAttribute("href"), "/quest/atlas/1");
+    await page.getByRole("link", { name: /Revenir à la carte/ }).click();
     await page.getByRole("link", { name: /Commencer l’aventure/ }).click();
     await button(/Ouvrir la BD/).click();
     await button(/Lire la bulle/).click();
