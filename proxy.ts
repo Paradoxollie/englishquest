@@ -7,6 +7,10 @@ function isLiveClassPath(pathname: string) {
     || pathname.startsWith("/direct/") || pathname.startsWith("/teachers/classe/");
 }
 
+function isLearningReportPath(pathname: string) {
+  return pathname === "/profile/suivi" || pathname === "/dashboard/suivi" || pathname.startsWith("/dashboard/suivi/");
+}
+
 function visitReferrer(request: NextRequest) {
   const referrer = request.headers.get("referer");
   if (!referrer) return "";
@@ -16,7 +20,7 @@ function visitReferrer(request: NextRequest) {
     const next = source.pathname.startsWith("/auth/") ? source.searchParams.get("next") : null;
     const pages = next ? [source, new URL(next, source)] : [source];
     return pages.some((page) => page.origin === source.origin && (
-      isLiveClassPath(page.pathname) || (page.pathname === "/rejoindre" && page.searchParams.has("code"))
+      isLiveClassPath(page.pathname) || isLearningReportPath(page.pathname)
     )) ? "" : referrer;
   } catch { return ""; }
 }
@@ -46,6 +50,12 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
   }
 
   const authNext = pathname.startsWith("/auth/") ? request.nextUrl.searchParams.get("next") : null;
+  if (isLearningReportPath(pathname) || (authNext && isLearningReportPath(authNext.split("?")[0]))) {
+    const response = forwardPage();
+    response.headers.set("Referrer-Policy", "no-referrer");
+    response.headers.set("Cache-Control", "private, no-store");
+    return response;
+  }
   if (isLiveClassPath(pathname) || request.cookies.has("eq-class-guest") ||
       (authNext && /^\/(?:rejoindre|direct)(?:[/?]|$)/.test(authNext))) {
     const response = forwardPage();

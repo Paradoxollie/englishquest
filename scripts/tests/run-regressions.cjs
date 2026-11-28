@@ -20,6 +20,7 @@ for (const script of [
   'scripts/tests/character-roster-postgres.cjs',
   'scripts/tests/classes-regression.cjs',
   'scripts/tests/class-visibility-postgres.cjs',
+  'scripts/tests/learning-report-postgres.cjs',
   'scripts/tests/live-class-postgres.cjs',
   'scripts/tests/guest-retention-postgres.cjs',
   'scripts/tests/live-ceremony.cjs',

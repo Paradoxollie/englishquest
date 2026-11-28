@@ -72,7 +72,7 @@ export function MissionBar({ entry, mission, chapterLabel, nextEntry, practiceBe
       ? `Mission validée. La suivante t'attend : cours ${nextEntry.courseId}.`
       : "Mission validée. C'était la dernière de la carte.";
   } else if (!tracking) {
-    note = "Ce cours n'est pas ta mission en cours. Tu peux le lire et faire le quiz, sans enregistrement.";
+    note = "En entraînement libre, le quiz compte dans Mon suivi. La carte indique les missions qui donnent des récompenses.";
   } else if (quizDone) {
     note = "Quiz réussi : la mission est validée.";
   } else if (readingDone) {

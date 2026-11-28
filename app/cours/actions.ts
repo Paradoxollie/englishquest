@@ -12,8 +12,7 @@ import {
 import { gradeCourseQuiz, type CourseQuizAnswer } from "@/lib/courses/quiz-grading";
 import {
   getUserCourseMissionState,
-  recordCourseReadingCheckpoint,
-  submitCourseQuizResult,
+  recordLearningCheckpoint,
 } from "@/lib/courses/mission-state";
 import { syncBadgesSafely } from "@/lib/profile/badges-server";
 import { getGuestScores, keepGradedGuestScore, transferGuestScores } from "@/lib/courses/guest-progress-server";
@@ -135,7 +134,7 @@ export async function completeCourseAction(formData: FormData) {
   }
 }
 
-export async function recordCourseCheckpointAction(courseNumber: number) {
+export async function recordCourseCheckpointAction(courseNumber: number, previouslyRead = false) {
   try {
     const userId = await getAuthenticatedUserId();
 
@@ -143,8 +142,8 @@ export async function recordCourseCheckpointAction(courseNumber: number) {
       return { success: false };
     }
 
-    const missionState = await recordCourseReadingCheckpoint(userId, courseNumber);
-    revalidateCourseSurfaces(courseNumber);
+    const missionState = await recordLearningCheckpoint(userId, courseNumber, undefined, !previouslyRead);
+    if (missionState) revalidateCourseSurfaces(courseNumber);
 
     return {
       success: true,
@@ -159,6 +158,7 @@ export async function recordCourseCheckpointAction(courseNumber: number) {
 export async function submitCourseQuizAction(params: {
   courseNumber: number;
   answers: CourseQuizAnswer[];
+  attemptId?: string;
 }) {
   try {
     const userId = await getAuthenticatedUserId();
@@ -173,12 +173,10 @@ export async function submitCourseQuizAction(params: {
       return { success: false };
     }
 
-    const missionState = await submitCourseQuizResult(
-      userId,
-      params.courseNumber,
-      graded.score,
-      graded.total
-    );
+    // Older tabs did not send a receipt. New tabs keep theirs on a network retry.
+    const attemptId = params.attemptId ?? crypto.randomUUID();
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(attemptId)) return { success: false };
+    const missionState = await recordLearningCheckpoint(userId, params.courseNumber, { ...graded, attemptId });
 
     // Quiz réussi : la mission se valide tout de suite. Le défi de jeu est un bonus.
     let courseCompleted: { xp: number; gold: number; newLevel: number | null } | null = null;
@@ -189,9 +187,9 @@ export async function submitCourseQuizAction(params: {
       }
     }
     // Après la validation : mission, chapitre, niveau ou quiz parfait peuvent débloquer un badge.
-    const newBadges = await syncBadgesSafely(userId);
+    const newBadges = missionState ? await syncBadgesSafely(userId) : [];
 
-    revalidateCourseSurfaces(params.courseNumber);
+    if (missionState) revalidateCourseSurfaces(params.courseNumber);
 
     return {
       success: true,

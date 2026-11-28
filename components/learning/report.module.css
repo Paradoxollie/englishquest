@@ -1,0 +1,81 @@
+.report {
+  display: grid;
+  gap: clamp(1.4rem, 4vw, 2.5rem);
+  max-width: 58rem;
+}
+.report section {
+  scroll-margin-top: calc(var(--eq-header-height) + 12px);
+}
+.numbers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+.numbers div,
+.advice {
+  border: 1px solid var(--pro-border);
+  border-radius: var(--pro-radius);
+  padding: clamp(0.7rem, 2vw, 1.2rem);
+}
+.numbers div {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: end;
+  background: var(--pro-surface);
+}
+.numbers dt,
+.list small {
+  font-size: 0.85rem;
+  color: var(--pro-muted);
+}
+.numbers dd {
+  margin: 0;
+  font: 700 clamp(1.5rem, 4vw, 2.1rem) / 1.2 var(--font-display);
+}
+.advice {
+  background: var(--pro-primary-soft);
+}
+.advice > div {
+  margin-top: 1rem;
+}
+.advice p {
+  margin: 0.3rem 0;
+}
+.list {
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.list li {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--pro-border);
+}
+.list li > :last-child {
+  text-align: right;
+  flex-shrink: 0;
+}
+.list a {
+  color: var(--pro-primary);
+  font-weight: 650;
+}
+.list small {
+  display: block;
+}
+@media (max-width: 420px) {
+  .numbers {
+    gap: 0.3rem;
+  }
+  .numbers dt {
+    font-size: 0.78rem;
+  }
+  .list li {
+    flex-wrap: wrap;
+  }
+  .list li > :last-child {
+    text-align: left;
+  }
+}

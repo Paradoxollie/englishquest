@@ -4,11 +4,8 @@ import { getUserCourseChallengeProgress } from "@/lib/courses/mission-progress";
 import { getUserCourseRoadmap, type CourseRoadmapEntry } from "@/lib/courses/progress";
 import { isCourseQuizScorePassing } from "./quiz-score";
 import {
-  clampMissionNumber,
   decodeCourseMissionTelemetry,
   encodeCourseMissionTelemetry,
-  encodePlacementTelemetry,
-  isCoursePlacementSkip,
   type DecodedCourseMissionTelemetry,
 } from "./mission-telemetry";
 export { isCourseQuizScorePassing };
@@ -88,38 +85,6 @@ async function refreshMissionState(userId: string, courseNumber: number) {
   return getUserCourseMissionState(userId, entry);
 }
 
-async function updateCourseMissionTelemetry(
-  userId: string,
-  courseNumber: number,
-  updater: (current: DecodedCourseMissionTelemetry) => DecodedCourseMissionTelemetry
-) {
-  const roadmap = await getUserCourseRoadmap(userId);
-  const entry = roadmap.entries.find((item) => item.courseId === courseNumber) ?? null;
-
-  if (!entry?.progressId || entry.status === "locked") {
-    return null;
-  }
-
-  const adminClient = createSupabaseAdminClient();
-  // A reading checkpoint or a second tab must not overwrite a better quiz.
-  let previous = entry.missionTelemetry;
-  for (let attempt = 0; attempt < 4; attempt += 1) {
-    const updated = updater(decodeCourseMissionTelemetry(previous));
-    const next = isCoursePlacementSkip(previous) && !isCourseQuizScorePassing(updated.quizScore, updated.quizTotal)
-      ? encodePlacementTelemetry(updated) : encodeCourseMissionTelemetry(updated);
-    if (next === previous) return refreshMissionState(userId, courseNumber);
-    let update = adminClient.from("user_course_progress").update({ best_score: next }).eq("id", entry.progressId);
-    update = previous == null ? update.is("best_score", null) : update.eq("best_score", previous);
-    const { data, error } = await update.select("id").maybeSingle();
-    if (error) throw error;
-    if (data) return refreshMissionState(userId, courseNumber);
-    const latest = await adminClient.from("user_course_progress").select("best_score").eq("id", entry.progressId).single();
-    if (latest.error) throw latest.error;
-    previous = latest.data.best_score;
-  }
-  throw new Error("La progression vient de changer. Réessaie la sauvegarde.");
-}
-
 export async function getUserCourseMissionState(
   userId: string,
   entry: CourseRoadmapEntry
@@ -134,43 +99,17 @@ export async function getUserCourseMissionState(
   }
 }
 
-export async function recordCourseReadingCheckpoint(
-  userId: string,
-  courseNumber: number
-) {
-  return updateCourseMissionTelemetry(userId, courseNumber, (current) => {
-    if (current.readingCheckpointReached) {
-      return current;
-    }
-
-    return {
-      ...current,
-      readingCheckpointReached: true,
-    };
-  });
-}
-
-export async function submitCourseQuizResult(
+/** The history receipt and the mission's best mark are written in one transaction. */
+export async function recordLearningCheckpoint(
   userId: string,
   courseNumber: number,
-  score: number,
-  total: number
+  quiz?: { attemptId: string; score: number; total: number },
+  refresh = true,
 ) {
-  return updateCourseMissionTelemetry(userId, courseNumber, (current) => {
-    const normalizedScore = clampMissionNumber(score);
-    const normalizedTotal = Math.max(normalizedScore, clampMissionNumber(total));
-    const currentAccuracy =
-      current.quizTotal > 0 ? current.quizScore / current.quizTotal : -1;
-    const nextAccuracy =
-      normalizedTotal > 0 ? normalizedScore / normalizedTotal : -1;
-    const shouldReplaceBest =
-      nextAccuracy > currentAccuracy ||
-      (nextAccuracy === currentAccuracy && normalizedScore > current.quizScore);
-
-    return {
-      readingCheckpointReached: true,
-      quizScore: shouldReplaceBest ? normalizedScore : current.quizScore,
-      quizTotal: shouldReplaceBest ? normalizedTotal : current.quizTotal,
-    };
+  const { data: countsForMission, error } = await createSupabaseAdminClient().rpc("record_learning_checkpoint", {
+    p_user: userId, p_course: courseNumber, p_attempt: quiz?.attemptId ?? null,
+    p_score: quiz?.score ?? null, p_total: quiz?.total ?? null,
   });
+  if (error) throw error;
+  return countsForMission && refresh ? refreshMissionState(userId, courseNumber) : null;
 }

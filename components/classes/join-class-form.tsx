@@ -73,6 +73,7 @@ export function JoinClassForm({ initialCode = "", showNextSteps = false, student
           </button>
         </div>
       </label>
+      <p className="eq-muted text-sm">Une fois la classe rejointe, ton professeur pourra consulter tes activités enregistrées, tes scores et tes essais de quiz à partir de ton entrée.</p>
       <ActionFeedback result={result} />
       {joinedId ? (
         <div className="eq-home-actions">

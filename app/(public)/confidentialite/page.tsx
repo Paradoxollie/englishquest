@@ -85,6 +85,13 @@ export default function PrivacyPage() {
               pseudo et ta progression (missions, expérience, résultats aux quiz), jamais ton adresse
               e-mail. Tu peux quitter une classe à tout moment depuis ton profil.</li>
           </ul>
+          <p>Dans « Mon suivi », tu retrouves tes parties avec un score, les cours où tu as atteint le quiz,
+            tes notes aux quiz et tes étapes d’aventure. Pour chaque nouvel essai de quiz, le site conserve le cours,
+            la date et la note. Le gestionnaire du site peut consulter ce bilan. Dans la fiche de ta classe,
+            ton professeur voit les résultats datés depuis ton entrée et les sauvegardes d’aventure actualisées depuis cette date.
+            Si tu quittes la classe, son accès à ta fiche s’arrête.</p>
+          <p>Les conseils associent tes résultats aux activités du site, par exemple un quiz à revoir à une partie de Grammar Rush.
+            Ils sont calculés sur English Quest. Tu peux copier un bilan sans pseudo pour en discuter avec la personne de ton choix.</p>
           <p>
             En séance de classe, ton professeur voit les pseudos présents, les réponses comptabilisées et les résultats
             de chaque manche. Les participants voient le podium de leur séance. Le site garde tes réponses aux
@@ -106,7 +113,7 @@ export default function PrivacyPage() {
             Ces données servent à faire fonctionner le jeu : retenir où tu en es, calculer tes récompenses,
             afficher les classements. Elles sont traitées parce que c&apos;est nécessaire au service que tu
             demandes en créant un compte (article 6.1.b du RGPD). Elles ne sont ni vendues, ni transmises à
-            des fins de prospection, ni utilisées pour te profiler.
+            des fins de prospection.
           </p>
         </section>
 

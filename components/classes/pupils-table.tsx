@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
   defaultSortDirection,
   formatLastActivity,
@@ -21,11 +22,11 @@ type PupilsTableProps = {
 
 const COLUMNS: Array<{ key: PupilSortKey; label: string; numeric?: boolean }> = [
   { key: "username", label: "Élève" },
-  { key: "completedCount", label: "Missions validées", numeric: true },
+  { key: "completedCount", label: "Missions validées en jouant", numeric: true },
   { key: "currentCourseId", label: "Mission en cours" },
   { key: "lastActivity", label: "Dernière activité" },
   { key: "xp", label: "XP", numeric: true },
-  { key: "quizAverage", label: "Moyenne aux quiz", numeric: true },
+  { key: "quizAverage", label: "Moyenne des meilleurs quiz de mission", numeric: true },
 ];
 
 function quizTone(average: number) {
@@ -37,7 +38,12 @@ function quizTone(average: number) {
 export function PupilsTable({ classId, pupils, today }: PupilsTableProps) {
   const [sortKey, setSortKey] = useState<PupilSortKey>("username");
   const [direction, setDirection] = useState<SortDirection>("asc");
-  const rows = useMemo(() => sortPupilRows(pupils, sortKey, direction), [pupils, sortKey, direction]);
+  const [search, setSearch] = useState("");
+  const rows = useMemo(() => {
+    const term = search.trim().toLocaleLowerCase("fr");
+    const matches = pupils.filter((pupil) => pupil.username.toLocaleLowerCase("fr").includes(term));
+    return sortPupilRows(matches, sortKey, direction);
+  }, [pupils, search, sortKey, direction]);
 
   function sortBy(key: PupilSortKey) {
     if (key === sortKey) {
@@ -49,6 +55,10 @@ export function PupilsTable({ classId, pupils, today }: PupilsTableProps) {
   }
 
   return (
+    <>
+    <label className="eq-class-field mb-3">Rechercher un élève
+      <input type="search" className="eq-class-input" value={search} onChange={event=>setSearch(event.target.value)} />
+    </label>
     <div className="eq-class-table-wrap" role="region" aria-label="Tableau des élèves" tabIndex={0}>
       <table className="eq-class-table">
         <caption className="sr-only">
@@ -83,7 +93,7 @@ export function PupilsTable({ classId, pupils, today }: PupilsTableProps) {
           {rows.map((pupil) => (
             <tr key={pupil.userId}>
               <th scope="row" className="eq-class-pupil">
-                {pupil.username}
+                <Link prefetch={false} className="eq-text-link" href={`/teachers/classe/${classId}/eleves/${pupil.userId}`}>{pupil.username}</Link>
               </th>
               <td className="is-num">
                 <b>{pupil.completedCount}</b>
@@ -122,6 +132,8 @@ export function PupilsTable({ classId, pupils, today }: PupilsTableProps) {
           ))}
         </tbody>
       </table>
+      {rows.length === 0 && <p className="eq-muted p-3">Aucun élève ne correspond à ce pseudo.</p>}
     </div>
+    </>
   );
 }

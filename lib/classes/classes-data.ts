@@ -5,7 +5,7 @@ import { unstable_cache } from "next/cache";
 import { COURSE_CATALOG_TAG } from "@/lib/courses/cache";
 import { chapters, getChapterForCourse, getCourseShortName } from "@/lib/courses/chapters";
 import { getCourseById } from "@/lib/courses/data";
-import { decodeCourseMissionTelemetry } from "@/lib/courses/mission-state";
+import { decodeCourseMissionTelemetry, isCoursePlacementSkip } from "@/lib/courses/mission-telemetry";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ProfileRole } from "@/types/profile";
@@ -279,6 +279,7 @@ export type TeacherClassDetail = {
 
 type PupilProgress = {
   completed: Set<number>;
+  playedCompletions: number;
   inProgress: number[];
   unlocked: number[];
   quiz: QuizAttempt[];
@@ -286,7 +287,7 @@ type PupilProgress = {
 };
 
 function emptyProgress(): PupilProgress {
-  return { completed: new Set(), inProgress: [], unlocked: [], quiz: [], lastActivity: null };
+  return { completed: new Set(), playedCompletions: 0, inProgress: [], unlocked: [], quiz: [], lastActivity: null };
 }
 
 function laterDay(current: string | null, candidate: string | null | undefined) {
@@ -315,7 +316,10 @@ function summarizeProgress(rows: ProgressRecord[], numbers: Map<string, number>)
     const touched =
       row.status === "in_progress" || row.status === "completed" || telemetry.readingCheckpointReached || telemetry.quizTotal > 0;
 
-    if (row.status === "completed") progress.completed.add(courseId);
+    if (row.status === "completed") {
+      progress.completed.add(courseId);
+      if (!isCoursePlacementSkip(row.best_score)) progress.playedCompletions += 1;
+    }
     if (row.status === "in_progress") progress.inProgress.push(courseId);
     if (row.status === "unlocked") progress.unlocked.push(courseId);
     if (telemetry.quizTotal > 0) {
@@ -392,7 +396,7 @@ export async function getTeacherClassDetail(viewer: Viewer, classId: string): Pr
     return {
       userId: member.user_id,
       username: profile?.username ?? "Compte supprimé",
-      completedCount: progress?.completed.size ?? 0,
+      completedCount: progress?.playedCompletions ?? 0,
       currentCourseId: current.id,
       currentCourseLabel: current.label,
       lastActivity: laterDay(progress?.lastActivity ?? null, lastGameDay),

@@ -115,7 +115,7 @@ export default async function TeacherClassPage({ params, searchParams }: ClassPa
           <h2 id="class-pupils" className="eq-h2">
             Élèves inscrits
           </h2>
-          <span className="eq-muted text-sm">La dernière activité correspond aux jeux et missions enregistrés sur le site.</span>
+          <span className="eq-muted text-sm">Cliquez sur un pseudo pour consulter ses jeux, ses quiz et ses conseils.</span>
         </div>
         {pupils.length === 0 ? (
           <div className="eq-card eq-teach-empty">

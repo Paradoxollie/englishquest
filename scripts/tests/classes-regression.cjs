@@ -249,6 +249,7 @@ function loadServer(db, session) {
     "@/lib/courses/data": "lib/courses/data.ts",
     "@/lib/courses/chapters": "lib/courses/chapters.ts",
     "@/lib/courses/mission-state": "lib/courses/mission-state.ts",
+    "@/lib/courses/mission-telemetry": "lib/courses/mission-telemetry.ts",
     "./quiz-score": "lib/courses/quiz-score.ts",
     "./mission-telemetry": "lib/courses/mission-telemetry.ts",
   };
@@ -706,6 +707,7 @@ function inDays(days) {
     seed.user_course_progress.push(
       { id: "p1", user_id: PUPIL, course_id: courseUuid(1), status: "completed", best_score: telemetry(9, 10), completed_at: "2026-10-12T10:00:00.000Z", updated_at: "2026-10-12T10:00:00.000Z" },
       { id: "p2", user_id: PUPIL, course_id: courseUuid(2), status: "completed", best_score: telemetry(8, 10), completed_at: "2026-10-13T10:00:00.000Z", updated_at: "2026-10-13T10:00:00.000Z" },
+      { id: "p6", user_id: PUPIL, course_id: courseUuid(4), status: "completed", best_score: 8000000, completed_at: "2026-10-01T10:00:00.000Z", updated_at: "2026-10-01T10:00:00.000Z" },
       { id: "p3", user_id: PUPIL, course_id: courseUuid(3), status: "in_progress", best_score: telemetry(5, 10), completed_at: null, updated_at: "2026-10-14T10:00:00.000Z" },
       // Ouverture automatique (devoir) : ce n'est pas une activité de l'élève.
       { id: "p4", user_id: PUPIL_2, course_id: courseUuid(20), status: "unlocked", best_score: 0, completed_at: null, updated_at: new Date().toISOString() },
@@ -724,7 +726,7 @@ function inDays(days) {
 
     const fox = detail.pupils.find((pupil) => pupil.userId === PUPIL);
     assert.equal(fox.username, "renardgris");
-    assert.equal(fox.completedCount, 2);
+    assert.equal(fox.completedCount, 2, "placement credit is distinct from a mission played to completion");
     assert.equal(fox.currentCourseId, 3);
     assert.match(fox.currentCourseLabel, /^Mission 3 · /);
     assert.equal(fox.quizAverage, 73);

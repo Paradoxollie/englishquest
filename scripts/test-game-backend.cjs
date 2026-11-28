@@ -308,8 +308,13 @@ async function main() {
   assert.equal(fresh.db.user_course_progress.length, 3, "concurrent first visits seed exactly one entry per course");
   assert.ok(initialMaps.every((map) => map.recommendedCourse?.courseId === 1));
   const telemetry = loadTs("lib/courses/mission-telemetry.ts");
+  const checkpointCalls = [];
   const missionState = loadTs("lib/courses/mission-state.ts", {
-    "@/lib/supabase/admin": { createSupabaseAdminClient: () => clientFor(fresh.db) },
+    "@/lib/supabase/admin": { createSupabaseAdminClient: () => ({rpc: async (name,args) => {
+      assert.equal(name,"record_learning_checkpoint");
+      checkpointCalls.push(args);
+      return {data:true,error:null};
+    }}) },
     "@/lib/courses/progress": fresh.progress,
     "@/lib/courses/campaign": { getCourseMissionPlan: () => ({ primaryGameSlug: null }) },
     "@/lib/courses/mission-progress": { getUserCourseChallengeProgress: async () => ({bestScore:null,reached:false}) },
@@ -317,12 +322,11 @@ async function main() {
     "./mission-telemetry": telemetry,
   });
   assert.ok((await Promise.all([
-    missionState.submitCourseQuizResult("user",1,10,10),
-    missionState.recordCourseReadingCheckpoint("user",1),
-    missionState.submitCourseQuizResult("user",1,8,10),
+    missionState.recordLearningCheckpoint("user",1,{attemptId:"a",score:10,total:10}),
+    missionState.recordLearningCheckpoint("user",1),
+    missionState.recordLearningCheckpoint("user",1,{attemptId:"b",score:8,total:10}),
   ])).every(Boolean));
-  const retained = telemetry.decodeCourseMissionTelemetry(fresh.db.user_course_progress[0].best_score);
-  assert.deepEqual(retained,{readingCheckpointReached:true,quizScore:10,quizTotal:10});
+  assert.deepEqual(checkpointCalls.map(p=>[p.p_attempt,p.p_score,p.p_total]),[["a",10,10],[null,null,null],["b",8,10]]);
   const courseResults = await Promise.all([
     simultaneous.progress.completeCourseAndGrantRewards("user", 1),
     simultaneous.progress.completeCourseAndGrantRewards("user", 1),

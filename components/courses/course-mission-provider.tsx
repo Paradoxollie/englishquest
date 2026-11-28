@@ -32,13 +32,13 @@ type CourseMissionContextValue = {
   missionState: CourseMissionState | null;
   isSyncing: boolean;
   markReadingCheckpoint: () => Promise<void>;
-  submitQuizResult: (answers: CourseQuizAnswer[]) => Promise<QuizSubmissionOutcome | null>;
+  submitQuizResult: (answers: CourseQuizAnswer[], attemptId: string) => Promise<QuizSubmissionOutcome | null>;
   /** Exercices supplémentaires du cours, mêlés aux questions du quiz. */
   extraExercises: ExerciseItem[];
 };
 
 export type QuizSubmissionOutcome = {
-  missionState: CourseMissionState;
+  missionState: CourseMissionState | null;
   courseCompleted: { xp: number; gold: number; newLevel: number | null } | null;
 };
 
@@ -68,6 +68,7 @@ export function CourseMissionProvider({
   const [missionState, setMissionState] = useState<CourseMissionState | null>(initialMissionState);
   const [isSyncing, setIsSyncing] = useState(false);
   const checkpointPromiseRef = useRef<Promise<void> | null>(null);
+  const recordedCourse = useRef<number | null>(null);
   const autoLaunchRef = useRef(false);
 
   useEffect(() => {
@@ -85,7 +86,7 @@ export function CourseMissionProvider({
   }, [initialMissionState]);
 
   async function markReadingCheckpoint() {
-    if (!isAuthenticated || !isMissionTrackingEnabled || missionState?.readingCheckpointReached) {
+    if (!isAuthenticated || recordedCourse.current === courseNumber) {
       return;
     }
 
@@ -97,8 +98,9 @@ export function CourseMissionProvider({
       setIsSyncing(true);
 
       try {
-        const result = await recordCourseCheckpointAction(courseNumber);
+        const result = await recordCourseCheckpointAction(courseNumber, missionState?.readingCheckpointReached ?? false);
 
+        if (result?.success) recordedCourse.current = courseNumber;
         if (result?.success && result.missionState) {
           setMissionState(result.missionState);
         }
@@ -112,8 +114,8 @@ export function CourseMissionProvider({
     return pending;
   }
 
-  async function submitQuizResult(answers: CourseQuizAnswer[]) {
-    if (!isAuthenticated || !isMissionTrackingEnabled) {
+  async function submitQuizResult(answers: CourseQuizAnswer[], attemptId: string) {
+    if (!isAuthenticated) {
       return null;
     }
 
@@ -123,9 +125,11 @@ export function CourseMissionProvider({
       const result = await submitCourseQuizAction({
         courseNumber,
         answers,
+        attemptId,
       });
 
-      if (result?.success && result.missionState) {
+      if (result?.success) {
+        if (!result.missionState) return { missionState: null, courseCompleted: null };
         const newBadges = result.newBadges ?? [];
         // Étoile du quiz parfait : 10 sur 10 pour la première fois sur ce cours.
         const perfectStar = isPerfectQuiz(result.missionState) && !isPerfectQuiz(missionState) ? 1 : 0;

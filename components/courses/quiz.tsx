@@ -107,6 +107,7 @@ export function Quiz({ questions }: QuizProps) {
   const hasSubmittedResultRef = useRef(false);
   const roundRef = useRef({ index: 0, answered: false, finished: false });
   const attemptRef = useRef(0);
+  const receiptRef = useRef<string | null>(null);
 
   const pool = (): ExerciseItem[] => [...toItems(questions), ...(mission?.extraExercises ?? [])];
 
@@ -123,7 +124,6 @@ export function Quiz({ questions }: QuizProps) {
   useEffect(() => {
     if (
       !mission?.isAuthenticated ||
-      mission.missionState?.readingCheckpointReached ||
       !containerRef.current
     ) {
       return;
@@ -168,15 +168,11 @@ export function Quiz({ questions }: QuizProps) {
       return;
     }
 
-    if (!mission.isMissionTrackingEnabled) {
-      setSyncMessage("Ce cours n'est pas ta mission en cours : le score n'est pas enregistré.");
-      return;
-    }
-
     setSaveState("saving");
     void (async () => {
       try {
-        const outcome = await mission.submitQuizResult([...answersRef.current]);
+        receiptRef.current ??= crypto.randomUUID();
+        const outcome = await mission.submitQuizResult([...answersRef.current], receiptRef.current);
         if (attempt !== attemptRef.current) return;
         if (!outcome) {
           setSaveState("failed");
@@ -185,6 +181,10 @@ export function Quiz({ questions }: QuizProps) {
         }
         const updatedState = outcome.missionState;
         setSaveState("saved");
+        if (!updatedState) {
+          setSyncMessage("Ton résultat figure dans Mon suivi. Tu as fait ce quiz en entraînement libre.");
+          return;
+        }
         if (outcome.courseCompleted) {
           const { xp, gold, newLevel } = outcome.courseCompleted;
           setSyncMessage(
@@ -193,7 +193,9 @@ export function Quiz({ questions }: QuizProps) {
           return;
         }
         if (updatedState.quizPassed) {
-          setSyncMessage("Quiz validé : la mission est réussie. Entraîne-toi sur la notion pour gagner les étoiles suivantes.");
+          setSyncMessage(isCourseQuizScorePassing(score, deck.length)
+            ? "Quiz validé. Entraîne-toi sur la notion pour gagner les étoiles suivantes."
+            : "Cet essai est enregistré. Ta meilleure note et ta mission déjà validée sont conservées.");
           return;
         }
         setSyncMessage("Score enregistré. Il faut 80 % pour valider : tu peux refaire le quiz, les exercices changent.");
@@ -273,6 +275,7 @@ export function Quiz({ questions }: QuizProps) {
 
   const restart = () => {
     attemptRef.current += 1;
+    receiptRef.current = null;
     answersRef.current = [];
     setDeck(randomDeck(pool()));
     roundRef.current = { index: 0, answered: false, finished: false };
@@ -304,7 +307,7 @@ export function Quiz({ questions }: QuizProps) {
         <div className="eq-quiz-result-head">
           <Mascot pose={passed ? "duo-victoire" : "sam-oups"} size={110} />
           <Burst color={passed ? "yellow" : "white"} size={170} rotate={-8} className="eq-pop-in">
-            {passed ? "Mission réussie !" : "Presque !"}
+            {passed ? "Quiz réussi !" : "Presque !"}
           </Burst>
           <div>
             <p className="eq-quiz-kicker">{passed ? "Quiz réussi" : "Pas encore"}</p>
@@ -320,6 +323,7 @@ export function Quiz({ questions }: QuizProps) {
           {maxCombo >= 5 ? ` Meilleure série : ${maxCombo} bonnes réponses d'affilée.` : ""}
         </p>
         {syncMessage ? <p className="eq-quiz-sync" role="status">{syncMessage}</p> : null}
+        {mission?.isAuthenticated && saveState === "saved" && <Link href="/profile/suivi" className="eq-text-link">Voir mon suivi</Link>}
         {passed && mission && !mission.isAuthenticated ? (
           <p className="eq-quiz-sync" role="status">
             {saveState === "saved" ? "Ta réussite est gardée sur cet appareil. Avec un compte, tu pourras aussi la retrouver ailleurs."

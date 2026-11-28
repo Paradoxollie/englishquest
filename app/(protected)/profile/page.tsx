@@ -168,6 +168,7 @@ export default async function ProfilePage({
             {completedCourses} mission{completedCourses > 1 ? "s" : ""} validée{completedCourses > 1 ? "s" : ""} sur 50.
           </p>
           <div className="eq-home-actions">
+            <Link href="/profile/suivi" className="eq-btn eq-btn-primary" prefetch={false}>Mon suivi et mes conseils</Link>
             <Link href="/tous-les-cours/parcours" className="eq-btn eq-btn-gold">
               Ouvrir la carte
             </Link>

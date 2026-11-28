@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 const ADMIN_LINKS = [
   { href: "/dashboard", label: "Vue d'ensemble", exact: true },
+  { href: "/dashboard/suivi", label: "Suivi des joueurs", exact: false },
   { href: "/dashboard/users", label: "Utilisateurs", exact: false },
   { href: "/dashboard/messages", label: "Messages", exact: false },
   { href: "/dashboard/shop", label: "Boutique", exact: false },
