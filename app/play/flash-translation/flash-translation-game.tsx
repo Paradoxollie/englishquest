@@ -1,5 +1,6 @@
 "use client";
 import { recordClassAnswer } from "@/components/classes/live-activity-events";
+import { preferFresh, recentGameItems, rememberGameItem } from "@/lib/games/recent-items";
 
 import { translationAnswers } from "@/lib/games/translation-recall";
 import { MistakePractice } from "@/components/play/mistake-practice";
@@ -120,6 +121,8 @@ export function FlashTranslationGame({
   const round = getCurrentRound(state);
   const done = completedRounds(state);
   const playing = state.started && state.phase !== "ended";
+  const displayed = playing ? round?.wordPair.english : null;
+  useEffect(() => { if (displayed) rememberGameItem("flash-translation", displayed); }, [displayed]);
   useGameFocusMode(playing);
 
   const start = useCallback(() => {
@@ -128,7 +131,8 @@ export function FlashTranslationGame({
     if (!practice) gameSession.begin();
     startedAtRef.current = performance.now();
     const timing = practice ? { ...CONFIG, minWaitMs: 0, maxWaitMs: 0 } : CONFIG;
-    const fresh = startGame(createGameState(VOCABULARY, { ...timing, level }));
+    const available = preferFresh(VOCABULARY, recentGameItems("flash-translation"), word => word.english);
+    const fresh = startGame(createGameState(available, { ...timing, level }));
     stateRef.current = fresh;
     setState(fresh);
     setPaused(false);

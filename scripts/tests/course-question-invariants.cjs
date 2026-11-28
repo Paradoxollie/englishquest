@@ -68,11 +68,29 @@ const STRING_PROPERTY_WITH_ENTITY = /^\s*(?:objective|title|question|explanation
 
 const { chapters, getChapterForCourse } = loadSource(path.join(root, "lib/courses/chapters.ts"));
 const { paliers } = loadSource(path.join(root, "lib/courses/data.ts"));
-const { buildRushQueue } = loadSource(path.join(root, "lib/games/grammar-rush-server.ts"));
-const { GRAMMAR_RUSH_MAX_QUESTIONS } = loadSource(path.join(root, "lib/games/grammar-rush.ts"));
+const { buildRushPool, buildRushQueue } = loadSource(path.join(root, "lib/games/grammar-rush-server.ts"));
+const { GRAMMAR_RUSH_MAX_QUESTIONS, weaveRushQueue } = loadSource(path.join(root, "lib/games/grammar-rush.ts"));
 const bank = JSON.parse(fs.readFileSync(path.join(root, "lib/placement/questions.json"), "utf8"));
 const bankMap = new Map(bank.map((question) => [question.id, question]));
 assert.equal(bankMap.size, bank.length, "No duplicate question-bank IDs");
+const rushBank = buildRushPool({ maxChapter: 5 });
+const rushMap = new Map(rushBank.map(question => [question.id, question]));
+assert.equal(rushMap.size, rushBank.length, "Grammar Rush IDs are unique across all sources");
+for (const question of rushBank) checkQuestion(question, question.id);
+for (const course of chapters.flatMap(chapter => chapter.courseIds)) {
+  const questions = rushBank.filter(question => question.course === course);
+  assert.ok(questions.length >= 26, `Course ${course} provides enough material for several focused runs`);
+  const additions = questions.filter(question => question.id.startsWith("rush-"));
+  assert.ok(new Set(additions.map(question => question.question)).size >= 12);
+  assert.ok(additions.every(question => question.options.length === 4 && question.question.includes("___")));
+}
+const guestPool = buildRushPool({ maxChapter: 2 });
+const recentlyPlayed = [];
+for (let play = 0; play < 4; play += 1) {
+  const shown = weaveRushQueue(guestPool, 1, () => 0.42, recentlyPlayed).slice(0, 10);
+  for (const question of shown) assert.ok(!recentlyPlayed.includes(question.id), "Replay rotates actual questions even with identical randomness");
+  recentlyPlayed.push(...shown.map(question => question.id));
+}
 const courseIds = chapters.flatMap((chapter) => chapter.courseIds);
 assert.equal(new Set(courseIds).size, courseIds.length, "Every course belongs to one chapter");
 assert.deepEqual([...courseIds].sort((a, b) => a - b), Array.from({ length: 50 }, (_, index) => index + 1));
@@ -241,7 +259,7 @@ for (const chapter of chapters) {
       assert.ok(queue.every((question) => allowed.has(question.course)), `Chapter ${chapter.id}: no questions above permitted level`);
       for (const question of queue) {
         // Les propositions sont mélangées à chaque partie : même question, mêmes options, bonne réponse suivie.
-        const source = bankMap.get(question.id);
+        const source = rushMap.get(question.id);
         assert.equal(question.question, source.question, "Queue preserves the prompt");
         assert.deepEqual([...question.options].sort(), [...source.options].sort(), "Queue preserves the options");
         assert.equal(question.options[question.correctAnswer], source.options[source.correctAnswer], "Queue keeps the right answer");

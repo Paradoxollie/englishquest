@@ -1,5 +1,6 @@
 "use client";
 import { recordClassAnswer } from "@/components/classes/live-activity-events";
+import { preferFresh, recentGameItems, rememberGameItem } from "@/lib/games/recent-items";
 
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
 
@@ -77,6 +78,8 @@ export function FlashbackGame({
 
   const lastCorrection = selfPaced && state?.phase === "gameOver" && !lastCorrectionRead;
   const playing = started && state !== null && (state.phase !== "gameOver" || lastCorrection);
+  const displayed = playing && state?.isNew ? state.currentWord.english : null;
+  useEffect(() => { if (displayed) rememberGameItem("flashback", displayed); }, [displayed]);
   useGameFocusMode(playing);
 
   useEffect(() => {
@@ -107,7 +110,8 @@ export function FlashbackGame({
     if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
     sessionRef.current += 1;
     if (!selfPaced) gameSession.begin();
-    const fresh = startGame(createGameState(Math.random, flashbackWordsForLevel(level), level));
+    const pool = preferFresh(flashbackWordsForLevel(level), recentGameItems("flashback"), word => word.english);
+    const fresh = startGame(createGameState(Math.random, pool, level));
     stateRef.current = fresh;
     setState(fresh);
     setStarted(true);

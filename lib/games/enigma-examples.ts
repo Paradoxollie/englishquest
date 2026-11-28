@@ -1,3 +1,5 @@
+import { extraEnigmaScenes } from "./words/enigma-scenes";
+
 // One scene can illustrate several target words in their assigned sense.
 const contexts: readonly [string, string][] = [
   ["APPLE", "I packed an apple for the walk."],
@@ -418,6 +420,9 @@ const contexts: readonly [string, string][] = [
 const examples = new Map<string, string>();
 for (const [words, sentence] of contexts) {
   for (const word of words.split(" ")) examples.set(word, sentence);
+}
+for (const [, sentence, targets] of extraEnigmaScenes) {
+  for (const [word] of targets) examples.set(word, sentence);
 }
 
 export function getEnigmaExample(word: string): string | undefined {

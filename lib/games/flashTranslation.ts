@@ -14,12 +14,13 @@
  */
 
 import { pickByLevel, type GameLevel } from "./levels";
+import { vocabularyTopics } from "./words/vocabulary-topics";
 
 export interface WordPair {
     french: string;
     english: string;
     distractors: string[]; // Pre-defined wrong answers
-    /** 1 = A1 (chapitre 1) ... 5 = C1 (chapitre 5). */
+    /** Difficulté du jeu, du chapitre 1 au chapitre 5. */
     level: GameLevel;
 }
 
@@ -310,10 +311,10 @@ export function getAverageReactionTime(state: GameState): number {
  * Un mot français = une seule bonne réponse anglaise. Les trois distracteurs
  * sont plausibles (faux amis, mots voisins) mais jamais une traduction
  * acceptable ; une précision entre parenthèses lève les ambiguïtés.
- * Niveaux : 1 = A1, 2 = A2, 3 = B1, 4 = B2, 5 = C1 (chapitres 1 à 5).
+ * Les cinq difficultés suivent les chapitres (voir GAME_LEVELS).
  * Anglais britannique (behaviour, neighbour, rubber, trousers).
  */
-export const VOCABULARY: WordPair[] = [
+const originalVocabulary: WordPair[] = [
     // --- NIVEAU 1 (A1) : école, famille, nourriture, maison, corps, vêtements, temps, loisirs ---
     { french: "cahier", english: "notebook", distractors: ["pencil case", "schoolbag", "ruler"], level: 1 },
     { french: "crayon à papier", english: "pencil", distractors: ["pen", "rubber", "ruler"], level: 1 },
@@ -450,7 +451,7 @@ export const VOCABULARY: WordPair[] = [
     { french: "ranger (sa chambre)", english: "tidy", distractors: ["range", "mess", "hide"], level: 2 },
     { french: "célèbre", english: "famous", distractors: ["furious", "friendly", "generous"], level: 2 },
 
-    // --- NIVEAU 3 (B1) : verbes à particule courants, sentiments, faux amis, mots abstraits ---
+    // --- NIVEAU 3 : verbes à particule courants, sentiments, faux amis, mots abstraits ---
     { french: "abandonner", english: "give up", distractors: ["give back", "give out", "give away"], level: 3 },
     { french: "s'occuper de", english: "look after", distractors: ["look for", "look at", "look out"], level: 3 },
     { french: "découvrir", english: "find out", distractors: ["look for", "hide", "ignore"], level: 3 },
@@ -508,7 +509,7 @@ export const VOCABULARY: WordPair[] = [
     { french: "contrôler (vérifier)", english: "check", distractors: ["control", "charge", "change"], level: 3 },
     { french: "déménager", english: "move house", distractors: ["remove", "manage", "settle"], level: 3 },
 
-    // --- NIVEAU 4 (B2) : verbes à particule, monde du travail, nuances, connecteurs ---
+    // --- NIVEAU 4 : verbes à particule, monde du travail, nuances, connecteurs ---
     { french: "continuer", english: "carry on", distractors: ["carry out", "slow down", "put off"], level: 4 },
     { french: "rejeter / refuser", english: "turn down", distractors: ["turn up", "turn off", "accept"], level: 4 },
     { french: "bien s'entendre", english: "get along", distractors: ["get over", "break down", "fit in"], level: 4 },
@@ -560,7 +561,7 @@ export const VOCABULARY: WordPair[] = [
     { french: "à peine", english: "hardly", distractors: ["hard", "nearly", "highly"], level: 4 },
     { french: "de plus en plus", english: "increasingly", distractors: ["incredibly", "increasing", "eventually"], level: 4 },
 
-    // --- NIVEAU 5 (C1) : registre soutenu, monde professionnel, faux amis subtils ---
+    // --- NIVEAU 5 : registre soutenu, monde professionnel, faux amis subtils ---
     { french: "annuler (un événement)", english: "call off", distractors: ["call on", "put on", "keep up"], level: 5 },
     { french: "prendre pour modèle", english: "look up to", distractors: ["look after", "look down on", "turn into"], level: 5 },
     { french: "prendre de haut", english: "look down on", distractors: ["look up to", "look after", "care for"], level: 5 },
@@ -603,3 +604,14 @@ export const VOCABULARY: WordPair[] = [
     { french: "minutieux", english: "thorough", distractors: ["through", "thoughtful", "though"], level: 5 },
     { french: "éventuel (possible)", english: "potential", distractors: ["eventual", "actual", "essential"], level: 5 },
 ];
+
+const seenEnglish = new Set(originalVocabulary.map(word => normalizeChoice(word.english)));
+export const VOCABULARY: WordPair[] = [...originalVocabulary];
+for (const [, level, entries] of vocabularyTopics) {
+    for (const [english, french] of entries) {
+        const key = normalizeChoice(english);
+        if (seenEnglish.has(key)) continue;
+        seenEnglish.add(key);
+        VOCABULARY.push({ english, french, level, distractors: entries.filter(([word]) => word !== english).map(([word]) => word) });
+    }
+}

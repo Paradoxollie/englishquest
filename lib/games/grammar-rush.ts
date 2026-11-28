@@ -60,18 +60,20 @@ export function createRushState(questions: RushQuestion[]): RushState {
 export function weaveRushQueue(
   pool: readonly RushQuestion[],
   focusCourseId: number | null,
-  rng: () => number = Math.random
+  rng: () => number = Math.random,
+  recentIds: readonly string[] = []
 ): RushQuestion[] {
+  const lastSeen = new Map(recentIds.map((id, index) => [id, index]));
   const shuffleList = (items: readonly RushQuestion[]) => {
     const copy = [...items];
     for (let i = copy.length - 1; i > 0; i -= 1) {
       const j = Math.floor(rng() * (i + 1));
       [copy[i], copy[j]] = [copy[j], copy[i]];
     }
-    return copy;
+    return lastSeen.size ? copy.sort((a, b) => (lastSeen.get(a.id) ?? -1) - (lastSeen.get(b.id) ?? -1)) : copy;
   };
   const general = shuffleList(pool.filter((q) => q.course !== focusCourseId));
-  const focus = focusCourseId != null ? shuffleList(pool.filter((q) => q.course === focusCourseId)) : [];
+  const focus = focusCourseId != null ? shuffleList(pool.filter((q) => q.course === focusCourseId)).slice(0, GRAMMAR_RUSH_FOCUS_POOL) : [];
   const queue: RushQuestion[] = [];
   let g = 0;
   let f = 0;
@@ -122,7 +124,7 @@ export function countFocusCorrect(state: RushState, focusCourseId: number | null
 /**
  * Bornes de l'entraînement ciblé : jamais plus que les bonnes réponses de la
  * partie, et une question sur trois au plus vient du cours ciblé (voir
- * buildRushQueue), avec dix questions par cours dans la banque.
+ * weaveRushQueue), avec dix questions ciblées au maximum par manche.
  */
 export const GRAMMAR_RUSH_FOCUS_POOL = 10;
 

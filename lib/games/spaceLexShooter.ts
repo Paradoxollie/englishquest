@@ -11,6 +11,7 @@
  */
 
 import type { GameLevel } from "./levels";
+import { preferFresh } from "./recent-items";
 import { concreteDistractors, EASY_WORD_FAMILIES, themeDistractors, WORD_FAMILIES } from "./space-lex-families";
 export { EASY_WORD_FAMILIES, WORD_FAMILIES } from "./space-lex-families";
 
@@ -225,6 +226,9 @@ export const THEME_LABELS: Record<string, { en: string; fr: string }> = {
   ANIMALS: { en: "ANIMALS", fr: "les animaux" },
   WEATHER: { en: "WEATHER", fr: "la météo" },
   COLOURS: { en: "COLOURS", fr: "les couleurs" },
+  MUSIC: { en: "MUSIC", fr: "la musique" }, GARDEN: { en: "THE GARDEN", fr: "le jardin" },
+  SEASIDE: { en: "THE SEASIDE", fr: "le bord de mer" }, CAMPING: { en: "CAMPING", fr: "le camping" },
+  TIME: { en: "TIME AND THE CALENDAR", fr: "le temps et le calendrier" }, WORKSHOP: { en: "THE WORKSHOP", fr: "l’atelier" },
 };
 
 export const CONNECTORS: Record<string, string[]> = {
@@ -399,7 +403,17 @@ export const SYNONYMS: Record<string, string[]> = {
   ],
   EXPENSIVE: [
     "expensive", "costly", "pricey", "overpriced", "high-priced"
-  ]
+  ],
+  QUIET: ["quiet", "silent", "hushed", "soundless", "noiseless", "muted", "peaceful"],
+  NOISY: ["noisy", "loud", "deafening", "ear-splitting", "clamorous", "thunderous"],
+  TIRED: ["tired", "sleepy", "worn out", "exhausted", "weary", "drained", "wiped out"],
+  ANGRY: ["angry", "mad", "furious", "annoyed", "cross", "irritated", "enraged", "livid"],
+  CALM: ["calm", "relaxed", "at ease", "untroubled", "composed", "serene", "unruffled"],
+  AFRAID: ["afraid", "scared", "frightened", "terrified", "fearful", "petrified"],
+  TASTY: ["tasty", "delicious", "flavourful", "mouth-watering", "scrumptious", "appetising"],
+  NEAT: ["neat", "tidy", "orderly", "well-kept", "immaculate", "uncluttered"],
+  MESSY: ["messy", "untidy", "disorderly", "cluttered", "chaotic", "jumbled"],
+  ANCIENT: ["ancient", "very old", "age-old", "centuries-old", "millennia-old", "from antiquity"],
 };
 
 /** Synonymes proposés aux niveaux 1 et 2 : les plus courants seulement. */
@@ -415,6 +429,11 @@ export const EASY_SYNONYMS: Record<string, string[]> = {
   EASY: ["simple", "not hard", "not difficult", "straightforward"],
   BEAUTIFUL: ["pretty", "lovely", "gorgeous", "stunning", "good-looking"],
   STRANGE: ["weird", "odd", "unusual", "bizarre", "peculiar"],
+  QUIET: ["silent", "hushed", "soundless", "noiseless"],
+  NOISY: ["loud", "deafening", "ear-splitting", "thunderous"],
+  TIRED: ["sleepy", "worn out", "exhausted", "weary"],
+  ANGRY: ["mad", "furious", "annoyed", "cross"],
+  AFRAID: ["scared", "frightened", "terrified", "fearful"],
 };
 
 /** Contraires : leurs mots servent de distracteurs dans les missions de synonymes. */
@@ -422,6 +441,8 @@ const SYNONYM_OPPOSITES: Record<string, string> = {
   BIG: "SMALL", SMALL: "BIG", HAPPY: "SAD", SAD: "HAPPY", GOOD: "BAD", BAD: "GOOD",
   EASY: "DIFFICULT", DIFFICULT: "EASY", CHEAP: "EXPENSIVE", EXPENSIVE: "CHEAP",
   INTERESTING: "BORING", BORING: "INTERESTING",
+  QUIET: "NOISY", NOISY: "QUIET", NEAT: "MESSY", MESSY: "NEAT",
+  ANGRY: "CALM", CALM: "ANGRY",
 };
 
 /** Traduction française des mots clés de synonymes. */
@@ -430,7 +451,9 @@ export const SYNONYM_LABELS: Record<string, string> = {
   FAST: "rapide", SMART: "intelligent", GOOD: "bon", BAD: "mauvais", INTERESTING: "intéressant",
   DIFFICULT: "difficile", EASY: "facile", DANGEROUS: "dangereux", USEFUL: "utile", BORING: "ennuyeux",
   BRAVE: "courageux", STRANGE: "étrange", FAMOUS: "célèbre", POWERFUL: "puissant", CHEAP: "bon marché",
-  EXPENSIVE: "cher",
+  EXPENSIVE: "cher", QUIET: "silencieux", NOISY: "bruyant", TIRED: "fatigué",
+  ANGRY: "en colère", CALM: "calme", AFRAID: "effrayé", TASTY: "savoureux",
+  NEAT: "bien rangé", MESSY: "en désordre", ANCIENT: "très ancien",
 };
 
 
@@ -561,7 +584,7 @@ function connectorLabel(category: string, lang: "fr" | "en"): string {
 /**
  * Generate a random mission for a wave, adapted to the player's vocabulary level
  */
-export function generateMission(waveNumber: number = 1, vocabLevel: GameLevel = DEFAULT_VOCAB_LEVEL): Mission {
+export function generateMission(waveNumber: number = 1, vocabLevel: GameLevel = DEFAULT_VOCAB_LEVEL, recentThemes: readonly string[] = []): Mission {
   const easy = isBeginnerLevel(vocabLevel);
   const lang: "fr" | "en" = easy ? "fr" : "en";
   const synonymKeys = Object.keys(easy ? EASY_SYNONYMS : SYNONYMS);
@@ -595,7 +618,8 @@ export function generateMission(waveNumber: number = 1, vocabLevel: GameLevel = 
     const key = pick(synonymKeys);
     return { id: generateId(), type, label: synonymLabel(key, lang, false), synonymKey: key, targetCount, lang, easy };
   }
-  const theme = pick(Object.keys(easy ? EASY_WORD_FAMILIES : WORD_FAMILIES));
+  const themes = Object.keys(easy ? EASY_WORD_FAMILIES : WORD_FAMILIES);
+  const theme = pick(preferFresh(themes, recentThemes, key => key));
   return { id: generateId(), type: "WORD_FAMILY", label: themeLabel(theme, lang), theme, targetCount, lang, easy };
 }
 
@@ -1421,7 +1445,7 @@ export function updateMissionIfNeeded(state: GameState): GameState {
   if (now - state.lastMissionChangeTime >= MISSION_DURATION) {
     return {
       ...state,
-      mission: generateMission(state.waveNumber, state.vocabLevel),
+      mission: generateMission(state.waveNumber, state.vocabLevel, state.mission?.theme ? [state.mission.theme] : []),
       vocabulary: freshVocabulary(),
       upcomingEnemy: null,
       upcomingEnemySpawnTime: 0,
@@ -1629,7 +1653,7 @@ export function updateWaveLifecycle(state: GameState): GameState {
  */
 export function startNextWave(state: GameState): GameState {
   const nextWaveNumber = state.waveNumber + 1;
-  const nextMission = generateMission(nextWaveNumber, state.vocabLevel);
+  const nextMission = generateMission(nextWaveNumber, state.vocabLevel, state.mission?.theme ? [state.mission.theme] : []);
   const isBossWave = nextWaveNumber % 5 === 0;
 
   const nextState: GameState = {
@@ -1708,9 +1732,9 @@ export function updateSuperState(state: GameState): GameState {
 /**
  * Start the game
  */
-export function startGame(state: GameState): GameState {
+export function startGame(state: GameState, recentThemes: readonly string[] = []): GameState {
   const now = Date.now();
-  const firstMission = generateMission(1, state.vocabLevel);
+  const firstMission = generateMission(1, state.vocabLevel, recentThemes);
   return {
     ...state,
     isRunning: true,

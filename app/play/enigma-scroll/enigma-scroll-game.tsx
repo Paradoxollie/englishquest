@@ -1,5 +1,6 @@
 "use client";
 import { recordClassAnswer } from "@/components/classes/live-activity-events";
+import { recentGameItems, rememberGameItem } from "@/lib/games/recent-items";
 
 import dynamic from "next/dynamic";
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
@@ -161,6 +162,8 @@ export function EnigmaScrollGame({
   const [dictionary, setDictionary] = useState<Dictionary>("loading");
   const [state, setState] = useState<GameState | null>(null);
   const [phase, setPhase] = useState<"start" | "playing" | "won" | "ended">("start");
+  const displayedTarget = phase === "playing" ? state?.targetWord : null;
+  useEffect(() => { if (displayedTarget) rememberGameItem("enigma-scroll", displayedTarget); }, [displayedTarget]);
   const [paused, setPaused] = useState(false);
   const [hintShown, setHintShown] = useState(false);
   const [timeLeft, setTimeLeft] = useState(ROUND_SECONDS);
@@ -234,7 +237,7 @@ export function EnigmaScrollGame({
     prepareWordLists(length, level);
     sessionRef.current += 1;
     gameSession.begin();
-    const firstWord = pickEnigmaTargetWord(length, level);
+    const firstWord = pickEnigmaTargetWord(length, level, new Set(recentGameItems("enigma-scroll")));
     setState(createInitialGameState(firstWord));
     setPhase("playing");
     setPaused(false);
@@ -279,7 +282,7 @@ export function EnigmaScrollGame({
   const nextWord = useCallback(() => {
     setState((current) => {
       if (!current) return current;
-      const excluded = new Set([current.targetWord, ...found]);
+      const excluded = new Set([...recentGameItems("enigma-scroll"), ...found, current.targetWord]);
       const nextTarget = pickEnigmaTargetWord(
         current.config.wordLength as WordLength,
         level,

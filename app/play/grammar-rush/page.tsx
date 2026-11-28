@@ -6,7 +6,7 @@ import { getMissionForGame } from "@/lib/courses/mission-for-game";
 import { getCachedUserCourseRoadmap } from "@/lib/courses/roadmap-cache";
 import { lessons } from "@/lib/courses/lessons";
 import { getGameBySlug } from "@/lib/games/config";
-import { buildRushPool, buildRushQueue } from "@/lib/games/grammar-rush-server";
+import { buildRushQueue } from "@/lib/games/grammar-rush-server";
 import { getServerUser } from "@/lib/supabase/auth-cache";
 import { GrammarRushGame } from "./grammar-rush-game";
 import Link from "next/link";
@@ -62,7 +62,6 @@ export default async function GrammarRushPage({
     maxChapter = Math.max(maxChapter, getChapterForCourse(requestedCourse).id);
   }
   const queue = buildRushQueue({ maxChapter, focusCourseId: queueCourseId });
-  const questionPool = buildRushPool({ maxChapter });
   const focusTitle = queueCourseId ? lessons[queueCourseId]?.title ?? null : null;
   const levelLabel = focusTitle
     ? `chapitres 1 à ${maxChapter}, une question sur trois sur « ${focusTitle} »`
@@ -78,7 +77,7 @@ export default async function GrammarRushPage({
       {practiceCourseId && <Link className="eq-text-link" href={`/cours/${practiceCourseId}#entrainement`}>← Reprendre le cours {practiceCourseId}</Link>}
       <GrammarRushGame
         queue={queue}
-        questionPool={questionPool}
+        bankChapter={maxChapter}
         queueFocusCourseId={queueCourseId}
         isLoggedIn={Boolean(user)}
         missionTarget={mission && mission.quizPassed && !mission.alreadyReached ? mission.scoreTarget : null}

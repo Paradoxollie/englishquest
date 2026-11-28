@@ -1,6 +1,22 @@
 # Reprendre English Quest Omega
 
-**Mise à jour du mercredi 25 novembre 2026, heure de Paris.** Le lien de classe permet de faire un devoir et de participer au direct avec un pseudo. Aventure compte 20 escales, Cours rassemble les cinquante missions guidées. Le déploiement d’Omega suit la branche `main`. Vérifier la révision desservie par l’alias pour identifier la version en ligne. [English Quest Omega](https://englishquest-omega.vercel.app)
+**Mise à jour du samedi 28 novembre 2026, heure de Paris.** Le lien de classe permet de faire un devoir et de participer au direct avec un pseudo. Aventure compte 20 escales, Cours rassemble les cinquante missions guidées. Le déploiement d’Omega suit la branche `main`. Vérifier la révision desservie par l’alias pour identifier la version en ligne. [English Quest Omega](https://englishquest-omega.vercel.app)
+
+## Variété des six jeux, 28 novembre
+
+| Jeu | Ancienne réserve | Nouvelle réserve jouable |
+| --- | ---: | --- |
+| Grammar Rush | 500 questions | 1 379 questions différentes, dont 600 phrases écrites pour le jeu et 279 exercices repris des cours. Chaque notion dispose de 26 à 28 questions. |
+| Flash Translation et Flashback | 279 entrées partagées | 1 415 mots et expressions, dont 325 au premier niveau et 239 au dernier. Les cinq niveaux disposent chacun d’au moins 237 entrées. |
+| Wordfall, mode vocabulaire | 965 traductions | 2 023 traductions, dont 485 au premier niveau. Les précisions sur le sens figurent à la fois sur le bloc et dans la correction. |
+| Enigma Scroll | 1 231 mots à deviner | 1 530 cibles de quatre, cinq ou six lettres. Les 299 ajouts ont chacun une phrase d’exemple. |
+| Lexicon Blaster | 1 136 mots distincts dans 25 familles | 1 860 mots et expressions distincts dans 31 familles. Le niveau guidé passe de 418 à 759 entrées dans 18 familles. Le jeu propose aussi 32 séries de synonymes. |
+
+À l’entrée ordinaire de Grammar Rush, un invité tire ses questions parmi les 554 des deux premiers chapitres. Depuis un cours précis, le jeu intercale son entraînement ciblé. Dans une escale BD, il conserve les questions du récit. Les cinq listes de Grammar Rush sont des fichiers publics créés à la compilation. Les six jeux retiennent jusqu’à 96 identifiants de questions, de mots ou de thèmes déjà présentés dans l’onglet. Flashback répète volontairement certains mots d’une même manche. Lexicon repropose les cibles manquées après trois autres mots. Speed Verb propose 150 verbes. Pierre souhaite revenir ultérieurement sur Spell Strike et Echo Signal.
+
+Les vérifications locales couvrent les choix et les corrigés, 300 tirages de Grammar Rush selon le chapitre et le cours ciblé, les 21 scénarios navigateur et le démarrage des neuf jeux dans une activité de classe simulée. Sur un écran simulé de 390 pixels, relancer chacun des six jeux dans le même onglet a renouvelé le premier mot, le premier thème ou la première question, même avec un tirage aléatoire identique. En décembre, faire rejouer les élèves à leur niveau et relever les formulations qui mériteraient une autre traduction acceptée. [Essais des jeux](scripts/README.md)
+
+Dans la nouvelle famille « Musique » de Lexicon, le tir sur BELL près du bas de l’écran et le tir sur ONION ont donné chacun le retour attendu, à la souris à 1 366 pixels et au toucher simulé à 320 pixels.
 
 ## Visibilité et relais enseignants, 25 novembre au soir
 

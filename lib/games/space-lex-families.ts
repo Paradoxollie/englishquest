@@ -1,5 +1,7 @@
 // A word belongs to a theme in either column. Only the guided column is
 // used as a target in French-guided missions (levels 1 and 2).
+import { vocabularyTopics } from "./words/vocabulary-topics";
+
 interface Family {
   guided?: string[];
   extra: string[];
@@ -261,6 +263,15 @@ for (const [theme, { guided, extra }] of Object.entries(families)) {
   if (guided) EASY_WORD_FAMILIES[theme] = guided;
 }
 
+const newGuidedThemes = new Set(["MUSIC", "GARDEN", "SEASIDE", "CAMPING", "TIME", "WORKSHOP"]);
+for (const [theme, level, entries] of vocabularyTopics) {
+  const words = entries.map(([english]) => english.toLowerCase());
+  WORD_FAMILIES[theme] = [...new Set([...(WORD_FAMILIES[theme] ?? []), ...words])];
+  if (level <= 2 && (EASY_WORD_FAMILIES[theme] || newGuidedThemes.has(theme))) {
+    EASY_WORD_FAMILIES[theme] = [...new Set([...(EASY_WORD_FAMILIES[theme] ?? []), ...words])];
+  }
+}
+
 // Small, hand-picked contrasts keep ambiguous answers out of the firing line.
 // For instance, a bat can be an animal or sports equipment; a peach can be a
 // fruit or a colour. Neither should be drawn at random as a "wrong" word.
@@ -289,6 +300,8 @@ const byTheme: Record<string, (keyof typeof contrasts)[]> = {
   "HEALTH & MEDICINE": ["landscape", "kitchen"], "ART & CULTURE": ["anatomy", "kitchen"],
   "BUSINESS & ECONOMY": ["anatomy", "landscape"], "CRIME & JUSTICE": ["kitchen", "sport"],
   COOKING: ["kin", "sport", "landscape"],
+  MUSIC: ["anatomy", "food"], GARDEN: ["kin", "clothing"], SEASIDE: ["kin", "kitchen"],
+  CAMPING: ["kin", "anatomy"], TIME: ["clothing", "animals"], WORKSHOP: ["kin", "food"],
 };
 
 export const concreteDistractors = Object.values(contrasts).flat();

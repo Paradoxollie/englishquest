@@ -24,6 +24,8 @@ import {
   type WordfallState,
 } from "@/lib/games/wordfall";
 import wordfallWordsData from "@/lib/games/words/wordfall-words.json";
+import { expandWordfallVocabulary } from "@/lib/games/wordfall-catalog";
+import { recentGameItems, rememberGameItem } from "@/lib/games/recent-items";
 import { playSoundEffect } from "@/lib/games/audio";
 import { GameEnd, GameHud, GameStart, HudStat, SpeakButton, TimeBar, mapScoreResultToRewards, type RewardSummary } from "@/components/play/game-screens";
 import { LevelPicker } from "@/components/play/level-picker";
@@ -76,10 +78,6 @@ const MODES: Record<
   },
 };
 
-function cleanTranslation(translation: string) {
-  return translation.replace(/\([^()]*\)/g, "").split("/")[0].split(",")[0].replace(/\s+/g, " ").trim();
-}
-
 function visibleWords(state: WordfallState | null) {
   if (!state) return [];
   if (state.activeWords?.length > 0) return state.activeWords;
@@ -97,7 +95,7 @@ let bootstrapped: { ok: boolean; error: string | null } | null = null;
 function bootstrap() {
   if (bootstrapped) return bootstrapped;
   try {
-    const manual = wordfallWordsData.manualWords;
+    const manual = expandWordfallVocabulary(wordfallWordsData.manualWords);
     if (!manual?.translations || !manual.wordsByLength) {
       bootstrapped = { ok: false, error: "La liste de mots est incomplète." };
       return bootstrapped;
@@ -109,7 +107,7 @@ function bootstrap() {
       levels: manual.levels,
     });
     if (Array.isArray(wordfallWordsData.freeModeWords)) {
-      initializeEnglishWords(filterInappropriateWords(wordfallWordsData.freeModeWords));
+      initializeEnglishWords(filterInappropriateWords([...wordfallWordsData.freeModeWords, ...Object.keys(manual.translations).filter(word => /^[A-Z]{3,20}$/.test(word))]));
     }
     bootstrapped = { ok: true, error: null };
   } catch (error) {
@@ -228,7 +226,7 @@ export function WordfallGame({
     const label = extraWord ?? word.text;
     const tr =
       word.translation
-        ? cleanTranslation(word.translation)
+        ? word.translation
         : status === "caught"
           ? `Lettre ${word.text} validée`
           : `Lettre ${word.text} manquée`;
@@ -266,6 +264,7 @@ export function WordfallGame({
     sessionRef.current += 1;
     gameSession.begin();
     const fresh = startGame(createGameState({ mode, vocabLevel: mode === "exact" ? level : null }));
+    if (mode === "exact") fresh.usedWords = recentGameItems("wordfall");
     stateRef.current = fresh;
     setState(fresh);
     setPaused(false);
@@ -311,6 +310,7 @@ export function WordfallGame({
     if (active.length >= limit) return false;
     const word = spawnFallingWord(current, { mode: current.mode });
     if (!word) return false;
+    if (current.mode === "exact") rememberGameItem("wordfall", word.text);
     const nextWords = [...active, word];
     const nextState: WordfallState = {
       ...current,
@@ -355,7 +355,7 @@ export function WordfallGame({
       say(
         "bad",
         firstMissed.translation
-          ? `Manqué : ${firstMissed.text} = ${cleanTranslation(firstMissed.translation)}.`
+          ? `Manqué : ${firstMissed.text} = ${firstMissed.translation}.`
           : `Manqué (${firstMissed.text}) : une vie en moins.`,
         2100
       );

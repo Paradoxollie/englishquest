@@ -89,32 +89,9 @@ export function initializeDictionary(dictionary: Record<string, string>): void {
   logWordfallDebug("Wordfall: Initialized dictionary with", Object.keys(dictionary).length, "translations");
 }
 
-/**
- * Clean translation: remove parentheses, slashes, and take first part
- */
+/** Show the primary translation with any clarification of its meaning. */
 function cleanTranslationForDisplay(translation: string): string {
-  if (!translation || typeof translation !== 'string') return '';
-  
-  let cleaned = translation.trim();
-  
-  // Remove everything in parentheses (including nested parentheses)
-  cleaned = cleaned.replace(/\([^()]*\)/g, '');
-  cleaned = cleaned.replace(/\([^()]*\)/g, ''); // Second pass for nested
-  
-  // Take first part before "/"
-  if (cleaned.includes('/')) {
-    cleaned = cleaned.split('/')[0].trim();
-  }
-  
-  // Take first part before ","
-  if (cleaned.includes(',')) {
-    cleaned = cleaned.split(',')[0].trim();
-  }
-  
-  // Clean up spaces
-  cleaned = cleaned.replace(/\s+/g, ' ').trim();
-  
-  return cleaned;
+  return translation.split(/[/,]/, 1)[0].replace(/\s+/g, " ").trim();
 }
 
 function normalizeForAnswerComparison(value: string): string {
@@ -139,7 +116,6 @@ function getTranslation(word: string): string | undefined {
   if (!globalDictionary) return undefined;
   const translation = globalDictionary[word.toUpperCase()];
   if (!translation) return undefined;
-  // Clean translation to ensure no parentheses, slashes, or commas
   return cleanTranslationForDisplay(translation);
 }
 
@@ -355,7 +331,8 @@ export function getWordLevel(word: string): GameLevel | null {
  * l'écran et ceux déjà attrapés pendant la partie (tant qu'il en reste).
  */
 function getLevelledWordForExactMode(state: WordfallState, rng: () => number): string | null {
-  if (!state.vocabLevel || wordLevels.size === 0) return null;
+  const level = state.vocabLevel;
+  if (!level || wordLevels.size === 0) return null;
   const active = new Set(getActiveWords(state).map((word) => word.text));
   const used = new Set(state.usedWords);
   const candidates: { word: string; level: GameLevel }[] = [];
@@ -364,8 +341,10 @@ function getLevelledWordForExactMode(state: WordfallState, rng: () => number): s
     if (!wordLevel || active.has(word) || !getTranslation(word)) continue;
     candidates.push({ word, level: wordLevel });
   }
-  const fresh = candidates.filter((candidate) => !used.has(candidate.word));
-  const picked = pickOneByLevel(fresh.length > 0 ? fresh : candidates, state.vocabLevel, rng);
+  const eligible = candidates.filter(candidate => candidate.level === level || candidate.level === level - 1);
+  const pool = eligible.length ? eligible : candidates;
+  const fresh = pool.filter(candidate => !used.has(candidate.word));
+  const picked = pickOneByLevel(fresh.length > 0 ? fresh : pool, level, rng);
   return picked?.word ?? null;
 }
 
@@ -730,7 +709,7 @@ export function processWordInput(
   const basePoints = state.mode === "exact" ? 5 : 8; // Reduced from 10/15
   
   // Length bonus: longer words = more points (reduced)
-  const lengthBonus = Math.floor(wordLength * 0.5); // 0.5 points per letter (reduced from 2)
+  const lengthBonus = Math.floor(Math.min(wordLength, 20) * 0.5);
   
   // Speed bonus: faster = more points (based on word position, not time) (reduced)
   // Catch word high up (y < 30) = perfect catch bonus

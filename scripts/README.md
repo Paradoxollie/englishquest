@@ -8,6 +8,7 @@ Exécuter les commandes depuis la racine du dépôt. `npm test` lance les régre
 | --- | --- |
 | Pages proposées aux moteurs de recherche | `node scripts/tests/public-search.cjs http://127.0.0.1:3000` vérifie les titres, les descriptions, les adresses publiques et les liens vers les activités. Ajouter `--sample` pour un contrôle court sur Omega. |
 | Neuf jeux, écrans de jeu et validation des scores | `npm run test:browser -- http://127.0.0.1:3000`, [règles des jeux de chute et de tir](tests/falling-games-regression.cjs), [validation des scores](tests/score-plausibility-regression.cjs) |
+| Variété des parties | Le scénario navigateur `six-games-fresh-openings-same-phone` vérifie les cinq listes de Grammar Rush et deux départs par jeu dans le même onglet. Les [contrôles de vocabulaire](tests/round-games-regression.cjs) vérifient les niveaux, les choix proposés et les équivalents admis. |
 | Exercices et quiz | [Vérification des corrigés](tests/exercise-invariants.cjs), [questions des cours](tests/course-question-invariants.cjs), [interactions du quiz](tests/quiz-interaction-regression.cjs) |
 | Atlas et positionnement en invité | [Règles des escales](tests/atlas-regression.cjs), [parcours de la carte](tests/atlas-trial-browser.cjs), [reprise du positionnement](tests/guest-placement-browser.cjs) |
 | Professeurs et podium | [Isolation des classes](tests/class-visibility-postgres.cjs), [séance synchronisée](tests/live-class-postgres.cjs), [podium](tests/live-ceremony.cjs), [activités dans le navigateur](tests/live-activities-browser.cjs) |

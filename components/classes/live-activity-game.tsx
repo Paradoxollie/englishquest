@@ -40,7 +40,7 @@ export function LiveGameActivity({ slug, questions, audioMap, lineStarts }: {
     case "speed-verb-challenge": return <Verbs {...options} />;
     case "wordfall": return <Wordfall {...options} />;
     case "flash-translation": return <Translation {...options} />;
-    case "grammar-rush": return <Grammar {...options} queue={questions ?? []} questionPool={questions} levelLabel="chapitres 1 et 2" />;
+    case "grammar-rush": return <Grammar {...options} queue={questions ?? []} bankChapter={2} levelLabel="chapitres 1 et 2" />;
     case "flashback": return <Flashback {...options} />;
     case "spell-strike": return <Spelling {...options} audioMap={audioMap} />;
     case "echo-signal": return <Echo {...options} audioMap={audioMap} lineStarts={lineStarts} />;

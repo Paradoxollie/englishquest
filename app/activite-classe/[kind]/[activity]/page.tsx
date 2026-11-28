@@ -9,7 +9,7 @@ import { lessons } from "@/lib/courses/lessons";
 import { dialogueLineStarts, resolveAudioMap } from "@/lib/games/audio-manifest-server";
 import { ECHO_SIGNAL_SCENARIOS } from "@/lib/games/echoSignal";
 import { GAME_SESSION_SLUGS, isGameSessionSlug } from "@/lib/games/game-session-rules";
-import { buildRushPool } from "@/lib/games/grammar-rush-server";
+import { buildRushQueue } from "@/lib/games/grammar-rush-server";
 import { SPELL_STRIKE_WORDS } from "@/lib/games/spellStrike";
 import "./activity.css";
 
@@ -27,7 +27,7 @@ export function generateStaticParams() {
 export default async function ClassActivityPage({ params }: { params: Promise<{ kind: string; activity: string }> }) {
   const { kind, activity } = await params;
   if (kind === "jeu" && isGameSessionSlug(activity)) {
-    const questions = activity === "grammar-rush" ? buildRushPool({ maxChapter: 2 }) : undefined;
+    const questions = activity === "grammar-rush" ? buildRushQueue({ maxChapter: 2, focusCourseId: null }) : undefined;
     const audioMap = activity === "spell-strike"
       ? resolveAudioMap("spell-strike", SPELL_STRIKE_WORDS.flatMap(word => [word.id, `${word.id}-sentence`]))
       : activity === "echo-signal" ? resolveAudioMap("echo-signal", ECHO_SIGNAL_SCENARIOS.map(clip => clip.id)) : undefined;

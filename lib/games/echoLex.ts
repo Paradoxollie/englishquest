@@ -33,6 +33,7 @@ export interface GameState {
 
 /** Tout le vocabulaire, sans les distracteurs de Flash Translation. */
 export const FLASHBACK_WORDS: WordPair[] = VOCABULARY.map(({ english, french, level }) => ({ english, french, level }));
+const byEnglish = new Map(VOCABULARY.map(word => [word.english, word]));
 
 /** Mots du niveau du joueur et du niveau inférieur. */
 export function flashbackWordsForLevel(level: GameLevel): WordPair[] {
@@ -135,31 +136,21 @@ function finishRound(state: GameState, correct: boolean): GameState {
 
 function meaningChoices(state: GameState, rng: () => number): string[] {
     const correct = state.currentWord.french;
-    const candidates = [...new Set(state.pool.filter(word => word.english !== state.currentWord.english)
-        .map(word => word.french))].filter(meaning => meaning !== correct);
-    // A tiny custom pool may have fewer than two distinct distractors.
-    if (candidates.length < 2) {
-        for (const word of FLASHBACK_WORDS) {
-            if (word.english !== state.currentWord.english && word.french !== correct && !candidates.includes(word.french)) {
-                candidates.push(word.french);
-            }
-            if (candidates.length === 2) break;
+    const entry = byEnglish.get(state.currentWord.english);
+    const related = entry?.french === correct ? entry.distractors
+        .map(english => byEnglish.get(english)?.french)
+        .filter((meaning): meaning is string => Boolean(meaning)) : [];
+    const choices: string[] = [];
+    function drawFrom(meanings: string[]) {
+        const candidates = [...new Set(meanings)].filter(meaning => meaning !== correct && !choices.includes(meaning));
+        while (candidates.length && choices.length < 2) {
+            choices.push(candidates.splice(Math.floor(rng() * candidates.length), 1)[0]);
         }
     }
-    const entry = VOCABULARY.find(word => word.english === state.currentWord.english && word.french === correct);
-    const related = entry?.distractors
-        .map(english => FLASHBACK_WORDS.find(word => word.english === english)?.french)
-        .filter((meaning): meaning is string => Boolean(meaning && candidates.includes(meaning))) ?? [];
-    const learned = state.seenWords.map(word => word.french).filter(meaning => candidates.includes(meaning));
-    const preferred = [...new Set([...related, ...learned])];
-    const choices: string[] = [];
-    while (preferred.length && choices.length < 2) {
-        const [choice] = preferred.splice(Math.floor(rng() * preferred.length), 1);
-        choices.push(choice);
-        candidates.splice(candidates.indexOf(choice), 1);
-    }
-    while (choices.length < 2 && candidates.length) {
-        choices.push(candidates.splice(Math.floor(rng() * candidates.length), 1)[0]);
+    drawFrom(related);
+    for (const pool of [state.seenWords, state.pool, FLASHBACK_WORDS]) {
+        if (choices.length === 2) break;
+        drawFrom(pool.filter(word => word.english !== state.currentWord.english).map(word => word.french));
     }
     choices.splice(Math.floor(rng() * (choices.length + 1)), 0, correct);
     return choices;

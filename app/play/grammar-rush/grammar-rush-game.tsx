@@ -1,5 +1,6 @@
 "use client";
 import { recordClassAnswer } from "@/components/classes/live-activity-events";
+import { recentGameItems, rememberGameItem } from "@/lib/games/recent-items";
 import { AdventureGameResult, type AdventureRound } from "@/components/quest/adventure-game-result";
 import type { GameAnswer } from "@/lib/adventure/activities";
 
@@ -41,7 +42,7 @@ type SubmitStatus = "idle" | "saving" | "saved" | "error" | "guest";
 
 export function GrammarRushGame({
   queue,
-  questionPool,
+  bankChapter,
   queueFocusCourseId = null,
   isLoggedIn,
   missionTarget,
@@ -50,7 +51,7 @@ export function GrammarRushGame({
   adventure,
 }: {
   queue: RushQuestion[];
-  questionPool?: RushQuestion[];
+  bankChapter?: number;
   queueFocusCourseId?: number | null;
   isLoggedIn: boolean;
   missionTarget: number | null;
@@ -85,6 +86,21 @@ export function GrammarRushGame({
   const runRef = useRef(0);
   const stateRef = useRef(state);
   const gameSession = useGameSession("grammar-rush", isLoggedIn);
+  const bank = useRef<{ chapter: number; questions: RushQuestion[] } | null>(null);
+  useEffect(() => {
+    if (!bankChapter) return;
+    const controller = new AbortController();
+    // The opening deck is immediately playable, even on a slow school connection.
+    void fetch(`/data/grammar-rush/${bankChapter}.json`, { signal: controller.signal })
+      .then(async response => {
+        if (!response.ok) return;
+        const questions: RushQuestion[] = await response.json();
+        if (!controller.signal.aborted && Array.isArray(questions) && questions.length) bank.current = { chapter: bankChapter, questions };
+      }).catch(() => {});
+    return () => controller.abort();
+  }, [bankChapter]);
+  const displayedId = !adventure && phase === "playing" && !feedback ? state.queue[state.index]?.id : null;
+  useEffect(() => { if (displayedId) rememberGameItem("grammar-rush", displayedId); }, [displayedId]);
   useGameFocusMode(!adventure && phase === "playing");
 
   useEffect(() => {
@@ -109,8 +125,8 @@ export function GrammarRushGame({
 
   const start = useCallback((resume = true) => {
     if (nextTimerRef.current) clearTimeout(nextTimerRef.current);
-    const sourcePool = questionPool && questionPool.length > 0 ? questionPool : queue;
-    const freshQueue = weaveRushQueue(sourcePool, queueFocusCourseId);
+    const sourcePool = bank.current && bank.current.chapter === bankChapter ? bank.current.questions : queue;
+    const freshQueue = weaveRushQueue(sourcePool, queueFocusCourseId, Math.random, adventure ? [] : recentGameItems("grammar-rush"));
     const deck = freshQueue.length > 0 ? freshQueue : queue;
     let fresh = createRushState(deck);
     if (adventure) {
@@ -140,7 +156,7 @@ export function GrammarRushGame({
     startedAtRef.current = now;
     questionAtRef.current = now;
     setPhase(adventure && !currentRushQuestion(fresh) ? "ended" : "playing");
-  }, [adventure, questionPool, queue, queueFocusCourseId, gameSession]);
+  }, [adventure, bankChapter, queue, queueFocusCourseId, gameSession]);
 
   /* Abandon : retour à l'écran de départ, rien n'est enregistré. */
   const quit = useCallback(() => {

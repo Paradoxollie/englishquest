@@ -2,12 +2,14 @@
  * Enigma Scroll : mots à deviner, avec leur traduction et leur niveau.
  *
  * Mots courants, sans noms propres ni pluriels, adaptés à un public scolaire.
- * Niveau : 1 = A1 ... 5 = C1. Chaque mot figure aussi dans la liste des
+ * Cinq difficultés, du chapitre 1 au chapitre 5. Chaque mot figure aussi dans la liste des
  * propositions acceptées (public/data/enigma-guesses-<longueur>.json).
  * Format compact : [mot, traduction, niveau].
  */
 
 import { pickOneByLevel, type GameLevel } from "./levels";
+import { preferFresh } from "./recent-items";
+import { extraEnigmaScenes } from "./words/enigma-scenes";
 
 export type EnigmaTarget = { word: string; french: string; level: GameLevel };
 type Entry = readonly [string, string, GameLevel];
@@ -298,6 +300,11 @@ export const ENIGMA_TARGETS: Record<4 | 5 | 6, EnigmaTarget[]> = {
   5: build(FIVE),
   6: build(SIX),
 };
+for (const [level, , targets] of extraEnigmaScenes) {
+  for (const [word, french] of targets) {
+    ENIGMA_TARGETS[word.length as 4 | 5 | 6].push({ word, french, level });
+  }
+}
 
 /** Taille minimale du réservoir de mots d'une partie. */
 const MIN_POOL = 40;
@@ -328,8 +335,7 @@ export function pickEnigmaTargetWord(
   rng: () => number = Math.random
 ): string {
   const eligible = enigmaTargetsForLevel(length, level);
-  const available = eligible.filter((target) => !excludeWords.has(target.word));
-  const pool = available.length > 0 ? available : eligible;
+  const pool = preferFresh(eligible, [...excludeWords], target => target.word);
   const picked = pickOneByLevel(pool, level, rng);
   return (picked ?? pool[0]).word;
 }

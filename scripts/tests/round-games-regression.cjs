@@ -26,6 +26,7 @@ function loadEngine(name) {
 const flash = loadEngine("flashTranslation");
 const memory = loadEngine("echoLex");
 const verb = loadEngine("speed-verb-challenge");
+const { translationAnswers } = loadEngine("translation-recall");
 let cases = 0;
 function test(name, run) {
   run();
@@ -69,23 +70,27 @@ test("Every vocabulary question has four distinct choices and exactly one correc
     assert.equal(round.choices[round.correctIndex].text, round.wordPair.english);
   }
 });
-test("Flash Translation vocabulary: 35+ words per level, one clear answer each", () => {
+test("Flash Translation vocabulary: 220+ distinct terms per level, one clear answer each", () => {
   const french = new Set();
   const english = new Set();
   for (const level of [1, 2, 3, 4, 5]) {
     const count = flash.VOCABULARY.filter((word) => word.level === level).length;
-    assert.ok(count >= 35, `level ${level}: ${count}`);
+    assert.ok(count >= 220, `level ${level}: ${count}`);
   }
   for (const word of flash.VOCABULARY) {
+    const cue = word.french.normalize("NFC").toLowerCase().replace(/’/g, "'");
     assert.ok([1, 2, 3, 4, 5].includes(word.level), word.french);
-    assert.ok(!french.has(word.french), `duplicate prompt ${word.french}`);
+    assert.ok(!french.has(cue), `duplicate prompt ${word.french}`);
     assert.ok(!english.has(word.english.toLowerCase()), `duplicate answer ${word.english}`);
-    french.add(word.french);
+    french.add(cue);
     english.add(word.english.toLowerCase());
-    assert.equal(word.distractors.length, 3, word.french);
+    assert.ok(word.distractors.length >= 3, word.french);
     const normalized = word.distractors.map((item) => item.toLowerCase().trim());
-    assert.equal(new Set(normalized).size, 3, word.french);
+    assert.equal(new Set(normalized).size, word.distractors.length, word.french);
     assert.ok(!normalized.includes(word.english.toLowerCase()), `${word.french}: answer among distractors`);
+    for (const answer of translationAnswers(word.english, word.french)) {
+      assert.ok(!normalized.includes(answer.toLowerCase()), `${word.french}: a valid equivalent appears among distractors`);
+    }
     assert.ok(!/[\u2013\u2014]/.test(word.french + word.english), `${word.french}: no dashes`);
   }
   // Les premiers mots ne sont plus des phrasal verbs B1-B2.
@@ -188,7 +193,7 @@ test("Flashback stops on three errors and cannot restart a settled state", () =>
 test("Flashback shows levelled words with their meaning and favours the player's level", () => {
   for (const level of [1, 2, 3, 4, 5]) {
     const pool = memory.flashbackWordsForLevel(level);
-    assert.ok(pool.length >= 35, `level ${level}: ${pool.length}`);
+    assert.ok(pool.length >= 220, `level ${level}: ${pool.length}`);
     assert.ok(pool.every((word) => word.french && word.english && (word.level === level || word.level === level - 1)));
     const rng = seeded(level * 31);
     let state = memory.startGame(memory.createGameState(rng, pool, level));

@@ -1,5 +1,6 @@
 "use client";
 import { recordClassHits } from "@/components/classes/live-activity-events";
+import { recentGameItems, rememberGameItem } from "@/lib/games/recent-items";
 
 import { useRefreshAfterScore } from "@/components/play/use-refresh-after-score";
 
@@ -271,6 +272,8 @@ export function SpaceLexGame({
 }) {
   const [level, setLevel] = useState<GameLevel>(suggestedLevel ?? DEFAULT_GAME_LEVEL);
   const [gameState, setGameState] = useState<GameState | null>(null);
+  const theme = gameState?.isRunning ? gameState.mission?.theme : null;
+  useEffect(() => { if (theme) rememberGameItem("space-lex", theme); }, [theme]);
   const [shipSkinImageUrl, setShipSkinImageUrl] = useState<string | null>(
     initialShipSkinImageUrl ?? null
   );
@@ -578,7 +581,7 @@ export function SpaceLexGame({
   const handleStartGame = useCallback(() => {
     sessionRef.current += 1;
     gameSession.begin();
-    const newState = startGame(createGameState(level));
+    const newState = startGame(createGameState(level), recentGameItems("space-lex"));
     gameStateRef.current = newState;
     setGameState(newState);
     setIsPaused(false);

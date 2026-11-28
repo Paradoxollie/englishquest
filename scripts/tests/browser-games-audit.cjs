@@ -33,8 +33,9 @@ const verbs = engine('speed-verb-challenge').VERBS;
 const freeWords = require('../../lib/games/words/wordfall-words.json').freeModeWords;
 const base = process.argv[2] || 'http://127.0.0.1:3000';
 const out = process.env.GAME_AUDIT_OUTPUT || path.join(root, 'output/playwright/audit-jeux');
-const wordfallTranslations = require('../../lib/games/words/wordfall-words.json').manualWords.translations;
-const grammarBank = require('../../lib/placement/questions.json');
+const wordfallTranslations = engine('wordfall-catalog').expandWordfallVocabulary(require('../../lib/games/words/wordfall-words.json').manualWords).translations;
+const exercises = Object.fromEntries(Array.from({ length: 50 }, (_, index) => [index + 1, require(`../../lib/courses/exercises/course${index + 1}.json`)]));
+const grammarBank = engine('grammar-practice').buildGrammarBank(require('../../lib/placement/questions.json'), exercises);
 fs.mkdirSync(out, { recursive: true });
 const report = { base, checks: [], errors: [], screenshots: [] };
 let browser;
@@ -401,6 +402,40 @@ async function readyChoices(page) {
       await page.getByRole('heading', { name: 'Révision terminée' }).waitFor();
     });
   }
+  await scenario('six-games-fresh-openings-same-phone', async page => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.addInitScript(() => { Math.random = () => 0.41; });
+    const banks = [];
+    for (let chapter = 1; chapter <= 5; chapter++) {
+      const response = await page.request.get(base + '/data/grammar-rush/' + chapter + '.json');
+      assert.equal(response.status(), 200);
+      const questions = await response.json();
+      assert.deepEqual(questions, grammarBank.filter(question => question.course <= chapter * 10));
+      banks.push(questions);
+    }
+    for (const slug of ['grammar-rush', 'flash-translation', 'flashback', 'enigma-scroll', 'wordfall', 'space-lex']) {
+      const key = 'eq-recent-' + slug;
+      let previous = [];
+      for (let run = 0; run < 2; run++) {
+        await open(page, slug === 'grammar-rush' ? slug + '?cours=1' : slug);
+        await start(page);
+        await page.waitForFunction(([key, size]) => (JSON.parse(sessionStorage.getItem(key)) || []).length > size,
+          [key, previous.length], { timeout: 8000 });
+        const seen = await page.evaluate(key => JSON.parse(sessionStorage.getItem(key)), key);
+        assert.ok(!previous.includes(seen.at(-1)), slug + ' rotates the opening item or theme');
+        previous = seen;
+        if (slug === 'grammar-rush') {
+          const question = banks[1].find(question => question.id === seen.at(-1));
+          assert.equal(await page.getByTestId('game-prompt').innerText(), question.question);
+          const answer = question.options[question.correctAnswer];
+          await page.getByTestId('game-choice').filter({ has: page.getByText(answer, { exact: true }) }).click();
+          await page.waitForFunction(([key, size]) => JSON.parse(sessionStorage.getItem(key)).length > size, [key, seen.length]);
+          previous = await page.evaluate(key => JSON.parse(sessionStorage.getItem(key)), key);
+          assert.equal(banks[1].find(question => question.id === previous.at(-1)).course, 1, 'second question revises the selected course');
+        }
+      }
+    }
+  });
   await scenario('grammar-feedback-timeout-replay', async page => {
     await open(page, 'grammar-rush');
     await page.clock.install();

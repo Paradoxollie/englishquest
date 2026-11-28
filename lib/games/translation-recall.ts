@@ -5,6 +5,27 @@ const variants: Record<string, string[]> = {
   holidays: ["vacation", "holiday"], neighbour: ["neighbor"],
   "on holiday": ["on vacation"], organise: ["organize"], practise: ["practice"],
   realise: ["realize"], rubber: ["eraser"], shop: ["store"], trousers: ["pants"],
+  autumn: ["fall"], aubergine: ["eggplant"], caramelise: ["caramelize"],
+  "chemist's": ["chemist", "pharmacy", "drugstore"], courgette: ["zucchini"],
+  jug: ["pitcher", "carafe"], pavement: ["sidewalk"], rucksack: ["backpack"],
+  roundabout: ["traffic circle"], spanner: ["wrench"], torch: ["flashlight"],
+  "sun cream": ["sunscreen", "sunblock"], "tape measure": ["measuring tape"],
+  teacup: ["tea cup"], zip: ["zipper"],
+  "first-aid kit": ["first aid kit"], springtime: ["spring"], "cool box": ["cooler", "coolbox"],
+  "ear defenders": ["ear protectors", "earmuffs"], hairband: ["headband"],
+  "family name": ["last name", "surname"], waistcoat: ["vest"], "cycle path": ["bike path", "bicycle path"],
+  "take offence": ["take offense"], "raise your hand": ["put your hand up"], "read aloud": ["read out loud"],
+  "take the lift": ["take the elevator"], "go straight ahead": ["go straight", "go straight on"],
+  "the following day": ["the next day"], "in the meantime": ["meanwhile"],
+  "swap seats": ["switch seats", "change places", "swap places"], "work in pairs": ["work in twos"],
+  "listen carefully": ["listen closely"], "cross the street": ["cross the road"],
+  "fasten your belt": ["fasten your seat belt", "buckle up"],
+  "keep your cool": ["stay calm", "keep calm"], "bear a grudge": ["hold a grudge"],
+  "get off here": ["get off the bus here"], "put someone at ease": ["make someone feel at ease"],
+  "once a week": ["once per week"], "twice a month": ["twice per month"],
+  "every other day": ["every second day"], "the day before": ["the previous day"],
+  "verify a source": ["check a source"], "back up a claim": ["support a claim"],
+  "flag a post": ["report a post"], "blur a face": ["blur out a face"],
 };
 
 // Match the sense actually displayed. For example, "present" works for
@@ -68,6 +89,15 @@ const infinitives = new Set([
   "pardonner", "parler", "partir", "penser", "perdre", "pleurer", "porter", "prendre", "regarder", "rejoindre",
   "s'occuper de", "s'asseoir", "sauter", "savoir", "se lever", "se réveiller", "se souvenir", "sourire",
   "suivre", "travailler", "utiliser", "vendre", "venir", "visiter", "vivre", "voir", "voyager", "vouloir",
+  "donner un coup de pied", "patiner", "faire du vélo", "couper en tranches", "éplucher", "remuer", "verser",
+  "râper", "pétrir", "fouetter au fouet", "cuire au four", "faire bouillir", "faire frire", "mijoter",
+  "égoutter", "tamiser", "mixer", "cuire à la vapeur", "rôtir", "écraser", "hacher", "étaler", "saupoudrer",
+  "napper d'un glaçage", "garnir un plat", "faire mariner", "pocher un aliment", "saisir à feu vif",
+  "caraméliser", "fermenter", "faire réduire une sauce", "assaisonner", "lever les filets d'un poisson",
+  "changer d'avis", "garder son calme", "se vexer", "se mettre en colère", "mettre quelqu'un à l'aise",
+  "garder rancune", "pousser un soupir de soulagement", "voir le bon côté des choses", "vérifier une source",
+  "étayer une affirmation", "citer un spécialiste", "signaler une publication", "flouter un visage",
+  "retirer son consentement", "recadrer une photo", "désactiver les notifications d'un fil",
 ]);
 
 export function translationAnswers(word: string, french = ""): string[] {

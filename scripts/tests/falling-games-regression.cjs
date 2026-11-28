@@ -90,11 +90,11 @@ check("Every Enigma target is a playable guess at all three lengths", () => {
   }
 });
 
-check("Enigma targets: 150+ common words per length, each translated and levelled", () => {
+check("Enigma targets: 450+ words per length, each translated and levelled", () => {
   const seen = new Set();
   for (const length of [4, 5, 6]) {
     const targets = enigmaTargets.ENIGMA_TARGETS[length];
-    assert.ok(targets.length >= 150, `${length} letters: ${targets.length}`);
+    assert.ok(targets.length >= 450, `${length} letters: ${targets.length}`);
     for (const target of targets) {
       assert.equal(target.word.length, length, target.word);
       assert.match(target.word, /^[A-Z]+$/);
@@ -163,11 +163,12 @@ check("Enigma duplicate-letter feedback consumes each target occurrence once", (
 });
 
 check("Wordfall exact mode drops words of the player's level (70 %) and the level below", () => {
-  const data = JSON.parse(fs.readFileSync(path.join(root, "lib/games/words/wordfall-words.json"), "utf8")).manualWords;
+  const original = JSON.parse(fs.readFileSync(path.join(root, "lib/games/words/wordfall-words.json"), "utf8")).manualWords;
+  const data = loadEngine("lib/games/wordfall-catalog.ts").expandWordfallVocabulary(original);
   const levels = data.levels;
   for (const word of Object.keys(data.translations)) assert.ok([1, 2, 3, 4, 5].includes(levels[word]), `${word} has a level`);
   const counts = [1, 2, 3, 4, 5].map(level => Object.values(levels).filter(value => value === level).length);
-  assert.ok(counts[0] >= 150 && counts[1] >= 150, `plenty of easy words: ${counts}`);
+  assert.ok(counts.every(count => count >= 300), `plenty of words at every level: ${counts}`);
   wordfall.initializeWordLists({ translations: data.translations, wordsByLength: data.wordsByLength, expressions: data.expressions, levels });
   for (const level of [1, 3, 5]) {
     let state = wordfall.startGame(wordfall.createGameState({ mode: "exact", vocabLevel: level }));
@@ -207,6 +208,8 @@ check("Wordfall accepts other English answers with the same French cue", () => {
   assert.equal(wordfall.validateExactWord("on", "SURE", "sûr").valid, false);
   for (const [answer, canonical, french] of [
     ["bicycle", "BIKE", "vélo"], ["telephone", "PHONE", "téléphone"],
+    ["flashlight", "TORCH", "lampe de poche"], ["to caramelize", "CARAMELISE", "caraméliser"],
+    ["take the elevator", "TAKE THE LIFT", "prends l’ascenseur"],
     ["inexpensive", "CHEAP", "bon marché"], ["present", "GIFT", "cadeau"],
     ["to purchase", "BUY", "acheter"], ["to drink", "DRINK", "boire"], ["mum", "MOTHER", "mère"],
   ]) {
@@ -427,6 +430,15 @@ function nextLexWord(state, target = true) {
 }
 
 check("Space Lex guided openings sample a broad family before repeating", () => {
+  const themes = Object.keys(space.EASY_WORD_FAMILIES);
+  const recent = [];
+  for (let i = 0; i < themes.length; i++) {
+    const theme = space.startGame(space.createGameState(1), recent).mission.theme;
+    assert.ok(!recent.includes(theme));
+    recent.push(theme);
+  }
+  assert.equal(space.startGame(space.createGameState(1), recent).mission.theme, recent[0]);
+  assert.ok(themes.length >= 18 && Object.keys(space.WORD_FAMILIES).length >= 31);
   for (const level of [1, 2]) assert.equal(space.startGame(space.createGameState(level)).mission.type, "WORD_FAMILY");
   for (const [theme, words] of Object.entries(space.EASY_WORD_FAMILIES)) {
     assert.ok(words.length >= 24, theme);
