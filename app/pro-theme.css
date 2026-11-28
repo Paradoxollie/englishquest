@@ -491,6 +491,28 @@ html[data-theme="dark"] .eq-text-link {
   }
 }
 
+@media (max-width: 419px) {
+  .eq-header .eq-nav-home { display: none; }
+  .eq-brand-copy { display: grid; gap: 1px; line-height: 1.1; }
+  .eq-brand-home {
+    display: block;
+    font: 600 .75rem/1.1 var(--font-body);
+    letter-spacing: 0;
+    color: var(--pro-muted);
+  }
+  .eq-brand[aria-current="page"] .eq-brand-home { color: var(--pro-primary); }
+  .eq-header .eq-nav-link {
+    min-width: max-content;
+    min-height: 44px;
+    padding-inline: 3px !important;
+  }
+}
+
+@media (max-width: 359px) {
+  .eq-header .eq-nav { margin-inline: -6px; }
+  .eq-header .eq-nav-link { padding-inline: 1.5px !important; }
+}
+
 .eq-theme-toggle,
 .eq-burger,
 .eq-profile-link {

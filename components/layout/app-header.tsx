@@ -14,6 +14,7 @@ const baseNavLinks = [
   { label: "Aventure", href: "/quest" },
   { label: "Cours", href: "/tous-les-cours" },
   { label: "Jeux", href: "/play" },
+  { label: "Classements", href: "/leaderboard" },
   { label: "Collection", href: "/collection" },
 ];
 
@@ -52,7 +53,6 @@ function HeaderMenu({ state, signedIn, loading, onLogout }: {
       { href: "/messages", label: notices ? `Messages (${notices})` : "Messages" },
       { href: "/profile", label: "Mon profil" },
     ] : []),
-    { href: "/leaderboard", label: "Classements" },
     ...(!signedIn && !loading ? [
       { href: "/auth/login", label: "Se connecter" },
       { href: "/auth/signup", label: "Créer un compte" },
@@ -201,7 +201,8 @@ export function AppHeader() {
   return (
     <header className="eq-header">
       <div className="eq-container eq-header-row">
-        <Link href={homeHref} className="eq-brand" aria-label="English Quest, accueil">
+        <Link href={homeHref} className="eq-brand" aria-label="English Quest, accueil"
+          aria-current={isActivePath(pathname, "/") ? "page" : undefined}>
           <span className="eq-brand-mark" aria-hidden="true">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
               <rect x="2" y="2" width="28" height="28" rx="8" fill="#1E4ED8" stroke="#141A29" strokeWidth="2" />
@@ -228,7 +229,10 @@ export function AppHeader() {
               />
             </svg>
           </span>
-          <span className="eq-brand-text">English Quest</span>
+          <span className="eq-brand-copy">
+            <span className="eq-brand-text">English Quest</span>
+            <span className="eq-brand-home">Accueil</span>
+          </span>
         </Link>
 
         <nav className="eq-nav" aria-label="Navigation principale">
@@ -236,7 +240,7 @@ export function AppHeader() {
             <Link
               key={link.href}
               href={link.href === "/" ? homeHref : link.href}
-              className="eq-nav-link"
+              className={link.href === "/" ? "eq-nav-link eq-nav-home" : "eq-nav-link"}
               aria-current={isActivePath(pathname, link.href) ? "page" : undefined}
             >
               {link.label}

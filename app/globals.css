@@ -613,6 +613,8 @@ h4 {
   flex-shrink: 0;
 }
 
+.eq-brand-home { display: none; }
+
 .eq-nav {
   display: flex;
   grid-area: nav;
@@ -857,6 +859,8 @@ h4 {
 }
 @media (min-width: 1120px) {
   .eq-header-actions .eq-desktop-action { display: inline-flex; }
+}
+@media (min-width: 1200px) {
   .eq-profile-name { display: inline; max-width: 84px; }
   .eq-header .eq-profile-link { padding-inline: 4px 9px; }
 }

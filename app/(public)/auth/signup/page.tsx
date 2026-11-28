@@ -19,9 +19,11 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
       subtitle={
         next?.startsWith("/rejoindre")
           ? "Crée ton compte, puis tu rejoins ta classe. Tu as déjà un compte ? Connecte-toi en bas."
-          : next?.startsWith("/profile")
-            ? "Choisis un pseudo pour retrouver ton vestiaire et tes 30 pièces d’or de bienvenue."
-            : "Gratuit. Un pseudo, un mot de passe, et la carte s'ouvre."
+          : next?.startsWith("/leaderboard")
+            ? "Crée ton compte pour découvrir la ligue de la semaine et les records de chaque jeu."
+            : next?.startsWith("/profile")
+              ? "Choisis un pseudo pour retrouver ton vestiaire et tes 30 pièces d’or de bienvenue."
+              : "Gratuit. Un pseudo, un mot de passe, et la carte s'ouvre."
       }
       footerHint="Tu as déjà un compte ?"
       footerLinkLabel="Se connecter"

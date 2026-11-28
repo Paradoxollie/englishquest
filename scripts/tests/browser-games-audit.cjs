@@ -607,6 +607,44 @@ async function readyChoices(page) {
     }));
     await shot(page, 'space-controls');
   });
+  await scenario('rankings-visible-in-header-and-return-after-game', async page => {
+    await open(page, 'grammar-rush');
+    await page.evaluate(() => document.fonts.ready);
+    const header = page.locator('header.eq-header');
+    const nav = header.getByRole('navigation', { name: 'Navigation principale' });
+    const rankings = nav.getByRole('link', { name: 'Classements', exact: true });
+    const home = header.getByRole('link', { name: 'English Quest, accueil' });
+    const destinations = ['Aventure', 'Cours', 'Jeux', 'Classements', 'Collection'];
+    for (const width of [320, 360, 390, 419, 420, 768, 899, 900, 1024, 1119, 1120, 1199, 1200, 1440]) {
+      await page.setViewportSize({ width, height: 844 });
+      const visible = await nav.locator('a:visible').allTextContents();
+      assert.deepEqual(visible, width < 420 ? destinations : ['Accueil', ...destinations]);
+      assert.equal(await home.getByText('Accueil', { exact: true }).isVisible(), width < 420);
+      assert.equal(await rankings.getAttribute('href'), '/leaderboard');
+      const clipped = await nav.locator('a:visible').evaluateAll(links => links.filter(link => {
+        const rect = link.getBoundingClientRect();
+        const range = document.createRange();
+        range.selectNodeContents(link);
+        const text = range.getBoundingClientRect();
+        const hit = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
+        return rect.left < 0 || rect.right > innerWidth || rect.height < 40
+          || text.left < rect.left - 1 || text.right > rect.right + 1 || !link.contains(hit);
+      }).map(link => link.textContent));
+      assert.deepEqual(clipped, [], 'Every navigation label is visible and clickable at ' + width);
+    }
+    await page.setViewportSize({ width: 320, height: 640 });
+    await start(page);
+    await page.getByRole('button', { name: 'Quitter', exact: true }).click();
+    await rankings.click();
+    await page.waitForURL(url => url.pathname === '/auth/login' && url.searchParams.get('next') === '/leaderboard');
+    await page.getByText('Connecte-toi pour consulter la ligue et les classements des jeux.').waitFor();
+    await page.getByRole('main').getByRole('link', { name: 'Créer un compte' }).click();
+    await page.waitForURL(url => url.pathname === '/auth/signup' && url.searchParams.get('next') === '/leaderboard');
+    await page.getByText('Crée ton compte pour découvrir la ligue de la semaine et les records de chaque jeu.').waitFor();
+    await home.click();
+    await page.waitForURL(url => url.pathname === '/');
+    assert.equal(await home.getAttribute('aria-current'), 'page');
+  });
   await scenario('general-pages-all-course-levels', async (page, errors) => {
     for (const route of ['/', '/play', '/quest', '/tous-les-cours', '/about', '/auth/login', '/auth/signup', '/auth/forgot', '/cours/1', '/cours/10', '/cours/20', '/cours/30', '/cours/40', '/cours/50']) {
       const response = await page.goto(base + route);
@@ -614,7 +652,7 @@ async function readyChoices(page) {
       await page.getByRole('heading', { level: 1 }).first().waitFor();
       assert.ok((await page.locator('body').innerText()).length > 150, route);
     }
-    assert.ok((await page.locator('a[href^="/leaderboard"]').count()) >= 2, 'header/footer leaderboard links present');
+    assert.equal(await page.getByRole('navigation', { name: 'Navigation principale' }).getByRole('link', { name: 'Classements' }).isVisible(), true);
     await page.goto(base + '/play');
     assert.equal(await page.locator('.eq-games-grid a[href^="/play/"]').count(), 9, 'all 9 games listed on /play');
     assert.deepEqual(errors, [], 'browser errors on valid routes');
