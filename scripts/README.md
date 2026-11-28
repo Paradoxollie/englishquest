@@ -6,6 +6,7 @@ Exécuter les commandes depuis la racine du dépôt. `npm test` lance les régre
 
 | Sujet | Essai ou point d’entrée |
 | --- | --- |
+| Barre du haut et classements | Le scénario `rankings-visible-in-header-and-return-after-game` du [test navigateur](tests/browser-games-audit.cjs) contrôle que les six rubriques tiennent à l’écran et que le lien vers les classements conserve sa destination après une partie et sur les formulaires de connexion et d’inscription. |
 | Pages proposées aux moteurs de recherche | `node scripts/tests/public-search.cjs http://127.0.0.1:3000` vérifie les titres, les descriptions, les adresses publiques et les liens vers les activités. Ajouter `--sample` pour un contrôle court sur Omega. |
 | Neuf jeux, écrans de jeu et validation des scores | `npm run test:browser -- http://127.0.0.1:3000`, [règles des jeux de chute et de tir](tests/falling-games-regression.cjs), [validation des scores](tests/score-plausibility-regression.cjs) |
 | Variété des parties | Le scénario navigateur `six-games-fresh-openings-same-phone` vérifie les cinq listes de Grammar Rush et deux départs par jeu dans le même onglet. Les [contrôles de vocabulaire](tests/round-games-regression.cjs) vérifient les niveaux, les choix proposés et les équivalents admis. |

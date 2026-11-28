@@ -2,6 +2,12 @@
 
 **Mise à jour du samedi 28 novembre 2026, heure de Paris.** Le lien de classe permet de faire un devoir et de participer au direct avec un pseudo. Aventure compte 20 escales, Cours rassemble les cinquante missions guidées. Le déploiement d’Omega suit la branche `main`. Vérifier la révision desservie par l’alias pour identifier la version en ligne. [English Quest Omega](https://englishquest-omega.vercel.app)
 
+## Classements dans la barre du haut, 28 novembre
+
+La révision fonctionnelle `4e65e3f` place « Classements » entre « Jeux » et « Collection ». Les six destinations sont visibles dès 320 pixels. Sous 420 pixels, le lien « Accueil » se trouve sous le nom English Quest et conduit à l’espace personnel du joueur connecté. Les cinq autres rubriques occupent la rangée suivante. Quand un jeu occupe l’écran du téléphone, « Quitter » fait réapparaître la barre. [Classements sur Omega](https://englishquest-omega.vercel.app/leaderboard)
+
+Deux navigateurs ont servi à contrôler la barre sur la version locale de production, à vingt largeurs de 320 à 1 600 pixels. Le parcours invité couvre le menu au clavier et le retour de partie. Un compte élève temporaire a ouvert « Classements », s’est connecté et a retrouvé la ligue de la semaine, les records et son accueil personnel. Les affichages professeur et administrateur ont été simulés avec un pseudo long et des notifications. En classe, il reste à observer si les élèves trouvent spontanément leur classement sur leur propre téléphone. [Essais de navigation](scripts/README.md)
+
 ## Variété des six jeux, 28 novembre
 
 | Jeu | Ancienne réserve | Nouvelle réserve jouable |
